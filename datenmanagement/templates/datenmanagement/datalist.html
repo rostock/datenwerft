@@ -1,0 +1,97 @@
+{% extends "_base/navbar.html" %}
+{% load datenmanagement_tags %}
+{% load guardian_tags %}
+{% load staticfiles %}
+
+{% block title %}{{ model_verbose_name_plural }} | {% endblock %}
+
+{% block meta %}
+    {{ block.super }}
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+{% endblock %}
+
+{% block table %}
+    <link rel='stylesheet' type='text/css' href='{% static 'datatables-1.10.18/datatables.min.css' %}'/>
+    <script src='{% static 'datatables-1.10.18/datatables.min.js' %}'></script>
+{% endblock %}
+
+{% block content %}
+{% if object_list %}
+    <h2>{{ model_verbose_name_plural }}: Liste aller Datensätze</h2>
+    <div class='row'>
+        {% if user|user_has_model_add_permission:model_name_lower %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+        {% endif %}
+        {% if geometry_type %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'map' %}" class='btn btn-default'>Datensätze auf Karte anzeigen</a>
+        {% endif %}
+        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+    </div>
+	<div class='col-md-6 full-width'>
+      <table id='datasets' class='table table-bordered table-striped'>
+          <thead>
+              <tr>
+                  {% for label in list_fields_labels %}
+                      {% with schritt=forloop.counter|stringformat:"s" %}
+                          {% with spalte="spalte_"|add:schritt %}
+                              <th>{{label}}</th>
+                          {% endwith %}
+                      {% endwith %}
+                  {% endfor %}
+                  <th><span class='glyphicon glyphicon-pencil'/></th>
+                  <th><span class='glyphicon glyphicon-trash'/></th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for object in object_list %}
+                  {% get_obj_perms user for object as "objperms" %}
+                  <tr>
+                      {% for value in object|get_values %}
+                          <td>
+                              {% if value %}
+                                  {% if value == True %}
+                                      ja
+                                  {% elif value == 'Tourismuszentrale Rostock & Warnemünde' %}
+                                      Tourismuszentrale Rostock und Warnemünde
+                                  {% else %}
+                                      {{ value }}
+                                  {% endif %}
+                              {% endif %}
+                          </td>
+                      {% endfor %}
+                      {% if 'change_'|add:model_name_lower in objperms %}
+                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'change' object.pk %}"><span class='glyphicon glyphicon-pencil'/></a></td>
+                      {% else %}
+                          <td></td>
+                      {% endif %}
+                      {% if 'delete_'|add:model_name_lower in objperms %}
+                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><span class='glyphicon glyphicon-trash'/></a></td>
+                      {% else %}
+                          <td></td>
+                      {% endif %}
+                  </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+      <script type='text/javascript'>
+          $(document).ready(function(){
+              $('#datasets').dataTable({
+                  language: {
+                      url: '{% static 'datatables-1.10.18/datatables.german.lang' %}'
+                  },
+                  orderClasses: false,
+                  pageLength: 25
+              });
+          });
+      </script>
+	</div>
+{% else %}
+    <h2>Keine Datensätze vorhanden.</h2>
+    <div class='row'>
+        {% if user|user_has_model_add_permission:model_name_lower %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+        {% endif %}
+        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+    </div>
+{% endif %}
+{% endblock %}

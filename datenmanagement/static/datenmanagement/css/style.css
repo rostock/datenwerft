@@ -1,0 +1,115 @@
+html {
+    position:relative;
+    min-height:100%;
+}
+
+#adressensuche {
+    width:18%;
+    float:left;
+    margin-left:2%;
+}
+
+#formular {
+    width:38%;
+    padding:0;
+    float:left;
+}
+
+#map {
+    height:100%;
+    width:80%;
+    float:left;
+}
+
+#id_geometrie_map {
+    height:100%;
+}
+
+#map_adressensuche_container {
+    height:800px;
+}
+
+#map_adressensuche_container_formular {
+    height:600px;
+    width:60%;
+    float:left;
+    margin-left:1%;
+}
+
+#searchtext {
+    width:100%;
+}
+
+.container {
+    width:80%;
+}
+
+.full-width {
+    width:100%;
+    padding:0;
+}
+
+.italic {
+    font-style:italic;
+}
+
+.leaflet-draw-tooltip {
+    display:none;
+}
+
+.margin-bottom {
+    margin-bottom:150px;
+}
+
+.margin-left {
+    margin-left:20px;
+}
+
+.margin-top {
+    margin-top:15px;
+}
+
+.required {
+    font-weight:bold;
+}
+
+.results {
+    display:none;
+    width:100%;
+    float:left;
+    text-align:left;
+    z-index:1;
+    border-left:1px solid #AAAAAA;
+    border-right:1px solid #AAAAAA;
+    border-bottom:1px solid #AAAAAA;
+}
+
+.resultElement {
+    line-height:150%;
+    cursor:pointer;
+}
+
+.resultElement:hover {
+    background-color:#E1E1E1;
+}
+
+.resultElement span {
+    float:right;
+    padding-right:6px;
+    color:#AAAAAA;
+    font-size:75%;
+    font-style:italic;
+}
+
+.resultElement:hover span {
+    color:#000000;
+}
+
+.row {
+    margin-bottom:15px;
+    padding-left:15px;
+}
+
+.spacer {
+    height:100px;
+}

@@ -1,0 +1,485 @@
+{% extends "_base/navbar.html" %}
+{% load datenmanagement_tags %}
+{% load leaflet_tags %}
+{% load staticfiles %}
+
+{% block title %}Formular | {% endblock %}
+
+{% block map %}
+    {% leaflet_js plugins="forms" %}
+    {% leaflet_css plugins="forms" %}
+    <script src='{% static 'proj4js-2.3.11/proj4.js' %}'></script>
+    <script src='{% static 'wicket-1.3.0/wicket.js' %}'></script>
+    <script src='{% static 'wicket-1.3.0/wicket-leaflet.js' %}'></script>
+    <script src='{% static 'proj4leaflet/proj4leaflet.js' %}'></script>
+    <link rel='stylesheet' type='text/css' href='{% static 'datenmanagement/css/formular.css' %}' />
+{% endblock %}
+
+{% block datetimepicker %}
+    <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-datetimepicker-2.3.5/css/bootstrap-datetimepicker.min.css' %}' />
+    <script src='{% static 'bootstrap-datetimepicker-2.3.5/js/bootstrap-datetimepicker.min.js' %}'></script>
+    <script src='{% static 'bootstrap-datetimepicker-2.3.5/js/locales/bootstrap-datetimepicker.de.js' %}'></script>
+{% endblock %}
+
+{% block content %}
+	<form action='' method='post' enctype='multipart/form-data'>
+    {% csrf_token %}
+	 	<div class='full-width'>
+          <div class='row'>
+              <div id='formular' class='col-md-6'>
+                  <table class='table table-striped'>
+                      {% for field in form %}
+                          {% if not field.is_hidden and not field|is_field_address_related_field and not field|is_field_geometry_field %}
+                              <tr>
+                                  {{ field.errors }}
+                                  <td>
+                                      {% if field|is_field_hours_related_field %}
+                                          {{ field.label_tag }} (<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten" target="_blank"><span class="glyphicon glyphicon-education"></span> Hilfe</a>)
+                                      {% elif field|is_field_foreign_key_field %}
+                                          <span class="required">
+                                              {{ foreign_key_label }}
+                                          </span>
+                                      {% else %}
+                                          {{ field.label_tag }}
+                                      {% endif %}
+                                  </td> 
+                                  {% autoescape off %}
+                                      <td>
+                                          {{ field }}
+                                      </td>
+                                  {% endautoescape %}
+                              </tr>
+                          {% endif %}
+                      {% endfor %}
+                  </table>
+              </div>
+              {% if geometry_type %}
+                  <div id='map_adressensuche_container_formular'>
+                      {{ form.geometrie }}
+                      <div class='margin-top'>
+                          {{ form.geometrie.errors }}
+                      </div>
+                      {% if geometry_type == 'Point' or address and address_optional %}
+                          <div class='margin-top'>
+                              {% if geometry_type == 'Point' %}
+                                  <input disabled id='addressToMap' class='btn btn-info' value='Marker setzen'/>
+                              {% endif %}
+                              {% if address_optional %}
+                                  {% if form.hausnummer %}
+                                      <input disabled id='mapToAddress' class='btn btn-info margin-left' value='Adresse übernehmen'/>
+                                  {% endif %}
+                                  <input disabled id='mapToStreet' class='btn btn-info' value='Straße übernehmen'/>
+                              {% endif %}
+                          </div>
+                      {% endif %}
+                      <div class='margin-top margin-bottom'>
+                          {% if address %}
+                              {{ form.strasse_name.errors }}
+                              {{ form.strasse_name.label_tag }}
+                              {{ form.strasse_name }}
+                          {% else %}
+                              <label for="id_address_search">Adressen-/Straßensuche</label>
+                              <input id="id_address_search" maxlength="255" name="address_search" type="text">
+                          {% endif %}
+                          <div class='results' id='results_container'></div>
+                      </div>
+                  </div>
+              {% endif %}
+          </div>
+          <div class='row'>
+              <input type='submit' class='btn btn-warning' value='speichern'/>
+              {% if object %}
+                  <a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}" class='btn btn-danger'>löschen</a>
+              {% endif %}
+              <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>abbrechen</a>
+          </div>
+          <div id="maptoaddress-error-modal" class="modal fade" role="dialog" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title">Keine Adressenzuordnung möglich</h4>
+                </div>
+                <div class="modal-body">
+                  <p>Objekt zu weit von nächster Adresse entfernt!</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">schließen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="maptostreet-error-modal" class="modal fade" role="dialog" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title">Keine Straßenzuordnung möglich</h4>
+                </div>
+                <div class="modal-body">
+                  <p>Objekt zu weit von nächster Straße entfernt!</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">schließen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+	    </div>
+	</form>
+    <script type='text/javascript'>
+        // globale Variablen
+        var FEATURE_GEOMETRY = [];
+        
+        function id_geometrie_map_callback(map, options) {
+            // Karte auch in anderen JavaScript-Funktionen verfügbar machen
+            window.currMap = map;
+                  
+            // Geometrie und deren Editierung aktivieren
+            geodjango_id_geometrie.store_class = L.FieldStore;
+            (new L.GeometryField(geodjango_id_geometrie)).addTo(map);
+                  
+            // falls Geometrie punkthaft ist...
+            {% if geometry_type == 'Point' %}
+                // Editier- und Löschmöglichkeit der Geometrie deaktivieren
+                $( '.leaflet-draw-edit-edit' ).parent().parent().remove();
+                // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
+                map.eachLayer(function (layer) {
+                    if (layer._latlng) {
+                        if ((layer.getLatLng().lat) == 0 || (layer.getLatLng().lon) == 0) {
+                            min_zoom = '{{ LEAFLET_CONFIG }}'.match(/MIN_ZOOM(?:(?!\, \&#39).)*/).toString();
+                            min_zoom = min_zoom.match(/ [0-9]+/).toString();
+                            min_zoom = min_zoom.trim();
+                            default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
+                            default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
+                            default_center_x = default_center_x.trim();
+                            default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
+                            default_center_y = default_center_y.trim();
+                            map.panTo([default_center_y, default_center_x]);
+                            map.setZoom(min_zoom);
+                        }
+                        else {
+                            $('#addressToMap').prop('disabled', false);
+                            $('#mapToAddress').prop('disabled', false);
+                            $('#mapToStreet').prop('disabled', false);
+                        }
+                    }
+                });
+            // ansonsten...
+            {% else %}
+                map.eachLayer(function (layer) {
+                    if (layer._latlng || layer._latlngs) {
+                        $('#mapToAddress').prop('disabled', false);
+                        $('#mapToStreet').prop('disabled', false);
+                    }
+                });
+            {% endif %}
+            
+            // falls für Datenthema ALKIS aktiviert ist...
+            {% if show_alkis %}
+                // Liegenschaftskarte definieren
+                var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte/wms', {
+                    layers: 'hro.liegenschaftskarte.liegenschaftskarte',
+                    format: 'image/png',
+                    attribution: '© Hanse- und Universitätsstadt Rostock'
+                });
+                // Kilometerquadrate ETRS89/UTM-33N definieren
+                var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+                    layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+                    format: 'image/png',
+                    transparent: true
+                });
+            {% endif %}
+
+            // ORKa.MV definieren
+            var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+                attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
+            });
+            
+            // ORKa.MV standardmäßig zur Karte hinzufügen
+            map.addLayer(orkamv);
+
+            // Luftbild definieren
+            var luftbild =  L.tileLayer('https://geo.sv.rostock.de/geodienste/luftbild_mv-40/tiles/1.0.0/hro.luftbild_mv-40.luftbild_mv-40/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+                attribution: '© GeoBasis-DE/M-V'
+            });
+            
+            // definierte Karten als Hintergrundkarten zusammenfassen
+            var baseMaps = {
+                // falls für Datenthema ALKIS aktiviert ist...
+                {% if show_alkis %}
+                    // Liegenschaftskarte berücksichtigen
+                    'Liegenschaftskarte': liegenschaftskarte,
+                {% endif %}
+                'Luftbild': luftbild,
+                'ORKa.MV': orkamv
+            };
+            
+            // definierte Karten als Overlay-Karten zusammenfassen
+            var overlayMaps = {
+                // falls für Datenthema ALKIS aktiviert ist...
+                {% if show_alkis %}
+                    // Kilometerquadrate ETRS89/UTM-33N berücksichtigen
+                    'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
+                {% endif %}
+            };
+            
+            // Umschalter für Hintergrundkarten zur Karte hinzufügen
+            L.control.layers(baseMaps,overlayMaps).addTo(map);
+            
+            // Hack: Umschalter für Hintergrundkarten, der aus django-leaflet kommt, verstecken
+            $('.leaflet-control-layers:first').hide();
+            
+            // falls Datenmodell Adresse vorsieht...
+            {% if address %}
+                map.on('draw:created', function (e) {
+                    {% if address_optional %}
+                        $('#mapToAddress').prop('disabled', false);
+                        $('#mapToStreet').prop('disabled', false);
+                    // ...und diese nicht optional ist...
+                    {% else %}
+                        // Adresse jedesmal ändern, wenn sich die Geometrie ändert
+                        setAddressOrStreet('adresse', map);
+                        $('#addressToMap').prop('disabled', false);
+                    {% endif %}
+                });
+            {% endif %}
+        }
+    
+        // Adressensuche initialisieren
+        $(document).ready(function() {
+            results = $('div.results');
+            {% if address %}
+                searchField = $('#id_strasse_name');
+            {% else %}
+                searchField = $('#id_address_search');
+            {% endif %}
+
+            results.click(function(event) {
+                $('html').one('click',function() {
+                    results.children().remove();
+                    results.fadeOut();
+                });
+                event.stopPropagation();
+            });
+            
+            searchField.keyup(function() {
+                if ($(this).val().length >= 3) {
+                    var searchText = searchField.val();
+                    
+                    $.ajax({
+                        url: '{% url "datenmanagement:addresssearch" %}',
+                        dataType: 'json',
+                        data: {
+                            query: searchText
+                        },
+                        success: showResults
+                    });
+                } else {
+                    results.children().remove();
+                    results.fadeOut();
+                }
+            });
+            
+            {% if address %}
+                $('#id_strasse_name').on('click', function() {
+                    $(this).val('');
+                    $('#results_container').hide();
+                });
+            {% else %}
+                $('#id_address_search').on('click', function() {
+                    $(this).val('');
+                    $('#results_container').hide();
+                });
+            {% endif %}
+            
+            $('#addressToMap').on('click', function() {
+                getAddress(window.currMap);
+                $('#mapToAddress').prop('disabled', false);
+                $('#mapToStreet').prop('disabled', false);
+            });
+            
+            $('#mapToAddress').on('click', function() {
+                setAddressOrStreet('adresse', window.currMap);
+                $('#addressToMap').prop('disabled', false);
+            });
+            
+            $('#mapToStreet').on('click', function() {
+                setAddressOrStreet('strasse', window.currMap);
+                $('#addressToMap').prop('disabled', false);
+            });
+        });
+        
+        // Adresse oder Straße als Marker in Karte übernehmen
+        function getAddress(map) {
+            map.eachLayer(function (layer) {
+                if (layer._latlng) {
+                    if (FEATURE_GEOMETRY.type === 'Point') {
+                        var x = FEATURE_GEOMETRY.coordinates[0];
+                        var y = FEATURE_GEOMETRY.coordinates[1];
+                    } else {
+                        var x = FEATURE_GEOMETRY.coordinates[0][1][0] + ((FEATURE_GEOMETRY.coordinates[0][0][0] - FEATURE_GEOMETRY.coordinates[0][1][0]) / 2);
+                        var y = FEATURE_GEOMETRY.coordinates[0][0][1] + ((FEATURE_GEOMETRY.coordinates[0][2][1] - FEATURE_GEOMETRY.coordinates[0][0][1]) / 2);
+                    }
+                    layer.setLatLng([y, x]);
+                    var newCoords = $('#id_geometrie').val().replace(/[0-9]+\.[0-9]+/, x);
+                    newCoords = newCoords.replace(/\, [0-9]+\.[0-9]/, ', ' + y);
+                    $('#id_geometrie').val(newCoords);
+                }
+            });
+        }
+        
+        // Adresse oder Straße aus Karte übernehmen
+        function setAddressOrStreet(type, map) {
+            map.eachLayer(function (layer) {
+                if (layer._latlng || layer._latlngs) {
+                    json = layer.toGeoJSON();
+                    {% if 'point' in geometry_type|lower %}
+                        var ort = json.geometry.coordinates;
+                    {% elif 'line' in geometry_type|lower %}
+                        var xArray = [];
+                        var yArray = [];
+                        var ort = [];
+                        Array.min = function( array ){
+                            return Math.min.apply( Math, array );
+                        };
+                        Array.max = function( array ){
+                            return Math.max.apply( Math, array );
+                        };
+                        $.each(json.geometry.coordinates, function(index, value) {
+                            xArray.push(json.geometry.coordinates[index][0]);
+                            yArray.push(json.geometry.coordinates[index][1]);
+                        });
+                        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
+                        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+                    {% elif 'polygon' in geometry_type|lower %}
+                        var xArray = [];
+                        var yArray = [];
+                        var ort = [];
+                        Array.min = function( array ){
+                            return Math.min.apply( Math, array );
+                        };
+                        Array.max = function( array ){
+                            return Math.max.apply( Math, array );
+                        };
+                        $.each(json.geometry.coordinates, function(index_outer, value_outer) {
+                            $.each(json.geometry.coordinates[index_outer], function(index_inner, value_inner) {
+                                xArray.push(json.geometry.coordinates[index_outer][index_inner][0]);
+                                yArray.push(json.geometry.coordinates[index_outer][index_inner][1]);
+                            });
+                        });
+                        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
+                        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+                    {% endif %}
+                    $.ajax({
+                        url: '{% url "datenmanagement:reversesearch" %}',
+                        dataType: 'json',
+                        data: {
+                            x: ort[0],
+                            y: ort[1],
+                        },
+                        success: function(data) {
+                            if (ort[0] != 0 && ort[1] != 0) {
+                                adoptResult(data, type);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    
+        function adoptResult(json, type) {
+            var erfolg = false;
+            if (type === 'strasse') {
+                jQuery.each(json.features, function(index, item) {
+                    if (item.properties.objektgruppe === 'Straße') {
+                        var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                        $('#id_strasse_name').val(titel);
+                        erfolg = true;
+                        return false;
+                    }
+                });
+                if (erfolg === false)
+                    $('#maptostreet-error-modal').modal(); 
+            } else if (type === 'adresse') {
+                jQuery.each(json.features, function(index, item) {
+                    if (item.properties.objektgruppe === 'Adresse') {
+                        var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                        $('#id_strasse_name').val(titel);
+                        erfolg = true;
+                        return false;
+                    }
+                });
+                if (erfolg === false)
+                    $('#maptoaddress-error-modal').modal();
+            }
+        }
+    
+        // Resultate der Adressensuche
+        function showResults(json) {
+            
+            // Resultate leeren
+            results.children().remove();
+            
+            // JSON durchgehen und je Feature ein Resultat bauen
+            jQuery.each(json.features, function(index, item) {
+                var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                // Gemeindeteile immer unterdrücken
+                if (item.properties.objektgruppe !== 'Gemeindeteil') {
+                    // falls Datenmodell Adresse vorsieht und diese nicht optional ist...
+                    {% if address and not address_optional %}
+                        // falls Datenmodell Hausnummer vorsieht: Straßen unterdrücken
+                        {% if form.hausnummer %}
+                            if (item.properties.objektgruppe !== 'Straße')
+                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small></div>');
+                        // ansonsten: Adressen unterdrücken
+                        {% else  %}
+                            if (item.properties.objektgruppe !== 'Adresse')
+                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small></div>');
+                        {% endif %}
+                    // ansonsten: sowohl Adressen als auch Straßen anzeigen
+                    {% else %}
+                        results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
+                    {% endif %}
+                }
+            });
+            
+            // Resultate einblenden
+            results.fadeIn();
+        
+            // bei Klick auf Resultat Karte auf dieses zoomen
+            results.children().on('click', function() {
+                $('#addressToMap').prop('disabled', false);
+                {% if address %}
+                    $('#id_strasse_name').val($(this).children('strong').text());
+                {% else %}
+                    $('#id_address_search').val($(this).children('strong').text());
+                {% endif %}
+                FEATURE_GEOMETRY = json.features[$(this).data('feature')].geometry;
+                if (FEATURE_GEOMETRY.type === 'Point') {
+                    window.currMap.fitBounds([
+                        [
+                            FEATURE_GEOMETRY.coordinates[1],
+                            FEATURE_GEOMETRY.coordinates[0]
+                        ],
+                        [
+                            FEATURE_GEOMETRY.coordinates[1],
+                            FEATURE_GEOMETRY.coordinates[0]
+                        ]
+                    ]);
+                } else {
+                    window.currMap.fitBounds([
+                        [
+                            FEATURE_GEOMETRY.coordinates[0][0][1],
+                            FEATURE_GEOMETRY.coordinates[0][1][0]
+                        ],
+                        [
+                            FEATURE_GEOMETRY.coordinates[0][2][1],
+                            FEATURE_GEOMETRY.coordinates[0][0][0]
+                        ]
+                    ]);
+                }
+            });
+        }
+	</script>
+{% endblock %}

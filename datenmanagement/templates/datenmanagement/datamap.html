@@ -1,0 +1,284 @@
+{% extends "_base/navbar.html" %}
+{% load datenmanagement_tags %}
+{% load guardian_tags %}
+{% load leaflet_tags %}
+{% load staticfiles %}
+
+{% block title %}{{ model_verbose_name_plural }} | {% endblock %}
+
+{% block map %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <script src='{% static 'proj4js-2.3.11/proj4.js' %}'></script>
+    <script src='{% static 'wicket-1.3.0/wicket.js' %}'></script>
+    <script src='{% static 'wicket-1.3.0/wicket-leaflet.js' %}'></script>
+    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.label-0.2.2/leaflet.label.css' %}'/>
+    <script src='{% static 'leaflet.label-0.2.2/leaflet.label.js' %}'></script>
+    <script src='{% static 'leaflet.markercluster-0.5.0/leaflet.markercluster.js' %}'></script>
+    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-0.5.0/MarkerCluster.css' %}'/>
+    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-0.5.0/MarkerCluster.Default.css' %}'/>
+    <script src='{% static 'proj4leaflet/proj4leaflet.js' %}'></script>
+{% endblock %}
+
+{% block content %}
+{% if object_list %}
+    <h2>{{ model_verbose_name_plural }}: Karte aller Datensätze</h2>
+    <div class='row'>
+        {% if user|user_has_model_add_permission:model_name_lower %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+        {% endif %}
+        <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
+        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+    </div>
+	<div id='map_adressensuche_container'>
+        {% leaflet_map "map" callback="window.map_init_basic" %}
+        <div id='adressensuche'>
+            <label>Adressen-/Straßen-/Ortsteilsuche</label>
+            <input id='searchtext' type='text' name='searchtext' maxlength='255' />
+            <div class='results' id='results_container'></div>
+        </div>
+    </div>
+    <script type='text/javascript'>
+        function map_init_basic(map, options) {
+            // Karte auch in anderen JavaScript-Funktionen verfügbar machen
+            window.currMap = map;
+                
+            // falls für Datenthema ALKIS aktiviert ist...
+            {% if show_alkis %}
+                // Liegenschaftskarte definieren
+                var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte/wms', {
+                    layers: 'hro.liegenschaftskarte.liegenschaftskarte',
+                    format: 'image/png',
+                    attribution: '© Hanse- und Universitätsstadt Rostock'
+                });
+                // Kilometerquadrate ETRS89/UTM-33N definieren
+                var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+                    layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+                    format: 'image/png',
+                    transparent: true
+                });
+            {% endif %}
+
+            // ORKa.MV definieren
+            var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+                attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
+            });
+            
+            // ORKa.MV standardmäßig zur Karte hinzufügen
+            map.addLayer(orkamv);
+
+            // Luftbild definieren
+            var luftbild =  L.tileLayer('https://geo.sv.rostock.de/geodienste/luftbild_mv-40/tiles/1.0.0/hro.luftbild_mv-40.luftbild_mv-40/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+                attribution: '© GeoBasis-DE/M-V'
+            });
+            
+            // definierte Karten als Hintergrundkarten zusammenfassen
+            var baseMaps = {
+                // falls für Datenthema ALKIS aktiviert ist...
+                {% if show_alkis %}
+                    // Liegenschaftskarte berücksichtigen
+                    'Liegenschaftskarte': liegenschaftskarte,
+                {% endif %}
+                'Luftbild': luftbild,
+                'ORKa.MV': orkamv
+            };
+            
+            // definierte Karten als Overlay-Karten zusammenfassen
+            var overlayMaps = {
+                // falls für Datenthema ALKIS aktiviert ist...
+                {% if show_alkis %}
+                    // Kilometerquadrate ETRS89/UTM-33N berücksichtigen
+                    'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
+                {% endif %}
+            };
+            
+            // Umschalter für Hintergrundkarten zur Karte hinzufügen
+            L.control.layers(baseMaps,overlayMaps).addTo(map);
+            
+            // Hack: Umschalter für Hintergrundkarten, der aus django-leaflet kommt, verstecken
+            $('.leaflet-control-layers:first').hide();
+            
+            // EPSG:25833 definieren
+            proj4.defs([
+                [
+                    'EPSG:25833',
+                    '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
+                ],
+            ]);
+            
+            // neue leere GeoJSON-FeatureCollection definieren
+            var geoJsonFeatureCollection = {
+                type: 'FeatureCollection',
+                features: []
+            };
+            
+            // neue leere globale Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
+            var featureTooltipField = '';
+            
+            // über alle Objekte gehen...
+            {% for object in object_list %}
+                // neues leeres GeoJSON-Feature definieren
+                var geoJsonFeature = {
+                    type: 'Feature',
+                    geometry: null,
+                    properties: [],
+                    crs: {
+                        type: 'name',
+                        properties: {
+                            'name': 'urn:ogc:def:crs:EPSG::25833'
+                        }
+                    }
+                };
+                // Geometrie (liegt in WKT vor) in GeoJSON umwandeln
+                var wkt = new Wkt.Wkt();
+                var string = '{{ object.geometrie }}';
+                wkt.read(string.substring(string.indexOf(';') + 1, string.length));
+                var geoJsonGeometry = wkt.toJson();
+                // Geometrie zu GeoJSON-Feature hinzufügen
+                geoJsonFeature.geometry = geoJsonGeometry;
+                // Name des Feldes für den Feature-Tooltip in globaler Variable ablegen
+                featureTooltipField = '{{ map_feature_tooltip_field }}';
+                // Properties zu GeoJSON-Feature hinzufügen
+                geoJsonFeature.properties.id = '{{ object.id }}';
+                geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+                // GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
+                geoJsonFeatureCollection.features.push(geoJsonFeature);
+                // 
+                {% get_obj_perms user for object as "objperms" %}
+                {% if 'change_'|add:model_name_lower in objperms %}
+                    geoJsonFeature.properties.user_may_change = 'ok';
+                {% endif %}
+            {% endfor %}
+            
+            // jedes Feature mit Link versehen
+            function onEachFeature(feature, layer) {
+                // falls Nutzer die notwendige Berechtigung hat...
+                if (feature.properties.user_may_change == 'ok') {
+                    layer.on('click', function (e) {
+                        // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
+                        window.document.location = window.document.location + '../change/' + feature.properties.id + '/';
+                    });
+                }
+                // falls Geometrie nicht punkthaft ist...
+                {% if geometry_type != 'Point' %}
+                    layer.bindLabel(feature.properties[featureTooltipField]);
+                {% endif %}
+            }
+            
+            // falls Geometrie punkthaft ist...
+            {% if geometry_type == 'Point' %}
+                // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+                var geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+                    pointToLayer: function (feature, latlng) {
+                        return L.marker(latlng).bindLabel(feature.properties[featureTooltipField]);
+                    },
+                    onEachFeature: onEachFeature
+                });
+                // Clustering aktivieren
+                var markers = L.markerClusterGroup();
+                markers.addLayer(geoJsonLayer);
+                map.addLayer(markers);
+            // ansonsten...
+            {% else %}
+                // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+                var geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+                    onEachFeature: onEachFeature
+                });
+                map.addLayer(geoJsonLayer);
+            {% endif %}
+        }
+        
+        // Adressensuche initialisieren
+        $(document).ready(function() {
+            results = $('div.results');
+            searchField = $('#searchtext');
+
+            results.click(function(event) {
+                $('html').one('click',function() {
+                    results.children().remove();
+                    results.fadeOut();
+                });
+                event.stopPropagation();
+            });
+
+            searchField.keyup(function() {
+                if ($(this).val().length >= 3) {
+                    var searchText = searchField.val();
+                    
+                    $.ajax({
+                        url: '{% url "datenmanagement:addresssearch" %}',
+                        dataType: 'json',
+                        data: {
+                            query: searchText
+                        },
+                        success: showResults
+                    });
+                } else {
+                    results.children().remove();
+                    results.fadeOut();
+                }
+            });
+
+            $('#searchtext').on('click', function() {
+                $(this).val('');
+                $('#results_container').hide();
+            });
+        });
+        
+        // Resultate der Adressensuche
+        function showResults(json) {
+            
+            // Resultate leeren
+            results.children().remove();
+            
+            // JSON durchgehen und je Feature ein Resultat bauen
+            jQuery.each(json.features, function(index, item) {
+                var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                if (item.properties.objektgruppe === 'Gemeindeteil')
+                    results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong><span>Ortsteil</span></div>');
+                else
+                    results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
+            });
+            
+            // Resultate einblenden
+            results.fadeIn();
+            
+            // bei Klick auf Resultat Karte auf dieses zoomen
+            results.children().on('click', function() {
+                var featureGeometry = json.features[$(this).data('feature')].geometry;
+                if (featureGeometry.type === 'Point') {
+                    currMap.fitBounds([
+                        [
+                            featureGeometry.coordinates[1],
+                            featureGeometry.coordinates[0]
+                        ],
+                        [
+                            featureGeometry.coordinates[1],
+                            featureGeometry.coordinates[0]
+                        ]
+                    ]);
+                } else {
+                    currMap.fitBounds([
+                        [
+                            featureGeometry.coordinates[0][0][1],
+                            featureGeometry.coordinates[0][1][0]
+                        ],
+                        [
+                            featureGeometry.coordinates[0][2][1],
+                            featureGeometry.coordinates[0][0][0]
+                        ]
+                    ]);
+                }
+            });
+        }
+	</script>
+{% else %}
+    <h2>Keine Datensätze vorhanden.</h2>
+    <div class='row'>
+        {% if user|user_has_model_add_permission:model_name_lower %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+        {% endif %}
+        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+    </div>
+{% endif %}
+{% endblock %}

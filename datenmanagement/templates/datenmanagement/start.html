@@ -1,0 +1,20 @@
+{% extends "_base/navbar.html" %}
+{% load datenmanagement_tags %}
+
+{% block title %}Möglichkeiten | {% endblock %}
+
+{% block content %}
+    <h2>{{ model_verbose_name_plural }}: Was möchten Sie tun?</h2>
+    <div class='row'>
+        {% if user|user_has_model_add_permission:model_name_lower %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+        {% endif %}
+        {% if user|user_has_model_change_permission:model_name_lower %}
+            <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
+            {% if geometry_type %}
+                <a href="{% url 'datenmanagement:'|add:model_name|add:'map' %}" class='btn btn-default'>Datensätze auf Karte anzeigen</a>
+            {% endif %}
+        {% endif %}
+        <a href="{% url 'datenmanagement:index' %}" class='btn btn-default'>zurück</a>
+    </div>
+{% endblock %}
