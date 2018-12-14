@@ -1,6 +1,6 @@
 # Datenerfassung
 
-x [*Django*](https://www.djangoproject.com)
+Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://www.djangoproject.com) aufsetzt
 
 ## Voraussetzungen
 
@@ -71,7 +71,7 @@ x [*Django*](https://www.djangoproject.com)
 
 Wenn das Deployment mittels *Apache HTTP Server* realisiert werden soll, **muss** dessen Modul [*mod_wsgi*](https://modwsgi.readthedocs.io) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von *Python*-Anwendungen zur Verfügung stellt.
 
-1.  Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inhalt einfügen:
+Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inhalt einfügen:
     
         RewriteRule         ^/datenerfassung_static/?(hilfe)$ /datenerfassung_static/$1/ [R,NC,L]
         Alias               /datenerfassung_static  /usr/local/datenerfassung/datenerfassung/static
