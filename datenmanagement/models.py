@@ -314,7 +314,7 @@ class Abfallbehaelter(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"abfallbehaelter'
+        db_table = 'daten\".\"abfallbehaelter'
         verbose_name = 'Abfallbehälter'
         verbose_name_plural = 'Abfallbehälter'
         description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
@@ -343,12 +343,12 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     bearbeiter = NullCharField('Bearbeiter', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     datum = models.DateField('Datum', default=date.today)
-    pdf = models.FileField('PDF', upload_to=path_and_rename('pdf/aufteilungsplaene_wohnungseigentumsgesetz'), max_length=255)
+    pdf = models.FileField('PDF', upload_to=path_and_rename('aufteilungsplaene_wohnungseigentumsgesetz'), max_length=255)
     geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"aufteilungsplaene_wohnungseigentumsgesetz'
+        db_table = 'daten\".\"aufteilungsplaene_wohnungseigentumsgesetz'
         verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
         verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
         description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und Universitätsstadt Rostock'
@@ -381,7 +381,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"baustellen_fotodokumentation_baustellen'
+        db_table = 'daten\".\"baustellen_fotodokumentation_baustellen'
         verbose_name = 'Baustellen-Fotodokumentation (Baustellen)'
         verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
         description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
@@ -402,11 +402,11 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     id = models.AutoField(primary_key=True)
     parent = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid')
     aufnahmedatum = models.DateField('Aufnahmedatum')
-    foto = models.ImageField('Foto', upload_to=path_and_rename('fotos/baustellen_fotodokumentation'), max_length=255)
+    foto = models.ImageField('Foto', upload_to=path_and_rename('baustellen_fotodokumentation'), max_length=255)
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"baustellen_fotodokumentation_fotos'
+        db_table = 'daten\".\"baustellen_fotodokumentation_fotos'
         verbose_name = 'Baustellen-Fotodokumentation (Foto)'
         verbose_name_plural = 'Baustellen-Fotodokumentation (Fotos)'
         description = 'Fotos im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
@@ -438,7 +438,7 @@ class Baustellen_geplant(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"baustellen_geplant'
+        db_table = 'daten\".\"baustellen_geplant'
         verbose_name = 'Baustellen (geplant)'
         verbose_name_plural = 'Baustellen (geplant)'
         description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
@@ -481,7 +481,7 @@ class Begegnungszentren(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"begegnungszentren'
+        db_table = 'daten\".\"begegnungszentren'
         verbose_name = 'Begegnungszentrum'
         verbose_name_plural = 'Begegnungszentren'
         description = 'Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
@@ -519,7 +519,7 @@ class Behinderteneinrichtungen(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"behinderteneinrichtungen'
+        db_table = 'daten\".\"behinderteneinrichtungen'
         verbose_name = 'Behinderteneinrichtung'
         verbose_name_plural = 'Behinderteneinrichtungen'
         description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
@@ -559,7 +559,7 @@ class Bildungstraeger(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"bildungstraeger'
+        db_table = 'daten\".\"bildungstraeger'
         verbose_name = 'Bildungsträger'
         verbose_name_plural = 'Bildungsträger'
         description = 'Bildungsträger in der Hanse- und Universitätsstadt Rostock'
@@ -617,12 +617,12 @@ class Containerstellplaetze(models.Model):
     winterdienst_b = models.NullBooleanField('Winterdienst B')
     winterdienst_c = models.NullBooleanField('Winterdienst C')
     bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-    foto = models.ImageField('Foto', upload_to=path_and_rename('fotos/containerstellplaetze'), max_length=255, blank=True, null=True)
+    foto = models.ImageField('Foto', upload_to=path_and_rename('containerstellplaetze'), max_length=255, blank=True, null=True)
     geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"containerstellplaetze'
+        db_table = 'daten\".\"containerstellplaetze'
         verbose_name = 'Containerstellplatz'
         verbose_name_plural = 'Containerstellplätze'
         description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
@@ -658,7 +658,7 @@ class Fairtrade(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"fairtrade'
+        db_table = 'daten\".\"fairtrade'
         verbose_name = 'Fair Trade'
         verbose_name_plural = 'Fair Trade'
         description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
@@ -690,7 +690,7 @@ class Fliessgewaesser(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"fliessgewaesser'
+        db_table = 'daten\".\"fliessgewaesser'
         verbose_name = 'Fließgewässer'
         verbose_name_plural = 'Fließgewässer'
         description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
@@ -722,13 +722,13 @@ class Gutachterfotos(models.Model):
     bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     datum = models.DateField('Datum', default=date.today)
     aufnahmedatum = models.DateField('Aufnahmedatum')
-    foto = models.ImageField('Foto', upload_to=path_and_rename('fotos/gutachterfotos'), max_length=255)
+    foto = models.ImageField('Foto', upload_to=path_and_rename('gutachterfotos'), max_length=255)
     geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"gutachterfotos'
-        verbose_name = 'Gutachterfotos'
+        db_table = 'daten\".\"gutachterfotos'
+        verbose_name = 'Gutachterfoto'
         verbose_name_plural = 'Gutachterfotos'
         description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
         list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'aufnahmedatum']
@@ -762,7 +762,7 @@ class Hospize(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"hospize'
+        db_table = 'daten\".\"hospize'
         verbose_name = 'Hospiz'
         verbose_name_plural = 'Hospize'
         description = 'Hospize in der Hanse- und Universitätsstadt Rostock'
@@ -803,7 +803,7 @@ class Hundetoiletten(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"hundetoiletten'
+        db_table = 'daten\".\"hundetoiletten'
         verbose_name = 'Hundetoilette'
         verbose_name_plural = 'Hundetoiletten'
         description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
@@ -839,7 +839,7 @@ class Kinderjugendbetreuung(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"kinder_jugendbetreuung'
+        db_table = 'daten\".\"kinder_jugendbetreuung'
         verbose_name = 'Kinder- und Jugendbetreuung'
         verbose_name_plural = 'Kinder- und Jugendbetreuung'
         description = 'Kinder- und Jugendbetreuung in der Hanse- und Universitätsstadt Rostock'
@@ -875,7 +875,7 @@ class Meldedienst_flaechenhaft(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"meldedienst_flaechenhaft'
+        db_table = 'daten\".\"meldedienst_flaechenhaft'
         verbose_name = 'Meldedienst (flächenhaft)'
         verbose_name_plural = 'Meldedienst (flächenhaft)'
         description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
@@ -908,7 +908,7 @@ class Meldedienst_punkthaft(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"meldedienst_punkthaft'
+        db_table = 'daten\".\"meldedienst_punkthaft'
         verbose_name = 'Meldedienst (punkthaft)'
         verbose_name_plural = 'Meldedienst (punkthaft)'
         description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
@@ -946,7 +946,7 @@ class Parkmoeglichkeiten(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"parkmoeglichkeiten'
+        db_table = 'daten\".\"parkmoeglichkeiten'
         verbose_name = 'Parkmöglichkeit'
         verbose_name_plural = 'Parkmöglichkeiten'
         description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
@@ -991,7 +991,7 @@ class Pflegeeinrichtungen(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"pflegeeinrichtungen'
+        db_table = 'daten\".\"pflegeeinrichtungen'
         verbose_name = 'Pflegeeinrichtung'
         verbose_name_plural = 'Pflegeeinrichtungen'
         description = 'Pflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
@@ -1028,7 +1028,7 @@ class Vereine(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'regis\".\"vereine'
+        db_table = 'daten\".\"vereine'
         verbose_name = 'Verein'
         verbose_name_plural = 'Vereine'
         description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
