@@ -201,6 +201,7 @@ class DataAddView(generic.CreateView):
         context['address_optional'] = (self.model._meta.address_optional if hasattr(self.model._meta, 'address_optional') else None)
         context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
         context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
+        context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
         return context
 
     def get_initial(self):
@@ -253,6 +254,7 @@ class DataChangeView(generic.UpdateView):
         context['address_optional'] = (self.model._meta.address_optional if hasattr(self.model._meta, 'address_optional') else None)
         context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
         context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
+        context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
         return context
 
     def get_initial(self):

@@ -248,6 +248,19 @@
     
         // Adressensuche initialisieren
         $(document).ready(function() {
+            {% if readonly_fields %}
+                {% for field in readonly_fields %}
+                    if (!$('input#id_' + '{{ field }}').val()) {
+                        $('input#id_' + '{{ field }}').closest('tr').hide();
+                    } else {
+                        var inputField = $('input#id_' + '{{ field }}');
+                        inputField.parent().append('<span id="' + inputField.attr('id') + '" title="automatisch im Hintergrund vergeben"><i>' + inputField.val() + '</i></span>');
+                        inputField.parent().closest('tr').find('label').wrapInner('<i></i>');
+                        inputField.remove();
+                    }
+                {% endfor %}
+            {% endif %}
+            
             results = $('div.results');
             {% if address %}
                 searchField = $('#id_strasse_name');
