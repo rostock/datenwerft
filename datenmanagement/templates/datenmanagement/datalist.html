@@ -54,7 +54,13 @@
                                   {% elif value == 'Tourismuszentrale Rostock & Warnemünde' %}
                                       Tourismuszentrale Rostock und Warnemünde
                                   {% else %}
-                                      {{ value }}
+                                      {% if value.url %}
+                                          <a href="{{ value.url }}" target="_blank">
+                                              <img src="{{ value.url }}" title="große Ansicht öffnen…" alt="Vorschau" width="80px" />
+                                          </a>
+                                      {% else %}
+                                          {{ value }}
+                                      {% endif %}
                                   {% endif %}
                               {% endif %}
                           </td>

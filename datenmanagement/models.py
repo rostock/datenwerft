@@ -26,6 +26,8 @@ def current_year():
 
 def path_and_rename(path):
   def wrapper(instance, filename):
+    if hasattr(instance, 'dateiname_original'):
+      instance.dateiname_original = filename
     ext = filename.split('.')[-1]
     if hasattr(instance, 'uuid'):
       filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
@@ -86,7 +88,7 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
     return super(PositiveSmallIntegerRangeField, self).formfield(**defaults)
 
 
-models.options.DEFAULT_NAMES += ('description', 'list_fields', 'list_fields_labels', 'object_title', 'foreign_key_label', 'show_alkis', 'map_feature_tooltip_field', 'address', 'address_optional', 'geometry_type')
+models.options.DEFAULT_NAMES += ('description', 'list_fields', 'list_fields_labels', 'readonly_fields', 'object_title', 'foreign_key_label', 'show_alkis', 'map_feature_tooltip_field', 'address', 'address_optional', 'geometry_type')
 
 
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
@@ -301,8 +303,7 @@ VERKEHRLICHE_LAGEN_BAUSTELLEN = (
 class Abfallbehaelter(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
-  id_abfallbehaelter = models.CharField(max_length=8, editable=False)
-  adressanzeige = models.CharField('Adressanzeige', max_length=255, editable=False)
+  id_abfallbehaelter = NullCharField('ID', max_length=255, blank=True)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True)
   eigentuemer_id = models.CharField('Eigentümer', max_length=255, choices=EIGENTUEMER_ABFALLBEHAELTER)
   eigentuemer = models.CharField('Eigentümer', max_length=255, editable=False)
@@ -329,10 +330,8 @@ class Abfallbehaelter(models.Model):
   winter_sa = models.PositiveSmallIntegerField('Anzahl Leerungen samstags im Winter', blank=True)
   winter_so = models.PositiveSmallIntegerField('Anzahl Leerungen sonntags im Winter', blank=True)
   bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class ReadonlyMeta:
-    readonly = ['id_abfallbehaelter']
 
   class Meta:
     managed = False
@@ -342,6 +341,7 @@ class Abfallbehaelter(models.Model):
     description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['gueltigkeit_bis', 'id_abfallbehaelter', 'typ', 'pflegeobjekt', 'adressanzeige', 'eigentuemer', 'bewirtschafter']
     list_fields_labels = ['Außerbetriebstellung', 'ID', 'Typ', 'Pflegeobjekt', 'Adresse', 'Eigentümer', 'Bewirtschafter']
+    readonly_fields = ['id_abfallbehaelter', 'adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'id_abfallbehaelter'
     address = False
@@ -359,13 +359,13 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
-  adressanzeige = NullCharField(max_length=255, editable=False)
   aktenzeichen = NullCharField('Aktenzeichen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   abgeschlossenheitserklaerungsdatum = models.DateField('Datum der Abgeschlossenheitserklärung', blank=True)
   bearbeiter = NullCharField('Bearbeiter', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   pdf = models.FileField('PDF', upload_to=path_and_rename('pdf/aufteilungsplaene_wohnungseigentumsgesetz'), max_length=255)
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -376,6 +376,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'abgeschlossenheitserklaerungsdatum']
     list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Datum der Abgeschlossenheitserklärung']
+    readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
     address = True
@@ -390,15 +391,14 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
 class Baustellen_Fotodokumentation_Baustellen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
-  adressanzeige = models.CharField('Adressanzeige', max_length=255, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   sparte = MultiSelectField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
   verkehrliche_lage = MultiSelectField('Verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
   auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN)
   auftraggeber_bemerkung = NullCharField('Bemerkung zum Auftraggeber', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -407,8 +407,9 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     verbose_name = 'Baustellen-Fotodokumentation (Baustellen)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
     description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'status', 'auftraggeber', 'adressanzeige']
-    list_fields_labels = ['Bezeichnung', 'Status', 'Auftraggeber', 'Adresse']
+    list_fields = ['bezeichnung', 'auftraggeber', 'adressanzeige']
+    list_fields_labels = ['Bezeichnung', 'Auftraggeber', 'Adresse']
+    readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
     address = False
@@ -416,13 +417,15 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     geometry_type = 'Point'
   
   def __str__(self):
-    return self.bezeichnung + ', ' + self.status + ' (Auftraggeber: ' + self.auftraggeber + ')'
+    return self.bezeichnung + ' (Auftraggeber: ' + self.auftraggeber + ')'
 
 
 @python_2_unicode_compatible
 class Baustellen_Fotodokumentation_Fotos(models.Model):
   id = models.AutoField(primary_key=True)
   parent = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid')
+  dateiname_original = NullCharField('Original-Dateiname', max_length=255, blank=True)
+  status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   aufnahmedatum = models.DateField('Aufnahmedatum')
   foto = models.ImageField('Foto', upload_to=path_and_rename('fotos/baustellen_fotodokumentation'), max_length=255)
 
@@ -432,13 +435,14 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     verbose_name = 'Baustellen-Fotodokumentation (Foto)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Fotos)'
     description = 'Fotos im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['parent', 'aufnahmedatum']
-    list_fields_labels = ['zu Baustelle', 'Aufnahmedatum']
+    list_fields = ['parent', 'status', 'aufnahmedatum', 'foto', 'dateiname_original']
+    list_fields_labels = ['zu Baustelle', 'Status', 'Aufnahmedatum', 'Foto', 'Original-Dateiname']
+    readonly_fields = ['dateiname_original']
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
   
   def __str__(self):
-    return unicode(self.parent) + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
+    return unicode(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
 
 
 @python_2_unicode_compatible
@@ -604,7 +608,6 @@ class Bildungstraeger(models.Model):
 class Containerstellplaetze(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
-  adressanzeige = models.CharField('Adressanzeige', max_length=255, editable=False)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True)
   privat = models.NullBooleanField('privat')
   id_containerstellplatz = NullCharField('ID', max_length=5, validators=[RegexValidator(regex=id_containerstellplatz_regex, message=id_containerstellplatz_message)], blank=True)
@@ -640,6 +643,7 @@ class Containerstellplaetze(models.Model):
   winterdienst_c = models.NullBooleanField('Winterdienst C')
   bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   foto = models.ImageField('Foto', upload_to=path_and_rename('fotos/containerstellplaetze'), max_length=255, blank=True, null=True)
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -650,6 +654,7 @@ class Containerstellplaetze(models.Model):
     description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['gueltigkeit_bis', 'privat', 'id_containerstellplatz', 'bezeichnung', 'adressanzeige']
     list_fields_labels = ['Außerbetriebstellung', 'privat', 'ID', 'Bezeichnung', 'Adresse']
+    readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'id_containerstellplatz'
     address = False
@@ -739,12 +744,12 @@ class Gutachterfotos(models.Model):
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
-  adressanzeige = NullCharField(max_length=255, editable=False)
   bearbeiter = NullCharField('Bearbeiter', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   aufnahmedatum = models.DateField('Aufnahmedatum')
   foto = models.ImageField('Foto', upload_to=path_and_rename('fotos/gutachterfotos'), max_length=255)
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -755,6 +760,7 @@ class Gutachterfotos(models.Model):
     description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'aufnahmedatum']
     list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Aufnahmedatum']
+    readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
     address = True
@@ -807,8 +813,7 @@ class Hospize(models.Model):
 class Hundetoiletten(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
-  id_hundetoilette = models.CharField(max_length=8, editable=False)
-  adressanzeige = models.CharField('Adressanzeige', max_length=255, editable=False)
+  id_hundetoilette = NullCharField('ID', max_length=255, blank=True)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True)
   art = models.CharField('Art', max_length=255, choices=ART_HUNDETOILETTE)
   bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_HUNDETOILETTE)
@@ -818,10 +823,8 @@ class Hundetoiletten(models.Model):
   aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', min_value=1900, max_value=current_year(), blank=True)
   anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True)
   bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class ReadonlyMeta:
-    readonly = ['id_hundetoilette']
 
   class Meta:
     managed = False
@@ -831,6 +834,7 @@ class Hundetoiletten(models.Model):
     description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
     list_fields = ['gueltigkeit_bis', 'id_hundetoilette', 'art', 'pflegeobjekt', 'adressanzeige', 'bewirtschafter']
     list_fields_labels = ['Außerbetriebstellung', 'ID', 'Art', 'Pflegeobjekt', 'Adresse', 'Bewirtschafter']
+    readonly_fields = ['id_hundetoilette', 'adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'id_hundetoilette'
     address = False
@@ -887,12 +891,12 @@ class Meldedienst_flaechenhaft(models.Model):
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
-  adressanzeige = NullCharField(max_length=255, editable=False)
   art = models.CharField('Art', max_length=255, choices=ART_MELDEDIENST_FLAECHENHAFT)
   bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   gueltigkeit_von = models.DateField(default=date.today, editable=False)
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PolygonField('Geometrie', srid=25833)
 
   class Meta:
@@ -903,6 +907,7 @@ class Meldedienst_flaechenhaft(models.Model):
     description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von']
     list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
+    readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
     address = True
@@ -920,12 +925,12 @@ class Meldedienst_punkthaft(models.Model):
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
-  adressanzeige = NullCharField(max_length=255, editable=False)
   art = models.CharField('Art', max_length=255, choices=ART_MELDEDIENST_PUNKTHAFT)
   bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   gueltigkeit_von = models.DateField(default=date.today, editable=False)
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -936,6 +941,7 @@ class Meldedienst_punkthaft(models.Model):
     description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von']
     list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
+    readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
     address = True
