@@ -40,6 +40,12 @@ def get_class_foreign_key_label(value):
 
 
 @register.filter
+def get_thumb_url(value):
+    head, tail = os.path.split(value)
+    return head + '/thumbs/' + tail
+
+
+@register.filter
 def get_type_of_geometry_field(field):
     if field.field.__class__ == forms.PointField:
         return 1

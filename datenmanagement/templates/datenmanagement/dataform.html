@@ -29,16 +29,16 @@
               <div id='formular' class='col-md-6'>
                   <table class='table table-striped'>
                       {% for field in form %}
-                          {% if not field.is_hidden and not field|is_field_address_related_field and not field|is_field_geometry_field %}
+                          {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
                               <tr>
                                   {{ field.errors }}
                                   <td>
                                       {% if field|is_field_hours_related_field %}
                                           {{ field.label_tag }} (<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten" target="_blank"><span class="glyphicon glyphicon-education"></span> Hilfe</a>)
                                       {% elif field|is_field_foreign_key_field %}
-                                          <span class="required">
+                                          <label class="required" for="{{ field.id_for_label }}">
                                               {{ foreign_key_label }}
-                                          </span>
+                                          </label>
                                       {% else %}
                                           {{ field.label_tag }}
                                       {% endif %}
@@ -246,11 +246,11 @@
             {% endif %}
         }
     
-        // Adressensuche initialisieren
+        // Read-only-Felder behandeln und Adressensuche initialisieren
         $(document).ready(function() {
             {% if readonly_fields %}
                 {% for field in readonly_fields %}
-                    if (!$('input#id_' + '{{ field }}').val()) {
+                    if (!$('input#id_' + '{{ field }}').val() || $('input#id_' + '{{ field }}').val() === '{{ READONLY_FIELD_DEFAULT }}') {
                         $('input#id_' + '{{ field }}').closest('tr').hide();
                     } else {
                         var inputField = $('input#id_' + '{{ field }}');
