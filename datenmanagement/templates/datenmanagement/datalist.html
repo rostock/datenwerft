@@ -56,7 +56,11 @@
                                   {% else %}
                                       {% if value.url %}
                                           <a href="{{ value.url }}" target="_blank">
-                                              <img src="{{ value.url }}" title="große Ansicht öffnen…" alt="Vorschau" width="80px" />
+                                              {% if thumbs and thumbs == True %}
+                                                  <img src="{{ value.url|get_thumb_url }}" title="große Ansicht öffnen…" alt="Vorschau" />
+                                              {% else %}
+                                                  <img src="{{ value.url }}" title="große Ansicht öffnen…" alt="Vorschau" width="70px" />
+                                              {% endif %}
                                           </a>
                                       {% else %}
                                           {{ value }}
@@ -66,12 +70,12 @@
                           </td>
                       {% endfor %}
                       {% if 'change_'|add:model_name_lower in objperms %}
-                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'change' object.pk %}"><span class='glyphicon glyphicon-pencil'/></a></td>
+                          <td class="pencils"><a href="{% url 'datenmanagement:'|add:model_name|add:'change' object.pk %}">editieren</a></td>
                       {% else %}
                           <td></td>
                       {% endif %}
                       {% if 'delete_'|add:model_name_lower in objperms %}
-                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><span class='glyphicon glyphicon-trash'/></a></td>
+                          <td class="trashs"><a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a></td>
                       {% else %}
                           <td></td>
                       {% endif %}

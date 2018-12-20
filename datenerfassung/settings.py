@@ -91,6 +91,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'datenerfassung.wsgi.application'
 
+READONLY_FIELD_DEFAULT = '00000000'
+
 
 # Guardian
 

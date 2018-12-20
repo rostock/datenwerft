@@ -155,6 +155,7 @@ class DataListView(generic.ListView):
         context['list_fields'] = self.model._meta.list_fields
         context['list_fields_labels'] = self.model._meta.list_fields_labels
         context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
+        context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
         return context
 
 
@@ -191,6 +192,7 @@ class DataAddView(generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super(DataAddView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+        context['READONLY_FIELD_DEFAULT'] = settings.READONLY_FIELD_DEFAULT
         context['model_name'] = self.model.__name__
         context['model_name_lower'] = self.model.__name__.lower()
         context['model_verbose_name'] = self.model._meta.verbose_name
@@ -244,6 +246,7 @@ class DataChangeView(generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(DataChangeView, self).get_context_data(**kwargs)
+        context['READONLY_FIELD_DEFAULT'] = settings.READONLY_FIELD_DEFAULT
         context['model_name'] = self.model.__name__
         context['model_name_lower'] = self.model.__name__.lower()
         context['model_verbose_name'] = self.model._meta.verbose_name

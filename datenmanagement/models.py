@@ -58,6 +58,16 @@ def rotate_image(path):
     pass
 
 
+def thumb_image(path, thumb_path):
+  try:
+    image = Image.open(path)
+    image.thumbnail((70, 70), Image.ANTIALIAS)
+    image.save(thumb_path, optimize=True, quality=20)
+    image.close()
+  except (AttributeError, KeyError, IndexError):
+    pass
+
+
 class NullCharField(models.CharField):
   def __init__(self, *args, **kwargs):
     super(NullCharField, self).__init__(*args, **kwargs)
@@ -88,7 +98,7 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
     return super(PositiveSmallIntegerRangeField, self).formfield(**defaults)
 
 
-models.options.DEFAULT_NAMES += ('description', 'list_fields', 'list_fields_labels', 'readonly_fields', 'object_title', 'foreign_key_label', 'show_alkis', 'map_feature_tooltip_field', 'address', 'address_optional', 'geometry_type')
+models.options.DEFAULT_NAMES += ('description', 'list_fields', 'list_fields_labels', 'readonly_fields', 'object_title', 'foreign_key_label', 'show_alkis', 'map_feature_tooltip_field', 'address', 'address_optional', 'geometry_type', 'thumbs')
 
 
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
@@ -302,8 +312,8 @@ VERKEHRLICHE_LAGEN_BAUSTELLEN = (
 @python_2_unicode_compatible
 class Abfallbehaelter(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
-  id_abfallbehaelter = NullCharField('ID', max_length=255, blank=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  id_abfallbehaelter = models.CharField('ID', default=settings.READONLY_FIELD_DEFAULT, max_length=8)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True)
   eigentuemer_id = models.CharField('Eigentümer', max_length=255, choices=EIGENTUEMER_ABFALLBEHAELTER)
   eigentuemer = models.CharField('Eigentümer', max_length=255, editable=False)
@@ -355,7 +365,7 @@ class Abfallbehaelter(models.Model):
 @python_2_unicode_compatible
 class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -390,7 +400,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
 @python_2_unicode_compatible
 class Baustellen_Fotodokumentation_Baustellen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   sparte = MultiSelectField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
   verkehrliche_lage = MultiSelectField('Verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
@@ -424,7 +434,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 class Baustellen_Fotodokumentation_Fotos(models.Model):
   id = models.AutoField(primary_key=True)
   parent = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid')
-  dateiname_original = NullCharField('Original-Dateiname', max_length=255, blank=True)
+  dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   aufnahmedatum = models.DateField('Aufnahmedatum')
   foto = models.ImageField('Foto', upload_to=path_and_rename('baustellen_fotodokumentation'), max_length=255)
@@ -440,6 +450,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     readonly_fields = ['dateiname_original']
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
+    thumbs = True
   
   def __str__(self):
     return unicode(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
@@ -448,7 +459,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
 @python_2_unicode_compatible
 class Baustellen_geplant(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = NullCharField('Straße', max_length=255, blank=True)
   lagebeschreibung = NullCharField('Lagebeschreibung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -490,7 +501,7 @@ class Baustellen_geplant(models.Model):
 @python_2_unicode_compatible
 class Begegnungszentren(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -529,7 +540,7 @@ class Begegnungszentren(models.Model):
 @python_2_unicode_compatible
 class Behinderteneinrichtungen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -567,7 +578,7 @@ class Behinderteneinrichtungen(models.Model):
 @python_2_unicode_compatible
 class Bildungstraeger(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -607,7 +618,7 @@ class Bildungstraeger(models.Model):
 @python_2_unicode_compatible
 class Containerstellplaetze(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True)
   privat = models.NullBooleanField('privat')
   id_containerstellplatz = NullCharField('ID', max_length=5, validators=[RegexValidator(regex=id_containerstellplatz_regex, message=id_containerstellplatz_message)], blank=True)
@@ -668,7 +679,7 @@ class Containerstellplaetze(models.Model):
 @python_2_unicode_compatible
 class Fairtrade(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -707,7 +718,7 @@ class Fairtrade(models.Model):
 @python_2_unicode_compatible
 class Fliessgewaesser(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   nummer = models.CharField('Nummer', max_length=255)
   bezeichnung = NullCharField('Bezeichnung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   ordnung = PositiveSmallIntegerRangeField('Ordnung', min_value=1, max_value=2, blank=True)
@@ -740,7 +751,7 @@ class Fliessgewaesser(models.Model):
 @python_2_unicode_compatible
 class Gutachterfotos(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -774,7 +785,7 @@ class Gutachterfotos(models.Model):
 @python_2_unicode_compatible
 class Hospize(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -812,8 +823,8 @@ class Hospize(models.Model):
 @python_2_unicode_compatible
 class Hundetoiletten(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
-  id_hundetoilette = NullCharField('ID', max_length=255, blank=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  id_hundetoilette = models.CharField('ID', default=settings.READONLY_FIELD_DEFAULT, max_length=8)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True)
   art = models.CharField('Art', max_length=255, choices=ART_HUNDETOILETTE)
   bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_HUNDETOILETTE)
@@ -848,7 +859,7 @@ class Hundetoiletten(models.Model):
 @python_2_unicode_compatible
 class Kinderjugendbetreuung(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -887,7 +898,7 @@ class Kinderjugendbetreuung(models.Model):
 @python_2_unicode_compatible
 class Meldedienst_flaechenhaft(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -921,7 +932,7 @@ class Meldedienst_flaechenhaft(models.Model):
 @python_2_unicode_compatible
 class Meldedienst_punkthaft(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -955,7 +966,7 @@ class Meldedienst_punkthaft(models.Model):
 @python_2_unicode_compatible
 class Parkmoeglichkeiten(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -1002,7 +1013,7 @@ class Parkmoeglichkeiten(models.Model):
 @python_2_unicode_compatible
 class Pflegeeinrichtungen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -1041,7 +1052,7 @@ class Pflegeeinrichtungen(models.Model):
 @python_2_unicode_compatible
 class Vereine(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid1, editable=False, unique=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = NullCharField(max_length=4, blank=True)
   hausnummer_zusatz = NullCharField(max_length=2, blank=True)
@@ -1080,7 +1091,8 @@ class Vereine(models.Model):
 
 @receiver(post_delete, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 def aufteilungsplan_wohnungseigentumsgesetz_post_delete_handler(sender, instance, **kwargs):
-  instance.pdf.delete(False)
+  if instance.pdf:
+    instance.pdf.delete(False)
 
 
 @receiver(post_save, sender=Baustellen_Fotodokumentation_Fotos)
@@ -1092,11 +1104,29 @@ def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
+    if sender._meta.thumbs and sender._meta.thumbs == True:
+      thumb_path = os.path.dirname(path) + '/thumbs'
+      if not os.path.exists(thumb_path):
+        os.mkdir(thumb_path)
+      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb_image(path, thumb_path)
 
 
 @receiver(post_delete, sender=Baustellen_Fotodokumentation_Fotos)
 def baustelle_fotodokumentation_post_delete_handler(sender, instance, **kwargs):
-  instance.foto.delete(False)
+  if instance.foto:
+    if sender._meta.thumbs and sender._meta.thumbs == True:
+      if settings.MEDIA_ROOT and settings.MEDIA_URL:
+        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+      else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = BASE_DIR + instance.foto.url
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
+    instance.foto.delete(False)
 
 
 @receiver(post_save, sender=Containerstellplaetze)
@@ -1108,11 +1138,29 @@ def containerstellplatz_post_save_handler(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
+    if sender._meta.thumbs and sender._meta.thumbs == True:
+      thumb_path = os.path.dirname(path) + '/thumbs'
+      if not os.path.exists(thumb_path):
+        os.mkdir(thumb_path)
+      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb_image(path, thumb_path)
 
 
 @receiver(post_delete, sender=Containerstellplaetze)
 def containerstellplatz_post_delete_handler(sender, instance, **kwargs):
-  instance.foto.delete(False)
+  if instance.foto:
+    if sender._meta.thumbs and sender._meta.thumbs == True:
+      if settings.MEDIA_ROOT and settings.MEDIA_URL:
+        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+      else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = BASE_DIR + instance.foto.url
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
+    instance.foto.delete(False)
 
 
 @receiver(post_save, sender=Gutachterfotos)
@@ -1124,8 +1172,26 @@ def gutachterfoto_post_save_handler(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
+    if sender._meta.thumbs and sender._meta.thumbs == True:
+      thumb_path = os.path.dirname(path) + '/thumbs'
+      if not os.path.exists(thumb_path):
+        os.mkdir(thumb_path)
+      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb_image(path, thumb_path)
 
 
 @receiver(post_delete, sender=Gutachterfotos)
 def gutachterfoto_post_delete_handler(sender, instance, **kwargs):
-  instance.foto.delete(False)
+  if instance.foto:
+    if sender._meta.thumbs and sender._meta.thumbs == True:
+      if settings.MEDIA_ROOT and settings.MEDIA_URL:
+        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+      else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = BASE_DIR + instance.foto.url
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
+    instance.foto.delete(False)
