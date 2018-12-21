@@ -55,11 +55,11 @@
                                       Tourismuszentrale Rostock und Warnemünde
                                   {% else %}
                                       {% if value.url %}
-                                          <a href="{{ value.url }}" target="_blank">
+                                          <a href="{{ value.url }}" target="_blank" title="große Ansicht öffnen…">
                                               {% if thumbs and thumbs == True %}
-                                                  <img src="{{ value.url|get_thumb_url }}" title="große Ansicht öffnen…" alt="Vorschau" />
+                                                  <img src="{{ value.url|get_thumb_url }}" alt="Vorschau" />
                                               {% else %}
-                                                  <img src="{{ value.url }}" title="große Ansicht öffnen…" alt="Vorschau" width="70px" />
+                                                  <img src="{{ value.url }}" alt="Vorschau" width="70px" />
                                               {% endif %}
                                           </a>
                                       {% else %}
