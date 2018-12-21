@@ -13,6 +13,7 @@ from django.template import loader
 from django.utils.decorators import method_decorator
 from django.views import generic
 # from django.views.decorators.cache import cache_page
+from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
 from leaflet.forms.widgets import LeafletWidget
@@ -134,8 +135,22 @@ class StartView(generic.ListView):
         context['model_name'] = self.model.__name__
         context['model_name_lower'] = self.model.__name__.lower()
         context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
+        context['model_description'] = self.model._meta.description
         context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
         return context
+
+
+# @method_decorator(cache_page(60 * 10), name='dispatch')
+class DataView(BaseDatatableView):
+    def __init__(self, model = None):
+        self.model = model
+        self.columns = self.model._meta.list_fields
+        self.order_columns = self.model._meta.list_fields
+        self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
+        super(DataView, self).__init__()
+        
+    def render_column(self, row, column):
+        return super(DataView, self).render_column(row, column)
 
 
 # @method_decorator(cache_page(60 * 10), name='dispatch')
@@ -208,7 +223,7 @@ class DataAddView(generic.CreateView):
 
     def get_initial(self):
         return {
-            'ansprechpartner': self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email + ')',
+            'ansprechpartner': self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email.lower() + ')',
             'bearbeiter': self.request.user.first_name + ' ' + self.request.user.last_name
         }
 
