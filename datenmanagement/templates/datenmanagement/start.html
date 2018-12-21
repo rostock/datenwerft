@@ -4,7 +4,9 @@
 {% block title %}Möglichkeiten | {% endblock %}
 
 {% block content %}
-    <h2>{{ model_verbose_name_plural }}: Was möchten Sie tun?</h2>
+    <h2>{{ model_verbose_name_plural }}</h2>
+    <h4>{{ model_description }}</h4>
+    <h3><i>Was möchten Sie tun?</i></h3>
     <div class='row'>
         {% if user|user_has_model_add_permission:model_name_lower %}
             <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>

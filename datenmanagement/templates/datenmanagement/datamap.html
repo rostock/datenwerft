@@ -22,7 +22,9 @@
 
 {% block content %}
 {% if object_list %}
-    <h2>{{ model_verbose_name_plural }}: Karte aller Datensätze</h2>
+    <h2>{{ model_verbose_name_plural }}</h2>
+    <h4>{{ model_description }}</h4>
+    <h3><i>Karte aller Datensätze</i></h3>
     <div class='row'>
         {% if user|user_has_model_add_permission:model_name_lower %}
             <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>

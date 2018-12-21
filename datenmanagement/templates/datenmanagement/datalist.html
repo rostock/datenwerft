@@ -17,7 +17,9 @@
 
 {% block content %}
 {% if object_list %}
-    <h2>{{ model_verbose_name_plural }}: Liste aller Datensätze</h2>
+    <h2>{{ model_verbose_name_plural }}</h2>
+    <h4>{{ model_description }}</h4>
+    <h3><i>Liste aller Datensätze</i></h3>
     <div class='row'>
         {% if user|user_has_model_add_permission:model_name_lower %}
             <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
@@ -38,11 +40,11 @@
                           {% endwith %}
                       {% endwith %}
                   {% endfor %}
-                  <th><span class='glyphicon glyphicon-pencil'/></th>
-                  <th><span class='glyphicon glyphicon-trash'/></th>
+                  <!--<th class='pencil'><span class='glyphicon glyphicon-pencil'/></th>
+                  <th class='trash'><span class='glyphicon glyphicon-trash'/></th>-->
               </tr>
           </thead>
-          <tbody>
+          <!--<tbody>
               {% for object in object_list %}
                   {% get_obj_perms user for object as "objperms" %}
                   <tr>
@@ -70,27 +72,48 @@
                           </td>
                       {% endfor %}
                       {% if 'change_'|add:model_name_lower in objperms %}
-                          <td class="pencils"><a href="{% url 'datenmanagement:'|add:model_name|add:'change' object.pk %}">editieren</a></td>
+                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'change' object.pk %}">editieren</a></td>
                       {% else %}
                           <td></td>
                       {% endif %}
                       {% if 'delete_'|add:model_name_lower in objperms %}
-                          <td class="trashs"><a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a></td>
+                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a></td>
                       {% else %}
                           <td></td>
                       {% endif %}
                   </tr>
               {% endfor %}
-          </tbody>
+          </tbody>-->
       </table>
       <script type='text/javascript'>
-          $(document).ready(function(){
+      $(document).ready(function(){
               $('#datasets').dataTable({
+                  ajax: "{% url 'datenmanagement:'|add:model_name|add:'data' %}",
+                  // https://datatables.net/forums/discussion/23649/how-do-i-access-columns-data-inside-of-defaultcontent
+                  columnDefs: [{
+                    //'data': null,
+                    //'defaultContent': '<a href="{% url 'datenmanagement:'|add:model_name|add:'change' 12 %}">editieren</a>',
+                    render: function (data, type, full, meta) {
+                        return '<a href="{% url 'datenmanagement:'|add:model_name|add:'change' ' + data + ' %}">editieren</a>';
+                    },
+                    'orderable': false,
+                    'targets': -2
+                  }, {
+                    //'data': null,
+                    //'defaultContent': '<a href="{% url 'datenmanagement:'|add:model_name|add:'delete' 12 %}">löschen</a>',
+                    render: function (data, type, full, meta) {
+                        return 'löschen ' + data;
+                    },
+                    'orderable': false,
+                    'targets': -1
+                  }],
                   language: {
                       url: '{% static 'datatables-1.10.18/datatables.german.lang' %}'
                   },
                   orderClasses: false,
-                  pageLength: 25
+                  pageLength: 25,
+                  processing: true,
+                  serverSide: true,
               });
           });
       </script>
