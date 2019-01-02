@@ -101,6 +101,7 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 models.options.DEFAULT_NAMES += (
   'description',               # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
   'list_fields',               # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
+  'list_fields_with_date',     # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
   'list_fields_labels',        # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
   'readonly_fields',           # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
   'object_title',              # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
@@ -362,8 +363,9 @@ class Abfallbehaelter(models.Model):
     verbose_name = 'Abfallbehälter'
     verbose_name_plural = 'Abfallbehälter'
     description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['gueltigkeit_bis', 'id_abfallbehaelter', 'typ', 'pflegeobjekt', 'adressanzeige', 'eigentuemer', 'bewirtschafter', 'id', 'id']
-    list_fields_labels = ['Außerbetriebstellung', 'ID', 'Typ', 'Pflegeobjekt', 'Adresse', 'Eigentümer', 'Bewirtschafter', 'ändern', 'löschen']
+    list_fields = ['gueltigkeit_bis', 'id_abfallbehaelter', 'typ', 'pflegeobjekt', 'adressanzeige', 'eigentuemer', 'bewirtschafter']
+    list_fields_with_date = ['gueltigkeit_bis']
+    list_fields_labels = ['Außerbetriebstellung', 'ID', 'Typ', 'Pflegeobjekt', 'Adresse', 'Eigentümer', 'Bewirtschafter']
     readonly_fields = ['id_abfallbehaelter', 'adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'id_abfallbehaelter'
@@ -397,8 +399,9 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
     description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'abgeschlossenheitserklaerungsdatum', 'id', 'id']
-    list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Datum der Abgeschlossenheitserklärung', 'ändern', 'löschen']
+    list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'abgeschlossenheitserklaerungsdatum']
+    list_fields_with_date = ['abgeschlossenheitserklaerungsdatum']
+    list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Datum der Abgeschlossenheitserklärung']
     readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
@@ -430,8 +433,8 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     verbose_name = 'Baustellen-Fotodokumentation (Baustellen)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
     description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'auftraggeber', 'adressanzeige', 'id', 'id']
-    list_fields_labels = ['Bezeichnung', 'Auftraggeber', 'Adresse', 'ändern', 'löschen']
+    list_fields = ['bezeichnung', 'auftraggeber', 'adressanzeige']
+    list_fields_labels = ['Bezeichnung', 'Auftraggeber', 'Adresse']
     readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
@@ -458,8 +461,9 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     verbose_name = 'Baustellen-Fotodokumentation (Foto)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Fotos)'
     description = 'Fotos im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['parent', 'status', 'aufnahmedatum', 'foto', 'dateiname_original', 'id', 'id']
-    list_fields_labels = ['zu Baustelle', 'Status', 'Aufnahmedatum', 'Foto', 'Original-Dateiname', 'ändern', 'löschen']
+    list_fields = ['parent', 'status', 'aufnahmedatum', 'foto', 'dateiname_original']
+    list_fields_with_date = ['aufnahmedatum']
+    list_fields_labels = ['zu Baustelle', 'Status', 'Aufnahmedatum', 'Foto', 'Original-Dateiname']
     readonly_fields = ['dateiname_original']
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
@@ -492,8 +496,8 @@ class Baustellen_geplant(models.Model):
     verbose_name = 'Baustellen (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['uuid', 'bezeichnung', 'ansprechpartner', 'id', 'id']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Ansprechpartner', 'ändern', 'löschen']
+    list_fields = ['uuid', 'bezeichnung', 'ansprechpartner']
+    list_fields_labels = ['UUID', 'Bezeichnung', 'Ansprechpartner']
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -535,8 +539,8 @@ class Begegnungszentren(models.Model):
     verbose_name = 'Begegnungszentrum'
     verbose_name_plural = 'Begegnungszentren'
     description = 'Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'ändern', 'löschen']
+    list_fields = ['uuid', 'bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -573,8 +577,8 @@ class Behinderteneinrichtungen(models.Model):
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
     description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Träger', 'ändern', 'löschen']
+    list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -613,8 +617,8 @@ class Bildungstraeger(models.Model):
     verbose_name = 'Bildungsträger'
     verbose_name_plural = 'Bildungsträger'
     description = 'Bildungsträger in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'ändern', 'löschen']
+    list_fields = ['uuid', 'bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -676,8 +680,9 @@ class Containerstellplaetze(models.Model):
     verbose_name = 'Containerstellplatz'
     verbose_name_plural = 'Containerstellplätze'
     description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['gueltigkeit_bis', 'privat', 'id_containerstellplatz', 'bezeichnung', 'adressanzeige', 'id', 'id']
-    list_fields_labels = ['Außerbetriebstellung', 'privat', 'ID', 'Bezeichnung', 'Adresse', 'ändern', 'löschen']
+    list_fields = ['gueltigkeit_bis', 'privat', 'id_containerstellplatz', 'bezeichnung', 'adressanzeige']
+    list_fields_with_date = ['gueltigkeit_bis']
+    list_fields_labels = ['Außerbetriebstellung', 'privat', 'ID', 'Bezeichnung', 'Adresse']
     readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'id_containerstellplatz'
@@ -713,8 +718,8 @@ class Fairtrade(models.Model):
     verbose_name = 'Fair Trade'
     verbose_name_plural = 'Fair Trade'
     description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Art', 'Bezeichnung', 'ändern', 'löschen']
+    list_fields = ['uuid', 'art', 'bezeichnung']
+    list_fields_labels = ['UUID', 'Art', 'Bezeichnung']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -745,8 +750,8 @@ class Fliessgewaesser(models.Model):
     verbose_name = 'Fließgewässer'
     verbose_name_plural = 'Fließgewässer'
     description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['uuid', 'nummer', 'bezeichnung', 'ordnung', 'art', 'id', 'id']
-    list_fields_labels = ['UUID', 'Nummer', 'Bezeichnung', 'Ordnung', 'Art', 'ändern', 'löschen']
+    list_fields = ['uuid', 'nummer', 'bezeichnung', 'ordnung', 'art']
+    list_fields_labels = ['UUID', 'Nummer', 'Bezeichnung', 'Ordnung', 'Art']
     show_alkis = True
     map_feature_tooltip_field = 'nummer'
     address = False
@@ -782,8 +787,9 @@ class Gutachterfotos(models.Model):
     verbose_name = 'Gutachterfoto'
     verbose_name_plural = 'Gutachterfotos'
     description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'aufnahmedatum', 'id', 'id']
-    list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Aufnahmedatum', 'ändern', 'löschen']
+    list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'aufnahmedatum']
+    list_fields_with_date = ['datum', 'aufnahmedatum']
+    list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Aufnahmedatum']
     readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
@@ -818,8 +824,8 @@ class Hospize(models.Model):
     verbose_name = 'Hospiz'
     verbose_name_plural = 'Hospize'
     description = 'Hospize in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Träger', 'ändern', 'löschen']
+    list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -856,8 +862,9 @@ class Hundetoiletten(models.Model):
     verbose_name = 'Hundetoilette'
     verbose_name_plural = 'Hundetoiletten'
     description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['gueltigkeit_bis', 'id_hundetoilette', 'art', 'pflegeobjekt', 'adressanzeige', 'bewirtschafter', 'id', 'id']
-    list_fields_labels = ['Außerbetriebstellung', 'ID', 'Art', 'Pflegeobjekt', 'Adresse', 'Bewirtschafter', 'ändern', 'löschen']
+    list_fields = ['gueltigkeit_bis', 'id_hundetoilette', 'art', 'pflegeobjekt', 'adressanzeige', 'bewirtschafter']
+    list_fields_with_date = ['gueltigkeit_bis']
+    list_fields_labels = ['Außerbetriebstellung', 'ID', 'Art', 'Pflegeobjekt', 'Adresse', 'Bewirtschafter']
     readonly_fields = ['id_hundetoilette', 'adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'id_hundetoilette'
@@ -893,8 +900,8 @@ class Kinderjugendbetreuung(models.Model):
     verbose_name = 'Kinder- und Jugendbetreuung'
     verbose_name_plural = 'Kinder- und Jugendbetreuung'
     description = 'Kinder- und Jugendbetreuung in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'ändern', 'löschen']
+    list_fields = ['uuid', 'bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -929,8 +936,9 @@ class Meldedienst_flaechenhaft(models.Model):
     verbose_name = 'Meldedienst (flächenhaft)'
     verbose_name_plural = 'Meldedienst (flächenhaft)'
     description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von', 'id', 'id']
-    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert', 'ändern', 'löschen']
+    list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von']
+    list_fields_with_date = ['gueltigkeit_von']
+    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
     readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
@@ -963,8 +971,9 @@ class Meldedienst_punkthaft(models.Model):
     verbose_name = 'Meldedienst (punkthaft)'
     verbose_name_plural = 'Meldedienst (punkthaft)'
     description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von', 'id', 'id']
-    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert', 'ändern', 'löschen']
+    list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von']
+    list_fields_with_date = ['gueltigkeit_von']
+    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
     readonly_fields = ['adressanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'uuid'
@@ -1002,8 +1011,8 @@ class Parkmoeglichkeiten(models.Model):
     verbose_name = 'Parkmöglichkeit'
     verbose_name_plural = 'Parkmöglichkeiten'
     description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'standort', 'id', 'id']
-    list_fields_labels = ['UUID', 'Art', 'Standort', 'ändern', 'löschen']
+    list_fields = ['uuid', 'art', 'standort']
+    list_fields_labels = ['UUID', 'Art', 'Standort']
     show_alkis = False
     map_feature_tooltip_field = 'standort'
     address = True
@@ -1047,8 +1056,8 @@ class Pflegeeinrichtungen(models.Model):
     verbose_name = 'Pflegeeinrichtung'
     verbose_name_plural = 'Pflegeeinrichtungen'
     description = 'Pflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'bezeichnung', 'traeger_bezeichnung', 'id', 'id']
-    list_fields_labels = ['UUID', 'Art', 'Bezeichnung', 'Träger', 'ändern', 'löschen']
+    list_fields = ['uuid', 'art', 'bezeichnung', 'traeger_bezeichnung']
+    list_fields_labels = ['UUID', 'Art', 'Bezeichnung', 'Träger']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
@@ -1084,8 +1093,8 @@ class Vereine(models.Model):
     verbose_name = 'Verein'
     verbose_name_plural = 'Vereine'
     description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'klassen', 'id', 'id']
-    list_fields_labels = ['Bezeichnung', 'Kategorien', 'ändern', 'löschen']
+    list_fields = ['bezeichnung', 'klassen']
+    list_fields_labels = ['Bezeichnung', 'Kategorien']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True

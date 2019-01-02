@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from datetimewidget.widgets import DateWidget
 from django.apps import apps
 from django.conf import settings
@@ -11,6 +12,7 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.template import loader
 from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.views import generic
 # from django.views.decorators.cache import cache_page
 from django_datatables_view.base_datatable_view import BaseDatatableView
@@ -145,15 +147,39 @@ class DataView(BaseDatatableView):
     def __init__(self, model = None):
         self.model = model
         self.columns = self.model._meta.list_fields
+        self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
         self.order_columns = self.model._meta.list_fields
         self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
         super(DataView, self).__init__()
-        
-    def render_column(self, row, column):
-        return super(DataView, self).render_column(row, column)
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            item_data = []
+            for column in self.columns:
+                value = getattr(item, column)
+                if value is not None and self.columns_with_date is not None and column in self.columns_with_date:
+                    value = datetime.strptime(unicode(value), '%Y-%m-%d').strftime('%d.%m.%Y')
+                elif value is not None and column == 'foto':
+                    value = '<a href="#" target="_blank" title="große Ansicht öffnen…">'
+                    if self.thumbs is not None and self.thumbs == True:
+                        value += '<img src="{{ value.url|get_thumb_url }}" alt="Vorschau" />'
+                    else:
+                        value += '<img src="{{ value.url }}" alt="Vorschau" width="70px" />'
+                    value += '</a>'
+                elif value is not None and value == True:
+                    value = 'ja'
+                elif value is not None and value == False:
+                    value = 'nein'
+                elif value is not None:
+                    value = escape(value)
+                item_data.append(value)
+            item_data.append(getattr(item, self.model._meta.pk.name))
+            item_data.append(getattr(item, self.model._meta.pk.name))
+            json_data.append(item_data)
+        return json_data
 
 
-# @method_decorator(cache_page(60 * 10), name='dispatch')
 class DataListView(generic.ListView):
     def __init__(self, model = None, template_name = None, success_url = None):
         self.model = model
