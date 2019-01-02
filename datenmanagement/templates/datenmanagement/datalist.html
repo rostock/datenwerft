@@ -40,8 +40,8 @@
                           {% endwith %}
                       {% endwith %}
                   {% endfor %}
-                  <!--<th class='pencil'><span class='glyphicon glyphicon-pencil'/></th>
-                  <th class='trash'><span class='glyphicon glyphicon-trash'/></th>-->
+                  <th><i>editieren</i></th>
+                  <th><i>löschen</i></th>
               </tr>
           </thead>
           <!--<tbody>
@@ -71,38 +71,23 @@
                               {% endif %}
                           </td>
                       {% endfor %}
-                      {% if 'change_'|add:model_name_lower in objperms %}
-                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'change' object.pk %}">editieren</a></td>
-                      {% else %}
-                          <td></td>
-                      {% endif %}
-                      {% if 'delete_'|add:model_name_lower in objperms %}
-                          <td><a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a></td>
-                      {% else %}
-                          <td></td>
-                      {% endif %}
                   </tr>
               {% endfor %}
           </tbody>-->
       </table>
       <script type='text/javascript'>
-      $(document).ready(function(){
+          $(document).ready(function(){
               $('#datasets').dataTable({
                   ajax: "{% url 'datenmanagement:'|add:model_name|add:'data' %}",
-                  // https://datatables.net/forums/discussion/23649/how-do-i-access-columns-data-inside-of-defaultcontent
                   columnDefs: [{
-                    //'data': null,
-                    //'defaultContent': '<a href="{% url 'datenmanagement:'|add:model_name|add:'change' 12 %}">editieren</a>',
                     render: function (data, type, full, meta) {
-                        return '<a href="{% url 'datenmanagement:'|add:model_name|add:'change' ' + data + ' %}">editieren</a>';
+                        return '<a href="' + document.referrer + 'change/' + data + '">editieren</a>';
                     },
                     'orderable': false,
                     'targets': -2
                   }, {
-                    //'data': null,
-                    //'defaultContent': '<a href="{% url 'datenmanagement:'|add:model_name|add:'delete' 12 %}">löschen</a>',
                     render: function (data, type, full, meta) {
-                        return 'löschen ' + data;
+                        return '<a href="' + document.referrer + 'delete/' + data + '">löschen</a>';
                     },
                     'orderable': false,
                     'targets': -1
