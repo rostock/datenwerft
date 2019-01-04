@@ -1,6 +1,5 @@
 Django==1.9.12
 Pillow
-python-memcached==1.58
 django-auth-ldap==1.2.8
 psycopg2==2.6.2
 djangorestframework==3.4.6
