@@ -44,51 +44,15 @@
                   <th><i>löschen</i></th>
               </tr>
           </thead>
-          <!--<tbody>
-              {% for object in object_list %}
-                  {% get_obj_perms user for object as "objperms" %}
-                  <tr>
-                      {% for value in object|get_values %}
-                          <td>
-                              {% if value %}
-                                  {% if value == True %}
-                                      ja
-                                  {% elif value == 'Tourismuszentrale Rostock & Warnemünde' %}
-                                      Tourismuszentrale Rostock und Warnemünde
-                                  {% else %}
-                                      {% if value.url %}
-                                          <a href="{{ value.url }}" target="_blank" title="große Ansicht öffnen…">
-                                              {% if thumbs and thumbs == True %}
-                                                  <img src="{{ value.url|get_thumb_url }}" alt="Vorschau" />
-                                              {% else %}
-                                                  <img src="{{ value.url }}" alt="Vorschau" width="70px" />
-                                              {% endif %}
-                                          </a>
-                                      {% else %}
-                                          {{ value }}
-                                      {% endif %}
-                                  {% endif %}
-                              {% endif %}
-                          </td>
-                      {% endfor %}
-                  </tr>
-              {% endfor %}
-          </tbody>-->
       </table>
       <script type='text/javascript'>
           $(document).ready(function(){
               $('#datasets').dataTable({
                   ajax: "{% url 'datenmanagement:'|add:model_name|add:'data' %}",
                   columnDefs: [{
-                    render: function (data, type, full, meta) {
-                        return '<a href="' + document.referrer + 'change/' + data + '">editieren</a>';
-                    },
                     'orderable': false,
                     'targets': -2
                   }, {
-                    render: function (data, type, full, meta) {
-                        return '<a href="' + document.referrer + 'delete/' + data + '">löschen</a>';
-                    },
                     'orderable': false,
                     'targets': -1
                   }],
@@ -98,7 +62,10 @@
                   orderClasses: false,
                   pageLength: 25,
                   processing: true,
+                  searchDelay: 500,
+                  searching: true,
                   serverSide: true,
+                  stateSave: true
               });
           });
       </script>

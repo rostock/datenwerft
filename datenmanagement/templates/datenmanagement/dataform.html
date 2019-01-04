@@ -255,8 +255,9 @@
                     } else {
                         var inputField = $('input#id_' + '{{ field }}');
                         inputField.parent().append('<span id="' + inputField.attr('id') + '" title="automatisch im Hintergrund vergeben"><i>' + inputField.val() + '</i></span>');
-                        inputField.parent().closest('tr').find('label').wrapInner('<i></i>');
-                        inputField.remove();
+                        var label = inputField.parent().closest('tr').find('label');
+                        label.wrapInner('<i></i>');
+                        inputField.hide();
                     }
                 {% endfor %}
             {% endif %}

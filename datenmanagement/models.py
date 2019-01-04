@@ -400,7 +400,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
     description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'abgeschlossenheitserklaerungsdatum']
-    list_fields_with_date = ['abgeschlossenheitserklaerungsdatum']
+    list_fields_with_date = ['datum', 'abgeschlossenheitserklaerungsdatum']
     list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Datum der Abgeschlossenheitserklärung']
     readonly_fields = ['adressanzeige']
     show_alkis = True

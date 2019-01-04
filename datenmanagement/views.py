@@ -7,18 +7,19 @@ from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.forms import ModelForm, ValidationError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.template import loader
-from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.views import generic
-# from django.views.decorators.cache import cache_page
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
 from leaflet.forms.widgets import LeafletWidget
+import os
 import requests
 import re
 
@@ -31,6 +32,11 @@ def assign_widgets(field, widget = None):
         return field.formfield(widget = DateWidget(usel10n = True, bootstrap_version = 3))
     else:
         return field.formfield()
+
+
+def get_thumb_url(url):
+    head, tail = os.path.split(url)
+    return head + '/thumbs/' + tail
 
 
 class AddressSearchView(generic.View):
@@ -142,13 +148,12 @@ class StartView(generic.ListView):
         return context
 
 
-# @method_decorator(cache_page(60 * 10), name='dispatch')
 class DataView(BaseDatatableView):
     def __init__(self, model = None):
         self.model = model
+        self.model_name = self.model.__name__
         self.columns = self.model._meta.list_fields
         self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
-        self.order_columns = self.model._meta.list_fields
         self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
         super(DataView, self).__init__()
 
@@ -157,27 +162,67 @@ class DataView(BaseDatatableView):
         for item in qs:
             item_data = []
             for column in self.columns:
+                data = None
                 value = getattr(item, column)
                 if value is not None and self.columns_with_date is not None and column in self.columns_with_date:
-                    value = datetime.strptime(unicode(value), '%Y-%m-%d').strftime('%d.%m.%Y')
+                    data = datetime.strptime(unicode(value), '%Y-%m-%d').strftime('%d.%m.%Y')
                 elif value is not None and column == 'foto':
-                    value = '<a href="#" target="_blank" title="große Ansicht öffnen…">'
+                    data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
                     if self.thumbs is not None and self.thumbs == True:
-                        value += '<img src="{{ value.url|get_thumb_url }}" alt="Vorschau" />'
+                        data += '<img src="' + get_thumb_url(value.url) + '" alt="Vorschau" />'
                     else:
-                        value += '<img src="{{ value.url }}" alt="Vorschau" width="70px" />'
-                    value += '</a>'
+                        data += '<img src="' + value.url + '" alt="Vorschau" width="70px" />'
+                    data += '</a>'
                 elif value is not None and value == True:
-                    value = 'ja'
+                    data = 'ja'
                 elif value is not None and value == False:
-                    value = 'nein'
+                    data = 'nein'
+                elif value is not None and type(value) in [list, tuple]:
+                    data = ', '.join(map(str, value)) 
                 elif value is not None:
-                    value = escape(value)
-                item_data.append(value)
-            item_data.append(getattr(item, self.model._meta.pk.name))
-            item_data.append(getattr(item, self.model._meta.pk.name))
+                    data = escape(value)
+                item_data.append(data)
+            item_id = getattr(item, self.model._meta.pk.name)
+            item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
+            item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
             json_data.append(item_data)
         return json_data
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            qs_params = None
+            for column in self.columns:
+                kwargs = {
+                    '{0}__{1}'.format(column, 'icontains'): search
+                }
+                q = Q(**kwargs)
+                lower_search = search.lower()
+                m = re.search('^[0-9]{2}\.[0-9]{4}$', lower_search)
+                n = re.search('^[0-9]{2}\.[0-9]{2}$', lower_search)
+                if m:
+                    kwargs = {
+                        '{0}__{1}'.format(column, 'icontains'): re.sub('^[0-9]{2}\.', '', m.group(0)) + '-' + re.sub('\.[0-9]{4}$', '', m.group(0))
+                    }
+                    q = q|Q(**kwargs)
+                elif n:
+                    kwargs = {
+                        '{0}__{1}'.format(column, 'icontains'): re.sub('^[0-9]{2}\.', '', n.group(0)) + '-' + re.sub('\.[0-9]{2}$', '', n.group(0))
+                    }
+                    q = q|Q(**kwargs)
+                elif lower_search == 'ja':
+                    kwargs = {
+                        '{0}__{1}'.format(column, 'icontains'): 'true'
+                    }
+                    q = q|Q(**kwargs)
+                elif lower_search == 'nein' or lower_search == 'nei':
+                    kwargs = {
+                        '{0}__{1}'.format(column, 'icontains'): 'false'
+                    }
+                    q = q|Q(**kwargs)
+                qs_params = qs_params | q if qs_params else q
+            qs = qs.filter(qs_params)
+        return qs
 
 
 class DataListView(generic.ListView):
@@ -200,7 +245,6 @@ class DataListView(generic.ListView):
         return context
 
 
-# @method_decorator(cache_page(60 * 10), name='dispatch')
 class DataMapView(generic.ListView):
     def __init__(self, model = None, template_name = None, success_url = None):
         self.model = model
