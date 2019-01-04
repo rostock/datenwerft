@@ -5,12 +5,12 @@ Datensätze-Tabelle
 
 Auf die *Datensätze-Tabelle* eines Datenthemas gelangen Sie immer dann, wenn Sie entweder auf der :doc:`Startseite <datenthema-startseite>` oder in der :doc:`Datensätze-Karte <datensaetze-karte>` eines Datenthemas auf den Button *Datensätze in Tabelle auflisten* geklickt haben. In der Tabelle sind alle Datensätze als Zeilen aufgelistet, für die wir Ihnen :ref:`Leserechte <leserechte>` gegeben haben.
 
-Es sind nicht alle Attribute des Datenthemas in Form von Tabellenspalten vertreten, sondern nur die für das Zurechtfinden notwendigen (in der Regel sind dies die `UUID <https://de.wikipedia.org/wiki/Universally_Unique_Identifier>`_ und die Bezeichnung, es können aber auch mehr und/oder andere Spalten vorkommen), sonst würde die Tabelle viel zu breit.
+Es sind nicht alle Attribute des Datenthemas in Form von Tabellenspalten vertreten, sondern nur die für das Zurechtfinden notwendigen (wie zum Beispiel die Bezeichnung), sonst würde die Tabelle viel zu breit.
 
 Je nach :doc:`Rechten <../auth/rechte>` finden Sie in jeder Zeile rechts zwei Symbolen:
 
-* Wenn Sie auf den Bleistift klicken, gelangen Sie auf die :doc:`Bearbeitungsseite <../work/datensatz-bearbeiten>` des Datensatzes.
-* Wenn Sie auf den Papierkorb klicken, gelangen Sie auf die :doc:`Löschseite <../work/datensatz-loeschen>` des Datensatzes.
+* Wenn Sie auf den Bleistift klicken, gelangen Sie auf die :doc:`Bearbeitungsseite <../work/datensatz-bearbeiten>` des Datensatzes – dies aber nur, falls Sie das entsprechende :ref:`Bearbeitungsrecht <schreibrechte>` besitzen!
+* Wenn Sie auf den Papierkorb klicken, gelangen Sie auf die :doc:`Löschseite <../work/datensatz-loeschen>` des Datensatzes – dies aber nur, falls Sie das entsprechende :ref:`Löschrecht <schreibrechte>` besitzen!
 
 
 .. _tabelle_sortieren:
