@@ -53,8 +53,13 @@ html {
     font-style:italic;
 }
 
+.leaflet-container-default {
+    min-height:300px;
+    height:600px;
+}
+
 .leaflet-draw-tooltip {
-    display:none;
+    display: none;
 }
 
 .margin-bottom {
