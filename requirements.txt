@@ -1,4 +1,4 @@
-Django==1.9.12
+Django==1.9.13
 Pillow
 django-auth-ldap==1.2.8
 psycopg2==2.6.2
