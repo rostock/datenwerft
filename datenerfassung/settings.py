@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '1.4.0'
+DATENMANAGEMENT_VERSION = '1.4.1'
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
     'requests',
     'rest_framework',
     'multiselectfield',
+    'django_user_agents',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -61,6 +62,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'datenerfassung.urls'
