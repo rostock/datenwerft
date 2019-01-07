@@ -8,7 +8,7 @@
 {% block map %}
     {% leaflet_js plugins="forms" %}
     {% leaflet_css plugins="forms" %}
-    <script src='{% static 'proj4js-2.3.11/proj4.js' %}'></script>
+    <script src='{% static 'proj4js-2.5.0/proj4.js' %}'></script>
     <script src='{% static 'wicket-1.3.0/wicket.js' %}'></script>
     <script src='{% static 'wicket-1.3.0/wicket-leaflet.js' %}'></script>
     <script src='{% static 'proj4leaflet/proj4leaflet.js' %}'></script>
@@ -226,9 +226,6 @@
             
             // Umschalter für Hintergrundkarten zur Karte hinzufügen
             L.control.layers(baseMaps,overlayMaps).addTo(map);
-            
-            // Hack: Umschalter für Hintergrundkarten, der aus django-leaflet kommt, verstecken
-            $('.leaflet-control-layers:first').hide();
             
             // falls Datenmodell Adresse vorsieht...
             {% if address %}

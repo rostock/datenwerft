@@ -9,14 +9,14 @@
 {% block map %}
     {% leaflet_js %}
     {% leaflet_css %}
-    <script src='{% static 'proj4js-2.3.11/proj4.js' %}'></script>
+    <script src='{% static 'proj4js-2.5.0/proj4.js' %}'></script>
     <script src='{% static 'wicket-1.3.0/wicket.js' %}'></script>
     <script src='{% static 'wicket-1.3.0/wicket-leaflet.js' %}'></script>
     <link rel='stylesheet' type='text/css' href='{% static 'leaflet.label-0.2.2/leaflet.label.css' %}'/>
     <script src='{% static 'leaflet.label-0.2.2/leaflet.label.js' %}'></script>
-    <script src='{% static 'leaflet.markercluster-0.5.0/leaflet.markercluster.js' %}'></script>
-    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-0.5.0/MarkerCluster.css' %}'/>
-    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-0.5.0/MarkerCluster.Default.css' %}'/>
+    <script src='{% static 'leaflet.markercluster-1.4.1/leaflet.markercluster.js' %}'></script>
+    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-1.4.1/MarkerCluster.css' %}'/>
+    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-1.4.1/MarkerCluster.Default.css' %}'/>
     <script src='{% static 'proj4leaflet/proj4leaflet.js' %}'></script>
 {% endblock %}
 
@@ -96,9 +96,6 @@
             
             // Umschalter für Hintergrundkarten zur Karte hinzufügen
             L.control.layers(baseMaps,overlayMaps).addTo(map);
-            
-            // Hack: Umschalter für Hintergrundkarten, der aus django-leaflet kommt, verstecken
-            $('.leaflet-control-layers:first').hide();
             
             // EPSG:25833 definieren
             proj4.defs([
