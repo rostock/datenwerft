@@ -152,6 +152,7 @@ class DataView(BaseDatatableView):
     def __init__(self, model = None):
         self.model = model
         self.model_name = self.model.__name__
+        self.model_name_lower = self.model.__name__.lower()
         self.columns = self.model._meta.list_fields
         self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
         self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
@@ -183,8 +184,16 @@ class DataView(BaseDatatableView):
                     data = escape(value)
                 item_data.append(data)
             item_id = getattr(item, self.model._meta.pk.name)
-            item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
-            item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
+            checker = ObjectPermissionChecker(self.request.user)
+            obj = self.model.objects.get(pk=item_id)
+            if checker.has_perm('change_' + self.model_name_lower, obj):
+                item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
+            else:
+                item_data.append('')
+            if checker.has_perm('delete_' + self.model_name_lower, obj):
+                  item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
+            else:
+                item_data.append('')
             json_data.append(item_data)
         return json_data
 

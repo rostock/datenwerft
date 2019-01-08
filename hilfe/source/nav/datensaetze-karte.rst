@@ -28,6 +28,8 @@ Sie können wie folgt in der Karte navigieren:
 
 **Tipp:** Den Maßstab vergrößern bzw. in Karte hineinzoomen und den Maßstab verkleinern bzw. aus Karte herauszoomen können Sie auch mittels der beiden Buttons links oben in der Karte.
 
+Zudem können Sie, falls Sie ein mobiles Gerät nutzen, auch die automatische **Standortbestimmung** nutzen und die Karte auf den Ort zentrieren lassen, an dem Sie sich gerade befinden: Klicken Sie dazu einfach den Button mit dem Standortmarker links oben in der Karte an und warten Sie kurz.
+
 
 .. _karte_hintergrund:
 
@@ -47,3 +49,5 @@ Wie kann ich einen bestimmten Ort in der Karte finden?
 Einen bestimmten Ort in der Karte können Sie finden, indem Sie die *Adressen-/Straßen-/Ortsteilsuche* (auf den Anlege- und Bearbeitungsseiten der Datensätze nur *Adressen-/Straßensuche*) rechts neben (auf den Anlege- und Bearbeitungsseiten der Datensätze unterhalb) der Karte nutzen. Fangen Sie einfach an, einen Suchbegriff in das Eingabefeld einzutragen: Nach dem dritten Zeichen springt die Suche an und es wird eine Resultateliste angezeigt, die aus Adressen, Straßen und/oder Ortsteilen (auf den Anlege- und Bearbeitungsseiten der Datensätze nur Adressen und/oder Straßen) besteht. Wenn Sie dann auf das gewünschte Resultat klicken, springt die Karte automatisch an diesen Ort.
 
 **Tipp:** In der Regel genügen der Suche bereits sehr kurze Eingaben, um das gewünschte Resultat zu finden (zum Beispiel findet bereits ``helsi 2`` die gewünschte *Helsinkier Str. 2*).
+
+Zudem können Sie, falls Sie ein mobiles Gerät nutzen, auch die automatische **Standortbestimmung** nutzen und die Karte auf den Ort zentrieren lassen, an dem Sie sich gerade befinden: Klicken Sie dazu einfach den Button mit dem Standortmarker links oben in der Karte an und warten Sie kurz.
