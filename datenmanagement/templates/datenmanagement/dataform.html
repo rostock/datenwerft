@@ -247,9 +247,6 @@
                 locationControl.addTo(map);
             {% endif %}
             
-            // Standortbestimmung zur Karte hinzufügen
-            locationControl.addTo(map);
-            
             // falls Datenmodell Adresse vorsieht...
             {% if address %}
                 map.on('draw:created', function (e) {
