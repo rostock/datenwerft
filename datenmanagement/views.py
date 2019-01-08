@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.forms import ModelForm, ValidationError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.template import loader
 from django.utils.html import escape
 from django.views import generic
@@ -32,6 +33,15 @@ def assign_widgets(field, widget = None):
         return field.formfield(widget = DateWidget(usel10n = True, bootstrap_version = 3))
     else:
         return field.formfield()
+
+
+def delete_object_immediately(request, pk):
+    model_name = re.sub('^.*\/', '', re.sub('\/deleteimmediately.*$', '', request.path_info))
+    model = apps.get_app_config('datenmanagement').get_model(model_name)
+    obj = get_object_or_404(model, pk = pk)
+    if ObjectPermissionChecker(request.user).has_perm('delete_' + model_name.lower(), obj):
+        obj.delete()
+    return HttpResponse(status = 204)
 
 
 def get_thumb_url(url):
@@ -162,6 +172,13 @@ class DataView(BaseDatatableView):
         json_data = []
         for item in qs:
             item_data = []
+            item_id = getattr(item, self.model._meta.pk.name)
+            checker = ObjectPermissionChecker(self.request.user)
+            obj = self.model.objects.get(pk=item_id)
+            if checker.has_perm('delete_' + self.model_name_lower, obj):
+                item_data.append('<input class="action_checkbox" type="checkbox" value="' + str(item_id) + '">')
+            else:
+                item_data.append('')
             for column in self.columns:
                 data = None
                 value = getattr(item, column)
@@ -183,15 +200,12 @@ class DataView(BaseDatatableView):
                 elif value is not None:
                     data = escape(value)
                 item_data.append(data)
-            item_id = getattr(item, self.model._meta.pk.name)
-            checker = ObjectPermissionChecker(self.request.user)
-            obj = self.model.objects.get(pk=item_id)
             if checker.has_perm('change_' + self.model_name_lower, obj):
                 item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
             else:
                 item_data.append('')
             if checker.has_perm('delete_' + self.model_name_lower, obj):
-                  item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
+                item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
             else:
                 item_data.append('')
             json_data.append(item_data)
