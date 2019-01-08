@@ -1,4 +1,4 @@
-{% extends "_base/navbar.html" %}
+{% extends '_base/navbar.html' %}
 {% load datenmanagement_tags %}
 {% load guardian_tags %}
 {% load staticfiles %}
@@ -22,61 +22,94 @@
     <h3><i>Liste aller Datensätze</i></h3>
     <div class='row'>
         {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+            <a href='{% url 'datenmanagement:'|add:model_name|add:'add' %}' class='btn btn-success'>neuen Datensatz anlegen</a>
         {% endif %}
         {% if geometry_type %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'map' %}" class='btn btn-default'>Datensätze auf Karte anzeigen</a>
+            <a href='{% url 'datenmanagement:'|add:model_name|add:'map' %}' class='btn btn-default'>Datensätze auf Karte anzeigen</a>
         {% endif %}
-        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+        <a href='{% url 'datenmanagement:'|add:model_name|add:'start' %}' class='btn btn-default'>zurück</a>
     </div>
-	<div class='col-md-6 full-width'>
-      <table id='datasets' class='table table-bordered table-striped'>
-          <thead>
-              <tr>
-                  {% for label in list_fields_labels %}
-                      {% with schritt=forloop.counter|stringformat:"s" %}
-                          {% with spalte="spalte_"|add:schritt %}
-                              <th>{{label}}</th>
-                          {% endwith %}
-                      {% endwith %}
-                  {% endfor %}
-                  <th><i>editieren</i></th>
-                  <th><i>löschen</i></th>
-              </tr>
-          </thead>
-      </table>
-      <script type='text/javascript'>
-          $(document).ready(function(){
-              $('#datasets').dataTable({
-                  ajax: "{% url 'datenmanagement:'|add:model_name|add:'data' %}",
-                  columnDefs: [{
-                    'orderable': false,
-                    'targets': -2
-                  }, {
-                    'orderable': false,
-                    'targets': -1
-                  }],
-                  language: {
-                      url: '{% static 'datatables-1.10.18/datatables.german.lang' %}'
-                  },
-                  orderClasses: false,
-                  pageLength: 25,
-                  processing: true,
-                  searchDelay: 500,
-                  searching: true,
-                  serverSide: true,
-                  stateSave: true
-              });
-          });
-      </script>
-	</div>
+    <div class='col-md-6 full-width'>
+        <table id='datasets' class='table table-bordered table-striped'>
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for label in list_fields_labels %}
+                        {% with schritt=forloop.counter|stringformat:'s' %}
+                            {% with spalte='spalte_'|add:schritt %}
+                                <th>{{label}}</th>
+                            {% endwith %}
+                        {% endwith %}
+                    {% endfor %}
+                    <th><i>editieren</i></th>
+                    <th><i>löschen</i></th>
+                </tr>
+            </thead>
+        </table>
+        <script type='text/javascript'>
+            $(document).ready(function(){
+                $('#datasets').dataTable({
+                    ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
+                    columnDefs: [{
+                      'orderable': false,
+                      'targets': 0
+                    }, {
+                      'orderable': false,
+                      'targets': -2
+                    }, {
+                      'orderable': false,
+                      'targets': -1
+                    }],
+                    language: {
+                        url: '{% static 'datatables-1.10.18/datatables.german.lang' %}'
+                    },
+                    order: [[ 1, 'asc' ]],
+                    orderClasses: false,
+                    pageLength: 25,
+                    processing: true,
+                    searchDelay: 500,
+                    searching: true,
+                    serverSide: true,
+                    stateSave: true
+                });
+            
+                $('#action_button').click(function() {
+                    if ($('#action_select').val() === 'delete_selected') {
+                        var actionCheckboxes = $('.action_checkbox').filter(':checked');
+                        if (actionCheckboxes.length > 0) {
+                            actionCheckboxes.each(function() {
+                                jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
+                            });
+                            window.location.href = '{% url 'datenmanagement:'|add:model_name|add:'list' %}';
+                        }
+                    }
+                });
+            });
+
+            $('body').on('change', '.action_checkbox', function(e) {
+                var actionCheckboxes = $('.action_checkbox').filter(':checked');
+                $('#action_count').text(actionCheckboxes.length);
+            });
+        </script>
+    </div>
+    {% if user|user_has_model_add_permission:model_name_lower %}
+        <div class='row'>
+            Aktion
+            <select id='action_select' name='action'>
+                <option value='' selected='selected'>---------</option>
+                <option value='delete_selected'>ausgewählte Datensätze löschen</option>
+            </select>
+            <button id='action_button' type='button' class='btn btn-default'>ausführen</button>
+            <span class='action_counter'>(<span id='action_count'>0</span> Datensätze ausgewählt)</span>
+        </div>
+    {% endif %}
 {% else %}
     <h2>Keine Datensätze vorhanden.</h2>
     <div class='row'>
         {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+            <a href='{% url 'datenmanagement:'|add:model_name|add:'add' %}' class='btn btn-success'>neuen Datensatz anlegen</a>
         {% endif %}
-        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+        <a href='{% url 'datenmanagement:'|add:model_name|add:'start' %}' class='btn btn-default'>zurück</a>
     </div>
 {% endif %}
 {% endblock %}

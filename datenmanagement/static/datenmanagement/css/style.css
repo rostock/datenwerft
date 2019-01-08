@@ -40,6 +40,10 @@ html {
     width:100%;
 }
 
+.action_counter {
+    margin-left:10px;
+}
+
 .container {
     width:80%;
 }
