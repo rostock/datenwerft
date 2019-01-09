@@ -11,7 +11,6 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
 from django.utils.encoding import force_text, python_2_unicode_compatible
-#from select_multiple_field.models import SelectMultipleField
 from multiselectfield import MultiSelectField
 from PIL import Image, ExifTags
 
@@ -111,7 +110,8 @@ models.options.DEFAULT_NAMES += (
   'address',                   # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
   'address_optional',          # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
   'geometry_type',             # optional ; Text      ; Geometrietyp
-  'thumbs'                     # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
+  'thumbs',                    # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
+  'multi_foto_field'           # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, jeweils einer pro Foto!
 )
 
 
@@ -468,6 +468,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
     thumbs = True
+    multi_foto_field = True
   
   def __str__(self):
     return unicode(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
@@ -1126,7 +1127,7 @@ def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
-    if sender._meta.thumbs and sender._meta.thumbs == True:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       thumb_path = os.path.dirname(path) + '/thumbs'
       if not os.path.exists(thumb_path):
         os.mkdir(thumb_path)
@@ -1137,7 +1138,7 @@ def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
 @receiver(post_delete, sender=Baustellen_Fotodokumentation_Fotos)
 def baustelle_fotodokumentation_post_delete_handler(sender, instance, **kwargs):
   if instance.foto:
-    if sender._meta.thumbs and sender._meta.thumbs == True:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       if settings.MEDIA_ROOT and settings.MEDIA_URL:
         path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
       else:
@@ -1160,7 +1161,7 @@ def containerstellplatz_post_save_handler(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
-    if sender._meta.thumbs and sender._meta.thumbs == True:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       thumb_path = os.path.dirname(path) + '/thumbs'
       if not os.path.exists(thumb_path):
         os.mkdir(thumb_path)
@@ -1171,7 +1172,7 @@ def containerstellplatz_post_save_handler(sender, instance, **kwargs):
 @receiver(post_delete, sender=Containerstellplaetze)
 def containerstellplatz_post_delete_handler(sender, instance, **kwargs):
   if instance.foto:
-    if sender._meta.thumbs and sender._meta.thumbs == True:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       if settings.MEDIA_ROOT and settings.MEDIA_URL:
         path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
       else:
@@ -1194,7 +1195,7 @@ def gutachterfoto_post_save_handler(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
-    if sender._meta.thumbs and sender._meta.thumbs == True:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       thumb_path = os.path.dirname(path) + '/thumbs'
       if not os.path.exists(thumb_path):
         os.mkdir(thumb_path)
@@ -1205,7 +1206,7 @@ def gutachterfoto_post_save_handler(sender, instance, **kwargs):
 @receiver(post_delete, sender=Gutachterfotos)
 def gutachterfoto_post_delete_handler(sender, instance, **kwargs):
   if instance.foto:
-    if sender._meta.thumbs and sender._meta.thumbs == True:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       if settings.MEDIA_ROOT and settings.MEDIA_URL:
         path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
       else:

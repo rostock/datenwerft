@@ -80,7 +80,9 @@
                             actionCheckboxes.each(function() {
                                 jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
                             });
-                            window.location.href = '{% url 'datenmanagement:'|add:model_name|add:'list' %}';
+                            setTimeout(function() {
+                                window.location.href = '{% url 'datenmanagement:'|add:model_name|add:'list' %}'
+                            }, 1000);
                         }
                     }
                 });

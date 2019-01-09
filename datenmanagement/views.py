@@ -41,12 +41,22 @@ def delete_object_immediately(request, pk):
     obj = get_object_or_404(model, pk = pk)
     if ObjectPermissionChecker(request.user).has_perm('delete_' + model_name.lower(), obj):
         obj.delete()
+    else:
+        raise PermissionDenied()
     return HttpResponse(status = 204)
 
 
 def get_thumb_url(url):
     head, tail = os.path.split(url)
     return head + '/thumbs/' + tail
+
+class ExceptionLoggingMiddleware(object):
+    def process_request(self, request):
+        print request.body
+        print request.scheme
+        print request.method
+        print request.META
+        return None
 
 
 class AddressSearchView(generic.View):
@@ -85,10 +95,13 @@ class ReverseSearchView(generic.View):
 
 class DataForm(ModelForm):
     required_css_class = 'required'
-
+    
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('label_suffix', '')
+        multi_foto_field = kwargs.pop('multi_foto_field', None)
+        files = kwargs.pop('files', None)
         super(DataForm, self).__init__(*args, **kwargs)
+        self.multi_foto_field = multi_foto_field
+        self.files = files
         self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
         self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
         
@@ -102,6 +115,16 @@ class DataForm(ModelForm):
                 if self.fields[field].__class__.__name__ == 'DecimalField':
                     self.fields[field].localize = True
             self.fields[field].error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
+
+    def clean_foto(self):
+        if self.multi_foto_field and self.multi_foto_field == True:
+            data = self.cleaned_data['foto']
+            l = []
+            for x in self.files.getlist('foto'):
+              l.append(x)
+            raise ValidationError(str(l))
+        else:
+            return self.cleaned_data['foto']
             
     def clean_geometrie(self):
         data = self.cleaned_data['geometrie']
@@ -290,6 +313,14 @@ class DataMapView(generic.ListView):
 
 
 class DataAddView(generic.CreateView):
+    def get_form_kwargs(self):
+        kwargs = super(DataAddView, self).get_form_kwargs()
+        self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
+        self.files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
+        kwargs['multi_foto_field'] = self.multi_foto_field
+        kwargs['files'] = self.files
+        return kwargs
+        
     def __init__(self, model = None, template_name = None, success_url = None):
         self.model = model
         self.template_name = template_name
@@ -312,6 +343,7 @@ class DataAddView(generic.CreateView):
         context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
         context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
         context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
+        context['multi_foto_field'] = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
         return context
 
     def get_initial(self):

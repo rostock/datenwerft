@@ -263,20 +263,27 @@
             {% endif %}
         }
     
-        // Read-only-Felder behandeln und Adressensuche initialisieren
+        // Read-only-Felder behandeln, Multi-Datei-Feld behandeln und Adressensuche initialisieren
         $(document).ready(function() {
             {% if readonly_fields %}
                 {% for field in readonly_fields %}
-                    if (!$('input#id_' + '{{ field }}').val() || $('input#id_' + '{{ field }}').val() === '{{ READONLY_FIELD_DEFAULT }}') {
-                        $('input#id_' + '{{ field }}').closest('tr').hide();
+                    var inputField = $('input#id_' + '{{ field }}');
+                    if (!inputField.val() || inputField.val() === '{{ READONLY_FIELD_DEFAULT }}') {
+                        inputField.closest('tr').hide();
                     } else {
-                        var inputField = $('input#id_' + '{{ field }}');
                         inputField.parent().append('<span id="' + inputField.attr('id') + '" title="automatisch im Hintergrund vergeben"><i>' + inputField.val() + '</i></span>');
                         var label = inputField.parent().closest('tr').find('label');
                         label.wrapInner('<i></i>');
                         inputField.hide();
                     }
                 {% endfor %}
+            {% endif %}
+            
+            {% if multi_foto_field %}
+                var fotoField = $('input#id_foto');
+                if (fotoField[0].files.length === 0) {
+                    fotoField.attr('multiple', 'multiple');
+                }
             {% endif %}
             
             results = $('div.results');
