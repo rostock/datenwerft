@@ -90,11 +90,11 @@ class DataForm(ModelForm):
     
     def __init__(self, *args, **kwargs):
         multi_foto_field = kwargs.pop('multi_foto_field', None)
-        files = kwargs.pop('files', None)
+        multi_files = kwargs.pop('multi_files', None)
         model = kwargs.pop('model', None)
         super(DataForm, self).__init__(*args, **kwargs)
         self.multi_foto_field = multi_foto_field
-        self.files = files
+        self.multi_files = multi_files
         self.model = model
         self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
         self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
@@ -113,10 +113,10 @@ class DataForm(ModelForm):
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
     def clean_foto(self):
         if self.multi_foto_field and self.multi_foto_field == True:
-            fotos_count = len(self.files.getlist('foto'))
+            fotos_count = len(self.multi_files.getlist('foto'))
             if fotos_count > 1:
                 i = 1
-                for foto in self.files.getlist('foto'):
+                for foto in self.multi_files.getlist('foto'):
                     if i < fotos_count:
                         m = self.model()
                         for field in self.model._meta.get_fields():
@@ -321,9 +321,9 @@ class DataAddView(generic.CreateView):
     def get_form_kwargs(self):
         kwargs = super(DataAddView, self).get_form_kwargs()
         self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
-        self.files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
+        self.multi_files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
         kwargs['multi_foto_field'] = self.multi_foto_field
-        kwargs['files'] = self.files
+        kwargs['multi_files'] = self.multi_files
         kwargs['model'] = self.model
         return kwargs
         
