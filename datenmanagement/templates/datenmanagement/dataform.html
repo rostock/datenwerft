@@ -279,12 +279,20 @@
                 {% endfor %}
             {% endif %}
             
-            {% if multi_foto_field %}
-                var fotoField = $('input#id_foto');
-                if (fotoField[0].files.length === 0) {
-                    fotoField.attr('multiple', 'multiple');
-                }
-            {% endif %}
+            var fotoField = $('input#id_foto');
+            if (fotoField.length) {
+                fotoField.attr('accept', 'image/*');
+                {% if multi_foto_field %}
+                    if (fotoField[0].files.length === 0) {
+                        fotoField.attr('multiple', 'multiple');
+                    }
+                {% endif %}
+            }
+            
+            var pdfField = $('input#id_pdf');
+            if (pdfField.length) {
+                pdfField.attr('accept', 'application/pdf');
+            }
             
             results = $('div.results');
             {% if address %}

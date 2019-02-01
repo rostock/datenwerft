@@ -63,7 +63,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
-    'datenmanagement.views.ExceptionLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'datenerfassung.urls'
