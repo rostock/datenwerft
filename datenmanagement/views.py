@@ -50,14 +50,6 @@ def get_thumb_url(url):
     head, tail = os.path.split(url)
     return head + '/thumbs/' + tail
 
-class ExceptionLoggingMiddleware(object):
-    def process_request(self, request):
-        print request.body
-        print request.scheme
-        print request.method
-        print request.META
-        return None
-
 
 class AddressSearchView(generic.View):
     http_method_names = ['get',]
@@ -99,9 +91,11 @@ class DataForm(ModelForm):
     def __init__(self, *args, **kwargs):
         multi_foto_field = kwargs.pop('multi_foto_field', None)
         files = kwargs.pop('files', None)
+        model = kwargs.pop('model', None)
         super(DataForm, self).__init__(*args, **kwargs)
         self.multi_foto_field = multi_foto_field
         self.files = files
+        self.model = model
         self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
         self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
         
@@ -116,15 +110,26 @@ class DataForm(ModelForm):
                     self.fields[field].localize = True
             self.fields[field].error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
 
+    # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
     def clean_foto(self):
         if self.multi_foto_field and self.multi_foto_field == True:
-            data = self.cleaned_data['foto']
-            l = []
-            for x in self.files.getlist('foto'):
-              l.append(x)
-            raise ValidationError(str(l))
-        else:
-            return self.cleaned_data['foto']
+            fotos_count = len(self.files.getlist('foto'))
+            if fotos_count > 1:
+                i = 1
+                for foto in self.files.getlist('foto'):
+                    if i < fotos_count:
+                        m = self.model()
+                        for field in self.model._meta.get_fields():
+                            if field.name == 'dateiname_original':
+                                setattr(m, field.name, foto.name)
+                            elif field.name == 'foto':
+                                setattr(m, field.name, foto)
+                            elif field.name != m._meta.pk.name:
+                                setattr(m, field.name, self.cleaned_data[field.name])
+                        m.save()
+                        i += 1
+        # Hinweis: Das return-Statement passt in jedem Fall, das heißt bei normalem Dateifeld und bei Multi-Dateifeld, da hier immer die – in alphabetischer Reihenfolge des Dateinamens – letzte Datei behandelt wird.
+        return self.cleaned_data['foto']
             
     def clean_geometrie(self):
         data = self.cleaned_data['geometrie']
@@ -319,6 +324,7 @@ class DataAddView(generic.CreateView):
         self.files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
         kwargs['multi_foto_field'] = self.multi_foto_field
         kwargs['files'] = self.files
+        kwargs['model'] = self.model
         return kwargs
         
     def __init__(self, model = None, template_name = None, success_url = None):

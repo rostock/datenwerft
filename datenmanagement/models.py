@@ -85,7 +85,6 @@ class NullCharField(models.CharField):
     return attrs
 
 
-# Quelle: https://stackoverflow.com/questions/849142/how-to-limit-the-maximum-value-of-a-numeric-field-in-a-django-model    
 class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
   def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
     self.min_value, self.max_value = min_value, max_value
@@ -111,7 +110,7 @@ models.options.DEFAULT_NAMES += (
   'address_optional',          # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
   'geometry_type',             # optional ; Text      ; Geometrietyp
   'thumbs',                    # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
-  'multi_foto_field'           # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, jeweils einer pro Foto!
+  'multi_foto_field'           # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
 )
 
 
