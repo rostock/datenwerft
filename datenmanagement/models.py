@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, MinValueValidator, RegexValidator, URLValidator
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
 from django.utils.encoding import force_text, python_2_unicode_compatible
@@ -31,6 +31,8 @@ def path_and_rename(path):
     ext = filename.split('.')[-1]
     if hasattr(instance, 'uuid'):
       filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
+    elif hasattr(instance, 'original_url'):
+      filename = instance.original_url.split('/')[-1]
     elif hasattr(instance, 'parent'):
       filename = '{0}_{1}.{2}'.format(str(instance.parent.uuid), get_random_string(length=8), ext.lower())
     else:
@@ -671,7 +673,7 @@ class Containerstellplaetze(models.Model):
   winterdienst_b = models.NullBooleanField('Winterdienst B')
   winterdienst_c = models.NullBooleanField('Winterdienst C')
   bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True, null=True)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True)
   adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -692,7 +694,7 @@ class Containerstellplaetze(models.Model):
     geometry_type = 'Point'
   
   def __str__(self):
-    'Containerstellplatz' + (' mit ID ' + self.id_containerstellplatz + ' und Bezeichnung ' if self.id_containerstellplatz else ' mit Bezeichnung ') + self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '')
+    return 'Containerstellplatz' + (' mit ID ' + self.id_containerstellplatz + ' und Bezeichnung ' if self.id_containerstellplatz else ' mit Bezeichnung ') + self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '')
 
 
 @python_2_unicode_compatible
@@ -1118,6 +1120,16 @@ def aufteilungsplan_wohnungseigentumsgesetz_post_delete_handler(sender, instance
     instance.pdf.delete(False)
 
 
+@receiver(pre_save, sender=Baustellen_Fotodokumentation_Fotos)
+def baustelle_fotodokumentation_pre_save_handler(sender, instance, **kwargs):
+  try:
+    old = Baustellen_Fotodokumentation_Fotos.objects.get(pk=instance.pk)
+    if old and old.foto and old.foto.name:
+      instance.original_url = old.foto.name
+  except Baustellen_Fotodokumentation_Fotos.DoesNotExist:
+    pass
+
+
 @receiver(post_save, sender=Baustellen_Fotodokumentation_Fotos)
 def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
   if instance.foto:
@@ -1152,6 +1164,16 @@ def baustelle_fotodokumentation_post_delete_handler(sender, instance, **kwargs):
     instance.foto.delete(False)
 
 
+@receiver(pre_save, sender=Containerstellplaetze)
+def containerstellplatz_pre_save_handler(sender, instance, **kwargs):
+  try:
+    old = Containerstellplaetze.objects.get(pk=instance.pk)
+    if old and old.foto and old.foto.url:
+      instance.original_url = old.foto.url
+  except Containerstellplaetze.DoesNotExist:
+    pass
+
+
 @receiver(post_save, sender=Containerstellplaetze)
 def containerstellplatz_post_save_handler(sender, instance, **kwargs):
   if instance.foto:
@@ -1167,6 +1189,22 @@ def containerstellplatz_post_save_handler(sender, instance, **kwargs):
         os.mkdir(thumb_path)
       thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
       thumb_image(path, thumb_path)
+  elif instance.original_url:
+    instance.foto = None
+    if settings.MEDIA_ROOT and settings.MEDIA_URL:
+      path = settings.MEDIA_ROOT + '/' + instance.original_url[len(settings.MEDIA_URL):]
+    else:
+      path = instance.original_url
+    try:
+      os.remove(path)
+    except OSError:
+      pass
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
 
 
 @receiver(post_delete, sender=Containerstellplaetze)

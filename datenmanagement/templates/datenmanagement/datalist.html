@@ -48,7 +48,7 @@
         </table>
         <script type='text/javascript'>
             $(document).ready(function(){
-                $('#datasets').dataTable({
+                var table = $('#datasets').DataTable({
                     ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
                     columnDefs: [{
                       'orderable': false,
@@ -81,7 +81,7 @@
                                 jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
                             });
                             setTimeout(function() {
-                                window.location.href = '{% url 'datenmanagement:'|add:model_name|add:'list' %}'
+                                table.ajax.reload();
                             }, 1000);
                         }
                     }
