@@ -13,6 +13,7 @@ from django.utils.crypto import get_random_string
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from multiselectfield import MultiSelectField
 from PIL import Image, ExifTags
+from datenmanagement.storage import OverwriteStorage
 
 import os
 import re
@@ -388,7 +389,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   bearbeiter = NullCharField('Bearbeiter', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
-  pdf = models.FileField('PDF', upload_to=path_and_rename(settings.PDF_PATH_PREFIX + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=255)
+  pdf = models.FileField('PDF', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=255)
   adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -452,7 +453,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
   dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'baustellen_fotodokumentation'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'baustellen_fotodokumentation'), max_length=255)
 
   class Meta:
     managed = False
@@ -670,7 +671,7 @@ class Containerstellplaetze(models.Model):
   winterdienst_b = models.NullBooleanField('Winterdienst B')
   winterdienst_c = models.NullBooleanField('Winterdienst C')
   bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  foto = models.ImageField('Foto', upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True, null=True)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True, null=True)
   adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -777,7 +778,7 @@ class Gutachterfotos(models.Model):
   bemerkung = NullCharField('Bemerkung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'gutachterfotos'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'gutachterfotos'), max_length=255)
   adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
