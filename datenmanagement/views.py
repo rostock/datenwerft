@@ -244,6 +244,8 @@ class DataView(BaseDatatableView):
         if search:
             qs_params = None
             for column in self.columns:
+                if column == 'parent':
+                    column = 'parent__bezeichnung'
                 kwargs = {
                     '{0}__{1}'.format(column, 'icontains'): search
                 }
