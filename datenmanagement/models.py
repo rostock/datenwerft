@@ -919,6 +919,46 @@ class Kinderjugendbetreuung(models.Model):
 
 
 @python_2_unicode_compatible
+class Kunstimoeffentlichenraum(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  strasse_name = NullCharField('Adresse/Straße', max_length=255, blank=True)
+  hausnummer = NullCharField(max_length=4, blank=True)
+  hausnummer_zusatz = NullCharField(max_length=2, blank=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ausfuehrung = NullCharField('Ausführung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  schoepfer = NullCharField('Schöpfer', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  entstehungsjahr = PositiveSmallIntegerRangeField('Entstehungsjahr', min_value=1218, max_value=current_year(), blank=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kunst_im_oeffentlichen_raum'
+    verbose_name = 'Kunst im öffentlichen Raum'
+    verbose_name_plural = 'Kunst im öffentlichen Raum'
+    description = 'Kunst im öffentlichen Raum der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['uuid', 'bezeichnung', 'schoepfer', 'entstehungsjahr']
+    list_fields_labels = ['UUID', 'Bezeichnung', 'Schöpfer', 'Entstehungsjahr']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = True
+    address_optional = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.strasse_name:
+      if self.hausnummer:
+        if self.hausnummer_zusatz:
+          return self.standort + ' (' + self.bezeichnung + '), ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+        else:
+          return self.standort + ' (' + self.bezeichnung + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+      else:
+        return self.standort + ' (' + self.bezeichnung + '), ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
+    else:
+      return self.standort + ' (' + self.bezeichnung + '), ' + ' (UUID: ' + str(self.uuid) + ')'
+
+
+@python_2_unicode_compatible
 class Meldedienst_flaechenhaft(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
