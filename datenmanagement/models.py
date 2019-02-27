@@ -949,13 +949,13 @@ class Kunstimoeffentlichenraum(models.Model):
     if self.strasse_name:
       if self.hausnummer:
         if self.hausnummer_zusatz:
-          return self.standort + ' (' + self.bezeichnung + '), ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+          return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
         else:
-          return self.standort + ' (' + self.bezeichnung + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+          return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
       else:
-        return self.standort + ' (' + self.bezeichnung + '), ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
+        return self.bezeichnung + ', ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
     else:
-      return self.standort + ' (' + self.bezeichnung + '), ' + ' (UUID: ' + str(self.uuid) + ')'
+      return self.bezeichnung + ' (UUID: ' + str(self.uuid) + ')'
 
 
 @python_2_unicode_compatible
