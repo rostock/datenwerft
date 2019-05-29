@@ -125,12 +125,14 @@ apostroph_regex = r'^(?!.*\').*$'
 apostroph_message = 'Der Text darf keine einfachen Schreibmaschinensatz-Anführungszeichen (\') enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
+hafas_id_regex = r'^[0-9]{8}$'
+hafas_id_message = 'Die HAFAS-ID muss aus genau acht Ziffern bestehen.'
 id_containerstellplatz_regex = r'^[0-9]{2}-[0-9]{2}$'
-id_containerstellplatz_message = 'Die ID des Containerstellplatzes muss aus zwei Ziffern, einem Bindestrich und abermals zwei Ziffern bestehen.'
+id_containerstellplatz_message = 'Die ID des Containerstellplatzes muss aus genau zwei Ziffern, genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
 inventarnummer_regex = r'^[0-9]{8}$'
-inventarnummer_message = 'Die Inventarnummer muss aus acht Ziffern bestehen.'
+inventarnummer_message = 'Die Inventarnummer muss aus genau acht Ziffern bestehen.'
 postleitzahl_regex = r'^[0-9]{5}$'
-postleitzahl_message = 'Eine Postleitzahl muss immer aus genau fünf Ziffern bestehen.'
+postleitzahl_message = 'Eine Postleitzahl muss aus genau fünf Ziffern bestehen.'
 rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = 'Die Schreibweise von Rufnummern muss der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen und daher folgendes Format aufweisen: +49 381 3816256'
 email_message = 'Die E-Mail-Adresse muss syntaktisch korrekt sein und daher folgendes Format aufweisen: abc-123.098_zyx@xyz-567.ghi.abc'
@@ -189,6 +191,19 @@ AUFTRAGGEBER_BAUSTELLEN = (
   ('Stadtentsorgung Rostock GmbH', 'Stadtentsorgung Rostock GmbH'),
   ('Stadtwerke Rostock AG', 'Stadtwerke Rostock AG'),
   ('andere(r)/private(r)', 'andere(r)/private(r)'),
+)
+
+AUSFUEHRUNG_HALTESTELLEN = (
+  ('Noppen', 'Noppen'),
+  ('Rillenplatten', 'Rillenplatten'),
+  ('Rippen', 'Rippen'),
+)
+
+BEFESTIGUNGSART_HALTESTELLEN = (
+  ('Asphalt', 'Asphalt'),
+  ('Beton', 'Beton'),
+  ('Kleinpflaster', 'Kleinpflaster'),
+  ('sonstige', 'sonstige'),
 )
 
 BEWIRTSCHAFTER_ABFALLBEHAELTER = (
@@ -280,6 +295,68 @@ KLASSEN_VEREINE = (
   ('Verbraucher', 'Verbraucher'),
 )
 
+LINIEN_HALTESTELLEN = (
+  ('1', '1'),
+  ('102', '102'),
+  ('106', '106'),
+  ('112', '112'),
+  ('113', '113'),
+  ('118', '118'),
+  ('119', '119'),
+  ('120', '120'),
+  ('121', '121'),
+  ('122', '122'),
+  ('123', '123'),
+  ('127', '127'),
+  ('128', '128'),
+  ('140', '140'),
+  ('16', '16'),
+  ('17', '17'),
+  ('18', '18'),
+  ('19', '19'),
+  ('2', '2'),
+  ('22', '22'),
+  ('23', '23'),
+  ('25', '25'),
+  ('26', '26'),
+  ('27', '27'),
+  ('28', '28'),
+  ('284', '284'),
+  ('3', '3'),
+  ('30', '30'),
+  ('30A', '30A'),
+  ('31', '31'),
+  ('34', '34'),
+  ('35', '35'),
+  ('36', '36'),
+  ('37', '37'),
+  ('38', '38'),
+  ('39', '39'),
+  ('4', '4'),
+  ('45', '45'),
+  ('45A', '45A'),
+  ('49', '49'),
+  ('5', '5'),
+  ('6', '6'),
+  ('F1', 'F1'),
+  ('F1A', 'F1A'),
+  ('F2', 'F2'),
+  ('X41', 'X41'),
+)
+
+MOTIVE_HALTESTELLEN = (
+  ('Mast', 'Mast'),
+  ('Wartebereich von Stirnseite', 'Wartebereich von Stirnseite'),
+  ('Wartebereich von vorne', 'Wartebereich von vorne'),
+)
+
+SCHAEDEN_HALTESTELLEN = (
+  ('keine Schäden', 'keine Schäden'),
+  ('leichte Schäden', 'leichte Schäden'),
+  ('mittelschwere Schäden', 'mittelschwere Schäden'),
+  ('schwere Schäden', 'schwere Schäden'),
+)
+
 SPARTEN_BAUSTELLEN = (
   ('Beleuchtung', 'Beleuchtung'),
   ('Fernwärme', 'Fernwärme'),
@@ -317,11 +394,37 @@ TYP_ABFALLBEHAELTER = (
   ('Wetz', 'Wetz'),
 )
 
+TYP_HALTESTELLEN = (
+  ('Bushaltestelle (am Fahrbahnrand)', 'Bushaltestelle (am Fahrbahnrand)'),
+  ('Bushaltestelle (Busbucht)', 'Bushaltestelle (Busbucht)'),
+  ('Bushaltestelle (Buskap)', 'Bushaltestelle (Buskap)'),
+  ('Doppelhaltestelle', 'Doppelhaltestelle'),
+  ('Kombihaltestelle', 'Kombihaltestelle'),
+  ('Straßenbahnhaltestelle', 'Straßenbahnhaltestelle'),
+)
+
 VERKEHRLICHE_LAGEN_BAUSTELLEN = (
   ('Fahrbahn', 'Fahrbahn'),
   ('Fußweg', 'Fußweg'),
   ('Radweg', 'Radweg'),
   ('Straße mit Begleitgrün', 'Straße mit Begleitgrün'),
+)
+
+VERKEHRSMITTEL_HALTESTELLEN = (
+  ('alternative Bedienform', 'alternative Bedienform'),
+  ('Bus', 'Bus'),
+  ('Fähre', 'Fähre'),
+  ('Straßenbahn', 'Straßenbahn'),
+)
+
+VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
+  ('alternative Bedienform', 'alternative Bedienform'),
+  ('Autofähre', 'Autofähre'),
+  ('Personenfähre', 'Personenfähre'),
+  ('Regionalbus', 'Regionalbus'),
+  ('Schienenersatzverkehr', 'Schienenersatzverkehr'),
+  ('Stadtbus', 'Stadtbus'),
+  ('Straßenbahn', 'Straßenbahn'),
 )
 
 
@@ -805,6 +908,127 @@ class Gutachterfotos(models.Model):
 
 
 @python_2_unicode_compatible
+class Haltestellenkataster_Haltestellen(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_hafas_id = NullCharField('HAFAS-ID', max_length=8, blank=True, validators=[RegexValidator(regex=hafas_id_regex, message=hafas_id_message)])
+  hst_bus_bahnsteigbezeichnung = NullCharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_richtung = NullCharField('Richtungsinformation', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_kategorie = NullCharField('Haltestellenkategorie', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_linien = MultiSelectField('bedienende Linie(n)', max_length=255, choices=LINIEN_HALTESTELLEN, blank=True, null=True)
+  hst_rsag = models.NullBooleanField('bedient durch Rostocker Straßenbahn AG?')
+  hst_rebus = models.NullBooleanField('bedient durch rebus Regionalbus Rostock GmbH?')
+  hst_nur_ausstieg = models.NullBooleanField('nur Ausstieg?')
+  hst_nur_einstieg = models.NullBooleanField('nur Einstieg?')
+  hst_verkehrsmittel = MultiSelectField('Verkehrsmittel', max_length=255, choices=VERKEHRSMITTEL_HALTESTELLEN)
+  hst_verkehrsmittelklassen = MultiSelectField('Verkehrsmittelklasse(n)', max_length=255, choices=VERKEHRSMITTELKLASSEN_HALTESTELLEN)
+  hst_fahrgastzahl = models.PositiveIntegerField('durchschnittliche Fahrgastzahl', blank=True)
+  bau_typ = NullCharField('Typ', max_length=255, choices=TYP_HALTESTELLEN, blank=True)
+  bau_wartebereich_laenge = models.DecimalField('Länge des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m lang sein.')], blank=True)
+  bau_wartebereich_breite = models.DecimalField('Breite des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m breit sein.')], blank=True)
+  bau_befestigungsart = NullCharField('Befestigungsart', max_length=255, choices=BEFESTIGUNGSART_HALTESTELLEN, blank=True)
+  bau_aufstellflaeche_bus = NullCharField('Aufstellfläche Bus', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
+  bau_warteflaeche = NullCharField('Wartefläche', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
+  bf_einstieg = models.NullBooleanField('barrierefreier Einstieg vorhanden?')
+  bf_zu_abgaenge = models.NullBooleanField('barrierefreie Zu- und Abgänge vorhanden?')
+  bf_bewegungsraum = models.NullBooleanField('barrierefreier Bewegungsraum vorhanden?')
+  tl_zustand_neu = models.NullBooleanField('Taktiles Leitsystem: Zustand neu?')
+  tl_auffindestreifen = models.NullBooleanField('Taktiles Leitsystem: Auffindestreifen vorhanden?')
+  tl_auffindestreifen_ausfuehrung = NullCharField('Taktiles Leitsystem: Ausführung Auffindestreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True)
+  tl_auffindestreifen_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Auffindestreifens (in cm)', blank=True)
+  tl_einstiegsfeld = models.NullBooleanField('Taktiles Leitsystem: Einstiegsfeld vorhanden?')
+  tl_einstiegsfeld_ausfuehrung = NullCharField('Taktiles Leitsystem: Ausführung Einstiegsfeld', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True)
+  tl_einstiegsfeld_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)', blank=True)
+  tl_leitstreifen = models.NullBooleanField('Taktiles Leitsystem: Leitstreifen vorhanden?')
+  tl_leitstreifen_ausfuehrung = NullCharField('Taktiles Leitsystem: Ausführung Leitstreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True)
+  tl_leitstreifen_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Leitstreifens (in cm)', blank=True)
+  tl_aufmerksamkeitsfeld = models.NullBooleanField('Aufmerksamkeitsfeld (1. Tür) vorhanden?')
+  tl_bahnsteigkante_visuell = models.NullBooleanField('Bahnsteigkante visuell erkennbar?')
+  tl_bahnsteigkante_taktil = models.NullBooleanField('Bahnsteigkante taktil erkennbar?')
+  as_h_mast = models.NullBooleanField('Mast vorhanden?')
+  as_papierkorb = models.NullBooleanField('Papierkorb vorhanden?')
+  as_fahrgastunterstand = models.NullBooleanField('Fahrgastunterstand vorhanden?')
+  as_sitzbank_mit_armlehne = models.NullBooleanField('Sitzbank mit Armlehne vorhanden?')
+  as_sitzbank_ohne_armlehne = models.NullBooleanField('Sitzbank ohne Armlehne vorhanden?')
+  as_gelaender = models.NullBooleanField('Geländer vorhanden?')
+  as_fahrplanvitrine = models.NullBooleanField('Fahrplanvitrine vorhanden?')
+  as_tarifinformation = models.NullBooleanField('Tarifinformation vorhanden?')
+  as_liniennetzplan = models.NullBooleanField('Liniennetzplan vorhanden?')
+  as_fahrplan = models.NullBooleanField('Fahrplan vorhanden?')
+  as_fahrausweisautomat = models.NullBooleanField('Fahrausweisautomat vorhanden?')
+  as_lautsprecher = models.NullBooleanField('Lautsprecher vorhanden?')
+  as_dfi = models.NullBooleanField('Dynamisches Fahrgastinformationssystem vorhanden?')
+  as_anfragetaster = models.NullBooleanField('Anfragetaster vorhanden?')
+  as_blindenschrift = models.NullBooleanField('Haltestellen-/Linieninformationen in Blindenschrift vorhanden?')
+  as_beleuchtung = models.NullBooleanField('Beleuchtung vorhanden?')
+  as_hinweis_warnblinklicht_ein = models.NullBooleanField('Hinweis „Warnblinklicht ein“ vorhanden?')
+  bfe_park_and_ride = models.NullBooleanField('P+R-Parkplatz in Umgebung vorhanden?')
+  bfe_fahrradabstellmoeglichkeit = models.NullBooleanField('Fahrradabstellmöglichkeit in Umgebung vorhanden?')
+  bfe_querungshilfe = models.NullBooleanField('Querungshilfe in Umgebung vorhanden?')
+  bfe_fussgaengerueberweg = models.NullBooleanField('Fußgängerüberweg in Umgebung vorhanden?')
+  bfe_seniorenheim = models.NullBooleanField('Seniorenheim in Umgebung vorhanden?')
+  bfe_pflegeeinrichtung = models.NullBooleanField('Pflegeeinrichtung in Umgebung vorhanden?')
+  bfe_medizinische_versorgungseinrichtung = models.NullBooleanField('Medizinische Versorgungseinrichtung  in Umgebung vorhanden?')
+  bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'haltestellenkataster_haltestellen'
+    verbose_name = 'Haltestellenkataster (Haltestelle)'
+    verbose_name_plural = 'Haltestellenkataster (Haltestellen)'
+    description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['id', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
+    list_fields_labels = ['Haltestellennummer', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
+    show_alkis = True
+    map_feature_tooltip_field = 'hst_bezeichnung'
+    address = False
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.hst_hafas_id:
+      if self.hst_bus_bahnsteigbezeichnung:
+        return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ' – HAFAS-ID ' + self.hst_hafas_id + ' – Bus-/Bahnsteig ' + self.hst_bus_bahnsteigbezeichnung + ')'
+      else:
+        return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ' – HAFAS-ID ' + self.hst_hafas_id + ')'
+    elif self.hst_bus_bahnsteigbezeichnung:
+      return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ' – Bus-/Bahnsteig ' + self.hst_bus_bahnsteigbezeichnung + ')'
+    else:
+      return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ')'
+
+
+@python_2_unicode_compatible
+class Haltestellenkataster_Fotos(models.Model):
+  id = models.AutoField(primary_key=True)
+  parent = models.ForeignKey(Haltestellenkataster_Haltestellen, on_delete=models.CASCADE, db_column='haltestellenkataster_haltestelle', to_field='uuid')
+  dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
+  motiv = models.CharField('Motiv', max_length=255, choices=MOTIVE_HALTESTELLEN)
+  aufnahmedatum = models.DateField('Aufnahmedatum')
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'haltestellenkataster'), max_length=255)
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'haltestellenkataster_fotos'
+    verbose_name = 'Haltestellenkataster (Foto)'
+    verbose_name_plural = 'Haltestellenkataster (Fotos)'
+    description = 'Fotos im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['parent', 'motiv', 'aufnahmedatum', 'foto', 'dateiname_original']
+    list_fields_with_date = ['aufnahmedatum']
+    list_fields_labels = ['zu Haltestelle', 'Motiv', 'Aufnahmedatum', 'Foto', 'Original-Dateiname']
+    readonly_fields = ['dateiname_original']
+    object_title = 'das Foto'
+    foreign_key_label = 'Haltestelle'
+    thumbs = True
+    multi_foto_field = True
+  
+  def __str__(self):
+    return unicode(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
+
+
+@python_2_unicode_compatible
 class Hospize(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
@@ -1283,6 +1507,50 @@ def gutachterfoto_post_save_handler(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Gutachterfotos)
 def gutachterfoto_post_delete_handler(sender, instance, **kwargs):
+  if instance.foto:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
+      if settings.MEDIA_ROOT and settings.MEDIA_URL:
+        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+      else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = BASE_DIR + instance.foto.url
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
+    instance.foto.delete(False)
+
+
+@receiver(pre_save, sender=Haltestellenkataster_Fotos)
+def haltestellenkataster_pre_save_handler(sender, instance, **kwargs):
+  try:
+    old = Haltestellenkataster_Fotos.objects.get(pk=instance.pk)
+    if old and old.foto and old.foto.name:
+      instance.original_url = old.foto.name
+  except Haltestellenkataster_Fotos.DoesNotExist:
+    pass
+
+
+@receiver(post_save, sender=Haltestellenkataster_Fotos)
+def haltestellenkataster_post_save_handler(sender, instance, **kwargs):
+  if instance.foto:
+    if settings.MEDIA_ROOT and settings.MEDIA_URL:
+      path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+    else:
+      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+      path = BASE_DIR + instance.foto.url
+    rotate_image(path)
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
+      thumb_path = os.path.dirname(path) + '/thumbs'
+      if not os.path.exists(thumb_path):
+        os.mkdir(thumb_path)
+      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb_image(path, thumb_path)
+
+
+@receiver(post_delete, sender=Haltestellenkataster_Fotos)
+def haltestellenkataster_post_delete_handler(sender, instance, **kwargs):
   if instance.foto:
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       if settings.MEDIA_ROOT and settings.MEDIA_URL:
