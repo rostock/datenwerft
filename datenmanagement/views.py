@@ -192,6 +192,7 @@ class DataView(BaseDatatableView):
         self.model_name = self.model.__name__
         self.model_name_lower = self.model.__name__.lower()
         self.columns = self.model._meta.list_fields
+        self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
         self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
         self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
         super(DataView, self).__init__()
@@ -210,7 +211,9 @@ class DataView(BaseDatatableView):
             for column in self.columns:
                 data = None
                 value = getattr(item, column)
-                if value is not None and self.columns_with_date is not None and column in self.columns_with_date:
+                if value is not None and self.columns_with_number is not None and column in self.columns_with_number:
+                    data = value
+                elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
                     data = datetime.strptime(unicode(value), '%Y-%m-%d').strftime('%d.%m.%Y')
                 elif value is not None and column == 'foto':
                     data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'

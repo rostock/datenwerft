@@ -102,6 +102,7 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 models.options.DEFAULT_NAMES += (
   'description',               # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
   'list_fields',               # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
+  'list_fields_with_number',   # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
   'list_fields_with_date',     # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
   'list_fields_labels',        # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
   'readonly_fields',           # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
@@ -969,7 +970,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bfe_fussgaengerueberweg = models.NullBooleanField('Fußgängerüberweg in Umgebung vorhanden?')
   bfe_seniorenheim = models.NullBooleanField('Seniorenheim in Umgebung vorhanden?')
   bfe_pflegeeinrichtung = models.NullBooleanField('Pflegeeinrichtung in Umgebung vorhanden?')
-  bfe_medizinische_versorgungseinrichtung = models.NullBooleanField('Medizinische Versorgungseinrichtung  in Umgebung vorhanden?')
+  bfe_medizinische_versorgungseinrichtung = models.NullBooleanField('Medizinische Versorgungseinrichtung in Umgebung vorhanden?')
   bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
@@ -982,6 +983,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
     list_fields = ['id', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
     list_fields_labels = ['Haltestellennummer', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
+    list_fields_with_number = ['id']
     show_alkis = True
     map_feature_tooltip_field = 'hst_bezeichnung'
     address = False
