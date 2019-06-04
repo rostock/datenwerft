@@ -232,6 +232,7 @@ BEWIRTSCHAFTER_ALTKLEIDER_CONTAINERSTELLPLAETZE = (
   (1, 'Veolia Umweltservice Nord GmbH'),
   (10, 'VerSeRo GmbH'),
   (11, 'SOEX Collecting Germany GmbH'),
+  (12, 'Malteser Hilfsdienst gGmbH und e.V.'),
 )
 
 BEWIRTSCHAFTER_GLAS_CONTAINERSTELLPLAETZE = (
