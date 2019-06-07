@@ -100,21 +100,21 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 
 
 models.options.DEFAULT_NAMES += (
-  'description',               # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
-  'list_fields',               # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
-  'list_fields_with_number',   # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
-  'list_fields_with_date',     # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
-  'list_fields_labels',        # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
-  'readonly_fields',           # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
-  'object_title',              # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
-  'foreign_key_label',         # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'show_alkis',                # optional ; Boolean   ; Soll die Liegenschaftskarte als Hintergrundkarte in der Karten-/Hinzufügen-/Änderungsansicht angeboten werden?
-  'map_feature_tooltip_field', # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
-  'address',                   # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
-  'address_optional',          # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
-  'geometry_type',             # optional ; Text      ; Geometrietyp
-  'thumbs',                    # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
-  'multi_foto_field'           # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'description',                    # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
+  'list_fields',                    # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
+  'list_fields_with_number',        # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
+  'list_fields_with_date',          # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
+  'list_fields_labels',             # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
+  'readonly_fields',                # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  'object_title',                   # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
+  'foreign_key_label',              # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
+  'show_alkis',                     # optional ; Boolean   ; Soll die Liegenschaftskarte als Hintergrundkarte in der Karten-/Hinzufügen-/Änderungsansicht angeboten werden?
+  'map_feature_tooltip_field',      # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'address',                        # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
+  'address_optional',               # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
+  'geometry_type',                  # optional ; Text      ; Geometrietyp
+  'thumbs',                         # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
+  'multi_foto_field'                # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
 )
 
 
@@ -139,6 +139,12 @@ rufnummer_message = 'Die Schreibweise von Rufnummern muss der Empfehlung E.123 d
 email_message = 'Die E-Mail-Adresse muss syntaktisch korrekt sein und daher folgendes Format aufweisen: abc-123.098_zyx@xyz-567.ghi.abc'
 url_message = 'Die Adresse der Website muss syntaktisch korrekt sein und daher folgendes Format aufweisen: http[s]://abc-123.098_zyx.xyz-567/ghi/abc'
 
+
+ANBIETER_CARSHARING = (
+  ('Flinkster (Deutsche Bahn AG)', 'Flinkster (Deutsche Bahn AG)'),
+  ('Greenwheels GmbH', 'Greenwheels GmbH'),
+  ('YourCar Rostock GmbH', 'YourCar Rostock GmbH'),
+)
 
 ART_FAIRTRADE = (
   ('Bildungsträger', 'Bildungsträger'),
@@ -738,6 +744,38 @@ class Bildungstraeger(models.Model):
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
+@python_2_unicode_compatible
+class Carsharing_Stationen(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  anzahl_fahrzeuge = models.PositiveSmallIntegerField('Anzahl der Fahrzeuge', blank=True)
+  anbieter = models.CharField('Anbieter', max_length=255, choices=ANBIETER_CARSHARING)
+  bemerkungen = NullCharField('Bemerkungen', max_length=500, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  telefon = NullCharField('Telefon', max_length=255, blank=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  website = NullCharField('Website', max_length=255, blank=True, validators=[URLValidator(message=url_message)])
+  adressanzeige = NullCharField('Adresse', max_length=255, blank=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'carsharing_stationen'
+    verbose_name = 'Carsharing-Station'
+    verbose_name_plural = 'Carsharing-Stationen'
+    description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['bezeichnung', 'adressanzeige', 'anbieter']
+    list_fields_labels = ['Bezeichnung', 'Adresse', 'Anbieter']
+    readonly_fields = ['adressanzeige']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = False
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (' + self.anbieter + ')'
 
 
 @python_2_unicode_compatible
