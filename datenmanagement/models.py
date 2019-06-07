@@ -203,7 +203,7 @@ AUFTRAGGEBER_BAUSTELLEN = (
 AUSFUEHRUNG_HALTESTELLEN = (
   ('Noppen', 'Noppen'),
   ('Rillenplatten', 'Rillenplatten'),
-  ('Rippen', 'Rippen'),
+  ('Rippenplatten', 'Rippenplatten'),
 )
 
 BEFESTIGUNGSART_HALTESTELLEN = (
@@ -305,6 +305,33 @@ KLASSEN_VEREINE = (
 
 LINIEN_HALTESTELLEN = (
   ('1', '1'),
+  ('2', '2'),
+  ('3', '3'),
+  ('4', '4'),
+  ('5', '5'),
+  ('6', '6'),
+  ('16', '16'),
+  ('17', '17'),
+  ('18', '18'),
+  ('19', '19'),
+  ('22', '22'),
+  ('23', '23'),
+  ('25', '25'),
+  ('26', '26'),
+  ('27', '27'),
+  ('28', '28'),
+  ('30', '30'),
+  ('30A', '30A'),
+  ('31', '31'),
+  ('34', '34'),
+  ('35', '35'),
+  ('36', '36'),
+  ('37', '37'),
+  ('38', '38'),
+  ('39', '39'),
+  ('45', '45'),
+  ('45A', '45A'),
+  ('49', '49'),
   ('102', '102'),
   ('106', '106'),
   ('112', '112'),
@@ -317,35 +344,11 @@ LINIEN_HALTESTELLEN = (
   ('123', '123'),
   ('127', '127'),
   ('128', '128'),
+  ('129', '129'),
+  ('137', '137'),
   ('140', '140'),
-  ('16', '16'),
-  ('17', '17'),
-  ('18', '18'),
-  ('19', '19'),
-  ('2', '2'),
-  ('22', '22'),
-  ('23', '23'),
-  ('25', '25'),
-  ('26', '26'),
-  ('27', '27'),
-  ('28', '28'),
   ('284', '284'),
-  ('3', '3'),
-  ('30', '30'),
-  ('30A', '30A'),
-  ('31', '31'),
-  ('34', '34'),
-  ('35', '35'),
-  ('36', '36'),
-  ('37', '37'),
-  ('38', '38'),
-  ('39', '39'),
-  ('4', '4'),
-  ('45', '45'),
-  ('45A', '45A'),
-  ('49', '49'),
-  ('5', '5'),
-  ('6', '6'),
+  ('304', '304'),
   ('F1', 'F1'),
   ('F1A', 'F1A'),
   ('F2', 'F2'),
@@ -416,13 +419,6 @@ VERKEHRLICHE_LAGEN_BAUSTELLEN = (
   ('Fußweg', 'Fußweg'),
   ('Radweg', 'Radweg'),
   ('Straße mit Begleitgrün', 'Straße mit Begleitgrün'),
-)
-
-VERKEHRSMITTEL_HALTESTELLEN = (
-  ('alternative Bedienform', 'alternative Bedienform'),
-  ('Bus', 'Bus'),
-  ('Fähre', 'Fähre'),
-  ('Straßenbahn', 'Straßenbahn'),
 )
 
 VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
@@ -951,6 +947,7 @@ class Gutachterfotos(models.Model):
 class Haltestellenkataster_Haltestellen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  gemeindeteil_name = NullCharField('Gemeindeteil', max_length=255, blank=True)
   hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_hafas_id = NullCharField('HAFAS-ID', max_length=8, blank=True, validators=[RegexValidator(regex=hafas_id_regex, message=hafas_id_message)])
   hst_bus_bahnsteigbezeichnung = NullCharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -961,19 +958,18 @@ class Haltestellenkataster_Haltestellen(models.Model):
   hst_rebus = models.NullBooleanField('bedient durch rebus Regionalbus Rostock GmbH?')
   hst_nur_ausstieg = models.NullBooleanField('nur Ausstieg?')
   hst_nur_einstieg = models.NullBooleanField('nur Einstieg?')
-  hst_verkehrsmittel = MultiSelectField('Verkehrsmittel', max_length=255, choices=VERKEHRSMITTEL_HALTESTELLEN)
   hst_verkehrsmittelklassen = MultiSelectField('Verkehrsmittelklasse(n)', max_length=255, choices=VERKEHRSMITTELKLASSEN_HALTESTELLEN)
   hst_fahrgastzahl = models.PositiveIntegerField('durchschnittliche Fahrgastzahl', blank=True)
-  bau_typ = NullCharField('Typ', max_length=255, choices=TYP_HALTESTELLEN, blank=True)
+  bau_typ = MultiSelectField('Typ', max_length=255, choices=TYP_HALTESTELLEN, blank=True, null=True)
   bau_wartebereich_laenge = models.DecimalField('Länge des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m lang sein.')], blank=True)
   bau_wartebereich_breite = models.DecimalField('Breite des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m breit sein.')], blank=True)
-  bau_befestigungsart = NullCharField('Befestigungsart', max_length=255, choices=BEFESTIGUNGSART_HALTESTELLEN, blank=True)
-  bau_aufstellflaeche_bus = NullCharField('Aufstellfläche Bus', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
-  bau_warteflaeche = NullCharField('Wartefläche', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
+  bau_befestigungsart_aufstellflaeche_bus = NullCharField('Befestigungsart der Aufstellfläche Bus', max_length=255, choices=BEFESTIGUNGSART_HALTESTELLEN, blank=True)
+  bau_zustand_aufstellflaeche_bus = NullCharField('Zustand der Aufstellfläche Bus', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
+  bau_befestigungsart_warteflaeche = NullCharField('Befestigungsart der Wartefläche', max_length=255, choices=BEFESTIGUNGSART_HALTESTELLEN, blank=True)
+  bau_zustand_warteflaeche = NullCharField('Zustand der Wartefläche', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
   bf_einstieg = models.NullBooleanField('barrierefreier Einstieg vorhanden?')
   bf_zu_abgaenge = models.NullBooleanField('barrierefreie Zu- und Abgänge vorhanden?')
   bf_bewegungsraum = models.NullBooleanField('barrierefreier Bewegungsraum vorhanden?')
-  tl_zustand_neu = models.NullBooleanField('Taktiles Leitsystem: Zustand neu?')
   tl_auffindestreifen = models.NullBooleanField('Taktiles Leitsystem: Auffindestreifen vorhanden?')
   tl_auffindestreifen_ausfuehrung = NullCharField('Taktiles Leitsystem: Ausführung Auffindestreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True)
   tl_auffindestreifen_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Auffindestreifens (in cm)', blank=True)
@@ -982,7 +978,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_einstiegsfeld_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)', blank=True)
   tl_leitstreifen = models.NullBooleanField('Taktiles Leitsystem: Leitstreifen vorhanden?')
   tl_leitstreifen_ausfuehrung = NullCharField('Taktiles Leitsystem: Ausführung Leitstreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True)
-  tl_leitstreifen_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Leitstreifens (in cm)', blank=True)
+  tl_leitstreifen_laenge = models.PositiveIntegerField('Taktiles Leitsystem: Länge des Leitstreifens (in cm)', blank=True)
   tl_aufmerksamkeitsfeld = models.NullBooleanField('Aufmerksamkeitsfeld (1. Tür) vorhanden?')
   tl_bahnsteigkante_visuell = models.NullBooleanField('Bahnsteigkante visuell erkennbar?')
   tl_bahnsteigkante_taktil = models.NullBooleanField('Bahnsteigkante taktil erkennbar?')
@@ -1010,7 +1006,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bfe_seniorenheim = models.NullBooleanField('Seniorenheim in Umgebung vorhanden?')
   bfe_pflegeeinrichtung = models.NullBooleanField('Pflegeeinrichtung in Umgebung vorhanden?')
   bfe_medizinische_versorgungseinrichtung = models.NullBooleanField('Medizinische Versorgungseinrichtung in Umgebung vorhanden?')
-  bemerkungen = NullCharField('Bemerkungen', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = models.TextField('Bemerkungen', max_length=500, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1020,9 +1016,10 @@ class Haltestellenkataster_Haltestellen(models.Model):
     verbose_name = 'Haltestellenkataster (Haltestelle)'
     verbose_name_plural = 'Haltestellenkataster (Haltestellen)'
     description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['id', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
-    list_fields_labels = ['Haltestellennummer', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
+    list_fields = ['id', 'gemeindeteil_name', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
+    list_fields_labels = ['Haltestellennummer', 'Gemeindeteil', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
     list_fields_with_number = ['id']
+    readonly_fields = ['gemeindeteil_name']
     show_alkis = True
     map_feature_tooltip_field = 'hst_bezeichnung'
     address = False
