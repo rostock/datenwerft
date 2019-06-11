@@ -88,6 +88,24 @@ class NullCharField(models.CharField):
     return attrs
 
 
+class NullTextField(models.TextField):
+  def __init__(self, *args, **kwargs):
+    super(NullTextField, self).__init__(*args, **kwargs)
+
+  def to_python(self, value):
+    if value in self.empty_values:
+      return None
+    value = force_text(value)
+    value = value.strip()
+    return value
+
+  def widget_attrs(self, widget):
+    attrs = super(NullTextField, self).widget_attrs(widget)
+    if self.max_length is not None:
+      attrs.update({'maxlength': str(self.max_length)})
+    return attrs
+
+
 class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
   def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
     self.min_value, self.max_value = min_value, max_value
@@ -947,7 +965,7 @@ class Gutachterfotos(models.Model):
 class Haltestellenkataster_Haltestellen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
-  gemeindeteil_name = NullCharField('Gemeindeteil', max_length=255, blank=True)
+  gemeindeteilanzeige = NullCharField('Gemeindeteil', max_length=255, blank=True)
   hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_hafas_id = NullCharField('HAFAS-ID', max_length=8, blank=True, validators=[RegexValidator(regex=hafas_id_regex, message=hafas_id_message)])
   hst_bus_bahnsteigbezeichnung = NullCharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -1006,7 +1024,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bfe_seniorenheim = models.NullBooleanField('Seniorenheim in Umgebung vorhanden?')
   bfe_pflegeeinrichtung = models.NullBooleanField('Pflegeeinrichtung in Umgebung vorhanden?')
   bfe_medizinische_versorgungseinrichtung = models.NullBooleanField('Medizinische Versorgungseinrichtung in Umgebung vorhanden?')
-  bemerkungen = models.TextField('Bemerkungen', max_length=500, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1016,10 +1034,10 @@ class Haltestellenkataster_Haltestellen(models.Model):
     verbose_name = 'Haltestellenkataster (Haltestelle)'
     verbose_name_plural = 'Haltestellenkataster (Haltestellen)'
     description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['id', 'gemeindeteil_name', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
+    list_fields = ['id', 'gemeindeteilanzeige', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
     list_fields_labels = ['Haltestellennummer', 'Gemeindeteil', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
     list_fields_with_number = ['id']
-    readonly_fields = ['gemeindeteil_name']
+    readonly_fields = ['gemeindeteilanzeige']
     show_alkis = True
     map_feature_tooltip_field = 'hst_bezeichnung'
     address = False
