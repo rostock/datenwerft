@@ -20,6 +20,7 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
 from leaflet.forms.widgets import LeafletWidget
+from operator import itemgetter
 import os
 import requests
 import re
@@ -279,6 +280,16 @@ class DataView(BaseDatatableView):
                 qs_params = qs_params | q if qs_params else q
             qs = qs.filter(qs_params)
         return qs
+
+    def ordering(self, qs):
+        order_column = self.request.GET.get(u'order[0][column]', None)
+        order_dir = self.request.GET.get(u'order[0][dir]', None)
+        column = str(self.columns[int(order_column) - 1])
+        dir = '-' if order_dir is not None and order_dir == 'desc' else ''
+        if order_column is not None:
+            return qs.order_by(dir + column)
+        else:
+            return qs
 
 
 class DataListView(generic.ListView):
