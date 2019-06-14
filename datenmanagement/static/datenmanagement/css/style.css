@@ -9,12 +9,6 @@ html {
     margin-left:2%;
 }
 
-#formular {
-    width:38%;
-    padding:0;
-    float:left;
-}
-
 #map {
     height:100%;
     width:80%;
@@ -27,13 +21,6 @@ html {
 
 #map_adressensuche_container {
     height:800px;
-}
-
-#map_adressensuche_container_formular {
-    height:600px;
-    width:60%;
-    float:left;
-    margin-left:1%;
 }
 
 #searchtext {
