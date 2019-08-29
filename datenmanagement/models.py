@@ -224,10 +224,21 @@ AUSFUEHRUNG_HALTESTELLEN = (
   ('Rippenplatten', 'Rippenplatten'),
 )
 
-BEFESTIGUNGSART_HALTESTELLEN = (
+BEFESTIGUNGSART_AUFSTELLFLAECHE_BUS_HALTESTELLEN = (
   ('Asphalt', 'Asphalt'),
   ('Beton', 'Beton'),
-  ('Kleinpflaster', 'Kleinpflaster'),
+  ('Betonverbundpflaster', 'Betonverbundpflaster'),
+  ('Großpflaster', 'Großpflaster'),
+  ('halbstarre Decke', 'halbstarre Decke'),
+  ('Natursteingroßpflaster', 'Natursteingroßpflaster'),
+  ('sonstige', 'sonstige'),
+)
+
+BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN = (
+  ('Asphalt', 'Asphalt'),
+  ('Beton', 'Beton'),
+  ('Betonpflaster', 'Betonpflaster'),
+  ('Betonplatten', 'Betonplatten'),
   ('sonstige', 'sonstige'),
 )
 
@@ -981,9 +992,9 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bau_typ = MultiSelectField('Typ', max_length=255, choices=TYP_HALTESTELLEN, blank=True, null=True)
   bau_wartebereich_laenge = models.DecimalField('Länge des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m lang sein.')], blank=True)
   bau_wartebereich_breite = models.DecimalField('Breite des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m breit sein.')], blank=True)
-  bau_befestigungsart_aufstellflaeche_bus = NullCharField('Befestigungsart der Aufstellfläche Bus', max_length=255, choices=BEFESTIGUNGSART_HALTESTELLEN, blank=True)
+  bau_befestigungsart_aufstellflaeche_bus = NullCharField('Befestigungsart der Aufstellfläche Bus', max_length=255, choices=BEFESTIGUNGSART_AUFSTELLFLAECHE_BUS_HALTESTELLEN, blank=True)
   bau_zustand_aufstellflaeche_bus = NullCharField('Zustand der Aufstellfläche Bus', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
-  bau_befestigungsart_warteflaeche = NullCharField('Befestigungsart der Wartefläche', max_length=255, choices=BEFESTIGUNGSART_HALTESTELLEN, blank=True)
+  bau_befestigungsart_warteflaeche = NullCharField('Befestigungsart der Wartefläche', max_length=255, choices=BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN, blank=True)
   bau_zustand_warteflaeche = NullCharField('Zustand der Wartefläche', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True)
   bf_einstieg = models.NullBooleanField('barrierefreier Einstieg vorhanden?')
   bf_zu_abgaenge = models.NullBooleanField('barrierefreie Zu- und Abgänge vorhanden?')
