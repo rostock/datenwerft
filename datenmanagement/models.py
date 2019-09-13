@@ -172,6 +172,11 @@ ART_FAIRTRADE = (
   ('Schulweltladen', 'Schulweltladen'),
 )
 
+ART_FEUERWACHE = (
+  ('Berufsfeuerwehr', 'Berufsfeuerwehr'),
+  ('Freiwillige Feuerwehr', 'Freiwillige Feuerwehr'),
+)
+
 ART_FLIESSGEWAESSER = (
   ('Durchlass', 'Durchlass'),
   ('offen', 'offen'),
@@ -905,6 +910,42 @@ class Fairtrade(models.Model):
 
 
 @python_2_unicode_compatible
+class Feuerwachen(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse', max_length=255)
+  hausnummer = NullCharField(max_length=4, blank=True)
+  hausnummer_zusatz = NullCharField(max_length=2, blank=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  art = models.CharField('Art', max_length=255, choices=ART_FEUERWACHE)
+  telefon = NullCharField('Telefon', max_length=255, blank=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  fax = NullCharField('Fax', max_length=255, blank=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = NullCharField('E-Mail', max_length=255, blank=True, validators=[EmailValidator(message=email_message)])
+  website = NullCharField('Website', max_length=255, blank=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'feuerwachen'
+    verbose_name = 'Feuerwache'
+    verbose_name_plural = 'Feuerwachen'
+    description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['uuid', 'bezeichnung', 'art']
+    list_fields_labels = ['UUID', 'Bezeichnung', 'Art']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = True
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.hausnummer_zusatz:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+    else:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
+@python_2_unicode_compatible
 class Fliessgewaesser(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
@@ -1092,7 +1133,7 @@ class Haltestellenkataster_Fotos(models.Model):
     multi_foto_field = True
   
   def __str__(self):
-    return unicode(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
+    return unicode(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(unicode(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
 
 
 @python_2_unicode_compatible
@@ -1403,6 +1444,43 @@ class Pflegeeinrichtungen(models.Model):
       return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
+@python_2_unicode_compatible
+class Rettungswachen(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid.uuid1, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse', max_length=255)
+  hausnummer = NullCharField(max_length=4, blank=True)
+  hausnummer_zusatz = NullCharField(max_length=2, blank=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  telefon = NullCharField('Telefon', max_length=255, blank=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  fax = NullCharField('Fax', max_length=255, blank=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = NullCharField('E-Mail', max_length=255, blank=True, validators=[EmailValidator(message=email_message)])
+  website = NullCharField('Website', max_length=255, blank=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'rettungswachen'
+    verbose_name = 'Rettungswache'
+    verbose_name_plural = 'Rettungswachen'
+    description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = True
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.hausnummer_zusatz:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+    else:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
 @python_2_unicode_compatible
