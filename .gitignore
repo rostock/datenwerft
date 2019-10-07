@@ -1,4 +1,13 @@
+# compiled data and cache
+__pycache__/
+*.py[cod]
+
+# Django
+db.sqlite3
+
+# Datenerfassung
+datenmanagement/migrations
 datenerfassung/secrets.py
 hilfe/build
 /static
-*.pyc
+/uploads
