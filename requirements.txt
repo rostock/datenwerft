@@ -1,21 +1,16 @@
 Django
 django-auth-ldap
-django-geojson
+django-datatables-view
 django-guardian
 django-leaflet
+django-multiselectfield
 djangorestframework
+django-tempus-dominus
+django-user-agents
 Pillow
 psycopg2
+PyYAML
+requests
 Sphinx
-
-
- requests==2.20.1
-django-datatables-view=1.17.0
-django-datetime-widget==0.9.3
- django-multiselectfield==0.1.3
-ua-parser==0.8.0
-user-agents==1.1.0
- django-user-agents==0.3.2
-
-
-Markdown==2.6.6
+ua-parser
+user-agents

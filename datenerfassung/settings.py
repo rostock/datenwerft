@@ -41,13 +41,13 @@ LOCAL_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    'datetimewidget',
-    'guardian',
-    'leaflet',
-    'requests',
-    'rest_framework',
+'datetimewidget',
+     'guardian',
+     'leaflet',
+     'requests',
+     'rest_framework',
     'multiselectfield',
-    'django_user_agents',
+     'django_user_agents',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
