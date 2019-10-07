@@ -60,6 +60,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 1.  Hilfe initialisieren:
 
         cd /usr/local/django_datenerfassung/datenerfassung/hilfe
+        mkdir source/_static
         make html
 
 1.  statische Dateien initialisieren:

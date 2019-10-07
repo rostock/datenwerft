@@ -1,30 +1,30 @@
 from django.conf import settings
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 import django
 
 
 def address_search_key(request):
-    return { 'address_search_key': settings.ADDRESS_SEARCH_KEY }
+  return { 'address_search_key': settings.ADDRESS_SEARCH_KEY }
 
 
 def datenmanagement_version(request):
-    return { 'datenmanagement_version': settings.DATENMANAGEMENT_VERSION }
+  return { 'datenmanagement_version': settings.DATENMANAGEMENT_VERSION }
 
 
 def django_version(request):
-    return { 'django_version': django.__version__ }
+  return { 'django_version': django.__version__ }
 
 
 def include_login_form(request):
-    from django.contrib.auth.forms import AuthenticationForm
-    form = AuthenticationForm()
+  from django.contrib.auth.forms import AuthenticationForm
+  form = AuthenticationForm()
+  loginredirect = request.get_full_path()
+  try:
+    if request.get_full_path() == reverse('logout'):
+      loginredirect = reverse('events:list')
+  except NoReverseMatch:
     loginredirect = request.get_full_path()
-    try:
-        if request.get_full_path() == reverse('logout'):
-            loginredirect = reverse('events:list')
-    except NoReverseMatch:
-        loginredirect = request.get_full_path()
-    return {
-        'login_form': form,
-        'current_path': loginredirect
-    }
+  return {
+    'login_form': form,
+    'current_path': loginredirect
+  }

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Datenerfassung documentation build configuration file, created by
 # sphinx-quickstart on Thu Jan 18 14:14:00 2018.
 #

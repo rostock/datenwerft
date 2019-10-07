@@ -23,10 +23,10 @@
     {% endif %}
 {% endblock %}
 
-{% block datetimepicker %}
-    <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-datetimepicker-2.3.5/css/bootstrap-datetimepicker.min.css' %}' />
-    <script src='{% static 'bootstrap-datetimepicker-2.3.5/js/bootstrap-datetimepicker.min.js' %}'></script>
-    <script src='{% static 'bootstrap-datetimepicker-2.3.5/js/locales/bootstrap-datetimepicker.de.js' %}'></script>
+{% block picker %}
+    <link rel='stylesheet' type='text/css' href='{% static 'tempusdominus-bootstrap-3-5.0.0-alpha10/tempusdominus-bootstrap-3.min.css' %}' />
+    <script src='{% static 'moment-2.24.0/moment-with-locales.min.js' %}'></script>
+    <script src='{% static 'tempusdominus-bootstrap-3-5.0.0-alpha10/tempusdominus-bootstrap-3.min.js' %}'></script>
 {% endblock %}
 
 {% block content %}
@@ -136,6 +136,7 @@
 	    </div>
 	</form>
     <script type='text/javascript'>
+        $('.datetimepicker-input').datetimepicker();
         // globale Variablen
         var FEATURE_GEOMETRY = [];
         

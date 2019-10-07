@@ -14,14 +14,14 @@
             <title>{% block title %}{% endblock %}Datenerfassung</title>
 
             {% block style %}
-                <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}'/>
-                <!-- ??? <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-4.3.1/css/bootstrap-theme.min.css' %}'/> -->
+                <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-3.4.1/css/bootstrap.min.css' %}'/>
+                <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-3.4.1/css/bootstrap-theme.min.css' %}'/>
                 <link rel='stylesheet' type='text/css' href='{% static 'jasny-bootstrap-4.0.0/css/jasny-bootstrap.min.css' %}'/>
             {% endblock %}
 
             {% block scripts %}
                 <script src='{% static 'jquery-3.4.1/jquery.min.js' %}'></script>
-                <script src='{% static 'bootstrap-4.3.1/js/bootstrap.min.js' %}'></script>
+                <script src='{% static 'bootstrap-3.4.1/js/bootstrap.min.js' %}'></script>
                 <script>ADDRESS_SEARCH_KEY = '{{ address_search_key }}'</script>
             {% endblock %}
 
@@ -31,7 +31,7 @@
             {% block table %}
             {% endblock %}
 
-            {% block datetimepicker %}
+            {% block picker %}
             {% endblock %}
 
             {% block datenmanagement %}

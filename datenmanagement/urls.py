@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from . import views
 import re
 
