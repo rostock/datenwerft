@@ -136,7 +136,9 @@
 	    </div>
 	</form>
     <script type='text/javascript'>
+        // Date-/Time-/Date-Time-Picker
         $('.datetimepicker-input').datetimepicker();
+
         // globale Variablen
         var FEATURE_GEOMETRY = [];
         
@@ -269,8 +271,9 @@
             {% endif %}
         }
     
-        // Read-only-Felder behandeln, Multi-Datei-Feld behandeln und Adressensuche initialisieren
+        // Read-only-Felder behandeln, Multi-Datei-Feld behandeln, Adressensuche initialisieren und Pflichtfelder behandeln
         $(document).ready(function() {
+
             {% if readonly_fields %}
                 {% for field in readonly_fields %}
                     var inputField = $('input#id_' + '{{ field }}');
@@ -360,6 +363,9 @@
                 setAddressOrStreet('strasse', window.currMap);
                 $('#addressToMap').prop('disabled', false);
             });
+
+            // verhindern, dass HTML5-/jQuery-Fehlermeldungen bei Pflichtfeldern die Django-Fehlermeldungen überdecken
+            $('[required]').removeAttr('required');
         });
         
         // Adresse oder Straße als Marker in Karte übernehmen

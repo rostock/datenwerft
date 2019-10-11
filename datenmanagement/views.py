@@ -98,16 +98,16 @@ class DataForm(ModelForm):
     self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
     self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
     
-    for field in self.fields:
-      if self.fields[field].label == 'Geometrie':
+    for field in self.fields.values():
+      if field.label == 'Geometrie':
         message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
-      elif self.fields[field].__class__.__name__ == 'ModelChoiceField':
+      elif field.__class__.__name__ == 'ModelChoiceField':
         message = 'Die Referenz zu „{label}“ ist Pflicht!'.format(label = self.foreign_key_label)
       else:
-        message = 'Das Attribut „{label}“ ist Pflicht!'.format(label = self.fields[field].label)
-        if self.fields[field].__class__.__name__ == 'DecimalField':
-          self.fields[field].localize = False
-      self.fields[field].error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
+        message = 'Das Attribut „{label}“ ist Pflicht!'.format(label = field.label)
+        if field.__class__.__name__ == 'DecimalField':
+          field.localize = False
+      field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
   def clean_foto(self):
