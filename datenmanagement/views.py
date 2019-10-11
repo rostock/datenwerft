@@ -105,8 +105,6 @@ class DataForm(ModelForm):
         message = 'Die Referenz zu „{label}“ ist Pflicht!'.format(label = self.foreign_key_label)
       else:
         message = 'Das Attribut „{label}“ ist Pflicht!'.format(label = field.label)
-        if field.__class__.__name__ == 'DecimalField':
-          field.localize = False
       field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
