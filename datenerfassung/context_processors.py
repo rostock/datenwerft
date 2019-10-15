@@ -11,10 +11,6 @@ def datenmanagement_version(request):
   return { 'datenmanagement_version': settings.DATENMANAGEMENT_VERSION }
 
 
-def django_version(request):
-  return { 'django_version': django.__version__ }
-
-
 def include_login_form(request):
   from django.contrib.auth.forms import AuthenticationForm
   form = AuthenticationForm()
