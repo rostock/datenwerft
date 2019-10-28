@@ -63,7 +63,7 @@ class AddressSearchView(generic.View):
     return super(AddressSearchView, self).dispatch(request, *args, **kwargs)
 
   def get(self, request, *args, **kwargs):
-    response = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=' + self.addresssearch_type + '&class=' + self.addresssearch_class + '&query=' + self.addresssearch_query + '&out_epsg=' + self.addresssearch_out_epsg + '&shape=' + self.addresssearch_shape + '&limit=' + self.addresssearch_limit)
+    response = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=' + self.addresssearch_type + '&class=' + self.addresssearch_class + '&query=' + self.addresssearch_query + '&out_epsg=' + self.addresssearch_out_epsg + '&shape=' + self.addresssearch_shape + '&limit=' + self.addresssearch_limit, timeout = 3)
     return HttpResponse(response, content_type = 'application/json')
 
 
@@ -80,7 +80,7 @@ class ReverseSearchView(generic.View):
     return super(ReverseSearchView, self).dispatch(request, *args, **kwargs)
 
   def get(self, request, *args, **kwargs):
-    response = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=' + self.reversesearch_type + '&class=' + self.reversesearch_class + '&query=' + self.reversesearch_x + ',' + self.reversesearch_y + '&in_epsg=' + self.reversesearch_in_epsg + '&radius=' + self.reversesearch_radius)
+    response = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=' + self.reversesearch_type + '&class=' + self.reversesearch_class + '&query=' + self.reversesearch_x + ',' + self.reversesearch_y + '&in_epsg=' + self.reversesearch_in_epsg + '&radius=' + self.reversesearch_radius, timeout = 3)
     return HttpResponse(response, content_type = 'application/json')
 
 
@@ -145,7 +145,7 @@ class DataForm(ModelForm):
       error_text = 'Bitte geben Sie eine eindeutige und existierende Adresse oder Straße an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
     else:
       error_text = 'Bitte geben Sie eine eindeutige und existierende Adresse an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
-    request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data)
+    request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
     json = request.json()
     ergebnisse = json.get('features')
     if not ergebnisse:
@@ -192,6 +192,7 @@ class DataView(BaseDatatableView):
     self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
     self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
     self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
+    self.parent_field_name_for_filter = (self.model._meta.parent_field_name_for_filter if hasattr(self.model._meta, 'parent_field_name_for_filter') else 'bezeichnung')
     super(DataView, self).__init__()
 
   def prepare_results(self, qs):
@@ -245,7 +246,7 @@ class DataView(BaseDatatableView):
       qs_params = None
       for column in self.columns:
         if column == 'parent':
-          column = 'parent__bezeichnung'
+          column = 'parent__' + self.parent_field_name_for_filter
         kwargs = {
           '{0}__{1}'.format(column, 'icontains'): search
         }

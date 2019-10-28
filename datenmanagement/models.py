@@ -112,7 +112,8 @@ options.DEFAULT_NAMES += (
   'address_optional',               # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
   'geometry_type',                  # optional ; Text      ; Geometrietyp
   'thumbs',                         # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
-  'multi_foto_field'                # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'multi_foto_field',               # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'parent_field_name_for_filter'    # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
 )
 
 
@@ -588,6 +589,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     foreign_key_label = 'Baustelle'
     thumbs = True
     multi_foto_field = True
+    parent_field_name_for_filter = 'bezeichnung'
   
   def __str__(self):
     return str(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
@@ -1095,6 +1097,7 @@ class Haltestellenkataster_Fotos(models.Model):
     foreign_key_label = 'Haltestelle'
     thumbs = True
     multi_foto_field = True
+    parent_field_name_for_filter = 'hst_bezeichnung'
   
   def __str__(self):
     return str(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
