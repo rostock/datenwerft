@@ -562,6 +562,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     address = False
     address_optional = False
     geometry_type = 'Point'
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
     return self.bezeichnung + ' (Auftraggeber: ' + self.auftraggeber + ')'
@@ -1062,6 +1063,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     address = False
     address_optional = False
     geometry_type = 'Point'
+    ordering = ['id'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
     if self.hst_hafas_id:
