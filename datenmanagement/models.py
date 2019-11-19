@@ -145,6 +145,12 @@ ANBIETER_CARSHARING = (
   ('YourCar Rostock GmbH', 'YourCar Rostock GmbH'),
 )
 
+ART_BAUDENKMALE_DENKMALBEREICHE = (
+  ('bewegliches Denkmal', 'bewegliches Denkmal'),
+  ('Denkmalbereich', 'Denkmalbereich'),
+  ('Einzeldenkmal', 'Einzeldenkmal'),
+)
+
 ART_FAIRTRADE = (
   ('Bildungsträger', 'Bildungsträger'),
   ('Einzelhandel', 'Einzelhandel'),
@@ -535,6 +541,38 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     return 'Abgeschlossenheitserklärung mit Datum ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
 
 
+class Baudenkmale_Denkmalbereiche(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
+  hausnummer = models.CharField(max_length=4, blank=True, null=True)
+  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  art = models.CharField('Art', max_length=255, choices=ART_BAUDENKMALE_DENKMALBEREICHE)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  gueltigkeit_von = models.DateField(default=date.today, editable=False)
+  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
+  geometrie = models.PolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baudenkmale'
+    verbose_name = 'Baudenkmal oder Denkmalbereich'
+    verbose_name_plural = 'Baudenkmale und Denkmalbereiche'
+    description = 'Baudenkmale und Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['uuid', 'art', 'adressanzeige', 'bezeichnung', 'beschreibung']
+    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bezeichnung', 'Beschreibung']
+    readonly_fields = ['adressanzeige']
+    show_alkis = True
+    map_feature_tooltip_field = 'beschreibung'
+    address = True
+    address_optional = True
+    geometry_type = 'MultiPolygonField'
+  
+  def __str__(self):
+    return self.art + (', ' + self.adressanzeige if self.adressanzeige else '') + (', ' + self.bezeichnung if self.bezeichnung else '') + ', ' + self.beschreibung + ' (UUID: ' + str(self.uuid) + ')'
+
+
 class Baustellen_Fotodokumentation_Baustellen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
@@ -551,7 +589,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
   class Meta:
     managed = False
     db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_fotodokumentation_baustellen'
-    verbose_name = 'Baustellen-Fotodokumentation (Baustellen)'
+    verbose_name = 'Baustellen-Fotodokumentation (Baustelle)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
     description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['bezeichnung', 'auftraggeber', 'adressanzeige']
@@ -615,7 +653,7 @@ class Baustellen_geplant(models.Model):
   class Meta:
     managed = False
     db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_geplant'
-    verbose_name = 'Baustellen (geplant)'
+    verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
     list_fields = ['uuid', 'bezeichnung', 'ansprechpartner']
