@@ -552,7 +552,7 @@ class Baudenkmale_Denkmalbereiche(models.Model):
   beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   gueltigkeit_von = models.DateField(default=date.today, editable=False)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PolygonField('Geometrie', srid=25833)
+  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
 
   class Meta:
     managed = False
