@@ -50,6 +50,18 @@ def get_thumb_url(url):
   return head + '/thumbs/' + tail
 
 
+class OWSProxyView(generic.View):
+  http_method_names = ['get',]
+  
+  def dispatch(self, request, *args, **kwargs):
+    self.destination_url = settings.OWS_BASE + re.sub('^.*owsproxy', '', str(request.get_full_path))
+    return super(OWSProxyView, self).dispatch(request, *args, **kwargs)
+
+  def get(self, request, *args, **kwargs):
+    response = requests.get(self.destination_url, timeout = 60)
+    return HttpResponse(response, content_type = response.headers['content-type'])
+
+
 class AddressSearchView(generic.View):
   http_method_names = ['get',]
   
@@ -405,6 +417,7 @@ class DataChangeView(generic.UpdateView):
 
   def get_context_data(self, **kwargs):
     context = super(DataChangeView, self).get_context_data(**kwargs)
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['READONLY_FIELD_DEFAULT'] = settings.READONLY_FIELD_DEFAULT
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()

@@ -11,6 +11,7 @@ def permission_required(*perms):
 app_name = 'datenmanagement'
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name = 'index'),
+    url(r'owsproxy', login_required(views.OWSProxyView.as_view()), name = 'owsproxy'),
     url(r'addresssearch$', login_required(views.AddressSearchView.as_view()), name = 'addresssearch'),
     url(r'reversesearch$', login_required(views.ReverseSearchView.as_view()), name = 'reversesearch'),
 ]

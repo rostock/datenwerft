@@ -376,6 +376,11 @@ LINIEN_HALTESTELLEN = (
   ('X41', 'X41'),
 )
 
+MATERIAL_DENKSTEINE = (
+  ('Metall', 'Metall'),
+  ('Stein', 'Stein'),
+)
+
 MOTIVE_HALTESTELLEN = (
   ('Mast', 'Mast'),
   ('Wartebereich von Stirnseite', 'Wartebereich von Stirnseite'),
@@ -684,7 +689,7 @@ class Begegnungszentren(models.Model):
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
-  barrierefrei = models.BooleanField('barrierefrei', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -760,7 +765,7 @@ class Bildungstraeger(models.Model):
   klassen = MultiSelectField('Klassen', max_length=255, choices=KLASSEN_BILDUNGSTRAEGER)
   traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
-  barrierefrei = models.BooleanField('barrierefrei', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -824,7 +829,7 @@ class Containerstellplaetze(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
-  privat = models.BooleanField('privat', blank=True, null=True)
+  privat = models.BooleanField(' privat', blank=True, null=True)
   id_containerstellplatz = models.CharField('ID', max_length=5, validators=[RegexValidator(regex=id_containerstellplatz_regex, message=id_containerstellplatz_message)], blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   anzahl_glas = models.PositiveSmallIntegerField('Anzahl Glas normal', blank=True, null=True)
@@ -881,6 +886,47 @@ class Containerstellplaetze(models.Model):
     return 'Containerstellplatz' + (' mit ID ' + self.id_containerstellplatz + ' und Bezeichnung ' if self.id_containerstellplatz else ' mit Bezeichnung ') + self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '')
 
 
+class Denksteine(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse', max_length=255)
+  hausnummer = models.CharField(max_length=4, blank=True, null=True)
+  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  namensanzeige = models.CharField('Name', max_length=255, blank=True, null=True)
+  geburtsjahr = PositiveSmallIntegerRangeField('Geburtsjahr', min_value=1850, max_value=1945)
+  sterbejahr = PositiveSmallIntegerRangeField('Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
+  text_auf_dem_stein = models.CharField('Text auf dem Stein', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ehemalige_adresse = models.CharField(' ehemalige Adresse', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  erstes_verlegejahr = PositiveSmallIntegerRangeField(' erstes Verlegejahr', min_value=2002, max_value=current_year())
+  material = models.CharField('Material', max_length=255, choices=MATERIAL_DENKSTEINE)
+  website = models.CharField('Website', max_length=255, validators=[URLValidator(message=url_message)])
+  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'denksteine'
+    verbose_name = 'Denkstein'
+    verbose_name_plural = 'Denksteine'
+    description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['uuid', 'namensanzeige', 'adressanzeige']
+    list_fields_labels = ['UUID', 'Name', 'Adresse']
+    readonly_fields = ['namensanzeige', 'adressanzeige']
+    show_alkis = False
+    map_feature_tooltip_field = 'namensanzeige'
+    address = True
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.hausnummer_zusatz:
+      return self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+    else:
+      return self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
 class Fairtrade(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
@@ -890,7 +936,7 @@ class Fairtrade(models.Model):
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   art = models.CharField('Art', max_length=255, choices=ART_FAIRTRADE)
   betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  barrierefrei = models.BooleanField('barrierefrei', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1029,13 +1075,13 @@ class Haltestellenkataster_Haltestellen(models.Model):
   hst_bus_bahnsteigbezeichnung = models.CharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_richtung = models.CharField('Richtungsinformation', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_kategorie = models.CharField('Haltestellenkategorie', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  hst_linien = MultiSelectField('bedienende Linie(n)', max_length=255, choices=LINIEN_HALTESTELLEN, blank=True, null=True)
-  hst_rsag = models.BooleanField('bedient durch Rostocker Straßenbahn AG?', blank=True, null=True)
-  hst_rebus = models.BooleanField('bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True)
-  hst_nur_ausstieg = models.BooleanField('nur Ausstieg?', blank=True, null=True)
-  hst_nur_einstieg = models.BooleanField('nur Einstieg?', blank=True, null=True)
+  hst_linien = MultiSelectField(' bedienende Linie(n)', max_length=255, choices=LINIEN_HALTESTELLEN, blank=True, null=True)
+  hst_rsag = models.BooleanField(' bedient durch Rostocker Straßenbahn AG?', blank=True, null=True)
+  hst_rebus = models.BooleanField(' bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True)
+  hst_nur_ausstieg = models.BooleanField(' nur Ausstieg?', blank=True, null=True)
+  hst_nur_einstieg = models.BooleanField(' nur Einstieg?', blank=True, null=True)
   hst_verkehrsmittelklassen = MultiSelectField('Verkehrsmittelklasse(n)', max_length=255, choices=VERKEHRSMITTELKLASSEN_HALTESTELLEN)
-  hst_fahrgastzahl = models.PositiveIntegerField('durchschnittliche Fahrgastzahl', blank=True, null=True)
+  hst_fahrgastzahl = models.PositiveIntegerField(' durchschnittliche Fahrgastzahl', blank=True, null=True)
   bau_typ = MultiSelectField('Typ', max_length=255, choices=TYP_HALTESTELLEN, blank=True, null=True)
   bau_wartebereich_laenge = models.DecimalField('Länge des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m lang sein.')], blank=True, null=True)
   bau_wartebereich_breite = models.DecimalField('Breite des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m breit sein.')], blank=True, null=True)
@@ -1043,9 +1089,9 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bau_zustand_aufstellflaeche_bus = models.CharField('Zustand der Aufstellfläche Bus', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True, null=True)
   bau_befestigungsart_warteflaeche = models.CharField('Befestigungsart der Wartefläche', max_length=255, choices=BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN, blank=True, null=True)
   bau_zustand_warteflaeche = models.CharField('Zustand der Wartefläche', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True, null=True)
-  bf_einstieg = models.BooleanField('barrierefreier Einstieg vorhanden?', blank=True, null=True)
-  bf_zu_abgaenge = models.BooleanField('barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True)
-  bf_bewegungsraum = models.BooleanField('barrierefreier Bewegungsraum vorhanden?', blank=True, null=True)
+  bf_einstieg = models.BooleanField(' barrierefreier Einstieg vorhanden?', blank=True, null=True)
+  bf_zu_abgaenge = models.BooleanField(' barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True)
+  bf_bewegungsraum = models.BooleanField(' barrierefreier Bewegungsraum vorhanden?', blank=True, null=True)
   tl_auffindestreifen = models.BooleanField('Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True)
   tl_auffindestreifen_ausfuehrung = models.CharField('Taktiles Leitsystem: Ausführung Auffindestreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True, null=True)
   tl_auffindestreifen_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Auffindestreifens (in cm)', blank=True, null=True)
@@ -1225,7 +1271,7 @@ class Kinderjugendbetreuung(models.Model):
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
-  barrierefrei = models.BooleanField('barrierefrei', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1489,7 +1535,7 @@ class Vereine(models.Model):
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   klassen = MultiSelectField('Kategorien', max_length=255, choices=KLASSEN_VEREINE)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  barrierefrei = models.BooleanField('barrierefrei', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])

@@ -185,22 +185,6 @@
                     }
                 });
             {% endif %}
-            
-            // falls für Datenthema ALKIS aktiviert ist...
-            {% if show_alkis %}
-                // Liegenschaftskarte definieren
-                var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte/wms', {
-                    layers: 'hro.liegenschaftskarte.liegenschaftskarte',
-                    format: 'image/png',
-                    attribution: '© Hanse- und Universitätsstadt Rostock'
-                });
-                // Kilometerquadrate ETRS89/UTM-33N definieren
-                var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-                    layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-                    format: 'image/png',
-                    transparent: true
-                });
-            {% endif %}
 
             // ORKa.MV definieren
             var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
@@ -210,20 +194,37 @@
             // ORKa.MV standardmäßig zur Karte hinzufügen
             map.addLayer(orkamv);
 
+            // OpenStreetMap definieren
+            var osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
+            });
+
+            // Liegenschaftskarte definieren
+            var liegenschaftskarte = L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte_hro_lro/tiles/1.0.0/hro.liegenschaftskarte_hro_lro.liegenschaftskarte_hro_lro/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+                attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern) und Landkreis Rostock'
+            });
+
             // Luftbild definieren
-            var luftbild =  L.tileLayer('https://geo.sv.rostock.de/geodienste/luftbild_mv-40/tiles/1.0.0/hro.luftbild_mv-40.luftbild_mv-40/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+            var luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
                 attribution: '© GeoBasis-DE/M-V'
             });
+
+            // falls für Datenthema ALKIS aktiviert ist...
+            {% if show_alkis %}
+                // Kilometerquadrate ETRS89/UTM-33N definieren
+                var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+                    layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+                    format: 'image/png',
+                    transparent: true
+                });
+            {% endif %}
             
             // definierte Karten als Hintergrundkarten zusammenfassen
             var baseMaps = {
-                // falls für Datenthema ALKIS aktiviert ist...
-                {% if show_alkis %}
-                    // Liegenschaftskarte berücksichtigen
-                    'Liegenschaftskarte': liegenschaftskarte,
-                {% endif %}
+                'Liegenschaftskarte': liegenschaftskarte,
                 'Luftbild': luftbild,
-                'ORKa.MV': orkamv
+                'ORKa.MV': orkamv,
+                'OpenStreetMap': osm
             };
             
             // definierte Karten als Overlay-Karten zusammenfassen

@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '2.0.4'
+DATENMANAGEMENT_VERSION = '2.1.0'
 
 DJANGO_APPS = [
   'django.contrib.admin',
@@ -87,7 +87,7 @@ LEAFLET_CONFIG = {
   'DEFAULT_CENTER': (54.14775,12.14945),
   'DEFAULT_ZOOM': 11,
   'MIN_ZOOM': 11,
-  'MAX_ZOOM': 18,
+  'MAX_ZOOM': 19,
   'TILES': [],
   'SRID': 3857,
   'ATTRIBUTION_PREFIX': '',
