@@ -414,6 +414,12 @@ STATUS_BAUSTELLEN_FOTODOKUMENTATION = (
   ('nach Baumaßnahme', 'nach Baumaßnahme'),
 )
 
+TITEL_DENKSTEINE = (
+  ('Dr.', 'Dr.'),
+  ('Prof.', 'Prof.'),
+  ('Prof. Dr.', 'Prof. Dr.'),
+)
+
 TRAEGER_ART = (
   ('betrieblich', 'betrieblich'),
   ('freie Wohlfahrtspflege', 'freie Wohlfahrtspflege'),
@@ -892,6 +898,8 @@ class Denksteine(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  nummer = models.CharField('Nummer', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  titel = models.CharField('Titel', max_length=255, choices=TITEL_DENKSTEINE, blank=True, null=True)
   vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   namensanzeige = models.CharField('Name', max_length=255, blank=True, null=True)
@@ -911,8 +919,8 @@ class Denksteine(models.Model):
     verbose_name = 'Denkstein'
     verbose_name_plural = 'Denksteine'
     description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'namensanzeige', 'adressanzeige']
-    list_fields_labels = ['UUID', 'Name', 'Adresse']
+    list_fields = ['uuid', 'nummer', 'namensanzeige', 'adressanzeige']
+    list_fields_labels = ['UUID', 'Nummer', 'Name', 'Adresse']
     readonly_fields = ['namensanzeige', 'adressanzeige']
     show_alkis = False
     map_feature_tooltip_field = 'namensanzeige'
@@ -922,9 +930,9 @@ class Denksteine(models.Model):
   
   def __str__(self):
     if self.hausnummer_zusatz:
-      return self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+      return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
-      return self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+      return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
 class Fairtrade(models.Model):
