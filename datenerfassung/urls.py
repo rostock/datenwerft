@@ -165,7 +165,7 @@ router.register(r'group_object_permission', GroupObjectPermissionViewSet)
 app_models = apps.get_app_config('datenmanagement').get_models()
 for model in app_models:
   modelname = model.__name__.lower()
-  router.register(modelname, DatenmanagementViewSet.create_custom(model = model), base_name = modelname)
+  router.register(modelname, DatenmanagementViewSet.create_custom(model = model), basename = modelname)
 
 
 urlpatterns = [

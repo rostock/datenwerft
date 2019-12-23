@@ -69,21 +69,26 @@ def thumb_image(path, thumb_path):
 
 
 class NullTextField(models.TextField):
-  def __init__(self, *args, **kwargs):
-    super(NullTextField, self).__init__(*args, **kwargs)
+  def get_internal_type(self):
+    return 'TextField'
 
   def to_python(self, value):
-    if value in self.empty_values:
+    if value is None or value in self.empty_values:
       return None
-    value = force_text(value)
-    value = value.strip()
-    return value
+    elif isinstance(value, str):
+      return value
+    return str(value)
 
-  def widget_attrs(self, widget):
-    attrs = super(NullTextField, self).widget_attrs(widget)
-    if self.max_length is not None:
-      attrs.update({'maxlength': str(self.max_length)})
-    return attrs
+  def get_prep_value(self, value):
+    value = super(NullTextField, self).get_prep_value(value)
+    return self.to_python(value)
+
+  def formfield(self, **kwargs):
+    return super(NullTextField, self).formfield(**{
+      'max_length': self.max_length,
+      **({} if self.choices is not None else {'widget': forms.Textarea}),
+      **kwargs,
+    })
 
 
 class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):

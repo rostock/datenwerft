@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '2.1.1'
+DATENMANAGEMENT_VERSION = '2.2.0'
 
 DJANGO_APPS = [
   'django.contrib.admin',
@@ -124,7 +124,7 @@ TEMPUS_DOMINUS_LOCALIZE = True
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'de-de'
+LANGUAGE_CODE = 'de'
 
 TIME_ZONE = 'Europe/Berlin'
 
