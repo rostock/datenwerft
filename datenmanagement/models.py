@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.db.models import options
 from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, MinValueValidator, RegexValidator, URLValidator
+from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
@@ -132,10 +132,12 @@ doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen enthalten
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
 
+geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
+geraetenummer_message = 'Die Gerätenummer muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
 hafas_id_regex = r'^[0-9]{8}$'
 hafas_id_message = 'Die HAFAS-ID muss aus genau acht Ziffern bestehen.'
 id_containerstellplatz_regex = r'^[0-9]{2}-[0-9]{2}$'
-id_containerstellplatz_message = 'Die ID des Containerstellplatzes muss aus genau zwei Ziffern, genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
+id_containerstellplatz_message = 'Die ID des Containerstellplatzes muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
 inventarnummer_regex = r'^[0-9]{8}$'
 inventarnummer_message = 'Die Inventarnummer muss aus genau acht Ziffern bestehen.'
 postleitzahl_regex = r'^[0-9]{5}$'
@@ -284,10 +286,32 @@ BEWIRTSCHAFTER_PAPIER_CONTAINERSTELLPLAETZE = (
   (1, 'Veolia Umweltservice Nord GmbH'),
 )
 
+E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
+  ('Dauerstrom', 'Dauerstrom'),
+  ('Solarpanel', 'Solarpanel'),
+  ('Straßenbeleuchtung', 'Straßenbeleuchtung'),
+)
+
 EIGENTUEMER_ABFALLBEHAELTER = (
   ('hro', 'Hanse- und Universitätsstadt Rostock'),
   ('rsag', 'Rostocker Straßenbahn AG'),
   ('sr', 'Stadtentsorgung Rostock GmbH'),
+)
+
+EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE = (
+  ('min', 'Minuten'),
+  ('h', 'Stunden'),
+  ('d', 'Tage'),
+)
+
+GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE = (
+  ('2 min = 0,10 €', '2 min = 0,10 €'),
+  ('3 min = 0,10 €', '3 min = 0,10 €'),
+  ('4 min = 0,10 €', '4 min = 0,10 €'),
+  ('6 min = 0,10 €', '6 min = 0,10 €'),
+  ('6 min = 0,50 €', '6 min = 0,50 €'),
+  ('10 min = 0,10 €', '10 min = 0,10 €'),
+  ('12 min = 0,10 €', '12 min = 0,10 €'),
 )
 
 KLASSEN_BILDUNGSTRAEGER = (
@@ -468,6 +492,20 @@ VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
   ('Schienenersatzverkehr', 'Schienenersatzverkehr'),
   ('Stadtbus', 'Stadtbus'),
   ('Straßenbahn', 'Straßenbahn'),
+)
+
+ZONE_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
+  ('A', 'A'),
+  ('B', 'B'),
+  ('C', 'C'),
+  ('D', 'D'),
+  ('W', 'W'),
+  ('X', 'X'),
+)
+
+ZUGELASSENE_MUENZEN_PARKSCHEINAUTOMATEN_TARIFE = (
+  ('0,10 € – 1,00 €', '0,10 € – 1,00 €'),
+  ('0,10 € – 2,00 €', '0,10 € – 2,00 €'),
 )
 
 
@@ -1466,6 +1504,83 @@ class Parkmoeglichkeiten(models.Model):
         return self.standort + ' (' + self.art + '), ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.standort + ' (' + self.art + '), ' + ' (UUID: ' + str(self.uuid) + ')'
+
+
+class Parkscheinautomaten_Tarife(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bewirtschaftungszeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
+  normaltarif_parkdauer_min = models.PositiveSmallIntegerField('Mindestparkdauer Normaltarif')
+  normaltarif_parkdauer_min_einheit = models.CharField('Einheit der Mindestparkdauer Normaltarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE)
+  normaltarif_parkdauer_max = models.PositiveSmallIntegerField('Maximalparkdauer Normaltarif')
+  normaltarif_parkdauer_max_einheit = models.CharField('Einheit der Maximalparkdauer Normaltarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE)
+  normaltarif_gebuehren_max = models.DecimalField('Maximalgebühren Normaltarif (in €)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Maximalgebühren Normaltarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  normaltarif_gebuehren_pro_stunde = models.DecimalField('Gebühren pro Stunde Normaltarif (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren pro Stunde Normaltarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  normaltarif_gebuehrenschritte = models.CharField('Gebührenschritte Normaltarif', max_length=255, choices=GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
+  veranstaltungstarif_parkdauer_min = models.PositiveSmallIntegerField('Mindestparkdauer Veranstaltungstarif', blank=True, null=True)
+  veranstaltungstarif_parkdauer_min_einheit = models.CharField('Einheit der Mindestparkdauer Veranstaltungstarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
+  veranstaltungstarif_parkdauer_max = models.PositiveSmallIntegerField('Maximalparkdauer Veranstaltungstarif', blank=True, null=True)
+  veranstaltungstarif_parkdauer_max_einheit = models.CharField('Einheit der Maximalparkdauer Veranstaltungstarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
+  veranstaltungstarif_gebuehren_max = models.DecimalField('Maximalgebühren Veranstaltungstarif (in €)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Maximalgebühren Veranstaltungstarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  veranstaltungstarif_gebuehren_pro_stunde = models.DecimalField('Gebühren pro Stunde Veranstaltungstarif (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren pro Stunde Veranstaltungstarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  veranstaltungstarif_gebuehrenschritte = models.CharField('Gebührenschritte Veranstaltungstarif', max_length=255, choices=GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
+  zugelassene_muenzen = models.CharField('zugelassene Münzen', max_length=255, choices=ZUGELASSENE_MUENZEN_PARKSCHEINAUTOMATEN_TARIFE)
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkscheinautomaten_tarife'
+    verbose_name = 'Parkscheinautomaten (Tarif)'
+    verbose_name_plural = 'Parkscheinautomaten (Tarife)'
+    description = 'Tarife für die Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['bezeichnung', 'bewirtschaftungszeiten']
+    list_fields_labels = ['Bezeichnung', 'Bewirtschaftungszeiten']
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung + ' (Bewirtschaftungszeiten: ' + self.bewirtschaftungszeiten + ')'
+
+
+class Parkscheinautomaten_Parkscheinautomaten(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  parent = models.ForeignKey(Parkscheinautomaten_Tarife, on_delete=models.PROTECT, db_column='parkscheinautomaten_tarif', to_field='uuid')
+  nummer = models.PositiveSmallIntegerField('Nummer')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
+  hausnummer = models.CharField(max_length=4, blank=True, null=True)
+  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  zone = models.CharField('Zone', blank=False, max_length=255, choices=ZONE_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN)
+  handyparkzone = models.PositiveIntegerField('Handyparkzone', validators=[MinValueValidator(100000, 'Die Handyparkzone muss einen Wert größer gleich 100000 aufweisen.'), MaxValueValidator(999999, 'Die Handyparkzone muss einen Wert kleiner gleich 999999 aufweisen.')])
+  bewohnerparkgebiet = models.CharField('Bewohnerparkgebiet', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geraetenummer = models.CharField('Gerätenummer', max_length=8, validators=[RegexValidator(regex=geraetenummer_regex, message=geraetenummer_message)])
+  inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
+  e_anschluss = models.CharField('E-Anschluss', max_length=255, choices=E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN)
+  stellplaetze_pkw = models.PositiveSmallIntegerField('Pkw-Stellplätze', blank=True, null=True)
+  stellplaetze_bus = models.PositiveSmallIntegerField('Bus-Stellplätze', blank=True, null=True)
+  haendlerkartennummer = models.PositiveIntegerField('Händlerkartennummer', blank=True, null=True, validators=[MinValueValidator(1000000000, 'Die Händlerkartennummer muss einen Wert größer gleich 1000000000 aufweisen.'), MaxValueValidator(9999999999, 'Die Händlerkartennummer muss einen Wert kleiner gleich 9999999999 aufweisen.')])
+  laufzeit_geldkarte = models.DateField('Laufzeit der Geldkarte', blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkscheinautomaten_parkscheinautomaten'
+    verbose_name = 'Parkscheinautomaten (Parkscheinautomat)'
+    verbose_name_plural = 'Parkscheinautomaten (Parkscheinautomaten)'
+    description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['bezeichnung', 'nummer', 'zone', 'parent']
+    list_fields_labels = ['Bezeichnung', 'Nummer', 'Zone', 'Tarif']
+    object_title = 'der Parkscheinautomat'
+    foreign_key_label = 'Tarif'
+    parent_field_name_for_filter = 'bezeichnung'
+    show_alkis = True
+    map_feature_tooltip_field = 'bezeichnung'
+    address = True
+    address_optional = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return str(self.parent) + ', ' + self.bezeichnung + ', mit Nummer ' + str(self.nummer) + ', in Zone ' + self.zone
 
 
 class Pflegeeinrichtungen(models.Model):
