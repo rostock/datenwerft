@@ -243,6 +243,12 @@ BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN = (
   ('sonstige', 'sonstige'),
 )
 
+BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE = (
+  ('halböffentlich', 'halböffentlich'),
+  ('öffentlich', 'öffentlich'),
+  ('privat', 'privat'),
+)
+
 BEWIRTSCHAFTER_ABFALLBEHAELTER = (
   (67, 'Amt für Stadtgrün, Naturschutz und Landschaftspflege'),
   (73, 'Amt für Umweltschutz'),
@@ -353,6 +359,23 @@ KLASSEN_VEREINE = (
   ('Tradition', 'Tradition'),
   ('Umwelt', 'Umwelt'),
   ('Verbraucher', 'Verbraucher'),
+)
+
+LADEKARTEN_LADESTATIONEN_ELEKTROFAHRZEUGE = (
+  ('ADAC e-Charge', 'ADAC e-Charge'),
+  ('beliebige RFID-Ladekarten', 'beliebige RFID-Ladekarten'),
+  ('EinfachStromLaden', 'EinfachStromLaden'),
+  ('EnBW mobility+', 'EnBW mobility+'),
+  ('EWE', 'EWE'),
+  ('GET CHARGE', 'GET CHARGE'),
+  ('HAMBURG ENERGIE', 'HAMBURG ENERGIE'),
+  ('LeasePlan', 'LeasePlan'),
+  ('ohne Authentifizierung', 'ohne Authentifizierung'),
+  ('Plugsurfing', 'Plugsurfing'),
+  ('Shell Recharge', 'Shell Recharge'),
+  ('SMATRICS NET', 'SMATRICS NET'),
+  ('Spontanladen', 'Spontanladen'),
+  ('Stadtwerke Rostock', 'Stadtwerke Rostock'),
 )
 
 LINIEN_HALTESTELLEN = (
@@ -475,6 +498,15 @@ TYP_HALTESTELLEN = (
   ('Doppelhaltestelle', 'Doppelhaltestelle'),
   ('Kombihaltestelle', 'Kombihaltestelle'),
   ('Straßenbahnhaltestelle', 'Straßenbahnhaltestelle'),
+)
+
+VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE = (
+  ('Allego', 'Allego'),
+  ('E.ON', 'E.ON'),
+  ('IKEA', 'IKEA'),
+  ('NewMotion', 'NewMotion'),
+  ('Stadtwerke Rostock', 'Stadtwerke Rostock'),
+  ('StromTicket', 'StromTicket'),
 )
 
 VERKEHRLICHE_LAGEN_BAUSTELLEN = (
@@ -1390,6 +1422,46 @@ class Kunstimoeffentlichenraum(models.Model):
         return self.bezeichnung + ', ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ' (UUID: ' + str(self.uuid) + ')'
+
+
+class Ladestationen_Elektrofahrzeuge(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse', max_length=255)
+  hausnummer = models.CharField(max_length=4, blank=True, null=True)
+  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  geplant = models.BooleanField(' geplant', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  betriebsart = models.CharField('Betriebsart', max_length=255, choices=BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE)
+  betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  verbund = models.CharField('Verbund', max_length=255, choices=VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE, blank=True, null=True)
+  anzahl_ladepunkte = models.PositiveSmallIntegerField('Anzahl an Ladepunkten')
+  arten_ladepunkte = models.CharField('Arten der Ladepunkte', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ladekarten = MultiSelectField('Ladekarten', max_length=255, choices=LADEKARTEN_LADESTATIONEN_ELEKTROFAHRZEUGE, blank=True, null=True)
+  kosten = models.CharField('Kosten', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'ladestationen_elektrofahrzeuge'
+    verbose_name = 'Ladestation für Elektrofahrzeuge'
+    verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
+    description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['bezeichnung', 'betriebsart', 'betreiber', 'verbund', 'geplant']
+    list_fields_labels = ['Bezeichnung', 'Betriebsart', 'Betreiber', 'Verbund', 'geplant']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = True
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.hausnummer_zusatz:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (' + self.betreiber + ')'
+    else:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (' + self.betreiber + ')'
 
 
 class Meldedienst_flaechenhaft(models.Model):
