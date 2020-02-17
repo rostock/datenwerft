@@ -261,7 +261,7 @@
                 if (item.properties.objektgruppe === 'Gemeindeteil')
                     results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong><span>Ortsteil</span></div>');
                 else
-                    results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
+                    results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
             });
             
             // Resultate einblenden

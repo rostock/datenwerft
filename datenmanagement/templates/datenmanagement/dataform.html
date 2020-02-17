@@ -494,15 +494,15 @@
                         // falls Datenmodell Hausnummer vorsieht: Straßen unterdrücken
                         {% if form.hausnummer %}
                             if (item.properties.objektgruppe !== 'Straße')
-                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small></div>');
+                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
                         // ansonsten: Adressen unterdrücken
                         {% else  %}
                             if (item.properties.objektgruppe !== 'Adresse')
-                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small></div>');
+                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
                         {% endif %}
                     // ansonsten: sowohl Adressen als auch Straßen anzeigen
                     {% else %}
-                        results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
+                        results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
                     {% endif %}
                 }
             });

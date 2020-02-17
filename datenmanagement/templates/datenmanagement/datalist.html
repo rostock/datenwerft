@@ -50,6 +50,10 @@
             $(document).ready(function(){
                 var table = $('#datasets').DataTable({
                     ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
+                    buttons: [
+                      'copy', 'print', 'excel', 'pdf'
+                    ],
+                    colReorder: true,
                     columnDefs: [{
                       'orderable': false,
                       'targets': 0
@@ -60,6 +64,7 @@
                       'orderable': false,
                       'targets': -1
                     }],
+                    dom: 'Bfrtip',
                     language: {
                         url: '{% static 'datatables-1.10.20/datatables.german.lang' %}'
                     },

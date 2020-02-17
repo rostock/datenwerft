@@ -1,12 +1,12 @@
 #formular {
-    width:38%;
+    width:48%;
     padding:0;
     float:left;
 }
 
 #map_adressensuche_container_formular {
     height:600px;
-    width:60%;
+    width:50%;
     float:left;
     margin-left:1%;
 }
