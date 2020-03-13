@@ -11,7 +11,7 @@
         {% if user|user_has_model_add_permission:model_name_lower %}
             <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
         {% endif %}
-        {% if user|user_has_model_change_permission:model_name_lower or user|user_has_model_delete_permission:model_name_lower %}
+        {% if user|user_has_model_change_permission:model_name_lower or user|user_has_model_delete_permission:model_name_lower or user|user_has_model_view_permission:model_name_lower %}
             <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
             {% if geometry_type %}
                 <a href="{% url 'datenmanagement:'|add:model_name|add:'map' %}" class='btn btn-default'>Datensätze auf Karte anzeigen</a>

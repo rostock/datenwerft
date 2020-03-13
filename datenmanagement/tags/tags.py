@@ -130,7 +130,8 @@ def user_has_model_permission(user, obj):
     permission_add = user.has_perm('datenmanagement.add_' + obj.__class__.__name__.lower())
     permission_change = user.has_perm('datenmanagement.change_' + obj.__class__.__name__.lower())
     permission_delete = user.has_perm('datenmanagement.delete_' + obj.__class__.__name__.lower())
-    if permission_change or permission_add or permission_delete:
+    permission_view = user.has_perm('datenmanagement.view_' + obj.__class__.__name__.lower())
+    if permission_change or permission_add or permission_delete or permission_view:
         return True
     else:
         return False
@@ -155,6 +156,14 @@ def user_has_model_change_permission(user, model_name_lower):
 @register.filter
 def user_has_model_delete_permission(user, model_name_lower):
     if user.has_perm('datenmanagement.delete_' + model_name_lower):
+        return True
+    else:
+        return False
+
+
+@register.filter
+def user_has_model_view_permission(user, model_name_lower):
+    if user.has_perm('datenmanagement.view_' + model_name_lower):
         return True
     else:
         return False
