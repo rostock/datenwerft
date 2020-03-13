@@ -172,12 +172,15 @@
                 {% if 'change_'|add:model_name_lower in objperms %}
                     geoJsonFeature.properties.user_may_change = 'ok';
                 {% endif %}
+                {% if 'view_'|add:model_name_lower in objperms %}
+                    geoJsonFeature.properties.user_may_view = 'ok';
+                {% endif %}
             {% endfor %}
             
             // jedes Feature mit Link versehen
             function onEachFeature(feature, layer) {
                 // falls Nutzer die notwendige Berechtigung hat...
-                if (feature.properties.user_may_change == 'ok') {
+                if (feature.properties.user_may_change == 'ok' || feature.properties.user_may_view == 'ok') {
                     layer.on('click', function (e) {
                         // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
                         window.document.location = window.document.location + '../change/' + feature.properties.id;

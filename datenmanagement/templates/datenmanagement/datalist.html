@@ -41,7 +41,11 @@
                             {% endwith %}
                         {% endwith %}
                     {% endfor %}
-                    <th><i>editieren</i></th>
+                    {% if user|user_has_model_change_permission:model_name_lower %}
+                        <th><i>editieren</i></th>
+                    {% else %}
+                        <th><i>ansehen</i></th>
+                    {% endif %}
                     <th><i>löschen</i></th>
                 </tr>
             </thead>

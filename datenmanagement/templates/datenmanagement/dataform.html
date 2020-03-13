@@ -1,5 +1,6 @@
 {% extends "_base/navbar.html" %}
 {% load datenmanagement_tags %}
+{% load guardian_tags %}
 {% load leaflet_tags %}
 {% load static %}
 
@@ -95,8 +96,10 @@
               {% endif %}
           </div>
           <div id='buttons' class='row'>
-              <input type='submit' class='btn btn-warning' value='speichern'/>
-              {% if object %}
+              {% if user|user_has_model_change_permission:model_name_lower %}
+                  <input type='submit' class='btn btn-warning' value='speichern'/>
+              {% endif %}
+              {% if object and user|user_has_model_delete_permission:model_name_lower %}
                   <a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}" class='btn btn-danger'>löschen</a>
               {% endif %}
               <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>abbrechen</a>

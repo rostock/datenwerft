@@ -244,7 +244,7 @@ class DataView(BaseDatatableView):
       if checker.has_perm('change_' + self.model_name_lower, obj):
         item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
       else:
-        item_data.append('')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-eye-open"/></a>')
       if checker.has_perm('delete_' + self.model_name_lower, obj):
         item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
       else:
@@ -468,8 +468,9 @@ class DataChangeView(generic.UpdateView):
     
   def get_object(self, *args, **kwargs):
     obj = super(DataChangeView, self).get_object(*args, **kwargs)
-    userobjperm = ObjectPermissionChecker(self.request.user).has_perm('change_' + self.model.__name__.lower(), obj)
-    if not userobjperm:
+    userobjperm_change = ObjectPermissionChecker(self.request.user).has_perm('change_' + self.model.__name__.lower(), obj)
+    userobjperm_view = ObjectPermissionChecker(self.request.user).has_perm('view_' + self.model.__name__.lower(), obj)
+    if not userobjperm_change and not userobjperm_view:
       raise PermissionDenied()
     return obj
 
@@ -477,7 +478,7 @@ class DataChangeView(generic.UpdateView):
 class DataDeleteView(generic.DeleteView):
   def get_object(self, *args, **kwargs):
     obj = super(DataDeleteView, self).get_object(*args, **kwargs)
-    userobjperm = ObjectPermissionChecker(self.request.user).has_perm('delete_' + self.model.__name__.lower(), obj)
-    if not userobjperm:
+    userobjperm_delete = ObjectPermissionChecker(self.request.user).has_perm('delete_' + self.model.__name__.lower(), obj)
+    if not userobjperm_delete:
       raise PermissionDenied()
     return obj
