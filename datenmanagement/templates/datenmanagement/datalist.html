@@ -46,7 +46,9 @@
                     {% else %}
                         <th><i>ansehen</i></th>
                     {% endif %}
-                    <th><i>löschen</i></th>
+                    {% if user|user_has_model_delete_permission:model_name_lower %}
+                        <th><i>löschen</i></th>
+                    {% endif %}
                 </tr>
             </thead>
         </table>

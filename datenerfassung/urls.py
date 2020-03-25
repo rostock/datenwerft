@@ -171,7 +171,7 @@ for model in app_models:
 urlpatterns = [
   url(r'^$', RedirectView.as_view(url = '/datenerfassung/datenmanagement')),
   url(r'^admin/', admin.site.urls),
-  url(r'^accounts/login/$', LoginView.as_view(template_name = '_registration/login.html'), name = 'login'),
+  url(r'^accounts/login/$', LoginView.as_view(template_name = '_registration/login.html', redirect_authenticated_user = True), name = 'login'),
   url(r'^accounts/logout/$', LogoutView.as_view(template_name = '_registration/logout.html'), name = 'logout'),
   url(r'^api/', include(router.urls)),
   url(r'^api-auth/', include('rest_framework.urls')),
