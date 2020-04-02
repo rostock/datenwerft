@@ -154,6 +154,16 @@ ANBIETER_CARSHARING = (
   ('YourCar Rostock GmbH', 'YourCar Rostock GmbH'),
 )
 
+ANGEBOTE_MOBILPUNKTE = (
+  ('Bus', 'Bus'),
+  ('Carsharing', 'Carsharing'),
+  ('E-Laden', 'E-Laden'),
+  ('Fahrradparken', 'Fahrradparken'),
+  ('Fahrradreparaturset', 'Fahrradreparaturset'),
+  ('Lastenradverleih', 'Lastenradverleih'),
+  ('Straßenbahn', 'Straßenbahn'),
+)
+
 ART_BAUDENKMALE_DENKMALBEREICHE = (
   ('bewegliches Denkmal', 'bewegliches Denkmal'),
   ('Denkmalbereich', 'Denkmalbereich'),
@@ -1530,6 +1540,32 @@ class Meldedienst_punkthaft(models.Model):
   
   def __str__(self):
     return self.art + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
+
+
+class Mobilpunkte(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=500, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  angebote = MultiSelectField('Angebote', max_length=255, choices=ANGEBOTE_MOBILPUNKTE)
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'mobilpunkte'
+    verbose_name = 'Mobilpunkt'
+    verbose_name_plural = 'Mobilpunkte'
+    description = 'Mobilpunkte in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['bezeichnung']
+    list_fields_labels = ['Bezeichnung']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = False
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Parkmoeglichkeiten(models.Model):
