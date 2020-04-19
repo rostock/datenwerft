@@ -261,14 +261,14 @@ BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE = (
 
 BEWIRTSCHAFTER_ABFALLBEHAELTER = (
   (67, 'Amt für Stadtgrün, Naturschutz und Landschaftspflege'),
-  (73, 'Amt für Umweltschutz'),
-  (66, 'Amt für Verkehrsanlagen'),
+  (73, 'Amt für Umwelt- und Klimaschutz'),
+  (66, 'Tiefbauamt'),
   (87, 'Tourismuszentrale Rostock und Warnemünde'),
   (2000, 'Rostocker Straßenbahn AG'),
 )
 
 BEWIRTSCHAFTER_HUNDETOILETTE = (
-  (73, 'Amt für Umweltschutz'),
+  (73, 'Amt für Umwelt- und Klimaschutz'),
   (87, 'Tourismuszentrale Rostock und Warnemünde'),
 )
 
@@ -294,8 +294,8 @@ BEWIRTSCHAFTER_GLAS_CONTAINERSTELLPLAETZE = (
 BEWIRTSCHAFTER_GRUNDUNDBODEN_CONTAINERSTELLPLAETZE = (
   (62, 'Kataster-, Vermessungs- und Liegenschaftsamt'),
   (67, 'Amt für Stadtgrün, Naturschutz und Landschaftspflege'),
-  (73, 'Amt für Umweltschutz'),
-  (66, 'Amt für Verkehrsanlagen'),
+  (73, 'Amt für Umwelt- und Klimaschutz'),
+  (66, 'Tiefbauamt'),
 )
 
 BEWIRTSCHAFTER_PAPIER_CONTAINERSTELLPLAETZE = (
