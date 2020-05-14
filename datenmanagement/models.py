@@ -212,6 +212,7 @@ ART_PARKMOEGLICHKEITEN = (
 
 ART_PFLEGEEINRICHTUNGEN = (
   ('Ambulanter Pflegedienst', 'Ambulanter Pflegedienst'),
+  ('Betreutes Wohnen', 'Betreutes Wohnen'),
   ('Kurzzeitpflegeeinrichtung', 'Kurzzeitpflegeeinrichtung'),
   ('Nachtpflegeeinrichtung', 'Nachtpflegeeinrichtung'),
   ('Tagespflegeeinrichtung', 'Tagespflegeeinrichtung'),
