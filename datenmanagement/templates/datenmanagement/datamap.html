@@ -332,6 +332,7 @@
 
             // Date-/Time-/Date-Time-Picker
             $('.datetimepicker-input').datetimepicker({
+                locale: 'de',
                 format: 'L'
             });
 
@@ -344,6 +345,10 @@
                         filterAttribute.type = $(this).data('type');
                         filterAttribute.intervalside = $(this).data('intervalside');
                         filterAttribute.value = $(this).val();
+                        if (filterAttribute.type == 'date' && filterAttribute.value.indexOf('.') !== -1) {
+                            var dummy = filterAttribute.value.split('.');
+                            filterAttribute.value = new Date(dummy[2], dummy[1] - 1, dummy[0]);
+                        }
                         filterAttributesList.push(filterAttribute);
                     }
                 });
@@ -352,9 +357,11 @@
                         if (layer.feature) {
                             layer.getElement().style.display = '';
                             for (var i = 0; i < filterAttributesList.length; i++) {
+                                console.log(new Date(layer.feature.properties[filterAttributesList[i].name]));
+                                console.log(new Date(filterAttributesList[i].value));
                                 if (filterAttributesList[i].intervalside == 'left') {
                                     if (filterAttributesList[i].type == 'date') {
-                                        if (new Date(layer.feature.properties[filterAttributesList[i].name]) < new Date(filterAttributesList[i].value)) {
+                                        if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
                                             layer.getElement().style.display = 'none';
                                         }
                                     } else {
@@ -364,7 +371,7 @@
                                     }
                                 } else if (filterAttributesList[i].intervalside == 'right') {
                                     if (filterAttributesList[i].type == 'date') {
-                                        if (new Date(layer.feature.properties[filterAttributesList[i].name]) > new Date(filterAttributesList[i].value)) {
+                                        if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').isAfter(new Date(filterAttributesList[i].value), 'day')) {
                                             layer.getElement().style.display = 'none';
                                         }
                                     } else {
