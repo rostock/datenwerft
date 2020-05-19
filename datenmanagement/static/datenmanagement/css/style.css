@@ -4,7 +4,7 @@ html {
 }
 
 #filter {
-    margin-top:20px;
+    margin-top:50px;
 }
 
 #map {
@@ -34,12 +34,17 @@ html {
 }
 
 .filter-input, .filter-row {
-    width:100%;
+    width:90%;
 }
 
 .full-width {
     width:100%;
     padding:0;
+}
+
+.input-reset {
+    right:25px;
+    cursor:pointer;
 }
 
 .italic {

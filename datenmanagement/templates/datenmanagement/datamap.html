@@ -44,13 +44,14 @@
 	<div id='map_seitenbereich_container'>
         {% leaflet_map "map" callback="window.map_init_basic" %}
         <div id='adressensuche' class='seitenbereich'>
-            <label>Adressen-/Straßen-/Ortsteilsuche</label>
+            <h4>Adressen-/Straßen-/Ortsteilsuche</h4>
             <input id='searchtext' type='text' name='searchtext' maxlength='255' />
             <div class='results' id='results_container'></div>
         </div>
         {% if map_filters_enabled %}
             <div id='filter' class='seitenbereich'>
                 <h4>Filter für Kartenobjekte</h4>
+                <p>Achtung: Filter wirken <span class='required'>additiv!</span></p>
                 {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
                     <div id='filter-intervall' class='row'>
                         {% for map_rangefilter_field in map_rangefilter_fields %}
@@ -63,6 +64,7 @@
                                     {% else %}
                                         <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' data-intervalside='left'>
                                     {% endif %}
+                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 </div>
                                 <div class='filter-row row'>
                                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
@@ -71,6 +73,7 @@
                                     {% else %}
                                         <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' data-intervalside='right'>
                                     {% endif %}
+                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 </div>
                                 {% endwith %}
                             {% endif %}
@@ -397,6 +400,10 @@
                     $(this).val('');
                 });
                 showAllMapFeatures();
+            });
+
+            $('.input-reset').on('click', function() {
+                $(this).prev().val('');
             });
         });
         
