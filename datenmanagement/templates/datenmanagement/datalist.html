@@ -37,7 +37,7 @@
                     {% for label in list_fields_labels %}
                         {% with schritt=forloop.counter|stringformat:'s' %}
                             {% with spalte='spalte_'|add:schritt %}
-                                <th>{{label}}</th>
+                                <th>{{ label }}</th>
                             {% endwith %}
                         {% endwith %}
                     {% endfor %}

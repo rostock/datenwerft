@@ -23,6 +23,12 @@
     <script src='{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}'></script>
 {% endblock %}
 
+{% block picker %}
+    <link rel='stylesheet' type='text/css' href='{% static 'tempusdominus-bootstrap-3-5.0.0-alpha10/tempusdominus-bootstrap-3.min.css' %}' />
+    <script src='{% static 'moment-2.24.0/moment-with-locales.min.js' %}'></script>
+    <script src='{% static 'tempusdominus-bootstrap-3-5.0.0-alpha10/tempusdominus-bootstrap-3.min.js' %}'></script>
+{% endblock %}
+
 {% block content %}
 {% if object_list %}
     <h2>{{ model_verbose_name_plural }}</h2>
@@ -35,13 +41,52 @@
         <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
         <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
     </div>
-	<div id='map_adressensuche_container'>
+	<div id='map_seitenbereich_container'>
         {% leaflet_map "map" callback="window.map_init_basic" %}
-        <div id='adressensuche'>
+        <div id='adressensuche' class='seitenbereich'>
             <label>Adressen-/Straßen-/Ortsteilsuche</label>
             <input id='searchtext' type='text' name='searchtext' maxlength='255' />
             <div class='results' id='results_container'></div>
         </div>
+        {% if map_filters_enabled %}
+            <div id='filter' class='seitenbereich'>
+                <h4>Filter für Kartenobjekte</h4>
+                {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
+                    <div id='filter-intervall' class='row'>
+                        {% for map_rangefilter_field in map_rangefilter_fields %}
+                            {% if not forloop.counter|divisibleby:2 %}
+                                {% with naechster_index=forloop.counter0|add:1 %}
+                                <div class='filter-row row'>
+                                    <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' data-intervalside='left'>
+                                    {% else %}
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' data-intervalside='left'>
+                                    {% endif %}
+                                </div>
+                                <div class='filter-row row'>
+                                    <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
+                                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input datetimepicker-input' data-type='date' data-intervalside='right'>
+                                    {% else %}
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' data-intervalside='right'>
+                                    {% endif %}
+                                </div>
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if map_filter_fields and map_filter_fields_labels %}
+                    <div id='filter-normal' class='row'>
+                    </div>
+                {% endif %}
+                <div id='filter-buttons' class='row'>
+                    <input id='filter-apply' type='submit' class='btn btn-warning' value='anwenden'>
+                    <input id='filter-reset' type='submit' class='btn btn-default' value='zurücksetzen'>
+                </div>
+            </div>
+        {% endif %}
     </div>
     <script type='text/javascript'>
         function map_init_basic(map, options) {
@@ -139,6 +184,16 @@
             // neue leere globale Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
             var featureTooltipField = '';
             
+            // neue globale Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
+            {% if map_rangefilter_fields_json %}
+                var intervalFilterFields = {{ map_rangefilter_fields_json|safe }};
+            {% endif%}
+            
+            // neue globale Variable definieren, in der die Namen der Filter-Felder abgelegt werden
+            {% if map_filter_fields_json %}
+                var filterFields = {{ map_filter_fields_json|safe }};
+            {% endif%}
+            
             // über alle Objekte gehen...
             {% for object in object_list %}
                 // neues leeres GeoJSON-Feature definieren
@@ -165,9 +220,30 @@
                 // Properties zu GeoJSON-Feature hinzufügen
                 geoJsonFeature.properties.id = '{{ object.id }}';
                 geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+                {% if map_rangefilter_fields %}
+                    {% for map_rangefilter_field in map_rangefilter_fields %}
+                        {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
+                            {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                                geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                            {% else %}
+                                geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field }}';
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endif %}
+                {% if map_filter_fields %}
+                    {% for map_filter_field in map_filter_fields %}
+                        {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
+                            {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
+                                geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                            {% else %}
+                                geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field }}';
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endif %}
                 // GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
                 geoJsonFeatureCollection.features.push(geoJsonFeature);
-                // 
                 {% get_obj_perms user for object as "objperms" %}
                 {% if 'change_'|add:model_name_lower in objperms %}
                     geoJsonFeature.properties.user_may_change = 'ok';
@@ -195,7 +271,7 @@
             // falls Geometrie punkthaft ist...
             {% if geometry_type == 'Point' %}
                 // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-                var geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+                geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
                     pointToLayer: function (feature, latlng) {
                         return L.marker(latlng).bindLabel(feature.properties[featureTooltipField]);
                     },
@@ -208,15 +284,16 @@
             // ansonsten...
             {% else %}
                 // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-                var geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+                geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
                     onEachFeature: onEachFeature
                 });
                 map.addLayer(geoJsonLayer);
             {% endif %}
         }
         
-        // Adressensuche initialisieren
+        // Adressensuche und Filter initialisieren
         $(document).ready(function() {
+            // Adressensuche initialisieren
             results = $('div.results');
             searchField = $('#searchtext');
 
@@ -250,7 +327,80 @@
                 $(this).val('');
                 $('#results_container').hide();
             });
+
+            // Filter initialisieren
+
+            // Date-/Time-/Date-Time-Picker
+            $('.datetimepicker-input').datetimepicker({
+                format: 'L'
+            });
+
+            $('#filter-apply').on('click', function() {
+                var filterAttributesList = [];
+                $('.filter-input').each(function() {
+                    if ($(this).val()) {
+                        var filterAttribute = new Object();
+                        filterAttribute.name = $(this).attr('name');
+                        filterAttribute.type = $(this).data('type');
+                        filterAttribute.intervalside = $(this).data('intervalside');
+                        filterAttribute.value = $(this).val();
+                        filterAttributesList.push(filterAttribute);
+                    }
+                });
+                if (filterAttributesList.length > 0) {
+                    currMap.eachLayer(function(layer) {
+                        if (layer.feature) {
+                            layer.getElement().style.display = '';
+                            for (var i = 0; i < filterAttributesList.length; i++) {
+                                if (filterAttributesList[i].intervalside == 'left') {
+                                    if (filterAttributesList[i].type == 'date') {
+                                        if (new Date(layer.feature.properties[filterAttributesList[i].name]) < new Date(filterAttributesList[i].value)) {
+                                            layer.getElement().style.display = 'none';
+                                        }
+                                    } else {
+                                        if (layer.feature.properties[filterAttributesList[i].name] < filterAttributesList[i].value) {
+                                            layer.getElement().style.display = 'none';
+                                        }
+                                    }
+                                } else if (filterAttributesList[i].intervalside == 'right') {
+                                    if (filterAttributesList[i].type == 'date') {
+                                        if (new Date(layer.feature.properties[filterAttributesList[i].name]) > new Date(filterAttributesList[i].value)) {
+                                            layer.getElement().style.display = 'none';
+                                        }
+                                    } else {
+                                        if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value) {
+                                            layer.getElement().style.display = 'none';
+                                        }
+                                    }
+                                } else {
+                                    if (layer.feature.properties[filterAttributesList[i].name] == filterAttributesList[i].value) {
+                                        layer.getElement().style.display = 'none';
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    showAllMapFeatures();
+                }
+            });
+
+            $('#filter-reset').on('click', function() {
+                $('.filter-input').each(function() {
+                    $(this).val('');
+                });
+                showAllMapFeatures();
+            });
         });
+        
+        // alle GeoJSON-Features (wieder) anzeigen
+        function showAllMapFeatures() {
+            currMap.eachLayer(function(layer) {
+                if (layer.feature) {
+                    layer.getElement().style.display = '';
+                }
+            });
+        }
         
         // Resultate der Adressensuche
         function showResults(json) {

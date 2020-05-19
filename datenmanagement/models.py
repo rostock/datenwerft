@@ -104,22 +104,26 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 
 
 options.DEFAULT_NAMES += (
-  'description',                    # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
-  'list_fields',                    # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
-  'list_fields_with_number',        # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
-  'list_fields_with_date',          # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
-  'list_fields_labels',             # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
-  'readonly_fields',                # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
-  'object_title',                   # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
-  'foreign_key_label',              # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'show_alkis',                     # optional ; Boolean   ; Soll die Liegenschaftskarte als Hintergrundkarte in der Karten-/Hinzufügen-/Änderungsansicht angeboten werden?
-  'map_feature_tooltip_field',      # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
-  'address',                        # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
-  'address_optional',               # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
-  'geometry_type',                  # optional ; Text      ; Geometrietyp
-  'thumbs',                         # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
-  'multi_foto_field',               # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
-  'parent_field_name_for_filter'    # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
+  'description',                        # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
+  'list_fields',                        # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
+  'list_fields_with_number',            # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
+  'list_fields_with_date',              # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
+  'list_fields_labels',                 # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
+  'readonly_fields',                    # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  'object_title',                       # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
+  'foreign_key_label',                  # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
+  'show_alkis',                         # optional ; Boolean   ; Soll die Liegenschaftskarte als Hintergrundkarte in der Karten-/Hinzufügen-/Änderungsansicht angeboten werden?
+  'map_feature_tooltip_field',          # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'map_rangefilter_fields',             # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen – Achtung: Verarbeitung immer paarweise!
+  'map_rangefilter_fields_labels',      # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfiltertitel auftreten sollen – Achtung: Verarbeitung immer paarweise!
+  'map_filter_fields',                  # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
+  'map_filter_fields_labels',           # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
+  'address',                            # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
+  'address_optional',                   # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
+  'geometry_type',                      # optional ; Text      ; Geometrietyp
+  'thumbs',                             # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
+  'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'parent_field_name_for_filter'        # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
 )
 
 
@@ -759,6 +763,8 @@ class Baustellen_geplant(models.Model):
     list_fields_labels = ['UUID', 'Bezeichnung', 'Ansprechpartner']
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
+    map_rangefilter_fields = ['beginn', 'ende']
+    map_rangefilter_fields_labels = ['Beginn', 'Ende']
     address = True
     address_optional = True
     geometry_type = 'MultiPolygonField'

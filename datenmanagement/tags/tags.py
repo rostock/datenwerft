@@ -1,7 +1,9 @@
 from django import template
+from django.apps import apps
 from django.conf import settings
 from django.contrib.gis import forms
 import os
+import re
 import time
 
 
@@ -40,9 +42,21 @@ def get_class_foreign_key_label(value):
 
 
 @register.filter
+def get_list_item_by_index(list, i):
+    return list[i]
+
+
+@register.filter
 def get_thumb_url(value):
     head, tail = os.path.split(value)
     return head + '/thumbs/' + tail
+
+
+@register.filter
+def get_type_of_field(field_name, model_name):
+    model = apps.get_app_config('datenmanagement').get_model(model_name)
+    type_of_field = re.sub('\'>$', '', re.sub('^.*\.', '', str(model._meta.get_field(field_name).__class__)))
+    return type_of_field
 
 
 @register.filter
@@ -74,6 +88,11 @@ def get_values(value):
         return valuelist
     else:
         return ["None"]
+
+
+@register.filter
+def get_value_of_field(value, field):
+    return getattr(value, field)
 
 
 @register.filter

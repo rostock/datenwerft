@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import requests
@@ -334,10 +335,15 @@ class DataMapView(generic.ListView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
-    context['list_fields'] = self.model._meta.list_fields
-    context['list_fields_labels'] = self.model._meta.list_fields_labels
     context['show_alkis'] = (self.model._meta.show_alkis if hasattr(self.model._meta, 'show_alkis') else None)
     context['map_feature_tooltip_field'] = (self.model._meta.map_feature_tooltip_field if hasattr(self.model._meta, 'map_feature_tooltip_field') else None)
+    context['map_filters_enabled'] = (True if ((hasattr(self.model._meta, 'map_filter_fields') and hasattr(self.model._meta, 'map_filter_fields_labels')) or (hasattr(self.model._meta, 'map_rangefilter_fields') and hasattr(self.model._meta, 'map_rangefilter_fields_labels'))) else None)
+    context['map_rangefilter_fields'] = (self.model._meta.map_rangefilter_fields if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_rangefilter_fields_json'] = (json.dumps(self.model._meta.map_rangefilter_fields) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_rangefilter_fields_labels'] = (self.model._meta.map_rangefilter_fields_labels if hasattr(self.model._meta, 'map_rangefilter_fields_labels') else None)
+    context['map_filter_fields'] = (self.model._meta.map_filter_fields if hasattr(self.model._meta, 'map_filter_fields') else None)
+    context['map_filter_fields_json'] = (json.dumps(self.model._meta.map_filter_fields) if hasattr(self.model._meta, 'map_filter_fields') else None)
+    context['map_filter_fields_labels'] = (self.model._meta.map_filter_fields_labels if hasattr(self.model._meta, 'map_filter_fields_labels') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
     return context
 

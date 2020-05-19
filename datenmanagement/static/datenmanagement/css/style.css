@@ -3,10 +3,8 @@ html {
     min-height:100%;
 }
 
-#adressensuche {
-    width:18%;
-    float:left;
-    margin-left:2%;
+#filter {
+    margin-top:20px;
 }
 
 #map {
@@ -19,7 +17,7 @@ html {
     height:100%;
 }
 
-#map_adressensuche_container {
+#map_seitenbereich_container {
     height:800px;
 }
 
@@ -33,6 +31,10 @@ html {
 
 .container {
     width:96%;
+}
+
+.filter-input, .filter-row {
+    width:100%;
 }
 
 .full-width {
@@ -104,6 +106,12 @@ html {
 .row {
     margin-bottom:15px;
     padding-left:15px;
+}
+
+.seitenbereich {
+    width:18%;
+    float:left;
+    margin-left:2%;
 }
 
 .spacer {
