@@ -123,7 +123,8 @@ options.DEFAULT_NAMES += (
   'geometry_type',                      # optional ; Text      ; Geometrietyp
   'thumbs',                             # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
   'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
-  'parent_field_name_for_filter'        # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
+  'parent_field_name_for_filter',       # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
+  'group_with_users_for_choice_field'   # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
 )
 
 
@@ -467,9 +468,11 @@ SPARTEN_BAUSTELLEN = (
   ('Beleuchtung', 'Beleuchtung'),
   ('Fernwärme', 'Fernwärme'),
   ('Gas', 'Gas'),
-  ('Grundstückserschließung', 'Grundstückserschließung'),
+  ('Gehwegbau', 'Gehwegbau'),
   ('Lichtsignalanlagen', 'Lichtsignalanlagen'),
   ('ÖPNV', 'ÖPNV'),
+  ('Radwegbau', 'Radwegbau'),
+  ('Schienenverkehr', 'Schienenverkehr'),
   ('Stadtgrün', 'Stadtgrün'),
   ('Straßenbau', 'Straßenbau'),
   ('Strom', 'Strom'),
@@ -481,6 +484,16 @@ STATUS_BAUSTELLEN_FOTODOKUMENTATION = (
   ('vor Baumaßnahme', 'vor Baumaßnahme'),
   ('während Baumaßnahme', 'während Baumaßnahme'),
   ('nach Baumaßnahme', 'nach Baumaßnahme'),
+)
+
+STATUS_BAUSTELLEN_GEPLANT = (
+  ('strategische Planung', 'strategische Planung'),
+  ('Grobplanung (LP1–2)', 'Grobplanung (LP1–2)'),
+  ('Genehmigung (LP3–4)', 'Genehmigung (LP3–4)'),
+  ('Feinplanung (LP5–7)', 'Feinplanung (LP5–7)'),
+  ('im Bau (LP8)', 'im Bau (LP8)'),
+  ('abgeschlossen', 'abgeschlossen'),
+  ('gestoppt', 'gestoppt'),
 )
 
 TITEL_DENKSTEINE = (
@@ -525,10 +538,10 @@ VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE = (
 )
 
 VERKEHRLICHE_LAGEN_BAUSTELLEN = (
-  ('Fahrbahn', 'Fahrbahn'),
-  ('Fußweg', 'Fußweg'),
+  ('Begleitgrün', 'Begleitgrün'),
+  ('Gehweg', 'Gehweg'),
   ('Radweg', 'Radweg'),
-  ('Straße mit Begleitgrün', 'Straße mit Begleitgrün'),
+  ('Straße', 'Straße'),
 )
 
 VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
@@ -741,16 +754,17 @@ class Baustellen_geplant(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Straße', max_length=255, blank=True, null=True)
-  lagebeschreibung = models.CharField('Lagebeschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  kurzbeschreibung = models.CharField('Kurzbeschreibung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   projektbezeichnung = models.CharField('Projektbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  kurzbeschreibung = models.TextField('Kurzbeschreibung', max_length=500, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  lagebeschreibung = models.CharField('Lagebeschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  verkehrliche_lage = MultiSelectField(' verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
   sparte = MultiSelectField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
-  verkehrliche_lage = MultiSelectField('Verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
   beginn = models.DateField('Beginn', default=date.today)
   ende = models.DateField('Ende', default=date.today)
   auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN, blank=True, null=True)
   ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_GEPLANT)
   geometrie = models.MultiPolygonField('Geometrie', srid=25833)
 
   class Meta:
@@ -759,8 +773,9 @@ class Baustellen_geplant(models.Model):
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['uuid', 'bezeichnung', 'ansprechpartner']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Ansprechpartner']
+    list_fields = ['bezeichnung', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'status']
+    list_fields_with_date = ['beginn', 'ende']
+    list_fields_labels = ['Bezeichnung', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Status']
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
     map_rangefilter_fields = ['beginn', 'ende']
@@ -768,6 +783,7 @@ class Baustellen_geplant(models.Model):
     address = True
     address_optional = True
     geometry_type = 'MultiPolygonField'
+    group_with_users_for_choice_field = 'baustellen_geplant_full'
   
   def __str__(self):
     if self.strasse_name and self.lagebeschreibung:

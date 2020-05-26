@@ -96,10 +96,10 @@
               {% endif %}
           </div>
           <div id='buttons' class='row'>
-              {% if user|user_has_model_change_permission:model_name_lower %}
+              {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_delete_permission:object %}
                   <input type='submit' class='btn btn-warning' value='speichern'/>
               {% endif %}
-              {% if object and user|user_has_model_delete_permission:model_name_lower %}
+              {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
                   <a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}" class='btn btn-danger'>löschen</a>
               {% endif %}
               <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>abbrechen</a>

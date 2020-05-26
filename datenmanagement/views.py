@@ -5,11 +5,11 @@ import requests
 from datetime import datetime
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import User, Group, Permission
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.forms import ModelForm, ValidationError
+from django.forms import ChoiceField, ModelForm, ValidationError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -21,7 +21,7 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
 from leaflet.forms.widgets import LeafletWidget
-from operator import itemgetter
+from operator import attrgetter
 from tempus_dominus.widgets import DatePicker
 
 
@@ -101,15 +101,33 @@ class DataForm(ModelForm):
   required_css_class = 'required'
   
   def __init__(self, *args, **kwargs):
+    group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
     multi_foto_field = kwargs.pop('multi_foto_field', None)
     multi_files = kwargs.pop('multi_files', None)
     model = kwargs.pop('model', None)
+    request = kwargs.pop('request', None)
     super(DataForm, self).__init__(*args, **kwargs)
+    self.group_with_users_for_choice_field = group_with_users_for_choice_field
     self.multi_foto_field = multi_foto_field
     self.multi_files = multi_files
     self.model = model
+    self.request = request
     self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
     self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
+    if self.group_with_users_for_choice_field and self.request.user.groups.filter(name = self.group_with_users_for_choice_field).exists():
+        for field in self.model._meta.get_fields():
+            if field.name == 'ansprechpartner':
+                users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
+                self.fields['ansprechpartner'] = ChoiceField(
+                    choices = [(user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')', user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')') for user in users],
+                    initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
+                )
+            if field.name == 'bearbeiter':
+                users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
+                self.fields['bearbeiter'] = ChoiceField(
+                    choices = [(user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')', user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')') for user in users],
+                    initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
+                )
     
     for field in self.fields.values():
       if field.label == 'Geometrie':
@@ -244,8 +262,10 @@ class DataView(BaseDatatableView):
         item_data.append(data)
       if checker.has_perm('change_' + self.model_name_lower, obj):
         item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
-      else:
+      elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
         item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-eye-open"/></a>')
+      else:
+        item_data.append('')
       if checker.has_perm('delete_' + self.model_name_lower, obj):
         item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
       else:
@@ -351,11 +371,14 @@ class DataMapView(generic.ListView):
 class DataAddView(generic.CreateView):
   def get_form_kwargs(self):
     kwargs = super(DataAddView, self).get_form_kwargs()
+    self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     self.multi_files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
+    kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['multi_foto_field'] = self.multi_foto_field
     kwargs['multi_files'] = self.multi_files
     kwargs['model'] = self.model
+    kwargs['request'] = self.request
     return kwargs
     
   def __init__(self, model = None, template_name = None, success_url = None):
@@ -384,10 +407,18 @@ class DataAddView(generic.CreateView):
     return context
 
   def get_initial(self):
-    return {
-      'ansprechpartner': self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email.lower() + ')',
-      'bearbeiter': self.request.user.first_name + ' ' + self.request.user.last_name
-    }
+    ansprechpartner = None
+    bearbeiter = None
+    for field in self.model._meta.get_fields():
+        if field.name == 'ansprechpartner':
+            ansprechpartner = self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email.lower() + ')'
+        if field.name == 'bearbeiter':
+            bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name
+    if not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not self.model._meta.group_with_users_for_choice_field:
+        return {
+          'ansprechpartner': ansprechpartner,
+          'bearbeiter': bearbeiter
+        }
 
   def form_valid(self, form):
     form.instance = form.save(commit = False)
@@ -414,6 +445,14 @@ class DataAddView(generic.CreateView):
 
 
 class DataChangeView(generic.UpdateView):
+  def get_form_kwargs(self):
+    kwargs = super(DataChangeView, self).get_form_kwargs()
+    self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
+    kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
+    kwargs['model'] = self.model
+    kwargs['request'] = self.request
+    return kwargs
+
   def __init__(self, model = None, template_name = None, success_url = None):
     self.model = model
     self.template_name = template_name
@@ -475,8 +514,8 @@ class DataChangeView(generic.UpdateView):
   def get_object(self, *args, **kwargs):
     obj = super(DataChangeView, self).get_object(*args, **kwargs)
     userobjperm_change = ObjectPermissionChecker(self.request.user).has_perm('change_' + self.model.__name__.lower(), obj)
-    userobjperm_view = ObjectPermissionChecker(self.request.user).has_perm('view_' + self.model.__name__.lower(), obj)
-    if not userobjperm_change and not userobjperm_view:
+    userperm_view = self.request.user.has_perm('datenmanagement.view_' + self.model.__name__.lower())
+    if not userobjperm_change and not userperm_view:
       raise PermissionDenied()
     return obj
 

@@ -54,6 +54,23 @@
         </table>
         <script type='text/javascript'>
             $(document).ready(function(){
+                $('#datasets thead tr').clone(true).appendTo( '#datasets thead' );
+                $('#datasets thead tr:eq(1) th').each(function (i) {
+                    if ($(this).text() && $(this).find('i').length == 0) {
+                        $(this).html('<input class="form-control input-sm" type="search" placeholder="filtern…" />');
+                        $('input', this).on('keyup change', function () {
+                            if (table.column(i).search() !== this.value) {
+                                table
+                                    .column(i)
+                                    .search( this.value )
+                                    .draw();
+                            }
+                        } );
+                    } else {
+                        $(this).empty();
+                    }
+                } );
+
                 var table = $('#datasets').DataTable({
                     ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
                     buttons: [
@@ -71,10 +88,12 @@
                       'targets': -1
                     }],
                     dom: 'Bfrtip',
+                    fixedHeader: true,
                     language: {
                         url: '{% static 'datatables-1.10.20/datatables.german.lang' %}'
                     },
                     order: [[ 1, 'asc' ]],
+                    orderCellsTop: true,
                     orderClasses: false,
                     orderMulti: false,
                     pageLength: 25,

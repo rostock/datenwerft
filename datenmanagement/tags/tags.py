@@ -2,6 +2,7 @@ from django import template
 from django.apps import apps
 from django.conf import settings
 from django.contrib.gis import forms
+from guardian.core import ObjectPermissionChecker
 import os
 import re
 import time
@@ -183,6 +184,14 @@ def user_has_model_delete_permission(user, model_name_lower):
 @register.filter
 def user_has_model_view_permission(user, model_name_lower):
     if user.has_perm('datenmanagement.view_' + model_name_lower):
+        return True
+    else:
+        return False
+
+
+@register.filter
+def user_has_object_delete_permission(user, obj):
+    if ObjectPermissionChecker(user).has_perm('delete_' + obj.__class__.__name__.lower(), obj):
         return True
     else:
         return False
