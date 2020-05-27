@@ -440,6 +440,8 @@
                         format: 'L',
                         date: (initialDate.indexOf('-') !== -1) ? (new Date(dummy[0], dummy[1] - 1, dummy[2])) : (new Date(initialDate))
                     });
+                    // zusätzlich data-Attribut hinzufügen mit initialem Datum (benötigt beim Zurücksetzen der Filter)
+                    $(this).attr('data-initial', initialDate);
                 // ansonsten ohne initiales Datum
                 } else {
                     $(this).datetimepicker({
@@ -520,7 +522,24 @@
             // bei Klick auf entsprechenden Button alle Filter zurücksetzen
             $('#filter-reset').on('click', function() {
                 $('.filter-input').each(function() {
-                    $(this).val('');
+                    // falls initialer Wert vorhanden...
+                    if ($(this).data('initial')) {
+                        // Filter auf initialen Wert setzen
+                        var initialValue = $(this).data('initial');
+                        if ($(this).data('type') === 'date') {
+                            // Achtung bei Datumsfiltern!
+                            if (initialValue.indexOf('-') !== -1) {
+                                var dummy = initialValue.split('-');
+                            }
+                            $(this).val(dummy[2] + '.' + dummy[1] + '.' + dummy[0]);
+                        } else {
+                            $(this).val($(this).data('initial'));
+                        }
+                    }
+                    // ansonsten Filter auf leeren Wert setzen
+                    else {
+                        $(this).val('');
+                    }
                 });
                 showAllMapFeatures();
             });
