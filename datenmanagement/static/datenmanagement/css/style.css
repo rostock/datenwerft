@@ -29,6 +29,10 @@ html {
     margin-left:10px;
 }
 
+.column-filter {
+    font-weight:normal;
+}
+
 .container {
     width:96%;
 }

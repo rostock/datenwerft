@@ -5,7 +5,7 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-    {% if object_list %}
+    {% if object_list and user|user_has_model_permissions %}
         <h2>verfügbare Datenthemen</h2>
         <div class='col-sm-4 full-width'>
         {% for model in object_list %}
@@ -20,7 +20,7 @@
         {% endfor %}
         </div>
     {% else %}
-        <h2>Keine Datenthemen vorhanden.</h2>
+        <h2>keine Datenthemen vorhanden</h2>
     {% endif %}
 {% else %}
 <h2>Datenerfassung<span class='small'> {{ datenmanagement_version }} vom {% get_version_date %}</span></h2>

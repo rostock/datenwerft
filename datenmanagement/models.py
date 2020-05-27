@@ -773,13 +773,15 @@ class Baustellen_geplant(models.Model):
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['bezeichnung', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'status']
+    list_fields = ['bezeichnung', 'strasse_name', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'status']
     list_fields_with_date = ['beginn', 'ende']
-    list_fields_labels = ['Bezeichnung', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Status']
+    list_fields_labels = ['Bezeichnung', 'Straße', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Status']
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
     map_rangefilter_fields = ['beginn', 'ende']
     map_rangefilter_fields_labels = ['Beginn', 'Ende']
+    map_filter_fields = ['bezeichnung', 'sparte', 'auftraggeber', 'status']
+    map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
     address = True
     address_optional = True
     geometry_type = 'MultiPolygonField'
