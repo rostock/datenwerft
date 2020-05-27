@@ -107,32 +107,6 @@
             // Karte auch in anderen JavaScript-Funktionen verfügbar machen
             window.currMap = map;
 
-            // globale Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen und auch in anderen JavaScript-Funktionen verfügbar machen
-            window.intervalFilterMin = [];
-
-            // globale Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen und auch in anderen JavaScript-Funktionen verfügbar machen
-            window.intervalFilterMax = [];
-
-            // über alle Filterfelder gehen...
-            $('.filter-input').each(function() {
-                // falls es sich um ein Intervallfilterfeld handelt...
-                if ($(this).data('intervalside') == 'left' || $(this).data('intervalside') == 'right') {
-                    // Feld als Objekt mit Name und Typ erstellen
-                    var filterField = new Object();
-                    filterField.name = $(this).attr('name');
-                    filterField.type = $(this).data('type');
-                    filterField.value = '';
-                    // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
-                    if ($(this).data('intervalside') == 'left')
-                        // Feldobjekt zur globalen Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
-                        window.intervalFilterMin.push(filterField);
-                    // falls es sich um ein "rechts" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
-                    else if ($(this).data('intervalside') == 'right')
-                        // Feldobjekt zur globalen Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
-                        window.intervalFilterMax.push(filterField);
-                }
-            });
-
             // ORKa.MV definieren
             var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -268,36 +242,8 @@
                             {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
                                 // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
                                 geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                // falls Feld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
-                                for (var i = 0; i < window.intervalFilterMin.length; i++) {
-                                    if (window.intervalFilterMin[i].name === '{{ current_field }}' && (window.intervalFilterMin[i].value === '' || moment(new Date(window.intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
-                                        window.intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                        break;
-                                    }
-                                }
-                                // falls Feld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
-                                for (var i = 0; i < window.intervalFilterMax.length; i++) {
-                                    if (window.intervalFilterMax[i].name === '{{ current_field }}' && (window.intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(window.intervalFilterMax[i].value), 'day'))) {
-                                        window.intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                        break;
-                                    }
-                                }
                             {% else %}
                                 geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field }};
-                                // falls Feld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
-                                for (var i = 0; i < window.intervalFilterMin.length; i++) {
-                                    if (window.intervalFilterMin[i].name === '{{ current_field }}' && (window.intervalFilterMin[i].value === '' || window.intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
-                                        window.intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
-                                        break;
-                                    }
-                                }
-                                // falls Feld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
-                                for (var i = 0; i < window.intervalFilterMax.length; i++) {
-                                    if (window.intervalFilterMax[i].name === '{{ current_field }}' && (window.intervalFilterMax[i].value === '' || window.intervalFilterMin[i].value < {{ object|get_value_of_field:current_field }})) {
-                                        window.intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
-                                        break;
-                                    }
-                                }
                             {% endif %}
                         {% endwith %}
                     {% endfor %}
@@ -367,13 +313,18 @@
         
         // Adressensuche und Filter
         $(document).ready(function() {
+            // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
+            var intervalFilterMin = [];
+
+            // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
+            var intervalFilterMax = [];
+            
             // Adressensuche initialisieren
-            results = $('div.results');
-            searchField = $('#searchtext');
+            var results = $('div.results');
+            var searchField = $('#searchtext');
 
             // bei Klick auf Stelle außerhalb der Adressensuche die Resultate der Adressensuche leeren
             results.click(function(event) {
-                alert('hey');
                 $('html').one('click',function() {
                     results.children().remove();
                     results.fadeOut();
@@ -407,6 +358,69 @@
             });
 
             // Filter initialisieren
+
+            // über alle Filterfelder gehen...
+            $('.filter-input').each(function() {
+                // falls es sich um ein Intervallfilterfeld handelt...
+                if ($(this).data('intervalside') == 'left' || $(this).data('intervalside') == 'right') {
+                    // Feld als Objekt mit Name und Typ erstellen
+                    var filterField = new Object();
+                    filterField.name = $(this).attr('name');
+                    filterField.type = $(this).data('type');
+                    filterField.value = '';
+                    // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
+                    if ($(this).data('intervalside') == 'left')
+                        // Feldobjekt zur globalen Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+                        intervalFilterMin.push(filterField);
+                    // falls es sich um ein "rechts" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
+                    else if ($(this).data('intervalside') == 'right')
+                        // Feldobjekt zur globalen Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+                        intervalFilterMax.push(filterField);
+                }
+            });
+            
+            // über alle Objekte gehen...
+            {% for object in object_list %}
+                // für alle Intervallfilterfelder...
+                {% if map_rangefilter_fields %}
+                    {% for map_rangefilter_field in map_rangefilter_fields %}
+                        {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
+                            // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
+                            {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                                // falls Feld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
+                                for (var i = 0; i < intervalFilterMin.length; i++) {
+                                    if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
+                                        intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                                        break;
+                                    }
+                                }
+                                // falls Feld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
+                                for (var i = 0; i < intervalFilterMax.length; i++) {
+                                    if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(intervalFilterMax[i].value), 'day'))) {
+                                        intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                                        break;
+                                    }
+                                }
+                            {% else %}
+                                // falls Feld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
+                                for (var i = 0; i < intervalFilterMin.length; i++) {
+                                    if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
+                                        intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
+                                        break;
+                                    }
+                                }
+                                // falls Feld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
+                                for (var i = 0; i < intervalFilterMax.length; i++) {
+                                    if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMin[i].value < {{ object|get_value_of_field:current_field }})) {
+                                        intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
+                                        break;
+                                    }
+                                }
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
 
             // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
             $('.datetimepicker-input').each(function() {
