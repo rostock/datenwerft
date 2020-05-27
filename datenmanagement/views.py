@@ -114,7 +114,7 @@ class DataForm(ModelForm):
     self.request = request
     self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
     self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
-    if self.group_with_users_for_choice_field and self.request.user.groups.filter(name = self.group_with_users_for_choice_field).exists():
+    if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists():
         for field in self.model._meta.get_fields():
             if field.name == 'ansprechpartner':
                 users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
