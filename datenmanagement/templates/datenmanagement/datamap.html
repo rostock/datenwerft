@@ -379,10 +379,11 @@
                 }
             });
             
-            // über alle Objekte gehen...
-            {% for object in object_list %}
-                // für alle Intervallfilterfelder...
-                {% if map_rangefilter_fields %}
+            // falls Intervallfilter vorhanden...
+            {% if map_rangefilter_fields %}
+                // über alle Objekte gehen...
+                {% for object in object_list %}
+                    // für alle Intervallfilterfelder...
                     {% for map_rangefilter_field in map_rangefilter_fields %}
                         {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
                             // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
@@ -419,8 +420,8 @@
                             {% endif %}
                         {% endwith %}
                     {% endfor %}
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            {% endif %}
 
             // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
             $('.datetimepicker-input').each(function() {
