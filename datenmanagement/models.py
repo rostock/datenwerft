@@ -118,6 +118,7 @@ options.DEFAULT_NAMES += (
   'map_rangefilter_fields_labels',      # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfiltertitel auftreten sollen – Achtung: Verarbeitung immer paarweise!
   'map_filter_fields',                  # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
   'map_filter_fields_labels',           # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
+  'map_filter_fields_as_list',          # optional ; Textliste ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
   'address',                            # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
   'address_optional',                   # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
   'geometry_type',                      # optional ; Text      ; Geometrietyp
@@ -782,6 +783,7 @@ class Baustellen_geplant(models.Model):
     map_rangefilter_fields_labels = ['Beginn', 'Ende']
     map_filter_fields = ['bezeichnung', 'sparte', 'auftraggeber', 'status']
     map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
+    map_filter_fields_as_list = ['auftraggeber', 'status']
     address = True
     address_optional = True
     geometry_type = 'MultiPolygonField'

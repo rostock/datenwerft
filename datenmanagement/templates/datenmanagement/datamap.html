@@ -60,18 +60,18 @@
                                 <div class='filter-row row'>
                                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                                     {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' data-intervalside='left'>
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
                                     {% else %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' data-intervalside='left'>
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
                                     {% endif %}
                                     <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 </div>
                                 <div class='filter-row row'>
                                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                                     {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input datetimepicker-input' data-type='date' data-intervalside='right'>
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
                                     {% else %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' data-intervalside='right'>
+                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
                                     {% endif %}
                                     <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 </div>
@@ -86,11 +86,16 @@
                             <div class='filter-row row'>
                                 <label>{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                                 {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
-                                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' data-intervalside='both'>
+                                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
+                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
+                                {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
+                                    <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %}></select>
+                                {% elif map_filter_field|get_type_of_field:model_name == 'MultiSelectField' %}
+                                    <fieldset></fieldset>
                                 {% else %}
-                                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' data-intervalside='both'>
+                                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
+                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 {% endif %}
-                                <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                             </div>
                         {% endfor %}
                     </div>
@@ -195,15 +200,15 @@
                 features: []
             };
             
-            // neue leere globale Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
+            // neue leere Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
             var featureTooltipField = '';
             
-            // neue globale Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
+            // neue Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
             {% if map_rangefilter_fields_json %}
                 var intervalFilterFields = {{ map_rangefilter_fields_json|safe }};
             {% endif%}
             
-            // neue globale Variable definieren, in der die Namen der Filter-Felder abgelegt werden
+            // neue Variable definieren, in der die Namen der Filter-Felder abgelegt werden
             {% if map_filter_fields_json %}
                 var filterFields = {{ map_filter_fields_json|safe }};
             {% endif%}
@@ -229,7 +234,7 @@
                 var geoJsonGeometry = wkt.toJson();
                 // Geometrie zu GeoJSON-Feature hinzufügen
                 geoJsonFeature.geometry = geoJsonGeometry;
-                // Name des Feldes für den Feature-Tooltip in globaler Variable ablegen
+                // Name des Feldes für den Feature-Tooltip in Variable ablegen
                 featureTooltipField = '{{ map_feature_tooltip_field }}';
                 // Properties zu GeoJSON-Feature hinzufügen
                 geoJsonFeature.properties.id = '{{ object.id }}';
@@ -318,6 +323,9 @@
 
             // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
             var intervalFilterMax = [];
+
+            // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
+            var listFilterLists = [];
             
             // Adressensuche initialisieren
             var results = $('div.results');
@@ -361,65 +369,91 @@
 
             // über alle Filterfelder gehen...
             $('.filter-input').each(function() {
+                // Feld als Objekt mit Name und Typ erstellen
+                var filterField = new Object();
+                filterField.name = $(this).attr('name');
+                filterField.type = $(this).data('type');
+                filterField.value = '';
                 // falls es sich um ein Intervallfilterfeld handelt...
                 if ($(this).data('intervalside') == 'left' || $(this).data('intervalside') == 'right') {
-                    // Feld als Objekt mit Name und Typ erstellen
-                    var filterField = new Object();
-                    filterField.name = $(this).attr('name');
-                    filterField.type = $(this).data('type');
-                    filterField.value = '';
                     // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
                     if ($(this).data('intervalside') == 'left')
-                        // Feldobjekt zur globalen Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+                        // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
                         intervalFilterMin.push(filterField);
-                    // falls es sich um ein "rechts" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
+                    // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
                     else if ($(this).data('intervalside') == 'right')
-                        // Feldobjekt zur globalen Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+                        // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
                         intervalFilterMax.push(filterField);
+                // falls es sich um ein Listenfeld handelt...
+                } else if ($(this).data('type') == 'list') {
+                    // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
+                    filterField.value = [];
+                    listFilterLists.push(filterField);
                 }
             });
             
-            // falls Intervallfilter vorhanden...
-            {% if map_rangefilter_fields %}
+            // falls Intervallfilter oder Listenfilter vorhanden...
+            {% if map_rangefilter_fields or map_filter_fields_as_list %}
                 // über alle Objekte gehen...
                 {% for object in object_list %}
-                    // für alle Intervallfilterfelder...
-                    {% for map_rangefilter_field in map_rangefilter_fields %}
-                        {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                            // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                            {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                // falls Feld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
-                                for (var i = 0; i < intervalFilterMin.length; i++) {
-                                    if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
-                                        intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                        break;
+                    // falls Intervallfilter vorhanden...
+                    {% if map_rangefilter_fields %}
+                        // für alle Intervallfilterfelder...
+                        {% for map_rangefilter_field in map_rangefilter_fields %}
+                            {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
+                                // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
+                                {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
+                                    for (var i = 0; i < intervalFilterMin.length; i++) {
+                                        if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
+                                            intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                                            break;
+                                        }
                                     }
-                                }
-                                // falls Feld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
-                                for (var i = 0; i < intervalFilterMax.length; i++) {
-                                    if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(intervalFilterMax[i].value), 'day'))) {
-                                        intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                        break;
+                                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
+                                    for (var i = 0; i < intervalFilterMax.length; i++) {
+                                        if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(intervalFilterMax[i].value), 'day'))) {
+                                            intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                                            break;
+                                        }
                                     }
-                                }
-                            {% else %}
-                                // falls Feld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
-                                for (var i = 0; i < intervalFilterMin.length; i++) {
-                                    if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
-                                        intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
-                                        break;
+                                {% else %}
+                                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
+                                    for (var i = 0; i < intervalFilterMin.length; i++) {
+                                        if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
+                                            intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
+                                            break;
+                                        }
                                     }
-                                }
-                                // falls Feld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
-                                for (var i = 0; i < intervalFilterMax.length; i++) {
-                                    if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMin[i].value < {{ object|get_value_of_field:current_field }})) {
-                                        intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
-                                        break;
+                                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
+                                    for (var i = 0; i < intervalFilterMax.length; i++) {
+                                        if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMax[i].value < {{ object|get_value_of_field:current_field }})) {
+                                            intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
+                                            break;
+                                        }
                                     }
-                                }
-                            {% endif %}
-                        {% endwith %}
-                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    {% endif %}
+                    // falls Listenfilter vorhanden...
+                    {% if map_filter_fields_as_list %}
+                        // für alle Listenfilter...
+                        {% for map_listfilter_field in map_filter_fields_as_list %}
+                            {% with current_field=map_filter_fields_as_list|get_list_item_by_index:forloop.counter0 %}
+                                // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
+                                {% if object|get_value_of_field:current_field %}
+                                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Auswahlfeld dargestellt werden sollen: Werteliste um entsprechenden Wert des passenden Feldes aus dem Objekt ergänzen, falls dieser noch nicht in der Werteliste steht
+                                    for (var i = 0; i < listFilterLists.length; i++) {
+                                        if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field }}') === -1) {
+                                            listFilterLists[i].value.push('{{ object|get_value_of_field:current_field }}');
+                                            break;
+                                        }
+                                    }
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    {% endif %}
                 {% endfor %}
             {% endif %}
 
@@ -428,7 +462,7 @@
                 // Variable für initiales Datum
                 var initialDate = '';
 
-                // falls Filterfeld in globaler Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
+                // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
                 for (var i = 0; i < intervalFilterMin.length; i++) {
                     if (intervalFilterMin[i].name === $(this).attr('name')) {
                         initialDate = intervalFilterMin[i].value;
@@ -436,7 +470,7 @@
                     }
                 }
 
-                // falls Filterfeld in globaler Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
+                // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
                 for (var i = 0; i < intervalFilterMax.length; i++) {
                     if (intervalFilterMax[i].name === $(this).attr('name')) {
                         initialDate = intervalFilterMax[i].value;
@@ -464,6 +498,29 @@
                         format: 'L'
                     });
                 }
+            });
+
+            // Listenfelder initialisieren
+            $("select[data-type='list']").each(function() {
+                // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
+                for (var i = 0; i < listFilterLists.length; i++) {
+                    if (listFilterLists[i].name === $(this).attr('name')) {
+                        // Werteliste Case-insensitiv (!) sortieren
+                        listFilterLists[i].value.sort(function (a, b) {
+                            return a.toLowerCase().localeCompare(b.toLowerCase());
+                        });
+                        for (var j = 0; j < listFilterLists[i].value.length; j++) {
+                            // Werteliste als Optionen im Listenfeld abbilden
+                            $(this).append($('<option>', {
+                                value: listFilterLists[i].value[j],
+                                text: listFilterLists[i].value[j]
+                            }));
+                        }
+                        break;
+                    }
+                }
+                // zum Abschluss sciherstellen, dass Listenfeld initial auf leerer Option steht
+                $(this).val('');
             });
 
             // bei Klick auf entsprechenden Button alle Filter anwenden

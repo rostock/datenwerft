@@ -146,6 +146,12 @@ def is_field_hours_related_field(field):
 
 
 @register.filter
+def is_field_nullable(field_name, model_name):
+    model = apps.get_app_config('datenmanagement').get_model(model_name)
+    return model._meta.get_field(field_name).null
+
+
+@register.filter
 def user_has_model_permissions(user):
     models = apps.get_app_config('datenmanagement').get_models()
     for model in models:
