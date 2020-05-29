@@ -785,7 +785,7 @@ class Baustellen_geplant(models.Model):
     address = True
     address_optional = True
     geometry_type = 'MultiPolygonField'
-    group_with_users_for_choice_field = 'baustellen_geplant_full'
+    group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
   
   def __str__(self):
     if self.strasse_name and self.lagebeschreibung:

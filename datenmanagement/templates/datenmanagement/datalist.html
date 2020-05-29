@@ -41,10 +41,8 @@
                             {% endwith %}
                         {% endwith %}
                     {% endfor %}
-                    {% if user|user_has_model_change_permission:model_name_lower %}
+                    {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
                         <th><i>ansehen/editieren</i></th>
-                    {% else %}
-                        <th><i>ansehen</i></th>
                     {% endif %}
                     {% if user|user_has_model_delete_permission:model_name_lower %}
                         <th><i>löschen</i></th>
