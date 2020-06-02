@@ -55,7 +55,11 @@
                 var table = $('#datasets').DataTable({
                     ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
                     buttons: [
-                      'copy', 'print', 'excel', 'pdf'
+                      'copy', 'print', 'excelHtml5', {
+                          extend: 'pdfHtml5',
+                          orientation: 'landscape',
+                          pageSize: 'A4'
+                      }
                     ],
                     colReorder: true,
                     columnDefs: [{
