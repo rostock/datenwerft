@@ -3,18 +3,18 @@ html {
     min-height:100%;
 }
 
-#filter {
-    margin-top:50px;
+#filter, #kartensteuerung {
+    margin-top:30px;
+}
+
+#id_geometrie_map {
+    height:100%;
 }
 
 #map {
     height:100%;
     width:80%;
     float:left;
-}
-
-#id_geometrie_map {
-    height:100%;
 }
 
 #map_seitenbereich_container {
@@ -35,6 +35,15 @@ html {
 
 .container {
     width:96%;
+}
+
+.filter-checkbox-fieldset label {
+    width:100%;
+    font-weight:normal;
+}
+
+.filter-checkbox-fieldset input {
+    margin-right:5px;
 }
 
 .filter-input, .filter-row {

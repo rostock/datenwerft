@@ -350,6 +350,7 @@ class DataMapView(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(DataMapView, self).get_context_data(**kwargs)
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name'] = self.model._meta.verbose_name

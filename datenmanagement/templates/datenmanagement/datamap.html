@@ -41,12 +41,21 @@
         <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
         <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
     </div>
-	<div id='map_seitenbereich_container'>
+	  <div id='map_seitenbereich_container'>
         {% leaflet_map "map" callback="window.map_init_basic" %}
         <div id='adressensuche' class='seitenbereich'>
             <h4>Adressen-/Straßen-/Ortsteilsuche</h4>
             <input id='searchtext' type='text' name='searchtext' maxlength='255' />
             <div class='results' id='results_container'></div>
+        </div>
+        <div id='kartensteuerung' class='seitenbereich'>
+            <h4>Kartenausschnitt</h4>
+            <div class='row'>
+                <input id='map-extent-initial' type='submit' class='btn btn-primary' value='initial'>
+                {% if map_filters_enabled %}
+                    <input id='map-extent-filter' type='submit' class='btn btn-primary' value='aktuelle Filtermenge'>
+                {% endif %}
+            </div>
         </div>
         {% if map_filters_enabled %}
             <div id='filter' class='seitenbereich'>
@@ -89,9 +98,9 @@
                                     <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
                                     <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
-                                    <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %}></select>
+                                    <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></select>
                                 {% elif map_filter_field|get_type_of_field:model_name == 'MultiSelectField' %}
-                                    <fieldset></fieldset>
+                                    <fieldset id='filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-checkbox-fieldset' data-type='checkbox-set' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></fieldset>
                                 {% else %}
                                     <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
                                     <span class='input-reset glyphicon glyphicon-remove-circle'></span>
@@ -128,7 +137,9 @@
             });
             
             // Liegenschaftskarte definieren
-            var liegenschaftskarte = L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte_hro_lro/tiles/1.0.0/hro.liegenschaftskarte_hro_lro.liegenschaftskarte_hro_lro/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+            var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte_hro_lro/wms', {
+                layers: 'hro.liegenschaftskarte_hro_lro',
+                format: 'image/png',
                 maxZoom: 19,
                 attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern) und Landkreis Rostock'
             });
@@ -145,6 +156,7 @@
                 var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
                     layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
                     format: 'image/png',
+                    maxZoom: 19,
                     transparent: true
                 });
             {% endif %}
@@ -318,6 +330,9 @@
         
         // Adressensuche und Filter
         $(document).ready(function() {
+            // Variable für Bounding Box der aktuellen Filtermenge anlegen
+            var currentFilterExtent = [];
+            
             // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
             var intervalFilterMin = [];
 
@@ -326,10 +341,14 @@
 
             // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
             var listFilterLists = [];
+
+            // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
+            var checkboxFilterLists = [];
             
             // Adressensuche initialisieren
-            var results = $('div.results');
-            var searchField = $('#searchtext');
+
+            results = $('div.results');
+            searchField = $('#searchtext');
 
             // bei Klick auf Stelle außerhalb der Adressensuche die Resultate der Adressensuche leeren
             results.click(function(event) {
@@ -391,9 +410,20 @@
                     listFilterLists.push(filterField);
                 }
             });
+
+            // über alle Checkbox-Filterfelder gehen...
+            $('.filter-checkbox-fieldset').each(function() {
+                // Feld als Objekt mit Name, Typ und Wert erstellen
+                var filterField = new Object();
+                filterField.name = $(this).attr('name');
+                filterField.type = $(this).data('type');
+                filterField.value = [];
+                // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Checkboxen-Set dargestellt werden sollen
+                checkboxFilterLists.push(filterField);
+            });
             
-            // falls Intervallfilter oder Listenfilter vorhanden...
-            {% if map_rangefilter_fields or map_filter_fields_as_list %}
+            // falls Filter vorhanden...
+            {% if map_filters_enabled %}
                 // über alle Objekte gehen...
                 {% for object in object_list %}
                     // falls Intervallfilter vorhanden...
@@ -448,6 +478,29 @@
                                         if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field }}') === -1) {
                                             listFilterLists[i].value.push('{{ object|get_value_of_field:current_field }}');
                                             break;
+                                        }
+                                    }
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    {% endif %}
+                    // falls normale Filter vorhanden...
+                    {% if map_filter_fields %}
+                        // für alle Listenfilter...
+                        {% for map_filter_field in map_filter_fields %}
+                            {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
+                                // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
+                                {% if object|get_value_of_field:current_field %}
+                                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Checkboxen-Set dargestellt werden sollen: Werteliste um entsprechende(n) Wert(e) des passenden Feldes aus dem Objekt ergänzen, falls diese(r) noch nicht in der Werteliste steht/stehen
+                                    for (var i = 0; i < checkboxFilterLists.length; i++) {
+                                        if (checkboxFilterLists[i].name === '{{ current_field }}') {
+                                            var dummyString = '{{ object|get_value_of_field:current_field }}';
+                                            var dummyArray = dummyString.split(', ');
+                                            for (var j = 0; j < dummyArray.length; j++) {
+                                                if (checkboxFilterLists[i].value.indexOf(dummyArray[j]) === -1) {
+                                                    checkboxFilterLists[i].value.push(dummyArray[j]);
+                                                }
+                                            }
                                         }
                                     }
                                 {% endif %}
@@ -523,12 +576,37 @@
                 $(this).val('');
             });
 
+            // Checkboxen-Sets initialisieren
+            $('.filter-checkbox-fieldset').each(function() {
+                // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
+                for (var i = 0; i < checkboxFilterLists.length; i++) {
+                    if (checkboxFilterLists[i].name === $(this).attr('name')) {
+                        // Werteliste Case-insensitiv (!) sortieren
+                        checkboxFilterLists[i].value.sort(function (a, b) {
+                            return a.toLowerCase().localeCompare(b.toLowerCase());
+                        });
+                        for (var j = 0; j < checkboxFilterLists[i].value.length; j++) {
+                            // Werteliste als Checkboxen im Set abbilden
+                            var $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
+                            $label.append($('<input>', {
+                                id: 'checkbox-' + i + '-' + j,
+                                type: 'checkbox',
+                                value: checkboxFilterLists[i].value[j]
+                            }));
+                            $label.append(checkboxFilterLists[i].value[j]);
+                            $(this).append($label);
+                        }
+                        break;
+                    }
+                }
+            });
+
             // bei Klick auf entsprechenden Button alle Filter anwenden
             $('#filter-apply').on('click', function() {
                 // Liste für Filterobjekte
                 var filterAttributesList = [];
 
-                // über alle Objekte gehen...
+                // über alle Filter (außer Checkboxen-Sets) gehen...
                 $('.filter-input').each(function() {
                     if ($(this).val()) {
                         // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
@@ -547,6 +625,22 @@
                     }
                 });
 
+                // über alle Checkboxen-Sets gehen...
+                $('.filter-checkbox-fieldset').each(function() {
+                    // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
+                    var filterAttribute = new Object();
+                    filterAttribute.name = $(this).attr('name');
+                    filterAttribute.type = $(this).data('type');
+                    filterAttribute.intervalside = $(this).data('intervalside');
+                    filterAttribute.value = [];
+                    // Wertliste des Filterobjekts mit dem Wert jeder aktiven Checkbox befüllen
+                    $(this).find('input:checked').each(function() {
+                        filterAttribute.value.push($(this).val());
+                    });
+                    // Filterobjekt zur Liste für Filterobjekte hinzufügen
+                    filterAttributesList.push(filterAttribute);
+                });
+
                 // über alle Filterobjekte gehen...
                 if (filterAttributesList.length > 0) {
                     currMap.eachLayer(function(layer) {
@@ -554,8 +648,8 @@
                             layer.getElement().style.display = '';
                             for (var i = 0; i < filterAttributesList.length; i++) {
                                 // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                                if (filterAttributesList[i].intervalside == 'left') {
-                                    if (filterAttributesList[i].type == 'date') {
+                                if (filterAttributesList[i].intervalside === 'left') {
+                                    if (filterAttributesList[i].type === 'date') {
                                         // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                                         if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
                                             layer.getElement().style.display = 'none';
@@ -566,8 +660,8 @@
                                         }
                                     }
                                 // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                                } else if (filterAttributesList[i].intervalside == 'right') {
-                                    if (filterAttributesList[i].type == 'date') {
+                                } else if (filterAttributesList[i].intervalside === 'right') {
+                                    if (filterAttributesList[i].type === 'date') {
                                         // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                                         if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').isAfter(new Date(filterAttributesList[i].value), 'day')) {
                                             layer.getElement().style.display = 'none';
@@ -577,11 +671,39 @@
                                             layer.getElement().style.display = 'none';
                                         }
                                     }
+                                // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und unpassende GeoJSON-Features ausblenden
+                                } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
+                                    for (var j = 0; j < filterAttributesList[i].value.length; j++) {
+                                        if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) == -1) {
+                                            layer.getElement().style.display = 'none';
+                                        }
+                                    }
                                 // ansonsten einen String-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                                } else {
+                                } else if (filterAttributesList[i].type != 'checkbox-set') {
+                                        console.log(layer.getBounds());
                                     if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
                                         layer.getElement().style.display = 'none';
                                     }
+                                }
+                            }
+                            // Variable für Bounding Box der aktuellen Filtermenge anhand sichtbar bleibender GeoJSON-Features befüllen
+                            if (layer.getElement().style.display === '') {
+                                if (currentFilterExtent.length == 0) {
+                                    currentFilterExtent[0] = [];
+                                    currentFilterExtent[0][0] = layer.getBounds().getNorth();
+                                    currentFilterExtent[0][1] = layer.getBounds().getEast();
+                                    currentFilterExtent[1] = [];
+                                    currentFilterExtent[1][0] = layer.getBounds().getSouth();
+                                    currentFilterExtent[1][1] = layer.getBounds().getWest();
+                                } else {
+                                    if (currentFilterExtent[0][0] < layer.getBounds().getNorth())
+                                        currentFilterExtent[0][0] = layer.getBounds().getNorth();
+                                    if (currentFilterExtent[0][1] < layer.getBounds().getEast())
+                                        currentFilterExtent[0][1] = layer.getBounds().getEast();
+                                    if (currentFilterExtent[1][0] < layer.getBounds().getSouth())
+                                        currentFilterExtent[1][0] = layer.getBounds().getSouth();
+                                    if (currentFilterExtent[1][1] < layer.getBounds().getWest())
+                                        currentFilterExtent[1][1] = layer.getBounds().getWest();
                                 }
                             }
                         }
@@ -591,7 +713,7 @@
                 }
             });
 
-            // bei Klick auf entsprechenden Button alle Filter zurücksetzen
+            // bei Klick auf entsprechenden Button alle Filter sowie Bounding Box der aktuellen Filtermenge zurücksetzen
             $('#filter-reset').on('click', function() {
                 $('.filter-input').each(function() {
                     // falls initialer Wert vorhanden...
@@ -613,12 +735,42 @@
                         $(this).val('');
                     }
                 });
+                $('.filter-checkbox-fieldset').each(function() {
+                    $(this).find('input:checked').each(function() {
+                        $(this).prop('checked', false);
+                    });
+                });
                 showAllMapFeatures();
+                currentFilterExtent = [];
             });
 
             // bei Klick auf entsprechendes Kreuzchen Inhalt des betreffenden Filters leeren
             $('.input-reset').on('click', function() {
                 $(this).prev().val('');
+            });
+
+            // Kartensteuerung
+
+            // bei Klick auf Button zum Setzen des initialen Kartenausschnitts
+            $('#map-extent-initial').on('click', function() {
+                // initiales Zoomlevel aus Leaflet-Konfiguration aus settings.py auslesen
+                var default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
+                default_zoom = default_zoom.match(/ [0-9]+/).toString();
+                default_zoom = default_zoom.trim();
+                // initiales Kartenzentrum aus Leaflet-Konfiguration aus settings.py auslesen
+                var default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
+                default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
+                default_center_x = default_center_x.trim();
+                default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
+                default_center_y = default_center_y.trim();
+                // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
+                setMapExtentByXYAndZoomLevel(default_center_x, default_center_y, default_zoom);
+            });
+
+            // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge
+            $('#map-extent-filter').on('click', function() {
+                if (currentFilterExtent.length > 0)
+                    setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
             });
         });
         
@@ -629,6 +781,17 @@
                     layer.getElement().style.display = '';
                 }
             });
+        }
+        
+        // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
+        function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
+            currMap.panTo([y, x]);
+            currMap.setZoom(zoomLevel);
+        }
+        
+        // Kartenausschnitt setzen (via Bounding Box)
+        function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
+            currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
         }
         
         // Resultate der Adressensuche

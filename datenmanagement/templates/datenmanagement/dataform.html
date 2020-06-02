@@ -161,16 +161,16 @@
                 map.eachLayer(function (layer) {
                     if (layer._latlng) {
                         if ((layer.getLatLng().lat) == 0 || (layer.getLatLng().lon) == 0) {
-                            min_zoom = '{{ LEAFLET_CONFIG }}'.match(/MIN_ZOOM(?:(?!\, \&#39).)*/).toString();
-                            min_zoom = min_zoom.match(/ [0-9]+/).toString();
-                            min_zoom = min_zoom.trim();
+                            default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
+                            default_zoom = default_zoom.match(/ [0-9]+/).toString();
+                            default_zoom = default_zoom.trim();
                             default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
                             default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
                             default_center_x = default_center_x.trim();
                             default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
                             default_center_y = default_center_y.trim();
                             map.panTo([default_center_y, default_center_x]);
-                            map.setZoom(min_zoom);
+                            map.setZoom(default_zoom);
                         }
                         else {
                             $('#addressToMap').prop('disabled', false);
@@ -205,7 +205,9 @@
             });
 
             // Liegenschaftskarte definieren
-            var liegenschaftskarte = L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte_hro_lro/tiles/1.0.0/hro.liegenschaftskarte_hro_lro.liegenschaftskarte_hro_lro/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+            var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte_hro_lro/wms', {
+                layers: 'hro.liegenschaftskarte_hro_lro',
+                format: 'image/png',
                 maxZoom: 19,
                 attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern) und Landkreis Rostock'
             });
@@ -222,6 +224,7 @@
                 var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
                     layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
                     format: 'image/png',
+                    maxZoom: 19,
                     transparent: true
                 });
             {% endif %}
