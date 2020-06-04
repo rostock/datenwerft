@@ -227,12 +227,16 @@ ART_PFLEGEEINRICHTUNGEN = (
 )
 
 AUFTRAGGEBER_BAUSTELLEN = (
+  ('Deutsche Bahn AG', 'Deutsche Bahn AG'),
   ('Deutsche Telekom AG', 'Deutsche Telekom AG'),
   ('Hanse- und Universitätsstadt Rostock', 'Hanse- und Universitätsstadt Rostock'),
+  ('Landesamt für Straßenbau und Verkehr Mecklenburg-Vorpommern', 'Landesamt für Straßenbau und Verkehr Mecklenburg-Vorpommern'),
   ('Nordwasser GmbH', 'Nordwasser GmbH'),
+  ('Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH', 'Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH'),
   ('Rostocker Straßenbahn AG', 'Rostocker Straßenbahn AG'),
   ('Stadtentsorgung Rostock GmbH', 'Stadtentsorgung Rostock GmbH'),
   ('Stadtwerke Rostock AG', 'Stadtwerke Rostock AG'),
+  ('Warnowquerung GmbH & Co. KG', 'Warnowquerung GmbH & Co. KG'),
   ('andere(r)/private(r)', 'andere(r)/private(r)'),
 )
 
