@@ -1,6 +1,7 @@
 from django import template
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.gis import forms
 from guardian.core import ObjectPermissionChecker
 import os
@@ -149,6 +150,17 @@ def is_field_hours_related_field(field):
 def is_field_nullable(field_name, model_name):
     model = apps.get_app_config('datenmanagement').get_model(model_name)
     return model._meta.get_field(field_name).null
+
+
+@register.filter
+def is_user_in_group(user, group_name):
+    user_mail = re.sub('^.*\(', '', user)
+    user_mail = re.sub('\)$', '', user_mail)
+    users = User.objects.filter(groups__name = group_name)
+    for user in users:
+        if user.email.lower() == user_mail:
+            return True
+    return False
 
 
 @register.filter

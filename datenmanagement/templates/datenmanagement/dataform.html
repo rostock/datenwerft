@@ -282,8 +282,31 @@
             {% endif %}
         }
     
-        // Read-only-Felder behandeln, Multi-Datei-Feld behandeln, Adressensuche initialisieren und Pflichtfelder behandeln
+        // Auswahlfeld Ansprechpartner/Bearbeiter in normales Feld mit Wert aus Datensatz umwandeln (nur bei Änderungsformularen), Read-only-Felder behandeln, Multi-Datei-Feld behandeln, Adressensuche initialisieren und Pflichtfelder behandeln
         $(document).ready(function() {
+
+            {% if object and not user|user_has_object_delete_permission:object and group_with_users_for_choice_field %}
+                {% if object.ansprechpartner and not object.ansprechpartner|is_user_in_group:group_with_users_for_choice_field or object.bearbeiter and not object.bearbeiter|is_user_in_group:group_with_users_for_choice_field %}
+                    {% for field in form %}
+                        {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
+                            var value = '';
+                            {% if field.name == 'ansprechpartner' %}
+                                value = '{{ object.ansprechpartner }}';
+                            {% endif %}
+                            {% if field.name == 'bearbeiter' %}
+                                value = '{{ object.bearbeiter }}';
+                            {% endif %}
+                            var inputField = $('<input>').attr({
+                                id: 'id_' + '{{ field.name }}',
+                                type: 'text',
+                                name: '{{ field.name }}',
+                                value: value
+                            });
+                            $('select#id_' + '{{ field.name }}').replaceWith(inputField);
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
 
             {% if readonly_fields %}
                 {% for field in readonly_fields %}

@@ -116,18 +116,16 @@ class DataForm(ModelForm):
     self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
     if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists():
         for field in self.model._meta.get_fields():
-            if field.name == 'ansprechpartner':
+            if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
                 users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
-                self.fields['ansprechpartner'] = ChoiceField(
+                choice_field = ChoiceField(
                     choices = [(user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')', user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')') for user in users],
                     initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
                 )
-            if field.name == 'bearbeiter':
-                users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
-                self.fields['bearbeiter'] = ChoiceField(
-                    choices = [(user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')', user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')') for user in users],
-                    initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
-                )
+                if field.name == 'ansprechpartner':
+                		self.fields['ansprechpartner'] = choice_field
+                if field.name == 'bearbeiter':
+                		self.fields['bearbeiter'] = choice_field
     
     for field in self.fields.values():
       if field.label == 'Geometrie':
@@ -477,6 +475,7 @@ class DataChangeView(generic.UpdateView):
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
     context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
     context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
+    context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     return context
 
   def get_initial(self):
