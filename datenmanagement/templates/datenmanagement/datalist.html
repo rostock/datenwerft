@@ -55,13 +55,14 @@
                 var table = $('#datasets').DataTable({
                     ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
                     buttons: [
-                      'copy', 'print', 'excelHtml5', {
+                      'copy', 'excelHtml5', {
                           extend: 'pdfHtml5',
                           orientation: 'landscape',
                           pageSize: 'A4',
                           customize: function(doc) {
-                              doc.defaultStyle.fontSize = 8;
+                              doc.defaultStyle.fontSize = 7;
                               doc.pageMargins = [20, 20, 20, 20];
+                              doc.styles.tableHeader.fontSize = 7;
                           } 
                       }
                     ],
@@ -76,11 +77,12 @@
                       'orderable': false,
                       'targets': -1
                     }],
-                    dom: 'Bfrtip',
+                    dom: 'Blfrtip',
                     fixedHeader: true,
                     language: {
                         url: '{% static 'datatables-1.10.20/datatables.german.lang' %}'
                     },
+                    lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
                     order: [[ 1, 'asc' ]],
                     orderCellsTop: true,
                     orderClasses: false,

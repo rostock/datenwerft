@@ -3,6 +3,10 @@ html {
     min-height:100%;
 }
 
+#datasets_length {
+    margin-top:15px;
+}
+
 #filter, #kartensteuerung {
     margin-top:30px;
 }
