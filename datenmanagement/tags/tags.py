@@ -153,14 +153,19 @@ def is_field_nullable(field_name, model_name):
 
 
 @register.filter
-def is_user_in_group(user, group_name):
-    user_mail = re.sub('^.*\(', '', user)
+def is_user_in_group_by_user_name(user_name, group_name):
+    user_mail = re.sub('^.*\(', '', user_name)
     user_mail = re.sub('\)$', '', user_mail)
     users = User.objects.filter(groups__name = group_name)
     for user in users:
         if user.email.lower() == user_mail:
             return True
     return False
+
+
+@register.filter
+def is_user_in_group_by_user_object(user, group_name):
+    return user.groups.filter(name = group_name).exists()
 
 
 @register.filter

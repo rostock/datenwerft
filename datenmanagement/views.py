@@ -102,19 +102,22 @@ class DataForm(ModelForm):
   
   def __init__(self, *args, **kwargs):
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
+    admin_group = kwargs.pop('admin_group', None)
     multi_foto_field = kwargs.pop('multi_foto_field', None)
     multi_files = kwargs.pop('multi_files', None)
     model = kwargs.pop('model', None)
     request = kwargs.pop('request', None)
     super(DataForm, self).__init__(*args, **kwargs)
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
+    self.admin_group = admin_group
     self.multi_foto_field = multi_foto_field
     self.multi_files = multi_files
     self.model = model
     self.request = request
     self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
     self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
-    if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists():
+    # Textfelder in Auswahllisten umwandeln, falls Benutzer kein Admin und kein Mitglied der Gruppe von Benutzern ist, die als Admin-Gruppe für dieses Datenthema gilt
+    if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists() and not (self.request.user.is_superuser or self.request.user.groups.filter(name = self.admin_group).exists()):
         for field in self.model._meta.get_fields():
             if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
                 users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
@@ -372,9 +375,11 @@ class DataAddView(generic.CreateView):
   def get_form_kwargs(self):
     kwargs = super(DataAddView, self).get_form_kwargs()
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
+    self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     self.multi_files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
+    kwargs['admin_group'] = self.admin_group
     kwargs['multi_foto_field'] = self.multi_foto_field
     kwargs['multi_files'] = self.multi_files
     kwargs['model'] = self.model
@@ -404,6 +409,8 @@ class DataAddView(generic.CreateView):
     context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
     context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
     context['multi_foto_field'] = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
+    context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
+    context['admin_group'] = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     return context
 
   def get_initial(self):
@@ -414,7 +421,7 @@ class DataAddView(generic.CreateView):
             ansprechpartner = self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email.lower() + ')'
         if field.name == 'bearbeiter':
             bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name
-    if not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not self.model._meta.group_with_users_for_choice_field:
+    if self.request.user.is_superuser or self.request.user.groups.filter(name = self.model._meta.admin_group).exists() or not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not self.model._meta.group_with_users_for_choice_field:
         return {
           'ansprechpartner': ansprechpartner,
           'bearbeiter': bearbeiter
@@ -448,7 +455,9 @@ class DataChangeView(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(DataChangeView, self).get_form_kwargs()
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
+    self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
+    kwargs['admin_group'] = self.admin_group
     kwargs['model'] = self.model
     kwargs['request'] = self.request
     return kwargs
@@ -476,6 +485,7 @@ class DataChangeView(generic.UpdateView):
     context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
     context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
     context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
+    context['admin_group'] = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     return context
 
   def get_initial(self):

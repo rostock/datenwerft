@@ -125,7 +125,8 @@ options.DEFAULT_NAMES += (
   'thumbs',                             # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
   'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
   'parent_field_name_for_filter',       # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
-  'group_with_users_for_choice_field'   # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
+  'group_with_users_for_choice_field',  # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
+  'admin_group'                         # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
 )
 
 
@@ -822,6 +823,7 @@ class Baustellen_geplant(models.Model):
     address_optional = True
     geometry_type = 'MultiPolygonField'
     group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
+    admin_group = 'baustellen_geplant_full'
   
   def __str__(self):
     if self.strasse_name and self.lagebeschreibung:
