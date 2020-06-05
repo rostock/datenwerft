@@ -226,6 +226,12 @@ ART_PFLEGEEINRICHTUNGEN = (
   ('Vollstationäre Pflegeeinrichtung', 'Vollstationäre Pflegeeinrichtung'),
 )
 
+ART_VORGANG_UVP_VORHABEN = (
+  ('Bauantrag', 'Bauantrag'),
+  ('externe Genehmigungsplanung', 'externe Genehmigungsplanung'),
+  ('Genehmigungsplanung der Hanse- und Universitätsstadt Rostock', 'Genehmigungsplanung der Hanse- und Universitätsstadt Rostock'),
+)
+
 AUFTRAGGEBER_BAUSTELLEN = (
   ('Deutsche Bahn AG', 'Deutsche Bahn AG'),
   ('Deutsche Telekom AG', 'Deutsche Telekom AG'),
@@ -234,6 +240,7 @@ AUFTRAGGEBER_BAUSTELLEN = (
   ('Nordwasser GmbH', 'Nordwasser GmbH'),
   ('Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH', 'Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH'),
   ('Rostocker Straßenbahn AG', 'Rostocker Straßenbahn AG'),
+  ('Rostocker Versorgungs- und Verkehrs-Holding GmbH', 'Rostocker Versorgungs- und Verkehrs-Holding GmbH'),
   ('Stadtentsorgung Rostock GmbH', 'Stadtentsorgung Rostock GmbH'),
   ('Stadtwerke Rostock AG', 'Stadtwerke Rostock AG'),
   ('Warnowquerung GmbH & Co. KG', 'Warnowquerung GmbH & Co. KG'),
@@ -339,6 +346,15 @@ GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE = (
   ('6 min = 0,50 €', '6 min = 0,50 €'),
   ('10 min = 0,10 €', '10 min = 0,10 €'),
   ('12 min = 0,10 €', '12 min = 0,10 €'),
+)
+
+GENEHMIGUNGSBEHOERDE_UVP_VORHABEN = (
+  ('Hafen- und Seemannsamt der Hanse- und Universitätsstadt Rostock', 'Hafen- und Seemannsamt der Hanse- und Universitätsstadt Rostock'),
+  ('Ministerium für Energie, Infrastruktur und Digitalisierung Mecklenburg-Vorpommern', 'Ministerium für Energie, Infrastruktur und Digitalisierung Mecklenburg-Vorpommern'),
+  ('Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburg', 'Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburgk'),
+  ('Tiefbauamt der Hanse- und Universitätsstadt Rostock', 'Tiefbauamt der Hanse- und Universitätsstadt Rostock'),
+  ('Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock'),
+  ('Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock'),
 )
 
 KLASSEN_BILDUNGSTRAEGER = (
@@ -462,6 +478,11 @@ MOTIVE_HALTESTELLEN = (
   ('Wartebereich von vorne', 'Wartebereich von vorne'),
 )
 
+RECHTSGRUNDLAGE_UVP_VORHABEN = (
+  ('Gesetz über die Umweltverträglichkeitsprüfung (UVPG)', 'Gesetz über die Umweltverträglichkeitsprüfung (UVPG)'),
+  ('Gesetz über die Umweltverträglichkeitsprüfung in Mecklenburg-Vorpommern (LUVPG M-V)', 'Gesetz über die Umweltverträglichkeitsprüfung in Mecklenburg-Vorpommern (LUVPG M-V)'),
+)
+
 SCHAEDEN_HALTESTELLEN = (
   ('keine Schäden', 'keine Schäden'),
   ('leichte Schäden', 'leichte Schäden'),
@@ -531,6 +552,15 @@ TYP_HALTESTELLEN = (
   ('Doppelhaltestelle', 'Doppelhaltestelle'),
   ('Kombihaltestelle', 'Kombihaltestelle'),
   ('Straßenbahnhaltestelle', 'Straßenbahnhaltestelle'),
+)
+
+TYP_UVP_VORHABEN = (
+  ('Nr. 13.12', 'Nr. 13.12'),
+  ('Nr. 13.18', 'Nr. 13.18'),
+  ('Nr. 13.18.1', 'Nr. 13.18.1'),
+  ('Nr. 13.18.2', 'Nr. 13.18.2'),
+  ('Nr. 23', 'Nr. 23'),
+  ('Nr. 30', 'Nr. 30'),
 )
 
 VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE = (
@@ -767,7 +797,7 @@ class Baustellen_geplant(models.Model):
   sparte = MultiSelectField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
   beginn = models.DateField('Beginn', default=date.today)
   ende = models.DateField('Ende', default=date.today)
-  auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN, blank=True, null=True)
+  auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN)
   ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_GEPLANT)
   geometrie = models.MultiPolygonField('Geometrie', srid=25833)

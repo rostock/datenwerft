@@ -18,7 +18,8 @@ html {
 }
 
 #map_seitenbereich_container {
-    height:800px;
+    min-height:800px;
+    margin-bottom:15px;
 }
 
 #searchtext {

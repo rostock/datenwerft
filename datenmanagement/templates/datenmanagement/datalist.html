@@ -58,7 +58,11 @@
                       'copy', 'print', 'excelHtml5', {
                           extend: 'pdfHtml5',
                           orientation: 'landscape',
-                          pageSize: 'A4'
+                          pageSize: 'A4',
+                          customize: function(doc) {
+                              doc.defaultStyle.fontSize = 8;
+                              doc.pageMargins = [20, 20, 20, 20];
+                          } 
                       }
                     ],
                     colReorder: true,

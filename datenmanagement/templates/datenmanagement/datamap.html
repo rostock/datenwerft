@@ -52,9 +52,7 @@
             <h4>Kartenausschnitt</h4>
             <div class='row'>
                 <input id='map-extent-initial' type='submit' class='btn btn-primary' value='initial'>
-                {% if map_filters_enabled %}
-                    <input id='map-extent-filter' type='submit' class='btn btn-primary' value='aktuelle Filtermenge'>
-                {% endif %}
+                <input id='map-extent-filter' type='submit' class='btn btn-primary' value={% if map_filters_enabled %}'aktuelle Filtermenge'{% else %}'alle Objekte'{% endif %}>
             </div>
         </div>
         {% if map_filters_enabled %}
@@ -326,6 +324,9 @@
                 });
                 map.addLayer(geoJsonLayer);
             {% endif %}
+            
+            // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
+            window.objectsExtent = geoJsonLayer.getBounds();
         }
         
         // Adressensuche und Filter
@@ -603,6 +604,9 @@
 
             // bei Klick auf entsprechenden Button alle Filter anwenden
             $('#filter-apply').on('click', function() {
+                // Variable für Bounding Box der aktuellen Filtermenge leeren
+                currentFilterExtent = [];
+
                 // Liste für Filterobjekte
                 var filterAttributesList = [];
 
@@ -680,7 +684,6 @@
                                     }
                                 // ansonsten einen String-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
                                 } else if (filterAttributesList[i].type != 'checkbox-set') {
-                                        console.log(layer.getBounds());
                                     if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
                                         layer.getElement().style.display = 'none';
                                     }
@@ -688,6 +691,8 @@
                             }
                             // Variable für Bounding Box der aktuellen Filtermenge anhand sichtbar bleibender GeoJSON-Features befüllen
                             if (layer.getElement().style.display === '') {
+                                console.dir(layer.getBounds());
+                                console.log('---');
                                 if (currentFilterExtent.length == 0) {
                                     currentFilterExtent[0] = [];
                                     currentFilterExtent[0][0] = layer.getBounds().getNorth();
@@ -696,9 +701,9 @@
                                     currentFilterExtent[1][0] = layer.getBounds().getSouth();
                                     currentFilterExtent[1][1] = layer.getBounds().getWest();
                                 } else {
-                                    if (currentFilterExtent[0][0] < layer.getBounds().getNorth())
+                                    if (currentFilterExtent[0][0] > layer.getBounds().getNorth())
                                         currentFilterExtent[0][0] = layer.getBounds().getNorth();
-                                    if (currentFilterExtent[0][1] < layer.getBounds().getEast())
+                                    if (currentFilterExtent[0][1] > layer.getBounds().getEast())
                                         currentFilterExtent[0][1] = layer.getBounds().getEast();
                                     if (currentFilterExtent[1][0] < layer.getBounds().getSouth())
                                         currentFilterExtent[1][0] = layer.getBounds().getSouth();
@@ -767,11 +772,21 @@
                 setMapExtentByXYAndZoomLevel(default_center_x, default_center_y, default_zoom);
             });
 
-            // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge
+            // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge (bzw. auf Bounding Box aller Objekte, falls kein Filter aktiv)
             $('#map-extent-filter').on('click', function() {
+                console.dir(currentFilterExtent);
                 if (currentFilterExtent.length > 0)
                     setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
+                else
+                    setMapExtentByLeafletBounds(objectsExtent);
             });
+
+            // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche (plus "Puffer" von 60 Pixeln)
+            var height = 60;
+            $('.seitenbereich').each(function() {
+                height += $(this).height();
+            });
+            $('#map_seitenbereich_container').height(height);
         });
         
         // alle GeoJSON-Features (wieder) anzeigen
@@ -792,6 +807,11 @@
         // Kartenausschnitt setzen (via Bounding Box)
         function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
             currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
+        }
+        
+        // Kartenausschnitt setzen (via Leaflet-Bounds)
+        function setMapExtentByLeafletBounds(leafletBounds) {
+            currMap.fitBounds(leafletBounds);
         }
         
         // Resultate der Adressensuche
