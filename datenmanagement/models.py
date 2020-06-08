@@ -1842,7 +1842,7 @@ class Rettungswachen(models.Model):
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
-class UVP_Vorhaben(models.Model):
+class Uvp_Vorhaben(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -1875,10 +1875,10 @@ class UVP_Vorhaben(models.Model):
     return self.bezeichnung + ' (Art des Vorgangs: ' + self.art_vorgang + ', Genehmigungsbehörde: ' + self.genehmigungsbehoerde + ', Datum des Posteingangs bei der Genehmigungsbehörde: ' + datetime.strptime(str(self.datum_posteingang_genehmigungsbehoerde), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Rechtsgrundlage: ' + self.rechtsgrundlage + ', Typ: ' + self.typ + ')'
 
 
-class UVP_Vorpruefung(models.Model):
+class Uvp_Vorpruefung(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
-  parent = models.ForeignKey(UVP_Vorhaben, on_delete=models.PROTECT, db_column='uvp_vorhaben', to_field='uuid')
+  parent = models.ForeignKey(Uvp_Vorhaben, on_delete=models.PROTECT, db_column='uvp_vorhaben', to_field='uuid')
   datum_posteingang = models.DateField('Datum des Posteingangs', default=date.today)
   art = models.CharField('Art', max_length=255, choices=ART_UVP_VORPRUEFUNG)
   datum = models.DateField('Datum', default=date.today)
