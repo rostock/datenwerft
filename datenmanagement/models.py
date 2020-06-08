@@ -366,7 +366,7 @@ GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE = (
 GENEHMIGUNGSBEHOERDE_UVP_VORHABEN = (
   ('Hafen- und Seemannsamt der Hanse- und Universitätsstadt Rostock', 'Hafen- und Seemannsamt der Hanse- und Universitätsstadt Rostock'),
   ('Ministerium für Energie, Infrastruktur und Digitalisierung Mecklenburg-Vorpommern', 'Ministerium für Energie, Infrastruktur und Digitalisierung Mecklenburg-Vorpommern'),
-  ('Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburg', 'Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburgk'),
+  ('Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburg', 'Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburg'),
   ('Tiefbauamt der Hanse- und Universitätsstadt Rostock', 'Tiefbauamt der Hanse- und Universitätsstadt Rostock'),
   ('Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock'),
   ('Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock'),
