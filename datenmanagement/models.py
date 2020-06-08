@@ -149,6 +149,8 @@ inventarnummer_regex = r'^[0-9]{8}$'
 inventarnummer_message = 'Die Inventarnummer muss aus genau acht Ziffern bestehen.'
 postleitzahl_regex = r'^[0-9]{5}$'
 postleitzahl_message = 'Eine Postleitzahl muss aus genau fünf Ziffern bestehen.'
+registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
+registriernummer_bauamt_message = 'Die Registriernummer des Bauamtes muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
 rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = 'Die Schreibweise von Rufnummern muss der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen und daher folgendes Format aufweisen: +49 381 3816256'
 email_message = 'Die E-Mail-Adresse muss syntaktisch korrekt sein und daher folgendes Format aufweisen: abc-123.098_zyx@xyz-567.ghi.abc'
@@ -225,6 +227,11 @@ ART_PFLEGEEINRICHTUNGEN = (
   ('Tagespflegeeinrichtung', 'Tagespflegeeinrichtung'),
   ('Verhinderungspflegeeinrichtung', 'Verhinderungspflegeeinrichtung'),
   ('Vollstationäre Pflegeeinrichtung', 'Vollstationäre Pflegeeinrichtung'),
+)
+
+ART_UVP_VORPRUEFUNG = (
+  ('allgemeine Vorprüfung', 'allgemeine Vorprüfung'),
+  ('standortbezogene Vorprüfung', 'standortbezogene Vorprüfung'),
 )
 
 ART_VORGANG_UVP_VORHABEN = (
@@ -337,6 +344,13 @@ EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE = (
   ('min', 'Minuten'),
   ('h', 'Stunden'),
   ('d', 'Tage'),
+)
+
+ERGEBNIS_UVP_VORPRUEFUNG = (
+  ('in Bearbeitung', 'in Bearbeitung'),
+  ('UVP-Pflicht', 'UVP-Pflicht'),
+  ('keine UVP-Pflicht', 'keine UVP-Pflicht'),
+  ('freiwillige UVP', 'freiwillige UVP'),
 )
 
 GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE = (
@@ -1826,6 +1840,68 @@ class Rettungswachen(models.Model):
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
+class UVP_Vorhaben(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  art_vorgang = models.CharField('Art des Vorgangs', max_length=255, choices=ART_VORGANG_UVP_VORHABEN)
+  genehmigungsbehoerde = models.CharField('Genehmigungsbehörde', max_length=255, choices=GENEHMIGUNGSBEHOERDE_UVP_VORHABEN)
+  datum_posteingang_genehmigungsbehoerde = models.DateField('Datum des Posteingangs bei der Genehmigungsbehörde', default=date.today)
+  registriernummer_bauamt = models.CharField('Registriernummer des Bauamtes', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=registriernummer_bauamt_regex, message=registriernummer_bauamt_message)])
+  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  rechtsgrundlage = models.CharField('Rechtsgrundlage', max_length=255, choices=RECHTSGRUNDLAGE_UVP_VORHABEN)
+  typ = models.CharField('Typ', max_length=255, choices=TYP_UVP_VORHABEN)
+  geometrie = models.PolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorhaben'
+    verbose_name = 'Vorhaben (UVP)'
+    verbose_name_plural = 'Vorhaben (UVP)'
+    description = 'Vorhaben, auf die sich Vorprüfungen im Rahmen von Umweltverträglichkeitsprüfungen (UVP) der Hanse- und Universitätsstadt Rostock beziehen'
+    list_fields = ['bezeichnung', 'art_vorgang', 'genehmigungsbehoerde', 'datum_posteingang_genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
+    list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
+    list_fields_labels = ['Bezeichnung', 'Art des Vorgangs', 'Genehmigungsbehörde', 'Datum des Posteingangs bei der Genehmigungsbehörde', 'Rechtsgrundlage', 'Typ']
+    show_alkis = True
+    map_feature_tooltip_field = 'bezeichnung'
+    address = False
+    address_optional = False
+    geometry_type = 'PolygonField'
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung + ' (Art des Vorgangs: ' + self.art_vorgang + ', Genehmigungsbehörde: ' + self.genehmigungsbehoerde + ', Datum des Posteingangs bei der Genehmigungsbehörde: ' + datetime.strptime(str(self.datum_posteingang_genehmigungsbehoerde), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Rechtsgrundlage: ' + self.rechtsgrundlage + ', Typ: ' + self.typ + ')'
+
+
+class UVP_Vorpruefung(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  parent = models.ForeignKey(UVP_Vorhaben, on_delete=models.PROTECT, db_column='uvp_vorhaben', to_field='uuid')
+  datum_posteingang = models.DateField('Datum des Posteingangs', default=date.today)
+  art = models.CharField('Art', max_length=255, choices=ART_UVP_VORPRUEFUNG)
+  datum = models.DateField('Datum', default=date.today)
+  ergebnis = models.CharField('Ergebnis', max_length=255, choices=ERGEBNIS_UVP_VORPRUEFUNG)
+  datum_bekanntmachung = models.DateField('Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True)
+  datum_veroeffentlichung = models.DateField('Datum Veröffentlichung UVP-Portal', blank=True, null=True)
+  pruefprotokoll = models.CharField('Prüfprotokoll', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorpruefungen'
+    verbose_name = 'UVP-Vorprüfung'
+    verbose_name_plural = 'UVP-Vorprüfungen'
+    description = 'Vorprüfungen im Rahmen von Umweltverträglichkeitsprüfungen (UVP) der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['parent', 'datum_posteingang', 'art', 'datum', 'ergebnis']
+    list_fields_with_date = ['datum_posteingang', 'datum']
+    list_fields_labels = ['Vorhaben', 'Datum des Posteingangs', 'Art', 'Datum', 'Ergebnis']
+    object_title = 'die UVP-Vorprüfung'
+    foreign_key_label = 'Vorhaben'
+    parent_field_name_for_filter = 'bezeichnung'
+  
+  def __str__(self):
+    return str(self.parent) + ' (Datum des Posteingangs: ' + datetime.strptime(str(self.datum_posteingang), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Art: ' + self.art + ', Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ergebnis: ' + self.ergebnis + ')'
 
 
 class Vereine(models.Model):
