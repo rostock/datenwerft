@@ -1860,7 +1860,7 @@ class Uvp_Vorhaben(models.Model):
     db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorhaben'
     verbose_name = 'Vorhaben (UVP)'
     verbose_name_plural = 'Vorhaben (UVP)'
-    description = 'Vorhaben, auf die sich Vorprüfungen im Rahmen von Umweltverträglichkeitsprüfungen (UVP) der Hanse- und Universitätsstadt Rostock beziehen'
+    description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
     list_fields = ['bezeichnung', 'art_vorgang', 'genehmigungsbehoerde', 'datum_posteingang_genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
     list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
     list_fields_labels = ['Bezeichnung', 'Art des Vorgangs', 'Genehmigungsbehörde', 'Datum des Posteingangs bei der Genehmigungsbehörde', 'Rechtsgrundlage', 'Typ']
@@ -1872,7 +1872,7 @@ class Uvp_Vorhaben(models.Model):
     ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.bezeichnung + ' (Art des Vorgangs: ' + self.art_vorgang + ', Genehmigungsbehörde: ' + self.genehmigungsbehoerde + ', Datum des Posteingangs bei der Genehmigungsbehörde: ' + datetime.strptime(str(self.datum_posteingang_genehmigungsbehoerde), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Rechtsgrundlage: ' + self.rechtsgrundlage + ', Typ: ' + self.typ + ')'
+    return self.bezeichnung
 
 
 class Uvp_Vorpruefung(models.Model):
@@ -1892,7 +1892,7 @@ class Uvp_Vorpruefung(models.Model):
     db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorpruefungen'
     verbose_name = 'UVP-Vorprüfung'
     verbose_name_plural = 'UVP-Vorprüfungen'
-    description = 'Vorprüfungen im Rahmen von Umweltverträglichkeitsprüfungen (UVP) der Hanse- und Universitätsstadt Rostock'
+    description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
     list_fields = ['parent', 'datum_posteingang', 'art', 'datum', 'ergebnis']
     list_fields_with_date = ['datum_posteingang', 'datum']
     list_fields_labels = ['Vorhaben', 'Datum des Posteingangs', 'Art', 'Datum', 'Ergebnis']
