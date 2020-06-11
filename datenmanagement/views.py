@@ -421,11 +421,12 @@ class DataAddView(generic.CreateView):
             ansprechpartner = self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email.lower() + ')'
         if field.name == 'bearbeiter':
             bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name
-    if (ansprechpartner or bearbeiter) and (self.request.user.is_superuser or (self.model._meta.admin_group and self.request.user.groups.filter(name = self.model._meta.admin_group).exists()) or not self.model._meta.group_with_users_for_choice_field or not self.model._meta.admin_group):
-        return {
-          'ansprechpartner': ansprechpartner,
-          'bearbeiter': bearbeiter
-        }
+    if ansprechpartner or bearbeiter:
+        if self.request.user.is_superuser or (hasattr(self.model._meta, 'admin_group') and self.request.user.groups.filter(name = self.model._meta.admin_group).exists()) or not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not hasattr(self.model._meta, 'admin_group'):
+            return {
+              'ansprechpartner': ansprechpartner,
+              'bearbeiter': bearbeiter
+            }
 
   def form_valid(self, form):
     form.instance = form.save(commit = False)
