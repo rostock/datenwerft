@@ -248,9 +248,10 @@ AUFTRAGGEBER_BAUSTELLEN = (
   ('Nordwasser GmbH', 'Nordwasser GmbH'),
   ('Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH', 'Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH'),
   ('Rostocker Straßenbahn AG', 'Rostocker Straßenbahn AG'),
-  ('Rostocker Versorgungs- und Verkehrs-Holding GmbH', 'Rostocker Versorgungs- und Verkehrs-Holding GmbH'),
   ('Stadtentsorgung Rostock GmbH', 'Stadtentsorgung Rostock GmbH'),
   ('Stadtwerke Rostock AG', 'Stadtwerke Rostock AG'),
+  ('Stadtwerke Rostock Netzgesellschaft mbH', 'Stadtwerke Rostock Netzgesellschaft mbH'),
+  ('Unternehmen der Rostocker Versorgungs- und Verkehrs-Holding GmbH', 'Unternehmen der Rostocker Versorgungs- und Verkehrs-Holding GmbH'),
   ('Warnowquerung GmbH & Co. KG', 'Warnowquerung GmbH & Co. KG'),
   ('andere(r)/private(r)', 'andere(r)/private(r)'),
 )
