@@ -317,7 +317,7 @@
                     if (!inputField.val() || inputField.val() === '{{ READONLY_FIELD_DEFAULT }}') {
                         inputField.closest('tr').hide();
                     } else {
-                        inputField.parent().append('<span id="' + inputField.attr('id') + '" title="automatisch im Hintergrund vergeben"><i>' + inputField.val() + '</i></span>');
+                        inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – wird automatisch im Hintergrund vergeben"><i>' + inputField.val() + '</i></span>');
                         var label = inputField.parent().closest('tr').find('label');
                         label.wrapInner('<i></i>');
                         inputField.hide();

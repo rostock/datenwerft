@@ -216,12 +216,12 @@
             // neue Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
             {% if map_rangefilter_fields_json %}
                 var intervalFilterFields = {{ map_rangefilter_fields_json|safe }};
-            {% endif%}
+            {% endif %}
             
             // neue Variable definieren, in der die Namen der Filter-Felder abgelegt werden
             {% if map_filter_fields_json %}
                 var filterFields = {{ map_filter_fields_json|safe }};
-            {% endif%}
+            {% endif %}
             
             // über alle Objekte gehen...
             {% for object in object_list %}
@@ -245,10 +245,18 @@
                 // Geometrie zu GeoJSON-Feature hinzufügen
                 geoJsonFeature.geometry = geoJsonGeometry;
                 // Name des Feldes für den Feature-Tooltip in Variable ablegen
-                featureTooltipField = '{{ map_feature_tooltip_field }}';
+                {% if map_feature_tooltip_field %}
+                    featureTooltipField = '{{ map_feature_tooltip_field }}';
+                {% elif map_feature_tooltip_fields %}
+                    featureTooltipField = 'tooltip';
+                {% endif %}
                 // Properties zu GeoJSON-Feature hinzufügen
                 geoJsonFeature.properties.id = '{{ object.id }}';
-                geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+                {% if map_feature_tooltip_field %}
+                    geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+                {% elif map_feature_tooltip_fields %}
+                    geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
+                {% endif %}
                 // für alle Intervallfilterfelder...
                 {% if map_rangefilter_fields %}
                     {% for map_rangefilter_field in map_rangefilter_fields %}

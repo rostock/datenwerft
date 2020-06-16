@@ -40,7 +40,7 @@ Die :ref:`Syntax-Prüfung <datensatz_anlegen_syntax>` greift auf Grund der hier 
 Grundsätzliches
 ^^^^^^^^^^^^^^^
 
-Die Öffnungszeiten sind **einzeilig** einzutragen, es düren also keine Zeilenumbrüche oder Ähnliches verwendet werden. Für Wochentage und Monate werden die offiziellen **deutschsprachigen** Abkürzungen verwendet, also zum Beispiel *Di* für den Wochentag Dienstag, *Okt* für den Monat Oktober und *Mär* für den Monat März.
+Die Öffnungszeiten sind **einzeilig** einzutragen, es dürfen also keine Zeilenumbrüche oder Ähnliches verwendet werden. Für Wochentage und Monate werden die offiziellen **deutschsprachigen** Abkürzungen verwendet, also zum Beispiel *Di* für den Wochentag Dienstag, *Okt* für den Monat Oktober und *Mär* für den Monat März.
 
 Beispiele
 ^^^^^^^^^

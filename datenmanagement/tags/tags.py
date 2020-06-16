@@ -106,6 +106,16 @@ def get_value_of_map_feature_tooltip_field(value):
         return ["None"]
 
 
+@register.filter
+def get_and_concat_values_of_map_feature_tooltip_fields(value):
+    tooltip_value = ''
+    index = 0
+    for field in value.__class__._meta.map_feature_tooltip_fields:
+        tooltip_value = (tooltip_value + ' ' + getattr(value, field) if index > 0 else getattr(value, field))
+        index += 1
+    return tooltip_value
+
+
 @register.simple_tag
 def get_version_date():
     if os.path.isdir(os.path.join(settings.BASE_DIR, '.git')):

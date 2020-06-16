@@ -114,6 +114,7 @@ options.DEFAULT_NAMES += (
   'foreign_key_label',                  # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
   'show_alkis',                         # optional ; Boolean   ; Soll die Liegenschaftskarte als Hintergrundkarte in der Karten-/Hinzufügen-/Änderungsansicht angeboten werden?
   'map_feature_tooltip_field',          # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'map_feature_tooltip_fields',         # optional ; Textliste ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
   'map_rangefilter_fields',             # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen – Achtung: Verarbeitung immer paarweise!
   'map_rangefilter_fields_labels',      # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfiltertitel auftreten sollen – Achtung: Verarbeitung immer paarweise!
   'map_filter_fields',                  # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
@@ -1471,6 +1472,42 @@ class Kinderjugendbetreuung(models.Model):
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
+class Kindertagespflegeeinrichtungen(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse', max_length=255)
+  hausnummer = models.CharField(max_length=4, blank=True, null=True)
+  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
+  plaetze = models.PositiveSmallIntegerField('Plätze')
+  betreuungszeiten = models.CharField('Betreuungszeiten', max_length=255)
+  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kindertagespflegeeinrichtungen'
+    verbose_name = 'Kindertagespflegeeinrichtung'
+    verbose_name_plural = 'Kindertagespflegeeinrichtungen'
+    description = 'Kindertagespflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['nachname', 'vorname', 'adressanzeige', 'plaetze', 'betreuungszeiten', 'telefon']
+    list_fields_labels = ['Nachname', 'Vorname', 'Adresse', 'Plätze', 'Betreuungszeiten', 'Telefon']
+    readonly_fields = ['adressanzeige']
+    show_alkis = False
+    map_feature_tooltip_fields = ['vorname', 'nachname']
+    address = True
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.vorname + ' ' + self.nachname + (', ' + self.adressanzeige if self.adressanzeige else '')
 
 
 class Kunstimoeffentlichenraum(models.Model):

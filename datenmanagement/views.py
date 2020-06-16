@@ -359,6 +359,7 @@ class DataMapView(generic.ListView):
     context['model_description'] = self.model._meta.description
     context['show_alkis'] = (self.model._meta.show_alkis if hasattr(self.model._meta, 'show_alkis') else None)
     context['map_feature_tooltip_field'] = (self.model._meta.map_feature_tooltip_field if hasattr(self.model._meta, 'map_feature_tooltip_field') else None)
+    context['map_feature_tooltip_fields'] = (self.model._meta.map_feature_tooltip_fields if hasattr(self.model._meta, 'map_feature_tooltip_fields') else None)
     context['map_filters_enabled'] = (True if ((hasattr(self.model._meta, 'map_filter_fields') and hasattr(self.model._meta, 'map_filter_fields_labels')) or (hasattr(self.model._meta, 'map_rangefilter_fields') and hasattr(self.model._meta, 'map_rangefilter_fields_labels'))) else None)
     context['map_rangefilter_fields'] = (self.model._meta.map_rangefilter_fields if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
     context['map_rangefilter_fields_json'] = (json.dumps(self.model._meta.map_rangefilter_fields) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
