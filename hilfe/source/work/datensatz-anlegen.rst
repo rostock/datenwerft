@@ -11,7 +11,7 @@ Auf die *Anlegeseite* eines neuen Datensatzes gelangen Sie immer dann, wenn Sie 
 Wo muss ich die Attribute (Sachdaten) eingeben?
 -----------------------------------------------
 
-Die Attribute (also die Sachdaten) für den neuen Datensatz sind im linken Seitenbereich einzugeben, in dem alle vorgesehenen Attribute in sinnvoller Reihenfolge untereinander aufgeführt sind, und zwar jeweils ausgestattet mit dem entsprechenden Eingabefeld: Dies kann ein Texteingabefeld sein, eine Auswahlliste, ein Kalender zur Datumsauswahl usw., je nach Datentyp des entsprechenden Attributs.
+Die Attribute (also die Sachdaten) für den neuen Datensatz sind im linken Seitenbereich einzugeben, in dem alle vorgesehenen Attribute in sinnvoller Reihenfolge untereinander aufgeführt sind, und zwar jeweils ausgestattet mit dem entsprechenden Eingabefeld: Dies kann ein Texteingabefeld sein, eine Auswahlliste, ein Kalender zur Datumsauswahl usw. – je nach Datentyp des entsprechenden Attributs.
 
 
 .. _datensatz_anlegen_pflichtattribute:

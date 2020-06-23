@@ -8,7 +8,7 @@ Anmeldung
 Wie kann ich mich anmelden?
 ---------------------------
 
-Die Anmeldung erfolgt über die beiden Eingabefelder sowie den grünen Button *anmelden* rechts oben in der :doc:`Titelleiste <../nav/titelleiste>`: In das erste Feld müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen die Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer :doc:`Datenthemen-Übersicht <../nav/datenthemen-uebersicht>` weitergeleitet und Ihr Name erscheint oben in der Titelleiste als Zeichen dafür, dass Sie jetzt angemeldet sind.
+Die Anmeldung erfolgt über die beiden Eingabefelder sowie den grünen Button *anmelden* rechts oben in der :doc:`Titelleiste <../nav/titelleiste>`: In das erste Feld müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen die Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer :doc:`Datenthemen-Übersicht <../nav/datenthemen-uebersicht>` weitergeleitet und Ihr Name erscheint oben in der Titelleiste als „Beleg“ dafür, dass Sie jetzt angemeldet sind.
 
 **Tipp:** Sie können auch einfach die ``Enter``-Taste auf Ihrer Tastatur drücken statt auf den grünen Button *anmelden* zu klicken!
 
@@ -18,7 +18,7 @@ Die Anmeldung erfolgt über die beiden Eingabefelder sowie den grünen Button *a
 Wie lauten mein Benutzername und mein Passwort?
 -----------------------------------------------
 
-Falls Sie Angehöriger der Stadtverwaltung Rostock sind, so sind Ihr Benutzername und Ihr Passwort dieselben, die Sie auch nutzen, um sich an Ihrem Rechner anzumelden (zum Beispiel: ``r62ka207`` oder ``r43lv001``).
+Falls Sie Angehöriger der Stadtverwaltung Rostock sind, so sind Ihr Benutzername und Ihr Passwort dieselben, die Sie auch nutzen, um sich an Ihrem Rechner anzumelden (zum Beispiel: ``r62ka207`` oder ``r51xx603``).
 
 Falls Sie **kein** Angehöriger der Stadtverwaltung Rostock sind, so haben wir Ihnen Ihren Benutzernamen und Ihr Passwort in einer E-Mail mitgeteilt – sehen Sie bitte noch einmal nach. Ansonsten kontaktieren Sie uns: geodienste@rostock.de.
 
