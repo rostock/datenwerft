@@ -330,6 +330,11 @@ BEWIRTSCHAFTER_PAPIER_CONTAINERSTELLPLAETZE = (
   (1, 'Veolia Umweltservice Nord GmbH'),
 )
 
+DFI_TYPEN_HALTESTELLEN = (
+  ('4-zeilig', '4-zeilig'),
+  ('8-zeilig', '8-zeilig'),
+)
+
 E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
   ('Dauerstrom', 'Dauerstrom'),
   ('Solarpanel', 'Solarpanel'),
@@ -353,6 +358,19 @@ ERGEBNIS_UVP_VORPRUEFUNG = (
   ('UVP-Pflicht', 'UVP-Pflicht'),
   ('keine UVP-Pflicht', 'keine UVP-Pflicht'),
   ('freiwillige UVP', 'freiwillige UVP'),
+)
+
+FAHRGASTUNTERSTANDSTYPEN_HALTESTELLEN = (
+  ('Beton-WH', 'Beton-WH'),
+  ('Foster', 'Foster'),
+  ('MURANO', 'MURANO'),
+  ('Orion-Anlage', 'Orion-Anlage'),
+  ('Trafic', 'Trafic'),
+)
+
+FAHRPLANVITRINENTYPEN_HALTESTELLEN = (
+  ('Infovitrine 2xA3', 'Infovitrine 2xA3'),
+  ('Infovitrine 3xA3', 'Infovitrine 3xA3'),
 )
 
 GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE = (
@@ -484,6 +502,16 @@ LINIEN_HALTESTELLEN = (
   ('X41', 'X41'),
 )
 
+MASTTYPEN_HALTESTELLEN = (
+  ('2H+7', '2H+7'),
+  ('2H+8', '2H+8'),
+  ('HB+2', 'HB+2'),
+  ('HB+3', 'HB+3'),
+  ('HB+4', 'HB+4'),
+  ('HB+5', 'HB+5'),
+  ('HB+6', 'HB+6'),
+)
+
 MATERIAL_DENKSTEINE = (
   ('Metall', 'Metall'),
   ('Stein', 'Stein'),
@@ -505,6 +533,12 @@ SCHAEDEN_HALTESTELLEN = (
   ('leichte Schäden', 'leichte Schäden'),
   ('mittelschwere Schäden', 'mittelschwere Schäden'),
   ('schwere Schäden', 'schwere Schäden'),
+)
+
+SITZBANKTYPEN_HALTESTELLEN = (
+  ('Holzlattung auf Waschbetonfüßen', 'Holzlattung auf Waschbetonfüßen'),
+  ('Sitzbank mit Armlehne', 'Sitzbank mit Armlehne'),
+  ('Sitzbank ohne Armlehne', 'Sitzbank ohne Armlehne'),
 )
 
 SPARTEN_BAUSTELLEN = (
@@ -850,44 +884,6 @@ class Baustellen_geplant(models.Model):
       return self.bezeichnung + ' – ' + self.lagebeschreibung + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ' (UUID: ' + str(self.uuid) + ')'
-
-
-class Begegnungszentren(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
-  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
-  oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'begegnungszentren'
-    verbose_name = 'Begegnungszentrum'
-    verbose_name_plural = 'Begegnungszentren'
-    description = 'Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung']
-    list_fields_labels = ['UUID', 'Bezeichnung']
-    show_alkis = False
-    map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
       
       
 class Behinderteneinrichtungen(models.Model):
@@ -1279,18 +1275,23 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_bahnsteigkante_visuell = models.BooleanField('Bahnsteigkante visuell erkennbar?', blank=True, null=True)
   tl_bahnsteigkante_taktil = models.BooleanField('Bahnsteigkante taktil erkennbar?', blank=True, null=True)
   as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
+  as_h_masttyp = models.CharField('Typ des Mastes', max_length=255, choices=MASTTYPEN_HALTESTELLEN, blank=True, null=True)
   as_papierkorb = models.BooleanField('Papierkorb vorhanden?', blank=True, null=True)
   as_fahrgastunterstand = models.BooleanField('Fahrgastunterstand vorhanden?', blank=True, null=True)
+  as_fahrgastunterstandstyp = models.CharField('Typ des Fahrgastunterstands', max_length=255, choices=FAHRGASTUNTERSTANDSTYPEN_HALTESTELLEN, blank=True, null=True)
   as_sitzbank_mit_armlehne = models.BooleanField('Sitzbank mit Armlehne vorhanden?', blank=True, null=True)
   as_sitzbank_ohne_armlehne = models.BooleanField('Sitzbank ohne Armlehne vorhanden?', blank=True, null=True)
+  as_sitzbanktyp = models.CharField('Typ der Sitzbank', max_length=255, choices=SITZBANKTYPEN_HALTESTELLEN, blank=True, null=True)
   as_gelaender = models.BooleanField('Geländer vorhanden?', blank=True, null=True)
   as_fahrplanvitrine = models.BooleanField('Fahrplanvitrine vorhanden?', blank=True, null=True)
+  as_fahrplanvitrinentyp = models.CharField('Typ der Fahrplanvitrine', max_length=255, choices=FAHRPLANVITRINENTYPEN_HALTESTELLEN, blank=True, null=True)
   as_tarifinformation = models.BooleanField('Tarifinformation vorhanden?', blank=True, null=True)
   as_liniennetzplan = models.BooleanField('Liniennetzplan vorhanden?', blank=True, null=True)
   as_fahrplan = models.BooleanField('Fahrplan vorhanden?', blank=True, null=True)
   as_fahrausweisautomat = models.BooleanField('Fahrausweisautomat vorhanden?', blank=True, null=True)
   as_lautsprecher = models.BooleanField('Lautsprecher vorhanden?', blank=True, null=True)
   as_dfi = models.BooleanField('Dynamisches Fahrgastinformationssystem vorhanden?', blank=True, null=True)
+  as_dfi_typ = models.CharField('Typ des Dynamischen Fahrgastinformationssystems', max_length=255, choices=DFI_TYPEN_HALTESTELLEN, blank=True, null=True)
   as_anfragetaster = models.BooleanField('Anfragetaster vorhanden?', blank=True, null=True)
   as_blindenschrift = models.BooleanField('Haltestellen-/Linieninformationen in Blindenschrift vorhanden?', blank=True, null=True)
   as_beleuchtung = models.BooleanField('Beleuchtung vorhanden?', blank=True, null=True)
@@ -1867,6 +1868,44 @@ class Rettungswachen(models.Model):
     description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
+    show_alkis = False
+    map_feature_tooltip_field = 'bezeichnung'
+    address = True
+    address_optional = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    if self.hausnummer_zusatz:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
+    else:
+      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
+
+
+class Begegnungszentren(models.Model):
+  id = models.AutoField(primary_key=True)
+  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  strasse_name = models.CharField('Adresse', max_length=255)
+  hausnummer = models.CharField(max_length=4, blank=True, null=True)
+  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
+  oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'begegnungszentren'
+    verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
+    verbose_name_plural = 'Stadtteil- und Begegnungszentren'
+    description = 'Stadtteil- und Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['uuid', 'bezeichnung']
+    list_fields_labels = ['UUID', 'Bezeichnung']
     show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
     address = True
