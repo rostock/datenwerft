@@ -640,6 +640,12 @@ VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
   ('Straßenbahn', 'Straßenbahn'),
 )
 
+ZH_TYPEN_HALTESTELLEN = (
+  ('Haltestellenverteiler', 'Haltestellenverteiler'),
+  ('Kabelverteilerschrank', 'Kabelverteilerschrank'),
+  ('Zähleranschlusssäule', 'Zähleranschlusssäule'),
+)
+
 ZONE_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
   ('A', 'A'),
   ('B', 'B'),
@@ -1274,6 +1280,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_aufmerksamkeitsfeld = models.BooleanField('Aufmerksamkeitsfeld (1. Tür) vorhanden?', blank=True, null=True)
   tl_bahnsteigkante_visuell = models.BooleanField('Bahnsteigkante visuell erkennbar?', blank=True, null=True)
   tl_bahnsteigkante_taktil = models.BooleanField('Bahnsteigkante taktil erkennbar?', blank=True, null=True)
+  as_zh_typ = models.CharField('ZH-Typ', max_length=255, choices=ZH_TYPEN_HALTESTELLEN, blank=True, null=True)
   as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
   as_h_masttyp = models.CharField('Typ des Mastes', max_length=255, choices=MASTTYPEN_HALTESTELLEN, blank=True, null=True)
   as_papierkorb = models.BooleanField('Papierkorb vorhanden?', blank=True, null=True)
