@@ -7,9 +7,9 @@
 	<form action='' method='post'>
       {% csrf_token %}
       {% if object|get_class_object_title or object|get_class_foreign_key_label %}
-          <p>Möchten Sie {% if object|get_class_object_title %}{{object|get_class_object_title}}{% else %}den Datensatz{% endif %} zu {% if object|get_class_foreign_key_label %}{{object|get_class_foreign_key_label}}{% else %}Datensatz{% endif %} <span class='italic'>{{ object }}</span> wirklich löschen?</p>
+          <p>Möchten Sie {% if object|get_class_object_title %}{{object|get_class_object_title}}{% else %}den Datensatz{% endif %} zu {% if object|get_class_foreign_key_label %}{{object|get_class_foreign_key_label}}{% else %}Datensatz{% endif %} <span class='bold italic'>{{ object }}</span> wirklich löschen?</p>
       {% else %}
-          <p>Möchten Sie den Datensatz <span class='italic'>{{ object }}</span> des Datenthemas <span class='italic'>{{object|get_class_verbose_name_plural}}</span> wirklich löschen?</p>
+          <p>Möchten Sie den Datensatz <span class='bold italic'>{{ object }}</span> des Datenthemas <span class='bold'>{{object|get_class_verbose_name_plural}}</span> wirklich löschen?</p>
       {% endif %}
 	    <input type='submit' class='btn btn-danger' value='löschen' />
       {% with model_name=object|get_class_name %}

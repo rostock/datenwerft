@@ -2,6 +2,7 @@ import json
 import os
 import re
 import requests
+import uuid
 from datetime import datetime
 from django.apps import apps
 from django.conf import settings
@@ -114,8 +115,8 @@ class DataForm(ModelForm):
     self.multi_files = multi_files
     self.model = model
     self.request = request
-    self.foreign_key_label = (self.instance._meta.foreign_key_label if hasattr(self.instance._meta, 'foreign_key_label') else '')
-    self.address_optional = (self.instance._meta.address_optional if hasattr(self.instance._meta, 'address_optional') else None)
+    self.address_type = (self.instance._meta.address_type if hasattr(self.instance._meta, 'address_type') else None)
+    self.address_mandatory = (self.instance._meta.address_mandatory if hasattr(self.instance._meta, 'address_mandatory') else None)
     # Textfelder in Auswahllisten umwandeln, falls Benutzer kein Admin und kein Mitglied der Gruppe von Benutzern ist, die als Admin-Gruppe für dieses Datenthema gilt
     if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists() and not (self.request.user.is_superuser or self.request.user.groups.filter(name = self.admin_group).exists()):
         for field in self.model._meta.get_fields():
@@ -133,11 +134,29 @@ class DataForm(ModelForm):
     for field in self.fields.values():
       if field.label == 'Geometrie':
         message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
-      elif field.__class__.__name__ == 'ModelChoiceField':
-        message = 'Die Referenz zu „{label}“ ist Pflicht!'.format(label = self.foreign_key_label)
       else:
         message = 'Das Attribut „{label}“ ist Pflicht!'.format(label = field.label)
       field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
+    
+    #for field in self.model._meta.get_fields():
+    #  if field.name == 'adresse' or field.name == 'strasse':
+    #    data = self.data[field.name]
+    #    if data:
+    #      request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
+    #      json = request.json()
+    #      ergebnisse = json.get('features')
+    #      error_text = 'Bitte geben Sie eine eindeutige und existierende {type} an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'.format(type = self.address_type)
+    #      if not ergebnisse:
+    #        #raise ValidationError(error_text)
+    #        message = 'xxx'
+    #      for ergebnis in ergebnisse:
+    #        if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
+    #          self.data[field.name] = uuid.UUID(ergebnis.get('properties').get('uuid'))
+    #      #raise ValidationError(error_text)
+    #      message = 'xxx'
+    #    elif not data and self.address_mandatory:
+    #      #raise ValidationError('Der Bezug auf eine eindeutige {type} ist Pflicht!'.format(type = self.address_type))
+    #      message = 'xxx'
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
   def clean_foto(self):
@@ -159,24 +178,24 @@ class DataForm(ModelForm):
             i += 1
     # Hinweis: Das return-Statement passt in jedem Fall, das heißt bei normalem Dateifeld und bei Multi-Dateifeld, da hier immer die – in alphabetischer Reihenfolge des Dateinamens – letzte Datei behandelt wird.
     return self.cleaned_data['foto']
-      
+
+  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen geometrie existiert.
   def clean_geometrie(self):
     data = self.cleaned_data['geometrie']
     error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
     if '-' in str(data):
       raise ValidationError(error_text)
     return data
-  
-  def clean_strasse_name(self):
-    data = self.cleaned_data['strasse_name']
-    if not data and self.address_optional:
+
+  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen adresse existiert.
+  def clean_adresse(self):
+    data = self.data['adresse']
+    if not data and not self.address_mandatory:
       return data
-    elif not data and not self.address_optional:
-      raise ValidationError('Das Attribut „Adresse“ ist Pflicht!')
-    elif data and self.address_optional:
-      error_text = 'Bitte geben Sie eine eindeutige und existierende Adresse oder Straße an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
+    elif not data and self.address_mandatory:
+      raise ValidationError('Der Bezug auf eine eindeutige {type} ist Pflicht!'.format(type = self.address_type))
     else:
-      error_text = 'Bitte geben Sie eine eindeutige und existierende Adresse an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
+      error_text = 'Bitte geben Sie eine eindeutige und existierende {type} an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'.format(type = self.address_type)
     request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
     json = request.json()
     ergebnisse = json.get('features')
@@ -184,7 +203,34 @@ class DataForm(ModelForm):
       raise ValidationError(error_text)
     for ergebnis in ergebnisse:
       if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
-        return data
+        return uuid.UUID(ergebnis.get('properties').get('uuid'))
+    raise ValidationError(error_text)
+    #raise Exception(self.data['adresse'])
+    #data = self.cleaned_data['adresse']
+    #self.address_cleaner(data, self.address_type, self.address_mandatory)
+    #return self.cleaned_data['adresse']
+    #return uuid.UUID('46867066-3c02-11e5-babc-0050569b7e95').hex
+  
+  ## Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen strasse existiert.
+  #def clean_strasse(self):
+  #  data = self.cleaned_data['strasse']
+  #  self.address_cleaner(data, self.address_type, self.address_mandatory)
+  
+  def address_cleaner(self, data, address_type, address_mandatory):
+    if not data and not address_mandatory:
+      return data
+    elif not data and address_mandatory:
+      raise ValidationError('Der Bezug auf eine eindeutige {type} ist Pflicht!'.format(type = address_type))
+    else:
+      error_text = 'Bitte geben Sie eine eindeutige und existierende {type} an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'.format(type = address_type)
+    request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
+    json = request.json()
+    ergebnisse = json.get('features')
+    if not ergebnisse:
+      raise ValidationError(error_text)
+    for ergebnis in ergebnisse:
+      if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
+        return uuid.UUID(ergebnis.get('properties').get('uuid'))
     raise ValidationError(error_text)
 
 
@@ -357,7 +403,6 @@ class DataMapView(generic.ListView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
-    context['show_alkis'] = (self.model._meta.show_alkis if hasattr(self.model._meta, 'show_alkis') else None)
     context['map_feature_tooltip_field'] = (self.model._meta.map_feature_tooltip_field if hasattr(self.model._meta, 'map_feature_tooltip_field') else None)
     context['map_feature_tooltip_fields'] = (self.model._meta.map_feature_tooltip_fields if hasattr(self.model._meta, 'map_feature_tooltip_fields') else None)
     context['map_filters_enabled'] = (True if ((hasattr(self.model._meta, 'map_filter_fields') and hasattr(self.model._meta, 'map_filter_fields_labels')) or (hasattr(self.model._meta, 'map_rangefilter_fields') and hasattr(self.model._meta, 'map_rangefilter_fields_labels'))) else None)
@@ -403,11 +448,9 @@ class DataAddView(generic.CreateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
-    context['show_alkis'] = (self.model._meta.show_alkis if hasattr(self.model._meta, 'show_alkis') else None)
-    context['address'] = (self.model._meta.address if hasattr(self.model._meta, 'address') else None)
-    context['address_optional'] = (self.model._meta.address_optional if hasattr(self.model._meta, 'address_optional') else None)
+    context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
+    context['address_mandatory'] = (self.model._meta.address_mandatory if hasattr(self.model._meta, 'address_mandatory') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
-    context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
     context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
     context['multi_foto_field'] = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
@@ -430,18 +473,6 @@ class DataAddView(generic.CreateView):
             }
 
   def form_valid(self, form):
-    form.instance = form.save(commit = False)
-    if hasattr(self.model._meta, 'address') and self.model._meta.address:
-      if form.instance.strasse_name:
-        adresse = form.instance.strasse_name
-        form.instance.strasse_name = re.sub(' [0-9]+([a-z]+)?$', '', adresse)
-        m = re.search('[0-9]+[a-z]+$', adresse)
-        if m:
-          form.instance.hausnummer = re.sub('[a-z]+', '', m.group(0))
-          form.instance.hausnummer_zusatz = re.sub('\d+', '', m.group(0))
-        m = re.search('[0-9]+$', adresse)
-        if m:
-          form.instance.hausnummer = m.group(0)
     form.instance = form.save()
     assign_perm('datenmanagement.change_' + self.model.__name__.lower(), self.request.user, form.instance)
     assign_perm('datenmanagement.delete_' + self.model.__name__.lower(), self.request.user, form.instance)
@@ -480,26 +511,23 @@ class DataChangeView(generic.UpdateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
-    context['show_alkis'] = (self.model._meta.show_alkis if hasattr(self.model._meta, 'show_alkis') else None)
-    context['address'] = (self.model._meta.address if hasattr(self.model._meta, 'address') else None)
-    context['address_optional'] = (self.model._meta.address_optional if hasattr(self.model._meta, 'address_optional') else None)
+    context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
+    context['address_mandatory'] = (self.model._meta.address_mandatory if hasattr(self.model._meta, 'address_mandatory') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
-    context['foreign_key_label'] = (self.model._meta.foreign_key_label if hasattr(self.model._meta, 'foreign_key_label') else None)
     context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
     context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     context['admin_group'] = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     return context
 
   def get_initial(self):
-    if hasattr(self.model._meta, 'address') and self.model._meta.address:
-      if hasattr(self.object, 'strasse_name') and self.object.strasse_name:
-        adresse = self.object.strasse_name.strip()
-        if hasattr(self.object, 'hausnummer') and self.object.hausnummer:
-          adresse = (adresse + ' ' + self.object.hausnummer.strip())
-          if hasattr(self.object, 'hausnummer_zusatz') and self.object.hausnummer_zusatz:
-            adresse = adresse + self.object.hausnummer_zusatz.strip()
+    if hasattr(self.model._meta, 'address_type'):
+      if self.model._meta.address_type == 'Adresse' and self.object.adresse:
         return {
-          'strasse_name': adresse
+          'adresse': self.object.adresse
+        }
+      elif self.model._meta.address_type == 'Straße' and self.object.strasse:
+        return {
+          'strasse': self.object.strasse
         }
       else:
         return {
@@ -508,20 +536,26 @@ class DataChangeView(generic.UpdateView):
       return {
       }
 
+  def get_address_uuid(self, data):
+    raise ValidationError(data)
+    #return uuid.UUID('46867066-3c02-11e5-babc-0050569b7e95').hex
+    #request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
+    #json = request.json()
+    #ergebnisse = json.get('features')
+    #for ergebnis in ergebnisse:
+    #  if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
+    #    return uuid.UUID(ergebnis.get('properties').get('uuid'))
+
   def form_valid(self, form):
-    form.instance = form.save(commit = False)
-    if hasattr(self.model._meta, 'address') and self.model._meta.address:
-      if form.instance.strasse_name:
-        adresse = form.instance.strasse_name
-        form.instance.strasse_name = re.sub(' [0-9]+([a-z]+)?$', '', adresse)
-        m = re.search('[0-9]+[a-z]+$', adresse)
-        if m:
-          form.instance.hausnummer = re.sub('[a-z]+', '', m.group(0))
-          form.instance.hausnummer_zusatz = re.sub('\d+', '', m.group(0))
-        m = re.search('[0-9]+$', adresse)
-        if m:
-          form.instance.hausnummer = m.group(0)
-    form.instance = form.save()
+    raise Exception('This is the exception you expect to handle')
+    self.object = form.save(commit = False)
+    self.object.adresse = '38d06afc-4102-400a-84f9-0395583eb962'
+    #if hasattr(self.model._meta, 'address_type'):
+    #  if self.model._meta.address_type == 'Adresse' and form.instance.adresse:
+    #    form.instance.adresse = self.get_address_uuid(form.instance.adresse)
+    #  elif self.model._meta.address_type == 'Straße' and form.instance.strasse:
+    #    form.instance.strasse = self.get_address_uuid(form.instance.strasse)
+    self.object = form.save()
     return super(DataChangeView, self).form_valid(form)
     
   def get_object(self, *args, **kwargs):

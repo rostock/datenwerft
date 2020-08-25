@@ -44,10 +44,6 @@
                                   <td>
                                       {% if field|is_field_hours_related_field %}
                                           {{ field.label_tag }} (<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten" target="_blank"><span class="glyphicon glyphicon-education"></span> Hilfe</a>)
-                                      {% elif field|is_field_foreign_key_field %}
-                                          <label class="required" for="{{ field.id_for_label }}">
-                                              {{ foreign_key_label }}
-                                          </label>
                                       {% else %}
                                           {{ field.label_tag }}
                                       {% endif %}
@@ -68,24 +64,31 @@
                       <div class='margin-top'>
                           {{ form.geometrie.errors }}
                       </div>
-                      {% if geometry_type == 'Point' or address and address_optional %}
+                      {% if geometry_type == 'Point' or address_type and not address_mandatory %}
                           <div class='margin-top'>
                               {% if geometry_type == 'Point' %}
                                   <input disabled id='addressToMap' class='btn btn-info' value='Marker setzen'/>
                               {% endif %}
-                              {% if address_optional %}
-                                  {% if form.hausnummer %}
+                              {% if not address_mandatory %}
+                                  {% if address_type == 'Adresse' %}
                                       <input disabled id='mapToAddress' class='btn btn-info margin-left' value='Adresse übernehmen'/>
+                                  {% elif address_type == 'Straße' %}
+                                      <input disabled id='mapToStreet' class='btn btn-info margin-left' value='Straße übernehmen'/>
                                   {% endif %}
-                                  <input disabled id='mapToStreet' class='btn btn-info' value='Straße übernehmen'/>
                               {% endif %}
                           </div>
                       {% endif %}
                       <div class='margin-top margin-bottom'>
-                          {% if address %}
-                              {{ form.strasse_name.errors }}
-                              {{ form.strasse_name.label_tag }}
-                              {{ form.strasse_name }}
+                          {% if address_type %}
+                              {% if address_type == 'Adresse' %}
+                                  {{ form.adresse.errors }}
+                                  {{ form.adresse.label_tag }}
+                                  {{ form.adresse }}
+                              {% elif address_type == 'Straße' %}
+                                  {{ form.strasse.errors }}
+                                  {{ form.strasse.label_tag }}
+                                  {{ form.strasse }}
+                              {% endif %}
                           {% else %}
                               <label for="id_address_search">Adressen-/Straßensuche</label>
                               <input id="id_address_search" maxlength="255" name="address_search" type="text">
@@ -218,16 +221,13 @@
                 attribution: '© GeoBasis-DE/M-V'
             });
 
-            // falls für Datenthema ALKIS aktiviert ist...
-            {% if show_alkis %}
-                // Kilometerquadrate ETRS89/UTM-33N definieren
-                var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-                    layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-                    format: 'image/png',
-                    maxZoom: 19,
-                    transparent: true
-                });
-            {% endif %}
+            // Kilometerquadrate ETRS89/UTM-33N definieren
+            var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+                layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+                format: 'image/png',
+                maxZoom: 19,
+                transparent: true
+            });
             
             // definierte Karten als Hintergrundkarten zusammenfassen
             var baseMaps = {
@@ -239,11 +239,7 @@
             
             // definierte Karten als Overlay-Karten zusammenfassen
             var overlayMaps = {
-                // falls für Datenthema ALKIS aktiviert ist...
-                {% if show_alkis %}
-                    // Kilometerquadrate ETRS89/UTM-33N berücksichtigen
-                    'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
-                {% endif %}
+                'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
             };
             
             // Umschalter für Hintergrundkarten zur Karte hinzufügen
@@ -266,17 +262,17 @@
                 locationControl.addTo(map);
             {% endif %}
             
-            // falls Datenmodell Adresse vorsieht...
-            {% if address %}
+            // falls Datenmodell Adressenbezug vorsieht...
+            {% if address_type %}
                 map.on('draw:created', function (e) {
-                    {% if address_optional %}
+                    // ...und dieser eine Pflichtangabe ist:
+                    {% if address_mandatory %}
+                        // Adressenbezug jedesmal ändern, wenn sich die Geometrie ändert
+                        setAddressOrStreet('{{ address_type }}', map);
+                    {% else %}
+                        $('#addressToMap').prop('disabled', false);
                         $('#mapToAddress').prop('disabled', false);
                         $('#mapToStreet').prop('disabled', false);
-                    // ...und diese nicht optional ist...
-                    {% else %}
-                        // Adresse jedesmal ändern, wenn sich die Geometrie ändert
-                        setAddressOrStreet('adresse', map);
-                        $('#addressToMap').prop('disabled', false);
                     {% endif %}
                 });
             {% endif %}
@@ -345,8 +341,12 @@
             // Adressensuche initialisieren
             
             results = $('div.results');
-            {% if address %}
-                searchField = $('#id_strasse_name');
+            {% if address_type %}
+                {% if address_type == 'Adresse' %}
+                    searchField = $('#id_adresse');
+                {% elif address_type == 'Straße' %}
+                    searchField = $('#id_strasse');
+                {% endif %}
             {% else %}
                 searchField = $('#id_address_search');
             {% endif %}
@@ -377,11 +377,18 @@
                 }
             });
             
-            {% if address %}
-                $('#id_strasse_name').on('click', function() {
-                    $(this).val('');
-                    $('#results_container').hide();
-                });
+            {% if address_type %}
+                {% if address_type == 'Adresse' %}
+                    $('#id_adresse').on('click', function() {
+                        $(this).val('');
+                        $('#results_container').hide();
+                    })
+                {% elif address_type == 'Straße' %}
+                    $('#id_strasse').on('click', function() {
+                        $(this).val('');
+                        $('#results_container').hide();
+                    })
+                {% endif %}
             {% else %}
                 $('#id_address_search').on('click', function() {
                     $(this).val('');
@@ -396,12 +403,12 @@
             });
             
             $('#mapToAddress').on('click', function() {
-                setAddressOrStreet('adresse', window.currMap);
+                setAddressOrStreet('{{ address_type }}', window.currMap);
                 $('#addressToMap').prop('disabled', false);
             });
             
             $('#mapToStreet').on('click', function() {
-                setAddressOrStreet('strasse', window.currMap);
+                setAddressOrStreet('{{ address_type }}', window.currMap);
                 $('#addressToMap').prop('disabled', false);
             });
 
@@ -489,22 +496,22 @@
     
         function adoptResult(json, type) {
             var erfolg = false;
-            if (type === 'strasse') {
+            if (type === 'Straße') {
                 jQuery.each(json.features, function(index, item) {
                     if (item.properties.objektgruppe === 'Straße') {
                         var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                        $('#id_strasse_name').val(titel);
+                        $('#id_strasse').val(titel);
                         erfolg = true;
                         return false;
                     }
                 });
                 if (erfolg === false)
                     $('#maptostreet-error-modal').modal(); 
-            } else if (type === 'adresse') {
+            } else if (type === 'Adresse') {
                 jQuery.each(json.features, function(index, item) {
                     if (item.properties.objektgruppe === 'Adresse') {
                         var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                        $('#id_strasse_name').val(titel);
+                        $('#id_adresse').val(titel);
                         erfolg = true;
                         return false;
                     }
@@ -525,14 +532,14 @@
                 var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
                 // Gemeindeteile immer unterdrücken
                 if (item.properties.objektgruppe !== 'Gemeindeteil') {
-                    // falls Datenmodell Adresse vorsieht und diese nicht optional ist...
-                    {% if address and not address_optional %}
-                        // falls Datenmodell Hausnummer vorsieht: Straßen unterdrücken
-                        {% if form.hausnummer %}
+                    // falls Datenmodell Adressenbezug vorsieht und dieser eine Pflichtangabe ist:
+                    {% if address_type and address_mandatory %}
+                        // falls Typ des Adressenbezugs gleich Adresse: Straßen unterdrücken
+                        {% if address_type == 'Adresse' %}
                             if (item.properties.objektgruppe !== 'Straße')
                                 results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
-                        // ansonsten: Adressen unterdrücken
-                        {% else  %}
+                        // falls Typ des Adressenbezugs gleich Straße: Adressen unterdrücken
+                        {% elif address_type == 'Straße' %}
                             if (item.properties.objektgruppe !== 'Adresse')
                                 results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
                         {% endif %}
@@ -549,8 +556,12 @@
             // bei Klick auf Resultat Karte auf dieses zoomen
             results.children().on('click', function() {
                 $('#addressToMap').prop('disabled', false);
-                {% if address %}
-                    $('#id_strasse_name').val($(this).children('strong').text());
+                {% if address_type %}
+                    {% if address_type == 'Adresse' %}
+                        $('#id_adresse').val($(this).children('strong').text());
+                    {% elif address_type == 'Straße' %}
+                        $('#id_strasse').val($(this).children('strong').text());
+                    {% endif %}
                 {% else %}
                     $('#id_address_search').val($(this).children('strong').text());
                 {% endif %}

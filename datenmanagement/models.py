@@ -1,5 +1,8 @@
+import json
 import os
 import re
+import requests
+import uuid
 from datenmanagement.storage import OverwriteStorage
 from datetime import date, datetime
 from decimal import *
@@ -15,7 +18,6 @@ from django.utils.crypto import get_random_string
 from django.utils.encoding import force_text
 from multiselectfield import MultiSelectField
 from PIL import Image, ExifTags
-from uuid import uuid4
 
 
 
@@ -35,7 +37,7 @@ def path_and_rename(path):
     elif hasattr(instance, 'parent'):
       filename = '{0}_{1}.{2}'.format(str(instance.parent.uuid), get_random_string(length=8), ext.lower())
     else:
-      filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
+      filename = '{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
     return os.path.join(path, filename)
   return wrapper
 
@@ -67,6 +69,7 @@ def thumb_image(path, thumb_path):
     image.close()
   except (AttributeError, KeyError, IndexError):
     pass
+
 
 
 class NullTextField(models.TextField):
@@ -103,7 +106,9 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
     return super(PositiveSmallIntegerRangeField, self).formfield(**defaults)
 
 
+
 options.DEFAULT_NAMES += (
+  'codelist',                           # optional ; Text      ; Handelt es sich um eine Codeliste (die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht)?
   'description',                        # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
   'list_fields',                        # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
   'list_fields_with_number',            # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
@@ -112,7 +117,6 @@ options.DEFAULT_NAMES += (
   'readonly_fields',                    # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
   'object_title',                       # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
   'foreign_key_label',                  # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'show_alkis',                         # optional ; Boolean   ; Soll die Liegenschaftskarte als Hintergrundkarte in der Karten-/Hinzufügen-/Änderungsansicht angeboten werden?
   'map_feature_tooltip_field',          # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
   'map_feature_tooltip_fields',         # optional ; Textliste ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
   'map_rangefilter_fields',             # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen – Achtung: Verarbeitung immer paarweise!
@@ -120,17 +124,19 @@ options.DEFAULT_NAMES += (
   'map_filter_fields',                  # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
   'map_filter_fields_labels',           # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
   'map_filter_fields_as_list',          # optional ; Textliste ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
-  'address',                            # optional ; Boolean   ; Soll die Adresse eine Pflichtangabe sein?
-  'address_optional',                   # optional ; Boolean   ; Soll die Hausnummer eine Pflichtangabe sein oder reicht der Straßenname?
+  'address_type',                       # optional ; Text      ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
+  'address_mandatory',                  # optional ; Boolean   ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
   'geometry_type',                      # optional ; Text      ; Geometrietyp
-  'thumbs',                             # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden?
-  'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'thumbs',                             # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
+  'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
   'parent_field_name_for_filter',       # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
   'group_with_users_for_choice_field',  # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
   'admin_group'                         # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
 )
 
 
+akut_regex = r'^(?!.*´).*$'
+akut_message = 'Der Text darf keine Akute (´) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
 anfuehrungszeichen_regex = r'^(?!.*\").*$'
 anfuehrungszeichen_message = 'Der Text darf keine doppelten Schreibmaschinensatz-Anführungszeichen (") enthalten. Stattdessen müssen die typographisch korrekten Anführungszeichen („“) verwendet werden.'
 apostroph_regex = r'^(?!.*\').*$'
@@ -139,6 +145,7 @@ doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen enthalten.'
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
+
 
 geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
 geraetenummer_message = 'Die Gerätenummer muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
@@ -156,6 +163,7 @@ rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = 'Die Schreibweise von Rufnummern muss der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen und daher folgendes Format aufweisen: +49 381 3816256'
 email_message = 'Die E-Mail-Adresse muss syntaktisch korrekt sein und daher folgendes Format aufweisen: abc-123.098_zyx@xyz-567.ghi.abc'
 url_message = 'Die Adresse der Website muss syntaktisch korrekt sein und daher folgendes Format aufweisen: http[s]://abc-123.098_zyx.xyz-567/ghi/abc'
+
 
 
 ANBIETER_CARSHARING = (
@@ -186,11 +194,6 @@ ART_FAIRTRADE = (
   ('Gastronomie', 'Gastronomie'),
   ('Kirchengemeinde', 'Kirchengemeinde'),
   ('Schulweltladen', 'Schulweltladen'),
-)
-
-ART_FEUERWACHE = (
-  ('Berufsfeuerwehr', 'Berufsfeuerwehr'),
-  ('Freiwillige Feuerwehr', 'Freiwillige Feuerwehr'),
 )
 
 ART_FLIESSGEWAESSER = (
@@ -661,9 +664,81 @@ ZUGELASSENE_MUENZEN_PARKSCHEINAUTOMATEN_TARIFE = (
 )
 
 
+
+#
+# Codelisten als abstrakte Modelle
+#
+
+class Art(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  art = models.CharField('Art', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    abstract = True
+    managed = False
+    codelist = True
+    list_fields = ['art']
+    list_fields_labels = ['Art']
+    ordering = ['art'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.art
+
+
+
+#
+# Datenthemen
+#
+
+# Feuerwachen: Codeliste Art
+
+class Arten_Feuerwachen(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_feuerwachen'
+    verbose_name = 'Art einer Feuerwache'
+    verbose_name_plural = 'Arten von Feuerwachen'
+    description = 'Arten von Feuerwachen'
+
+
+# Feuerwachen: Datenthema
+
+class Feuerwachen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  aktiv = models.BooleanField(' aktiv', default=True)
+  adresse = models.UUIDField(blank=True, null=True)
+  art = models.ForeignKey(Arten_Feuerwachen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"feuerwachen_hro'
+    verbose_name = 'Feuerwache'
+    verbose_name_plural = 'Feuerwachen'
+    description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = ['aktiv', 'art', 'bezeichnung']
+    list_fields_labels = ['aktiv?', 'Art', 'Bezeichnung']
+    map_feature_tooltip_field = 'bezeichnung'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + ' (Art: ' + str(self.art) + ')'
+
+
+
+
+
+
+
 class Abfallbehaelter(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   id_abfallbehaelter = models.CharField('ID', default=settings.READONLY_FIELD_DEFAULT, max_length=8)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
   eigentuemer_id = models.CharField('Eigentümer', max_length=255, choices=EIGENTUEMER_ABFALLBEHAELTER)
@@ -696,7 +771,7 @@ class Abfallbehaelter(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'abfallbehaelter'
+    db_table = 'daten\".\"abfallbehaelter'
     verbose_name = 'Abfallbehälter'
     verbose_name_plural = 'Abfallbehälter'
     description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
@@ -704,10 +779,7 @@ class Abfallbehaelter(models.Model):
     list_fields_with_date = ['gueltigkeit_bis']
     list_fields_labels = ['Außerbetriebstellung', 'ID', 'Typ', 'Pflegeobjekt', 'Adresse', 'Eigentümer', 'Bewirtschafter']
     readonly_fields = ['id_abfallbehaelter', 'adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'id_abfallbehaelter'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -716,7 +788,7 @@ class Abfallbehaelter(models.Model):
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -731,7 +803,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'aufteilungsplaene_wohnungseigentumsgesetz'
+    db_table = 'daten\".\"aufteilungsplaene_wohnungseigentumsgesetz'
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
     description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und Universitätsstadt Rostock'
@@ -739,10 +811,9 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     list_fields_with_date = ['datum', 'abgeschlossenheitserklaerungsdatum']
     list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Datum der Abgeschlossenheitserklärung']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'uuid'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -751,7 +822,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
 
 class Baudenkmale_Denkmalbereiche(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -764,17 +835,16 @@ class Baudenkmale_Denkmalbereiche(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baudenkmale'
+    db_table = 'daten\".\"baudenkmale'
     verbose_name = 'Baudenkmal oder Denkmalbereich'
     verbose_name_plural = 'Baudenkmale und Denkmalbereiche'
     description = 'Baudenkmale und Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'art', 'adressanzeige', 'bezeichnung', 'beschreibung']
     list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bezeichnung', 'Beschreibung']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'beschreibung'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'MultiPolygonField'
   
   def __str__(self):
@@ -783,7 +853,7 @@ class Baudenkmale_Denkmalbereiche(models.Model):
 
 class Baustellen_Fotodokumentation_Baustellen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   sparte = MultiSelectField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
   verkehrliche_lage = MultiSelectField('Verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
@@ -796,17 +866,14 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_fotodokumentation_baustellen'
+    db_table = 'daten\".\"baustellen_fotodokumentation_baustellen'
     verbose_name = 'Baustellen-Fotodokumentation (Baustelle)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
     description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['bezeichnung', 'auftraggeber', 'adressanzeige']
     list_fields_labels = ['Bezeichnung', 'Auftraggeber', 'Adresse']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
     ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
@@ -824,7 +891,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_fotodokumentation_fotos'
+    db_table = 'daten\".\"baustellen_fotodokumentation_fotos'
     verbose_name = 'Baustellen-Fotodokumentation (Foto)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Fotos)'
     description = 'Fotos im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
@@ -844,7 +911,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
 
 class Baustellen_geplant(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Straße', max_length=255, blank=True, null=True)
   projektbezeichnung = models.CharField('Projektbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -861,22 +928,21 @@ class Baustellen_geplant(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_geplant'
+    db_table = 'daten\".\"baustellen_geplant'
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
     list_fields = ['bezeichnung', 'strasse_name', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'ansprechpartner', 'status']
     list_fields_with_date = ['beginn', 'ende']
     list_fields_labels = ['Bezeichnung', 'Straße', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Ansprechpartner', 'Status']
-    show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
     map_rangefilter_fields = ['beginn', 'ende']
     map_rangefilter_fields_labels = ['Beginn', 'Ende']
     map_filter_fields = ['bezeichnung', 'sparte', 'auftraggeber', 'status']
     map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
     map_filter_fields_as_list = ['auftraggeber', 'status']
-    address = True
-    address_optional = True
+    address_type = 'Straße'
+    address_mandatory = False
     geometry_type = 'MultiPolygonField'
     group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
     admin_group = 'baustellen_geplant_full'
@@ -894,7 +960,7 @@ class Baustellen_geplant(models.Model):
       
 class Behinderteneinrichtungen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -903,23 +969,21 @@ class Behinderteneinrichtungen(models.Model):
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
   plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'behinderteneinrichtungen'
+    db_table = 'daten\".\"behinderteneinrichtungen'
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
     description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -931,7 +995,7 @@ class Behinderteneinrichtungen(models.Model):
 
 class Bildungstraeger(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -942,23 +1006,21 @@ class Bildungstraeger(models.Model):
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'bildungstraeger'
+    db_table = 'daten\".\"bildungstraeger'
     verbose_name = 'Bildungsträger'
     verbose_name_plural = 'Bildungsträger'
     description = 'Bildungsträger in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -970,7 +1032,7 @@ class Bildungstraeger(models.Model):
 
 class Carsharing_Stationen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   anzahl_fahrzeuge = models.PositiveSmallIntegerField('Anzahl der Fahrzeuge', blank=True, null=True)
   anbieter = models.CharField('Anbieter', max_length=255, choices=ANBIETER_CARSHARING)
@@ -982,17 +1044,14 @@ class Carsharing_Stationen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'carsharing_stationen'
+    db_table = 'daten\".\"carsharing_stationen'
     verbose_name = 'Carsharing-Station'
     verbose_name_plural = 'Carsharing-Stationen'
     description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['bezeichnung', 'adressanzeige', 'anbieter']
     list_fields_labels = ['Bezeichnung', 'Adresse', 'Anbieter']
     readonly_fields = ['adressanzeige']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1001,7 +1060,7 @@ class Carsharing_Stationen(models.Model):
 
 class Containerstellplaetze(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
   privat = models.BooleanField(' privat', blank=True, null=True)
   id_containerstellplatz = models.CharField('ID', max_length=5, validators=[RegexValidator(regex=id_containerstellplatz_regex, message=id_containerstellplatz_message)], blank=True, null=True)
@@ -1042,7 +1101,7 @@ class Containerstellplaetze(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'containerstellplaetze'
+    db_table = 'daten\".\"containerstellplaetze'
     verbose_name = 'Containerstellplatz'
     verbose_name_plural = 'Containerstellplätze'
     description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
@@ -1050,10 +1109,7 @@ class Containerstellplaetze(models.Model):
     list_fields_with_date = ['gueltigkeit_bis']
     list_fields_labels = ['Außerbetriebstellung', 'privat', 'ID', 'Bezeichnung', 'Adresse']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'id_containerstellplatz'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1062,7 +1118,7 @@ class Containerstellplaetze(models.Model):
 
 class Denksteine(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1083,17 +1139,16 @@ class Denksteine(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'denksteine'
+    db_table = 'daten\".\"denksteine'
     verbose_name = 'Denkstein'
     verbose_name_plural = 'Denksteine'
     description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'nummer', 'namensanzeige', 'adressanzeige']
     list_fields_labels = ['UUID', 'Nummer', 'Name', 'Adresse']
     readonly_fields = ['namensanzeige', 'adressanzeige']
-    show_alkis = False
     map_feature_tooltip_field = 'namensanzeige'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1105,7 +1160,7 @@ class Denksteine(models.Model):
 
 class Fairtrade(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1115,23 +1170,21 @@ class Fairtrade(models.Model):
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'fairtrade'
+    db_table = 'daten\".\"fairtrade'
     verbose_name = 'Fair Trade'
     verbose_name_plural = 'Fair Trade'
     description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'art', 'bezeichnung']
     list_fields_labels = ['UUID', 'Art', 'Bezeichnung']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1141,44 +1194,9 @@ class Fairtrade(models.Model):
       return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
-class Feuerwachen(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  art = models.CharField('Art', max_length=255, choices=ART_FEUERWACHE)
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'feuerwachen'
-    verbose_name = 'Feuerwache'
-    verbose_name_plural = 'Feuerwachen'
-    description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'art']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Art']
-    show_alkis = False
-    map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
 class Fliessgewaesser(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   nummer = models.CharField('Nummer', max_length=255)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   ordnung = PositiveSmallIntegerRangeField('Ordnung', min_value=1, max_value=2, blank=True, null=True)
@@ -1188,16 +1206,13 @@ class Fliessgewaesser(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'fliessgewaesser'
+    db_table = 'daten\".\"fliessgewaesser'
     verbose_name = 'Fließgewässer'
     verbose_name_plural = 'Fließgewässer'
     description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
     list_fields = ['uuid', 'nummer', 'bezeichnung', 'ordnung', 'art']
     list_fields_labels = ['UUID', 'Nummer', 'Bezeichnung', 'Ordnung', 'Art']
-    show_alkis = True
     map_feature_tooltip_field = 'nummer'
-    address = False
-    address_optional = False
     geometry_type = 'LineString'
   
   def __str__(self):
@@ -1210,7 +1225,7 @@ class Fliessgewaesser(models.Model):
 
 class Gutachterfotos(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1224,7 +1239,7 @@ class Gutachterfotos(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'gutachterfotos'
+    db_table = 'daten\".\"gutachterfotos'
     verbose_name = 'Gutachterfoto'
     verbose_name_plural = 'Gutachterfotos'
     description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
@@ -1232,10 +1247,9 @@ class Gutachterfotos(models.Model):
     list_fields_with_date = ['datum', 'aufnahmedatum']
     list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Aufnahmedatum']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'uuid'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1244,7 +1258,7 @@ class Gutachterfotos(models.Model):
 
 class Haltestellenkataster_Haltestellen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   gemeindeteilanzeige = models.CharField('Gemeindeteil', max_length=255, blank=True, null=True)
   hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_hafas_id = models.CharField('HAFAS-ID', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=hafas_id_regex, message=hafas_id_message)])
@@ -1316,7 +1330,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'haltestellenkataster_haltestellen'
+    db_table = 'daten\".\"haltestellenkataster_haltestellen'
     verbose_name = 'Haltestellenkataster (Haltestelle)'
     verbose_name_plural = 'Haltestellenkataster (Haltestellen)'
     description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
@@ -1324,10 +1338,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     list_fields_labels = ['Haltestellennummer', 'Gemeindeteil', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
     list_fields_with_number = ['id']
     readonly_fields = ['gemeindeteilanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'hst_bezeichnung'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
     ordering = ['id'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
@@ -1353,7 +1364,7 @@ class Haltestellenkataster_Fotos(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'haltestellenkataster_fotos'
+    db_table = 'daten\".\"haltestellenkataster_fotos'
     verbose_name = 'Haltestellenkataster (Foto)'
     verbose_name_plural = 'Haltestellenkataster (Fotos)'
     description = 'Fotos im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
@@ -1373,7 +1384,7 @@ class Haltestellenkataster_Fotos(models.Model):
 
 class Hospize(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1382,23 +1393,21 @@ class Hospize(models.Model):
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
   plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'hospize'
+    db_table = 'daten\".\"hospize'
     verbose_name = 'Hospiz'
     verbose_name_plural = 'Hospize'
     description = 'Hospize in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1410,7 +1419,7 @@ class Hospize(models.Model):
 
 class Hundetoiletten(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   id_hundetoilette = models.CharField('ID', default=settings.READONLY_FIELD_DEFAULT, max_length=8)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_HUNDETOILETTE)
@@ -1426,7 +1435,7 @@ class Hundetoiletten(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'hundetoiletten'
+    db_table = 'daten\".\"hundetoiletten'
     verbose_name = 'Hundetoilette'
     verbose_name_plural = 'Hundetoiletten'
     description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
@@ -1434,10 +1443,7 @@ class Hundetoiletten(models.Model):
     list_fields_with_date = ['gueltigkeit_bis']
     list_fields_labels = ['Außerbetriebstellung', 'ID', 'Art', 'Pflegeobjekt', 'Adresse', 'Bewirtschafter']
     readonly_fields = ['id_hundetoilette', 'adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'id_hundetoilette'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1446,7 +1452,7 @@ class Hundetoiletten(models.Model):
 
 class Kinderjugendbetreuung(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1456,23 +1462,21 @@ class Kinderjugendbetreuung(models.Model):
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kinder_jugendbetreuung'
+    db_table = 'daten\".\"kinder_jugendbetreuung'
     verbose_name = 'Kinder- und Jugendbetreuung'
     verbose_name_plural = 'Kinder- und Jugendbetreuung'
     description = 'Kinder- und Jugendbetreuung in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1484,7 +1488,7 @@ class Kinderjugendbetreuung(models.Model):
 
 class Kindertagespflegeeinrichtungen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1494,24 +1498,22 @@ class Kindertagespflegeeinrichtungen(models.Model):
   plaetze = models.PositiveSmallIntegerField('Plätze')
   betreuungszeiten = models.CharField('Betreuungszeiten', max_length=255)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kindertagespflegeeinrichtungen'
+    db_table = 'daten\".\"kindertagespflegeeinrichtungen'
     verbose_name = 'Kindertagespflegeeinrichtung'
     verbose_name_plural = 'Kindertagespflegeeinrichtungen'
     description = 'Kindertagespflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['nachname', 'vorname', 'adressanzeige', 'plaetze', 'betreuungszeiten', 'telefon']
     list_fields_labels = ['Nachname', 'Vorname', 'Adresse', 'Plätze', 'Betreuungszeiten', 'Telefon']
     readonly_fields = ['adressanzeige']
-    show_alkis = False
     map_feature_tooltip_fields = ['vorname', 'nachname']
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1520,7 +1522,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
 
 class Kunstimoeffentlichenraum(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1532,16 +1534,15 @@ class Kunstimoeffentlichenraum(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kunst_im_oeffentlichen_raum'
+    db_table = 'daten\".\"kunst_im_oeffentlichen_raum'
     verbose_name = 'Kunst im öffentlichen Raum'
     verbose_name_plural = 'Kunst im öffentlichen Raum'
     description = 'Kunst im öffentlichen Raum der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung', 'schoepfer', 'entstehungsjahr']
     list_fields_labels = ['UUID', 'Bezeichnung', 'Schöpfer', 'Entstehungsjahr']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1559,7 +1560,7 @@ class Kunstimoeffentlichenraum(models.Model):
 
 class Ladestationen_Elektrofahrzeuge(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1578,16 +1579,15 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'ladestationen_elektrofahrzeuge'
+    db_table = 'daten\".\"ladestationen_elektrofahrzeuge'
     verbose_name = 'Ladestation für Elektrofahrzeuge'
     verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
     description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['bezeichnung', 'betriebsart', 'betreiber', 'verbund', 'geplant']
     list_fields_labels = ['Bezeichnung', 'Betriebsart', 'Betreiber', 'Verbund', 'geplant']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1599,7 +1599,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
 
 class Meldedienst_flaechenhaft(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1613,7 +1613,7 @@ class Meldedienst_flaechenhaft(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'meldedienst_flaechenhaft'
+    db_table = 'daten\".\"meldedienst_flaechenhaft'
     verbose_name = 'Meldedienst (flächenhaft)'
     verbose_name_plural = 'Meldedienst (flächenhaft)'
     description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
@@ -1621,10 +1621,9 @@ class Meldedienst_flaechenhaft(models.Model):
     list_fields_with_date = ['gueltigkeit_von']
     list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'uuid'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'PolygonField'
   
   def __str__(self):
@@ -1633,7 +1632,7 @@ class Meldedienst_flaechenhaft(models.Model):
 
 class Meldedienst_punkthaft(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1647,7 +1646,7 @@ class Meldedienst_punkthaft(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'meldedienst_punkthaft'
+    db_table = 'daten\".\"meldedienst_punkthaft'
     verbose_name = 'Meldedienst (punkthaft)'
     verbose_name_plural = 'Meldedienst (punkthaft)'
     description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
@@ -1655,10 +1654,9 @@ class Meldedienst_punkthaft(models.Model):
     list_fields_with_date = ['gueltigkeit_von']
     list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
     readonly_fields = ['adressanzeige']
-    show_alkis = True
     map_feature_tooltip_field = 'uuid'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1667,7 +1665,7 @@ class Meldedienst_punkthaft(models.Model):
 
 class Mobilpunkte(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=500, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   angebote = MultiSelectField('Angebote', max_length=255, choices=ANGEBOTE_MOBILPUNKTE)
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
@@ -1675,16 +1673,13 @@ class Mobilpunkte(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'mobilpunkte'
+    db_table = 'daten\".\"mobilpunkte'
     verbose_name = 'Mobilpunkt'
     verbose_name_plural = 'Mobilpunkte'
     description = 'Mobilpunkte in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['bezeichnung']
     list_fields_labels = ['Bezeichnung']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = False
-    address_optional = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1693,7 +1688,7 @@ class Mobilpunkte(models.Model):
 
 class Parkmoeglichkeiten(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1712,16 +1707,15 @@ class Parkmoeglichkeiten(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkmoeglichkeiten'
+    db_table = 'daten\".\"parkmoeglichkeiten'
     verbose_name = 'Parkmöglichkeit'
     verbose_name_plural = 'Parkmöglichkeiten'
     description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'art', 'standort']
     list_fields_labels = ['UUID', 'Art', 'Standort']
-    show_alkis = False
     map_feature_tooltip_field = 'standort'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1739,7 +1733,7 @@ class Parkmoeglichkeiten(models.Model):
 
 class Parkscheinautomaten_Tarife(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bewirtschaftungszeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
   normaltarif_parkdauer_min = models.PositiveSmallIntegerField('Mindestparkdauer Normaltarif')
@@ -1760,7 +1754,7 @@ class Parkscheinautomaten_Tarife(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkscheinautomaten_tarife'
+    db_table = 'daten\".\"parkscheinautomaten_tarife'
     verbose_name = 'Parkscheinautomaten (Tarif)'
     verbose_name_plural = 'Parkscheinautomaten (Tarife)'
     description = 'Tarife für die Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
@@ -1774,7 +1768,7 @@ class Parkscheinautomaten_Tarife(models.Model):
 
 class Parkscheinautomaten_Parkscheinautomaten(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   parent = models.ForeignKey(Parkscheinautomaten_Tarife, on_delete=models.PROTECT, db_column='parkscheinautomaten_tarif', to_field='uuid')
   nummer = models.PositiveSmallIntegerField('Nummer')
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -1795,7 +1789,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkscheinautomaten_parkscheinautomaten'
+    db_table = 'daten\".\"parkscheinautomaten_parkscheinautomaten'
     verbose_name = 'Parkscheinautomaten (Parkscheinautomat)'
     verbose_name_plural = 'Parkscheinautomaten (Parkscheinautomaten)'
     description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
@@ -1804,10 +1798,9 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     object_title = 'der Parkscheinautomat'
     foreign_key_label = 'Tarif'
     parent_field_name_for_filter = 'bezeichnung'
-    show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = True
+    address_type = 'Adresse'
+    address_mandatory = False
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1816,7 +1809,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
 
 class Pflegeeinrichtungen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1826,23 +1819,21 @@ class Pflegeeinrichtungen(models.Model):
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
   plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'pflegeeinrichtungen'
+    db_table = 'daten\".\"pflegeeinrichtungen'
     verbose_name = 'Pflegeeinrichtung'
     verbose_name_plural = 'Pflegeeinrichtungen'
     description = 'Pflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'art', 'bezeichnung', 'traeger_bezeichnung']
     list_fields_labels = ['UUID', 'Art', 'Bezeichnung', 'Träger']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1854,7 +1845,7 @@ class Pflegeeinrichtungen(models.Model):
 
 class Rettungswachen(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1862,23 +1853,21 @@ class Rettungswachen(models.Model):
   traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'rettungswachen'
+    db_table = 'daten\".\"rettungswachen'
     verbose_name = 'Rettungswache'
     verbose_name_plural = 'Rettungswachen'
     description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1890,7 +1879,7 @@ class Rettungswachen(models.Model):
 
 class Begegnungszentren(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1900,23 +1889,21 @@ class Begegnungszentren(models.Model):
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'begegnungszentren'
+    db_table = 'daten\".\"begegnungszentren'
     verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
     verbose_name_plural = 'Stadtteil- und Begegnungszentren'
     description = 'Stadtteil- und Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['uuid', 'bezeichnung']
     list_fields_labels = ['UUID', 'Bezeichnung']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
@@ -1928,7 +1915,7 @@ class Begegnungszentren(models.Model):
 
 class Uvp_Vorhaben(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   art_vorgang = models.CharField('Art des Vorgangs', max_length=255, choices=ART_VORGANG_UVP_VORHABEN)
   genehmigungsbehoerde = models.CharField('Genehmigungsbehörde', max_length=255, choices=GENEHMIGUNGSBEHOERDE_UVP_VORHABEN)
@@ -1941,17 +1928,14 @@ class Uvp_Vorhaben(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorhaben'
+    db_table = 'daten\".\"uvp_vorhaben'
     verbose_name = 'Vorhaben (UVP)'
     verbose_name_plural = 'Vorhaben (UVP)'
     description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
     list_fields = ['bezeichnung', 'art_vorgang', 'genehmigungsbehoerde', 'datum_posteingang_genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
     list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
     list_fields_labels = ['Bezeichnung', 'Art des Vorgangs', 'Genehmigungsbehörde', 'Datum des Posteingangs bei der Genehmigungsbehörde', 'Rechtsgrundlage', 'Typ']
-    show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
-    address = False
-    address_optional = False
     geometry_type = 'PolygonField'
     ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
@@ -1961,7 +1945,7 @@ class Uvp_Vorhaben(models.Model):
 
 class Uvp_Vorpruefung(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   parent = models.ForeignKey(Uvp_Vorhaben, on_delete=models.PROTECT, db_column='uvp_vorhaben', to_field='uuid')
   datum_posteingang = models.DateField('Datum des Posteingangs', default=date.today)
   art = models.CharField('Art', max_length=255, choices=ART_UVP_VORPRUEFUNG)
@@ -1973,7 +1957,7 @@ class Uvp_Vorpruefung(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorpruefungen'
+    db_table = 'daten\".\"uvp_vorpruefungen'
     verbose_name = 'UVP-Vorprüfung'
     verbose_name_plural = 'UVP-Vorprüfungen'
     description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
@@ -1990,7 +1974,7 @@ class Uvp_Vorpruefung(models.Model):
 
 class Vereine(models.Model):
   id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
+  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
@@ -1998,23 +1982,21 @@ class Vereine(models.Model):
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  fax = models.CharField('Fax', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'vereine'
+    db_table = 'daten\".\"vereine'
     verbose_name = 'Verein'
     verbose_name_plural = 'Vereine'
     description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
     list_fields = ['bezeichnung', 'klassen']
     list_fields_labels = ['Bezeichnung', 'Kategorien']
-    show_alkis = False
     map_feature_tooltip_field = 'bezeichnung'
-    address = True
-    address_optional = False
+    address_type = 'Adresse'
+    address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):

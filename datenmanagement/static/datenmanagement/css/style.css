@@ -34,6 +34,10 @@ html {
     margin-left:10px;
 }
 
+.bold {
+    font-weight:bold;
+}
+
 .column-filter {
     font-weight:normal;
 }
@@ -76,6 +80,15 @@ html {
 
 .leaflet-draw-tooltip {
     display: none;
+}
+
+.list-group-item {
+    margin-top:5px;
+    margin-bottom:5px;
+}
+
+.list-group-item-container {
+    margin-bottom:20px;
 }
 
 .margin-bottom {

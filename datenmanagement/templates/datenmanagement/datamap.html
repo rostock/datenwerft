@@ -148,16 +148,13 @@
                 attribution: '© GeoBasis-DE/M-V'
             });
 
-            // falls für Datenthema ALKIS aktiviert ist...
-            {% if show_alkis %}
-                // Kilometerquadrate ETRS89/UTM-33N definieren
-                var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-                    layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-                    format: 'image/png',
-                    maxZoom: 19,
-                    transparent: true
-                });
-            {% endif %}
+            // Kilometerquadrate ETRS89/UTM-33N definieren
+            var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+                layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+                format: 'image/png',
+                maxZoom: 19,
+                transparent: true
+            });
             
             // definierte Karten als Hintergrundkarten zusammenfassen
             var baseMaps = {
@@ -169,11 +166,7 @@
             
             // definierte Karten als Overlay-Karten zusammenfassen
             var overlayMaps = {
-                // falls für Datenthema ALKIS aktiviert ist...
-                {% if show_alkis %}
-                    // Kilometerquadrate ETRS89/UTM-33N berücksichtigen
-                    'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
-                {% endif %}
+                'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
             };
             
             // Umschalter für Hintergrundkarten zur Karte hinzufügen

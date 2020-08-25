@@ -7,14 +7,16 @@
 {% if user.is_authenticated %}
     {% if object_list and user|user_has_model_permissions %}
         <h2>verfügbare Datenthemen</h2>
-        <div class='col-sm-4 full-width'>
+        <div class='col-sm-4 full-width list-group-item-container'>
         {% for model in object_list %}
             {% with model_name=model|get_class_name %}
                 {% if user|user_has_model_permission:model %}
-                    <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='list-group-item active'> 
-                        <h4 class='list-group-item-heading'>{{model|get_class_verbose_name_plural}}</h4>
-                        <p class='list-group-item-text'>{{model|get_class_description}}</p>
-                    </a>
+                    {% if user.is_superuser or not model|get_class_codelist %}
+                        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='list-group-item active'> 
+                            <h4 class='list-group-item-heading'>{{ model|get_class_verbose_name_plural }}</h4>
+                            <p class='list-group-item-text'>{{ model|get_class_description }}</p>
+                        </a>
+                    {% endif %}
                 {% endif %}
             {% endwith %}
         {% endfor %}
@@ -23,6 +25,6 @@
         <h2>keine Datenthemen vorhanden</h2>
     {% endif %}
 {% else %}
-<h2>Datenerfassung<span class='small'> {{ datenmanagement_version }} vom {% get_version_date %}</span></h2>
+    <h2>Datenerfassung<span class='small'> {{ datenmanagement_version }} vom {% get_version_date %}</span></h2>
 {% endif %}
 {% endblock %}

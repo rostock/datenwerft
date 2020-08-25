@@ -13,18 +13,29 @@ register = template.Library()
 
 
 @register.filter
-def get_class_name(value):
-    return value.__class__.__name__
-
-
-@register.filter
 def get_class_description(value):
     return value.__class__._meta.description
 
 
 @register.filter
-def get_class_verbose_name_plural(value):
-    return value.__class__._meta.verbose_name_plural
+def get_class_codelist(value):
+    if hasattr(value.__class__._meta, 'codelist'):
+        return value.__class__._meta.codelist
+    else:
+        return None
+
+
+@register.filter
+def get_class_foreign_key_label(value):
+    if hasattr(value.__class__._meta, 'foreign_key_label'):
+        return value.__class__._meta.foreign_key_label
+    else:
+        return None
+
+
+@register.filter
+def get_class_name(value):
+    return value.__class__.__name__
 
 
 @register.filter
@@ -36,11 +47,8 @@ def get_class_object_title(value):
 
 
 @register.filter
-def get_class_foreign_key_label(value):
-    if hasattr(value.__class__._meta, 'foreign_key_label'):
-        return value.__class__._meta.foreign_key_label
-    else:
-        return None
+def get_class_verbose_name_plural(value):
+    return value.__class__._meta.verbose_name_plural
 
 
 @register.filter
@@ -126,15 +134,7 @@ def get_version_date():
 
 @register.filter
 def is_field_address_related_field(field):
-    if field.name == 'strasse_name' or field.name == 'hausnummer' or field.name == 'hausnummer_zusatz':
-        return True
-    else:
-        return False
-
-
-@register.filter
-def is_field_foreign_key_field(field):
-    if field.field.__class__ == forms.ModelChoiceField:
+    if field.name == 'adresse' or field.name == 'strasse':
         return True
     else:
         return False
