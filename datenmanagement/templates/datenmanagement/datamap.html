@@ -244,7 +244,7 @@
                     featureTooltipField = 'tooltip';
                 {% endif %}
                 // Properties zu GeoJSON-Feature hinzufügen
-                geoJsonFeature.properties.id = '{{ object.id }}';
+                geoJsonFeature.properties.uuid = '{{ object.uuid }}';
                 {% if map_feature_tooltip_field %}
                     geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
                 {% elif map_feature_tooltip_fields %}
@@ -295,7 +295,7 @@
                 if (feature.properties.user_may_change == 'ok' || feature.properties.user_may_view == 'ok') {
                     layer.on('click', function (e) {
                         // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
-                        window.document.location = window.document.location + '../change/' + feature.properties.id;
+                        window.document.location = window.document.location + '../change/' + feature.properties.uuid;
                     });
                 }
                 // falls Geometrie nicht punkthaft ist...
@@ -826,7 +826,7 @@
                 var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
                 if (item.properties.objektgruppe === 'Gemeindeteil')
                     results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong><span>Ortsteil</span></div>');
-                else
+                else if (item.properties.objektgruppe === 'Adresse' || item.properties.objektgruppe === 'Straße')
                     results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
             });
             

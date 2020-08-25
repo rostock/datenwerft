@@ -21,6 +21,10 @@ from PIL import Image, ExifTags
 
 
 
+#
+# eigene Funktionen
+#
+
 def current_year():
   return int(date.today().year)
 
@@ -72,6 +76,10 @@ def thumb_image(path, thumb_path):
 
 
 
+#
+# eigene Felder
+#
+
 class NullTextField(models.TextField):
   def get_internal_type(self):
     return 'TextField'
@@ -107,6 +115,10 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 
 
 
+#
+# eigene Meta-Attribute
+#
+
 options.DEFAULT_NAMES += (
   'codelist',                           # optional ; Text      ; Handelt es sich um eine Codeliste (die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht)?
   'description',                        # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
@@ -135,6 +147,13 @@ options.DEFAULT_NAMES += (
 )
 
 
+
+#
+# eigene Validatoren
+#
+
+# allgemein
+
 akut_regex = r'^(?!.*´).*$'
 akut_message = 'Der Text darf keine Akute (´) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
 anfuehrungszeichen_regex = r'^(?!.*\").*$'
@@ -146,6 +165,8 @@ doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen enthalten
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
 
+
+# speziell
 
 geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
 geraetenummer_message = 'Die Gerätenummer muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
@@ -671,7 +692,7 @@ ZUGELASSENE_MUENZEN_PARKSCHEINAUTOMATEN_TARIFE = (
 
 class Art(models.Model):
   uuid = models.UUIDField(primary_key=True, editable=False)
-  art = models.CharField('Art', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  art = models.CharField('Art', max_length=255, editable=False)
 
   class Meta:
     abstract = True
@@ -683,6 +704,54 @@ class Art(models.Model):
   
   def __str__(self):
     return self.art
+
+
+
+#
+# Adressen
+#
+
+class Adressen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  adresse = models.CharField('Adresse', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'basisdaten\".\"adressenliste_datenerfassung'
+    verbose_name = 'Adresse'
+    verbose_name_plural = 'Adressen'
+    description = 'Adressen in Mecklenburg-Vorpommern'
+    list_fields = ['adresse']
+    list_fields_labels = ['Adresse']
+    ordering = ['adresse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.adresse
+
+
+
+#
+# Straßen
+#
+
+class Strassen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  strasse = models.CharField('Straße', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'basisdaten\".\"strassenliste_datenerfassung'
+    verbose_name = 'Straße'
+    verbose_name_plural = 'Straßen'
+    description = 'Straßen in Mecklenburg-Vorpommern'
+    list_fields = ['strasse']
+    list_fields_labels = ['Straße']
+    ordering = ['strasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.strasse
 
 
 
@@ -703,9 +772,9 @@ class Arten_Feuerwachen(Art):
 # Feuerwachen: Datenthema
 
 class Feuerwachen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv', default=True)
-  adresse = models.UUIDField(blank=True, null=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   art = models.ForeignKey(Arten_Feuerwachen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -720,15 +789,15 @@ class Feuerwachen(models.Model):
     verbose_name = 'Feuerwache'
     verbose_name_plural = 'Feuerwachen'
     description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['aktiv', 'art', 'bezeichnung']
-    list_fields_labels = ['aktiv?', 'Art', 'Bezeichnung']
+    list_fields = ['aktiv', 'adresse', 'art', 'bezeichnung']
+    list_fields_labels = ['aktiv?', 'Adresse', 'Art', 'Bezeichnung']
     map_feature_tooltip_field = 'bezeichnung'
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
   
   def __str__(self):
-    return self.bezeichnung + ' (Art: ' + str(self.art) + ')'
+    return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
 
 

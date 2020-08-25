@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.forms import ChoiceField, ModelForm, ValidationError
+from django.forms import ChoiceField, ModelForm, UUIDField, ValidationError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -26,6 +26,10 @@ from operator import attrgetter
 from tempus_dominus.widgets import DatePicker
 
 
+
+#
+# eigene Funktionen
+#
 
 def assign_widgets(field, widget = None):
   if field.name == 'geometrie':
@@ -51,6 +55,72 @@ def get_thumb_url(url):
   head, tail = os.path.split(url)
   return head + '/thumbs/' + tail
 
+
+def is_valid_uuid(value):
+  try:
+    uuid.UUID(str(value))
+    return True
+  except ValueError:
+    return False
+
+
+
+#
+# eigene Felder
+#
+
+class AddressUUIDField(UUIDField):
+  def to_python(self, value):
+    if value in self.empty_values:
+      return None
+    if not is_valid_uuid(value):
+      error_text = 'Bitte geben Sie eine eindeutige und existierende Adresse an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
+      request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + value, timeout = 3)
+      json = request.json()
+      ergebnisse = json.get('features')
+      if not ergebnisse:
+        raise ValidationError(error_text)
+      for ergebnis in ergebnisse:
+        if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == value:
+          try:
+            ergebnis_uuid = uuid.UUID(ergebnis.get('properties').get('uuid'))
+            adressen = apps.get_app_config('datenmanagement').get_model('Adressen')
+            adresse = adressen.objects.get(pk=ergebnis_uuid)
+            return adresse
+          except ValueError:
+            raise ValidationError(error_text)
+      raise ValidationError(error_text)
+    return super().to_python(value)
+
+
+class StreetUUIDField(UUIDField):
+  def to_python(self, value):
+    if value in self.empty_values:
+      return None
+    if not is_valid_uuid(value):
+      error_text = 'Bitte geben Sie eine eindeutige und existierende Straße an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
+      request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + value, timeout = 3)
+      json = request.json()
+      ergebnisse = json.get('features')
+      if not ergebnisse:
+        raise ValidationError(error_text)
+      for ergebnis in ergebnisse:
+        if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == value:
+          try:
+            ergebnis_uuid = uuid.UUID(ergebnis.get('properties').get('uuid'))
+            strassen = apps.get_app_config('datenmanagement').get_model('Strassen')
+            strasse = strassen.objects.get(pk=ergebnis_uuid)
+            return strasse
+          except ValueError:
+            raise ValidationError(error_text)
+      raise ValidationError(error_text)
+    return super().to_python(value)
+
+
+
+#
+# eigene Views
+#
 
 class OWSProxyView(generic.View):
   http_method_names = ['get',]
@@ -117,46 +187,39 @@ class DataForm(ModelForm):
     self.request = request
     self.address_type = (self.instance._meta.address_type if hasattr(self.instance._meta, 'address_type') else None)
     self.address_mandatory = (self.instance._meta.address_mandatory if hasattr(self.instance._meta, 'address_mandatory') else None)
-    # Textfelder in Auswahllisten umwandeln, falls Benutzer kein Admin und kein Mitglied der Gruppe von Benutzern ist, die als Admin-Gruppe für dieses Datenthema gilt
-    if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists() and not (self.request.user.is_superuser or self.request.user.groups.filter(name = self.admin_group).exists()):
-        for field in self.model._meta.get_fields():
-            if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-                users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
-                choice_field = ChoiceField(
-                    choices = [(user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')', user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')') for user in users],
-                    initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
-                )
-                if field.name == 'ansprechpartner':
-                		self.fields['ansprechpartner'] = choice_field
-                if field.name == 'bearbeiter':
-                		self.fields['bearbeiter'] = choice_field
-    
+
+    for field in self.model._meta.get_fields():
+      if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
+        # Textfelder in Auswahllisten umwandeln, falls Benutzer kein Admin und kein Mitglied der Gruppe von Benutzern ist, die als Admin-Gruppe für dieses Datenthema gilt
+        if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists() and not (self.request.user.is_superuser or self.request.user.groups.filter(name = self.admin_group).exists()):
+          users = sorted(User.objects.filter(groups__name = self.group_with_users_for_choice_field), key=attrgetter('last_name', 'first_name'))
+          choice_field = ChoiceField(
+            choices = [(user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')', user.first_name + ' ' + user.last_name + ' (' + user.email.lower() + ')') for user in users],
+            initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
+          )
+          if field.name == 'ansprechpartner':
+            self.fields['ansprechpartner'] = choice_field
+          if field.name == 'bearbeiter':
+            self.fields['bearbeiter'] = choice_field
+      # Adressfelder in eigenen Feldtypen umwandeln
+      if field.name == 'adresse' or field.name == 'strasse':
+        if field.name == 'adresse':
+          self.fields['adresse'] = AddressUUIDField(
+            label = field.verbose_name,
+            required = self.address_mandatory
+          )
+        elif field.name == 'strasse':
+          self.fields['strasse'] = StreetUUIDField(
+            label = field.verbose_name,
+            required = self.address_mandatory
+          )
+
     for field in self.fields.values():
       if field.label == 'Geometrie':
         message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
       else:
         message = 'Das Attribut „{label}“ ist Pflicht!'.format(label = field.label)
       field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
-    
-    #for field in self.model._meta.get_fields():
-    #  if field.name == 'adresse' or field.name == 'strasse':
-    #    data = self.data[field.name]
-    #    if data:
-    #      request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
-    #      json = request.json()
-    #      ergebnisse = json.get('features')
-    #      error_text = 'Bitte geben Sie eine eindeutige und existierende {type} an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'.format(type = self.address_type)
-    #      if not ergebnisse:
-    #        #raise ValidationError(error_text)
-    #        message = 'xxx'
-    #      for ergebnis in ergebnisse:
-    #        if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
-    #          self.data[field.name] = uuid.UUID(ergebnis.get('properties').get('uuid'))
-    #      #raise ValidationError(error_text)
-    #      message = 'xxx'
-    #    elif not data and self.address_mandatory:
-    #      #raise ValidationError('Der Bezug auf eine eindeutige {type} ist Pflicht!'.format(type = self.address_type))
-    #      message = 'xxx'
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
   def clean_foto(self):
@@ -186,52 +249,6 @@ class DataForm(ModelForm):
     if '-' in str(data):
       raise ValidationError(error_text)
     return data
-
-  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen adresse existiert.
-  def clean_adresse(self):
-    data = self.data['adresse']
-    if not data and not self.address_mandatory:
-      return data
-    elif not data and self.address_mandatory:
-      raise ValidationError('Der Bezug auf eine eindeutige {type} ist Pflicht!'.format(type = self.address_type))
-    else:
-      error_text = 'Bitte geben Sie eine eindeutige und existierende {type} an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'.format(type = self.address_type)
-    request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
-    json = request.json()
-    ergebnisse = json.get('features')
-    if not ergebnisse:
-      raise ValidationError(error_text)
-    for ergebnis in ergebnisse:
-      if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
-        return uuid.UUID(ergebnis.get('properties').get('uuid'))
-    raise ValidationError(error_text)
-    #raise Exception(self.data['adresse'])
-    #data = self.cleaned_data['adresse']
-    #self.address_cleaner(data, self.address_type, self.address_mandatory)
-    #return self.cleaned_data['adresse']
-    #return uuid.UUID('46867066-3c02-11e5-babc-0050569b7e95').hex
-  
-  ## Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen strasse existiert.
-  #def clean_strasse(self):
-  #  data = self.cleaned_data['strasse']
-  #  self.address_cleaner(data, self.address_type, self.address_mandatory)
-  
-  def address_cleaner(self, data, address_type, address_mandatory):
-    if not data and not address_mandatory:
-      return data
-    elif not data and address_mandatory:
-      raise ValidationError('Der Bezug auf eine eindeutige {type} ist Pflicht!'.format(type = address_type))
-    else:
-      error_text = 'Bitte geben Sie eine eindeutige und existierende {type} an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'.format(type = address_type)
-    request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
-    json = request.json()
-    ergebnisse = json.get('features')
-    if not ergebnisse:
-      raise ValidationError(error_text)
-    for ergebnis in ergebnisse:
-      if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
-        return uuid.UUID(ergebnis.get('properties').get('uuid'))
-    raise ValidationError(error_text)
 
 
 class IndexView(generic.ListView):
@@ -536,26 +553,7 @@ class DataChangeView(generic.UpdateView):
       return {
       }
 
-  def get_address_uuid(self, data):
-    raise ValidationError(data)
-    #return uuid.UUID('46867066-3c02-11e5-babc-0050569b7e95').hex
-    #request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + data, timeout = 3)
-    #json = request.json()
-    #ergebnisse = json.get('features')
-    #for ergebnis in ergebnisse:
-    #  if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == data:
-    #    return uuid.UUID(ergebnis.get('properties').get('uuid'))
-
   def form_valid(self, form):
-    raise Exception('This is the exception you expect to handle')
-    self.object = form.save(commit = False)
-    self.object.adresse = '38d06afc-4102-400a-84f9-0395583eb962'
-    #if hasattr(self.model._meta, 'address_type'):
-    #  if self.model._meta.address_type == 'Adresse' and form.instance.adresse:
-    #    form.instance.adresse = self.get_address_uuid(form.instance.adresse)
-    #  elif self.model._meta.address_type == 'Straße' and form.instance.strasse:
-    #    form.instance.strasse = self.get_address_uuid(form.instance.strasse)
-    self.object = form.save()
     return super(DataChangeView, self).form_valid(form)
     
   def get_object(self, *args, **kwargs):

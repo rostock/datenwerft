@@ -99,7 +99,7 @@
               {% endif %}
           </div>
           <div id='buttons' class='row'>
-              {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_delete_permission:object %}
+              {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
                   <input type='submit' class='btn btn-warning' value='speichern'/>
               {% endif %}
               {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
@@ -429,8 +429,7 @@
                     }
                     layer.setLatLng([y, x]);
                     var newCoords = $('#id_geometrie').val().replace(/[0-9]+\.[0-9]+/, x);
-                    newCoords = newCoords.replace(/\, [0-9]+\.[0-9]/, ', ' + y);
-                    $('#id_geometrie').val(newCoords);
+                    $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
                 }
             });
         }
@@ -530,17 +529,17 @@
             // JSON durchgehen und je Feature ein Resultat bauen
             jQuery.each(json.features, function(index, item) {
                 var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                // Gemeindeteile immer unterdrücken
-                if (item.properties.objektgruppe !== 'Gemeindeteil') {
-                    // falls Datenmodell Adressenbezug vorsieht und dieser eine Pflichtangabe ist:
-                    {% if address_type and address_mandatory %}
-                        // falls Typ des Adressenbezugs gleich Adresse: Straßen unterdrücken
+                // nur Adressen, Straßen und Gemeindeteile berücksichtigen
+                if (item.properties.objektgruppe === 'Adresse' || item.properties.objektgruppe === 'Straße' || item.properties.objektgruppe === 'Gemeindeteil') {
+                    // falls Datenmodell Adressenbezug vorsieht:
+                    {% if address_type %}
+                        // falls Typ des Adressenbezugs gleich Adresse: nur Adressen berücksichtigen
                         {% if address_type == 'Adresse' %}
-                            if (item.properties.objektgruppe !== 'Straße')
+                            if (item.properties.objektgruppe === 'Adresse')
                                 results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
-                        // falls Typ des Adressenbezugs gleich Straße: Adressen unterdrücken
+                        // falls Typ des Adressenbezugs gleich Straße: nur Straßen berücksichtigen
                         {% elif address_type == 'Straße' %}
-                            if (item.properties.objektgruppe !== 'Adresse')
+                            if (item.properties.objektgruppe === 'Straße')
                                 results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
                         {% endif %}
                     // ansonsten: sowohl Adressen als auch Straßen anzeigen

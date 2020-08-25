@@ -232,6 +232,14 @@ def user_has_model_view_permission(user, model_name_lower):
 
 
 @register.filter
+def user_has_object_change_permission(user, obj):
+    if ObjectPermissionChecker(user).has_perm('change_' + obj.__class__.__name__.lower(), obj):
+        return True
+    else:
+        return False
+
+
+@register.filter
 def user_has_object_delete_permission(user, obj):
     if ObjectPermissionChecker(user).has_perm('delete_' + obj.__class__.__name__.lower(), obj):
         return True
