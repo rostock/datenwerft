@@ -1227,7 +1227,7 @@ class Denksteine(models.Model):
       return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
-class Fairtrade(models.Model):
+class FairTrade(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)

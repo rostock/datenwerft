@@ -84,10 +84,12 @@
                                   {{ form.adresse.errors }}
                                   {{ form.adresse.label_tag }}
                                   {{ form.adresse }}
+                                  <input type="hidden" id="id_adresse_uuid" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
                               {% elif address_type == 'Straße' %}
                                   {{ form.strasse.errors }}
                                   {{ form.strasse.label_tag }}
                                   {{ form.strasse }}
+                                  <input type="hidden" id="id_strasse_uuid" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
                               {% endif %}
                           {% else %}
                               <label for="id_address_search">Adressen-/Straßensuche</label>
@@ -100,7 +102,7 @@
           </div>
           <div id='buttons' class='row'>
               {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-                  <input type='submit' class='btn btn-warning' value='speichern'/>
+                  <input type='submit' class='btn btn-warning' value='speichern' onclick="setAddressUuid();"/>
               {% endif %}
               {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
                   <a href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}" class='btn btn-danger'>löschen</a>
@@ -381,11 +383,13 @@
                 {% if address_type == 'Adresse' %}
                     $('#id_adresse').on('click', function() {
                         $(this).val('');
+                        $('#id_adresse_uuid').val('');
                         $('#results_container').hide();
                     })
                 {% elif address_type == 'Straße' %}
                     $('#id_strasse').on('click', function() {
                         $(this).val('');
+                        $('#id_strasse_uuid').val('');
                         $('#results_container').hide();
                     })
                 {% endif %}
@@ -492,14 +496,17 @@
                 }
             });
         }
-    
+
         function adoptResult(json, type) {
             var erfolg = false;
             if (type === 'Straße') {
                 jQuery.each(json.features, function(index, item) {
                     if (item.properties.objektgruppe === 'Straße') {
-                        var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                        $('#id_strasse').val(titel);
+                        var text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                        if (item.properties.gemeindeteil_abkuerzung)
+                            text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
+                        $('#id_strasse').val(text);
+                        $('#id_strasse_uuid').val(item.properties.uuid);
                         erfolg = true;
                         return false;
                     }
@@ -509,8 +516,11 @@
             } else if (type === 'Adresse') {
                 jQuery.each(json.features, function(index, item) {
                     if (item.properties.objektgruppe === 'Adresse') {
-                        var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                        $('#id_adresse').val(titel);
+                        var text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                        if (item.properties.gemeindeteil_abkuerzung)
+                            text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
+                        $('#id_adresse').val(text);
+                        $('#id_adresse_uuid').val(item.properties.uuid);
                         erfolg = true;
                         return false;
                     }
@@ -528,25 +538,32 @@
             
             // JSON durchgehen und je Feature ein Resultat bauen
             jQuery.each(json.features, function(index, item) {
-                var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                // nur Adressen, Straßen und Gemeindeteile berücksichtigen
-                if (item.properties.objektgruppe === 'Adresse' || item.properties.objektgruppe === 'Straße' || item.properties.objektgruppe === 'Gemeindeteil') {
-                    // falls Datenmodell Adressenbezug vorsieht:
-                    {% if address_type %}
-                        // falls Typ des Adressenbezugs gleich Adresse: nur Adressen berücksichtigen
-                        {% if address_type == 'Adresse' %}
-                            if (item.properties.objektgruppe === 'Adresse')
-                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
-                        // falls Typ des Adressenbezugs gleich Straße: nur Straßen berücksichtigen
-                        {% elif address_type == 'Straße' %}
-                            if (item.properties.objektgruppe === 'Straße')
-                                results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small></div>');
-                        {% endif %}
-                    // ansonsten: sowohl Adressen als auch Straßen anzeigen
-                    {% else %}
-                        results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
-                    {% endif %}
-                }
+                var titel = '';
+                if (item.properties._title_.indexOf(', ') != -1)
+                    titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                else
+                    titel = item.properties._title_;
+                // falls Datenmodell Adressenbezug vorsieht:
+                {% if address_type %}
+                    // nur Objektgruppen berücksichtigen, die mit dem Typ des Adressenbezugs übereinstimmen
+                    var substring = item.properties.objektgruppe;
+                    if (item.properties.objektgruppe.indexOf(' HRO') != -1)
+                        substring = item.properties.objektgruppe.substring(0, item.properties.objektgruppe.lastIndexOf(' HRO'));
+                    if (substring === '{{ address_type }}') {
+                        var result = '<div class="resultElement" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
+                        if (item.properties.gemeindeteil_abkuerzung)
+                            result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
+                        result += '</div>';
+                        results.append(result);
+                    }
+                // ansonsten: alle Objektgruppen anzeigen
+                {% else %}
+                    var result = '<div class="resultElement" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
+                    if (item.properties.gemeindeteil_abkuerzung)
+                        result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
+                    result += '<span>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</span></div>';
+                    results.append(result);
+                {% endif %}
             });
             
             // Resultate einblenden
@@ -556,10 +573,15 @@
             results.children().on('click', function() {
                 $('#addressToMap').prop('disabled', false);
                 {% if address_type %}
+                    var text = $(this).children('strong').text();
+                    if ($(this).children('small'))
+                        text += ' ' + $(this).children('small').text();
                     {% if address_type == 'Adresse' %}
-                        $('#id_adresse').val($(this).children('strong').text());
+                        $('#id_adresse').val(text);
+                        $('#id_adresse_uuid').val($(this).data('uuid'));
                     {% elif address_type == 'Straße' %}
-                        $('#id_strasse').val($(this).children('strong').text());
+                        $('#id_strasse').val(text);
+                        $('#id_strasse_uuid').val($(this).data('uuid'));
                     {% endif %}
                 {% else %}
                     $('#id_address_search').val($(this).children('strong').text());
@@ -589,6 +611,17 @@
                     ]);
                 }
             });
+        }
+    
+        // Adresse bzw. Straße auf Werte der entsprechenden Hidden-Input-Felder setzen
+        function setAddressUuid() {
+            {% if address_type == 'Adresse' %}
+                if ($.trim($('#id_adresse').val()).length)
+                    $('#id_adresse').val($('#id_adresse_uuid').val());
+            {% elif address_type == 'Straße' %}
+                if ($.trim($('#id_strasse').val()).length)
+                    $('#id_strasse').val($('#id_strasse_uuid').val());
+            {% endif %}
         }
 	</script>
 {% endblock %}

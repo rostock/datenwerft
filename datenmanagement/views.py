@@ -73,48 +73,16 @@ class AddressUUIDField(UUIDField):
   def to_python(self, value):
     if value in self.empty_values:
       return None
-    if not is_valid_uuid(value):
-      error_text = 'Bitte geben Sie eine eindeutige und existierende Adresse an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
-      request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + value, timeout = 3)
-      json = request.json()
-      ergebnisse = json.get('features')
-      if not ergebnisse:
-        raise ValidationError(error_text)
-      for ergebnis in ergebnisse:
-        if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == value:
-          try:
-            ergebnis_uuid = uuid.UUID(ergebnis.get('properties').get('uuid'))
-            adressen = apps.get_app_config('datenmanagement').get_model('Adressen')
-            adresse = adressen.objects.get(pk=ergebnis_uuid)
-            return adresse
-          except ValueError:
-            raise ValidationError(error_text)
-      raise ValidationError(error_text)
-    return super().to_python(value)
+    adressen = apps.get_app_config('datenmanagement').get_model('Adressen')
+    return adressen.objects.get(pk=value)
 
 
 class StreetUUIDField(UUIDField):
   def to_python(self, value):
     if value in self.empty_values:
       return None
-    if not is_valid_uuid(value):
-      error_text = 'Bitte geben Sie eine eindeutige und existierende Straße an. Die Schreibweise muss korrekt sein, vor allem die Groß- und Kleinschreibung!'
-      request = requests.get(settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY + '&type=search&class=address&query=rostock ' + value, timeout = 3)
-      json = request.json()
-      ergebnisse = json.get('features')
-      if not ergebnisse:
-        raise ValidationError(error_text)
-      for ergebnis in ergebnisse:
-        if re.sub('^.*\, ', '', ergebnis.get('properties').get('_title_')) == value:
-          try:
-            ergebnis_uuid = uuid.UUID(ergebnis.get('properties').get('uuid'))
-            strassen = apps.get_app_config('datenmanagement').get_model('Strassen')
-            strasse = strassen.objects.get(pk=ergebnis_uuid)
-            return strasse
-          except ValueError:
-            raise ValidationError(error_text)
-      raise ValidationError(error_text)
-    return super().to_python(value)
+    strassen = apps.get_app_config('datenmanagement').get_model('Strassen')
+    return strassen.objects.get(pk=value)
 
 
 
@@ -139,8 +107,8 @@ class AddressSearchView(generic.View):
   
   def dispatch(self, request, *args, **kwargs):
     self.addresssearch_type = 'search'
-    self.addresssearch_class = 'address'
-    self.addresssearch_query = 'rostock ' + request.GET.get('query', '')
+    self.addresssearch_class = 'address_hro'
+    self.addresssearch_query = request.GET.get('query', '')
     self.addresssearch_out_epsg = '4326'
     self.addresssearch_shape = 'bbox'
     self.addresssearch_limit = '5'
@@ -534,6 +502,8 @@ class DataChangeView(generic.UpdateView):
     context['readonly_fields'] = (self.model._meta.readonly_fields if hasattr(self.model._meta, 'readonly_fields') else None)
     context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     context['admin_group'] = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
+    context['current_address'] = (self.object.adresse.pk if hasattr(self.model._meta, 'address_type') and self.model._meta.address_type == 'Adresse' and self.object.adresse else None)
+    context['current_street'] = (self.object.strasse.pk if hasattr(self.model._meta, 'address_type') and self.model._meta.address_type == 'Straße' and self.object.strasse else None)
     return context
 
   def get_initial(self):

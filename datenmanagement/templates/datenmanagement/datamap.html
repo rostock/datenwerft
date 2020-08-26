@@ -823,11 +823,16 @@
             
             // JSON durchgehen und je Feature ein Resultat bauen
             jQuery.each(json.features, function(index, item) {
-                var titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                if (item.properties.objektgruppe === 'Gemeindeteil')
-                    results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong><span>Ortsteil</span></div>');
-                else if (item.properties.objektgruppe === 'Adresse' || item.properties.objektgruppe === 'Straße')
-                    results.append('<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong> <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small><span>' + item.properties.objektgruppe + '</span></div>');
+                var titel = '';
+                if (item.properties._title_.indexOf(', ') != -1)
+                    titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+                else
+                    titel = item.properties._title_;
+                var result = '<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong>';
+                if (item.properties.gemeindeteil_abkuerzung)
+                    result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
+                result += '<span>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</span></div>';
+                results.append(result);
             });
             
             // Resultate einblenden
