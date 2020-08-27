@@ -127,7 +127,9 @@ options.DEFAULT_NAMES += (
   'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
   'parent_field_name_for_filter',       # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
   'group_with_users_for_choice_field',  # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group'                         # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'admin_group',                        # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'map_filter_field_hide_initial',      # optional ; Text      ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
+  'map_filter_value_hide_initial'       # optional ; Text      ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
 )
 
 
@@ -696,7 +698,7 @@ class Abfallbehaelter(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'abfallbehaelter'
+    db_table = 'daten\".\"abfallbehaelter'
     verbose_name = 'Abfallbehälter'
     verbose_name_plural = 'Abfallbehälter'
     description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
@@ -731,7 +733,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'aufteilungsplaene_wohnungseigentumsgesetz'
+    db_table = 'daten\".\"aufteilungsplaene_wohnungseigentumsgesetz'
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
     description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und Universitätsstadt Rostock'
@@ -764,7 +766,7 @@ class Baudenkmale_Denkmalbereiche(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baudenkmale'
+    db_table = 'daten\".\"baudenkmale'
     verbose_name = 'Baudenkmal oder Denkmalbereich'
     verbose_name_plural = 'Baudenkmale und Denkmalbereiche'
     description = 'Baudenkmale und Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
@@ -796,7 +798,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_fotodokumentation_baustellen'
+    db_table = 'daten\".\"baustellen_fotodokumentation_baustellen'
     verbose_name = 'Baustellen-Fotodokumentation (Baustelle)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
     description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
@@ -824,7 +826,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_fotodokumentation_fotos'
+    db_table = 'daten\".\"baustellen_fotodokumentation_fotos'
     verbose_name = 'Baustellen-Fotodokumentation (Foto)'
     verbose_name_plural = 'Baustellen-Fotodokumentation (Fotos)'
     description = 'Fotos im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
@@ -861,7 +863,7 @@ class Baustellen_geplant(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'baustellen_geplant'
+    db_table = 'daten\".\"baustellen_geplant'
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
@@ -875,6 +877,8 @@ class Baustellen_geplant(models.Model):
     map_filter_fields = ['bezeichnung', 'sparte', 'auftraggeber', 'status']
     map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
     map_filter_fields_as_list = ['auftraggeber', 'status']
+    map_filter_field_hide_initial = 'status'
+    map_filter_value_hide_initial = 'abgeschlossen'
     address = True
     address_optional = True
     geometry_type = 'MultiPolygonField'
@@ -910,7 +914,7 @@ class Behinderteneinrichtungen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'behinderteneinrichtungen'
+    db_table = 'daten\".\"behinderteneinrichtungen'
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
     description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
@@ -949,7 +953,7 @@ class Bildungstraeger(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'bildungstraeger'
+    db_table = 'daten\".\"bildungstraeger'
     verbose_name = 'Bildungsträger'
     verbose_name_plural = 'Bildungsträger'
     description = 'Bildungsträger in der Hanse- und Universitätsstadt Rostock'
@@ -982,7 +986,7 @@ class Carsharing_Stationen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'carsharing_stationen'
+    db_table = 'daten\".\"carsharing_stationen'
     verbose_name = 'Carsharing-Station'
     verbose_name_plural = 'Carsharing-Stationen'
     description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
@@ -1042,7 +1046,7 @@ class Containerstellplaetze(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'containerstellplaetze'
+    db_table = 'daten\".\"containerstellplaetze'
     verbose_name = 'Containerstellplatz'
     verbose_name_plural = 'Containerstellplätze'
     description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
@@ -1083,7 +1087,7 @@ class Denksteine(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'denksteine'
+    db_table = 'daten\".\"denksteine'
     verbose_name = 'Denkstein'
     verbose_name_plural = 'Denksteine'
     description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
@@ -1103,7 +1107,7 @@ class Denksteine(models.Model):
       return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
-class Fairtrade(models.Model):
+class FairTrade(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid4, unique=True, editable=False)
   strasse_name = models.CharField('Adresse', max_length=255)
@@ -1122,7 +1126,7 @@ class Fairtrade(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'fairtrade'
+    db_table = 'daten\".\"fairtrade'
     verbose_name = 'Fair Trade'
     verbose_name_plural = 'Fair Trade'
     description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
@@ -1157,7 +1161,7 @@ class Feuerwachen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'feuerwachen'
+    db_table = 'daten\".\"feuerwachen'
     verbose_name = 'Feuerwache'
     verbose_name_plural = 'Feuerwachen'
     description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
@@ -1188,7 +1192,7 @@ class Fliessgewaesser(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'fliessgewaesser'
+    db_table = 'daten\".\"fliessgewaesser'
     verbose_name = 'Fließgewässer'
     verbose_name_plural = 'Fließgewässer'
     description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
@@ -1224,7 +1228,7 @@ class Gutachterfotos(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'gutachterfotos'
+    db_table = 'daten\".\"gutachterfotos'
     verbose_name = 'Gutachterfoto'
     verbose_name_plural = 'Gutachterfotos'
     description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
@@ -1316,7 +1320,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'haltestellenkataster_haltestellen'
+    db_table = 'daten\".\"haltestellenkataster_haltestellen'
     verbose_name = 'Haltestellenkataster (Haltestelle)'
     verbose_name_plural = 'Haltestellenkataster (Haltestellen)'
     description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
@@ -1353,7 +1357,7 @@ class Haltestellenkataster_Fotos(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'haltestellenkataster_fotos'
+    db_table = 'daten\".\"haltestellenkataster_fotos'
     verbose_name = 'Haltestellenkataster (Foto)'
     verbose_name_plural = 'Haltestellenkataster (Fotos)'
     description = 'Fotos im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
@@ -1389,7 +1393,7 @@ class Hospize(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'hospize'
+    db_table = 'daten\".\"hospize'
     verbose_name = 'Hospiz'
     verbose_name_plural = 'Hospize'
     description = 'Hospize in der Hanse- und Universitätsstadt Rostock'
@@ -1426,7 +1430,7 @@ class Hundetoiletten(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'hundetoiletten'
+    db_table = 'daten\".\"hundetoiletten'
     verbose_name = 'Hundetoilette'
     verbose_name_plural = 'Hundetoiletten'
     description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
@@ -1463,7 +1467,7 @@ class Kinderjugendbetreuung(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kinder_jugendbetreuung'
+    db_table = 'daten\".\"kinder_jugendbetreuung'
     verbose_name = 'Kinder- und Jugendbetreuung'
     verbose_name_plural = 'Kinder- und Jugendbetreuung'
     description = 'Kinder- und Jugendbetreuung in der Hanse- und Universitätsstadt Rostock'
@@ -1501,7 +1505,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kindertagespflegeeinrichtungen'
+    db_table = 'daten\".\"kindertagespflegeeinrichtungen'
     verbose_name = 'Kindertagespflegeeinrichtung'
     verbose_name_plural = 'Kindertagespflegeeinrichtungen'
     description = 'Kindertagespflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
@@ -1532,7 +1536,7 @@ class Kunstimoeffentlichenraum(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'kunst_im_oeffentlichen_raum'
+    db_table = 'daten\".\"kunst_im_oeffentlichen_raum'
     verbose_name = 'Kunst im öffentlichen Raum'
     verbose_name_plural = 'Kunst im öffentlichen Raum'
     description = 'Kunst im öffentlichen Raum der Hanse- und Universitätsstadt Rostock'
@@ -1578,7 +1582,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'ladestationen_elektrofahrzeuge'
+    db_table = 'daten\".\"ladestationen_elektrofahrzeuge'
     verbose_name = 'Ladestation für Elektrofahrzeuge'
     verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
     description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
@@ -1613,7 +1617,7 @@ class Meldedienst_flaechenhaft(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'meldedienst_flaechenhaft'
+    db_table = 'daten\".\"meldedienst_flaechenhaft'
     verbose_name = 'Meldedienst (flächenhaft)'
     verbose_name_plural = 'Meldedienst (flächenhaft)'
     description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
@@ -1647,7 +1651,7 @@ class Meldedienst_punkthaft(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'meldedienst_punkthaft'
+    db_table = 'daten\".\"meldedienst_punkthaft'
     verbose_name = 'Meldedienst (punkthaft)'
     verbose_name_plural = 'Meldedienst (punkthaft)'
     description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
@@ -1675,7 +1679,7 @@ class Mobilpunkte(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'mobilpunkte'
+    db_table = 'daten\".\"mobilpunkte'
     verbose_name = 'Mobilpunkt'
     verbose_name_plural = 'Mobilpunkte'
     description = 'Mobilpunkte in der Hanse- und Universitätsstadt Rostock'
@@ -1712,7 +1716,7 @@ class Parkmoeglichkeiten(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkmoeglichkeiten'
+    db_table = 'daten\".\"parkmoeglichkeiten'
     verbose_name = 'Parkmöglichkeit'
     verbose_name_plural = 'Parkmöglichkeiten'
     description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
@@ -1760,7 +1764,7 @@ class Parkscheinautomaten_Tarife(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkscheinautomaten_tarife'
+    db_table = 'daten\".\"parkscheinautomaten_tarife'
     verbose_name = 'Parkscheinautomaten (Tarif)'
     verbose_name_plural = 'Parkscheinautomaten (Tarife)'
     description = 'Tarife für die Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
@@ -1795,7 +1799,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'parkscheinautomaten_parkscheinautomaten'
+    db_table = 'daten\".\"parkscheinautomaten_parkscheinautomaten'
     verbose_name = 'Parkscheinautomaten (Parkscheinautomat)'
     verbose_name_plural = 'Parkscheinautomaten (Parkscheinautomaten)'
     description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
@@ -1833,7 +1837,7 @@ class Pflegeeinrichtungen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'pflegeeinrichtungen'
+    db_table = 'daten\".\"pflegeeinrichtungen'
     verbose_name = 'Pflegeeinrichtung'
     verbose_name_plural = 'Pflegeeinrichtungen'
     description = 'Pflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
@@ -1869,7 +1873,7 @@ class Rettungswachen(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'rettungswachen'
+    db_table = 'daten\".\"rettungswachen'
     verbose_name = 'Rettungswache'
     verbose_name_plural = 'Rettungswachen'
     description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
@@ -1907,7 +1911,7 @@ class Begegnungszentren(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'begegnungszentren'
+    db_table = 'daten\".\"begegnungszentren'
     verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
     verbose_name_plural = 'Stadtteil- und Begegnungszentren'
     description = 'Stadtteil- und Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
@@ -1941,7 +1945,7 @@ class Uvp_Vorhaben(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorhaben'
+    db_table = 'daten\".\"uvp_vorhaben'
     verbose_name = 'Vorhaben (UVP)'
     verbose_name_plural = 'Vorhaben (UVP)'
     description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
@@ -1973,7 +1977,7 @@ class Uvp_Vorpruefung(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'uvp_vorpruefungen'
+    db_table = 'daten\".\"uvp_vorpruefungen'
     verbose_name = 'UVP-Vorprüfung'
     verbose_name_plural = 'UVP-Vorprüfungen'
     description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
@@ -2005,7 +2009,7 @@ class Vereine(models.Model):
 
   class Meta:
     managed = False
-    db_table = settings.DATABASE_TABLES_SCHEMA + '\".\"' + 'vereine'
+    db_table = 'daten\".\"vereine'
     verbose_name = 'Verein'
     verbose_name_plural = 'Vereine'
     description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
