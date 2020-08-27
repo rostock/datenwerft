@@ -398,6 +398,8 @@ class DataMapView(generic.ListView):
     context['map_filter_fields_json'] = (json.dumps(self.model._meta.map_filter_fields) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_labels'] = (self.model._meta.map_filter_fields_labels if hasattr(self.model._meta, 'map_filter_fields_labels') else None)
     context['map_filter_fields_as_list'] = (self.model._meta.map_filter_fields_as_list if hasattr(self.model._meta, 'map_filter_fields_as_list') else None)
+    context['map_filter_field_hide_initial'] = (self.model._meta.map_filter_field_hide_initial if hasattr(self.model._meta, 'map_filter_field_hide_initial') else None)
+    context['map_filter_value_hide_initial'] = (self.model._meta.map_filter_value_hide_initial if hasattr(self.model._meta, 'map_filter_value_hide_initial') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
     return context
 

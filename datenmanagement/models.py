@@ -143,7 +143,9 @@ options.DEFAULT_NAMES += (
   'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
   'parent_field_name_for_filter',       # optional ; Text      ; Name des Feldes der Elterntabelle, auf das vor allem der Filter (und die Suche) in der tabellarischen Datensatzübersicht zurückgreifen soll(en)
   'group_with_users_for_choice_field',  # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group'                         # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'admin_group',                        # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'map_filter_field_hide_initial',      # optional ; Text      ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
+  'map_filter_value_hide_initial'       # optional ; Text      ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
 )
 
 
@@ -1010,6 +1012,8 @@ class Baustellen_geplant(models.Model):
     map_filter_fields = ['bezeichnung', 'sparte', 'auftraggeber', 'status']
     map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
     map_filter_fields_as_list = ['auftraggeber', 'status']
+    map_filter_field_hide_initial = 'status'
+    map_filter_value_hide_initial = 'abgeschlossen'
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiPolygonField'

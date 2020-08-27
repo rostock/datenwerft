@@ -325,6 +325,14 @@
                 });
                 map.addLayer(geoJsonLayer);
             {% endif %}
+
+            // falls Objekte initial nicht auf der Karte erscheinen sollen, die einen bestimmten Wert in einem bestimmten Feld aufweisen...
+            {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
+                currMap.eachLayer(function(layer) {
+                    if (layer.feature)
+                        hideMapFeatures(layer);
+                });
+            {% endif %}
             
             // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
             window.objectsExtent = geoJsonLayer.getBounds();
@@ -692,8 +700,6 @@
                             }
                             // Variable für Bounding Box der aktuellen Filtermenge anhand sichtbar bleibender GeoJSON-Features befüllen
                             if (layer.getElement().style.display === '') {
-                                console.dir(layer.getBounds());
-                                console.log('---');
                                 if (currentFilterExtent.length == 0) {
                                     currentFilterExtent[0] = [];
                                     currentFilterExtent[0][0] = layer.getBounds().getNorth();
@@ -775,7 +781,6 @@
 
             // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge (bzw. auf Bounding Box aller Objekte, falls kein Filter aktiv)
             $('#map-extent-filter').on('click', function() {
-                console.dir(currentFilterExtent);
                 if (currentFilterExtent.length > 0)
                     setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
                 else
@@ -789,12 +794,23 @@
             });
             $('#map_seitenbereich_container').height(height);
         });
+
+        // bestimmte GeoJSON-Features ausblenden
+        function hideMapFeatures(layer) {
+            if (layer.feature.properties['{{ map_filter_field_hide_initial }}'] === '{{ map_filter_value_hide_initial }}')
+                layer.getElement().style.display = 'none';
+        }
         
         // alle GeoJSON-Features (wieder) anzeigen
         function showAllMapFeatures() {
             currMap.eachLayer(function(layer) {
                 if (layer.feature) {
                     layer.getElement().style.display = '';
+                    // falls Objekte initial nicht auf der Karte erscheinen sollen, die einen bestimmten Wert in einem bestimmten Feld aufweisen...
+                    {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
+                        // Wert des aktuellen Objektes in diesem Feld prüfen und Objekt (wieder) ausblenden, sofern es den bestimmten Wert aufweist
+                        hideMapFeatures(layer);
+                    {% endif %}
                 }
             });
         }
