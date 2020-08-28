@@ -223,6 +223,7 @@ class DataView(BaseDatatableView):
     self.columns = self.model._meta.list_fields
     self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
     self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
+    self.column_as_highlight_flag = (self.model._meta.highlight_flag if hasattr(self.model._meta, 'highlight_flag') else None)
     self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     self.parent_field_name_for_filter = (self.model._meta.parent_field_name_for_filter if hasattr(self.model._meta, 'parent_field_name_for_filter') else 'bezeichnung')
     super(DataView, self).__init__()
@@ -245,6 +246,8 @@ class DataView(BaseDatatableView):
           data = value
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
           data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
+        elif value is not None and value == True and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
+          data = '<span class="text-danger glyphicon glyphicon-exclamation-sign"/>'
         elif value is not None and column == 'foto':
           data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
           if self.thumbs is not None and self.thumbs == True:
@@ -357,6 +360,7 @@ class DataMapView(generic.ListView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['highlight_flag'] = (self.model._meta.highlight_flag if hasattr(self.model._meta, 'highlight_flag') else None)
     context['show_alkis'] = (self.model._meta.show_alkis if hasattr(self.model._meta, 'show_alkis') else None)
     context['map_feature_tooltip_field'] = (self.model._meta.map_feature_tooltip_field if hasattr(self.model._meta, 'map_feature_tooltip_field') else None)
     context['map_feature_tooltip_fields'] = (self.model._meta.map_feature_tooltip_fields if hasattr(self.model._meta, 'map_feature_tooltip_fields') else None)

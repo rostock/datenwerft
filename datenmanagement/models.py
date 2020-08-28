@@ -109,6 +109,7 @@ options.DEFAULT_NAMES += (
   'list_fields_with_number',            # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
   'list_fields_with_date',              # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
   'list_fields_labels',                 # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
+  'highlight_flag',                     # optional ; Text      ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
   'readonly_fields',                    # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
   'object_title',                       # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
   'foreign_key_label',                  # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
@@ -859,6 +860,8 @@ class Baustellen_geplant(models.Model):
   auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN)
   ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_GEPLANT)
+  konflikt = models.BooleanField('Konflikt', blank=True, null=True, editable=False)
+  konflikt_tolerieren = models.BooleanField(' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren', blank=True, null=True)
   geometrie = models.MultiPolygonField('Geometrie', srid=25833)
 
   class Meta:
@@ -867,9 +870,10 @@ class Baustellen_geplant(models.Model):
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['bezeichnung', 'strasse_name', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'ansprechpartner', 'status']
+    list_fields = ['bezeichnung', 'strasse_name', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'ansprechpartner', 'status', 'konflikt', 'konflikt_tolerieren']
     list_fields_with_date = ['beginn', 'ende']
-    list_fields_labels = ['Bezeichnung', 'Straße', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Ansprechpartner', 'Status']
+    list_fields_labels = ['Bezeichnung', 'Straße', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Ansprechpartner', 'Status', 'Konflikt(e)', 'Konflikt(e) tolerieren?']
+    highlight_flag = 'konflikt'
     show_alkis = True
     map_feature_tooltip_field = 'bezeichnung'
     map_rangefilter_fields = ['beginn', 'ende']
