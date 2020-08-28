@@ -250,6 +250,9 @@
                 {% elif map_feature_tooltip_fields %}
                     geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
                 {% endif %}
+                {% if highlight_flag %}
+                    geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag }}';
+                {% endif %}
                 // für alle Intervallfilterfelder...
                 {% if map_rangefilter_fields %}
                     {% for map_rangefilter_field in map_rangefilter_fields %}
@@ -288,7 +291,7 @@
                 // GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
                 geoJsonFeatureCollection.features.push(geoJsonFeature);
             {% endfor %}
-            
+
             // jedes Feature mit Link versehen
             function onEachFeature(feature, layer) {
                 // falls Nutzer die notwendige Berechtigung hat...
@@ -303,7 +306,7 @@
                     layer.bindLabel(feature.properties[featureTooltipField]);
                 {% endif %}
             }
-            
+
             // falls Geometrie punkthaft ist...
             {% if geometry_type == 'Point' %}
                 // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
@@ -326,14 +329,22 @@
                 map.addLayer(geoJsonLayer);
             {% endif %}
 
-            // falls Objekte initial nicht auf der Karte erscheinen sollen, die einen bestimmten Wert in einem bestimmten Feld aufweisen...
-            {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
-                currMap.eachLayer(function(layer) {
-                    if (layer.feature)
-                        hideMapFeatures(layer);
-                });
-            {% endif %}
-            
+            // GeoJSON-Layer nochmal durchgehen
+            currMap.eachLayer(function(layer) {
+                if (layer.feature) {
+                  // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
+                  {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
+                      // Wert des aktuellen Features in diesem Feld prüfen und Feature (wieder) ausblenden, sofern es den bestimmten Wert aufweist
+                      hideMapFeature(layer);
+                  {% endif %}
+                  // falls Feature-Highlighting vorgesehen ist...
+                  {% if highlight_flag %}
+                      // Wert des aktuellen Features in diesem Feld prüfen und Feature highlighten, sofern es gehighlightet werden soll
+                      highlightMapFeature(layer);
+                  {% endif %}
+                }
+            });
+
             // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
             window.objectsExtent = geoJsonLayer.getBounds();
         }
@@ -795,21 +806,30 @@
             $('#map_seitenbereich_container').height(height);
         });
 
-        // bestimmte GeoJSON-Features ausblenden
-        function hideMapFeatures(layer) {
+        // GeoJSON-Feature ausblenden
+        function hideMapFeature(layer) {
             if (layer.feature.properties['{{ map_filter_field_hide_initial }}'] === '{{ map_filter_value_hide_initial }}')
                 layer.getElement().style.display = 'none';
         }
-        
+
+        // GeoJSON-Feature highlighten
+        function highlightMapFeature(layer) {
+            if (layer.feature.properties['highlight_flag'] === 'True') {
+                layer.setStyle({
+                    color :'red',
+                    fillColor :'red'
+                });
+            }
+        }
+
         // alle GeoJSON-Features (wieder) anzeigen
         function showAllMapFeatures() {
             currMap.eachLayer(function(layer) {
                 if (layer.feature) {
                     layer.getElement().style.display = '';
-                    // falls Objekte initial nicht auf der Karte erscheinen sollen, die einen bestimmten Wert in einem bestimmten Feld aufweisen...
+                    // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
                     {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
-                        // Wert des aktuellen Objektes in diesem Feld prüfen und Objekt (wieder) ausblenden, sofern es den bestimmten Wert aufweist
-                        hideMapFeatures(layer);
+                        hideMapFeature(layer);
                     {% endif %}
                 }
             });

@@ -108,21 +108,6 @@
                         }
                     }
                 });
-
-                // zurückgestellte Spaltenfilterfunktion, für die zunächst die Klasse DataView in views.py erweitert werden müsste, denn der globale URL-Parameter "search=" ist hier leer, wohingegen der Query-String im URL-Parameter "search[i]=" der zugehörigen Spalte steht
-                /*$('#datasets thead tr').clone(true).appendTo( '#datasets thead' );
-                $('#datasets thead tr:eq(1) th').each(function (i) {
-                    if ($(this).text() && $(this).find('i').length == 0) {
-                        $(this).html('<input class="form-control input-sm column-filter" type="search" placeholder="filtern…" />');
-                        $('input', this).on('keyup change', function () {
-                            if (table.column(i).search() !== this.value) {
-                                table.column(i).search(this.value).draw();
-                            }
-                        } );
-                    } else {
-                        $(this).empty();
-                    }
-                } );*/
             });
 
             $('body').on('change', '.action_checkbox', function(e) {
