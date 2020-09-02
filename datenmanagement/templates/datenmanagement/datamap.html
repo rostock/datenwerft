@@ -97,7 +97,7 @@
                                     <span class='input-reset glyphicon glyphicon-remove-circle'></span>
                                 {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
                                     <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></select>
-                                {% elif map_filter_field|get_type_of_field:model_name == 'MultiSelectField' %}
+                                {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
                                     <fieldset id='filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-checkbox-fieldset' data-type='checkbox-set' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></fieldset>
                                 {% else %}
                                     <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>

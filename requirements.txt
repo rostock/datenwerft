@@ -3,7 +3,6 @@ django-auth-ldap
 django-datatables-view
 django-guardian
 django-leaflet
-django-multiselectfield
 djangorestframework
 django-tempus-dominus
 django-user-agents

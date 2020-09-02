@@ -42,7 +42,6 @@ THIRD_PARTY_APPS = [
   'django_user_agents',
   'guardian',
   'leaflet',
-  'multiselectfield',
   'requests',
   'rest_framework',
   'tempus_dominus',

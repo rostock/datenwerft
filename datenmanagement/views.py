@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.forms import ChoiceField, ModelForm, UUIDField, ValidationError
+from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, UUIDField, ValidationError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -36,6 +36,8 @@ def assign_widgets(field, widget = None):
     return field.formfield(widget = LeafletWidget())
   elif field.__class__.__name__ == 'DateField':
     return field.formfield(widget = DatePicker())
+  elif field.__class__.__name__ == 'ChoiceArrayField':
+    return field.formfield(empty_value = None, widget = CheckboxSelectMultiple())
   else:
     return field.formfield()
 
@@ -140,6 +142,7 @@ class DataForm(ModelForm):
   required_css_class = 'required'
   
   def __init__(self, *args, **kwargs):
+    choices_models_for_choices_fields = kwargs.pop('choices_models_for_choices_fields', None)
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
     admin_group = kwargs.pop('admin_group', None)
     multi_foto_field = kwargs.pop('multi_foto_field', None)
@@ -147,6 +150,7 @@ class DataForm(ModelForm):
     model = kwargs.pop('model', None)
     request = kwargs.pop('request', None)
     super(DataForm, self).__init__(*args, **kwargs)
+    self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
     self.admin_group = admin_group
     self.multi_foto_field = multi_foto_field
@@ -166,21 +170,30 @@ class DataForm(ModelForm):
             initial = request.user.first_name + ' ' + request.user.last_name + ' (' + request.user.email.lower() + ')'
           )
           if field.name == 'ansprechpartner':
-            self.fields['ansprechpartner'] = choice_field
+            self.fields[field.name] = choice_field
           if field.name == 'bearbeiter':
-            self.fields['bearbeiter'] = choice_field
+            self.fields[field.name] = choice_field
       # Adressfelder in eigenen Feldtypen umwandeln
-      if field.name == 'adresse' or field.name == 'strasse':
+      elif field.name == 'adresse' or field.name == 'strasse':
         if field.name == 'adresse':
-          self.fields['adresse'] = AddressUUIDField(
+          self.fields[field.name] = AddressUUIDField(
             label = field.verbose_name,
             required = self.address_mandatory
           )
         elif field.name == 'strasse':
-          self.fields['strasse'] = StreetUUIDField(
+          self.fields[field.name] = StreetUUIDField(
             label = field.verbose_name,
             required = self.address_mandatory
           )
+      elif self.choices_models_for_choices_fields:
+        choices_model_for_choices_field = self.choices_models_for_choices_fields.get(field.name)
+        if choices_model_for_choices_field is not None:
+          choices_model = apps.get_app_config('datenmanagement').get_model(choices_model_for_choices_field)
+          choices = []
+          for choices_model_object in choices_model.objects.all():
+            choices.append((choices_model_object, choices_model_object))
+          #raise Exception(choices_model.name)
+          self.fields[field.name].choices = choices
 
     for field in self.fields.values():
       if field.label == 'Geometrie':
@@ -252,11 +265,11 @@ class DataView(BaseDatatableView):
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
     self.columns = self.model._meta.list_fields
+    self.columns_with_foreign_key = (self.model._meta.list_fields_with_foreign_key if hasattr(self.model._meta, 'list_fields_with_foreign_key') else None)
     self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
     self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
     self.column_as_highlight_flag = (self.model._meta.highlight_flag if hasattr(self.model._meta, 'highlight_flag') else None)
     self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
-    self.parent_field_name_for_filter = (self.model._meta.parent_field_name_for_filter if hasattr(self.model._meta, 'parent_field_name_for_filter') else 'bezeichnung')
     super(DataView, self).__init__()
 
   def prepare_results(self, qs):
@@ -313,8 +326,10 @@ class DataView(BaseDatatableView):
     if search:
       qs_params = None
       for column in self.columns:
-        if column == 'parent':
-          column = 'parent__' + self.parent_field_name_for_filter
+        if self.columns_with_foreign_key:
+          column_with_foreign_key = self.columns_with_foreign_key.get(column)
+          if column_with_foreign_key is not None:
+            column = column_with_foreign_key
         kwargs = {
           '{0}__{1}'.format(column, 'icontains'): search
         }
@@ -411,10 +426,12 @@ class DataMapView(generic.ListView):
 class DataAddView(generic.CreateView):
   def get_form_kwargs(self):
     kwargs = super(DataAddView, self).get_form_kwargs()
+    self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     self.multi_files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
+    kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['admin_group'] = self.admin_group
     kwargs['multi_foto_field'] = self.multi_foto_field
@@ -439,6 +456,7 @@ class DataAddView(generic.CreateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['choices_models_for_choices_fields'] = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
     context['address_mandatory'] = (self.model._meta.address_mandatory if hasattr(self.model._meta, 'address_mandatory') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
@@ -478,8 +496,10 @@ class DataAddView(generic.CreateView):
 class DataChangeView(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(DataChangeView, self).get_form_kwargs()
+    self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
+    kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['admin_group'] = self.admin_group
     kwargs['model'] = self.model
@@ -502,6 +522,7 @@ class DataChangeView(generic.UpdateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['choices_models_for_choices_fields'] = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
     context['address_mandatory'] = (self.model._meta.address_mandatory if hasattr(self.model._meta, 'address_mandatory') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
