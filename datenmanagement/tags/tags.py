@@ -18,14 +18,6 @@ def get_class_description(value):
 
 
 @register.filter
-def get_class_codelist(value):
-    if hasattr(value.__class__._meta, 'codelist'):
-        return value.__class__._meta.codelist
-    else:
-        return None
-
-
-@register.filter
 def get_class_foreign_key_label(value):
     if hasattr(value.__class__._meta, 'foreign_key_label'):
         return value.__class__._meta.foreign_key_label
@@ -130,6 +122,14 @@ def get_version_date():
         return time.strftime('%d.%m.%Y', time.gmtime(os.path.getmtime(os.path.join(settings.BASE_DIR, '.git'))))
     else:
         return '?'
+
+
+@register.filter
+def is_class_codelist(value):
+    if hasattr(value.__class__._meta, 'codelist'):
+        return value.__class__._meta.codelist
+    else:
+        return None
 
 
 @register.filter

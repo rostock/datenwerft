@@ -87,6 +87,10 @@ html {
     margin-bottom:5px;
 }
 
+.list-group-item-with-margin {
+    margin-bottom:15px;
+}
+
 .list-group-item-container {
     margin-bottom:20px;
 }

@@ -11,8 +11,8 @@
         {% for model in object_list %}
             {% with model_name=model|get_class_name %}
                 {% if user|user_has_model_permission:model %}
-                    {% if user.is_superuser or not model|get_class_codelist %}
-                        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='list-group-item active'> 
+                    {% if user.is_superuser or not model|is_class_codelist %}
+                        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='list-group-item {% if model|is_class_codelist %}list-group-item-warning{% else %}list-group-item-info list-group-item-with-margin{% endif %}'> 
                             <h4 class='list-group-item-heading'>{{ model|get_class_verbose_name_plural }}</h4>
                             <p class='list-group-item-text'>{{ model|get_class_description }}</p>
                         </a>

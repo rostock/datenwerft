@@ -283,7 +283,7 @@ class DataView(BaseDatatableView):
         item_data.append('<input class="action_checkbox" type="checkbox" value="' + str(item_id) + '">')
       else:
         item_data.append('')
-      for column in self.columns:
+      for column in list(self.columns.keys()):
         data = None
         value = getattr(item, column)
         if value is not None and self.columns_with_number is not None and column in self.columns_with_number:
@@ -325,7 +325,7 @@ class DataView(BaseDatatableView):
     search = self.request.GET.get('search[value]', None)
     if search:
       qs_params = None
-      for column in self.columns:
+      for column in list(self.columns.keys()):
         if self.columns_with_foreign_key:
           column_with_foreign_key = self.columns_with_foreign_key.get(column)
           if column_with_foreign_key is not None:
@@ -364,7 +364,8 @@ class DataView(BaseDatatableView):
   def ordering(self, qs):
     order_column = self.request.GET.get('order[0][column]', None)
     order_dir = self.request.GET.get('order[0][dir]', None)
-    column = str(self.columns[int(order_column) - 1])
+    columns = list(self.columns.keys())
+    column = str(columns[int(order_column) - 1])
     dir = '-' if order_dir is not None and order_dir == 'desc' else ''
     if order_column is not None:
       return qs.order_by(dir + column)
@@ -385,8 +386,7 @@ class DataListView(generic.ListView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
-    context['list_fields'] = self.model._meta.list_fields
-    context['list_fields_labels'] = self.model._meta.list_fields_labels
+    context['list_fields_labels'] = list(self.model._meta.list_fields.values())
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
     context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     return context

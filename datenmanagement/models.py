@@ -164,34 +164,36 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 #
 
 options.DEFAULT_NAMES += (
-  'codelist',                           # optional ; Text      ; Handelt es sich um eine Codeliste (die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht)?
-  'description',                        # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
-  'choices_models_for_choices_fields',                        # Pflicht  ; Text      ; Beschreibung bzw. Langtitel des Datenthemas
-  'list_fields',                        # Pflicht  ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen
-  'list_fields_with_number',            # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
-  'list_fields_with_date',              # optional ; Textliste ; Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
-  'list_fields_labels',                 # Pflicht  ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spaltentitel auftreten sollen
-  'list_fields_with_foreign_key',       # optional ; Textdictionary ; Namen der Felder (als Keys), die für die Tabelle der Listenansicht Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, weil sie als Fremdschlüssel fungieren
-  'highlight_flag',                     # optional ; Text      ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
-  'readonly_fields',                    # optional ; Textliste ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
-  'object_title',                       # optional ; Text      ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
-  'foreign_key_label',                  # optional ; Text      ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'map_feature_tooltip_field',          # optional ; Text      ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
-  'map_feature_tooltip_fields',         # optional ; Textliste ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
-  'map_rangefilter_fields',             # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen – Achtung: Verarbeitung immer paarweise!
-  'map_rangefilter_fields_labels',      # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfiltertitel auftreten sollen – Achtung: Verarbeitung immer paarweise!
-  'map_filter_fields',                  # optional ; Textliste ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
-  'map_filter_fields_labels',           # optional ; Textliste ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
-  'map_filter_fields_as_list',          # optional ; Textliste ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
-  'address_type',                       # optional ; Text      ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
-  'address_mandatory',                  # optional ; Boolean   ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
-  'geometry_type',                      # optional ; Text      ; Geometrietyp
-  'thumbs',                             # optional ; Boolean   ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
-  'multi_foto_field',                   # optional ; Boolean   ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
-  'group_with_users_for_choice_field',  # optional ; Text      ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group',                        # optional ; Text      ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
-  'map_filter_field_hide_initial',      # optional ; Text      ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
-  'map_filter_value_hide_initial'       # optional ; Text      ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
+  # LEGACY
+  'list_fields_labels',
+  
+  'codelist',                           # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
+  'description',                        # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
+  'choices_models_for_choices_fields',  # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
+  'list_fields',                        # Pflicht  ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
+  'list_fields_with_number',            # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
+  'list_fields_with_date',              # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
+  'list_fields_with_foreign_key',       # optional ; Textdictionary ; Namen der Felder (als Keys), die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden werden
+  'highlight_flag',                     # optional ; Text           ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
+  'readonly_fields',                    # optional ; Textliste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  'object_title',                       # optional ; Text           ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
+  'foreign_key_label',                  # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
+  'map_feature_tooltip_field',          # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'map_feature_tooltip_fields',         # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
+  'map_rangefilter_fields',             # optional ; Textliste      ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen – Achtung: Verarbeitung immer paarweise!
+  'map_rangefilter_fields_labels',      # optional ; Textliste      ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfiltertitel auftreten sollen – Achtung: Verarbeitung immer paarweise!
+  'map_filter_fields',                  # optional ; Textliste      ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
+  'map_filter_fields_labels',           # optional ; Textliste      ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
+  'map_filter_fields_as_list',          # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
+  'address_type',                       # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
+  'address_mandatory',                  # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
+  'geometry_type',                      # optional ; Text           ; Geometrietyp
+  'thumbs',                             # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
+  'multi_foto_field',                   # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'group_with_users_for_choice_field',  # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
+  'admin_group',                        # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'map_filter_field_hide_initial',      # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
+  'map_filter_value_hide_initial'       # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
 )
 
 
@@ -212,6 +214,10 @@ doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen enthalten.'
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
+bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
+bindestrich_leerzeichen_message = 'Im Text darf nach einen Bindestrich kein Leerzeichen stehen.'
+leerzeichen_bindestrich_regex = r'^(?!.* -).*$'
+leerzeichen_bindestrich_message = 'Im Text darf vor einem Bindestrich kein Leerzeichen stehen.'
 
 
 # speziell
@@ -753,27 +759,30 @@ class Art(models.Model):
     abstract = True
     managed = False
     codelist = True
-    list_fields = ['art']
-    list_fields_labels = ['Art']
+    list_fields = {
+     'art': 'Art'
+    }
     ordering = ['art'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
     return self.art
 
-class Stichwort(models.Model):
+
+class Schlagwort(models.Model):
   uuid = models.UUIDField(primary_key=True, editable=False)
-  stichwort = models.CharField('Stichwort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  schlagwort = models.CharField('Schlagwort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
     abstract = True
     managed = False
     codelist = True
-    list_fields = ['stichwort']
-    list_fields_labels = ['Stichwort']
-    ordering = ['stichwort'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    list_fields = {
+     'schlagwort': 'Schlagwort'
+    }
+    ordering = ['schlagwort'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.stichwort
+    return self.schlagwort
 
 
 
@@ -792,8 +801,9 @@ class Adressen(models.Model):
     verbose_name = 'Adresse'
     verbose_name_plural = 'Adressen'
     description = 'Adressen in Mecklenburg-Vorpommern'
-    list_fields = ['adresse']
-    list_fields_labels = ['Adresse']
+    list_fields = {
+     'adresse': 'Adresse'
+    }
     ordering = ['adresse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
@@ -816,8 +826,9 @@ class Strassen(models.Model):
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
     description = 'Straßen in Mecklenburg-Vorpommern'
-    list_fields = ['strasse']
-    list_fields_labels = ['Straße']
+    list_fields = {
+     'strasse': 'Straße'
+    }
     ordering = ['strasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
@@ -841,8 +852,10 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     verbose_name = 'Bewirtschafter, Betreiber, Träger, Eigentümer etc.'
     verbose_name_plural = 'Bewirtschafter, Betreiber, Träger, Eigentümer etc.'
     description = 'Bewirtschafter, Betreiber, Träger, Eigentümer etc.'
-    list_fields = ['bezeichnung', 'art']
-    list_fields_labels = ['Bezeichnung', 'Art']
+    list_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'art': 'Art'
+    }
     ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
@@ -884,8 +897,12 @@ class Feuerwachen(models.Model):
     verbose_name = 'Feuerwache'
     verbose_name_plural = 'Feuerwachen'
     description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['aktiv', 'adresse', 'art', 'bezeichnung']
-    list_fields_labels = ['aktiv?', 'Adresse', 'Art', 'Bezeichnung']
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung'
+    }
     list_fields_with_foreign_key = {
       'adresse': 'adresse__adresse',
       'art': 'art__art'
@@ -920,8 +937,12 @@ class Behinderteneinrichtungen(models.Model):
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
     description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['aktiv', 'adresse', 'bezeichnung', 'traeger']
-    list_fields_labels = ['aktiv?', 'Adresse', 'Bezeichnung', 'Träger']
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
     map_feature_tooltip_field = 'bezeichnung'
     address_type = 'Adresse'
     address_mandatory = True
@@ -931,14 +952,14 @@ class Behinderteneinrichtungen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
 
-# Bildungsträger: Codeliste Stichwort
+# Bildungsträger: Codeliste Schlagwort
 
-class Stichwoerter_Bildungstraeger(Stichwort):
-  class Meta(Stichwort.Meta):
-    db_table = 'codelisten\".\"stichwoerter_bildungstraeger'
-    verbose_name = 'Stichwort für einen Bildungsträger'
-    verbose_name_plural = 'Stichwörter für Bildungsträger'
-    description = 'Stichwörter für Bildungsträger'
+class Schlagwoerter_Bildungstraeger(Schlagwort):
+  class Meta(Schlagwort.Meta):
+    db_table = 'codelisten\".\"schlagwoerter_bildungstraeger'
+    verbose_name = 'Schlagwort für einen Bildungsträger'
+    verbose_name_plural = 'Schlagwörter für Bildungsträger'
+    description = 'Schlagwörter für Bildungsträger'
 
 
 # Bildungsträger: Datenthema
@@ -949,7 +970,7 @@ class Bildungstraeger(models.Model):
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  stichwoerter = ChoiceArrayField(models.CharField('Stichwörter', max_length=255, choices=()), verbose_name='Stichwörter')
+  schlagwoerter = ChoiceArrayField(models.CharField('Schlagwörter', max_length=255, choices=()), verbose_name='Schlagwörter')
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -965,10 +986,14 @@ class Bildungstraeger(models.Model):
     verbose_name_plural = 'Bildungsträger'
     description = 'Bildungsträger in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
-      'stichwoerter': 'Stichwoerter_Bildungstraeger'
+      'schlagwoerter': 'Schlagwoerter_Bildungstraeger'
     }
-    list_fields = ['aktiv', 'adresse', 'bezeichnung', 'stichwoerter']
-    list_fields_labels = ['aktiv?', 'Adresse', 'Bezeichnung', 'Stichwörter']
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'schlagwoerter': 'Schlagwörter'
+    }
     list_fields_with_foreign_key = {
       'adresse': 'adresse__adresse'
     }
@@ -981,7 +1006,47 @@ class Bildungstraeger(models.Model):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
+# Kindertagespflegeeinrichtungen: Datenthema
 
+class Kindertagespflegeeinrichtungen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  plaetze = models.PositiveSmallIntegerField('Plätze')
+  zeiten = models.CharField('Öffnungszeiten', max_length=255)
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"kindertagespflegeeinrichtungen_hro'
+    verbose_name = 'Kindertagespflegeeinrichtung'
+    verbose_name_plural = 'Kindertagespflegeeinrichtungen'
+    description = 'Kindertagespflegeeinrichtungen (Tagesmütter und Tagesväter) in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'plaetze': 'Plätze',
+      'zeiten': 'Betreuungszeiten'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse'
+    }
+    map_feature_tooltip_fields = ['vorname', 'nachname']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.vorname + ' ' + self.nachname + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return self.vorname + ' ' + self.nachname + (', ' + self.adressanzeige if self.adressanzeige else '')
 
 
 
@@ -1678,41 +1743,6 @@ class Kinderjugendbetreuung(models.Model):
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi1
-class Kindertagespflegeeinrichtungen(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  plaetze = models.PositiveSmallIntegerField('Plätze')
-  betreuungszeiten = models.CharField('Betreuungszeiten', max_length=255)
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"kindertagespflegeeinrichtungen'
-    verbose_name = 'Kindertagespflegeeinrichtung'
-    verbose_name_plural = 'Kindertagespflegeeinrichtungen'
-    description = 'Kindertagespflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['nachname', 'vorname', 'adressanzeige', 'plaetze', 'betreuungszeiten', 'telefon']
-    list_fields_labels = ['Nachname', 'Vorname', 'Adresse', 'Plätze', 'Betreuungszeiten', 'Telefon']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_fields = ['vorname', 'nachname']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return self.vorname + ' ' + self.nachname + (', ' + self.adressanzeige if self.adressanzeige else '')
 
 
 # isi1
