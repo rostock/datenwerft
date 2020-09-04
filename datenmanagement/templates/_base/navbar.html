@@ -3,53 +3,39 @@
 {% load datenmanagement_tags %}
 
 {% block navbar %}
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	<div class="container">
-		<div class="navbar-header">
-              <a href={% url 'datenmanagement:index' %} class="navbar-brand">Datenerfassung<span class='small'> {{ datenmanagement_version }} vom {% get_version_date %}</span></a>
-        </div>
-		<div class="navbar-collapse collapse">
-			<ul class="nav navbar-nav">
-				{%if user.is_authenticated %}
-					{% if user.is_staff %}
-						<li>
-							<a href="{% url 'admin:index' %}"><span class="glyphicon glyphicon-user"></span> {{user.username}}</a>
-			        	</li>
-		        	{% else %}
-		        		<li>
-							<a><span class="glyphicon glyphicon-user"></span> {{user.first_name}} {{user.last_name}}</a>
-			        	</li>
-		        	{% endif %}
-				{% endif %}
-                <li>
-                    <a href="{% static 'hilfe/' %}" target="_blank"><span class="glyphicon glyphicon-education"></span> Hilfe</a>
-                </li>
-                <li>
-                    <a href="https://geo.sv.rostock.de/datenschutz.html" target="_blank"><span class="glyphicon glyphicon-lock"></span> Datenschutz</a>
-                </li>
-                <li>
-                    <a href="https://geo.sv.rostock.de/impressum.html" target="_blank"><span class="glyphicon glyphicon-info-sign"></span> Impressum</a>
-                </li>
-            </ul>
-	    	{% if user.is_authenticated %}
-	           	<form class="navbar-form navbar-right" role="form">
-	            	<a href="{% url 'logout' %}" class="btn btn-danger" role="button">abmelden</a>
-	            </form>
-	        {% else %}
-            	<form class="navbar-form navbar-right" role="login_form" method="post" id="login-form" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
-            		{% csrf_token %}
-            		{% if login_form %} 
-						<div class="form-group">
-							{{login_form.username}}
-        				</div>
-						<div class="form-group">
-							{{login_form.password}}
-        				</div>
-                        <input type="submit" class="btn btn-success"  value="anmelden" />
-        			{% endif %}
-				</form>
-	     	{% endif %}
-	   	</div>
-	</div>
-</div>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <a class="navbar-brand" href={% url 'datenmanagement:index' %}>Datenerfassung <small class="text-muted">{{ datenmanagement_version }} vom {% get_version_date %}</small></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        {% if user.is_authenticated %}
+          <li class="nav-item active">
+            {% if user.is_staff %}
+              <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{user.username}}</a>
+            {% else %}
+              <a class="nav-link" href="#"><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</a>
+            {% endif %}
+          </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% static 'hilfe/' %}" target="_blank"><i class="fas fa-graduation-cap"></i> Hilfe</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://geo.sv.rostock.de/datenschutz.html" target="_blank"><i class="fas fa-lock"></i> Datenschutz</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://geo.sv.rostock.de/impressum.html" target="_blank"><i class="fas fa-stamp"></i> Impressum</a>
+        </li>
+      </ul>
+      <form class="form-inline mt-2 mt-md-0" role="form">
+        {% if user.is_authenticated %}
+          <a class="btn btn-danger" role="button" href="{% url 'logout' %}">abmelden</a>
+        {% else %}
+          <a class="btn btn-success" role="button" href="{% url 'login' %}">anmelden</a>
+        {% endif %}
+      </form>
+    </div>
+  </nav>
 {% endblock %}

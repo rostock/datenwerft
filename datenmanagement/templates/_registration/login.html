@@ -1,40 +1,36 @@
 {% extends "_base/navbar.html" %}
+{% load static %}
 
 {% block title %}Anmeldung | {% endblock %}
 
+{% block login %}
+    <link rel='stylesheet' type='text/css' href='{% static 'datenmanagement/css/login.css' %}' />
+{% endblock %}
+
 {% block content %}
 	{% if form.errors and not form.non_field_errors %}
-		<p class="errornote">
+		<div class="alert alert-warning" role="alert">
 			Fehler in der Eingabe
-		</p>
+		</div>
 	{% endif %}
 	{% if form.non_field_errors %}
 		{% for error in form.non_field_errors %}
-			<p class="errornote">
+			<div class="alert alert-warning" role="alert">
 				{{ error }}
-			</p>
+			</div>
 		{% endfor %}
 	{% endif %}
-	
-	<div id="content-main">
-		<form method="post" id="login-form" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">{% csrf_token %}
-			<div class="col-md-6">
-          		<table class="table table-striped">
-          			<tr>
-						<th>{{ form.username.label_tag }}</th>
-						<td>{{ form.username }}{{ form.username.errors }}</td>
-					</tr>
-					<tr>
-						<th>{{ form.password.label_tag }}</th>
-						<td>{{ form.password }}{{ form.password.errors }}</td>
-						<input type="hidden" name="next" value="{{ next }}" />
-					</tr>
-				</table>
-				<label>&nbsp;</label><input type="submit" class="btn btn-success" value="anmelden" />
-			</div>
-		</form>
-		<script type="text/javascript">
-			document.getElementById('id_username').focus()
-		</script>
-	</div>
+  
+  <form class="form-signin" role="login_form" method="post" id="login-form" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
+    {% csrf_token %}
+    <div class="form-label-group">
+      {{ login_form.username.label_tag }}
+      {{ login_form.username }}{{ form.username.errors }}
+    </div>
+    <div class="form-label-group">
+      {{ login_form.password.label_tag }}
+      {{ login_form.password }}{{ form.password.errors }}
+    </div>
+    <input class="btn btn-lg btn-primary btn-block" type="submit" value="anmelden" />
+  </form>
 {% endblock %}

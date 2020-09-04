@@ -3,49 +3,56 @@
 {% load rest_framework %}
 
 <!DOCTYPE html>
-<html>
-    <head>
-        {% block head %}
+<html lang='de'>
+  <head>
+    {% block head %}
 
-            {% block meta %}
-                <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-            {% endblock %}
+      {% block meta %}
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+      {% endblock %}
 
-            <title>{% block title %}{% endblock %}Datenerfassung</title>
+      <title>{% block title %}{% endblock %}Datenerfassung</title>
 
-            {% block style %}
-                <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-3.4.1/css/bootstrap.min.css' %}'/>
-                <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-3.4.1/css/bootstrap-theme.min.css' %}'/>
-                <link rel='stylesheet' type='text/css' href='{% static 'jasny-bootstrap-4.0.0/css/jasny-bootstrap.min.css' %}'/>
-            {% endblock %}
+      {% block style %}
+        <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-4.5.2/css/bootstrap.min.css' %}'/>
+        <link rel='stylesheet' type='text/css' href='{% static 'fontawesome-free-5.14.0-web/css/all.min.css' %}'/>
+        <link rel='stylesheet' type='text/css' href='{% static 'jasny-bootstrap-4.0.0/css/jasny-bootstrap.min.css' %}'/>
+      {% endblock %}
 
-            {% block scripts %}
-                <script src='{% static 'jquery-3.4.1/jquery.min.js' %}'></script>
-                <script src='{% static 'bootstrap-3.4.1/js/bootstrap.min.js' %}'></script>
-                <script>ADDRESS_SEARCH_KEY = '{{ address_search_key }}'</script>
-            {% endblock %}
+      {% block scripts %}
+        <script src='{% static 'jquery-3.5.1/jquery.min.js' %}'></script>
+        <script src='{% static 'bootstrap-4.5.2/js/bootstrap.min.js' %}'></script>
+        <script src='{% static 'fontawesome-free-5.14.0-web/js/all.min.js' %}'></script>
+        <script>ADDRESS_SEARCH_KEY = '{{ address_search_key }}'</script>
+      {% endblock %}
 
-            {% block map %}
-            {% endblock %}
+      {% block map %}
+      {% endblock %}
 
-            {% block table %}
-            {% endblock %}
+      {% block table %}
+      {% endblock %}
 
-            {% block picker %}
-            {% endblock %}
+      {% block picker %}
+      {% endblock %}
 
-            {% block datenmanagement %}
-                <link rel='stylesheet' type='text/css' href='{% static 'datenmanagement/css/style.css' %}' />
-            {% endblock %}
+      {% block login %}
+      {% endblock %}
 
-        {% endblock %}
-    </head>
-    
-    <body>
-        {% block navbar %}{% endblock %}
-        <div class='spacer'></div>
-        <div class='container'>
-            {% block content %}{% endblock %}
-        </div>
-    </body>
+      {% block datenmanagement %}
+        <link rel='stylesheet' type='text/css' href='{% static 'datenmanagement/css/style.css' %}' />
+      {% endblock %}
+
+    {% endblock %}
+  </head>
+  
+  <body>
+    {% block navbar %}
+    {% endblock %}
+    <div class='spacer'></div>
+    <div class='container'>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
 </html>

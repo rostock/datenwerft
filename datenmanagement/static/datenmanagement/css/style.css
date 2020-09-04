@@ -1,159 +1,147 @@
 html {
-    position:relative;
-    min-height:100%;
+  position:relative;
+  min-height:100%;
 }
 
 #datasets_length {
-    margin-top:15px;
+  margin-top:15px;
 }
 
 #filter, #kartensteuerung {
-    margin-top:30px;
+  margin-top:30px;
 }
 
 #id_geometrie_map {
-    height:100%;
+  height:100%;
 }
 
 #map {
-    height:100%;
-    width:80%;
-    float:left;
+  height:100%;
+  width:80%;
+  float:left;
 }
 
 #map_seitenbereich_container {
-    min-height:800px;
-    margin-bottom:15px;
+  min-height:800px;
+  margin-bottom:15px;
 }
 
 #searchtext {
-    width:100%;
+  width:100%;
 }
 
 .action_counter {
-    margin-left:10px;
+  margin-left:10px;
 }
 
 .bold {
-    font-weight:bold;
+  font-weight:bold;
 }
 
 .column-filter {
-    font-weight:normal;
-}
-
-.container {
-    width:96%;
+  font-weight:normal;
 }
 
 .filter-checkbox-fieldset label {
-    width:100%;
-    font-weight:normal;
+  width:100%;
+  font-weight:normal;
 }
 
 .filter-checkbox-fieldset input {
-    margin-right:5px;
+  margin-right:5px;
 }
 
 .filter-input, .filter-row {
-    width:90%;
+  width:90%;
 }
 
 .full-width {
-    width:100%;
-    padding:0;
+  width:100%;
+  padding:0;
 }
 
 .input-reset {
-    right:25px;
-    cursor:pointer;
+  right:25px;
+  cursor:pointer;
 }
 
 .italic {
-    font-style:italic;
+  font-style:italic;
 }
 
 .leaflet-container-default {
-    min-height:300px;
-    height:600px;
+  min-height:300px;
+  height:600px;
 }
 
 .leaflet-draw-tooltip {
-    display: none;
+  display: none;
 }
 
-.list-group-item {
-    margin-top:5px;
-    margin-bottom:5px;
-}
-
-.list-group-item-with-margin {
-    margin-bottom:15px;
-}
-
-.list-group-item-container {
-    margin-bottom:20px;
+.list-group {
+  margin-top:20px;
+  margin-bottom:20px;
 }
 
 .margin-bottom {
-    margin-bottom:150px;
+  margin-bottom:150px;
 }
 
 .margin-left {
-    margin-left:20px;
+  margin-left:20px;
 }
 
 .margin-top {
-    margin-top:15px;
+  margin-top:15px;
 }
 
 .required {
-    font-weight:bold;
+  font-weight:bold;
 }
 
 .results {
-    display:none;
-    width:100%;
-    float:left;
-    text-align:left;
-    z-index:1;
-    border-left:1px solid #AAAAAA;
-    border-right:1px solid #AAAAAA;
-    border-bottom:1px solid #AAAAAA;
+  display:none;
+  width:100%;
+  float:left;
+  text-align:left;
+  z-index:1;
+  border-left:1px solid #AAAAAA;
+  border-right:1px solid #AAAAAA;
+  border-bottom:1px solid #AAAAAA;
 }
 
 .resultElement {
-    line-height:150%;
-    cursor:pointer;
+  line-height:150%;
+  cursor:pointer;
 }
 
 .resultElement:hover {
-    background-color:#E1E1E1;
+  background-color:#E1E1E1;
 }
 
 .resultElement span {
-    float:right;
-    padding-right:6px;
-    color:#AAAAAA;
-    font-size:75%;
-    font-style:italic;
+  float:right;
+  padding-right:6px;
+  color:#AAAAAA;
+  font-size:75%;
+  font-style:italic;
 }
 
 .resultElement:hover span {
-    color:#000000;
+  color:#000000;
 }
 
 .row {
-    margin-bottom:15px;
-    padding-left:15px;
+  margin-bottom:15px;
+  padding-left:15px;
 }
 
 .seitenbereich {
-    width:18%;
-    float:left;
-    margin-left:2%;
+  width:18%;
+  float:left;
+  margin-left:2%;
 }
 
 .spacer {
-    height:100px;
+  height:50px;
 }

@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '3.0.0'
+DATENMANAGEMENT_VERSION = '3.1.0'
 
 DJANGO_APPS = [
   'django.contrib.admin',

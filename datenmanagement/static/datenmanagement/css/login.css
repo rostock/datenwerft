@@ -1,0 +1,19 @@
+.form-signin {
+  width:100%;
+  max-width:420px;
+  padding:15px;
+  margin:auto;
+}
+
+.form-label-group {
+  margin-bottom:1rem;
+}
+
+.form-label-group input,
+.form-label-group label {
+  width:100%;
+}
+
+.form-signin .btn {
+  margin-top:2rem;
+}
