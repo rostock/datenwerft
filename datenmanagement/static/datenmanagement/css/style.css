@@ -3,39 +3,45 @@ html {
   min-height:100%;
 }
 
-#datasets_length {
-  margin-top:15px;
+.btn-in-a-row {
+  margin-left:5px;
 }
 
-#filter, #kartensteuerung {
-  margin-top:30px;
+.centered {
+  text-align:center;
+}
+
+.list-group {
+  margin-top:20px;
+  margin-bottom:20px;
+}
+
+.row {
+  margin-bottom:15px;
+  padding-left:15px;
+  padding-right:15px;
+}
+
+.spacer {
+  height:30px;
+}
+
+.spacer-small {
+  height:20px;
+}
+
+
+
+#datasets_length {
+  margin-top:15px;
 }
 
 #id_geometrie_map {
   height:100%;
 }
 
-#map {
-  height:100%;
-  width:80%;
-  float:left;
-}
-
-#map_seitenbereich_container {
-  min-height:800px;
-  margin-bottom:15px;
-}
-
-#searchtext {
-  width:100%;
-}
-
 .action_counter {
   margin-left:10px;
-}
-
-.bold {
-  font-weight:bold;
 }
 
 .column-filter {
@@ -65,24 +71,6 @@ html {
   cursor:pointer;
 }
 
-.italic {
-  font-style:italic;
-}
-
-.leaflet-container-default {
-  min-height:300px;
-  height:600px;
-}
-
-.leaflet-draw-tooltip {
-  display: none;
-}
-
-.list-group {
-  margin-top:20px;
-  margin-bottom:20px;
-}
-
 .margin-bottom {
   margin-bottom:150px;
 }
@@ -97,51 +85,4 @@ html {
 
 .required {
   font-weight:bold;
-}
-
-.results {
-  display:none;
-  width:100%;
-  float:left;
-  text-align:left;
-  z-index:1;
-  border-left:1px solid #AAAAAA;
-  border-right:1px solid #AAAAAA;
-  border-bottom:1px solid #AAAAAA;
-}
-
-.resultElement {
-  line-height:150%;
-  cursor:pointer;
-}
-
-.resultElement:hover {
-  background-color:#E1E1E1;
-}
-
-.resultElement span {
-  float:right;
-  padding-right:6px;
-  color:#AAAAAA;
-  font-size:75%;
-  font-style:italic;
-}
-
-.resultElement:hover span {
-  color:#000000;
-}
-
-.row {
-  margin-bottom:15px;
-  padding-left:15px;
-}
-
-.seitenbereich {
-  width:18%;
-  float:left;
-  margin-left:2%;
-}
-
-.spacer {
-  height:50px;
 }

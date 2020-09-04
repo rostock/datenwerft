@@ -3,28 +3,28 @@
 {% load rest_framework %}
 
 <!DOCTYPE html>
-<html lang='de'>
+<html lang="de">
   <head>
     {% block head %}
 
       {% block meta %}
-        <meta charset='utf-8'/>
-        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
       {% endblock %}
 
       <title>{% block title %}{% endblock %}Datenerfassung</title>
 
       {% block style %}
-        <link rel='stylesheet' type='text/css' href='{% static 'bootstrap-4.5.2/css/bootstrap.min.css' %}'/>
-        <link rel='stylesheet' type='text/css' href='{% static 'fontawesome-free-5.14.0-web/css/all.min.css' %}'/>
-        <link rel='stylesheet' type='text/css' href='{% static 'jasny-bootstrap-4.0.0/css/jasny-bootstrap.min.css' %}'/>
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.5.2/bootstrap.min.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free-5.14.0-web/all.min.css' %}"/>
       {% endblock %}
 
       {% block scripts %}
-        <script src='{% static 'jquery-3.5.1/jquery.min.js' %}'></script>
-        <script src='{% static 'bootstrap-4.5.2/js/bootstrap.min.js' %}'></script>
-        <script src='{% static 'fontawesome-free-5.14.0-web/js/all.min.js' %}'></script>
-        <script>ADDRESS_SEARCH_KEY = '{{ address_search_key }}'</script>
+        <script type="text/javascript" src="{% static 'jquery-3.5.1/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'popper-2.4.4/popper.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'bootstrap-4.5.2/bootstrap.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'fontawesome-free-5.14.0-web/all.min.js' %}"></script>
+        <script type="text/javascript">ADDRESS_SEARCH_KEY = '{{ address_search_key }}'</script>
       {% endblock %}
 
       {% block map %}
@@ -36,11 +36,11 @@
       {% block picker %}
       {% endblock %}
 
-      {% block login %}
+      {% block datenmanagement %}
+        <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/style.css' %}" />
       {% endblock %}
 
-      {% block datenmanagement %}
-        <link rel='stylesheet' type='text/css' href='{% static 'datenmanagement/css/style.css' %}' />
+      {% block sepcials %}
       {% endblock %}
 
     {% endblock %}
@@ -49,8 +49,8 @@
   <body>
     {% block navbar %}
     {% endblock %}
-    <div class='spacer'></div>
-    <div class='container'>
+    <div class="spacer"></div>
+    <div class="container-fluid">
       {% block content %}
       {% endblock %}
     </div>

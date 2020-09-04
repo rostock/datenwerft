@@ -3,8 +3,8 @@
 
 {% block title %}Anmeldung | {% endblock %}
 
-{% block login %}
-    <link rel='stylesheet' type='text/css' href='{% static 'datenmanagement/css/login.css' %}' />
+{% block sepcials %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/login.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
 		{% endfor %}
 	{% endif %}
   
-  <form class="form-signin" role="login_form" method="post" id="login-form" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
+  <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
     {% csrf_token %}
     <div class="form-label-group">
       {{ login_form.username.label_tag }}

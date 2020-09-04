@@ -149,6 +149,7 @@ class DataForm(ModelForm):
     multi_files = kwargs.pop('multi_files', None)
     model = kwargs.pop('model', None)
     request = kwargs.pop('request', None)
+    kwargs.setdefault('label_suffix', '')
     super(DataForm, self).__init__(*args, **kwargs)
     self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
@@ -291,7 +292,7 @@ class DataView(BaseDatatableView):
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
           data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
         elif value is not None and value == True and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
-          data = '<span class="text-danger glyphicon glyphicon-exclamation-sign"/>'
+          data = '<i class="fas fa-exclamation-triangle"></i>'
         elif value is not None and column == 'foto':
           data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
           if self.thumbs is not None and self.thumbs == True:
@@ -309,13 +310,13 @@ class DataView(BaseDatatableView):
           data = escape(value)
         item_data.append(data)
       if checker.has_perm('change_' + self.model_name_lower, obj):
-        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-pencil"/></a>')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><i class="fas fa-edit"></i></a>')
       elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
-        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><span class="glyphicon glyphicon-eye-open"/></a>')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><i class="fas fa-eye"></i></a>')
       else:
         item_data.append('')
       if checker.has_perm('delete_' + self.model_name_lower, obj):
-        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><span class="glyphicon glyphicon-trash"/></a>')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><i class="fas fa-trash"></i></a>')
       else:
         item_data.append('')
       json_data.append(item_data)

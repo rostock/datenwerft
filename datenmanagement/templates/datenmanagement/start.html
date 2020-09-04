@@ -1,22 +1,28 @@
 {% extends "_base/navbar.html" %}
 {% load datenmanagement_tags %}
+{% load static %}
 
 {% block title %}Möglichkeiten | {% endblock %}
 
+{% block sepcials %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/start.css' %}" />
+{% endblock %}
+
 {% block content %}
-    <h2>{{ model_verbose_name_plural }}</h2>
-    <h4>{{ model_description }}</h4>
-    <h3><i>Was möchten Sie tun?</i></h3>
-    <div class='row'>
-        {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
-        {% endif %}
-        {% if user|user_has_model_change_permission:model_name_lower or user|user_has_model_delete_permission:model_name_lower or user|user_has_model_view_permission:model_name_lower %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
-            {% if geometry_type %}
-                <a href="{% url 'datenmanagement:'|add:model_name|add:'map' %}" class='btn btn-default'>Datensätze auf Karte anzeigen</a>
-            {% endif %}
-        {% endif %}
-        <a href="{% url 'datenmanagement:index' %}" class='btn btn-default'>zurück</a>
-    </div>
+  <h2>{{ model_verbose_name_plural }}</h2>
+  <h4><small>{{ model_description }}</small></h4>
+  <div class="spacer-small"></div>
+  <h4><em>Was möchten Sie tun?</em></h4>
+  <div class="row">
+    {% if user|user_has_model_add_permission:model_name_lower %}
+      <a class="btn btn-lg btn-primary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
+    {% endif %}
+    {% if user|user_has_model_change_permission:model_name_lower or user|user_has_model_delete_permission:model_name_lower or user|user_has_model_view_permission:model_name_lower %}
+      <a class="btn btn-lg btn-info btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
+      {% if geometry_type %}
+        <a class="btn btn-lg btn-info btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
+      {% endif %}
+    {% endif %}
+    <a class="btn btn-lg btn-warning btn-block" role="button" href="{% url 'datenmanagement:index' %}">zurück</a>
+  </div>
 {% endblock %}

@@ -881,7 +881,7 @@ class Arten_Feuerwachen(Art):
 
 class Feuerwachen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv', default=True)
+  aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   art = models.ForeignKey(Arten_Feuerwachen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -920,7 +920,7 @@ class Feuerwachen(models.Model):
 
 class Behinderteneinrichtungen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv', default=True)
+  aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
@@ -966,7 +966,7 @@ class Schlagwoerter_Bildungstraeger(Schlagwort):
 
 class Bildungstraeger(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv', default=True)
+  aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -1010,7 +1010,7 @@ class Bildungstraeger(models.Model):
 
 class Kindertagespflegeeinrichtungen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv', default=True)
+  aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
   nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])

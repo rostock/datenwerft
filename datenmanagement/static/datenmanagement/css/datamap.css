@@ -1,0 +1,64 @@
+#filter, #map-control {
+  margin-top:30px;
+}
+
+#map-side-container {
+  min-height:750px;
+  margin-bottom:20px;
+}
+
+#map {
+  height:100%;
+  width:70%;
+  float:left;
+}
+
+#searchtext {
+  width:100%;
+}
+
+.leaflet-container-default {
+  min-height:300px;
+  height:750px;
+}
+
+.leaflet-draw-tooltip {
+  display:none;
+}
+
+.results {
+  display:none;
+  width:100%;
+  float:left;
+  text-align:left;
+  z-index:1;
+  border-left:1px solid #aaa;
+  border-right:1px solid #aaa;
+  border-bottom:1px solid #aaa;
+  font-size:16px;
+}
+
+.result-element {
+  line-height:150%;
+  cursor:pointer;
+}
+
+.result-element:hover {
+  background-color:#ddd;
+}
+
+.result-element .text-muted {
+  float:right;
+  padding-right:6px;
+  color:#aaa;
+}
+
+.result-element:hover .text-muted {
+  color:#000;
+}
+
+.side {
+  width:28%;
+  float:left;
+  margin-left:2%;
+}

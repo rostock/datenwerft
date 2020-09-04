@@ -7,908 +7,913 @@
 {% block title %}{{ model_verbose_name_plural }} | {% endblock %}
 
 {% block map %}
-    {% leaflet_js %}
-    {% leaflet_css %}
-    <script src='{% static 'proj4js-2.5.0/proj4.js' %}'></script>
-    <script src='{% static 'wicket-1.3.5/wicket.js' %}'></script>
-    <script src='{% static 'wicket-1.3.5/wicket-leaflet.js' %}'></script>
-    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.label-0.2.2/leaflet.label.css' %}'/>
-    <script src='{% static 'leaflet.label-0.2.2/leaflet.label.js' %}'></script>
-    <script src='{% static 'leaflet.markercluster-1.4.1/leaflet.markercluster.js' %}'></script>
-    <script src='{% static 'leaflet-locatecontrol-0.67.0/L.Control.Locate.min.js' %}'></script>
-    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-1.4.1/MarkerCluster.css' %}'/>
-    <link rel='stylesheet' type='text/css' href='{% static 'leaflet.markercluster-1.4.1/MarkerCluster.Default.css' %}'/>
-    <link rel='stylesheet' type='text/css' href='{% static 'leaflet-locatecontrol-0.67.0/L.Control.Locate.min.css' %}'/>
-    <script src='{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}'></script>
+  {% leaflet_js %}
+  {% leaflet_css %}
+  <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'leaflet.label-0.2.2/leaflet.label.css' %}"/>
+  <script type="text/javascript" src="{% static 'leaflet.label-0.2.2/leaflet.label.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet.markercluster-1.4.1/leaflet.markercluster.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.4.1/MarkerCluster.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.4.1/MarkerCluster.Default.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
+  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
 {% endblock %}
 
 {% block picker %}
-    <link rel='stylesheet' type='text/css' href='{% static 'tempusdominus-bootstrap-3-5.0.0-alpha10/tempusdominus-bootstrap-3.min.css' %}' />
-    <script src='{% static 'moment-2.24.0/moment-with-locales.min.js' %}'></script>
-    <script src='{% static 'tempusdominus-bootstrap-3-5.0.0-alpha10/tempusdominus-bootstrap-3.min.js' %}'></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
+  <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"'></script>
+{% endblock %}
+
+{% block sepcials %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
 {% endblock %}
 
 {% block content %}
-{% if object_list %}
-    <h2>{{ model_verbose_name_plural }}</h2>
-    <h4>{{ model_description }}</h4>
-    <h3><i>Karte aller Datensätze</i></h3>
-    <div class='row'>
-        {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
-        {% endif %}
-        <a href="{% url 'datenmanagement:'|add:model_name|add:'list' %}" class='btn btn-default'>Datensätze in Tabelle auflisten</a>
-        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
+  <h2>{{ model_verbose_name_plural }}</h2>
+  <h4><small>{{ model_description }}</small></h4>
+  <div class="spacer-small"></div>
+  {% if object_list %}
+    <h4><em>Karte aller Datensätze</em></h4>
+  {% else %}
+    <h4><em>Keine Datensätze vorhanden!</em></h4>
+  {% endif %}
+    <div class="row">
+      {% if user|user_has_model_add_permission:model_name_lower %}
+        <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
+      {% endif %}
+      {% if object_list %}
+        <a class="btn btn-info btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
+      {% endif %}
+      <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">zurück</a>
     </div>
-	  <div id='map_seitenbereich_container'>
-        {% leaflet_map "map" callback="window.map_init_basic" %}
-        <div id='adressensuche' class='seitenbereich'>
-            <h4>Adressen-/Straßen-/Ortsteilsuche</h4>
-            <input id='searchtext' type='text' name='searchtext' maxlength='255' />
-            <div class='results' id='results_container'></div>
+  {% if object_list %}
+	  <div id="map-side-container">
+      {% leaflet_map "map" callback="window.map_init_basic" %}
+      <div id="address-search" class="side">
+        <h5>Adressensuche</h5>
+        <input id="searchtext" type="text" name="searchtext" maxlength="255" />
+        <div id="results-container" class="results"></div>
+      </div>
+      <div id="map-control" class="side">
+        <h5>Kartenausschnitt</h5>
+        <div class="row">
+          <input id="map-extent-initial" class="btn btn-info" type="submit" value="initial">
+          <input id="map-extent-filter" class="btn btn-info btn-in-a-row" type="submit" value={% if map_filters_enabled %}"aktuelle Filtermenge"{% else %}"alle Objekte"{% endif %}>
         </div>
-        <div id='kartensteuerung' class='seitenbereich'>
-            <h4>Kartenausschnitt</h4>
-            <div class='row'>
-                <input id='map-extent-initial' type='submit' class='btn btn-primary' value='initial'>
-                <input id='map-extent-filter' type='submit' class='btn btn-primary' value={% if map_filters_enabled %}'aktuelle Filtermenge'{% else %}'alle Objekte'{% endif %}>
+      </div>
+      {% if map_filters_enabled %}
+      <!-- AB HIER NOCH NICHT BOOTSTRAP 4 !!!-->
+        <div id='filter' class='side'>
+          <h4>Filter für Kartenobjekte</h4>
+          <p>Achtung: Filter wirken <span class='required'>additiv!</span></p>
+          {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
+            <div id='filter-intervall' class='row'>
+              {% for map_rangefilter_field in map_rangefilter_fields %}
+                {% if not forloop.counter|divisibleby:2 %}
+                  {% with naechster_index=forloop.counter0|add:1 %}
+                  <div class='filter-row row'>
+                    <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
+                    {% else %}
+                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
+                    {% endif %}
+                    <i class="input-reset fas fa-backspace"></i>
+                  </div>
+                  <div class='filter-row row'>
+                    <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
+                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
+                    {% else %}
+                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
+                    {% endif %}
+                    <i class="input-reset fas fa-backspace"></i>
+                  </div>
+                  {% endwith %}
+                {% endif %}
+              {% endfor %}
             </div>
-        </div>
-        {% if map_filters_enabled %}
-            <div id='filter' class='seitenbereich'>
-                <h4>Filter für Kartenobjekte</h4>
-                <p>Achtung: Filter wirken <span class='required'>additiv!</span></p>
-                {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
-                    <div id='filter-intervall' class='row'>
-                        {% for map_rangefilter_field in map_rangefilter_fields %}
-                            {% if not forloop.counter|divisibleby:2 %}
-                                {% with naechster_index=forloop.counter0|add:1 %}
-                                <div class='filter-row row'>
-                                    <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
-                                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
-                                    {% else %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
-                                    {% endif %}
-                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
-                                </div>
-                                <div class='filter-row row'>
-                                    <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
-                                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
-                                    {% else %}
-                                        <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
-                                    {% endif %}
-                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
-                                </div>
-                                {% endwith %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                {% if map_filter_fields and map_filter_fields_labels %}
-                    <div id='filter-normal' class='row'>
-                        {% for map_filter_field in map_filter_fields %}
-                            <div class='filter-row row'>
-                                <label>{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
-                                {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
-                                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
-                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
-                                {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
-                                    <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></select>
-                                {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
-                                    <fieldset id='filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-checkbox-fieldset' data-type='checkbox-set' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></fieldset>
-                                {% else %}
-                                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
-                                    <span class='input-reset glyphicon glyphicon-remove-circle'></span>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                <div id='filter-buttons' class='row'>
-                    <input id='filter-apply' type='submit' class='btn btn-warning' value='anwenden'>
-                    <input id='filter-reset' type='submit' class='btn btn-default' value='zurücksetzen'>
+          {% endif %}
+          {% if map_filter_fields and map_filter_fields_labels %}
+            <div id='filter-normal' class='row'>
+              {% for map_filter_field in map_filter_fields %}
+                <div class='filter-row row'>
+                  <label>{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                  {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
+                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
+                    <i class="input-reset fas fa-backspace"></i>
+                  {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
+                    <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></select>
+                  {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
+                    <fieldset id='filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-checkbox-fieldset' data-type='checkbox-set' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></fieldset>
+                  {% else %}
+                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
+                    <i class="input-reset fas fa-backspace"></i>
+                  {% endif %}
                 </div>
+              {% endfor %}
             </div>
-        {% endif %}
+          {% endif %}
+          <!-- ENDE-->
+          <div id="filter-buttons" class="row">
+            <input id="filter-apply" class="btn btn-success" type="submit" value="anwenden">
+            <input id="filter-reset" class="btn btn-warning btn-in-a-row" type="submit" value="zurücksetzen">
+          </div>
+        </div>
+      {% endif %}
     </div>
-    <script type='text/javascript'>
-        function map_init_basic(map, options) {
-            // Karte auch in anderen JavaScript-Funktionen verfügbar machen
-            window.currMap = map;
+    <script type="text/javascript">
+      function map_init_basic(map, options) {
+        // Karte auch in anderen JavaScript-Funktionen verfügbar machen
+        window.currMap = map;
 
-            // ORKa.MV definieren
-            var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
-            });
-            
-            // ORKa.MV standardmäßig zur Karte hinzufügen
-            map.addLayer(orkamv);
-
-            // OpenStreetMap definieren
-            var osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
-            });
-            
-            // Liegenschaftskarte definieren
-            var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte_hro_lro/wms', {
-                layers: 'hro.liegenschaftskarte_hro_lro',
-                format: 'image/png',
-                maxZoom: 19,
-                attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern) und Landkreis Rostock'
-            });
-
-            // Luftbild definieren
-            var luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© GeoBasis-DE/M-V'
-            });
-
-            // Kilometerquadrate ETRS89/UTM-33N definieren
-            var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-                layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-                format: 'image/png',
-                maxZoom: 19,
-                transparent: true
-            });
-            
-            // definierte Karten als Hintergrundkarten zusammenfassen
-            var baseMaps = {
-                'Liegenschaftskarte': liegenschaftskarte,
-                'Luftbild': luftbild,
-                'ORKa.MV': orkamv,
-                'OpenStreetMap': osm
-            };
-            
-            // definierte Karten als Overlay-Karten zusammenfassen
-            var overlayMaps = {
-                'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
-            };
-            
-            // Umschalter für Hintergrundkarten zur Karte hinzufügen
-            L.control.layers(baseMaps,overlayMaps).addTo(map);
-            
-            // Standortbestimmung
-            {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-                var locationControl = L.control.locate({
-                    drawCircle: false,
-                    drawMarker: false,
-                    flyTo: true,
-                    locateOptions: {
-                        enableHighAccuracy: true
-                    },
-                    setView: 'untilPan',
-                    strings: {
-                        title: 'Standortbestimmung'
-                    }
-                });
-                locationControl.addTo(map);
-            {% endif %}
-            
-            // EPSG:25833 definieren
-            proj4.defs([
-                [
-                    'EPSG:25833',
-                    '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
-                ],
-            ]);
-            
-            // neue leere GeoJSON-FeatureCollection definieren
-            var geoJsonFeatureCollection = {
-                type: 'FeatureCollection',
-                features: []
-            };
-            
-            // neue leere Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
-            var featureTooltipField = '';
-            
-            // neue Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
-            {% if map_rangefilter_fields_json %}
-                var intervalFilterFields = {{ map_rangefilter_fields_json|safe }};
-            {% endif %}
-            
-            // neue Variable definieren, in der die Namen der Filter-Felder abgelegt werden
-            {% if map_filter_fields_json %}
-                var filterFields = {{ map_filter_fields_json|safe }};
-            {% endif %}
-            
-            // über alle Objekte gehen...
-            {% for object in object_list %}
-                // neues leeres GeoJSON-Feature definieren
-                var geoJsonFeature = {
-                    type: 'Feature',
-                    geometry: null,
-                    properties: [],
-                    crs: {
-                        type: 'name',
-                        properties: {
-                            'name': 'urn:ogc:def:crs:EPSG::25833'
-                        }
-                    }
-                };
-                // Geometrie (liegt in WKT vor) in GeoJSON umwandeln
-                var wkt = new Wkt.Wkt();
-                var string = '{{ object.geometrie }}';
-                wkt.read(string.substring(string.indexOf(';') + 1, string.length));
-                var geoJsonGeometry = wkt.toJson();
-                // Geometrie zu GeoJSON-Feature hinzufügen
-                geoJsonFeature.geometry = geoJsonGeometry;
-                // Name des Feldes für den Feature-Tooltip in Variable ablegen
-                {% if map_feature_tooltip_field %}
-                    featureTooltipField = '{{ map_feature_tooltip_field }}';
-                {% elif map_feature_tooltip_fields %}
-                    featureTooltipField = 'tooltip';
-                {% endif %}
-                // Properties zu GeoJSON-Feature hinzufügen
-                geoJsonFeature.properties.uuid = '{{ object.uuid }}';
-                {% if map_feature_tooltip_field %}
-                    geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
-                {% elif map_feature_tooltip_fields %}
-                    geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
-                {% endif %}
-                {% if highlight_flag %}
-                    geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag }}';
-                {% endif %}
-                // für alle Intervallfilterfelder...
-                {% if map_rangefilter_fields %}
-                    {% for map_rangefilter_field in map_rangefilter_fields %}
-                        // Property zu GeoJSON-Feature hinzufügen mit Namen des Intervallfilterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
-                        {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                            {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                                geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                            {% else %}
-                                geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field }};
-                            {% endif %}
-                        {% endwith %}
-                    {% endfor %}
-                {% endif %}
-                // für alle übrigen Filterfelder...
-                {% if map_filter_fields %}
-                    {% for map_filter_field in map_filter_fields %}
-                        // Property zu GeoJSON-Feature hinzufügen mit Namen des Filterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
-                        {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
-                            {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
-                                // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                                geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                            {% else %}
-                                geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field }}';
-                            {% endif %}
-                        {% endwith %}
-                    {% endfor %}
-                {% endif %}
-                // Informationen über Berechtigungen des Nutzers setzen
-                {% get_obj_perms user for object as "objperms" %}
-                {% if 'change_'|add:model_name_lower in objperms %}
-                    geoJsonFeature.properties.user_may_change = 'ok';
-                {% elif user|user_has_model_view_permission:model_name_lower %}
-                    geoJsonFeature.properties.user_may_view = 'ok';
-                {% endif %}
-                // GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
-                geoJsonFeatureCollection.features.push(geoJsonFeature);
-            {% endfor %}
-
-            // jedes Feature mit Link versehen
-            function onEachFeature(feature, layer) {
-                // falls Nutzer die notwendige Berechtigung hat...
-                if (feature.properties.user_may_change == 'ok' || feature.properties.user_may_view == 'ok') {
-                    layer.on('click', function (e) {
-                        // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
-                        window.document.location = window.document.location + '../change/' + feature.properties.uuid;
-                    });
-                }
-                // falls Geometrie nicht punkthaft ist...
-                {% if geometry_type != 'Point' %}
-                    layer.bindLabel(feature.properties[featureTooltipField]);
-                {% endif %}
-            }
-
-            // falls Geometrie punkthaft ist...
-            {% if geometry_type == 'Point' %}
-                // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-                geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
-                    pointToLayer: function (feature, latlng) {
-                        return L.marker(latlng).bindLabel(feature.properties[featureTooltipField]);
-                    },
-                    onEachFeature: onEachFeature
-                });
-                // Clustering aktivieren
-                var markers = L.markerClusterGroup();
-                markers.addLayer(geoJsonLayer);
-                map.addLayer(markers);
-            // ansonsten...
-            {% else %}
-                // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-                geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
-                    onEachFeature: onEachFeature
-                });
-                map.addLayer(geoJsonLayer);
-            {% endif %}
-
-            // GeoJSON-Layer nochmal durchgehen
-            currMap.eachLayer(function(layer) {
-                if (layer.feature) {
-                  // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
-                  {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
-                      // Wert des aktuellen Features in diesem Feld prüfen und Feature (wieder) ausblenden, sofern es den bestimmten Wert aufweist
-                      hideMapFeature(layer);
-                  {% endif %}
-                  // falls Feature-Highlighting vorgesehen ist...
-                  {% if highlight_flag %}
-                      // Wert des aktuellen Features in diesem Feld prüfen und Feature highlighten, sofern es gehighlightet werden soll
-                      highlightMapFeature(layer);
-                  {% endif %}
-                }
-            });
-
-            // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
-            window.objectsExtent = geoJsonLayer.getBounds();
-        }
-        
-        // Adressensuche und Filter
-        $(document).ready(function() {
-            // Variable für Bounding Box der aktuellen Filtermenge anlegen
-            var currentFilterExtent = [];
-            
-            // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
-            var intervalFilterMin = [];
-
-            // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
-            var intervalFilterMax = [];
-
-            // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
-            var listFilterLists = [];
-
-            // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
-            var checkboxFilterLists = [];
-            
-            // Adressensuche initialisieren
-
-            results = $('div.results');
-            searchField = $('#searchtext');
-
-            // bei Klick auf Stelle außerhalb der Adressensuche die Resultate der Adressensuche leeren
-            results.click(function(event) {
-                $('html').one('click',function() {
-                    results.children().remove();
-                    results.fadeOut();
-                });
-                event.stopPropagation();
-            });
-
-            // bei Eingabe in entsprechendes Eingabefeld Adressensuche durchführen
-            searchField.keyup(function() {
-                if ($(this).val().length >= 3) {
-                    var searchText = searchField.val();
-                    
-                    $.ajax({
-                        url: '{% url "datenmanagement:addresssearch" %}',
-                        dataType: 'json',
-                        data: {
-                            query: searchText
-                        },
-                        success: showResults
-                    });
-                } else {
-                    results.children().remove();
-                    results.fadeOut();
-                }
-            });
-
-            // bei Klick in Eingabefeld für Adressensuche dieses und die Resultate der Adressensuche leeren
-            $('#searchtext').on('click', function() {
-                $(this).val('');
-                $('#results_container').hide();
-            });
-
-            // Filter initialisieren
-
-            // über alle Filterfelder gehen...
-            $('.filter-input').each(function() {
-                // Feld als Objekt mit Name und Typ erstellen
-                var filterField = new Object();
-                filterField.name = $(this).attr('name');
-                filterField.type = $(this).data('type');
-                filterField.value = '';
-                // falls es sich um ein Intervallfilterfeld handelt...
-                if ($(this).data('intervalside') == 'left' || $(this).data('intervalside') == 'right') {
-                    // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
-                    if ($(this).data('intervalside') == 'left')
-                        // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
-                        intervalFilterMin.push(filterField);
-                    // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
-                    else if ($(this).data('intervalside') == 'right')
-                        // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
-                        intervalFilterMax.push(filterField);
-                // falls es sich um ein Listenfeld handelt...
-                } else if ($(this).data('type') == 'list') {
-                    // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
-                    filterField.value = [];
-                    listFilterLists.push(filterField);
-                }
-            });
-
-            // über alle Checkbox-Filterfelder gehen...
-            $('.filter-checkbox-fieldset').each(function() {
-                // Feld als Objekt mit Name, Typ und Wert erstellen
-                var filterField = new Object();
-                filterField.name = $(this).attr('name');
-                filterField.type = $(this).data('type');
-                filterField.value = [];
-                // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Checkboxen-Set dargestellt werden sollen
-                checkboxFilterLists.push(filterField);
-            });
-            
-            // falls Filter vorhanden...
-            {% if map_filters_enabled %}
-                // über alle Objekte gehen...
-                {% for object in object_list %}
-                    // falls Intervallfilter vorhanden...
-                    {% if map_rangefilter_fields %}
-                        // für alle Intervallfilterfelder...
-                        {% for map_rangefilter_field in map_rangefilter_fields %}
-                            {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                                // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                                {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
-                                    for (var i = 0; i < intervalFilterMin.length; i++) {
-                                        if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
-                                            intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                            break;
-                                        }
-                                    }
-                                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
-                                    for (var i = 0; i < intervalFilterMax.length; i++) {
-                                        if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(intervalFilterMax[i].value), 'day'))) {
-                                            intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                                            break;
-                                        }
-                                    }
-                                {% else %}
-                                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
-                                    for (var i = 0; i < intervalFilterMin.length; i++) {
-                                        if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
-                                            intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
-                                            break;
-                                        }
-                                    }
-                                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
-                                    for (var i = 0; i < intervalFilterMax.length; i++) {
-                                        if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMax[i].value < {{ object|get_value_of_field:current_field }})) {
-                                            intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
-                                            break;
-                                        }
-                                    }
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                    {% endif %}
-                    // falls Listenfilter vorhanden...
-                    {% if map_filter_fields_as_list %}
-                        // für alle Listenfilter...
-                        {% for map_listfilter_field in map_filter_fields_as_list %}
-                            {% with current_field=map_filter_fields_as_list|get_list_item_by_index:forloop.counter0 %}
-                                // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
-                                {% if object|get_value_of_field:current_field %}
-                                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Auswahlfeld dargestellt werden sollen: Werteliste um entsprechenden Wert des passenden Feldes aus dem Objekt ergänzen, falls dieser noch nicht in der Werteliste steht
-                                    for (var i = 0; i < listFilterLists.length; i++) {
-                                        if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field }}') === -1) {
-                                            listFilterLists[i].value.push('{{ object|get_value_of_field:current_field }}');
-                                            break;
-                                        }
-                                    }
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                    {% endif %}
-                    // falls normale Filter vorhanden...
-                    {% if map_filter_fields %}
-                        // für alle Listenfilter...
-                        {% for map_filter_field in map_filter_fields %}
-                            {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
-                                // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
-                                {% if object|get_value_of_field:current_field %}
-                                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Checkboxen-Set dargestellt werden sollen: Werteliste um entsprechende(n) Wert(e) des passenden Feldes aus dem Objekt ergänzen, falls diese(r) noch nicht in der Werteliste steht/stehen
-                                    for (var i = 0; i < checkboxFilterLists.length; i++) {
-                                        if (checkboxFilterLists[i].name === '{{ current_field }}') {
-                                            var dummyString = '{{ object|get_value_of_field:current_field }}';
-                                            var dummyArray = dummyString.split(', ');
-                                            for (var j = 0; j < dummyArray.length; j++) {
-                                                if (checkboxFilterLists[i].value.indexOf(dummyArray[j]) === -1) {
-                                                    checkboxFilterLists[i].value.push(dummyArray[j]);
-                                                }
-                                            }
-                                        }
-                                    }
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-
-            // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
-            $('.datetimepicker-input').each(function() {
-                // Variable für initiales Datum
-                var initialDate = '';
-
-                // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
-                for (var i = 0; i < intervalFilterMin.length; i++) {
-                    if (intervalFilterMin[i].name === $(this).attr('name')) {
-                        initialDate = intervalFilterMin[i].value;
-                        break;
-                    }
-                }
-
-                // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
-                for (var i = 0; i < intervalFilterMax.length; i++) {
-                    if (intervalFilterMax[i].name === $(this).attr('name')) {
-                        initialDate = intervalFilterMax[i].value;
-                        break;
-                    }
-                }
-
-                // falls Variable für initiales Datum gefüllt ist...
-                if (initialDate !== '') {
-                    // initiales Datum auf entsprechenden Wert setzen
-                    if (initialDate.indexOf('-') !== -1) {
-                        var dummy = initialDate.split('-');
-                    }
-                    $(this).datetimepicker({
-                        locale: 'de',
-                        format: 'L',
-                        date: (initialDate.indexOf('-') !== -1) ? (new Date(dummy[0], dummy[1] - 1, dummy[2])) : (new Date(initialDate))
-                    });
-                    // zusätzlich data-Attribut hinzufügen mit initialem Datum (benötigt beim Zurücksetzen der Filter)
-                    $(this).attr('data-initial', initialDate);
-                // ansonsten ohne initiales Datum
-                } else {
-                    $(this).datetimepicker({
-                        locale: 'de',
-                        format: 'L'
-                    });
-                }
-            });
-
-            // Listenfelder initialisieren
-            $("select[data-type='list']").each(function() {
-                // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
-                for (var i = 0; i < listFilterLists.length; i++) {
-                    if (listFilterLists[i].name === $(this).attr('name')) {
-                        // Werteliste Case-insensitiv (!) sortieren
-                        listFilterLists[i].value.sort(function (a, b) {
-                            return a.toLowerCase().localeCompare(b.toLowerCase());
-                        });
-                        for (var j = 0; j < listFilterLists[i].value.length; j++) {
-                            // Werteliste als Optionen im Listenfeld abbilden
-                            $(this).append($('<option>', {
-                                value: listFilterLists[i].value[j],
-                                text: listFilterLists[i].value[j]
-                            }));
-                        }
-                        break;
-                    }
-                }
-                // zum Abschluss sciherstellen, dass Listenfeld initial auf leerer Option steht
-                $(this).val('');
-            });
-
-            // Checkboxen-Sets initialisieren
-            $('.filter-checkbox-fieldset').each(function() {
-                // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
-                for (var i = 0; i < checkboxFilterLists.length; i++) {
-                    if (checkboxFilterLists[i].name === $(this).attr('name')) {
-                        // Werteliste Case-insensitiv (!) sortieren
-                        checkboxFilterLists[i].value.sort(function (a, b) {
-                            return a.toLowerCase().localeCompare(b.toLowerCase());
-                        });
-                        for (var j = 0; j < checkboxFilterLists[i].value.length; j++) {
-                            // Werteliste als Checkboxen im Set abbilden
-                            var $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
-                            $label.append($('<input>', {
-                                id: 'checkbox-' + i + '-' + j,
-                                type: 'checkbox',
-                                value: checkboxFilterLists[i].value[j]
-                            }));
-                            $label.append(checkboxFilterLists[i].value[j]);
-                            $(this).append($label);
-                        }
-                        break;
-                    }
-                }
-            });
-
-            // bei Klick auf entsprechenden Button alle Filter anwenden
-            $('#filter-apply').on('click', function() {
-                // Variable für Bounding Box der aktuellen Filtermenge leeren
-                currentFilterExtent = [];
-
-                // Liste für Filterobjekte
-                var filterAttributesList = [];
-
-                // über alle Filter (außer Checkboxen-Sets) gehen...
-                $('.filter-input').each(function() {
-                    if ($(this).val()) {
-                        // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
-                        var filterAttribute = new Object();
-                        filterAttribute.name = $(this).attr('name');
-                        filterAttribute.type = $(this).data('type');
-                        filterAttribute.intervalside = $(this).data('intervalside');
-                        filterAttribute.value = $(this).val();
-                        // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                        if (filterAttribute.type == 'date' && filterAttribute.value.indexOf('.') !== -1) {
-                            var dummy = filterAttribute.value.split('.');
-                            filterAttribute.value = new Date(dummy[2], dummy[1] - 1, dummy[0]);
-                        }
-                        // Filterobjekt zur Liste für Filterobjekte hinzufügen
-                        filterAttributesList.push(filterAttribute);
-                    }
-                });
-
-                // über alle Checkboxen-Sets gehen...
-                $('.filter-checkbox-fieldset').each(function() {
-                    // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
-                    var filterAttribute = new Object();
-                    filterAttribute.name = $(this).attr('name');
-                    filterAttribute.type = $(this).data('type');
-                    filterAttribute.intervalside = $(this).data('intervalside');
-                    filterAttribute.value = [];
-                    // Wertliste des Filterobjekts mit dem Wert jeder aktiven Checkbox befüllen
-                    $(this).find('input:checked').each(function() {
-                        filterAttribute.value.push($(this).val());
-                    });
-                    // Filterobjekt zur Liste für Filterobjekte hinzufügen
-                    filterAttributesList.push(filterAttribute);
-                });
-
-                // über alle Filterobjekte gehen...
-                if (filterAttributesList.length > 0) {
-                    currMap.eachLayer(function(layer) {
-                        if (layer.feature) {
-                            layer.getElement().style.display = '';
-                            for (var i = 0; i < filterAttributesList.length; i++) {
-                                // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                                if (filterAttributesList[i].intervalside === 'left') {
-                                    if (filterAttributesList[i].type === 'date') {
-                                        // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                                        if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
-                                            layer.getElement().style.display = 'none';
-                                        }
-                                    } else {
-                                        if (layer.feature.properties[filterAttributesList[i].name] < filterAttributesList[i].value) {
-                                            layer.getElement().style.display = 'none';
-                                        }
-                                    }
-                                // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                                } else if (filterAttributesList[i].intervalside === 'right') {
-                                    if (filterAttributesList[i].type === 'date') {
-                                        // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                                        if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').isAfter(new Date(filterAttributesList[i].value), 'day')) {
-                                            layer.getElement().style.display = 'none';
-                                        }
-                                    } else {
-                                        if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value) {
-                                            layer.getElement().style.display = 'none';
-                                        }
-                                    }
-                                // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und unpassende GeoJSON-Features ausblenden
-                                } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
-                                    for (var j = 0; j < filterAttributesList[i].value.length; j++) {
-                                        if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) == -1) {
-                                            layer.getElement().style.display = 'none';
-                                        }
-                                    }
-                                // ansonsten einen String-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                                } else if (filterAttributesList[i].type != 'checkbox-set') {
-                                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
-                                        layer.getElement().style.display = 'none';
-                                    }
-                                }
-                            }
-                            // Variable für Bounding Box der aktuellen Filtermenge anhand sichtbar bleibender GeoJSON-Features befüllen
-                            if (layer.getElement().style.display === '') {
-                                if (currentFilterExtent.length == 0) {
-                                    currentFilterExtent[0] = [];
-                                    currentFilterExtent[0][0] = layer.getBounds().getNorth();
-                                    currentFilterExtent[0][1] = layer.getBounds().getEast();
-                                    currentFilterExtent[1] = [];
-                                    currentFilterExtent[1][0] = layer.getBounds().getSouth();
-                                    currentFilterExtent[1][1] = layer.getBounds().getWest();
-                                } else {
-                                    if (currentFilterExtent[0][0] > layer.getBounds().getNorth())
-                                        currentFilterExtent[0][0] = layer.getBounds().getNorth();
-                                    if (currentFilterExtent[0][1] > layer.getBounds().getEast())
-                                        currentFilterExtent[0][1] = layer.getBounds().getEast();
-                                    if (currentFilterExtent[1][0] < layer.getBounds().getSouth())
-                                        currentFilterExtent[1][0] = layer.getBounds().getSouth();
-                                    if (currentFilterExtent[1][1] < layer.getBounds().getWest())
-                                        currentFilterExtent[1][1] = layer.getBounds().getWest();
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    showAllMapFeatures();
-                }
-            });
-
-            // bei Klick auf entsprechenden Button alle Filter sowie Bounding Box der aktuellen Filtermenge zurücksetzen
-            $('#filter-reset').on('click', function() {
-                $('.filter-input').each(function() {
-                    // falls initialer Wert vorhanden...
-                    if ($(this).data('initial')) {
-                        // Filter auf initialen Wert setzen
-                        var initialValue = $(this).data('initial');
-                        if ($(this).data('type') === 'date') {
-                            // Achtung bei Datumsfiltern!
-                            if (initialValue.indexOf('-') !== -1) {
-                                var dummy = initialValue.split('-');
-                            }
-                            $(this).val(dummy[2] + '.' + dummy[1] + '.' + dummy[0]);
-                        } else {
-                            $(this).val($(this).data('initial'));
-                        }
-                    }
-                    // ansonsten Filter auf leeren Wert setzen
-                    else {
-                        $(this).val('');
-                    }
-                });
-                $('.filter-checkbox-fieldset').each(function() {
-                    $(this).find('input:checked').each(function() {
-                        $(this).prop('checked', false);
-                    });
-                });
-                showAllMapFeatures();
-                currentFilterExtent = [];
-            });
-
-            // bei Klick auf entsprechendes Kreuzchen Inhalt des betreffenden Filters leeren
-            $('.input-reset').on('click', function() {
-                $(this).prev().val('');
-            });
-
-            // Kartensteuerung
-
-            // bei Klick auf Button zum Setzen des initialen Kartenausschnitts
-            $('#map-extent-initial').on('click', function() {
-                // initiales Zoomlevel aus Leaflet-Konfiguration aus settings.py auslesen
-                var default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
-                default_zoom = default_zoom.match(/ [0-9]+/).toString();
-                default_zoom = default_zoom.trim();
-                // initiales Kartenzentrum aus Leaflet-Konfiguration aus settings.py auslesen
-                var default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
-                default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
-                default_center_x = default_center_x.trim();
-                default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
-                default_center_y = default_center_y.trim();
-                // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
-                setMapExtentByXYAndZoomLevel(default_center_x, default_center_y, default_zoom);
-            });
-
-            // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge (bzw. auf Bounding Box aller Objekte, falls kein Filter aktiv)
-            $('#map-extent-filter').on('click', function() {
-                if (currentFilterExtent.length > 0)
-                    setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
-                else
-                    setMapExtentByLeafletBounds(objectsExtent);
-            });
-
-            // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche (plus "Puffer" von 60 Pixeln)
-            var height = 60;
-            $('.seitenbereich').each(function() {
-                height += $(this).height();
-            });
-            $('#map_seitenbereich_container').height(height);
+        // ORKa.MV definieren
+        var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
         });
 
-        // GeoJSON-Feature ausblenden
-        function hideMapFeature(layer) {
-            if (layer.feature.properties['{{ map_filter_field_hide_initial }}'] === '{{ map_filter_value_hide_initial }}')
-                layer.getElement().style.display = 'none';
-        }
+        // ORKa.MV standardmäßig zur Karte hinzufügen
+        map.addLayer(orkamv);
 
-        // GeoJSON-Feature highlighten
-        function highlightMapFeature(layer) {
-            if (layer.feature.properties['highlight_flag'] === 'True') {
-                layer.setStyle({
-                    color :'red',
-                    fillColor :'red'
-                });
+        // OpenStreetMap definieren
+        var osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
+        });
+
+        // Liegenschaftskarte definieren
+        var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte_hro_lro/wms', {
+          layers: 'hro.liegenschaftskarte_hro_lro',
+          format: 'image/png',
+          maxZoom: 19,
+          attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern) und Landkreis Rostock'
+        });
+
+        // Luftbild definieren
+        var luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© GeoBasis-DE/M-V'
+        });
+
+        // Kilometerquadrate ETRS89/UTM-33N definieren
+        var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+          layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+          format: 'image/png',
+          maxZoom: 19,
+          transparent: true
+        });
+
+        // definierte Karten als Hintergrundkarten zusammenfassen
+        var baseMaps = {
+          'Liegenschaftskarte': liegenschaftskarte,
+          'Luftbild': luftbild,
+          'ORKa.MV': orkamv,
+          'OpenStreetMap': osm
+        };
+
+        // definierte Karten als Overlay-Karten zusammenfassen
+        var overlayMaps = {
+          'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
+        };
+
+        // Umschalter für Hintergrundkarten zur Karte hinzufügen
+        L.control.layers(baseMaps,overlayMaps).addTo(map);
+
+        // Standortbestimmung
+        {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+          var locationControl = L.control.locate({
+            drawCircle: false,
+            drawMarker: false,
+            flyTo: true,
+            locateOptions: {
+              enableHighAccuracy: true
+            },
+            setView: 'untilPan',
+            strings: {
+              title: 'Standortbestimmung'
             }
+          });
+          locationControl.addTo(map);
+        {% endif %}
+
+        // EPSG:25833 definieren
+        proj4.defs([
+          [
+            'EPSG:25833',
+            '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
+          ],
+        ]);
+
+        // neue leere GeoJSON-FeatureCollection definieren
+        var geoJsonFeatureCollection = {
+          type: 'FeatureCollection',
+          features: []
+        };
+
+        // neue leere Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
+        var featureTooltipField = '';
+
+        // neue Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
+        {% if map_rangefilter_fields_json %}
+          var intervalFilterFields = {{ map_rangefilter_fields_json|safe }};
+        {% endif %}
+
+        // neue Variable definieren, in der die Namen der Filter-Felder abgelegt werden
+        {% if map_filter_fields_json %}
+          var filterFields = {{ map_filter_fields_json|safe }};
+        {% endif %}
+
+        // über alle Objekte gehen...
+        {% for object in object_list %}
+          // neues leeres GeoJSON-Feature definieren
+          var geoJsonFeature = {
+            type: 'Feature',
+            geometry: null,
+            properties: [],
+            crs: {
+              type: 'name',
+              properties: {
+                'name': 'urn:ogc:def:crs:EPSG::25833'
+              }
+            }
+          };
+          // Geometrie (liegt in WKT vor) in GeoJSON umwandeln
+          var wkt = new Wkt.Wkt();
+          var string = '{{ object.geometrie }}';
+          wkt.read(string.substring(string.indexOf(';') + 1, string.length));
+          var geoJsonGeometry = wkt.toJson();
+          // Geometrie zu GeoJSON-Feature hinzufügen
+          geoJsonFeature.geometry = geoJsonGeometry;
+          // Name des Feldes für den Feature-Tooltip in Variable ablegen
+          {% if map_feature_tooltip_field %}
+            featureTooltipField = '{{ map_feature_tooltip_field }}';
+          {% elif map_feature_tooltip_fields %}
+            featureTooltipField = 'tooltip';
+          {% endif %}
+          // Properties zu GeoJSON-Feature hinzufügen
+          geoJsonFeature.properties.uuid = '{{ object.uuid }}';
+          {% if map_feature_tooltip_field %}
+            geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+          {% elif map_feature_tooltip_fields %}
+            geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
+          {% endif %}
+          {% if highlight_flag %}
+            geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag }}';
+          {% endif %}
+          // für alle Intervallfilterfelder...
+          {% if map_rangefilter_fields %}
+            {% for map_rangefilter_field in map_rangefilter_fields %}
+              // Property zu GeoJSON-Feature hinzufügen mit Namen des Intervallfilterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
+              {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
+                {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
+                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                {% else %}
+                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field }};
+                {% endif %}
+              {% endwith %}
+            {% endfor %}
+          {% endif %}
+          // für alle übrigen Filterfelder...
+          {% if map_filter_fields %}
+            {% for map_filter_field in map_filter_fields %}
+              // Property zu GeoJSON-Feature hinzufügen mit Namen des Filterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
+              {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
+                {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
+                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
+                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                {% else %}
+                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field }}';
+                {% endif %}
+              {% endwith %}
+            {% endfor %}
+          {% endif %}
+          // Informationen über Berechtigungen des Nutzers setzen
+          {% get_obj_perms user for object as "objperms" %}
+          {% if 'change_'|add:model_name_lower in objperms %}
+            geoJsonFeature.properties.user_may_change = 'ok';
+          {% elif user|user_has_model_view_permission:model_name_lower %}
+            geoJsonFeature.properties.user_may_view = 'ok';
+          {% endif %}
+          // GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
+          geoJsonFeatureCollection.features.push(geoJsonFeature);
+        {% endfor %}
+
+        // jedes Feature mit Link versehen
+        function onEachFeature(feature, layer) {
+          // falls Nutzer die notwendige Berechtigung hat...
+          if (feature.properties.user_may_change == 'ok' || feature.properties.user_may_view == 'ok') {
+            layer.on('click', function (e) {
+              // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
+              window.document.location = window.document.location + '../change/' + feature.properties.uuid;
+            });
+          }
+          // falls Geometrie nicht punkthaft ist...
+          {% if geometry_type != 'Point' %}
+            layer.bindLabel(feature.properties[featureTooltipField]);
+          {% endif %}
         }
 
-        // alle GeoJSON-Features (wieder) anzeigen
-        function showAllMapFeatures() {
-            currMap.eachLayer(function(layer) {
-                if (layer.feature) {
-                    layer.getElement().style.display = '';
-                    // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
-                    {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
-                        hideMapFeature(layer);
-                    {% endif %}
-                }
-            });
-        }
-        
-        // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
-        function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
-            currMap.panTo([y, x]);
-            currMap.setZoom(zoomLevel);
-        }
-        
-        // Kartenausschnitt setzen (via Bounding Box)
-        function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
-            currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
-        }
-        
-        // Kartenausschnitt setzen (via Leaflet-Bounds)
-        function setMapExtentByLeafletBounds(leafletBounds) {
-            currMap.fitBounds(leafletBounds);
-        }
-        
-        // Resultate der Adressensuche
-        function showResults(json) {
-            
-            // Resultate leeren
-            results.children().remove();
-            
-            // JSON durchgehen und je Feature ein Resultat bauen
-            jQuery.each(json.features, function(index, item) {
-                var titel = '';
-                if (item.properties._title_.indexOf(', ') != -1)
-                    titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-                else
-                    titel = item.properties._title_;
-                var result = '<div class="resultElement" data-feature="' + index + '"><strong>' + titel + '</strong>';
-                if (item.properties.gemeindeteil_abkuerzung)
-                    result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
-                result += '<span>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</span></div>';
-                results.append(result);
-            });
-            
-            // Resultate einblenden
-            results.fadeIn();
-            
-            // bei Klick auf Resultat Karte auf dieses zoomen
-            results.children().on('click', function() {
-                var featureGeometry = json.features[$(this).data('feature')].geometry;
-                if (featureGeometry.type === 'Point') {
-                    currMap.fitBounds([
-                        [
-                            featureGeometry.coordinates[1],
-                            featureGeometry.coordinates[0]
-                        ],
-                        [
-                            featureGeometry.coordinates[1],
-                            featureGeometry.coordinates[0]
-                        ]
-                    ]);
-                } else {
-                    currMap.fitBounds([
-                        [
-                            featureGeometry.coordinates[0][0][1],
-                            featureGeometry.coordinates[0][1][0]
-                        ],
-                        [
-                            featureGeometry.coordinates[0][2][1],
-                            featureGeometry.coordinates[0][0][0]
-                        ]
-                    ]);
-                }
-            });
-        }
-	</script>
-{% else %}
-    <h2>Keine Datensätze vorhanden.</h2>
-    <div class='row'>
-        {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href="{% url 'datenmanagement:'|add:model_name|add:'add' %}" class='btn btn-success'>neuen Datensatz anlegen</a>
+        // falls Geometrie punkthaft ist...
+        {% if geometry_type == 'Point' %}
+          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+          geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+            pointToLayer: function (feature, latlng) {
+              return L.marker(latlng).bindLabel(feature.properties[featureTooltipField]);
+            },
+            onEachFeature: onEachFeature
+          });
+          // Clustering aktivieren
+          var markers = L.markerClusterGroup();
+          markers.addLayer(geoJsonLayer);
+          map.addLayer(markers);
+        // ansonsten...
+        {% else %}
+          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+          geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+            onEachFeature: onEachFeature
+          });
+          map.addLayer(geoJsonLayer);
         {% endif %}
-        <a href="{% url 'datenmanagement:'|add:model_name|add:'start' %}" class='btn btn-default'>zurück</a>
-    </div>
-{% endif %}
+
+        // GeoJSON-Layer nochmal durchgehen
+        currMap.eachLayer(function(layer) {
+          if (layer.feature) {
+            // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
+            {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
+              // Wert des aktuellen Features in diesem Feld prüfen und Feature (wieder) ausblenden, sofern es den bestimmten Wert aufweist
+              hideMapFeature(layer);
+            {% endif %}
+            // falls Feature-Highlighting vorgesehen ist...
+            {% if highlight_flag %}
+              // Wert des aktuellen Features in diesem Feld prüfen und Feature highlighten, sofern es gehighlightet werden soll
+              highlightMapFeature(layer);
+            {% endif %}
+          }
+        });
+
+        // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
+        window.objectsExtent = geoJsonLayer.getBounds();
+      }
+
+      // Adressensuche und Filter
+      $(document).ready(function() {
+        // Variable für Bounding Box der aktuellen Filtermenge anlegen
+        var currentFilterExtent = [];
+
+        // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
+        var intervalFilterMin = [];
+
+        // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
+        var intervalFilterMax = [];
+
+        // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
+        var listFilterLists = [];
+
+        // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
+        var checkboxFilterLists = [];
+
+        // Adressensuche initialisieren
+
+        results = $('div.results');
+        searchField = $('#searchtext');
+
+        // bei Klick auf Stelle außerhalb der Adressensuche die Resultate der Adressensuche leeren
+        results.click(function(event) {
+          $('html').one('click',function() {
+            results.children().remove();
+            results.fadeOut();
+          });
+          event.stopPropagation();
+        });
+
+        // bei Eingabe in entsprechendes Eingabefeld Adressensuche durchführen
+        searchField.keyup(function() {
+          if ($(this).val().length >= 3) {
+            var searchText = searchField.val();
+            
+            $.ajax({
+              url: '{% url "datenmanagement:addresssearch" %}',
+              dataType: 'json',
+              data: {
+                query: searchText
+              },
+              success: showResults
+            });
+          } else {
+            results.children().remove();
+            results.fadeOut();
+          }
+        });
+
+        // bei Klick in Eingabefeld für Adressensuche dieses und die Resultate der Adressensuche leeren
+        $('#searchtext').on('click', function() {
+          $(this).val('');
+          $('#results-container').hide();
+        });
+
+        // Filter initialisieren
+
+        // über alle Filterfelder gehen...
+        $('.filter-input').each(function() {
+          // Feld als Objekt mit Name und Typ erstellen
+          var filterField = new Object();
+          filterField.name = $(this).attr('name');
+          filterField.type = $(this).data('type');
+          filterField.value = '';
+          // falls es sich um ein Intervallfilterfeld handelt...
+          if ($(this).data('intervalside') == 'left' || $(this).data('intervalside') == 'right') {
+            // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
+            if ($(this).data('intervalside') == 'left')
+              // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              intervalFilterMin.push(filterField);
+            // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
+            else if ($(this).data('intervalside') == 'right')
+              // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              intervalFilterMax.push(filterField);
+          // falls es sich um ein Listenfeld handelt...
+          } else if ($(this).data('type') == 'list') {
+            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
+            filterField.value = [];
+            listFilterLists.push(filterField);
+          }
+        });
+
+        // über alle Checkbox-Filterfelder gehen...
+        $('.filter-checkbox-fieldset').each(function() {
+          // Feld als Objekt mit Name, Typ und Wert erstellen
+          var filterField = new Object();
+          filterField.name = $(this).attr('name');
+          filterField.type = $(this).data('type');
+          filterField.value = [];
+          // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Checkboxen-Set dargestellt werden sollen
+          checkboxFilterLists.push(filterField);
+        });
+
+        // falls Filter vorhanden...
+        {% if map_filters_enabled %}
+          // über alle Objekte gehen...
+          {% for object in object_list %}
+            // falls Intervallfilter vorhanden...
+            {% if map_rangefilter_fields %}
+              // für alle Intervallfilterfelder...
+              {% for map_rangefilter_field in map_rangefilter_fields %}
+                {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
+                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
+                  {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
+                    for (var i = 0; i < intervalFilterMin.length; i++) {
+                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
+                        intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                        break;
+                      }
+                    }
+                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
+                    for (var i = 0; i < intervalFilterMax.length; i++) {
+                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(intervalFilterMax[i].value), 'day'))) {
+                        intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                        break;
+                      }
+                    }
+                  {% else %}
+                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
+                    for (var i = 0; i < intervalFilterMin.length; i++) {
+                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
+                        intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
+                        break;
+                      }
+                    }
+                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
+                    for (var i = 0; i < intervalFilterMax.length; i++) {
+                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMax[i].value < {{ object|get_value_of_field:current_field }})) {
+                        intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
+                        break;
+                      }
+                    }
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            {% endif %}
+            // falls Listenfilter vorhanden...
+            {% if map_filter_fields_as_list %}
+              // für alle Listenfilter...
+              {% for map_listfilter_field in map_filter_fields_as_list %}
+                {% with current_field=map_filter_fields_as_list|get_list_item_by_index:forloop.counter0 %}
+                  // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
+                  {% if object|get_value_of_field:current_field %}
+                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Auswahlfeld dargestellt werden sollen: Werteliste um entsprechenden Wert des passenden Feldes aus dem Objekt ergänzen, falls dieser noch nicht in der Werteliste steht
+                    for (var i = 0; i < listFilterLists.length; i++) {
+                      if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field }}') === -1) {
+                        listFilterLists[i].value.push('{{ object|get_value_of_field:current_field }}');
+                        break;
+                      }
+                    }
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            {% endif %}
+            // falls normale Filter vorhanden...
+            {% if map_filter_fields %}
+              // für alle Listenfilter...
+              {% for map_filter_field in map_filter_fields %}
+                {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
+                  // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
+                  {% if object|get_value_of_field:current_field %}
+                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Checkboxen-Set dargestellt werden sollen: Werteliste um entsprechende(n) Wert(e) des passenden Feldes aus dem Objekt ergänzen, falls diese(r) noch nicht in der Werteliste steht/stehen
+                    for (var i = 0; i < checkboxFilterLists.length; i++) {
+                      if (checkboxFilterLists[i].name === '{{ current_field }}') {
+                        var dummyString = '{{ object|get_value_of_field:current_field }}';
+                        var dummyArray = dummyString.split(', ');
+                        for (var j = 0; j < dummyArray.length; j++) {
+                          if (checkboxFilterLists[i].value.indexOf(dummyArray[j]) === -1) {
+                            checkboxFilterLists[i].value.push(dummyArray[j]);
+                          }
+                        }
+                      }
+                    }
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
+        $('.datetimepicker-input').each(function() {
+          // Variable für initiales Datum
+          var initialDate = '';
+
+          // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
+          for (var i = 0; i < intervalFilterMin.length; i++) {
+            if (intervalFilterMin[i].name === $(this).attr('name')) {
+              initialDate = intervalFilterMin[i].value;
+              break;
+            }
+          }
+
+          // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
+          for (var i = 0; i < intervalFilterMax.length; i++) {
+            if (intervalFilterMax[i].name === $(this).attr('name')) {
+              initialDate = intervalFilterMax[i].value;
+              break;
+            }
+          }
+
+          // falls Variable für initiales Datum gefüllt ist...
+          if (initialDate !== '') {
+            // initiales Datum auf entsprechenden Wert setzen
+            if (initialDate.indexOf('-') !== -1) {
+              var dummy = initialDate.split('-');
+            }
+            $(this).datetimepicker({
+              locale: 'de',
+              format: 'L',
+              date: (initialDate.indexOf('-') !== -1) ? (new Date(dummy[0], dummy[1] - 1, dummy[2])) : (new Date(initialDate))
+            });
+            // zusätzlich data-Attribut hinzufügen mit initialem Datum (benötigt beim Zurücksetzen der Filter)
+            $(this).attr('data-initial', initialDate);
+          // ansonsten ohne initiales Datum
+          } else {
+            $(this).datetimepicker({
+              locale: 'de',
+              format: 'L'
+            });
+          }
+        });
+
+        // Listenfelder initialisieren
+        $("select[data-type='list']").each(function() {
+          // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
+          for (var i = 0; i < listFilterLists.length; i++) {
+            if (listFilterLists[i].name === $(this).attr('name')) {
+              // Werteliste Case-insensitiv (!) sortieren
+              listFilterLists[i].value.sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+              });
+              for (var j = 0; j < listFilterLists[i].value.length; j++) {
+                // Werteliste als Optionen im Listenfeld abbilden
+                $(this).append($('<option>', {
+                  value: listFilterLists[i].value[j],
+                  text: listFilterLists[i].value[j]
+                }));
+              }
+              break;
+            }
+          }
+          // zum Abschluss sciherstellen, dass Listenfeld initial auf leerer Option steht
+          $(this).val('');
+        });
+
+        // Checkboxen-Sets initialisieren
+        $('.filter-checkbox-fieldset').each(function() {
+          // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
+          for (var i = 0; i < checkboxFilterLists.length; i++) {
+            if (checkboxFilterLists[i].name === $(this).attr('name')) {
+              // Werteliste Case-insensitiv (!) sortieren
+              checkboxFilterLists[i].value.sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+              });
+              for (var j = 0; j < checkboxFilterLists[i].value.length; j++) {
+                // Werteliste als Checkboxen im Set abbilden
+                var $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
+                $label.append($('<input>', {
+                  id: 'checkbox-' + i + '-' + j,
+                  type: 'checkbox',
+                  value: checkboxFilterLists[i].value[j]
+                }));
+                $label.append(checkboxFilterLists[i].value[j]);
+                $(this).append($label);
+              }
+              break;
+            }
+          }
+        });
+
+        // bei Klick auf entsprechenden Button alle Filter anwenden
+        $('#filter-apply').on('click', function() {
+          // Variable für Bounding Box der aktuellen Filtermenge leeren
+          currentFilterExtent = [];
+
+          // Liste für Filterobjekte
+          var filterAttributesList = [];
+
+          // über alle Filter (außer Checkboxen-Sets) gehen...
+          $('.filter-input').each(function() {
+            if ($(this).val()) {
+              // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
+              var filterAttribute = new Object();
+              filterAttribute.name = $(this).attr('name');
+              filterAttribute.type = $(this).data('type');
+              filterAttribute.intervalside = $(this).data('intervalside');
+              filterAttribute.value = $(this).val();
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+              if (filterAttribute.type == 'date' && filterAttribute.value.indexOf('.') !== -1) {
+                var dummy = filterAttribute.value.split('.');
+                filterAttribute.value = new Date(dummy[2], dummy[1] - 1, dummy[0]);
+              }
+              // Filterobjekt zur Liste für Filterobjekte hinzufügen
+              filterAttributesList.push(filterAttribute);
+            }
+          });
+
+          // über alle Checkboxen-Sets gehen...
+          $('.filter-checkbox-fieldset').each(function() {
+            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
+            var filterAttribute = new Object();
+            filterAttribute.name = $(this).attr('name');
+            filterAttribute.type = $(this).data('type');
+            filterAttribute.intervalside = $(this).data('intervalside');
+            filterAttribute.value = [];
+            // Wertliste des Filterobjekts mit dem Wert jeder aktiven Checkbox befüllen
+            $(this).find('input:checked').each(function() {
+              filterAttribute.value.push($(this).val());
+            });
+            // Filterobjekt zur Liste für Filterobjekte hinzufügen
+            filterAttributesList.push(filterAttribute);
+          });
+
+          // über alle Filterobjekte gehen...
+          if (filterAttributesList.length > 0) {
+            currMap.eachLayer(function(layer) {
+              if (layer.feature) {
+                layer.getElement().style.display = '';
+                for (var i = 0; i < filterAttributesList.length; i++) {
+                  // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+                  if (filterAttributesList[i].intervalside === 'left') {
+                    if (filterAttributesList[i].type === 'date') {
+                      // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+                      if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    } else {
+                      if (layer.feature.properties[filterAttributesList[i].name] < filterAttributesList[i].value) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    }
+                  // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+                  } else if (filterAttributesList[i].intervalside === 'right') {
+                    if (filterAttributesList[i].type === 'date') {
+                      // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+                      if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').isAfter(new Date(filterAttributesList[i].value), 'day')) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    } else {
+                      if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    }
+                  // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und unpassende GeoJSON-Features ausblenden
+                  } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
+                    for (var j = 0; j < filterAttributesList[i].value.length; j++) {
+                      if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) == -1) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    }
+                  // ansonsten einen String-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+                  } else if (filterAttributesList[i].type != 'checkbox-set') {
+                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
+                      layer.getElement().style.display = 'none';
+                    }
+                  }
+                }
+                // Variable für Bounding Box der aktuellen Filtermenge anhand sichtbar bleibender GeoJSON-Features befüllen
+                if (layer.getElement().style.display === '') {
+                  if (currentFilterExtent.length == 0) {
+                    currentFilterExtent[0] = [];
+                    currentFilterExtent[0][0] = layer.getBounds().getNorth();
+                    currentFilterExtent[0][1] = layer.getBounds().getEast();
+                    currentFilterExtent[1] = [];
+                    currentFilterExtent[1][0] = layer.getBounds().getSouth();
+                    currentFilterExtent[1][1] = layer.getBounds().getWest();
+                  } else {
+                    if (currentFilterExtent[0][0] > layer.getBounds().getNorth())
+                      currentFilterExtent[0][0] = layer.getBounds().getNorth();
+                    if (currentFilterExtent[0][1] > layer.getBounds().getEast())
+                      currentFilterExtent[0][1] = layer.getBounds().getEast();
+                    if (currentFilterExtent[1][0] < layer.getBounds().getSouth())
+                      currentFilterExtent[1][0] = layer.getBounds().getSouth();
+                    if (currentFilterExtent[1][1] < layer.getBounds().getWest())
+                      currentFilterExtent[1][1] = layer.getBounds().getWest();
+                  }
+                }
+              }
+            });
+          } else {
+            showAllMapFeatures();
+          }
+        });
+
+        // bei Klick auf entsprechenden Button alle Filter sowie Bounding Box der aktuellen Filtermenge zurücksetzen
+        $('#filter-reset').on('click', function() {
+          $('.filter-input').each(function() {
+            // falls initialer Wert vorhanden...
+            if ($(this).data('initial')) {
+              // Filter auf initialen Wert setzen
+              var initialValue = $(this).data('initial');
+              if ($(this).data('type') === 'date') {
+                // Achtung bei Datumsfiltern!
+                if (initialValue.indexOf('-') !== -1) {
+                  var dummy = initialValue.split('-');
+                }
+                $(this).val(dummy[2] + '.' + dummy[1] + '.' + dummy[0]);
+              } else {
+                $(this).val($(this).data('initial'));
+              }
+            }
+            // ansonsten Filter auf leeren Wert setzen
+            else {
+              $(this).val('');
+            }
+          });
+          $('.filter-checkbox-fieldset').each(function() {
+            $(this).find('input:checked').each(function() {
+              $(this).prop('checked', false);
+            });
+          });
+          showAllMapFeatures();
+          currentFilterExtent = [];
+        });
+
+        // bei Klick auf entsprechendes Kreuzchen Inhalt des betreffenden Filters leeren
+        $('.input-reset').on('click', function() {
+          $(this).prev().val('');
+        });
+
+        // map-control
+
+        // bei Klick auf Button zum Setzen des initialen Kartenausschnitts
+        $('#map-extent-initial').on('click', function() {
+          // initiales Zoomlevel aus Leaflet-Konfiguration aus settings.py auslesen
+          var default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
+          default_zoom = default_zoom.match(/ [0-9]+/).toString();
+          default_zoom = default_zoom.trim();
+          // initiales Kartenzentrum aus Leaflet-Konfiguration aus settings.py auslesen
+          var default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
+          default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
+          default_center_x = default_center_x.trim();
+          default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
+          default_center_y = default_center_y.trim();
+          // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
+          setMapExtentByXYAndZoomLevel(default_center_x, default_center_y, default_zoom);
+        });
+
+        // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge (bzw. auf Bounding Box aller Objekte, falls kein Filter aktiv)
+        $('#map-extent-filter').on('click', function() {
+          if (currentFilterExtent.length > 0)
+            setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
+          else
+            setMapExtentByLeafletBounds(objectsExtent);
+        });
+
+        // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche (plus "Puffer" von 60 Pixeln)
+        var height = 60;
+        $('.side').each(function() {
+          height += $(this).height();
+        });
+        $('#map-side-container').height(height);
+      });
+
+      // GeoJSON-Feature ausblenden
+      function hideMapFeature(layer) {
+        if (layer.feature.properties['{{ map_filter_field_hide_initial }}'] === '{{ map_filter_value_hide_initial }}')
+          layer.getElement().style.display = 'none';
+      }
+
+      // GeoJSON-Feature highlighten
+      function highlightMapFeature(layer) {
+        if (layer.feature.properties['highlight_flag'] === 'True') {
+          layer.setStyle({
+            color :'red',
+            fillColor :'red'
+          });
+        }
+      }
+
+      // alle GeoJSON-Features (wieder) anzeigen
+      function showAllMapFeatures() {
+        currMap.eachLayer(function(layer) {
+          if (layer.feature) {
+            layer.getElement().style.display = '';
+            // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
+            {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
+              hideMapFeature(layer);
+            {% endif %}
+          }
+        });
+      }
+
+      // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
+      function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
+        currMap.panTo([y, x]);
+        currMap.setZoom(zoomLevel);
+      }
+
+      // Kartenausschnitt setzen (via Bounding Box)
+      function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
+        currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
+      }
+
+      // Kartenausschnitt setzen (via Leaflet-Bounds)
+      function setMapExtentByLeafletBounds(leafletBounds) {
+        currMap.fitBounds(leafletBounds);
+      }
+
+      // Resultate der Adressensuche
+      function showResults(json) {
+
+        // Resultate leeren
+        results.children().remove();
+
+        // JSON durchgehen und je Feature ein Resultat bauen
+        jQuery.each(json.features, function(index, item) {
+          var titel = '';
+          if (item.properties._title_.indexOf(', ') != -1)
+            titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+          else
+            titel = item.properties._title_;
+          var result = '<div class="result-element" data-feature="' + index + '"><strong>' + titel + '</strong>';
+          if (item.properties.gemeindeteil_abkuerzung)
+            result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
+          result += '<small class="text-muted"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
+          results.append(result);
+        });
+
+        // Resultate einblenden
+        results.fadeIn();
+
+        // bei Klick auf Resultat Karte auf dieses zoomen
+        results.children().on('click', function() {
+          var featureGeometry = json.features[$(this).data('feature')].geometry;
+          if (featureGeometry.type === 'Point') {
+            currMap.fitBounds([
+              [
+                featureGeometry.coordinates[1],
+                featureGeometry.coordinates[0]
+              ],
+              [
+                featureGeometry.coordinates[1],
+                featureGeometry.coordinates[0]
+              ]
+            ]);
+          } else {
+            currMap.fitBounds([
+              [
+                featureGeometry.coordinates[0][0][1],
+                featureGeometry.coordinates[0][1][0]
+              ],
+              [
+                featureGeometry.coordinates[0][2][1],
+                featureGeometry.coordinates[0][0][0]
+              ]
+            ]);
+          }
+        });
+      }
+    </script>
+  {% endif %}
 {% endblock %}

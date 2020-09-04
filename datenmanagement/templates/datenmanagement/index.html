@@ -6,15 +6,15 @@
 {% block content %}
   {% if user.is_authenticated %}
     {% if object_list and user|user_has_model_permissions %}
-      <h2>Datenthemen, die Ihnen zur Bearbeitung zur Verfügung stehen:</h2>
+      <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
       <div class="list-group">
         {% for model in object_list %}
           {% with model_name=model|get_class_name %}
             {% if user|user_has_model_permission:model %}
               {% if user.is_superuser or not model|is_class_codelist %}
-                <a class='list-group-item list-group-item-action {% if model|is_class_codelist %}list-group-item-warning{% else %}list-group-item-info{% endif %}' href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
-                    <h4>{{ model|get_class_verbose_name_plural }}</h4>
-                    <h5><small>{{ model|get_class_description }}</small></h5>
+                <a class="list-group-item list-group-item-action {% if model|is_class_codelist %}list-group-item-warning{% else %}list-group-item-info{% endif %}" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
+                  <h4>{{ model|get_class_verbose_name_plural }}</h4>
+                  <h5><small>{{ model|get_class_description }}</small></h5>
                 </a>
               {% endif %}
             {% endif %}
@@ -22,9 +22,12 @@
         {% endfor %}
       </div>
     {% else %}
-      <h2>Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
+      <h2 class="centered">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
     {% endif %}
   {% else %}
-      <h2>Willkommen bei der Web-Anwendung zur Datenerfassung der Hanse- und Universitätsstadt Rostock!</h2>
+      <h2 class="centered">Willkommen<br/>
+        bei der Web-Anwendung zur <strong>Datenerfassung</strong><br/>
+        der Hanse- und Universitätsstadt Rostock!
+      </h2>
   {% endif %}
 {% endblock %}

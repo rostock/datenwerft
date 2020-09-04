@@ -5,135 +5,138 @@
 
 {% block title %}{{ model_verbose_name_plural }} | {% endblock %}
 
-{% block meta %}
-    {{ block.super }}
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-{% endblock %}
-
 {% block table %}
-    <link rel='stylesheet' type='text/css' href='{% static 'datatables-1.10.20/datatables.min.css' %}'/>
-    <script src='{% static 'datatables-1.10.20/datatables.min.js' %}'></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.20/datatables.min.css' %}"/>
+  <script type="text/javascript" src="{% static 'datatables-1.10.20/datatables.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-{% if object_list %}
-    <h2>{{ model_verbose_name_plural }}</h2>
-    <h4>{{ model_description }}</h4>
-    <h3><i>Liste aller Datensätze</i></h3>
-    <div class='row'>
-        {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href='{% url 'datenmanagement:'|add:model_name|add:'add' %}' class='btn btn-success'>neuen Datensatz anlegen</a>
-        {% endif %}
-        {% if geometry_type %}
-            <a href='{% url 'datenmanagement:'|add:model_name|add:'map' %}' class='btn btn-default'>Datensätze auf Karte anzeigen</a>
-        {% endif %}
-        <a href='{% url 'datenmanagement:'|add:model_name|add:'start' %}' class='btn btn-default'>zurück</a>
+  <h2>{{ model_verbose_name_plural }}</h2>
+  <h4><small>{{ model_description }}</small></h4>
+  <div class="spacer-small"></div>
+  {% if object_list %}
+    <h4><em>Liste aller Datensätze</em></h4>
+  {% else %}
+    <h4><em>Keine Datensätze vorhanden!</em></h4>
+  {% endif %}
+    <div class="row">
+      {% if user|user_has_model_add_permission:model_name_lower %}
+        <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
+      {% endif %}
+      {% if object_list %}
+        <a class="btn btn-info btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
+      {% endif %}
+      <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">zurück</a>
     </div>
-    <div class='col-md-6 full-width'>
-        <table id='datasets' class='table table-bordered table-striped'>
-            <thead>
-                <tr>
-                    <th></th>
-                    {% for label in list_fields_labels %}
-                        {% with schritt=forloop.counter|stringformat:'s' %}
-                            {% with spalte='spalte_'|add:schritt %}
-                                <th>{{ label }}</th>
-                            {% endwith %}
-                        {% endwith %}
-                    {% endfor %}
-                    {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
-                        <th><i>ansehen/editieren</i></th>
-                    {% endif %}
-                    {% if user|user_has_model_delete_permission:model_name_lower %}
-                        <th><i>löschen</i></th>
-                    {% endif %}
-                </tr>
-            </thead>
-        </table>
-        <script type='text/javascript'>
-            $(document).ready(function(){
-                var table = $('#datasets').DataTable({
-                    ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
-                    buttons: [
-                      'copy', 'excelHtml5', {
-                          extend: 'pdfHtml5',
-                          orientation: 'landscape',
-                          pageSize: 'A4',
-                          customize: function(doc) {
-                              doc.defaultStyle.fontSize = 7;
-                              doc.pageMargins = [20, 20, 20, 20];
-                              doc.styles.tableHeader.fontSize = 7;
-                          } 
-                      }
-                    ],
-                    colReorder: true,
-                    columnDefs: [{
-                      'orderable': false,
-                      'targets': 0
-                    }, {
-                      'orderable': false,
-                      'targets': -2
-                    }, {
-                      'orderable': false,
-                      'targets': -1
-                    }],
-                    dom: 'Blfrtip',
-                    fixedHeader: true,
-                    language: {
-                        url: '{% static 'datatables-1.10.20/datatables.german.lang' %}'
-                    },
-                    lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
-                    order: [[ 1, 'asc' ]],
-                    orderCellsTop: true,
-                    orderClasses: false,
-                    orderMulti: false,
-                    pageLength: 25,
-                    processing: true,
-                    searchDelay: 500,
-                    searching: true,
-                    serverSide: true,
-                    stateSave: true
+  {% if object_list %}
+    <div class="row">
+      <table id="datasets" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th></th>
+            {% for label in list_fields_labels %}
+              {% with schritt=forloop.counter|stringformat:'s' %}
+                {% with spalte='spalte_'|add:schritt %}
+                  <th>{{ label }}</th>
+                {% endwith %}
+              {% endwith %}
+            {% endfor %}
+            {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
+              <th><i>ansehen/editieren</i></th>
+            {% endif %}
+            {% if user|user_has_model_delete_permission:model_name_lower %}
+              <th><i>löschen</i></th>
+            {% endif %}
+          </tr>
+        </thead>
+      </table>
+      <script type="text/javascript">
+        $(document).ready(function(){
+          var table = $('#datasets').DataTable({
+            ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
+            buttons: [
+              'copy', 'excelHtml5', {
+                extend: 'pdfHtml5',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                customize: function(doc) {
+                  doc.defaultStyle.fontSize = 7;
+                  doc.pageMargins = [20, 20, 20, 20];
+                  doc.styles.tableHeader.fontSize = 7;
+                } 
+              }
+            ],
+            colReorder: true,
+            columnDefs: [{
+              'orderable': false,
+              'targets': 0
+            }, {
+              'orderable': false,
+              'targets': -2
+            }, {
+              'orderable': false,
+              'targets': -1
+            }],
+            dom: 'Blfrtip',
+            fixedHeader: true,
+            language: {
+              url: '{% static 'datatables-1.10.20/datatables.german.lang' %}'
+            },
+            lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
+            order: [[ 1, 'asc' ]],
+            orderCellsTop: true,
+            orderClasses: false,
+            orderMulti: false,
+            pageLength: 25,
+            processing: true,
+            searchDelay: 500,
+            searching: true,
+            serverSide: true,
+            stateSave: true
+          });
+        
+          $('#action_button').click(function() {
+            if ($('#action-select').val() === 'delete-selected') {
+              var actionCheckboxes = $('.action_checkbox').filter(':checked');
+              if (actionCheckboxes.length > 0) {
+                actionCheckboxes.each(function() {
+                  jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
                 });
-            
-                $('#action_button').click(function() {
-                    if ($('#action_select').val() === 'delete_selected') {
-                        var actionCheckboxes = $('.action_checkbox').filter(':checked');
-                        if (actionCheckboxes.length > 0) {
-                            actionCheckboxes.each(function() {
-                                jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
-                            });
-                            setTimeout(function() {
-                                table.ajax.reload();
-                            }, 1000);
-                        }
-                    }
-                });
-            });
+                setTimeout(function() {
+                  table.ajax.reload();
+                }, 1000);
+              }
+            }
+          });
+        });
 
-            $('body').on('change', '.action_checkbox', function(e) {
-                var actionCheckboxes = $('.action_checkbox').filter(':checked');
-                $('#action_count').text(actionCheckboxes.length);
-            });
-        </script>
+        $('body').on('change', '.action_checkbox', function(e) {
+          var actionCheckboxes = $('.action_checkbox').filter(':checked');
+          $('#action_count').text(actionCheckboxes.length);
+        });
+      </script>
     </div>
     {% if user|user_has_model_add_permission:model_name_lower %}
-        <div class='row'>
-            Aktion
-            <select id='action_select' name='action'>
-                <option value='' selected='selected'>---------</option>
-                <option value='delete_selected'>ausgewählte Datensätze löschen</option>
-            </select>
-            <button id='action_button' type='button' class='btn btn-default'>ausführen</button>
-            <span class='action_counter'>(<span id='action_count'>0</span> Datensätze ausgewählt)</span>
-        </div>
+      <div class="row">
+      <div class="input-group">
+ Aktion <select class="custom-select" id="inputGroupSelect04">
+    <option selected>Choose...</option>
+    <option value="1">One</option>
+    <option value="2">Two</option>
+    <option value="3">Three</option>
+  </select>
+  <div class="input-group-append">
+    <button class="btn btn-outline-secondary" type="button">Button</button>
+  </div>
+</div>
+        Aktion
+        <select id="action-select" name="action">
+          <option value="" selected="selected">---------</option>
+          <option value="delete-selected">ausgewählte Datensätze löschen</option>
+        </select>
+        <button id='action_button' type='button' class='btn btn-default'>ausführen</button>
+        <span class='action_counter'>(<span id='action_count'>0</span> Datensätze ausgewählt)</span>
+      </div>
     {% endif %}
-{% else %}
-    <h2>Keine Datensätze vorhanden.</h2>
-    <div class='row'>
-        {% if user|user_has_model_add_permission:model_name_lower %}
-            <a href='{% url 'datenmanagement:'|add:model_name|add:'add' %}' class='btn btn-success'>neuen Datensatz anlegen</a>
-        {% endif %}
-        <a href='{% url 'datenmanagement:'|add:model_name|add:'start' %}' class='btn btn-default'>zurück</a>
-    </div>
-{% endif %}
+  {% endif %}
 {% endblock %}
