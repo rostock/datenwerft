@@ -3,7 +3,7 @@
 
 {% block title %}Anmeldung | {% endblock %}
 
-{% block sepcials %}
+{% block specials %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/login.css' %}" />
 {% endblock %}
 
@@ -31,6 +31,6 @@
       {{ login_form.password.label_tag }}
       {{ login_form.password }}{{ form.password.errors }}
     </div>
-    <input class="btn btn-lg btn-primary btn-block" type="submit" value="anmelden" />
+    <input class="btn btn-lg btn-success btn-block" type="submit" value="anmelden" />
   </form>
 {% endblock %}

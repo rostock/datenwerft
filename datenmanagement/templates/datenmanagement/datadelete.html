@@ -18,7 +18,7 @@
     <div class="spacer-small"></div>
     <input class="btn btn-danger" type="submit" value="löschen" />
     {% with model_name=object|get_class_name %}
-      <a class="btn btn-success" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
+      <a class="btn btn-warning" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
     {% endwith %}
 	</form>
 {% endblock %}

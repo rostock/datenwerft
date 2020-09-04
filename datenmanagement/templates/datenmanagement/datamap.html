@@ -28,7 +28,7 @@
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"'></script>
 {% endblock %}
 
-{% block sepcials %}
+{% block specials %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
 {% endblock %}
 
@@ -46,7 +46,7 @@
         <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
       {% endif %}
       {% if object_list %}
-        <a class="btn btn-info btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
+        <a class="btn btn-secondary btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
       {% endif %}
       <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">zurück</a>
     </div>
@@ -61,15 +61,15 @@
       <div id="map-control" class="side">
         <h5>Kartenausschnitt</h5>
         <div class="row">
-          <input id="map-extent-initial" class="btn btn-info" type="submit" value="initial">
-          <input id="map-extent-filter" class="btn btn-info btn-in-a-row" type="submit" value={% if map_filters_enabled %}"aktuelle Filtermenge"{% else %}"alle Objekte"{% endif %}>
+          <input id="map-extent-initial" class="btn btn-success" type="submit" value="initial">
+          <input id="map-extent-filter" class="btn btn-success btn-in-a-row" type="submit" value={% if map_filters_enabled %}"aktuelle Filtermenge"{% else %}"alle Objekte"{% endif %}>
         </div>
       </div>
       {% if map_filters_enabled %}
       <!-- AB HIER NOCH NICHT BOOTSTRAP 4 !!!-->
         <div id='filter' class='side'>
           <h4>Filter für Kartenobjekte</h4>
-          <p>Achtung: Filter wirken <span class='required'>additiv!</span></p>
+          <p>Achtung: Filter wirken <strong>additiv!</strong></p>
           {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
             <div id='filter-intervall' class='row'>
               {% for map_rangefilter_field in map_rangefilter_fields %}
@@ -871,16 +871,19 @@
 
         // JSON durchgehen und je Feature ein Resultat bauen
         jQuery.each(json.features, function(index, item) {
-          var titel = '';
-          if (item.properties._title_.indexOf(', ') != -1)
-            titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-          else
-            titel = item.properties._title_;
-          var result = '<div class="result-element" data-feature="' + index + '"><strong>' + titel + '</strong>';
-          if (item.properties.gemeindeteil_abkuerzung)
-            result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
-          result += '<small class="text-muted"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
-          results.append(result);
+          // falls Feature nicht historisch ist:
+          if (!item.properties.historisch) {
+            var titel = '';
+            if (item.properties._title_.indexOf(', ') != -1)
+              titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+            else
+              titel = item.properties._title_;
+            var result = '<div class="result-element" data-feature="' + index + '"><strong>' + titel + '</strong>';
+            if (item.properties.gemeindeteil_abkuerzung)
+              result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
+            result += '<small class="text-muted"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
+            results.append(result);
+          }
         });
 
         // Resultate einblenden

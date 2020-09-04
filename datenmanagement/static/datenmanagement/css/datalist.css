@@ -1,0 +1,13 @@
+#datasets {
+  width:100%;
+}
+
+#datasets_wrapper {
+  width:100%;
+  margin-top:1rem;
+}
+
+.action-counter {
+  margin-top:0.3rem;
+  margin-left:1rem;
+}

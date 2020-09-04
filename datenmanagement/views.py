@@ -281,7 +281,7 @@ class DataView(BaseDatatableView):
       checker = ObjectPermissionChecker(self.request.user)
       obj = self.model.objects.get(pk=item_id)
       if checker.has_perm('delete_' + self.model_name_lower, obj):
-        item_data.append('<input class="action_checkbox" type="checkbox" value="' + str(item_id) + '">')
+        item_data.append('<input class="action-checkbox" type="checkbox" value="' + str(item_id) + '">')
       else:
         item_data.append('')
       for column in list(self.columns.keys()):

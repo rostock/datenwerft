@@ -1,0 +1,39 @@
+html {
+  position:relative;
+  min-height:100%;
+}
+
+a:hover {
+  text-decoration:none;
+}
+
+.btn-in-a-row {
+  margin-left:.5rem;
+}
+
+.centered {
+  text-align:center;
+}
+
+.container-fluid {
+  width:90%;
+}
+
+.list-group {
+  margin-top:1rem;
+  margin-bottom:1rem;
+}
+
+.row {
+  margin-bottom:1rem;
+  padding-left:15px;
+  padding-right:15px;
+}
+
+.spacer {
+  height:2rem;
+}
+
+.spacer-small {
+  height:1rem;
+}

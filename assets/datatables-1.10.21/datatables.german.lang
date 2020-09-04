@@ -1,0 +1,41 @@
+{
+	"sEmptyTable":   	"Keine Datensätze in der Tabelle vorhanden!",
+	"sInfo":         	"_START_ bis _END_ von _TOTAL_ Datensätzen",
+	"sInfoEmpty":    	"Keine Daten vorhanden!",
+	"sInfoFiltered": 	"(gefiltert aus _MAX_ Datensätzen)",
+	"sInfoPostFix":  	"",
+	"sInfoThousands":  	".",
+	"sLengthMenu":   	"_MENU_ Datensätze anzeigen",
+	"sLoadingRecords": 	"wird geladen…",
+	"sProcessing":   	"Bitte warten…",
+	"sSearch":       	"Suche/Filter",
+	"sZeroRecords":  	"Keine Datensätze vorhanden!",
+	"oPaginate": {
+		"sFirst":    	"erste",
+		"sPrevious": 	"zurück",
+		"sNext":     	"weiter",
+		"sLast":     	"letzte"
+	},
+	"oAria": {
+		"sSortAscending":  ": aktivieren, um Spalte aufsteigend zu sortieren",
+		"sSortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+	},
+	"select": {
+    	"rows": {
+			"_": "%d Zeilen ausgewählt",
+			"0": "",
+			"1": "1 Zeile ausgewählt"
+	    }
+	},
+	"buttons": {
+		"print":	"Drucken",
+		"colvis":	"Spalten",
+		"copy":		"Kopieren",
+		"copyTitle":	"in Zwischenablage kopieren",
+		"copyKeys":	"Taste <i>ctrl</i> oder <i>\u2318</i> + <i>C</i> um Tabelle<br>in Zwischenspeicher zu kopieren.<br><br>Um abzubrechen die Nachricht anklicken oder Escape drücken.",
+		"copySuccess": {
+			"_": "%d Datensätze kopiert",
+			"1": "1 Datensatz kopiert"
+		}
+	}
+}

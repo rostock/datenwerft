@@ -1,10 +1,10 @@
+.alert,
 .form-signin {
-  width:100%;
-  max-width:420px;
-  padding:15px;
+  max-width:500px;
   margin:auto;
 }
 
+.alert,
 .form-label-group {
   margin-bottom:1rem;
 }

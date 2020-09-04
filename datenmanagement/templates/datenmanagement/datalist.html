@@ -6,8 +6,12 @@
 {% block title %}{{ model_verbose_name_plural }} | {% endblock %}
 
 {% block table %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.20/datatables.min.css' %}"/>
-  <script type="text/javascript" src="{% static 'datatables-1.10.20/datatables.min.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.21/datatables.min.css' %}"/>
+  <script type="text/javascript" src="{% static 'datatables-1.10.21/datatables.min.js' %}"></script>
+{% endblock %}
+
+{% block specials %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datalist.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -24,7 +28,7 @@
         <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
       {% endif %}
       {% if object_list %}
-        <a class="btn btn-info btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
+        <a class="btn btn-secondary btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
       {% endif %}
       <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">zurück</a>
     </div>
@@ -42,10 +46,10 @@
               {% endwith %}
             {% endfor %}
             {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
-              <th><i>ansehen/editieren</i></th>
+              <th><em>ansehen/editieren</em></th>
             {% endif %}
             {% if user|user_has_model_delete_permission:model_name_lower %}
-              <th><i>löschen</i></th>
+              <th><em>löschen</em></th>
             {% endif %}
           </tr>
         </thead>
@@ -80,7 +84,7 @@
             dom: 'Blfrtip',
             fixedHeader: true,
             language: {
-              url: '{% static 'datatables-1.10.20/datatables.german.lang' %}'
+              url: '{% static 'datatables-1.10.21/datatables.german.lang' %}'
             },
             lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
             order: [[ 1, 'asc' ]],
@@ -95,47 +99,45 @@
             stateSave: true
           });
         
-          $('#action_button').click(function() {
+          $('#action-button').click(function() {
             if ($('#action-select').val() === 'delete-selected') {
-              var actionCheckboxes = $('.action_checkbox').filter(':checked');
+              var actionCheckboxes = $('.action-checkbox').filter(':checked');
               if (actionCheckboxes.length > 0) {
                 actionCheckboxes.each(function() {
                   jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
                 });
                 setTimeout(function() {
                   table.ajax.reload();
+                  $('#action-count').text('kein Datensatz');
                 }, 1000);
               }
             }
           });
         });
 
-        $('body').on('change', '.action_checkbox', function(e) {
-          var actionCheckboxes = $('.action_checkbox').filter(':checked');
-          $('#action_count').text(actionCheckboxes.length);
+        $('body').on('change', '.action-checkbox', function(e) {
+          var actionCheckboxes = $('.action-checkbox').filter(':checked');
+          if (actionCheckboxes.length === 1)
+            $('#action-count').text('1 Datensatz');
+          else if (actionCheckboxes.length === 0)
+            $('#action-count').text('kein Datensatz');
+          else
+            $('#action-count').text(actionCheckboxes.length + ' Datensätze');
         });
       </script>
     </div>
     {% if user|user_has_model_add_permission:model_name_lower %}
       <div class="row">
-      <div class="input-group">
- Aktion <select class="custom-select" id="inputGroupSelect04">
-    <option selected>Choose...</option>
-    <option value="1">One</option>
-    <option value="2">Two</option>
-    <option value="3">Three</option>
-  </select>
-  <div class="input-group-append">
-    <button class="btn btn-outline-secondary" type="button">Button</button>
-  </div>
-</div>
-        Aktion
-        <select id="action-select" name="action">
-          <option value="" selected="selected">---------</option>
-          <option value="delete-selected">ausgewählte Datensätze löschen</option>
-        </select>
-        <button id='action_button' type='button' class='btn btn-default'>ausführen</button>
-        <span class='action_counter'>(<span id='action_count'>0</span> Datensätze ausgewählt)</span>
+        <div class="input-group">
+          <select class="custom-select" id="action-select" name="action">
+            <option selected>Aktion wählen…</option>
+            <option value="delete-selected">ausgewählte Datensätze löschen</option>
+          </select>
+          <div class="input-group-append">
+            <button id="action-button" class="btn btn-outline-danger" type="button">Aktion ausführen</button>
+          </div>
+        <span class="action-counter">(<span id="action-count">kein Datensatz</span> ausgewählt)</span>
+        </div>
       </div>
     {% endif %}
   {% endif %}

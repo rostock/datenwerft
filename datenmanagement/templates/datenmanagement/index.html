@@ -11,8 +11,22 @@
         {% for model in object_list %}
           {% with model_name=model|get_class_name %}
             {% if user|user_has_model_permission:model %}
-              {% if user.is_superuser or not model|is_class_codelist %}
-                <a class="list-group-item list-group-item-action {% if model|is_class_codelist %}list-group-item-warning{% else %}list-group-item-info{% endif %}" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
+              {% if model|is_class_codelist %}
+                <a class="list-group-item list-group-item-action list-group-item-secondary" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
+                  <h4>{{ model|get_class_verbose_name_plural }}</h4>
+                  <h5><small>{{ model|get_class_description }}</small></h5>
+                </a>
+              {% endif %}
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+      <div class="list-group">
+        {% for model in object_list %}
+          {% with model_name=model|get_class_name %}
+            {% if user|user_has_model_permission:model %}
+              {% if not model|is_class_codelist %}
+                <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
                   <h4>{{ model|get_class_verbose_name_plural }}</h4>
                   <h5><small>{{ model|get_class_description }}</small></h5>
                 </a>

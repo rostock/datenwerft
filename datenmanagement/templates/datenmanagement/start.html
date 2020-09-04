@@ -4,7 +4,7 @@
 
 {% block title %}Möglichkeiten | {% endblock %}
 
-{% block sepcials %}
+{% block specials %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/start.css' %}" />
 {% endblock %}
 
@@ -18,9 +18,9 @@
       <a class="btn btn-lg btn-primary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
     {% endif %}
     {% if user|user_has_model_change_permission:model_name_lower or user|user_has_model_delete_permission:model_name_lower or user|user_has_model_view_permission:model_name_lower %}
-      <a class="btn btn-lg btn-info btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
+      <a class="btn btn-lg btn-secondary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
       {% if geometry_type %}
-        <a class="btn btn-lg btn-info btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
+        <a class="btn btn-lg btn-secondary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
       {% endif %}
     {% endif %}
     <a class="btn btn-lg btn-warning btn-block" role="button" href="{% url 'datenmanagement:index' %}">zurück</a>

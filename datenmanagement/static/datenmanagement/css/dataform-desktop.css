@@ -1,12 +1,16 @@
-#formular {
-    width:48%;
-    padding:0;
-    float:left;
+#buttons {
+  margin-top:2.5rem;
+  margin-bottom:1rem;
 }
 
-#map_adressensuche_container_formular {
-    height:600px;
-    width:50%;
-    float:left;
-    margin-left:1%;
+#custom-form {
+  width:48%;
+  float:left;
+}
+
+#map-adresssearch-container-form {
+  height:600px;
+  width:50%;
+  float:left;
+  margin-left:2%;
 }
