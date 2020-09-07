@@ -19,9 +19,8 @@ a:hover {
   width:90%;
 }
 
-.list-group {
-  margin-top:1rem;
-  margin-bottom:1rem;
+.required {
+  font-weight:bold;
 }
 
 .row {

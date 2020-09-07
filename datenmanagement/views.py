@@ -200,7 +200,7 @@ class DataForm(ModelForm):
       if field.label == 'Geometrie':
         message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
       else:
-        message = 'Das Attribut „{label}“ ist Pflicht!'.format(label = field.label)
+        message = 'Das Attribut <strong>{label}</strong> ist Pflicht!'.format(label = field.label)
       field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.

@@ -1,7 +1,13 @@
 {% extends "_base/navbar.html" %}
+{% load static %}
 {% load datenmanagement_tags %}
 
 {% block title %}Datenmanagement | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/index.css' %}" />
+{% endblock %}
 
 {% block content %}
   {% if user.is_authenticated %}
@@ -43,5 +49,6 @@
         bei der Web-Anwendung zur <strong>Datenerfassung</strong><br/>
         der Hanse- und Universitätsstadt Rostock!
       </h2>
+      <a class="btn btn-lg btn-primary btn-block" role="button" href="{% url 'login' %}">Anmeldung</a>
   {% endif %}
 {% endblock %}

@@ -6,24 +6,11 @@
 
 {% block title %}Formular | {% endblock %}
 
-{% block map %}
-  {% leaflet_js plugins="forms" %}
+{% block style %}
+  {{ block.super }}
   {% leaflet_css plugins="forms" %}
-  <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
-{% endblock %}
-
-{% block picker %}
   <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
-  <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"></script>
-{% endblock %}
-
-{% block specials %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform-mobile.css' %}" />
@@ -32,25 +19,43 @@
   {% endif %}
 {% endblock %}
 
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js plugins="forms" %}
+  <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"></script>
+{% endblock %}
+
 {% block content %}
   {% if form.errors %}
     {% for field in form %}
       {% if field.errors %}
         {% for error in field.errors %}
           <div class="alert alert-danger" role="alert">
-            {{ error|escape }}
+            {% autoescape off %}
+              {{ error }}
+            {% endautoescape %}
           </div>
         {% endfor %}
       {% endif %}
     {% endfor %}
     {% if form.non_field_errors %}
-      {{ form.non_field_errors }}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          Fehler bei der Eingabe
+        </div>
+      {% endfor %}
     {% endif %}
     <div class="spacer-small"></div>
   {% endif %}
 	<form class="form" role="form" method="post" enctype="multipart/form-data" action="">
   {% csrf_token %}
-    <div id="custom-form">
+    <div {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}class="row"{% endif %} id="custom-form">
       <table class="table table-striped">
         {% for field in form %}
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
@@ -71,15 +76,6 @@
           {% endif %}
         {% endfor %}
       </table>
-      <div id="buttons">
-        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-          <input class="btn btn-success" value="speichern" type="submit" onclick="setAddressUuid();"/>
-        {% endif %}
-        {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
-          <a class="btn btn-danger btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a>
-        {% endif %}
-        <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
-      </div>
     </div>
     {% if geometry_type %}
       <div id="map-adresssearch-container-form">
@@ -100,12 +96,10 @@
         {% if address_type %}
           <div id="address-search-container">
             {% if address_type == 'Adresse' %}
-              {{ form.adresse.errors }}
               {{ form.adresse.label_tag }}
               {{ form.adresse }}
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
-              {{ form.strasse.errors }}
               {{ form.strasse.label_tag }}
               {{ form.strasse }}
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
@@ -118,42 +112,35 @@
         </div>
       </div>
     {% endif %}
-    <div id="maptoaddress-error-modal" class="modal fade" role="dialog" tabindex="-1">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Keine Adressenzuordnung möglich</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Objekt zu weit von nächster Adresse entfernt!</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">schließen</button>
+    <div id="buttons">
+      {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+        <input class="btn btn-success" value="speichern" type="submit" onclick="setAddressUuid();"/>
+      {% endif %}
+      {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
+        <a class="btn btn-danger btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a>
+      {% endif %}
+      <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
+    </div>
+    {% if address_type %}
+      <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal" class="modal fade" role="dialog" tabindex="-1">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Keine Zuordnung einer {{ address_type }} möglich</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Objekt zu weit von nächster {{ address_type }} entfernt!
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">schließen</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div id="maptostreet-error-modal" class="modal fade" role="dialog" tabindex="-1">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Keine Straßenzuordnung möglich</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Objekt zu weit von nächster Straße entfernt!</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">schließen</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% endif %}
 	</form>
   <script type="text/javascript">
     // Date-/Time-/Date-Time-Picker
@@ -430,6 +417,14 @@
 
       // verhindern, dass HTML5-/jQuery-Fehlermeldungen bei Pflichtfeldern die Django-Fehlermeldungen überdecken
       $('[required]').removeAttr('required');
+
+      // vertikale Position der Buttons dynamisch setzen anhand der Höhe des Formulars (plus "Puffer" von 150 Pixeln)
+      {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+        var top = 150 + $('#custom-form').height();
+        $('#buttons').offset({
+          top: top
+        });
+      {% endif %}
     });
 
     // Adresse oder Straße als Marker in Karte übernehmen

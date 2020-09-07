@@ -1,8 +1,12 @@
 #buttons {
-  margin-top:8rem;
+  margin-top:12rem;
 }
 
 #map-adresssearch-container-form {
   height:600px;
   width:100%;
+}
+
+.results {
+  margin-bottom:1rem;
 }

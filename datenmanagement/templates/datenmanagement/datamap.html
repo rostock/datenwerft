@@ -6,30 +6,29 @@
 
 {% block title %}{{ model_verbose_name_plural }} | {% endblock %}
 
-{% block map %}
-  {% leaflet_js %}
+{% block style %}
+  {{ block.super }}
   {% leaflet_css %}
-  <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet.label-0.2.2/leaflet.label.css' %}"/>
-  <script type="text/javascript" src="{% static 'leaflet.label-0.2.2/leaflet.label.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet.markercluster-1.4.1/leaflet.markercluster.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.4.1/MarkerCluster.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.4.1/MarkerCluster.Default.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
-  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
 {% endblock %}
 
-{% block picker %}
-  <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js %}
+  <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet.label-0.2.2/leaflet.label.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet.markercluster-1.4.1/leaflet.markercluster.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"'></script>
-{% endblock %}
-
-{% block specials %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
 {% endblock %}
 
 {% block content %}

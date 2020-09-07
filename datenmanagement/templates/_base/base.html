@@ -17,6 +17,7 @@
       {% block style %}
         <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.5.2/bootstrap.min.css' %}"/>
         <link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free-5.14.0-web/all.min.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/base.css' %}" />
       {% endblock %}
 
       {% block scripts %}
@@ -25,22 +26,6 @@
         <script type="text/javascript" src="{% static 'bootstrap-4.5.2/bootstrap.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'fontawesome-free-5.14.0-web/all.min.js' %}"></script>
         <script type="text/javascript">ADDRESS_SEARCH_KEY = '{{ address_search_key }}'</script>
-      {% endblock %}
-
-      {% block map %}
-      {% endblock %}
-
-      {% block table %}
-      {% endblock %}
-
-      {% block picker %}
-      {% endblock %}
-
-      {% block datenmanagement %}
-        <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/base.css' %}" />
-      {% endblock %}
-
-      {% block specials %}
       {% endblock %}
 
     {% endblock %}

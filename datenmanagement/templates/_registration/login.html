@@ -3,33 +3,40 @@
 
 {% block title %}Anmeldung | {% endblock %}
 
-{% block specials %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/login.css' %}" />
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/login.css' %}" />
 {% endblock %}
 
 {% block content %}
-	{% if form.errors and not form.non_field_errors %}
-		<div class="alert alert-warning" role="alert">
-			Fehler in der Eingabe
-		</div>
-	{% endif %}
-	{% if form.non_field_errors %}
-		{% for error in form.non_field_errors %}
-			<div class="alert alert-warning" role="alert">
-				{{ error }}
-			</div>
-		{% endfor %}
-	{% endif %}
-  
+  {% if form.errors %}
+    {% for field in form %}
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <div class="alert alert-danger" role="alert">
+            Fehler bei der Eingabe
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          Benutzername und/oder Passwort ungültig (Hinweis: Beide Felder berücksichtigen die Groß-/Kleinschreibung)!
+        </div>
+      {% endfor %}
+    {% endif %}
+    <div class="spacer-small"></div>
+  {% endif %}
   <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
     {% csrf_token %}
     <div class="form-label-group">
-      {{ login_form.username.label_tag }}
-      {{ login_form.username }}{{ form.username.errors }}
+      <label class="required" for="id_username">Benutzername</label>
+      {{ login_form.username }}
     </div>
     <div class="form-label-group">
-      {{ login_form.password.label_tag }}
-      {{ login_form.password }}{{ form.password.errors }}
+      <label class="required" for="id_password">Passwort</label>
+      {{ login_form.password }}
     </div>
     <input class="btn btn-lg btn-success btn-block" type="submit" value="anmelden" />
   </form>

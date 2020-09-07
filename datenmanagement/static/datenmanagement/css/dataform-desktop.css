@@ -1,16 +1,15 @@
 #buttons {
-  margin-top:2.5rem;
+  position:absolute;
   margin-bottom:1rem;
 }
 
 #custom-form {
-  width:48%;
+  width:49%;
   float:left;
 }
 
 #map-adresssearch-container-form {
   height:600px;
-  width:50%;
-  float:left;
-  margin-left:2%;
+  width:49%;
+  float:right;
 }

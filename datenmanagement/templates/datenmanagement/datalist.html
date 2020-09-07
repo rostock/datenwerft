@@ -5,13 +5,15 @@
 
 {% block title %}{{ model_verbose_name_plural }} | {% endblock %}
 
-{% block table %}
+{% block style %}
+  {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.21/datatables.min.css' %}"/>
-  <script type="text/javascript" src="{% static 'datatables-1.10.21/datatables.min.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datalist.css' %}" />
 {% endblock %}
 
-{% block specials %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datalist.css' %}" />
+{% block scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'datatables-1.10.21/datatables.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -33,11 +35,12 @@
       <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">zurück</a>
     </div>
   {% if object_list %}
+    <div class="spacer-small"></div>
     <div class="row">
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th></th>
+            <th><i class="fas fa-check-square"></i></th>
             {% for label in list_fields_labels %}
               {% with schritt=forloop.counter|stringformat:'s' %}
                 {% with spalte='spalte_'|add:schritt %}
@@ -46,10 +49,10 @@
               {% endwith %}
             {% endfor %}
             {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
-              <th><em>ansehen/editieren</em></th>
+              <th><i class="fas fa-eye"></i> oder <i class="fas fa-edit"></i></th>
             {% endif %}
             {% if user|user_has_model_delete_permission:model_name_lower %}
-              <th><em>löschen</em></th>
+              <th><i class="fas fa-trash"></i></th>
             {% endif %}
           </tr>
         </thead>
@@ -81,7 +84,7 @@
               'orderable': false,
               'targets': -1
             }],
-            dom: 'Blfrtip',
+            dom: '<Bfr<t>ilp>',
             fixedHeader: true,
             language: {
               url: '{% static 'datatables-1.10.21/datatables.german.lang' %}'
@@ -127,6 +130,7 @@
       </script>
     </div>
     {% if user|user_has_model_add_permission:model_name_lower %}
+      <div class="spacer-small"></div>
       <div class="row">
         <div class="input-group">
           <select class="custom-select" id="action-select" name="action">
@@ -134,9 +138,9 @@
             <option value="delete-selected">ausgewählte Datensätze löschen</option>
           </select>
           <div class="input-group-append">
-            <button id="action-button" class="btn btn-outline-danger" type="button">Aktion ausführen</button>
+            <button id="action-button" class="btn btn-danger" type="button">Aktion ausführen</button>
+            (<span id="action-count">kein Datensatz</span> ausgewählt)
           </div>
-        <span class="action-counter">(<span id="action-count">kein Datensatz</span> ausgewählt)</span>
         </div>
       </div>
     {% endif %}
