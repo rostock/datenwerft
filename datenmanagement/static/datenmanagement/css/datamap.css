@@ -1,18 +1,9 @@
-#filter,
-#map-control {
-  margin-top:2rem;
-}
-
 #map-side-container {
-  min-height:800px;
   margin-bottom:1rem;
 }
 
 #map {
   height:100%;
-  min-height:800px;
-  width:70%;
-  float:left;
 }
 
 #searchtext {
@@ -85,10 +76,4 @@
 
 .result-element:hover .text-muted {
   color:#000;
-}
-
-.side {
-  width:28%;
-  float:left;
-  margin-left:2%;
 }

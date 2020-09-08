@@ -1,0 +1,9 @@
+#address-search,
+#map-control {
+  margin-top:1rem;
+  padding-left:0;
+}
+
+#map {
+  height:600px;
+}

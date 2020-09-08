@@ -15,6 +15,11 @@
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
+  {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap-mobile.css' %}" />
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap-desktop.css' %}" />
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}
@@ -52,12 +57,7 @@
   {% if object_list %}
 	  <div id="map-side-container">
       {% leaflet_map "map" callback="window.map_init_basic" %}
-      <div id="address-search" class="side">
-        <h5>Adressensuche</h5>
-        <input id="searchtext" type="text" name="searchtext" maxlength="255" />
-        <div id="results-container" class="results"></div>
-      </div>
-      <div id="map-control" class="side">
+      <div id="map-control" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
         <h5>Kartenausschnitt</h5>
         <div class="row">
           <input id="map-extent-initial" class="btn btn-success" type="submit" value="initial">
@@ -66,7 +66,7 @@
       </div>
       {% if map_filters_enabled %}
       <!-- AB HIER NOCH NICHT BOOTSTRAP 4 !!!-->
-        <div id='filter' class='side'>
+        <div id="filter" class="side">
           <h4>Filter für Kartenobjekte</h4>
           <p>Achtung: Filter wirken <strong>additiv!</strong></p>
           {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
@@ -117,13 +117,18 @@
               {% endfor %}
             </div>
           {% endif %}
-          <!-- ENDE-->
           <div id="filter-buttons" class="row">
             <input id="filter-apply" class="btn btn-success" type="submit" value="anwenden">
             <input id="filter-reset" class="btn btn-warning btn-in-a-row" type="submit" value="zurücksetzen">
           </div>
         </div>
+      <!-- ENDE-->
       {% endif %}
+      <div id="address-search" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
+        <h5>Adressensuche</h5>
+        <input id="searchtext" type="text" name="searchtext" maxlength="255" />
+        <div id="results-container" class="results"></div>
+      </div>
     </div>
     <script type="text/javascript">
       function map_init_basic(map, options) {
@@ -810,11 +815,13 @@
         });
 
         // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche (plus "Puffer" von 60 Pixeln)
-        var height = 60;
-        $('.side').each(function() {
-          height += $(this).height();
-        });
-        $('#map-side-container').height(height);
+        {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+          var height = 60;
+          $('.side').each(function() {
+            height += $(this).height();
+          });
+          $('#map-side-container').height(height);
+        {% endif %}
       });
 
       // GeoJSON-Feature ausblenden
