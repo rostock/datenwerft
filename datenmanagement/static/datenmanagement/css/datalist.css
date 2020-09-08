@@ -1,10 +1,10 @@
 #action-button {
-  border-top-right-radius:0.25rem;
-  border-bottom-right-radius:0.25rem;
+  border-top-right-radius:.25rem;
+  border-bottom-right-radius:.25rem;
 }
 
 #datasets_length {
-  margin-top:0.5rem;
+  margin-top:.5rem;
   float:left;
 }
 

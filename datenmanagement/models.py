@@ -180,20 +180,19 @@ options.DEFAULT_NAMES += (
   'foreign_key_label',                  # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
   'map_feature_tooltip_field',          # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
   'map_feature_tooltip_fields',         # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
-  'map_rangefilter_fields',             # optional ; Textliste      ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen – Achtung: Verarbeitung immer paarweise!
-  'map_rangefilter_fields_labels',      # optional ; Textliste      ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Intervallfiltertitel auftreten sollen – Achtung: Verarbeitung immer paarweise!
+  'map_rangefilter_fields',             # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
   'map_filter_fields',                  # optional ; Textliste      ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
   'map_filter_fields_labels',           # optional ; Textliste      ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
   'map_filter_fields_as_list',          # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
+  'map_filter_field_hide_initial',      # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
+  'map_filter_value_hide_initial',      # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
   'address_type',                       # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
   'address_mandatory',                  # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
   'geometry_type',                      # optional ; Text           ; Geometrietyp
   'thumbs',                             # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
   'multi_foto_field',                   # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
   'group_with_users_for_choice_field',  # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group',                        # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
-  'map_filter_field_hide_initial',      # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
-  'map_filter_value_hide_initial'       # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
+  'admin_group'                         # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
 )
 
 
@@ -335,22 +334,6 @@ ART_VORGANG_UVP_VORHABEN = (
   ('Bauantrag', 'Bauantrag'),
   ('externe Genehmigungsplanung', 'externe Genehmigungsplanung'),
   ('Genehmigungsplanung der Hanse- und Universitätsstadt Rostock', 'Genehmigungsplanung der Hanse- und Universitätsstadt Rostock'),
-)
-
-AUFTRAGGEBER_BAUSTELLEN = (
-  ('Deutsche Bahn AG', 'Deutsche Bahn AG'),
-  ('Deutsche Telekom AG', 'Deutsche Telekom AG'),
-  ('Hanse- und Universitätsstadt Rostock', 'Hanse- und Universitätsstadt Rostock'),
-  ('Landesamt für Straßenbau und Verkehr Mecklenburg-Vorpommern', 'Landesamt für Straßenbau und Verkehr Mecklenburg-Vorpommern'),
-  ('Nordwasser GmbH', 'Nordwasser GmbH'),
-  ('Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH', 'Rostocker Gesellschaft für Stadterneuerung, Stadtentwicklung und Wohnungsbau mbH'),
-  ('Rostocker Straßenbahn AG', 'Rostocker Straßenbahn AG'),
-  ('Stadtentsorgung Rostock GmbH', 'Stadtentsorgung Rostock GmbH'),
-  ('Stadtwerke Rostock AG', 'Stadtwerke Rostock AG'),
-  ('Stadtwerke Rostock Netzgesellschaft mbH', 'Stadtwerke Rostock Netzgesellschaft mbH'),
-  ('Unternehmen der Rostocker Versorgungs- und Verkehrs-Holding GmbH', 'Unternehmen der Rostocker Versorgungs- und Verkehrs-Holding GmbH'),
-  ('Warnowquerung GmbH & Co. KG', 'Warnowquerung GmbH & Co. KG'),
-  ('andere(r)/private(r)', 'andere(r)/private(r)'),
 )
 
 AUSFUEHRUNG_HALTESTELLEN = (
@@ -619,46 +602,16 @@ SITZBANKTYPEN_HALTESTELLEN = (
   ('Sitzbank ohne Armlehne', 'Sitzbank ohne Armlehne'),
 )
 
-SPARTEN_BAUSTELLEN = (
-  ('Beleuchtung', 'Beleuchtung'),
-  ('Fernwärme', 'Fernwärme'),
-  ('Gas', 'Gas'),
-  ('Gehwegbau', 'Gehwegbau'),
-  ('Lichtsignalanlagen', 'Lichtsignalanlagen'),
-  ('ÖPNV', 'ÖPNV'),
-  ('Radwegbau', 'Radwegbau'),
-  ('Schienenverkehr', 'Schienenverkehr'),
-  ('Stadtgrün', 'Stadtgrün'),
-  ('Straßenbau', 'Straßenbau'),
-  ('Strom', 'Strom'),
-  ('Telekommunikation', 'Telekommunikation'),
-  ('Wasser/Abwasser', 'Wasser/Abwasser'),
-)
-
 STATUS_BAUSTELLEN_FOTODOKUMENTATION = (
   ('vor Baumaßnahme', 'vor Baumaßnahme'),
   ('während Baumaßnahme', 'während Baumaßnahme'),
   ('nach Baumaßnahme', 'nach Baumaßnahme'),
 )
 
-STATUS_BAUSTELLEN_GEPLANT = (
-  ('strategische Planung', 'strategische Planung'),
-  ('Grobplanung (LP1–2)', 'Grobplanung (LP1–2)'),
-  ('Genehmigung (LP3–4)', 'Genehmigung (LP3–4)'),
-  ('Feinplanung (LP5–7)', 'Feinplanung (LP5–7)'),
-  ('im Bau (LP8)', 'im Bau (LP8)'),
-  ('abgeschlossen', 'abgeschlossen'),
-  ('gestoppt', 'gestoppt'),
-)
-
 TITEL_DENKSTEINE = (
   ('Dr.', 'Dr.'),
   ('Prof.', 'Prof.'),
   ('Prof. Dr.', 'Prof. Dr.'),
-)
-
-TRAEGER_ART = (
-  ('xxx', 'xxx'),
 )
 
 TYP_ABFALLBEHAELTER = (
@@ -694,13 +647,6 @@ VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE = (
   ('NewMotion', 'NewMotion'),
   ('Stadtwerke Rostock', 'Stadtwerke Rostock'),
   ('StromTicket', 'StromTicket'),
-)
-
-VERKEHRLICHE_LAGEN_BAUSTELLEN = (
-  ('Begleitgrün', 'Begleitgrün'),
-  ('Gehweg', 'Gehweg'),
-  ('Radweg', 'Radweg'),
-  ('Straße', 'Straße'),
 )
 
 VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
@@ -837,8 +783,42 @@ class Strassen(models.Model):
 
 
 #
-# Bewirtschafter, Betreiber, Träger, Eigentümer etc.
+# Codelisten
 #
+
+# Arten von Feuerwachen
+
+class Arten_Feuerwachen(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_feuerwachen'
+    verbose_name = 'Art einer Feuerwache'
+    verbose_name_plural = 'Arten von Feuerwachen'
+    description = 'Arten von Feuerwachen'
+
+
+# Auftraggeber von Baustellen
+
+class Auftraggeber_Baustellen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  auftraggeber = models.CharField('Auftraggeber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"auftraggeber_baustellen'
+    verbose_name = 'Auftraggeber einer Baustelle'
+    verbose_name_plural = 'Auftraggeber von Baustellen'
+    description = 'Auftraggeber von Baustellen'
+    list_fields = {
+      'auftraggeber': 'Auftraggeber'
+    }
+    ordering = ['auftraggeber'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.auftraggeber
+
+
+# Bewirtschafter, Betreiber, Träger, Eigentümer etc.
 
 class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
   uuid = models.UUIDField(primary_key=True, editable=False)
@@ -862,21 +842,97 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     return self.bezeichnung
 
 
+# Schlagwörter für Bildungsträger
+
+class Schlagwoerter_Bildungstraeger(Schlagwort):
+  class Meta(Schlagwort.Meta):
+    db_table = 'codelisten\".\"schlagwoerter_bildungstraeger'
+    verbose_name = 'Schlagwort für einen Bildungsträger'
+    verbose_name_plural = 'Schlagwörter für Bildungsträger'
+    description = 'Schlagwörter für Bildungsträger'
+
+
+# Sparten von Baustellen
+
+class Sparten_Baustellen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  sparte = models.CharField('Sparte', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"sparten_baustellen'
+    verbose_name = 'Sparte einer Baustelle'
+    verbose_name_plural = 'Sparten von Baustellen'
+    description = 'Sparten von Baustellen'
+    list_fields = {
+      'sparte': 'Sparte'
+    }
+    ordering = ['sparte'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.sparte
+
+
+# Status von Baustellen
+
+class Status_Baustellen_geplant(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  status = models.CharField('Status', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"status_baustellen_geplant'
+    verbose_name = 'Status einer Baustelle (geplant)'
+    verbose_name_plural = 'Status von Baustellen (geplant)'
+    description = 'Status von Baustellen (geplant)'
+    list_fields = {
+      'status': 'Status'
+    }
+    ordering = ['status'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.status
+
+
+# Verkehrliche Lagen von Baustellen
+
+class Verkehrliche_Lagen_Baustellen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  verkehrliche_lage = models.CharField(' verkehrliche Lage', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"verkehrliche_lagen_baustellen'
+    verbose_name = 'Verkehrliche Lage einer Baustelle'
+    verbose_name_plural = 'Verkehrliche Lagen von Baustellen'
+    description = 'Verkehrliche Lagen von Baustellen'
+    list_fields = {
+      'verkehrliche_lage': 'verkehrliche Lage'
+    }
+    ordering = ['verkehrliche_lage'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.verkehrliche_lage
+
+
 
 #
 # Datenthemen
 #
 
-# Aufteilungspläne nach Wohnungseigentumsgesetz: Datenthema
+# Aufteilungspläne nach Wohnungseigentumsgesetz
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
-  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum_abgeschlossenheitserklaerung = models.DateField('Datum der Abgeschlossenheitserklärung', blank=True, null=True)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   pdf = models.FileField('PDF', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=40)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
@@ -890,24 +946,21 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
-      'bezeichnung': 'Bezeichnung',
-      'traeger': 'Träger'
+      'aktenzeichen': 'Aktenzeichen',
+      'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
+      'datum': 'Datum'
     }
-    list_fields_with_date = ['datum', 'datum_abgeschlossenheitserklaerung']
-    map_feature_tooltip_field = 'bezeichnung'
+    list_fields_with_date = ['datum_abgeschlossenheitserklaerung', 'datum']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse'
+    }
+    map_feature_tooltip_field = 'datum'
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'Point'
 
-
-
-#xxxx
-    list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'abgeschlossenheitserklaerungsdatum']
-    list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Datum der Abgeschlossenheitserklärung']
-    map_feature_tooltip_field = 'uuid'
-  
   def __str__(self):
-    return 'Abgeschlossenheitserklärung mit Datum ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
+    return 'Abgeschlossenheitserklärung mit Datum ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 @receiver(post_delete, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 def aufteilungsplan_wohnungseigentumsgesetz_post_delete_handler(sender, instance, **kwargs):
@@ -915,7 +968,81 @@ def aufteilungsplan_wohnungseigentumsgesetz_post_delete_handler(sender, instance
     instance.pdf.delete(False)
 
 
-# Behinderteneinrichtungen: Datenthema
+# Baustellen (geplant)
+
+class Baustellen_geplant(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.CASCADE, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
+  projektbezeichnung = models.CharField('Projektbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  kurzbeschreibung = NullTextField('Kurzbeschreibung', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  lagebeschreibung = models.CharField('Lagebeschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  verkehrliche_lagen = ChoiceArrayField(models.CharField(' verkehrliche Lage(n)', max_length=255, choices=()), verbose_name=' verkehrliche Lage(n)')
+  sparten = ChoiceArrayField(models.CharField('Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)')
+  beginn = models.DateField('Beginn')
+  ende = models.DateField('Ende')
+  auftraggeber = models.ForeignKey(Auftraggeber_Baustellen, verbose_name='Auftraggeber', on_delete=models.RESTRICT, db_column='auftraggeber', to_field='uuid', related_name='auftraggeber+')
+  ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  status = models.ForeignKey(Status_Baustellen_geplant, verbose_name='Status', on_delete=models.RESTRICT, db_column='status', to_field='uuid', related_name='status+')
+  konflikt = models.BooleanField('Konflikt?', blank=True, null=True, editable=False)
+  konflikt_tolerieren = models.BooleanField(' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren?', blank=True, null=True)
+  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_strassenbezug\".\"baustellen_geplant'
+    verbose_name = 'Baustelle (geplant)'
+    verbose_name_plural = 'Baustellen (geplant)'
+    description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    choices_models_for_choices_fields = {
+      'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
+      'sparten': 'Sparten_Baustellen'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'strasse': 'Straße',
+      'bezeichnung': 'Bezeichnung',
+      'verkehrliche_lagen': 'verkehrliche Lage(n)',
+      'sparten': 'Sparte(n)',
+      'beginn': 'Beginn',
+      'ende': 'Ende',
+      'auftraggeber': 'Auftraggeber',
+      'ansprechpartner': 'Ansprechpartner',
+      'status': 'Status',
+      'konflikt': 'Konflikt(e)?',
+      'konflikt_tolerieren': 'Konflikt(e) tolerieren?'
+    }
+    list_fields_with_date = ['beginn', 'ende']
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse__strasse',
+      'auftraggeber': 'auftraggeber__auftraggeber',
+      'status': 'status__status'
+    }
+    highlight_flag = 'konflikt'
+    map_feature_tooltip_field = 'bezeichnung'
+    map_rangefilter_fields = {
+      'beginn': 'Beginn',
+      'ende': 'Ende'
+    }
+    
+    map_filter_fields = ['bezeichnung', 'sparten', 'auftraggeber', 'status']
+    map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
+    map_filter_fields_as_list = ['auftraggeber', 'status']
+    map_filter_field_hide_initial = 'status'
+    map_filter_value_hide_initial = 'abgeschlossen'
+    
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'MultiPolygonField'
+    group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
+    admin_group = 'baustellen_geplant_full'
+  
+  def __str__(self):
+    return self.bezeichnung + ' [' + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn: ' + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ende: ' + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
+
+
+# Behinderteneinrichtungen
 
 class Behinderteneinrichtungen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -942,6 +1069,10 @@ class Behinderteneinrichtungen(models.Model):
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger'
     }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'traeger': 'traeger__bezeichnung'
+    }
     map_feature_tooltip_field = 'bezeichnung'
     address_type = 'Adresse'
     address_mandatory = True
@@ -951,17 +1082,7 @@ class Behinderteneinrichtungen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
 
-# Bildungsträger: Codeliste Schlagwort
-
-class Schlagwoerter_Bildungstraeger(Schlagwort):
-  class Meta(Schlagwort.Meta):
-    db_table = 'codelisten\".\"schlagwoerter_bildungstraeger'
-    verbose_name = 'Schlagwort für einen Bildungsträger'
-    verbose_name_plural = 'Schlagwörter für Bildungsträger'
-    description = 'Schlagwörter für Bildungsträger'
-
-
-# Bildungsträger: Datenthema
+# Bildungsträger
 
 class Bildungstraeger(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -970,7 +1091,7 @@ class Bildungstraeger(models.Model):
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   schlagwoerter = ChoiceArrayField(models.CharField('Schlagwörter', max_length=255, choices=()), verbose_name='Schlagwörter')
-  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
   zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1005,17 +1126,7 @@ class Bildungstraeger(models.Model):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-# Feuerwachen: Codeliste Art
-
-class Arten_Feuerwachen(Art):
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_feuerwachen'
-    verbose_name = 'Art einer Feuerwache'
-    verbose_name_plural = 'Arten von Feuerwachen'
-    description = 'Arten von Feuerwachen'
-
-
-# Feuerwachen: Datenthema
+# Feuerwachen
 
 class Feuerwachen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -1054,7 +1165,7 @@ class Feuerwachen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
 
-# Kindertagespflegeeinrichtungen: Datenthema
+# Kindertagespflegeeinrichtungen
 
 class Kindertagespflegeeinrichtungen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -1111,7 +1222,7 @@ class Abfallbehaelter(models.Model):
   eigentuemer = models.CharField('Eigentümer', max_length=255, editable=False)
   bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_ABFALLBEHAELTER)
   bewirtschafter = models.CharField('Bewirtschafter', max_length=255, editable=False)
-  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
   aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', min_value=1900, max_value=current_year(), blank=True, null=True)
   anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
@@ -1131,7 +1242,7 @@ class Abfallbehaelter(models.Model):
   winter_fr = models.PositiveSmallIntegerField('Anzahl Leerungen freitags im Winter', blank=True, null=True)
   winter_sa = models.PositiveSmallIntegerField('Anzahl Leerungen samstags im Winter', blank=True, null=True)
   winter_so = models.PositiveSmallIntegerField('Anzahl Leerungen sonntags im Winter', blank=True, null=True)
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1160,8 +1271,8 @@ class Baudenkmale_Denkmalbereiche(models.Model):
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_BAUDENKMALE_DENKMALBEREICHE)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   gueltigkeit_von = models.DateField(default=date.today, editable=False)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.MultiPolygonField('Geometrie', srid=25833)
@@ -1187,12 +1298,12 @@ class Baudenkmale_Denkmalbereiche(models.Model):
 class Baustellen_Fotodokumentation_Baustellen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  sparte = models.CharField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
-  verkehrliche_lage = models.CharField('Verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
-  auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN)
-  auftraggeber_bemerkung = models.CharField('Bemerkung zum Auftraggeber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  sparte = models.CharField('Sparte(n)', max_length=255, choices='')
+  verkehrliche_lage = models.CharField('Verkehrliche Lage(n)', max_length=255, choices='')
+  auftraggeber = models.CharField('Auftraggeber', max_length=255, choices='')
+  auftraggeber_bemerkung = models.CharField('Bemerkung zum Auftraggeber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
@@ -1220,7 +1331,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
   dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'baustellen_fotodokumentation'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'baustellen_fotodokumentation'), max_length=255)
 
   class Meta:
     managed = False
@@ -1238,71 +1349,17 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     multi_foto_field = True
   
   def __str__(self):
-    return str(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') 
-
-
-class Baustellen_geplant(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Straße', max_length=255, blank=True, null=True)
-  projektbezeichnung = models.CharField('Projektbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  kurzbeschreibung = NullTextField('Kurzbeschreibung', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  lagebeschreibung = models.CharField('Lagebeschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  verkehrliche_lage = models.CharField(' verkehrliche Lage(n)', max_length=255, choices=VERKEHRLICHE_LAGEN_BAUSTELLEN)
-  sparte = models.CharField('Sparte(n)', max_length=255, choices=SPARTEN_BAUSTELLEN)
-  beginn = models.DateField('Beginn', default=date.today)
-  ende = models.DateField('Ende', default=date.today)
-  auftraggeber = models.CharField('Auftraggeber', max_length=255, choices=AUFTRAGGEBER_BAUSTELLEN)
-  ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_GEPLANT)
-  konflikt = models.BooleanField('Konflikt', blank=True, null=True, editable=False)
-  konflikt_tolerieren = models.BooleanField(' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren', blank=True, null=True)
-  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"baustellen_geplant'
-    verbose_name = 'Baustelle (geplant)'
-    verbose_name_plural = 'Baustellen (geplant)'
-    description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['bezeichnung', 'strasse_name', 'verkehrliche_lage', 'sparte', 'beginn', 'ende', 'auftraggeber', 'ansprechpartner', 'status', 'konflikt', 'konflikt_tolerieren']
-    list_fields_with_date = ['beginn', 'ende']
-    list_fields_labels = ['Bezeichnung', 'Straße', 'verkehrliche Lage(n)', 'Sparte(n)', 'Beginn', 'Ende', 'Auftraggeber', 'Ansprechpartner', 'Status', 'Konflikt(e)', 'Konflikt(e) tolerieren?']
-    highlight_flag = 'konflikt'
-    map_feature_tooltip_field = 'bezeichnung'
-    map_rangefilter_fields = ['beginn', 'ende']
-    map_rangefilter_fields_labels = ['Beginn', 'Ende']
-    map_filter_fields = ['bezeichnung', 'sparte', 'auftraggeber', 'status']
-    map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
-    map_filter_fields_as_list = ['auftraggeber', 'status']
-    map_filter_field_hide_initial = 'status'
-    map_filter_value_hide_initial = 'abgeschlossen'
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiPolygonField'
-    group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
-    admin_group = 'baustellen_geplant_full'
-  
-  def __str__(self):
-    if self.strasse_name and self.lagebeschreibung:
-      return self.bezeichnung + ', ' + self.strasse_name + ' – ' + self.lagebeschreibung + ' (UUID: ' + str(self.uuid) + ')'
-    elif self.strasse_name:
-      return self.bezeichnung + ', ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
-    elif self.lagebeschreibung:
-      return self.bezeichnung + ' – ' + self.lagebeschreibung + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ' (UUID: ' + str(self.uuid) + ')'
+    return str(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
 
 
 # isi1
 class Carsharing_Stationen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   anzahl_fahrzeuge = models.PositiveSmallIntegerField('Anzahl der Fahrzeuge', blank=True, null=True)
   anbieter = models.CharField('Anbieter', max_length=255, choices=ANBIETER_CARSHARING)
-  bemerkungen = models.CharField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
@@ -1331,7 +1388,7 @@ class Containerstellplaetze(models.Model):
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
   privat = models.BooleanField(' privat', blank=True, null=True)
   id_containerstellplatz = models.CharField('ID', max_length=5, validators=[RegexValidator(regex=id_containerstellplatz_regex, message=id_containerstellplatz_message)], blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   anzahl_glas = models.PositiveSmallIntegerField('Anzahl Glas normal', blank=True, null=True)
   anzahl_glas_unterflur = models.PositiveSmallIntegerField('Anzahl Glas unterflur', blank=True, null=True)
   bewirtschafter_id_glas = models.PositiveSmallIntegerField('Bewirtschafter Glas', choices=BEWIRTSCHAFTER_GLAS_CONTAINERSTELLPLAETZE, blank=True, null=True)
@@ -1352,17 +1409,17 @@ class Containerstellplaetze(models.Model):
   bewirtschafter_id_grundundboden = models.PositiveSmallIntegerField('Bewirtschafter Grund und Boden', choices=BEWIRTSCHAFTER_GRUNDUNDBODEN_CONTAINERSTELLPLAETZE, blank=True, null=True)
   bewirtschafter_grundundboden = models.CharField('Bewirtschafter Grund und Boden', max_length=255, editable=False)
   oeffentliche_widmung = models.BooleanField('öffentliche Widmung', blank=True, null=True)
-  art_eigentumserwerb = models.CharField('Art des Eigentumserwerbs Stellplatz', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  art_eigentumserwerb_zaun = models.CharField('Art des Eigentumserwerbs Zaun', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  vertraege = models.CharField('Verträge', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  art_eigentumserwerb = models.CharField('Art des Eigentumserwerbs Stellplatz', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  art_eigentumserwerb_zaun = models.CharField('Art des Eigentumserwerbs Zaun', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  vertraege = models.CharField('Verträge', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bga_grundundboden = models.BooleanField('Zuordnung BgA Grund und Boden', blank=True, null=True)
   bga = models.BooleanField('Zuordnung BgA Stellplatz', blank=True, null=True)
   bga_zaun = models.BooleanField('Zuordnung BgA Zaun', blank=True, null=True)
   winterdienst_a = models.BooleanField('Winterdienst A', blank=True, null=True)
   winterdienst_b = models.BooleanField('Winterdienst B', blank=True, null=True)
   winterdienst_c = models.BooleanField('Winterdienst C', blank=True, null=True)
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True, null=True)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1390,15 +1447,15 @@ class Denksteine(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  nummer = models.CharField('Nummer', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  nummer = models.CharField('Nummer', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   titel = models.CharField('Titel', max_length=255, choices=TITEL_DENKSTEINE, blank=True, null=True)
-  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   namensanzeige = models.CharField('Name', max_length=255, blank=True, null=True)
   geburtsjahr = PositiveSmallIntegerRangeField('Geburtsjahr', min_value=1850, max_value=1945)
   sterbejahr = PositiveSmallIntegerRangeField('Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
-  text_auf_dem_stein = models.CharField('Text auf dem Stein', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  ehemalige_adresse = models.CharField(' ehemalige Adresse', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  text_auf_dem_stein = models.CharField('Text auf dem Stein', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ehemalige_adresse = models.CharField(' ehemalige Adresse', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   erstes_verlegejahr = PositiveSmallIntegerRangeField(' erstes Verlegejahr', min_value=2002, max_value=current_year())
   material = models.CharField('Material', max_length=255, choices=MATERIAL_DENKSTEINE)
   website = models.CharField('Website', max_length=255, validators=[URLValidator(message=url_message)])
@@ -1433,9 +1490,9 @@ class FairTrade(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   art = models.CharField('Art', max_length=255, choices=ART_FAIRTRADE)
-  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1468,7 +1525,7 @@ class Fliessgewaesser(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   nummer = models.CharField('Nummer', max_length=255)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   ordnung = PositiveSmallIntegerRangeField('Ordnung', min_value=1, max_value=2, blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_FLIESSGEWAESSER)
   nennweite = models.PositiveIntegerField('Nennweite (in Millimetern)', blank=True, null=True)
@@ -1499,11 +1556,11 @@ class Gutachterfotos(models.Model):
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'gutachterfotos'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'gutachterfotos'), max_length=255)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1530,11 +1587,11 @@ class Haltestellenkataster_Haltestellen(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   gemeindeteilanzeige = models.CharField('Gemeindeteil', max_length=255, blank=True, null=True)
-  hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_hafas_id = models.CharField('HAFAS-ID', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=hafas_id_regex, message=hafas_id_message)])
-  hst_bus_bahnsteigbezeichnung = models.CharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  hst_richtung = models.CharField('Richtungsinformation', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  hst_kategorie = models.CharField('Haltestellenkategorie', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  hst_bus_bahnsteigbezeichnung = models.CharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_richtung = models.CharField('Richtungsinformation', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_kategorie = models.CharField('Haltestellenkategorie', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   hst_linien = models.CharField(' bedienende Linie(n)', max_length=255, choices=LINIEN_HALTESTELLEN, blank=True, null=True)
   hst_rsag = models.BooleanField(' bedient durch Rostocker Straßenbahn AG?', blank=True, null=True)
   hst_rebus = models.BooleanField(' bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True)
@@ -1594,8 +1651,8 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bfe_seniorenheim = models.BooleanField('Seniorenheim in Umgebung vorhanden?', blank=True, null=True)
   bfe_pflegeeinrichtung = models.BooleanField('Pflegeeinrichtung in Umgebung vorhanden?', blank=True, null=True)
   bfe_medizinische_versorgungseinrichtung = models.BooleanField('Medizinische Versorgungseinrichtung in Umgebung vorhanden?', blank=True, null=True)
-  bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -1630,7 +1687,7 @@ class Haltestellenkataster_Fotos(models.Model):
   dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
   motiv = models.CharField('Motiv', max_length=255, choices=MOTIVE_HALTESTELLEN)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.FOTO_PATH_PREFIX + 'haltestellenkataster'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'haltestellenkataster'), max_length=255)
 
   class Meta:
     managed = False
@@ -1658,9 +1715,9 @@ class Hospize(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
   plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
@@ -1696,11 +1753,11 @@ class Hundetoiletten(models.Model):
   art = models.CharField('Art', max_length=255, choices=ART_HUNDETOILETTE)
   bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_HUNDETOILETTE)
   bewirtschafter = models.CharField('Bewirtschafter', max_length=255, editable=False)
-  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
   aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', min_value=1900, max_value=current_year(), blank=True, null=True)
   anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1728,9 +1785,9 @@ class Kinderjugendbetreuung(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1765,9 +1822,9 @@ class Kunstimoeffentlichenraum(models.Model):
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  ausfuehrung = models.CharField('Ausführung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  schoepfer = models.CharField('Schöpfer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ausfuehrung = models.CharField('Ausführung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  schoepfer = models.CharField('Schöpfer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   entstehungsjahr = PositiveSmallIntegerRangeField('Entstehungsjahr', min_value=1218, max_value=current_year(), blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1805,14 +1862,14 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   geplant = models.BooleanField(' geplant', blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   betriebsart = models.CharField('Betriebsart', max_length=255, choices=BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE)
-  betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   verbund = models.CharField('Verbund', max_length=255, choices=VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE, blank=True, null=True)
   anzahl_ladepunkte = models.PositiveSmallIntegerField('Anzahl an Ladepunkten')
-  arten_ladepunkte = models.CharField('Arten der Ladepunkte', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  arten_ladepunkte = models.CharField('Arten der Ladepunkte', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   ladekarten = models.CharField('Ladekarten', max_length=255, choices=LADEKARTEN_LADESTATIONEN_ELEKTROFAHRZEUGE, blank=True, null=True)
-  kosten = models.CharField('Kosten', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  kosten = models.CharField('Kosten', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
@@ -1845,8 +1902,8 @@ class Meldedienst_flaechenhaft(models.Model):
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_MELDEDIENST_FLAECHENHAFT)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   gueltigkeit_von = models.DateField(default=date.today, editable=False)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
@@ -1879,8 +1936,8 @@ class Meldedienst_punkthaft(models.Model):
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_MELDEDIENST_PUNKTHAFT)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   gueltigkeit_von = models.DateField(default=date.today, editable=False)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
@@ -1909,7 +1966,7 @@ class Meldedienst_punkthaft(models.Model):
 class Mobilpunkte(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=500, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=500, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   angebote = models.CharField('Angebote', max_length=255, choices=ANGEBOTE_MOBILPUNKTE)
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
@@ -1937,8 +1994,8 @@ class Parkmoeglichkeiten(models.Model):
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_PARKMOEGLICHKEITEN)
-  standort = models.CharField('Standort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  standort = models.CharField('Standort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   stellplaetze_pkw = models.PositiveSmallIntegerField('Pkw-Stellplätze', blank=True, null=True)
   stellplaetze_wohnmobil = models.PositiveSmallIntegerField('Wohnmobil-Stellplätze', blank=True, null=True)
   stellplaetze_bus = models.PositiveSmallIntegerField('Bus-Stellplätze', blank=True, null=True)
@@ -1978,7 +2035,7 @@ class Parkmoeglichkeiten(models.Model):
 class Parkscheinautomaten_Tarife(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bewirtschaftungszeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
   normaltarif_parkdauer_min = models.PositiveSmallIntegerField('Mindestparkdauer Normaltarif')
   normaltarif_parkdauer_min_einheit = models.CharField('Einheit der Mindestparkdauer Normaltarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE)
@@ -2015,13 +2072,13 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
   parent = models.ForeignKey(Parkscheinautomaten_Tarife, on_delete=models.PROTECT, db_column='parkscheinautomaten_tarif', to_field='uuid')
   nummer = models.PositiveSmallIntegerField('Nummer')
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   zone = models.CharField('Zone', blank=False, max_length=255, choices=ZONE_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN)
   handyparkzone = models.PositiveIntegerField('Handyparkzone', validators=[MinValueValidator(100000, 'Die Handyparkzone muss einen Wert größer gleich 100000 aufweisen.'), MaxValueValidator(999999, 'Die Handyparkzone muss einen Wert kleiner gleich 999999 aufweisen.')])
-  bewohnerparkgebiet = models.CharField('Bewohnerparkgebiet', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bewohnerparkgebiet = models.CharField('Bewohnerparkgebiet', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geraetenummer = models.CharField('Gerätenummer', max_length=8, validators=[RegexValidator(regex=geraetenummer_regex, message=geraetenummer_message)])
   inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
   e_anschluss = models.CharField('E-Anschluss', max_length=255, choices=E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN)
@@ -2057,10 +2114,10 @@ class Pflegeeinrichtungen(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   art = models.CharField('Art', max_length=255, choices=ART_PFLEGEEINRICHTUNGEN)
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
   plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
@@ -2094,9 +2151,9 @@ class Rettungswachen(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
@@ -2129,9 +2186,9 @@ class Begegnungszentren(models.Model):
   strasse_name = models.CharField('Adresse', max_length=255)
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices=TRAEGER_ART)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -2162,12 +2219,12 @@ class Begegnungszentren(models.Model):
 class Uvp_Vorhaben(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   art_vorgang = models.CharField('Art des Vorgangs', max_length=255, choices=ART_VORGANG_UVP_VORHABEN)
   genehmigungsbehoerde = models.CharField('Genehmigungsbehörde', max_length=255, choices=GENEHMIGUNGSBEHOERDE_UVP_VORHABEN)
   datum_posteingang_genehmigungsbehoerde = models.DateField('Datum des Posteingangs bei der Genehmigungsbehörde', default=date.today)
   registriernummer_bauamt = models.CharField('Registriernummer des Bauamtes', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=registriernummer_bauamt_regex, message=registriernummer_bauamt_message)])
-  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   rechtsgrundlage = models.CharField('Rechtsgrundlage', max_length=255, choices=RECHTSGRUNDLAGE_UVP_VORHABEN)
   typ = models.CharField('Typ', max_length=255, choices=TYP_UVP_VORHABEN)
   geometrie = models.PolygonField('Geometrie', srid=25833)
@@ -2199,7 +2256,7 @@ class Uvp_Vorpruefung(models.Model):
   ergebnis = models.CharField('Ergebnis', max_length=255, choices=ERGEBNIS_UVP_VORPRUEFUNG)
   datum_bekanntmachung = models.DateField('Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True)
   datum_veroeffentlichung = models.DateField('Datum Veröffentlichung UVP-Portal', blank=True, null=True)
-  pruefprotokoll = models.CharField('Prüfprotokoll', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  pruefprotokoll = models.CharField('Prüfprotokoll', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
     managed = False
@@ -2225,7 +2282,7 @@ class Vereine(models.Model):
   hausnummer = models.CharField(max_length=4, blank=True, null=True)
   hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
   klassen = models.CharField('Kategorien', max_length=255, choices=KLASSEN_VEREINE)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
   telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])

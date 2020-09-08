@@ -49,10 +49,10 @@
               {% endwith %}
             {% endfor %}
             {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
-              <th><i class="fas fa-eye"></i> oder <i class="fas fa-edit"></i></th>
+              <th><i class="fas fa-eye" title="Datensätze ansehen"></i> oder <i class="fas fa-edit" title="Datensätze bearbeiten"></i></th>
             {% endif %}
             {% if user|user_has_model_delete_permission:model_name_lower %}
-              <th><i class="fas fa-trash"></i></th>
+              <th><i class="fas fa-trash" title="Datensätze löschen"></i></th>
             {% endif %}
           </tr>
         </thead>

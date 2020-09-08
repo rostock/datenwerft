@@ -292,7 +292,7 @@ class DataView(BaseDatatableView):
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
           data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
         elif value is not None and value == True and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
-          data = '<i class="fas fa-exclamation-triangle"></i>'
+          data = '<i class="fas fa-exclamation-triangle text-danger"></i>'
         elif value is not None and column == 'foto':
           data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
           if self.thumbs is not None and self.thumbs == True:
@@ -310,13 +310,13 @@ class DataView(BaseDatatableView):
           data = escape(value)
         item_data.append(data)
       if checker.has_perm('change_' + self.model_name_lower, obj):
-        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><i class="fas fa-edit"></i></a>')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>')
       elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
-        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><i class="fas fa-eye"></i></a>')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'change', args=[item_id]) + '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>')
       else:
         item_data.append('')
       if checker.has_perm('delete_' + self.model_name_lower, obj):
-        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><i class="fas fa-trash"></i></a>')
+        item_data.append('<a href="' + reverse('datenmanagement:' + self.model_name + 'delete', args=[item_id]) + '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>')
       else:
         item_data.append('')
       json_data.append(item_data)
@@ -410,10 +410,10 @@ class DataMapView(generic.ListView):
     context['highlight_flag'] = (self.model._meta.highlight_flag if hasattr(self.model._meta, 'highlight_flag') else None)
     context['map_feature_tooltip_field'] = (self.model._meta.map_feature_tooltip_field if hasattr(self.model._meta, 'map_feature_tooltip_field') else None)
     context['map_feature_tooltip_fields'] = (self.model._meta.map_feature_tooltip_fields if hasattr(self.model._meta, 'map_feature_tooltip_fields') else None)
-    context['map_filters_enabled'] = (True if ((hasattr(self.model._meta, 'map_filter_fields') and hasattr(self.model._meta, 'map_filter_fields_labels')) or (hasattr(self.model._meta, 'map_rangefilter_fields') and hasattr(self.model._meta, 'map_rangefilter_fields_labels'))) else None)
-    context['map_rangefilter_fields'] = (self.model._meta.map_rangefilter_fields if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
-    context['map_rangefilter_fields_json'] = (json.dumps(self.model._meta.map_rangefilter_fields) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
-    context['map_rangefilter_fields_labels'] = (self.model._meta.map_rangefilter_fields_labels if hasattr(self.model._meta, 'map_rangefilter_fields_labels') else None)
+    context['map_filters_enabled'] = (True if hasattr(self.model._meta, 'map_filter_fields') or hasattr(self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_rangefilter_fields'] = (list(self.model._meta.map_rangefilter_fields.keys()) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_rangefilter_fields_json'] = (json.dumps(list(self.model._meta.map_rangefilter_fields.keys())) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_rangefilter_fields_labels'] = (list(self.model._meta.map_rangefilter_fields.values()) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
     context['map_filter_fields'] = (self.model._meta.map_filter_fields if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_json'] = (json.dumps(self.model._meta.map_filter_fields) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_labels'] = (self.model._meta.map_filter_fields_labels if hasattr(self.model._meta, 'map_filter_fields_labels') else None)
@@ -471,16 +471,16 @@ class DataAddView(generic.CreateView):
     ansprechpartner = None
     bearbeiter = None
     for field in self.model._meta.get_fields():
-        if field.name == 'ansprechpartner':
-            ansprechpartner = self.request.user.first_name + ' ' + self.request.user.last_name + ' (' + self.request.user.email.lower() + ')'
-        if field.name == 'bearbeiter':
-            bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name
+      if field.name == 'ansprechpartner':
+        ansprechpartner = (self.request.user.first_name + ' ' + self.request.user.last_name if self.request.user.first_name and self.request.user.last_name else self.request.user.username) + ' (' + self.request.user.email.lower() + ')'
+      if field.name == 'bearbeiter':
+        bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name if self.request.user.first_name and self.request.user.last_name else self.request.user.username
     if ansprechpartner or bearbeiter:
-        if self.request.user.is_superuser or (hasattr(self.model._meta, 'admin_group') and self.request.user.groups.filter(name = self.model._meta.admin_group).exists()) or not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not hasattr(self.model._meta, 'admin_group'):
-            return {
-              'ansprechpartner': ansprechpartner,
-              'bearbeiter': bearbeiter
-            }
+      if self.request.user.is_superuser or (hasattr(self.model._meta, 'admin_group') and self.request.user.groups.filter(name = self.model._meta.admin_group).exists()) or not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not hasattr(self.model._meta, 'admin_group'):
+        return {
+          'ansprechpartner': ansprechpartner,
+          'bearbeiter': bearbeiter
+        }
 
   def form_valid(self, form):
     form.instance = form.save()

@@ -1,17 +1,26 @@
 input[type="text"] {
- width:100%;
+  width:100%;
 }
 
 input[type="number"] {
- width:100%;
+  width:100%;
 }
 
 label {
- font-weight:normal;
+  font-weight:normal;
+}
+
+li > label > input {
+  margin-right:.3rem;
 }
 
 select {
- width:100%;
+  width:100%;
+}
+
+ul:not([class]){
+  list-style:outside none none;
+  margin-left:-2.5rem;
 }
 
 #address-search-container {

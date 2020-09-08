@@ -93,8 +93,8 @@
             {% endif %}
           {% endif %}
         {% endif %}
-        {% if address_type %}
-          <div id="address-search-container">
+        <div id="address-search-container">
+          {% if address_type %}
             {% if address_type == 'Adresse' %}
               {{ form.adresse.label_tag }}
               {{ form.adresse }}
@@ -105,8 +105,8 @@
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% endif %}
           {% else %}
-            <label for="id_address_search">Adressen-/Straßensuche</label>
-            <input id="id_address_search" maxlength="255" name="address_search" type="text">
+            <label for="id_address_search">Adressensuche</label>
+            <input id="id_address_search" type="text" name="address_search" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
           {% endif %}
           <div id="results-container" class="results"></div>
         </div>
@@ -418,13 +418,24 @@
       // verhindern, dass HTML5-/jQuery-Fehlermeldungen bei Pflichtfeldern die Django-Fehlermeldungen überdecken
       $('[required]').removeAttr('required');
 
-      // vertikale Position der Buttons dynamisch setzen anhand der Höhe des Formulars (plus "Puffer" von 150 Pixeln)
+      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 PIxeln)
       {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
-        var top = 150 + $('#custom-form').height();
+        var top = $('#custom-form').position().top + $('#custom-form').height() + 20;
         $('#buttons').offset({
           top: top
         });
       {% endif %}
+
+      // Links auf vorhandene Fotos, PDF etc. immer in neuem Tab öffnen
+      $('td').find('a').attr('title', 'in neuem Tab öffnen…');
+      $('td').find('a').attr('target', '_blank');
+
+      // Links auf vorhandene Fotos, PDF etc. sowie entsprechende Upload-Buttons mit ordentlichem Text versehen
+      $('td').find('a').parent().contents().filter(function(){
+        return this.nodeType == 3
+      }).remove();
+      $('td').find('a').before('aktuell: ');
+      $('td').find('a').parent().find('input[type="file"]').before('ändern in: ');
     });
 
     // Adresse oder Straße als Marker in Karte übernehmen

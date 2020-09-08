@@ -65,30 +65,33 @@
         </div>
       </div>
       {% if map_filters_enabled %}
-      <!-- AB HIER NOCH NICHT BOOTSTRAP 4 !!!-->
         <div id="filter" class="side">
-          <h4>Filter für Kartenobjekte</h4>
-          <p>Achtung: Filter wirken <strong>additiv!</strong></p>
+          <h5>Filter für Kartenobjekte</h5>
+          <div class="alert alert-warning" role="alert">Filter wirken <strong>additiv!</strong></div>
           {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
-            <div id='filter-intervall' class='row'>
+            <div id="filter-intervall">
               {% for map_rangefilter_field in map_rangefilter_fields %}
                 {% if not forloop.counter|divisibleby:2 %}
                   {% with naechster_index=forloop.counter0|add:1 %}
-                  <div class='filter-row row'>
+                  <div class="filter-row">
                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                    <div class="input-group">
                     {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
+                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
                     {% else %}
-                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='left'>
+                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
                     {% endif %}
-                    <i class="input-reset fas fa-backspace"></i>
+                      <button class="input-reset btn bg-transparent" style="margin-left: -40px; z-index: 100;">
+                        <i class="fa fa-times" title="Filterfeld leeren"></i>
+                      </button>
+                    </div>
                   </div>
-                  <div class='filter-row row'>
+                  <div class="filter-row">
                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input datetimepicker-input' data-type='date' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
+                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-toggle="datetimepicker" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
                     {% else %}
-                      <input id='filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' type='text' name='{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}' class='filter-input' data-type='text' {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='right'>
+                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
                     {% endif %}
                     <i class="input-reset fas fa-backspace"></i>
                   </div>
@@ -98,19 +101,19 @@
             </div>
           {% endif %}
           {% if map_filter_fields and map_filter_fields_labels %}
-            <div id='filter-normal' class='row'>
+            <div id="filter-normal">
               {% for map_filter_field in map_filter_fields %}
-                <div class='filter-row row'>
+                <div class="filter-row">
                   <label>{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
-                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' data-toggle='datetimepicker' data-target='#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input datetimepicker-input' data-type='date' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
+                    <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                     <i class="input-reset fas fa-backspace"></i>
                   {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
-                    <select id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='list' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></select>
+                    <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></select>
                   {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
-                    <fieldset id='filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-checkbox-fieldset' data-type='checkbox-set' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'></fieldset>
+                    <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></fieldset>
                   {% else %}
-                    <input id='filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' type='text' name='{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}' class='filter-input' data-type='text' {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside='both'>
+                    <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                     <i class="input-reset fas fa-backspace"></i>
                   {% endif %}
                 </div>
@@ -122,11 +125,10 @@
             <input id="filter-reset" class="btn btn-warning btn-in-a-row" type="submit" value="zurücksetzen">
           </div>
         </div>
-      <!-- ENDE-->
       {% endif %}
       <div id="address-search" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
         <h5>Adressensuche</h5>
-        <input id="searchtext" type="text" name="searchtext" maxlength="255" />
+        <input id="searchtext" type="text" name="searchtext" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…" />
         <div id="results-container" class="results"></div>
       </div>
     </div>
@@ -262,7 +264,11 @@
           // Properties zu GeoJSON-Feature hinzufügen
           geoJsonFeature.properties.uuid = '{{ object.uuid }}';
           {% if map_feature_tooltip_field %}
-            geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+            {% if map_feature_tooltip_field|get_type_of_field:model_name == 'DateField' %}
+              geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field:True }}';
+            {% else %}
+              geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
+            {% endif %}
           {% elif map_feature_tooltip_fields %}
             geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
           {% endif %}
@@ -814,9 +820,9 @@
             setMapExtentByLeafletBounds(objectsExtent);
         });
 
-        // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche (plus "Puffer" von 60 Pixeln)
+        // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
         {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
-          var height = 60;
+          var height = $('#map-side-container').position().top;
           $('.side').each(function() {
             height += $(this).height();
           });
