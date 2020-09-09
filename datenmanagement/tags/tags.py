@@ -80,7 +80,11 @@ def get_type_of_geometry_field(field):
 
 @register.filter
 def get_value_of_field(value, field):
-  return getattr(value, field)
+  return_value = getattr(value, field)
+  if isinstance(return_value, list):
+    return ', '.join(return_value)
+  else:
+    return getattr(value, field)
 
 
 @register.filter
@@ -104,7 +108,7 @@ def get_value_of_map_feature_tooltip_field(value, is_date=False):
   if field:
     field_value = getattr(value, field)
     if is_date:
-      return datetime.strptime(str(field_value), '%Y-%m-%d').strftime('%d.%m.%Y')
+      return field_value.strftime('%d.%m.%Y')
     else:
       return field_value
   else:

@@ -35,7 +35,15 @@ def assign_widgets(field, widget = None):
   if field.name == 'geometrie':
     return field.formfield(widget = LeafletWidget())
   elif field.__class__.__name__ == 'DateField':
-    return field.formfield(widget = DatePicker())
+    return field.formfield(widget = DatePicker(attrs = {
+     'input_toggle': False,
+     'append': 'fa fa-calendar'
+    }))
+  elif field.__class__.__name__ == 'DateTimeField':
+    return field.formfield(widget = DateTimePicker(attrs = {
+     'input_toggle': False,
+     'append': 'fa fa-clock'
+    }))
   elif field.__class__.__name__ == 'ChoiceArrayField':
     return field.formfield(empty_value = None, widget = CheckboxSelectMultiple())
   else:
@@ -414,12 +422,12 @@ class DataMapView(generic.ListView):
     context['map_rangefilter_fields'] = (list(self.model._meta.map_rangefilter_fields.keys()) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
     context['map_rangefilter_fields_json'] = (json.dumps(list(self.model._meta.map_rangefilter_fields.keys())) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
     context['map_rangefilter_fields_labels'] = (list(self.model._meta.map_rangefilter_fields.values()) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
-    context['map_filter_fields'] = (self.model._meta.map_filter_fields if hasattr(self.model._meta, 'map_filter_fields') else None)
-    context['map_filter_fields_json'] = (json.dumps(self.model._meta.map_filter_fields) if hasattr(self.model._meta, 'map_filter_fields') else None)
-    context['map_filter_fields_labels'] = (self.model._meta.map_filter_fields_labels if hasattr(self.model._meta, 'map_filter_fields_labels') else None)
+    context['map_filter_fields'] = (list(self.model._meta.map_filter_fields.keys()) if hasattr(self.model._meta, 'map_filter_fields') else None)
+    context['map_filter_fields_json'] = (json.dumps(list(self.model._meta.map_filter_fields.keys())) if hasattr(self.model._meta, 'map_filter_fields') else None)
+    context['map_filter_fields_labels'] = (list(self.model._meta.map_filter_fields.values()) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_as_list'] = (self.model._meta.map_filter_fields_as_list if hasattr(self.model._meta, 'map_filter_fields_as_list') else None)
-    context['map_filter_field_hide_initial'] = (self.model._meta.map_filter_field_hide_initial if hasattr(self.model._meta, 'map_filter_field_hide_initial') else None)
-    context['map_filter_value_hide_initial'] = (self.model._meta.map_filter_value_hide_initial if hasattr(self.model._meta, 'map_filter_value_hide_initial') else None)
+    context['map_filter_field_hide_initial'] = (next(iter(self.model._meta.map_filter_hide_initial.keys())) if hasattr(self.model._meta, 'map_filter_hide_initial') and len(self.model._meta.map_filter_hide_initial) == 1 else None)
+    context['map_filter_value_hide_initial'] = (next(iter(self.model._meta.map_filter_hide_initial.values())) if hasattr(self.model._meta, 'map_filter_hide_initial') and len(self.model._meta.map_filter_hide_initial) == 1 else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
     return context
 

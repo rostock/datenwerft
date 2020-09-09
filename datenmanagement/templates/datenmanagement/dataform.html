@@ -120,6 +120,9 @@
         <a class="btn btn-danger btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a>
       {% endif %}
       <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
+      {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+        <div class="spacer-small"></div>
+      {% endif %}
     </div>
     {% if address_type %}
       <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal" class="modal fade" role="dialog" tabindex="-1">

@@ -57,43 +57,46 @@
   {% if object_list %}
 	  <div id="map-side-container">
       {% leaflet_map "map" callback="window.map_init_basic" %}
-      <div id="map-control" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
-        <h5>Kartenausschnitt</h5>
-        <div class="row">
-          <input id="map-extent-initial" class="btn btn-success" type="submit" value="initial">
-          <input id="map-extent-filter" class="btn btn-success btn-in-a-row" type="submit" value={% if map_filters_enabled %}"aktuelle Filtermenge"{% else %}"alle Objekte"{% endif %}>
-        </div>
-      </div>
       {% if map_filters_enabled %}
-        <div id="filter" class="side">
+        <div id="filter" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
           <h5>Filter für Kartenobjekte</h5>
-          <div class="alert alert-warning" role="alert">Filter wirken <strong>additiv!</strong></div>
+          <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv!</strong></div>
           {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
             <div id="filter-intervall">
               {% for map_rangefilter_field in map_rangefilter_fields %}
                 {% if not forloop.counter|divisibleby:2 %}
                   {% with naechster_index=forloop.counter0|add:1 %}
-                  <div class="filter-row">
+                  <div class="row">
                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
-                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
-                    {% else %}
-                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
-                    {% endif %}
-                      <button class="input-reset btn bg-transparent" style="margin-left: -40px; z-index: 100;">
-                        <i class="fa fa-times" title="Filterfeld leeren"></i>
-                      </button>
+                      {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
+                        <button class="input-reset btn bg-transparent">
+                          <i class="fa fa-times" title="Filterfeld leeren"></i>
+                        </button>
+                        <div class="input-group-append" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
+                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                      {% else %}
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
+                      {% endif %}
                     </div>
                   </div>
-                  <div class="filter-row">
+                  <div class="row">
                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
-                    {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-toggle="datetimepicker" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
-                    {% else %}
-                      <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
-                    {% endif %}
-                    <i class="input-reset fas fa-backspace"></i>
+                    <div class="input-group">
+                      {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
+                        <button class="input-reset btn bg-transparent">
+                          <i class="fa fa-times" title="Filterfeld leeren"></i>
+                        </button>
+                        <div class="input-group-append" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-toggle="datetimepicker">
+                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                      {% else %}
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
+                      {% endif %}
+                    </div>
                   </div>
                   {% endwith %}
                 {% endif %}
@@ -103,29 +106,47 @@
           {% if map_filter_fields and map_filter_fields_labels %}
             <div id="filter-normal">
               {% for map_filter_field in map_filter_fields %}
-                <div class="filter-row">
+                <div class="row">
                   <label>{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
-                    <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
-                    <i class="input-reset fas fa-backspace"></i>
+                    <div class="input-group">
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                      <button class="input-reset btn bg-transparent">
+                        <i class="fa fa-times" title="Filterfeld leeren"></i>
+                      </button>
+                      <div class="input-group-append" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                      </div>
+                    </div>
                   {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
                     <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></select>
                   {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
                     <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></fieldset>
                   {% else %}
-                    <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
-                    <i class="input-reset fas fa-backspace"></i>
+                    <div class="input-group">
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                      <button class="input-reset btn bg-transparent">
+                        <i class="fa fa-times" title="Filterfeld leeren"></i>
+                      </button>
+                    </div>
                   {% endif %}
                 </div>
               {% endfor %}
             </div>
           {% endif %}
           <div id="filter-buttons" class="row">
-            <input id="filter-apply" class="btn btn-success" type="submit" value="anwenden">
-            <input id="filter-reset" class="btn btn-warning btn-in-a-row" type="submit" value="zurücksetzen">
+            <input id="filter-apply" class="btn btn-success" type="submit" value="Filter anwenden">
+            <input id="filter-reset" class="btn btn-warning btn-in-a-row" type="submit" value="Filter zurücksetzen">
           </div>
         </div>
       {% endif %}
+      <div id="map-control" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
+        <h5>Kartenausschnitt</h5>
+        <div class="row">
+          <input id="map-extent-initial" class="btn btn-success" type="submit" value="initial">
+          <input id="map-extent-filter" class="btn btn-success btn-in-a-row" type="submit" value={% if map_filters_enabled %}"aktuelle Filtermenge"{% else %}"alle Objekte"{% endif %}>
+        </div>
+      </div>
       <div id="address-search" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
         <h5>Adressensuche</h5>
         <input id="searchtext" type="text" name="searchtext" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…" />
@@ -256,11 +277,7 @@
           // Geometrie zu GeoJSON-Feature hinzufügen
           geoJsonFeature.geometry = geoJsonGeometry;
           // Name des Feldes für den Feature-Tooltip in Variable ablegen
-          {% if map_feature_tooltip_field %}
-            featureTooltipField = '{{ map_feature_tooltip_field }}';
-          {% elif map_feature_tooltip_fields %}
-            featureTooltipField = 'tooltip';
-          {% endif %}
+          featureTooltipField = 'tooltip';
           // Properties zu GeoJSON-Feature hinzufügen
           geoJsonFeature.properties.uuid = '{{ object.uuid }}';
           {% if map_feature_tooltip_field %}
@@ -332,16 +349,25 @@
         // falls Geometrie punkthaft ist...
         {% if geometry_type == 'Point' %}
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+          var icon = new L.Icon.Default();
+          icon.options.shadowSize = [0, 0];
           geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
             pointToLayer: function (feature, latlng) {
-              return L.marker(latlng).bindLabel(feature.properties[featureTooltipField]);
+              return L.marker(latlng, { icon : icon }).bindLabel(feature.properties[featureTooltipField]);
             },
             onEachFeature: onEachFeature
           });
-          // Clustering aktivieren
-          var markers = L.markerClusterGroup();
-          markers.addLayer(geoJsonLayer);
-          map.addLayer(markers);
+          // falls keine Filter...
+          {% if not map_filters_enabled %}
+            // Clustering aktivieren
+            var markers = L.markerClusterGroup();
+            markers.addLayer(geoJsonLayer);
+            map.addLayer(markers);
+          // ansonsten...
+          {% else %}
+            // ohne Clustering
+            map.addLayer(geoJsonLayer);
+          {% endif %}
         // ansonsten...
         {% else %}
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
@@ -646,6 +672,9 @@
 
         // bei Klick auf entsprechenden Button alle Filter anwenden
         $('#filter-apply').on('click', function() {
+          // Hinweise auf additive Wirkung der Filter anzeigen
+          $('#filter-alert').show();
+
           // Variable für Bounding Box der aktuellen Filtermenge leeren
           currentFilterExtent = [];
 
@@ -689,7 +718,7 @@
 
           // über alle Filterobjekte gehen...
           if (filterAttributesList.length > 0) {
-            currMap.eachLayer(function(layer) {
+            window.currMap.eachLayer(function(layer) {
               if (layer.feature) {
                 layer.getElement().style.display = '';
                 for (var i = 0; i < filterAttributesList.length; i++) {
@@ -724,31 +753,42 @@
                         layer.getElement().style.display = 'none';
                       }
                     }
-                  // ansonsten einen String-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+                  // ansonsten einen Vergleich durchführen und unpassende GeoJSON-Features ausblenden
                   } else if (filterAttributesList[i].type != 'checkbox-set') {
-                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
-                      layer.getElement().style.display = 'none';
-                    }
+                    if (filterAttributesList[i].type === 'date') {
+                      // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+                      if (moment(new Date(filterAttributesList[i].value), 'day').format('YYYY-MM-DD') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').format('YYYY-MM-DD')) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    } else {
+                      if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    }                    
                   }
                 }
                 // Variable für Bounding Box der aktuellen Filtermenge anhand sichtbar bleibender GeoJSON-Features befüllen
                 if (layer.getElement().style.display === '') {
+                  var north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
+                  var east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
+                  var south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
+                  var west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
                   if (currentFilterExtent.length == 0) {
                     currentFilterExtent[0] = [];
-                    currentFilterExtent[0][0] = layer.getBounds().getNorth();
-                    currentFilterExtent[0][1] = layer.getBounds().getEast();
+                    currentFilterExtent[0][0] = north;
+                    currentFilterExtent[0][1] = east;
                     currentFilterExtent[1] = [];
-                    currentFilterExtent[1][0] = layer.getBounds().getSouth();
-                    currentFilterExtent[1][1] = layer.getBounds().getWest();
+                    currentFilterExtent[1][0] = south;
+                    currentFilterExtent[1][1] = west;
                   } else {
-                    if (currentFilterExtent[0][0] > layer.getBounds().getNorth())
-                      currentFilterExtent[0][0] = layer.getBounds().getNorth();
-                    if (currentFilterExtent[0][1] > layer.getBounds().getEast())
-                      currentFilterExtent[0][1] = layer.getBounds().getEast();
-                    if (currentFilterExtent[1][0] < layer.getBounds().getSouth())
-                      currentFilterExtent[1][0] = layer.getBounds().getSouth();
-                    if (currentFilterExtent[1][1] < layer.getBounds().getWest())
-                      currentFilterExtent[1][1] = layer.getBounds().getWest();
+                    if (currentFilterExtent[0][0] > north)
+                      currentFilterExtent[0][0] = north;
+                    if (currentFilterExtent[0][1] > east)
+                      currentFilterExtent[0][1] = east;
+                    if (currentFilterExtent[1][0] < south)
+                      currentFilterExtent[1][0] = south;
+                    if (currentFilterExtent[1][1] < west)
+                      currentFilterExtent[1][1] = west;
                   }
                 }
               }
@@ -760,6 +800,9 @@
 
         // bei Klick auf entsprechenden Button alle Filter sowie Bounding Box der aktuellen Filtermenge zurücksetzen
         $('#filter-reset').on('click', function() {
+          // Hinweise auf additive Wirkung der Filter (wieder) verbergen
+          $('#filter-alert').hide();
+
           $('.filter-input').each(function() {
             // falls initialer Wert vorhanden...
             if ($(this).data('initial')) {
@@ -827,6 +870,8 @@
             height += $(this).height();
           });
           $('#map-side-container').height(height);
+          $('#map').height(height);
+          currMap.invalidateSize();
         {% endif %}
       });
 

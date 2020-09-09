@@ -181,11 +181,9 @@ options.DEFAULT_NAMES += (
   'map_feature_tooltip_field',          # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
   'map_feature_tooltip_fields',         # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
   'map_rangefilter_fields',             # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
-  'map_filter_fields',                  # optional ; Textliste      ; Namen der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen
-  'map_filter_fields_labels',           # optional ; Textliste      ; Titel der Felder, die in genau dieser Reihenfolge in der Kartenansicht als Filtertitel auftreten sollen
+  'map_filter_fields',                  # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
   'map_filter_fields_as_list',          # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
-  'map_filter_field_hide_initial',      # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die einen bestimmten Wert in diesem Feld aufweisen (siehe map_filter_value_hide_initial)
-  'map_filter_value_hide_initial',      # optional ; Text           ; Objekte erscheinen initial nicht auf der Karte, die diesen Wert im Feld map_filter_field_hide_initial aufweisen
+  'map_filter_hide_initial',            # optional ; Textdictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
   'address_type',                       # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
   'address_mandatory',                  # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
   'geometry_type',                      # optional ; Text           ; Geometrietyp
@@ -934,7 +932,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
-  pdf = models.FileField('PDF', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=40)
+  pdf = models.FileField('PDF', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=40)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -955,6 +953,11 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       'adresse': 'adresse__adresse'
     }
     map_feature_tooltip_field = 'datum'
+    map_filter_fields = {
+      'aktenzeichen': 'Aktenzeichen',
+      'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
+      'datum': 'Datum'
+    }
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'Point'
@@ -1025,13 +1028,16 @@ class Baustellen_geplant(models.Model):
       'beginn': 'Beginn',
       'ende': 'Ende'
     }
-    
-    map_filter_fields = ['bezeichnung', 'sparten', 'auftraggeber', 'status']
-    map_filter_fields_labels = ['Bezeichnung', 'Sparte(n)', 'Auftraggeber', 'Status']
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'sparten': 'Sparte(n)',
+      'auftraggeber': 'Auftraggeber',
+      'status': 'Status'
+    }
     map_filter_fields_as_list = ['auftraggeber', 'status']
-    map_filter_field_hide_initial = 'status'
-    map_filter_value_hide_initial = 'abgeschlossen'
-    
+    map_filter_hide_initial = {
+      'status': 'abgeschlossen'
+    }
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiPolygonField'
@@ -1074,6 +1080,11 @@ class Behinderteneinrichtungen(models.Model):
       'traeger': 'traeger__bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    map_filter_fields_as_list = ['traeger']
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
@@ -1118,6 +1129,10 @@ class Bildungstraeger(models.Model):
       'adresse': 'adresse__adresse'
     }
     map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'schlagwoerter': 'Schlagwörter'
+    }
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
@@ -1157,6 +1172,11 @@ class Feuerwachen(models.Model):
       'art': 'art__art'
     }
     map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung'
+    }
+    map_filter_fields_as_list = ['art']
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
@@ -1199,6 +1219,11 @@ class Kindertagespflegeeinrichtungen(models.Model):
       'adresse': 'adresse__adresse'
     }
     map_feature_tooltip_fields = ['vorname', 'nachname']
+    map_filter_fields = {
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'plaetze': 'Plätze'
+    }
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
@@ -1331,7 +1356,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
   dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'baustellen_fotodokumentation'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'baustellen_fotodokumentation'), max_length=255)
 
   class Meta:
     managed = False
@@ -1419,7 +1444,7 @@ class Containerstellplaetze(models.Model):
   winterdienst_b = models.BooleanField('Winterdienst B', blank=True, null=True)
   winterdienst_c = models.BooleanField('Winterdienst C', blank=True, null=True)
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'containerstellplaetze'), max_length=255, blank=True, null=True)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'containerstellplaetze'), max_length=255, blank=True, null=True)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1560,7 +1585,7 @@ class Gutachterfotos(models.Model):
   bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'gutachterfotos'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'gutachterfotos'), max_length=255)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1687,7 +1712,7 @@ class Haltestellenkataster_Fotos(models.Model):
   dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
   motiv = models.CharField('Motiv', max_length=255, choices=MOTIVE_HALTESTELLEN)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX + 'haltestellenkataster'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'haltestellenkataster'), max_length=255)
 
   class Meta:
     managed = False

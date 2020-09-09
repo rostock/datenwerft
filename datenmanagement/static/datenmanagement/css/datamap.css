@@ -1,3 +1,11 @@
+#filter-alert {
+  display:none;
+}
+
+#filter-buttons {
+  margin-top:1.8rem;
+}
+
 #map-side-container {
   margin-bottom:1rem;
 }
@@ -16,17 +24,16 @@
 }
 
 .filter-checkbox-fieldset input {
-  margin-right:5px;
+  margin-right:.5rem;
 }
 
-.filter-input,
-.filter-row {
-  width:90%;
+.filter-input:not(.datetimepicker-input) {
+  width:100%;
 }
 
 .input-reset {
-  right:25px;
-  cursor:pointer;
+  z-index:100;
+  margin-left:-40px;
 }
 
 .leaflet-container {
