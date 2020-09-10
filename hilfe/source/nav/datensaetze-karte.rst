@@ -1,9 +1,9 @@
-.. index:: Datensätze-Karte, Hintergrundkarte, Karte, Kartenausschnitt, Kartenhintergrund, Kartennavigation, Kartensuche, Kilometerquadrate, Maßstab, Zoom
+.. index:: Adresse, Adressensuche, Datensätze-Karte, Hintergrundkarte, Karte, Kartenausschnitt, Kartenhintergrund, Kartennavigation, Kartensuche, Kilometerquadrate, Maßstab, Straße, Zoom
 
 Datensätze-Karte
 ================
 
-Auf die *Datensätze-Karte* eines Datenthemas gelangen Sie immer dann, wenn Sie entweder auf der :doc:`Startseite <datenthema-startseite>` oder in der :doc:`Datensätze-Tabelle <datensaetze-tabelle>` eines Datenthemas auf den Button *Datensätze auf Karte anzeigen* geklickt haben. Auf der Karte sind alle Datensätze, für die wir Ihnen :ref:`Lese- <leserechte>` oder :ref:`Bearbeitungsrechte <schreibrechte>` gegeben haben, mit einem blauen Symbol markiert.
+Auf die *Datensätze-Karte* eines Datenthemas gelangen Sie immer dann, wenn Sie entweder auf der :doc:`Startseite <datenthema-startseite>` oder in der :doc:`Datensätze-Tabelle <datensaetze-tabelle>` eines Datenthemas auf den Button *Datensätze auf Karte anzeigen* geklickt haben. Auf der Karte sind alle Datensätze zu sehen, für die wir Ihnen :ref:`Lese- <leserechte>` oder :ref:`Bearbeitungsrechte <schreibrechte>` gegeben haben.
 
 Wenn sehr viele Datensätze und damit Symbole auf der Karte vorhanden sind bzw. diese sehr dicht beieinander liegen, so findet ein automatisches Clustering (eine intelligente Zusammenfassung) zu Summensymbolen statt, die mit einer Zahl versehen sind, die die Anzahl der jeweils geclusterten (zusammengefassten) Einzelsymbole wiedergibt. Die Farbe der Summensymbole gibt darüberhinaus an, ob viele (rot), einige (gelb) oder wenige Einzelsymbole (grün) geclustert (zusammengefasst) sind.
 
@@ -46,7 +46,7 @@ Den Kartenhintergrund können Sie wechseln, indem Sie auf den Button rechts oben
 Wie kann ich einen bestimmten Ort in der Karte finden?
 ------------------------------------------------------
 
-Einen bestimmten Ort in der Karte können Sie finden, indem Sie die *Adressen-/Straßen-/Ortsteilsuche* (auf den Anlege- und Bearbeitungsseiten der Datensätze nur *Adressen-/Straßensuche*) rechts neben (auf den Anlege- und Bearbeitungsseiten der Datensätze unterhalb) der Karte nutzen. Fangen Sie einfach an, einen Suchbegriff in das Eingabefeld einzutragen: Nach dem dritten Zeichen springt die Suche an und es wird eine Resultateliste angezeigt, die aus Adressen, Straßen und/oder Ortsteilen (auf den Anlege- und Bearbeitungsseiten der Datensätze nur Adressen und/oder Straßen) besteht. Wenn Sie dann auf das gewünschte Resultat klicken, springt die Karte automatisch an diesen Ort.
+Einen bestimmten Ort in der Karte können Sie finden, indem Sie die *Adressensuche* rechts neben (auf den Anlege- und Bearbeitungsseiten der Datensätze unterhalb) der Karte nutzen. Fangen Sie einfach an, einen Suchbegriff in das Eingabefeld einzutragen: Nach dem dritten Zeichen springt die Suche an und es wird eine Resultateliste angezeigt, die aus Adressen, Straßen und/oder Gemeindeteilen besteht (auf den Anlege- und Bearbeitungsseiten der Datensätze nur Adressen bzw. nur Straßen, falls der betreffende Datensatz eine Referenz zu einer Adresse bzw. Straße vorsieht; ansonsten auch hier Adressen, Straßen und/oder Gemeindeteile). Wenn Sie dann auf das gewünschte Resultat klicken, springt die Karte automatisch an diesen Ort.
 
 **Tipp:** In der Regel genügen der Suche bereits sehr kurze Eingaben, um das gewünschte Resultat zu finden (zum Beispiel findet bereits ``helsi 2`` die gewünschte *Helsinkier Str. 2*).
 

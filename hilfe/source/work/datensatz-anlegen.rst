@@ -1,4 +1,4 @@
-.. index:: Adresse, Adressensuche, Attribute, Datensatz anlegen, Fläche, Linie, neuer Datensatz, Pflichtattribute, Punkt, Sachdaten, Speichern, Straße, Straßensuche, Syntax, Verortung
+.. index:: Adresse, Adressensuche, Attribute, Datensatz anlegen, Fläche, Linie, neuer Datensatz, Pflichtattribute, Punkt, Sachdaten, Speichern, Straße, Syntax, Verortung
 
 Datensatz anlegen
 =================
@@ -168,7 +168,7 @@ Wird ein Datensatz durch **mehrteilige** Punkte repräsentiert, **kann** man den
 
 Die Verortung ist **immer** Pflicht: Versuchen Sie den neuen Datensatz zu :ref:`speichern <datensatz_anlegen_speichern>`, ohne die Verortung vorgenommen zu haben, dann erscheint eine entsprechende Meldung und der Speichervorgang wird abgebrochen: Nun haben Sie die Möglichkeit, die Verortung durchzuführen und den Speichervorgang danach erneut zu versuchen.
 
-**Tipp:** Bei Datenthemen aus punkthaft repräsentierten Datensätzen können Sie auch verorten, indem Sie das Eingabefeld unterhalb der Karte als :ref:`Suchfeld nutzen <karte_adressensuche>` und dann auf den Button *Marker setzen* klicken: Der Marker wird dann genau auf die gewünschte Adresse oder die geometrische Mitte der gewünschten Straße gesetzt.
+**Tipp:** Bei Datenthemen aus punkthaft repräsentierten Datensätzen können Sie auch verorten, indem Sie das Eingabefeld unterhalb der Karte als :ref:`Suchfeld nutzen <karte_adressensuche>` und dann auf den Button *Marker setzen* klicken: Der Marker wird dann genau auf die gewünschte Adresse (falls der betreffende Datensatz eine Referenz zu einer Adresse vorsieht) oder die geometrische Mitte der gewünschten Straße (falls der betreffende Datensatz eine Referenz zu einer Straße vorsieht) gesetzt.
 
 
 .. _datensatz_anlegen_verorten_linie:
@@ -206,15 +206,9 @@ Die Verortung ist **immer** Pflicht: Versuchen Sie den neuen Datensatz zu :ref:`
 Wie funktioniert das Attribut *Adresse*?
 ----------------------------------------
 
-Wenn das Attribut *Adresse* Pflicht ist, wird bei der :ref:`Verortung <datensatz_anlegen_verorten>` automatisch die dem Punkt der Verortung nächstgelegene Adresse bestimmt und in das Attribut *Adresse* eingetragen.
+Falls der betreffende Datensatz eine Referenz zu einer Adresse vorsieht und diese Pflicht ist, wird bei der :ref:`Verortung <datensatz_anlegen_verorten>` automatisch die dem Punkt der Verortung nächstgelegene Adresse bestimmt und in das Attribut *Adresse* eingetragen.
 
-
-.. _datensatz_anlegen_adresse_strasse:
-
-Wie funktioniert das Attribut *Adresse/Straße*?
------------------------------------------------
-
-Das Attribut *Adresse* heißt *Adresse/Straße*, wenn es **kein** Pflichtattribut ist und entweder eine volle Adresse – Straßenname mit Hausnummer und ggf. Hausnummernzusatz – oder nur ein Straßenname sein kann: Dann wird es bei der :ref:`Verortung <datensatz_anlegen_verorten>` auch nicht automatisch ausgefüllt. Stattdessen können Sie, wenn Sie möchten, mittels der Buttons *Adresse übernehmen* oder *Straße übernehmen* die der aktuellen Verortung in der Karte nächstgelegene Adresse oder die nächstgelegene Straße in das Attribut *Adresse/Straße* eintragen lassen.
+Sofern die Referenz zu einer Adresse keine Pflicht ist, sondern optional, wird das Attribut *Adresse* nicht automatisch ausgefüllt. Stattdessen können Sie, wenn Sie möchten, mittels des Buttons *Adresse übernehmen* die der aktuellen Verortung in der Karte nächstgelegene Adresse in das Attribut *Adresse* eintragen lassen.
 
 
 .. _datensatz_anlegen_strasse:
@@ -222,7 +216,9 @@ Das Attribut *Adresse* heißt *Adresse/Straße*, wenn es **kein** Pflichtattribu
 Wie funktioniert das Attribut *Straße*?
 ---------------------------------------
 
-Das Attribut *Adresse* heißt *Straße*, wenn es **kein** Pflichtattribut ist und nur ein Straßenname sein darf: Dann wird es bei der :ref:`Verortung <datensatz_anlegen_verorten>` auch nicht automatisch ausgefüllt. Stattdessen können Sie, wenn Sie möchten, mittels des Buttons *Straße übernehmen* die der aktuellen Verortung in der Karte nächstgelegene Straße in das Attribut *Straße* eintragen lassen.
+Falls der betreffende Datensatz eine Referenz zu einer Straße vorsieht und diese Pflicht ist, wird bei der :ref:`Verortung <datensatz_anlegen_verorten>` automatisch die dem Punkt der Verortung nächstgelegene Straße bestimmt und in das Attribut *Straße* eingetragen.
+
+Sofern die Referenz zu einer Straße keine Pflicht ist, sondern optional, wird das Attribut *Straße* nicht automatisch ausgefüllt. Stattdessen können Sie, wenn Sie möchten, mittels des Buttons *Straße übernehmen* die der aktuellen Verortung in der Karte nächstgelegene Straße in das Attribut *Straße* eintragen lassen.
 
 
 .. _datensatz_anlegen_speichern:

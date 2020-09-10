@@ -8,7 +8,7 @@ Anmeldung
 Wie kann ich mich anmelden?
 ---------------------------
 
-Die Anmeldung erfolgt über die beiden Eingabefelder sowie den grünen Button *anmelden* rechts oben in der :doc:`Titelleiste <../nav/titelleiste>`: In das erste Feld müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen die Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer :doc:`Datenthemen-Übersicht <../nav/datenthemen-uebersicht>` weitergeleitet und Ihr Name erscheint oben in der Titelleiste als „Beleg“ dafür, dass Sie jetzt angemeldet sind.
+Die Anmeldung erfolgt über die Anmeldeseite, auf die Sie über den blauen Button *Anmeldung* in der :doc:`Titelleiste <../nav/titelleiste>` gelangen: In das erste Eingabefeld auf der Anmeldeseite müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen die Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer :doc:`Datenthemen-Übersicht <../nav/datenthemen-uebersicht>` weitergeleitet und Ihr Name erscheint oben in der Titelleiste als „Beleg“ dafür, dass Sie jetzt angemeldet sind.
 
 **Tipp:** Sie können auch einfach die ``Enter``-Taste auf Ihrer Tastatur drücken statt auf den grünen Button *anmelden* zu klicken!
 
@@ -30,7 +30,7 @@ Kann ich mein Passwort ändern?
 
 Falls Sie Angehöriger der Stadtverwaltung Rostock sind, so ist Ihr Passwort stets mit jenem identisch, das Sie auch nutzen, um sich an Ihrem Rechner anzumelden. Wie Sie dieses Passwort ändern können, fragen Sie am besten Ihren IT-Verantwortlichen.
 
-Falls Sie **kein** Angehöriger der Stadtverwaltung Rostock sind, so können Sie Ihr Passwort mit Hilfe der folgenden Web-Anwendung selbst ändern: https://geo.sv.rostock.de/pwm. Um eine Passwortänderung durchzuführen, melden Sie sich dort einfach mit Ihrem aktuellen Benutzernamen und dem zugehörigen Passwort an und folgen den weiteren Anweisungen.
+Falls Sie **kein** Angehöriger der Stadtverwaltung Rostock sind, kontaktieren Sie uns: geodienste@rostock.de.
 
 
 .. _abmelden:

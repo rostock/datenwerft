@@ -86,14 +86,6 @@ Wie funktioniert das Attribut *Adresse*?
 Das können Sie :ref:`hier <datensatz_anlegen_adresse>` nachlesen, natürlich im Bewusstsein der Tatsache, dass es sich um einen bereits bestehenden Datensatz handelt, nicht um einen neuen.
 
 
-.. _datensatz_bearbeiten_adresse_strasse:
-
-Wie funktioniert das Attribut *Adresse/Straße*?
------------------------------------------------
-
-Das können Sie :ref:`hier <datensatz_anlegen_adresse_strasse>` nachlesen, natürlich im Bewusstsein der Tatsache, dass es sich um einen bereits bestehenden Datensatz handelt, nicht um einen neuen.
-
-
 .. _datensatz_bearbeiten_strasse:
 
 Wie funktioniert das Attribut *Straße*?
