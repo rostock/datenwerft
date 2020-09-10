@@ -62,7 +62,7 @@
             <tr>
               <td>
                 {% if field|is_field_hours_related_field %}
-                  {{ field.label_tag }} (<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten" target="_blank"><i class="fas fa-question-circle"></i></span> Hilfe</a>)
+                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten" target="_blank"><i class="fas fa-question-circle"></i></span> Hilfe</a>)</small>
                 {% else %}
                   {{ field.label_tag }}
                 {% endif %}
@@ -434,11 +434,20 @@
       $('td').find('a').attr('target', '_blank');
 
       // Links auf vorhandene Fotos, PDF etc. sowie entsprechende Upload-Buttons mit ordentlichem Text versehen
-      $('td').find('a').parent().contents().filter(function(){
+      $('td').find('a').parent().contents().filter(function () {
         return this.nodeType == 3
       }).remove();
-      $('td').find('a').before('aktuell: ');
       $('td').find('a').parent().find('input[type="file"]').before('ändern in: ');
+
+      // bestimmte Werte in Auswahllisten mit Kleinbuchstaben versehen
+      $('td').find('option').each(function () {
+        if ($(this).text() === 'Unbekannt')
+          $(this).text('unbekannt');
+        else if ($(this).text() === 'Ja')
+          $(this).text('ja');
+        else if ($(this).text() === 'Nein')
+          $(this).text('nein');
+      });
     });
 
     // Adresse oder Straße als Marker in Karte übernehmen
