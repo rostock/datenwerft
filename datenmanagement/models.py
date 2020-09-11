@@ -364,14 +364,6 @@ BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE = (
   ('privat', 'privat'),
 )
 
-BEWIRTSCHAFTER_ABFALLBEHAELTER = (
-  (67, 'Amt für Stadtgrün, Naturschutz und Landschaftspflege'),
-  (73, 'Amt für Umwelt- und Klimaschutz'),
-  (66, 'Tiefbauamt'),
-  (87, 'Tourismuszentrale Rostock und Warnemünde'),
-  (2000, 'Rostocker Straßenbahn AG'),
-)
-
 BEWIRTSCHAFTER_HUNDETOILETTE = (
   (73, 'Amt für Umwelt- und Klimaschutz'),
   (87, 'Tourismuszentrale Rostock und Warnemünde'),
@@ -416,12 +408,6 @@ E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
   ('Dauerstrom', 'Dauerstrom'),
   ('Solarpanel', 'Solarpanel'),
   ('Straßenbeleuchtung', 'Straßenbeleuchtung'),
-)
-
-EIGENTUEMER_ABFALLBEHAELTER = (
-  ('hro', 'Hanse- und Universitätsstadt Rostock'),
-  ('rsag', 'Rostocker Straßenbahn AG'),
-  ('sr', 'Stadtentsorgung Rostock GmbH'),
 )
 
 EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE = (
@@ -610,14 +596,6 @@ TITEL_DENKSTEINE = (
   ('Dr.', 'Dr.'),
   ('Prof.', 'Prof.'),
   ('Prof. Dr.', 'Prof. Dr.'),
-)
-
-TYP_ABFALLBEHAELTER = (
-  ('Dinova', 'Dinova'),
-  ('Eisenjäger', 'Eisenjäger'),
-  ('H&L', 'H&L'),
-  ('Punto', 'Punto'),
-  ('Wetz', 'Wetz'),
 )
 
 TYP_HALTESTELLEN = (
@@ -894,6 +872,28 @@ class Status_Baustellen_geplant(models.Model):
     return self.status
 
 
+# Typen von Abfallbehältern
+
+class Typen_Abfallbehaelter(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  typ = models.CharField('Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"typen_abfallbehaelter'
+    verbose_name = 'Typ eines Abfallbehälters'
+    verbose_name_plural = 'Typen von Abfallbehältern'
+    description = 'Typen von Abfallbehältern'
+    list_fields = {
+      'typ': 'Typ'
+    }
+    ordering = ['typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.typ
+
+
 # Verkehrliche Lagen von Baustellen
 
 class Verkehrliche_Lagen_Baustellen(models.Model):
@@ -921,12 +921,76 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
 # Datenthemen
 #
 
+# Abfallbehälter
+
+class Abfallbehaelter(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  deaktiviert = models.DateField('Außerbetriebstellung', blank=True, null=True)
+  id = models.CharField('ID', max_length=8, default=settings.READONLY_FIELD_DEFAULT)
+  typ = models.ForeignKey(Typen_Abfallbehaelter, verbose_name='Typ', on_delete=models.SET_NULL, db_column='typ', to_field='uuid', related_name='typen+', blank=True, null=True)
+  aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', max_value=current_year(), blank=True, null=True)
+  eigentuemer = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Eigentümer', on_delete=models.RESTRICT, db_column='eigentuemer', to_field='uuid', related_name='eigentuemer+')
+  bewirtschafter = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter', on_delete=models.RESTRICT, db_column='bewirtschafter', to_field='uuid', related_name='bewirtschafter+')
+  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
+  haltestelle = models.BooleanField('Lage an einer Haltestelle', blank=True, null=True)
+  sommer_mo = PositiveSmallIntegerRangeField('Anzahl Leerungen montags im Sommer', min_value=1, blank=True, null=True)
+  sommer_di = PositiveSmallIntegerRangeField('Anzahl Leerungen dienstags im Sommer', min_value=1, blank=True, null=True)
+  sommer_mi = PositiveSmallIntegerRangeField('Anzahl Leerungen mittwochs im Sommer', min_value=1, blank=True, null=True)
+  sommer_do = PositiveSmallIntegerRangeField('Anzahl Leerungen donnerstags im Sommer', min_value=1, blank=True, null=True)
+  sommer_fr = PositiveSmallIntegerRangeField('Anzahl Leerungen freitags im Sommer', min_value=1, blank=True, null=True)
+  sommer_sa = PositiveSmallIntegerRangeField('Anzahl Leerungen samstags im Sommer', min_value=1, blank=True, null=True)
+  sommer_so = PositiveSmallIntegerRangeField('Anzahl Leerungen sonntags im Sommer', min_value=1, blank=True, null=True)
+  winter_mo = PositiveSmallIntegerRangeField('Anzahl Leerungen montags im Winter', min_value=1, blank=True, null=True)
+  winter_di = PositiveSmallIntegerRangeField('Anzahl Leerungen dienstags im Winter', min_value=1, blank=True, null=True)
+  winter_mi = PositiveSmallIntegerRangeField('Anzahl Leerungen mittwochs im Winter', min_value=1, blank=True, null=True)
+  winter_do = PositiveSmallIntegerRangeField('Anzahl Leerungen donnerstags im Winter', min_value=1, blank=True, null=True)
+  winter_fr = PositiveSmallIntegerRangeField('Anzahl Leerungen freitags im Winter', min_value=1, blank=True, null=True)
+  winter_sa = PositiveSmallIntegerRangeField('Anzahl Leerungen samstags im Winter', min_value=1, blank=True, null=True)
+  winter_so = PositiveSmallIntegerRangeField('Anzahl Leerungen sonntags im Winter', min_value=1, blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"abfallbehaelter_hro'
+    verbose_name = 'Abfallbehälter'
+    verbose_name_plural = 'Abfallbehälter'
+    description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'deaktiviert': 'Außerbetriebstellung',
+      'id': 'ID',
+      'typ': 'Typ',
+      'eigentuemer': 'Eigentümer',
+      'bewirtschafter': 'Bewirtschafter',
+      'pflegeobjekt': 'Pflegeobjekt'
+    }
+    list_fields_with_date = ['deaktiviert']
+    list_fields_with_foreign_key = {
+      'typ': 'typ__typ',
+      'eigentuemer': 'eigentuemer__bezeichnung',
+      'bewirtschafter': 'bewirtschafter__bezeichnung'
+    }
+    readonly_fields = ['deaktiviert', 'id']
+    map_feature_tooltip_field = 'id'
+    map_filter_fields = {
+      'id': 'ID'
+    }
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
+
+
 # Aufteilungspläne nach Wohnungseigentumsgesetz
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum_abgeschlossenheitserklaerung = models.DateField('Datum der Abgeschlossenheitserklärung', blank=True, null=True)
   bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -976,7 +1040,7 @@ def aufteilungsplan_wohnungseigentumsgesetz_post_delete_handler(sender, instance
 class Baustellen_geplant(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
-  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.CASCADE, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
+  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
   projektbezeichnung = models.CharField('Projektbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   kurzbeschreibung = NullTextField('Kurzbeschreibung', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -1053,7 +1117,7 @@ class Baustellen_geplant(models.Model):
 class Behinderteneinrichtungen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
   plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
@@ -1098,7 +1162,7 @@ class Behinderteneinrichtungen(models.Model):
 class Bildungstraeger(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   schlagwoerter = ChoiceArrayField(models.CharField('Schlagwörter', max_length=255, choices=()), verbose_name='Schlagwörter')
@@ -1146,7 +1210,7 @@ class Bildungstraeger(models.Model):
 class Feuerwachen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   art = models.ForeignKey(Arten_Feuerwachen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1190,7 +1254,7 @@ class Feuerwachen(models.Model):
 class Kindertagespflegeeinrichtungen(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.CASCADE, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
   nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
   plaetze = models.PositiveSmallIntegerField('Plätze')
@@ -1234,58 +1298,6 @@ class Kindertagespflegeeinrichtungen(models.Model):
 
 
 
-
-
-
-# isi3
-class Abfallbehaelter(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  id_abfallbehaelter = models.CharField('ID', default=settings.READONLY_FIELD_DEFAULT, max_length=8)
-  gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
-  eigentuemer_id = models.CharField('Eigentümer', max_length=255, choices=EIGENTUEMER_ABFALLBEHAELTER)
-  eigentuemer = models.CharField('Eigentümer', max_length=255, editable=False)
-  bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_ABFALLBEHAELTER)
-  bewirtschafter = models.CharField('Bewirtschafter', max_length=255, editable=False)
-  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', min_value=1900, max_value=current_year(), blank=True, null=True)
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
-  typ = models.CharField('Typ', max_length=255, choices=TYP_ABFALLBEHAELTER, blank=True, null=True)
-  haltestelle = models.BooleanField('Lage an einer Haltestelle', blank=True, null=True)
-  sommer_mo = models.PositiveSmallIntegerField('Anzahl Leerungen montags im Sommer', blank=True, null=True)
-  sommer_di = models.PositiveSmallIntegerField('Anzahl Leerungen dienstags im Sommer', blank=True, null=True)
-  sommer_mi = models.PositiveSmallIntegerField('Anzahl Leerungen mittwochs im Sommer', blank=True, null=True)
-  sommer_do = models.PositiveSmallIntegerField('Anzahl Leerungen donnerstags im Sommer', blank=True, null=True)
-  sommer_fr = models.PositiveSmallIntegerField('Anzahl Leerungen freitags im Sommer', blank=True, null=True)
-  sommer_sa = models.PositiveSmallIntegerField('Anzahl Leerungen samstags im Sommer', blank=True, null=True)
-  sommer_so = models.PositiveSmallIntegerField('Anzahl Leerungen sonntags im Sommer', blank=True, null=True)
-  winter_mo = models.PositiveSmallIntegerField('Anzahl Leerungen montags im Winter', blank=True, null=True)
-  winter_di = models.PositiveSmallIntegerField('Anzahl Leerungen dienstags im Winter', blank=True, null=True)
-  winter_mi = models.PositiveSmallIntegerField('Anzahl Leerungen mittwochs im Winter', blank=True, null=True)
-  winter_do = models.PositiveSmallIntegerField('Anzahl Leerungen donnerstags im Winter', blank=True, null=True)
-  winter_fr = models.PositiveSmallIntegerField('Anzahl Leerungen freitags im Winter', blank=True, null=True)
-  winter_sa = models.PositiveSmallIntegerField('Anzahl Leerungen samstags im Winter', blank=True, null=True)
-  winter_so = models.PositiveSmallIntegerField('Anzahl Leerungen sonntags im Winter', blank=True, null=True)
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"abfallbehaelter'
-    verbose_name = 'Abfallbehälter'
-    verbose_name_plural = 'Abfallbehälter'
-    description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['gueltigkeit_bis', 'id_abfallbehaelter', 'typ', 'pflegeobjekt', 'adressanzeige', 'eigentuemer', 'bewirtschafter']
-    list_fields_with_date = ['gueltigkeit_bis']
-    list_fields_labels = ['Außerbetriebstellung', 'ID', 'Typ', 'Pflegeobjekt', 'Adresse', 'Eigentümer', 'Bewirtschafter']
-    readonly_fields = ['id_abfallbehaelter', 'adressanzeige']
-    map_feature_tooltip_field = 'id_abfallbehaelter'
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return 'Abfallbehälter mit ID ' + self.id_abfallbehaelter + (', Typ ' + self.typ if self.typ else '') + ', im Pflegeobjekt ' + self.pflegeobjekt + (', ' + self.adressanzeige if self.adressanzeige else '') + ', mit Eigentümer ' + self.eigentuemer + ' und Bewirtschafter ' + self.bewirtschafter
 
 
 # isi2
