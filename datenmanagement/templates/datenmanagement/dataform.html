@@ -431,6 +431,9 @@
         });
       {% endif %}
 
+      // Labels für verpflichtende Boolean-Felder anpassen
+      $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
+
       // Links auf vorhandene Fotos, PDF etc. immer in neuem Tab öffnen
       $('td').find('a').attr('title', 'in neuem Tab öffnen…');
       $('td').find('a').attr('target', '_blank');

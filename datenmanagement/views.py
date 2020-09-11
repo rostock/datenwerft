@@ -169,7 +169,7 @@ class DataForm(ModelForm):
     self.address_type = (self.instance._meta.address_type if hasattr(self.instance._meta, 'address_type') else None)
     self.address_mandatory = (self.instance._meta.address_mandatory if hasattr(self.instance._meta, 'address_mandatory') else None)
 
-    for field in self.model._meta.get_fields():
+    for field in self.model._meta.get_fields(): 
       if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
         # Textfelder in Auswahllisten umwandeln, falls Benutzer kein Admin und kein Mitglied der Gruppe von Benutzern ist, die als Admin-Gruppe für dieses Datenthema gilt
         if self.group_with_users_for_choice_field and Group.objects.filter(name = self.group_with_users_for_choice_field).exists() and not (self.request.user.is_superuser or self.request.user.groups.filter(name = self.admin_group).exists()):
@@ -194,6 +194,7 @@ class DataForm(ModelForm):
             label = field.verbose_name,
             required = self.address_mandatory
           )
+      # bestimmte Modelle für bestimmte Felder zur Befüllung entsprechender Auswahllisten heranziehen
       elif self.choices_models_for_choices_fields:
         choices_model_for_choices_field = self.choices_models_for_choices_fields.get(field.name)
         if choices_model_for_choices_field is not None:
@@ -201,14 +202,13 @@ class DataForm(ModelForm):
           choices = []
           for choices_model_object in choices_model.objects.all():
             choices.append((choices_model_object, choices_model_object))
-          #raise Exception(choices_model.name)
           self.fields[field.name].choices = choices
 
     for field in self.fields.values():
       if field.label == 'Geometrie':
         message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
       else:
-        message = 'Das Attribut <strong>{label}</strong> ist Pflicht!'.format(label = field.label)
+        message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(label = field.label)
       field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.

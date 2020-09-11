@@ -290,7 +290,7 @@
             geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
           {% endif %}
           {% if highlight_flag %}
-            geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag }}';
+            geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag|safe }}';
           {% endif %}
           // für alle Intervallfilterfelder...
           {% if map_rangefilter_fields %}
@@ -301,7 +301,7 @@
                   // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
                   geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
                 {% else %}
-                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field }};
+                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field|safe }};
                 {% endif %}
               {% endwith %}
             {% endfor %}
@@ -315,7 +315,7 @@
                   // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
                   geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
                 {% else %}
-                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field }}';
+                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|safe }}';
                 {% endif %}
               {% endwith %}
             {% endfor %}
@@ -519,15 +519,15 @@
                   {% else %}
                     // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMin.length; i++) {
-                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field }})) {
-                        intervalFilterMin[i].value = {{ object|get_value_of_field:current_field }};
+                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field|safe }})) {
+                        intervalFilterMin[i].value = {{ object|get_value_of_field:current_field|safe }};
                         break;
                       }
                     }
                     // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMax.length; i++) {
-                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMax[i].value < {{ object|get_value_of_field:current_field }})) {
-                        intervalFilterMax[i].value = {{ object|get_value_of_field:current_field }};
+                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMax[i].value < {{ object|get_value_of_field:current_field|safe }})) {
+                        intervalFilterMax[i].value = {{ object|get_value_of_field:current_field|safe }};
                         break;
                       }
                     }
@@ -544,8 +544,8 @@
                   {% if object|get_value_of_field:current_field %}
                     // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Auswahlfeld dargestellt werden sollen: Werteliste um entsprechenden Wert des passenden Feldes aus dem Objekt ergänzen, falls dieser noch nicht in der Werteliste steht
                     for (var i = 0; i < listFilterLists.length; i++) {
-                      if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field }}') === -1) {
-                        listFilterLists[i].value.push('{{ object|get_value_of_field:current_field }}');
+                      if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field|safe }}') === -1) {
+                          listFilterLists[i].value.push('{{ object|get_value_of_field:current_field|safe }}');
                         break;
                       }
                     }
@@ -563,7 +563,7 @@
                     // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Checkboxen-Set dargestellt werden sollen: Werteliste um entsprechende(n) Wert(e) des passenden Feldes aus dem Objekt ergänzen, falls diese(r) noch nicht in der Werteliste steht/stehen
                     for (var i = 0; i < checkboxFilterLists.length; i++) {
                       if (checkboxFilterLists[i].name === '{{ current_field }}') {
-                        var dummyString = '{{ object|get_value_of_field:current_field }}';
+                        var dummyString = '{{ object|get_value_of_field:current_field|safe }}';
                         var dummyArray = dummyString.split(', ');
                         for (var j = 0; j < dummyArray.length; j++) {
                           if (checkboxFilterLists[i].value.indexOf(dummyArray[j]) === -1) {

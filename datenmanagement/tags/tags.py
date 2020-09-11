@@ -157,14 +157,6 @@ def is_field_address_related_field(field):
 
 
 @register.filter
-def is_field_boolean_field_and_required(field):
-  if field.field.__class__ == '' and field.field.required:
-    return True
-  else:
-    return False
-
-
-@register.filter
 def is_field_geometry_field(field):
   if field.field.__class__ == forms.PointField or field.field.__class__ == forms.LineStringField or field.field.__class__ == forms.MultiLineStringField or field.field.__class__ == forms.PolygonField or field.field.__class__ == forms.MultiPolygonField:
     return True

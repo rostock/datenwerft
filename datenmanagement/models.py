@@ -977,8 +977,13 @@ class Abfallbehaelter(models.Model):
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
-      'id': 'ID'
+      'id': 'ID',
+      'typ': 'Typ',
+      'eigentuemer': 'Eigentümer',
+      'bewirtschafter': 'Bewirtschafter',
+      'pflegeobjekt': 'Pflegeobjekt'
     }
+    map_filter_fields_as_list = ['typ', 'eigentuemer', 'bewirtschafter']
     geometry_type = 'Point'
   
   def __str__(self):
