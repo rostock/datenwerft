@@ -59,13 +59,12 @@ MIDDLEWARE = [
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'django.middleware.gzip.GZipMiddleware',
   'django_user_agents.middleware.UserAgentMiddleware',
+  'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'datenerfassung.urls'
 
 WSGI_APPLICATION = 'datenerfassung.wsgi.application'
-
-READONLY_FIELD_DEFAULT = '00000000'
 
 
 # Security

@@ -80,16 +80,18 @@
     {% if geometry_type %}
       <div id="map-adresssearch-container-form">
         {{ form.geometrie }}
-        {% if geometry_type == 'Point' or address_type and not address_mandatory %}
-          <div class="spacer-small"></div>
-          {% if geometry_type == 'Point' %}
-            <input disabled id="addressToMap" class="btn btn-success" value="Marker setzen"/>
-          {% endif %}
-          {% if not address_mandatory %}
-            {% if address_type == 'Adresse' %}
-              <input disabled id="mapToAddress" class="btn btn-success btn-in-a-row" value="Adresse übernehmen"/>
-            {% elif address_type == 'Straße' %}
-              <input disabled id="mapToStreet" class="btn btn-success btn-in-a-row" value="Straße übernehmen"/>
+        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+          {% if geometry_type == 'Point' or address_type and not address_mandatory %}
+            <div class="spacer-small"></div>
+            {% if geometry_type == 'Point' %}
+              <input disabled id="addressToMap" class="btn btn-success" type="button" value="Marker setzen"/>
+            {% endif %}
+            {% if not address_mandatory %}
+              {% if address_type == 'Adresse' %}
+                <input disabled id="mapToAddress" class="btn btn-success btn-in-a-row" type="button" value="Adresse übernehmen"/>
+              {% elif address_type == 'Straße' %}
+                <input disabled id="mapToStreet" class="btn btn-success btn-in-a-row" type="button" value="Straße übernehmen"/>
+              {% endif %}
             {% endif %}
           {% endif %}
         {% endif %}
@@ -105,8 +107,10 @@
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% endif %}
           {% else %}
-            <label for="id_address_search">Adressensuche</label>
-            <input id="id_address_search" type="text" name="address_search" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+              <label for="id_address_search">Adressensuche</label>
+              <input id="id_address_search" type="text" name="address_search" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+            {% endif %}
           {% endif %}
           <div id="results-container" class="results"></div>
         </div>
@@ -155,15 +159,20 @@
     function id_geometrie_map_callback(map, options) {
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
       window.currMap = map;
-          
+
       // Geometrie und deren Editierung aktivieren
       geodjango_id_geometrie.store_class = L.FieldStore;
       (new L.GeometryField(geodjango_id_geometrie)).addTo(map);
-          
+
+      // Editier- und Löschmöglichkeit der Geometrie deaktivieren deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
+      {% if not user|user_has_object_change_permission:object %}
+        $('.leaflet-draw').hide();
+      {% endif %}
+
       // falls Geometrie punkthaft ist...
       {% if geometry_type == 'Point' %}
         // Editier- und Löschmöglichkeit der Geometrie deaktivieren
-        $( '.leaflet-draw-edit-edit' ).parent().parent().remove();
+        $('.leaflet-draw-edit-edit').parent().parent().remove();
         // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
         map.eachLayer(function (layer) {
           if (layer._latlng) {
@@ -314,17 +323,34 @@
       {% if readonly_fields %}
         {% for field in readonly_fields %}
           var inputField = $('input#id_' + '{{ field }}');
-          if (!inputField.val() || inputField.val() === '{{ READONLY_FIELD_DEFAULT }}') {
+          {% if user|user_has_object_change_permission:object %}
+            if (!inputField.val()) {
+              inputField.closest('tr').hide();
+            } else {
+              inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + inputField.val() + '</em></span>');
+              var label = inputField.parent().closest('tr').find('label');
+              label.wrapInner('<em></em>');
+              inputField.hide();
+              if ($('div*[data-target="#id_{{ field }}"]'))
+                $('div*[data-target="#id_{{ field }}"]').hide();
+            }
+           {% else %}
             inputField.closest('tr').hide();
-          } else {
-            inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – wird automatisch im Hintergrund vergeben"><em>' + inputField.val() + '</em></span>');
-            var label = inputField.parent().closest('tr').find('label');
-            label.wrapInner('<em></em>');
-            inputField.hide();
-            if ($('div*[data-target="#id_{{ field }}"]'))
-              $('div*[data-target="#id_{{ field }}"]').hide();
-          }
+           {% endif %}
         {% endfor %}
+      {% endif %}
+
+      // alle Felder deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
+      {% if not user|user_has_object_change_permission:object %}
+        $('input').each(function () {
+            $(this).prop('disabled', true);
+        });
+        $('select').each(function () {
+            $(this).prop('disabled', true);
+        });
+        $('textarea').each(function () {
+            $(this).prop('disabled', true);
+        });
       {% endif %}
 
       // Multi-Datei-Feld behandeln

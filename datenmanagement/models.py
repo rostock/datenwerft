@@ -8,15 +8,17 @@ from datetime import date, datetime
 from decimal import *
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import options
+from django.db.models import options, signals
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
-from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.crypto import get_random_string
 from django.utils.encoding import force_text
+from django_currentuser.middleware import get_current_authenticated_user
+from guardian.shortcuts import assign_perm, remove_perm
 from PIL import Image, ExifTags
 
 
@@ -25,8 +27,39 @@ from PIL import Image, ExifTags
 # eigene Funktionen
 #
 
+def assign_permissions(sender, instance, created, **kwargs):
+  model_name = instance.__class__.__name__.lower()
+  user = getattr(instance, 'current_authenticated_user', None)
+  if created:
+    assign_perm('datenmanagement.change_' + model_name, user, instance)
+    assign_perm('datenmanagement.delete_' + model_name, user, instance)
+    if hasattr(instance.__class__._meta, 'admin_group') and Group.objects.filter(name = instance.__class__._meta.admin_group).exists():
+      group = Group.objects.filter(name = instance.__class__._meta.admin_group)
+      assign_perm('datenmanagement.change_' + model_name, group, instance)
+      assign_perm('datenmanagement.delete_' + model_name, group, instance)
+    else:
+      for group in Group.objects.all():
+        if group.permissions.filter(codename = 'change_' + model_name):
+          assign_perm('datenmanagement.change_' + model_name, group, instance)
+        if group.permissions.filter(codename = 'delete_' + model_name):
+          assign_perm('datenmanagement.delete_' + model_name, group, instance)
+  elif hasattr(instance.__class__._meta, 'group_with_users_for_choice_field') and Group.objects.filter(name = instance.__class__._meta.group_with_users_for_choice_field).exists():
+    if user.groups.filter(name = instance.__class__._meta.group_with_users_for_choice_field).exists():
+      mail = instance.ansprechpartner.split()[-1]
+      mail = re.sub(r'\(', '', re.sub(r'\)', '', mail))
+      if User.objects.filter(email__iexact = mail).exists():
+        user = User.objects.get(email__iexact = mail)
+        assign_perm('datenmanagement.change_' + model_name, user, instance)
+        assign_perm('datenmanagement.delete_' + model_name, user, instance)
+
+
 def current_year():
   return int(date.today().year)
+
+
+def delete_pdf(sender, instance, **kwargs):
+  if instance.pdf:
+    instance.pdf.delete(False)
 
 
 def path_and_rename(path):
@@ -44,6 +77,17 @@ def path_and_rename(path):
       filename = '{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
     return os.path.join(path, filename)
   return wrapper
+
+
+def remove_permissions(sender, instance, **kwargs):
+  model_name = instance.__class__.__name__.lower()
+  user = getattr(instance, 'current_authenticated_user', None)
+  for user in User.objects.all():
+    remove_perm('datenmanagement.change_' + model_name, user, instance)
+    remove_perm('datenmanagement.delete_' + model_name, user, instance)
+  for group in Group.objects.all():
+    remove_perm('datenmanagement.change_' + model_name, group, instance)
+    remove_perm('datenmanagement.delete_' + model_name, group, instance)
 
 
 def rotate_image(path):
@@ -927,7 +971,7 @@ class Abfallbehaelter(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField('Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=8, default=settings.READONLY_FIELD_DEFAULT)
+  id = models.CharField('ID', max_length=8, default='00000000')
   typ = models.ForeignKey(Typen_Abfallbehaelter, verbose_name='Typ', on_delete=models.SET_NULL, db_column='typ', to_field='uuid', related_name='typen+', blank=True, null=True)
   aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', max_value=current_year(), blank=True, null=True)
   eigentuemer = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Eigentümer', on_delete=models.RESTRICT, db_column='eigentuemer', to_field='uuid', related_name='eigentuemer+')
@@ -989,6 +1033,18 @@ class Abfallbehaelter(models.Model):
   def __str__(self):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Abfallbehaelter, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Abfallbehaelter, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Abfallbehaelter)
+
+signals.post_delete.connect(remove_permissions, sender=Abfallbehaelter)
+
 
 # Aufteilungspläne nach Wohnungseigentumsgesetz
 
@@ -1034,10 +1090,19 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   def __str__(self):
     return 'Abgeschlossenheitserklärung mit Datum ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-@receiver(post_delete, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
-def aufteilungsplan_wohnungseigentumsgesetz_post_delete_handler(sender, instance, **kwargs):
-  if instance.pdf:
-    instance.pdf.delete(False)
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Aufteilungsplaene_Wohnungseigentumsgesetz, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Aufteilungsplaene_Wohnungseigentumsgesetz, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
+
+signals.post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
+
+signals.post_delete.connect(remove_permissions, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
 
 # Baustellen (geplant)
@@ -1116,6 +1181,18 @@ class Baustellen_geplant(models.Model):
   def __str__(self):
     return self.bezeichnung + ' [' + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn: ' + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ende: ' + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_geplant, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_geplant, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Baustellen_geplant)
+
+signals.post_delete.connect(remove_permissions, sender=Baustellen_geplant)
+
 
 # Behinderteneinrichtungen
 
@@ -1160,6 +1237,18 @@ class Behinderteneinrichtungen(models.Model):
   
   def __str__(self):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Behinderteneinrichtungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Behinderteneinrichtungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Behinderteneinrichtungen)
+
+signals.post_delete.connect(remove_permissions, sender=Behinderteneinrichtungen)
 
 
 # Bildungsträger
@@ -1209,6 +1298,18 @@ class Bildungstraeger(models.Model):
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Bildungstraeger, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Bildungstraeger, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Bildungstraeger)
+
+signals.post_delete.connect(remove_permissions, sender=Bildungstraeger)
+
 
 # Feuerwachen
 
@@ -1252,6 +1353,18 @@ class Feuerwachen(models.Model):
   
   def __str__(self):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Feuerwachen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Feuerwachen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Feuerwachen)
+
+signals.post_delete.connect(remove_permissions, sender=Feuerwachen)
 
 
 # Kindertagespflegeeinrichtungen
@@ -1300,6 +1413,22 @@ class Kindertagespflegeeinrichtungen(models.Model):
   def __str__(self):
     return self.vorname + ' ' + self.nachname + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
     return self.vorname + ' ' + self.nachname + (', ' + self.adressanzeige if self.adressanzeige else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Kindertagespflegeeinrichtungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Kindertagespflegeeinrichtungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Kindertagespflegeeinrichtungen)
+
+signals.post_delete.connect(remove_permissions, sender=Kindertagespflegeeinrichtungen)
+
+
+
+
 
 
 
@@ -1370,7 +1499,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 class Baustellen_Fotodokumentation_Fotos(models.Model):
   id = models.AutoField(primary_key=True)
   parent = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid')
-  dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
+  dateiname_original = models.CharField('Original-Dateiname', default='', max_length=255)
   status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
   aufnahmedatum = models.DateField('Aufnahmedatum')
   foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'baustellen_fotodokumentation'), max_length=255)
@@ -1726,7 +1855,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
 class Haltestellenkataster_Fotos(models.Model):
   id = models.AutoField(primary_key=True)
   parent = models.ForeignKey(Haltestellenkataster_Haltestellen, on_delete=models.CASCADE, db_column='haltestellenkataster_haltestelle', to_field='uuid')
-  dateiname_original = models.CharField('Original-Dateiname', default=settings.READONLY_FIELD_DEFAULT, max_length=255)
+  dateiname_original = models.CharField('Original-Dateiname', default='', max_length=255)
   motiv = models.CharField('Motiv', max_length=255, choices=MOTIVE_HALTESTELLEN)
   aufnahmedatum = models.DateField('Aufnahmedatum')
   foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'haltestellenkataster'), max_length=255)
@@ -1790,7 +1919,7 @@ class Hospize(models.Model):
 class Hundetoiletten(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  id_hundetoilette = models.CharField('ID', default=settings.READONLY_FIELD_DEFAULT, max_length=8)
+  id_hundetoilette = models.CharField('ID', default='', max_length=8)
   gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
   art = models.CharField('Art', max_length=255, choices=ART_HUNDETOILETTE)
   bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_HUNDETOILETTE)
@@ -2354,7 +2483,7 @@ class Vereine(models.Model):
     return ', '.join(self.klassen)
 
 
-@receiver(pre_save, sender=Baustellen_Fotodokumentation_Fotos)
+@receiver(signals.pre_save, sender=Baustellen_Fotodokumentation_Fotos)
 def baustelle_fotodokumentation_pre_save_handler(sender, instance, **kwargs):
   # ab hier in Funktion B auslagern
   try:
@@ -2365,7 +2494,7 @@ def baustelle_fotodokumentation_pre_save_handler(sender, instance, **kwargs):
     pass
 
 
-@receiver(post_save, sender=Baustellen_Fotodokumentation_Fotos)
+@receiver(signals.post_save, sender=Baustellen_Fotodokumentation_Fotos)
 def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
   if instance.foto:
     if settings.MEDIA_ROOT and settings.MEDIA_URL:
@@ -2382,7 +2511,7 @@ def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
       thumb_image(path, thumb_path)
 
 
-@receiver(post_delete, sender=Baustellen_Fotodokumentation_Fotos)
+@receiver(signals.post_delete, sender=Baustellen_Fotodokumentation_Fotos)
 def baustelle_fotodokumentation_post_delete_handler(sender, instance, **kwargs):
   # ab hier in Funktion A auslagern
   if instance.foto:
@@ -2400,7 +2529,7 @@ def baustelle_fotodokumentation_post_delete_handler(sender, instance, **kwargs):
     instance.foto.delete(False)
 
 
-@receiver(pre_save, sender=Containerstellplaetze)
+@receiver(signals.pre_save, sender=Containerstellplaetze)
 def containerstellplatz_pre_save_handler(sender, instance, **kwargs):
   # ab hier in Funktion B auslagern
   try:
@@ -2411,7 +2540,7 @@ def containerstellplatz_pre_save_handler(sender, instance, **kwargs):
     pass
 
 
-@receiver(post_save, sender=Containerstellplaetze)
+@receiver(signals.post_save, sender=Containerstellplaetze)
 def containerstellplatz_post_save_handler(sender, instance, **kwargs):
   if instance.foto:
     if settings.MEDIA_ROOT and settings.MEDIA_URL:
@@ -2444,7 +2573,7 @@ def containerstellplatz_post_save_handler(sender, instance, **kwargs):
         pass
 
 
-@receiver(post_delete, sender=Containerstellplaetze)
+@receiver(signals.post_delete, sender=Containerstellplaetze)
 def containerstellplatz_post_delete_handler(sender, instance, **kwargs):
   # ab hier in Funktion A auslagern
   if instance.foto:
@@ -2462,7 +2591,7 @@ def containerstellplatz_post_delete_handler(sender, instance, **kwargs):
     instance.foto.delete(False)
 
 
-@receiver(post_save, sender=Gutachterfotos)
+@receiver(signals.post_save, sender=Gutachterfotos)
 def gutachterfoto_post_save_handler(sender, instance, **kwargs):
   if instance.foto:
     if settings.MEDIA_ROOT and settings.MEDIA_URL:
@@ -2479,7 +2608,7 @@ def gutachterfoto_post_save_handler(sender, instance, **kwargs):
       thumb_image(path, thumb_path)
 
 
-@receiver(post_delete, sender=Gutachterfotos)
+@receiver(signals.post_delete, sender=Gutachterfotos)
 def gutachterfoto_post_delete_handler(sender, instance, **kwargs):
   # ab hier in Funktion A auslagern
   if instance.foto:
@@ -2497,7 +2626,7 @@ def gutachterfoto_post_delete_handler(sender, instance, **kwargs):
     instance.foto.delete(False)
 
 
-@receiver(pre_save, sender=Haltestellenkataster_Fotos)
+@receiver(signals.pre_save, sender=Haltestellenkataster_Fotos)
 def haltestellenkataster_pre_save_handler(sender, instance, **kwargs):
   # ab hier in Funktion B auslagern
   try:
@@ -2508,7 +2637,7 @@ def haltestellenkataster_pre_save_handler(sender, instance, **kwargs):
     pass
 
 
-@receiver(post_save, sender=Haltestellenkataster_Fotos)
+@receiver(signals.post_save, sender=Haltestellenkataster_Fotos)
 def haltestellenkataster_post_save_handler(sender, instance, **kwargs):
   if instance.foto:
     if settings.MEDIA_ROOT and settings.MEDIA_URL:
@@ -2525,7 +2654,7 @@ def haltestellenkataster_post_save_handler(sender, instance, **kwargs):
       thumb_image(path, thumb_path)
 
 
-@receiver(post_delete, sender=Haltestellenkataster_Fotos)
+@receiver(signals.post_delete, sender=Haltestellenkataster_Fotos)
 def haltestellenkataster_post_delete_handler(sender, instance, **kwargs):
   if instance.foto:
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:

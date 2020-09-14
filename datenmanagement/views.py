@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import Group, Permission, User
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -20,7 +20,6 @@ from django.utils.html import escape
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
-from guardian.shortcuts import assign_perm
 from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker
@@ -459,7 +458,6 @@ class DataAddView(generic.CreateView):
   def get_context_data(self, **kwargs):
     context = super(DataAddView, self).get_context_data(**kwargs)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['READONLY_FIELD_DEFAULT'] = settings.READONLY_FIELD_DEFAULT
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name'] = self.model._meta.verbose_name
@@ -491,14 +489,6 @@ class DataAddView(generic.CreateView):
         }
 
   def form_valid(self, form):
-    form.instance = form.save()
-    assign_perm('datenmanagement.change_' + self.model.__name__.lower(), self.request.user, form.instance)
-    assign_perm('datenmanagement.delete_' + self.model.__name__.lower(), self.request.user, form.instance)
-    for group in Group.objects.all():
-      if group.permissions.filter(codename = 'change_' + self.model.__name__.lower()):
-        assign_perm('datenmanagement.change_' + self.model.__name__.lower(), group, form.instance)
-      if group.permissions.filter(codename = 'delete_' + self.model.__name__.lower()):
-        assign_perm('datenmanagement.delete_' + self.model.__name__.lower(), group, form.instance)
     return super(DataAddView, self).form_valid(form)
 
 
@@ -525,7 +515,6 @@ class DataChangeView(generic.UpdateView):
   def get_context_data(self, **kwargs):
     context = super(DataChangeView, self).get_context_data(**kwargs)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['READONLY_FIELD_DEFAULT'] = settings.READONLY_FIELD_DEFAULT
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name'] = self.model._meta.verbose_name
