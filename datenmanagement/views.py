@@ -231,6 +231,13 @@ class DataForm(ModelForm):
     # Hinweis: Das return-Statement passt in jedem Fall, das heißt bei normalem Dateifeld und bei Multi-Dateifeld, da hier immer die – in alphabetischer Reihenfolge des Dateinamens – letzte Datei behandelt wird.
     return self.cleaned_data['foto']
 
+  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen dateiname_original existiert.
+  def clean_dateiname_original(self):
+    data = self.cleaned_data['dateiname_original']
+    if self.multi_foto_field and self.multi_foto_field == True:
+      data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
+    return data
+
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen geometrie existiert.
   def clean_geometrie(self):
     data = self.cleaned_data['geometrie']

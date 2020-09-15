@@ -9,10 +9,11 @@
     <h5>
       <small>
         {% if object|get_class_object_title or object|get_class_foreign_key_label %}
-          Möchten Sie {% if object|get_class_object_title %}{{object|get_class_object_title}}{% else %}den Datensatz{% endif %} zu {% if object|get_class_foreign_key_label %}{{object|get_class_foreign_key_label}}{% else %}Datensatz{% endif %} <strong><em>{{ object }}</em></strong> wirklich löschen?
+          Möchten Sie {% if object|get_class_object_title %}{{object|get_class_object_title}}{% else %}den Datensatz{% endif %} zu {% if object|get_class_foreign_key_label %}{{object|get_class_foreign_key_label}}{% else %}Datensatz{% endif %}
         {% else %}
-          Möchten Sie den Datensatz <strong><em>{{ object }}</em></strong> des Datenthemas <strong>{{object|get_class_verbose_name_plural}}</strong> wirklich löschen?
+          Möchten Sie den Datensatz
         {% endif %}
+        <strong><em>{{ object }}</em></strong> des Datenthemas <strong>{{object|get_class_verbose_name_plural}}</strong> wirklich löschen?
       </small>
     </h5>
     <div class="spacer-small"></div>

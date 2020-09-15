@@ -62,6 +62,22 @@ def delete_pdf(sender, instance, **kwargs):
     instance.pdf.delete(False)
 
 
+def delete_photo(sender, instance, **kwargs):
+  if instance.foto:
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
+      if settings.MEDIA_ROOT and settings.MEDIA_URL:
+        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+      else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = BASE_DIR + instance.foto.url
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
+    instance.foto.delete(False)
+
+
 def path_and_rename(path):
   def wrapper(instance, filename):
     if hasattr(instance, 'dateiname_original'):
@@ -69,14 +85,26 @@ def path_and_rename(path):
     ext = filename.split('.')[-1]
     if hasattr(instance, 'uuid'):
       filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
-    elif hasattr(instance, 'original_url'):
-      filename = instance.original_url.split('/')[-1]
-    elif hasattr(instance, 'parent'):
-      filename = '{0}_{1}.{2}'.format(str(instance.parent.uuid), get_random_string(length=8), ext.lower())
     else:
       filename = '{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
     return os.path.join(path, filename)
   return wrapper
+
+
+def photo_post_processing(sender, instance, **kwargs):
+  if instance.foto:
+    if settings.MEDIA_ROOT and settings.MEDIA_URL:
+      path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
+    else:
+      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+      path = BASE_DIR + instance.foto.url
+    rotate_image(path)
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
+      thumb_path = os.path.dirname(path) + '/thumbs'
+      if not os.path.exists(thumb_path):
+        os.mkdir(thumb_path)
+      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb_image(path, thumb_path)
 
 
 def remove_permissions(sender, instance, **kwargs):
@@ -314,12 +342,6 @@ ANGEBOTE_MOBILPUNKTE = (
   ('Fahrradreparaturset', 'Fahrradreparaturset'),
   ('Lastenradverleih', 'Lastenradverleih'),
   ('Straßenbahn', 'Straßenbahn'),
-)
-
-ART_BAUDENKMALE_DENKMALBEREICHE = (
-  ('bewegliches Denkmal', 'bewegliches Denkmal'),
-  ('Denkmalbereich', 'Denkmalbereich'),
-  ('Einzeldenkmal', 'Einzeldenkmal'),
 )
 
 ART_FAIRTRADE = (
@@ -630,12 +652,6 @@ SITZBANKTYPEN_HALTESTELLEN = (
   ('Sitzbank ohne Armlehne', 'Sitzbank ohne Armlehne'),
 )
 
-STATUS_BAUSTELLEN_FOTODOKUMENTATION = (
-  ('vor Baumaßnahme', 'vor Baumaßnahme'),
-  ('während Baumaßnahme', 'während Baumaßnahme'),
-  ('nach Baumaßnahme', 'nach Baumaßnahme'),
-)
-
 TITEL_DENKSTEINE = (
   ('Dr.', 'Dr.'),
   ('Prof.', 'Prof.'),
@@ -806,6 +822,15 @@ class Strassen(models.Model):
 # Codelisten
 #
 
+# Arten von Baudenkmalen
+
+class Arten_Baudenkmale(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_baudenkmale'
+    verbose_name = 'Art eines Baudenkmals'
+    verbose_name_plural = 'Arten von Baudenkmalen'
+    description = 'Arten von Baudenkmalen'
+
 # Arten von Feuerwachen
 
 class Arten_Feuerwachen(Art):
@@ -907,6 +932,28 @@ class Status_Baustellen_geplant(models.Model):
     verbose_name = 'Status einer Baustelle (geplant)'
     verbose_name_plural = 'Status von Baustellen (geplant)'
     description = 'Status von Baustellen (geplant)'
+    list_fields = {
+      'status': 'Status'
+    }
+    ordering = ['status'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.status
+
+
+# Status von Fotos der Baustellen-Fotodokumentation
+
+class Status_Baustellen_Fotodokumentation_Fotos(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  status = models.CharField('Status', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"status_baustellen_fotodokumentation_fotos'
+    verbose_name = 'Status eines Fotos der Baustellen-Fotodokumentation'
+    verbose_name_plural = 'Status von Fotos der Baustellen-Fotodokumentation'
+    description = 'Status von Fotos der Baustellen-Fotodokumentation'
     list_fields = {
       'status': 'Status'
     }
@@ -1057,7 +1104,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
-  pdf = models.FileField('PDF', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=40)
+  pdf = models.FileField('PDF', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PRIVATE + 'aufteilungsplaene_wohnungseigentumsgesetz'), max_length=255)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
@@ -1103,6 +1150,187 @@ signals.post_save.connect(assign_permissions, sender=Aufteilungsplaene_Wohnungse
 signals.post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
 signals.post_delete.connect(remove_permissions, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
+
+
+# Baudenkmale
+
+class Baudenkmale(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  art = models.ForeignKey(Arten_Baudenkmale, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
+    verbose_name = 'Baudenkmal'
+    verbose_name_plural = 'Baudenkmale'
+    description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'art': 'art__art'
+    }
+    map_feature_tooltip_field = 'beschreibung'
+    map_filter_fields = {
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    map_filter_fields_as_list = ['art']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'MultiPolygon'
+
+  def __str__(self):
+    return self.beschreibung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baudenkmale, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baudenkmale, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Baudenkmale)
+
+signals.post_delete.connect(remove_permissions, sender=Baudenkmale)
+
+
+# Baustellen der Baustellen-Fotodokumentation
+
+class Baustellen_Fotodokumentation_Baustellen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  verkehrliche_lagen = ChoiceArrayField(models.CharField(' verkehrliche Lage(n)', max_length=255, choices=()), verbose_name=' verkehrliche Lage(n)')
+  sparten = ChoiceArrayField(models.CharField('Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)')
+  auftraggeber = models.ForeignKey(Auftraggeber_Baustellen, verbose_name='Auftraggeber', on_delete=models.RESTRICT, db_column='auftraggeber', to_field='uuid', related_name='auftraggeber+')
+  ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_strassenbezug\".\"baustellen_fotodokumentation_baustellen_hro'
+    verbose_name = 'Baustelle der Baustellen-Fotodokumentation'
+    verbose_name_plural = 'Baustellen der Baustellen-Fotodokumentation'
+    description = 'Baustellen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
+      'sparten': 'Sparten_Baustellen'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'strasse': 'Straße',
+      'bezeichnung': 'Bezeichnung',
+      'verkehrliche_lagen': 'verkehrliche Lage(n)',
+      'sparten': 'Sparte(n)',
+      'auftraggeber': 'Auftraggeber',
+      'ansprechpartner': 'Ansprechpartner',
+      'bemerkungen': 'Bemerkungen'
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse__strasse',
+      'auftraggeber': 'auftraggeber__auftraggeber'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'sparten': 'Sparte(n)',
+      'auftraggeber': 'Auftraggeber'
+    }
+    map_filter_fields_as_list = ['auftraggeber']
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'Point'
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_Fotodokumentation_Baustellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_Fotodokumentation_Baustellen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Baustellen_Fotodokumentation_Baustellen)
+
+signals.post_delete.connect(remove_permissions, sender=Baustellen_Fotodokumentation_Baustellen)
+
+
+# Fotos der Baustellen-Fotodokumentation
+
+class Baustellen_Fotodokumentation_Fotos(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  baustellen_fotodokumentation_baustelle = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, verbose_name='Baustelle', on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid', related_name='baustellen_fotodokumentation_baustellen+')
+  status = models.ForeignKey(Status_Baustellen_Fotodokumentation_Fotos, verbose_name='Status', on_delete=models.RESTRICT, db_column='status', to_field='uuid', related_name='status+')
+  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
+  dateiname_original = models.CharField('Original-Dateiname', max_length=255, blank=True, null=True)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'baustellen_fotodokumentation'), max_length=255)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"baustellen_fotodokumentation_fotos_hro'
+    verbose_name = 'Foto der Baustellen-Fotodokumentation'
+    verbose_name_plural = 'Fotos der Baustellen-Fotodokumentation'
+    description = 'Fotos der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
+      'sparten': 'Sparten_Baustellen'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'baustellen_fotodokumentation_baustelle': 'Baustelle',
+      'status': 'Status',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'dateiname_original': 'Original-Dateiname',
+      'foto': 'Foto'
+    }
+    readonly_fields = ['dateiname_original']
+    list_fields_with_date = ['aufnahmedatum']
+    list_fields_with_foreign_key = {
+      'baustellen_fotodokumentation_baustelle': 'baustellen_fotodokumentation_baustelle__bezeichnung',
+      'status': 'status__status'
+    }
+    object_title = 'das Foto'
+    foreign_key_label = 'Baustelle'
+    thumbs = True
+    multi_foto_field = True
+  
+  def __str__(self):
+    return str(self.baustellen_fotodokumentation_baustelle) + ' mit Status ' + str(self.status) + ' und Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_Fotodokumentation_Fotos, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_Fotodokumentation_Fotos, self).delete(*args, **kwargs)
+
+signals.post_save.connect(photo_post_processing, sender=Baustellen_Fotodokumentation_Fotos)
+
+signals.post_save.connect(assign_permissions, sender=Baustellen_Fotodokumentation_Fotos)
+
+signals.post_delete.connect(delete_photo, sender=Baustellen_Fotodokumentation_Fotos)
+
+signals.post_delete.connect(remove_permissions, sender=Baustellen_Fotodokumentation_Fotos)
 
 
 # Baustellen (geplant)
@@ -1174,7 +1402,7 @@ class Baustellen_geplant(models.Model):
     }
     address_type = 'Straße'
     address_mandatory = False
-    geometry_type = 'MultiPolygonField'
+    geometry_type = 'MultiPolygon'
     group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
     admin_group = 'baustellen_geplant_full'
   
@@ -1311,6 +1539,49 @@ signals.post_save.connect(assign_permissions, sender=Bildungstraeger)
 signals.post_delete.connect(remove_permissions, sender=Bildungstraeger)
 
 
+# Denkmalbereiche
+
+class Denkmalbereiche(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"denkmalbereiche_hro'
+    verbose_name = 'Denkmalbereich'
+    verbose_name_plural = 'Denkmalbereiche'
+    description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    geometry_type = 'MultiPolygon'
+
+  def __str__(self):
+    return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Denkmalbereiche, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Denkmalbereiche, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Denkmalbereiche)
+
+signals.post_delete.connect(remove_permissions, sender=Denkmalbereiche)
+
+
 # Feuerwachen
 
 class Feuerwachen(models.Model):
@@ -1412,7 +1683,6 @@ class Kindertagespflegeeinrichtungen(models.Model):
   
   def __str__(self):
     return self.vorname + ' ' + self.nachname + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-    return self.vorname + ' ' + self.nachname + (', ' + self.adressanzeige if self.adressanzeige else '')
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
@@ -1431,96 +1701,6 @@ signals.post_delete.connect(remove_permissions, sender=Kindertagespflegeeinricht
 
 
 
-
-
-
-# isi2
-class Baudenkmale_Denkmalbereiche(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices=ART_BAUDENKMALE_DENKMALBEREICHE)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  beschreibung = models.CharField('Beschreibung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  gueltigkeit_von = models.DateField(default=date.today, editable=False)
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"baudenkmale'
-    verbose_name = 'Baudenkmal oder Denkmalbereich'
-    verbose_name_plural = 'Baudenkmale und Denkmalbereiche'
-    description = 'Baudenkmale und Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'adressanzeige', 'bezeichnung', 'beschreibung']
-    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bezeichnung', 'Beschreibung']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_field = 'beschreibung'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'MultiPolygonField'
-  
-  def __str__(self):
-    return self.art + (', ' + self.adressanzeige if self.adressanzeige else '') + (', ' + self.bezeichnung if self.bezeichnung else '') + ', ' + self.beschreibung + ' (UUID: ' + str(self.uuid) + ')'
-
-
-class Baustellen_Fotodokumentation_Baustellen(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  sparte = models.CharField('Sparte(n)', max_length=255, choices='')
-  verkehrliche_lage = models.CharField('Verkehrliche Lage(n)', max_length=255, choices='')
-  auftraggeber = models.CharField('Auftraggeber', max_length=255, choices='')
-  auftraggeber_bemerkung = models.CharField('Bemerkung zum Auftraggeber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  datum = models.DateField('Datum', default=date.today)
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"baustellen_fotodokumentation_baustellen'
-    verbose_name = 'Baustellen-Fotodokumentation (Baustelle)'
-    verbose_name_plural = 'Baustellen-Fotodokumentation (Baustellen)'
-    description = 'Baustellen im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'auftraggeber', 'adressanzeige']
-    list_fields_labels = ['Bezeichnung', 'Auftraggeber', 'Adresse']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_field = 'bezeichnung'
-    geometry_type = 'Point'
-    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.bezeichnung + ' (Auftraggeber: ' + self.auftraggeber + ')'
-
-
-class Baustellen_Fotodokumentation_Fotos(models.Model):
-  id = models.AutoField(primary_key=True)
-  parent = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid')
-  dateiname_original = models.CharField('Original-Dateiname', default='', max_length=255)
-  status = models.CharField('Status', max_length=255, choices=STATUS_BAUSTELLEN_FOTODOKUMENTATION)
-  aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'baustellen_fotodokumentation'), max_length=255)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"baustellen_fotodokumentation_fotos'
-    verbose_name = 'Baustellen-Fotodokumentation (Foto)'
-    verbose_name_plural = 'Baustellen-Fotodokumentation (Fotos)'
-    description = 'Fotos im Rahmen der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['parent', 'status', 'aufnahmedatum', 'foto', 'dateiname_original']
-    list_fields_with_date = ['aufnahmedatum']
-    list_fields_labels = ['zu Baustelle', 'Status', 'Aufnahmedatum', 'Foto', 'Original-Dateiname']
-    readonly_fields = ['dateiname_original']
-    object_title = 'das Foto'
-    foreign_key_label = 'Baustelle'
-    thumbs = True
-    multi_foto_field = True
-  
-  def __str__(self):
-    return str(self.parent) + ', ' + self.status + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
 
 
 # isi1
@@ -1590,7 +1770,7 @@ class Containerstellplaetze(models.Model):
   winterdienst_b = models.BooleanField('Winterdienst B', blank=True, null=True)
   winterdienst_c = models.BooleanField('Winterdienst C', blank=True, null=True)
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'containerstellplaetze'), max_length=255, blank=True, null=True)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'containerstellplaetze'), max_length=255, blank=True, null=True)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1731,7 +1911,7 @@ class Gutachterfotos(models.Model):
   bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'gutachterfotos'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'gutachterfotos'), max_length=255)
   adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1858,7 +2038,7 @@ class Haltestellenkataster_Fotos(models.Model):
   dateiname_original = models.CharField('Original-Dateiname', default='', max_length=255)
   motiv = models.CharField('Motiv', max_length=255, choices=MOTIVE_HALTESTELLEN)
   aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'haltestellenkataster'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'), max_length=255)
 
   class Meta:
     managed = False
@@ -2481,52 +2661,6 @@ class Vereine(models.Model):
 
   def get_klassen_display(self):
     return ', '.join(self.klassen)
-
-
-@receiver(signals.pre_save, sender=Baustellen_Fotodokumentation_Fotos)
-def baustelle_fotodokumentation_pre_save_handler(sender, instance, **kwargs):
-  # ab hier in Funktion B auslagern
-  try:
-    old = Baustellen_Fotodokumentation_Fotos.objects.get(pk=instance.pk)
-    if old and old.foto and old.foto.name:
-      instance.original_url = old.foto.name
-  except Baustellen_Fotodokumentation_Fotos.DoesNotExist:
-    pass
-
-
-@receiver(signals.post_save, sender=Baustellen_Fotodokumentation_Fotos)
-def baustelle_fotodokumentation_post_save_handler(sender, instance, **kwargs):
-  if instance.foto:
-    if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-    else:
-      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-      path = BASE_DIR + instance.foto.url
-    rotate_image(path)
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      thumb_path = os.path.dirname(path) + '/thumbs'
-      if not os.path.exists(thumb_path):
-        os.mkdir(thumb_path)
-      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      thumb_image(path, thumb_path)
-
-
-@receiver(signals.post_delete, sender=Baustellen_Fotodokumentation_Fotos)
-def baustelle_fotodokumentation_post_delete_handler(sender, instance, **kwargs):
-  # ab hier in Funktion A auslagern
-  if instance.foto:
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      if settings.MEDIA_ROOT and settings.MEDIA_URL:
-        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-      else:
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = BASE_DIR + instance.foto.url
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      try:
-        os.remove(thumb)
-      except OSError:
-        pass
-    instance.foto.delete(False)
 
 
 @receiver(signals.pre_save, sender=Containerstellplaetze)
