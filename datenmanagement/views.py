@@ -154,6 +154,7 @@ class DataForm(ModelForm):
     admin_group = kwargs.pop('admin_group', None)
     multi_foto_field = kwargs.pop('multi_foto_field', None)
     multi_files = kwargs.pop('multi_files', None)
+    file = kwargs.pop('file', None)
     model = kwargs.pop('model', None)
     request = kwargs.pop('request', None)
     kwargs.setdefault('label_suffix', '')
@@ -163,6 +164,7 @@ class DataForm(ModelForm):
     self.admin_group = admin_group
     self.multi_foto_field = multi_foto_field
     self.multi_files = multi_files
+    self.file = file
     self.model = model
     self.request = request
     self.address_type = (self.instance._meta.address_type if hasattr(self.instance._meta, 'address_type') else None)
@@ -213,21 +215,28 @@ class DataForm(ModelForm):
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
   def clean_foto(self):
     if self.multi_foto_field and self.multi_foto_field == True:
-      fotos_count = len(self.multi_files.getlist('foto'))
-      if fotos_count > 1:
-        i = 1
-        for foto in self.multi_files.getlist('foto'):
-          if i < fotos_count:
-            m = self.model()
-            for field in self.model._meta.get_fields():
-              if field.name == 'dateiname_original':
-                setattr(m, field.name, foto.name)
-              elif field.name == 'foto':
-                setattr(m, field.name, foto)
-              elif field.name != m._meta.pk.name:
-                setattr(m, field.name, self.cleaned_data[field.name])
-            m.save()
-            i += 1
+      # alle weiteren Operationen nur durchführen, wenn auch wirklich alle Pflichtfelder gefüllt sind – ansonsten klappt die Übernahme für die weiteren Foto-Datensätze nämlich nicht!
+      ok = True
+      for field in self.model._meta.get_fields():
+        if field.name != self.model._meta.pk.name and field.name != 'foto' and self.fields[field.name].required == True and not self.data[field.name]:
+          ok = False
+          break
+      if ok == True:
+        fotos_count = len(self.multi_files.getlist('foto'))
+        if fotos_count > 1:
+          i = 1
+          for foto in self.multi_files.getlist('foto'):
+            if i < fotos_count:
+              m = self.model()
+              for field in self.model._meta.get_fields():
+                if field.name == 'dateiname_original':
+                  setattr(m, field.name, foto.name)
+                elif field.name == 'foto':
+                  setattr(m, field.name, foto)
+                elif field.name != m._meta.pk.name:
+                  setattr(m, field.name, self.cleaned_data[field.name])
+              m.save()
+              i += 1
     # Hinweis: Das return-Statement passt in jedem Fall, das heißt bei normalem Dateifeld und bei Multi-Dateifeld, da hier immer die – in alphabetischer Reihenfolge des Dateinamens – letzte Datei behandelt wird.
     return self.cleaned_data['foto']
 
@@ -236,6 +245,8 @@ class DataForm(ModelForm):
     data = self.cleaned_data['dateiname_original']
     if self.multi_foto_field and self.multi_foto_field == True:
       data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
+    else:
+      data = self.file.getlist('foto')[0].name
     return data
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen geometrie existiert.
@@ -446,11 +457,13 @@ class DataAddView(generic.CreateView):
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     self.multi_files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
+    self.file = (self.request.FILES if self.request.method == 'POST' else None)
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['admin_group'] = self.admin_group
     kwargs['multi_foto_field'] = self.multi_foto_field
     kwargs['multi_files'] = self.multi_files
+    kwargs['file'] = self.file
     kwargs['model'] = self.model
     kwargs['request'] = self.request
     return kwargs
@@ -505,9 +518,11 @@ class DataChangeView(generic.UpdateView):
     self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
+    self.file = (self.request.FILES if self.request.method == 'POST' else None)
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['admin_group'] = self.admin_group
+    kwargs['file'] = self.file
     kwargs['model'] = self.model
     kwargs['request'] = self.request
     return kwargs

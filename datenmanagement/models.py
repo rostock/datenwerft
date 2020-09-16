@@ -99,12 +99,25 @@ def photo_post_processing(sender, instance, **kwargs):
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       path = BASE_DIR + instance.foto.url
     rotate_image(path)
+    # falls Foto(s) mit derselben UUID, aber unterschiedlichem Suffix, vorhanden: diese(s) löschen (und natürlich auch die entsprechenden Thumbnails)!
+    filename = os.path.basename(path)
+    ext = filename.split('.')[-1]
+    filename_without_ext = os.path.splitext(filename)[0]
+    for file in os.listdir(os.path.dirname(path)):
+      if os.path.splitext(file)[0] == filename_without_ext and file.split('.')[-1] != ext:
+        os.remove(os.path.dirname(path) + '/' + file)
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       thumb_path = os.path.dirname(path) + '/thumbs'
       if not os.path.exists(thumb_path):
         os.mkdir(thumb_path)
       thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
       thumb_image(path, thumb_path)
+      filename = os.path.basename(thumb_path)
+      ext = filename.split('.')[-1]
+      filename_without_ext = os.path.splitext(filename)[0]
+      for file in os.listdir(os.path.dirname(thumb_path)):
+        if os.path.splitext(file)[0] == filename_without_ext and file.split('.')[-1] != ext:
+          os.remove(os.path.dirname(thumb_path) + '/' + file)
 
 
 def remove_permissions(sender, instance, **kwargs):
@@ -1281,7 +1294,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
   baustellen_fotodokumentation_baustelle = models.ForeignKey(Baustellen_Fotodokumentation_Baustellen, verbose_name='Baustelle', on_delete=models.CASCADE, db_column='baustellen_fotodokumentation_baustelle', to_field='uuid', related_name='baustellen_fotodokumentation_baustellen+')
   status = models.ForeignKey(Status_Baustellen_Fotodokumentation_Fotos, verbose_name='Status', on_delete=models.RESTRICT, db_column='status', to_field='uuid', related_name='status+')
   aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
-  dateiname_original = models.CharField('Original-Dateiname', max_length=255, blank=True, null=True)
+  dateiname_original = models.CharField('Original-Dateiname', max_length=255, default='ohne')
   foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'baustellen_fotodokumentation'), max_length=255)
 
   class Meta:
