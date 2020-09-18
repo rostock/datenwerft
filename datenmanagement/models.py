@@ -341,30 +341,6 @@ url_message = 'Die Adresse der Website muss syntaktisch korrekt sein und daher f
 # LEGACY
 #
 
-ANBIETER_CARSHARING = (
-  ('Flinkster (Deutsche Bahn AG)', 'Flinkster (Deutsche Bahn AG)'),
-  ('Greenwheels GmbH', 'Greenwheels GmbH'),
-  ('YourCar Rostock GmbH', 'YourCar Rostock GmbH'),
-)
-
-ANGEBOTE_MOBILPUNKTE = (
-  ('Bus', 'Bus'),
-  ('Carsharing', 'Carsharing'),
-  ('E-Laden', 'E-Laden'),
-  ('Fahrradparken', 'Fahrradparken'),
-  ('Fahrradreparaturset', 'Fahrradreparaturset'),
-  ('Lastenradverleih', 'Lastenradverleih'),
-  ('Straßenbahn', 'Straßenbahn'),
-)
-
-ART_FAIRTRADE = (
-  ('Bildungsträger', 'Bildungsträger'),
-  ('Einzelhandel', 'Einzelhandel'),
-  ('Gastronomie', 'Gastronomie'),
-  ('Kirchengemeinde', 'Kirchengemeinde'),
-  ('Schulweltladen', 'Schulweltladen'),
-)
-
 ART_FLIESSGEWAESSER = (
   ('Durchlass', 'Durchlass'),
   ('offen', 'offen'),
@@ -844,6 +820,15 @@ class Arten_Baudenkmale(Art):
     verbose_name_plural = 'Arten von Baudenkmalen'
     description = 'Arten von Baudenkmalen'
 
+# Arten von Fair-Trade-Einrichtungen
+
+class Arten_FairTrade(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_fairtrade'
+    verbose_name = 'Art einer Fair-Trade-Einrichtung'
+    verbose_name_plural = 'Arten von Fair-Trade-Einrichtungen'
+    description = 'Arten von Fair-Trade-Einrichtungen'
+
 # Arten von Feuerwachen
 
 class Arten_Feuerwachen(Art):
@@ -852,6 +837,50 @@ class Arten_Feuerwachen(Art):
     verbose_name = 'Art einer Feuerwache'
     verbose_name_plural = 'Arten von Feuerwachen'
     description = 'Arten von Feuerwachen'
+
+
+# Carsharing-Anbieter
+
+class Anbieter_Carsharing(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  anbieter = models.CharField('Anbieter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"anbieter_carsharing'
+    verbose_name = 'Carsharing-Anbieter'
+    verbose_name_plural = 'Carsharing-Anbieter'
+    description = 'Carsharing-Anbieter'
+    list_fields = {
+      'anbieter': 'Anbieter'
+    }
+    ordering = ['anbieter'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.anbieter
+
+
+# Angebote bei Mobilpunkten
+
+class Angebote_Mobilpunkte(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  angebot = models.CharField('Angebot', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"angebote_mobilpunkte'
+    verbose_name = 'Angebot bei einem Mobilpunkt'
+    verbose_name_plural = 'Angebote bei Mobilpunkten'
+    description = 'Angebote bei Mobilpunkten'
+    list_fields = {
+      'angebot': 'Angebot'
+    }
+    ordering = ['angebot'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.angebot
 
 
 # Auftraggeber von Baustellen
@@ -1073,6 +1102,7 @@ class Abfallbehaelter(models.Model):
       'pflegeobjekt': 'Pflegeobjekt'
     }
     list_fields_with_date = ['deaktiviert']
+    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'typ': 'typ__typ',
       'eigentuemer': 'eigentuemer__bezeichnung',
@@ -1552,6 +1582,66 @@ signals.post_save.connect(assign_permissions, sender=Bildungstraeger)
 signals.post_delete.connect(remove_permissions, sender=Bildungstraeger)
 
 
+# Carsharing-Stationen
+
+class Carsharing_Stationen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  anbieter = models.ForeignKey(Anbieter_Carsharing, verbose_name='Anbieter', on_delete=models.RESTRICT, db_column='anbieter', to_field='uuid', related_name='anbieter+')
+  anzahl_fahrzeuge = models.PositiveSmallIntegerField('Anzahl der Fahrzeuge', blank=True, null=True)
+  bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"carsharing_stationen_hro'
+    verbose_name = 'Carsharing-Station'
+    verbose_name_plural = 'Carsharing-Stationen'
+    description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'anbieter': 'Anbieter',
+      'anzahl_fahrzeuge': 'Anzahl der Fahrzeuge'
+    }
+    list_fields_with_number = ['anzahl_fahrzeuge']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'anbieter': 'anbieter__anbieter'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'anbieter': 'Anbieter'
+    }
+    map_filter_fields_as_list = ['anbieter']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Anbieter: ' + str(self.anbieter) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Carsharing_Stationen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Carsharing_Stationen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Carsharing_Stationen)
+
+signals.post_delete.connect(remove_permissions, sender=Carsharing_Stationen)
+
+
 # Denkmalbereiche
 
 class Denkmalbereiche(models.Model):
@@ -1593,6 +1683,65 @@ class Denkmalbereiche(models.Model):
 signals.post_save.connect(assign_permissions, sender=Denkmalbereiche)
 
 signals.post_delete.connect(remove_permissions, sender=Denkmalbereiche)
+
+
+# Fair Trade
+
+class FairTrade(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  art = models.ForeignKey(Arten_FairTrade, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"fairtrade_hro'
+    verbose_name = 'Fair Trade'
+    verbose_name_plural = 'Fair Trade'
+    description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'art': 'art__art'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung'
+    }
+    map_filter_fields_as_list = ['art']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(FairTrade, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(FairTrade, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=FairTrade)
+
+signals.post_delete.connect(remove_permissions, sender=FairTrade)
 
 
 # Feuerwachen
@@ -1681,6 +1830,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
       'plaetze': 'Plätze',
       'zeiten': 'Betreuungszeiten'
     }
+    list_fields_with_number = ['plaetze']
     list_fields_with_foreign_key = {
       'adresse': 'adresse__adresse'
     }
@@ -1710,39 +1860,166 @@ signals.post_save.connect(assign_permissions, sender=Kindertagespflegeeinrichtun
 signals.post_delete.connect(remove_permissions, sender=Kindertagespflegeeinrichtungen)
 
 
+# Mobilpunkte
 
-
-
-
-
-
-# isi1
-class Carsharing_Stationen(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
+class Mobilpunkte(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  anzahl_fahrzeuge = models.PositiveSmallIntegerField('Anzahl der Fahrzeuge', blank=True, null=True)
-  anbieter = models.CharField('Anbieter', max_length=255, choices=ANBIETER_CARSHARING)
-  bemerkungen = models.CharField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  angebote = ChoiceArrayField(models.CharField('Angebote', max_length=255, choices=()), verbose_name='Angebote')
   website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
   class Meta:
     managed = False
-    db_table = 'daten\".\"carsharing_stationen'
-    verbose_name = 'Carsharing-Station'
-    verbose_name_plural = 'Carsharing-Stationen'
-    description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'adressanzeige', 'anbieter']
-    list_fields_labels = ['Bezeichnung', 'Adresse', 'Anbieter']
-    readonly_fields = ['adressanzeige']
+    db_table = 'fachdaten\".\"mobilpunkte_hro'
+    verbose_name = 'Mobilpunkt'
+    verbose_name_plural = 'Mobilpunkte'
+    description = 'Mobilpunkte in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'angebote': 'Angebote_Mobilpunkte'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'angebote': 'Angebote',
+      'website': 'Website'
+    }
     map_feature_tooltip_field = 'bezeichnung'
     geometry_type = 'Point'
   
   def __str__(self):
-    return self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (' + self.anbieter + ')'
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Mobilpunkte, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Mobilpunkte, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Mobilpunkte)
+
+signals.post_delete.connect(remove_permissions, sender=Mobilpunkte)
+
+
+# Rettungswachen
+
+class Rettungswachen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"rettungswachen_hro'
+    verbose_name = 'Rettungswache'
+    verbose_name_plural = 'Rettungswachen'
+    description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'traeger': 'traeger__bezeichnung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    map_filter_fields_as_list = ['traeger']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Rettungswachen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Rettungswachen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Rettungswachen)
+
+signals.post_delete.connect(remove_permissions, sender=Rettungswachen)
+
+
+# Stadtteil- und Begegnungszentren
+
+class Stadtteil_Begegnungszentren(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
+  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"stadtteil_begegnungszentren_hro'
+    verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
+    verbose_name_plural = 'Stadtteil- und Begegnungszentren'
+    description = 'Stadtteil- und Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'traeger': 'traeger__bezeichnung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    map_filter_fields_as_list = ['traeger']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Stadtteil_Begegnungszentren, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Stadtteil_Begegnungszentren, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Stadtteil_Begegnungszentren)
+
+signals.post_delete.connect(remove_permissions, sender=Stadtteil_Begegnungszentren)
+
+
+
+
 
 
 # isi3
@@ -1845,43 +2122,6 @@ class Denksteine(models.Model):
       return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi1
-class FairTrade(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  art = models.CharField('Art', max_length=255, choices=ART_FAIRTRADE)
-  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
-  oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"fairtrade'
-    verbose_name = 'Fair Trade'
-    verbose_name_plural = 'Fair Trade'
-    description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'bezeichnung']
-    list_fields_labels = ['UUID', 'Art', 'Bezeichnung']
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
 # isi2
@@ -2327,30 +2567,6 @@ class Meldedienst_punkthaft(models.Model):
 
 
 # isi1
-class Mobilpunkte(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=500, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  angebote = models.CharField('Angebote', max_length=255, choices=ANGEBOTE_MOBILPUNKTE)
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"mobilpunkte'
-    verbose_name = 'Mobilpunkt'
-    verbose_name_plural = 'Mobilpunkte'
-    description = 'Mobilpunkte in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung']
-    list_fields_labels = ['Bezeichnung']
-    map_feature_tooltip_field = 'bezeichnung'
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return self.bezeichnung
-
-
-# isi1
 class Parkmoeglichkeiten(models.Model):
   id = models.AutoField(primary_key=True)
   uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
@@ -2506,78 +2722,6 @@ class Pflegeeinrichtungen(models.Model):
       return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
     else:
       return self.bezeichnung + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi1
-class Rettungswachen(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"rettungswachen'
-    verbose_name = 'Rettungswache'
-    verbose_name_plural = 'Rettungswachen'
-    description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'traeger_bezeichnung']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Träger']
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi1
-class Begegnungszentren(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  traeger_bezeichnung = models.CharField('Träger', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  traeger_art = models.CharField('Art des Trägers', max_length=255, choices='')
-  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
-  oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"begegnungszentren'
-    verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
-    verbose_name_plural = 'Stadtteil- und Begegnungszentren'
-    description = 'Stadtteil- und Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung']
-    list_fields_labels = ['UUID', 'Bezeichnung']
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
 class Uvp_Vorhaben(models.Model):
