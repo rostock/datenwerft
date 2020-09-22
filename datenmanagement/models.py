@@ -232,6 +232,17 @@ class NullTextField(models.TextField):
     })
 
 
+class PositiveSmallIntegerMinField(models.PositiveSmallIntegerField):
+  def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
+    self.min_value = min_value
+    models.PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
+    
+  def formfield(self, **kwargs):
+    defaults = {'min_value': self.min_value}
+    defaults.update(kwargs)
+    return super(PositiveSmallIntegerMinField, self).formfield(**defaults)
+
+
 class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
   def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
     self.min_value, self.max_value = min_value, max_value
@@ -252,30 +263,31 @@ options.DEFAULT_NAMES += (
   # LEGACY
   'list_fields_labels',
   
-  'codelist',                           # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
-  'description',                        # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
-  'choices_models_for_choices_fields',  # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
-  'list_fields',                        # Pflicht  ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
-  'list_fields_with_number',            # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
-  'list_fields_with_date',              # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
-  'list_fields_with_foreign_key',       # optional ; Textdictionary ; Namen der Felder (als Keys), die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden werden
-  'highlight_flag',                     # optional ; Text           ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
-  'readonly_fields',                    # optional ; Textliste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
-  'object_title',                       # optional ; Text           ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
-  'foreign_key_label',                  # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'map_feature_tooltip_field',          # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
-  'map_feature_tooltip_fields',         # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
-  'map_rangefilter_fields',             # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
-  'map_filter_fields',                  # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
-  'map_filter_fields_as_list',          # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
-  'map_filter_hide_initial',            # optional ; Textdictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
-  'address_type',                       # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
-  'address_mandatory',                  # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
-  'geometry_type',                      # optional ; Text           ; Geometrietyp
-  'thumbs',                             # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
-  'multi_foto_field',                   # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
-  'group_with_users_for_choice_field',  # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group'                         # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'codelist',                               # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
+  'description',                            # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
+  'choices_models_for_choices_fields',      # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
+  'list_fields',                            # Pflicht  ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
+  'list_fields_with_number',                # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
+  'list_fields_with_date',                  # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
+  'list_fields_with_foreign_key',           # optional ; Textdictionary ; Namen der Felder (als Keys), die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden werden
+  'highlight_flag',                         # optional ; Text           ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
+  'readonly_fields',                        # optional ; Textliste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  'object_title',                           # optional ; Text           ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
+  'foreign_key_label',                      # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
+  'map_feature_tooltip_field',              # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'map_feature_tooltip_fields',             # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
+  'map_rangefilter_fields',                 # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
+  'map_filter_fields',                      # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
+  'map_filter_fields_as_list',              # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
+  'map_filter_boolean_fields_as_checkbox',  # optional ; Boolean        ; Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen, als Checkboxen dargestellt werden (True)?
+  'map_filter_hide_initial',                # optional ; Textdictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
+  'address_type',                           # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
+  'address_mandatory',                      # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
+  'geometry_type',                          # optional ; Text           ; Geometrietyp
+  'thumbs',                                 # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
+  'multi_foto_field',                       # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'group_with_users_for_choice_field',      # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
+  'admin_group'                             # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
 )
 
 
@@ -357,12 +369,6 @@ ART_MELDEDIENST_PUNKTHAFT = (
   ('Gebäude', 'Gebäude'),
 )
 
-ART_PARKMOEGLICHKEITEN = (
-  ('Parkhaus', 'Parkhaus'),
-  ('Parkplatz', 'Parkplatz'),
-  ('Tiefgarage', 'Tiefgarage'),
-)
-
 ART_UVP_VORPRUEFUNG = (
   ('allgemeine Vorprüfung', 'allgemeine Vorprüfung'),
   ('standortbezogene Vorprüfung', 'standortbezogene Vorprüfung'),
@@ -396,12 +402,6 @@ BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN = (
   ('Betonpflaster', 'Betonpflaster'),
   ('Betonplatten', 'Betonplatten'),
   ('sonstige', 'sonstige'),
-)
-
-BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE = (
-  ('halböffentlich', 'halböffentlich'),
-  ('öffentlich', 'öffentlich'),
-  ('privat', 'privat'),
 )
 
 BEWIRTSCHAFTER_ALTKLEIDER_CONTAINERSTELLPLAETZE = (
@@ -488,23 +488,6 @@ GENEHMIGUNGSBEHOERDE_UVP_VORHABEN = (
   ('Tiefbauamt der Hanse- und Universitätsstadt Rostock', 'Tiefbauamt der Hanse- und Universitätsstadt Rostock'),
   ('Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock'),
   ('Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock'),
-)
-
-LADEKARTEN_LADESTATIONEN_ELEKTROFAHRZEUGE = (
-  ('ADAC e-Charge', 'ADAC e-Charge'),
-  ('beliebige RFID-Ladekarten', 'beliebige RFID-Ladekarten'),
-  ('EinfachStromLaden', 'EinfachStromLaden'),
-  ('EnBW mobility+', 'EnBW mobility+'),
-  ('EWE', 'EWE'),
-  ('GET CHARGE', 'GET CHARGE'),
-  ('HAMBURG ENERGIE', 'HAMBURG ENERGIE'),
-  ('LeasePlan', 'LeasePlan'),
-  ('ohne Authentifizierung', 'ohne Authentifizierung'),
-  ('Plugsurfing', 'Plugsurfing'),
-  ('Shell Recharge', 'Shell Recharge'),
-  ('SMATRICS NET', 'SMATRICS NET'),
-  ('Spontanladen', 'Spontanladen'),
-  ('Stadtwerke Rostock', 'Stadtwerke Rostock'),
 )
 
 LINIEN_HALTESTELLEN = (
@@ -609,15 +592,6 @@ TYP_UVP_VORHABEN = (
   ('Nr. 13.18.2', 'Nr. 13.18.2'),
   ('Nr. 23', 'Nr. 23'),
   ('Nr. 30', 'Nr. 30'),
-)
-
-VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE = (
-  ('Allego', 'Allego'),
-  ('E.ON', 'E.ON'),
-  ('IKEA', 'IKEA'),
-  ('NewMotion', 'NewMotion'),
-  ('Stadtwerke Rostock', 'Stadtwerke Rostock'),
-  ('StromTicket', 'StromTicket'),
 )
 
 VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
@@ -814,6 +788,16 @@ class Arten_Hundetoiletten(Art):
     description = 'Arten von Hundetoiletten'
 
 
+# Arten von Parkmöglichkeiten
+
+class Arten_Parkmoeglichkeiten(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_parkmoeglichkeiten'
+    verbose_name = 'Art einer Parkmöglichkeit'
+    verbose_name_plural = 'Arten von Parkmöglichkeiten'
+    description = 'Arten von Parkmöglichkeiten'
+
+
 # Arten von Pflegeeinrichtungen
 
 class Arten_Pflegeeinrichtungen(Art):
@@ -890,6 +874,28 @@ class Auftraggeber_Baustellen(models.Model):
     return self.auftraggeber
 
 
+# Betriebsarten
+
+class Betriebsarten(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  betriebsart = models.CharField('Betriebsart', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"betriebsarten'
+    verbose_name = 'Betriebsart'
+    verbose_name_plural = 'Betriebsarten'
+    description = 'Betriebsarten'
+    list_fields = {
+      'betriebsart': 'Betriebsart'
+    }
+    ordering = ['betriebsart'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.betriebsart
+
+
 # Bewirtschafter, Betreiber, Träger, Eigentümer etc.
 
 class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
@@ -912,6 +918,28 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
   
   def __str__(self):
     return self.bezeichnung
+
+
+# Ladekarten für Ladestationen für Elektrofahrzeuge
+
+class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  ladekarte = models.CharField('Ladekarte', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"ladekarten_ladestationen_elektrofahrzeuge'
+    verbose_name = 'Ladekartenfür eine Ladestation für Elektrofahrzeuge'
+    verbose_name_plural = 'Ladekarten für Ladestationen für Elektrofahrzeuge'
+    description = 'Ladekarten für Ladestationen für Elektrofahrzeuge'
+    list_fields = {
+      'ladekarte': 'Ladekarte'
+    }
+    ordering = ['ladekarte'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.ladekarte
 
 
 # Materialien von Denksteinen
@@ -1054,6 +1082,28 @@ class Typen_Abfallbehaelter(models.Model):
     return self.typ
 
 
+# Verbünde von Ladestationen für Elektrofahrzeuge
+
+class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  verbund = models.CharField('Verbund', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"verbuende_ladestationen_elektrofahrzeuge'
+    verbose_name = 'Verbund einer Ladestation für Elektrofahrzeuge'
+    verbose_name_plural = 'Verbünde von Ladestationen für Elektrofahrzeuge'
+    description = 'Verbünde von Ladestationen für Elektrofahrzeuge'
+    list_fields = {
+      'verbund': 'Verbund'
+    }
+    ordering = ['verbund'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.verbund
+
+
 # Verkehrliche Lagen von Baustellen
 
 class Verkehrliche_Lagen_Baustellen(models.Model):
@@ -1094,7 +1144,7 @@ class Abfallbehaelter(models.Model):
   bewirtschafter = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter', on_delete=models.RESTRICT, db_column='bewirtschafter', to_field='uuid', related_name='bewirtschafter+')
   pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.')], blank=True, null=True)
   haltestelle = models.BooleanField('Lage an einer Haltestelle', blank=True, null=True)
   sommer_mo = PositiveSmallIntegerRangeField('Anzahl Leerungen montags im Sommer', min_value=1, blank=True, null=True)
   sommer_di = PositiveSmallIntegerRangeField('Anzahl Leerungen dienstags im Sommer', min_value=1, blank=True, null=True)
@@ -1138,6 +1188,7 @@ class Abfallbehaelter(models.Model):
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
+      'aktiv': 'aktiv?',
       'id': 'ID',
       'typ': 'Typ',
       'eigentuemer': 'Eigentümer',
@@ -1500,7 +1551,7 @@ class Behinderteneinrichtungen(models.Model):
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
-  plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
+  plaetze = PositiveSmallIntegerMinField('Plätze', min_value=1, blank=True, null=True)
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
@@ -1617,7 +1668,7 @@ class Carsharing_Stationen(models.Model):
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   anbieter = models.ForeignKey(Anbieter_Carsharing, verbose_name='Anbieter', on_delete=models.RESTRICT, db_column='anbieter', to_field='uuid', related_name='anbieter+')
-  anzahl_fahrzeuge = models.PositiveSmallIntegerField('Anzahl der Fahrzeuge', blank=True, null=True)
+  anzahl_fahrzeuge = PositiveSmallIntegerMinField('Anzahl der Fahrzeuge', min_value=1, blank=True, null=True)
   bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -1752,7 +1803,7 @@ class Denksteine(models.Model):
       'adresse': 'adresse__adresse',
       'titel': 'titel__bezeichnung'
     }
-    map_feature_tooltip_fields = ['vorname', 'nachname']
+    map_feature_tooltip_fields = ['titel', 'vorname', 'nachname']
     map_filter_fields = {
       'nummer': 'Nummer',
       'titel': 'Titel',
@@ -1905,7 +1956,7 @@ class Hospize(models.Model):
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
-  plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
+  plaetze = PositiveSmallIntegerMinField('Plätze', min_value=1, blank=True, null=True)
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
@@ -1966,7 +2017,7 @@ class Hundetoiletten(models.Model):
   bewirtschafter = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter', on_delete=models.RESTRICT, db_column='bewirtschafter', to_field='uuid', related_name='bewirtschafter+')
   pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.')], blank=True, null=True)
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1993,6 +2044,7 @@ class Hundetoiletten(models.Model):
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
+      'aktiv': 'aktiv?',
       'id': 'ID',
       'art': 'Art',
       'bewirtschafter': 'Bewirtschafter',
@@ -2025,7 +2077,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
   nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-  plaetze = models.PositiveSmallIntegerField('Plätze')
+  plaetze = PositiveSmallIntegerMinField('Plätze', min_value=1)
   zeiten = models.CharField('Betreuungszeiten', max_length=255)
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -2133,6 +2185,127 @@ signals.post_save.connect(assign_permissions, sender=Kinder_Jugendbetreuung)
 signals.post_delete.connect(remove_permissions, sender=Kinder_Jugendbetreuung)
 
 
+# Kunst im öffentlichen Raum
+
+class Kunst_im_oeffentlichen_Raum(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ausfuehrung = models.CharField('Ausführung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  schoepfer = models.CharField('Schöpfer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  entstehungsjahr = PositiveSmallIntegerRangeField('Entstehungsjahr', max_value=current_year(), blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"kunst_im_oeffentlichen_raum_hro'
+    verbose_name = 'Kunst im öffentlichen Raum'
+    verbose_name_plural = 'Kunst im öffentlichen Raum'
+    description = 'Kunst im öffentlichen Raum der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'ausfuehrung': 'Ausführung',
+      'schoepfer': 'Schöpfer',
+      'entstehungsjahr': 'Entstehungsjahr'
+    }
+    list_fields_with_number = ['entstehungsjahr']
+    map_feature_tooltip_field = 'bezeichnung'
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Kunst_im_oeffentlichen_Raum, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Kunst_im_oeffentlichen_Raum, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Kunst_im_oeffentlichen_Raum)
+
+signals.post_delete.connect(remove_permissions, sender=Kunst_im_oeffentlichen_Raum)
+
+
+# Ladestationen für Elektrofahrzeuge
+
+class Ladestationen_Elektrofahrzeuge(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  geplant = models.BooleanField(' geplant?')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  betreiber = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Betreiber', on_delete=models.SET_NULL, db_column='betreiber', to_field='uuid', related_name='betreiber+', blank=True, null=True)
+  verbund = models.ForeignKey(Verbuende_Ladestationen_Elektrofahrzeuge, verbose_name='Verbund', on_delete=models.SET_NULL, db_column='verbund', to_field='uuid', related_name='verbuende+', blank=True, null=True)
+  betriebsart = models.ForeignKey(Betriebsarten, verbose_name='Betriebsart', on_delete=models.RESTRICT, db_column='betriebsart', to_field='uuid', related_name='betriebsarten+')
+  anzahl_ladepunkte = PositiveSmallIntegerMinField('Anzahl an Ladepunkten', min_value=1, blank=True, null=True)
+  arten_ladepunkte = models.CharField('Arten der Ladepunkte', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ladekarten = ChoiceArrayField(models.CharField('Ladekarten', max_length=255, choices=()), verbose_name='Ladekarten', blank=True, null=True)
+  kosten = models.CharField('Kosten', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"ladestationen_elektrofahrzeuge_hro'
+    verbose_name = 'Ladestation für Elektrofahrzeuge'
+    verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
+    description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'ladekarten': 'Ladekarten_Ladestationen_Elektrofahrzeuge'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'geplant': 'geplant?',
+      'bezeichnung': 'Bezeichnung',
+      'betreiber': 'Betreiber',
+      'verbund': 'Verbund',
+      'betriebsart': 'Betriebsart',
+      'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
+      'ladekarten': 'Ladekarten'
+    }
+    list_fields_with_number = ['anzahl_ladepunkte']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'betreiber': 'betreiber__bezeichnung',
+      'verbund': 'verbund__verbund',
+      'betriebsart': 'betriebsart__betriebsart'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'geplant': 'geplant?',
+      'bezeichnung': 'Bezeichnung',
+      'betreiber': 'Betreiber',
+      'verbund': 'Verbund',
+      'betriebsart': 'Betriebsart',
+      'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
+      'ladekarten': 'Ladekarten'
+    }
+    map_filter_fields_as_list = ['betreiber', 'verbund', 'betriebsart']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ladestationen_Elektrofahrzeuge, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Ladestationen_Elektrofahrzeuge)
+
+signals.post_delete.connect(remove_permissions, sender=Ladestationen_Elektrofahrzeuge)
+
+
 # Mobilpunkte
 
 class Mobilpunkte(models.Model):
@@ -2177,6 +2350,70 @@ signals.post_save.connect(assign_permissions, sender=Mobilpunkte)
 signals.post_delete.connect(remove_permissions, sender=Mobilpunkte)
 
 
+# Parkmöglichkeiten
+
+class Parkmoeglichkeiten(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  art = models.ForeignKey(Arten_Parkmoeglichkeiten, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  standort = models.CharField('Standort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  betreiber = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Betreiber', on_delete=models.SET_NULL, db_column='betreiber', to_field='uuid', related_name='betreiber+', blank=True, null=True)
+  stellplaetze_pkw = PositiveSmallIntegerMinField('Pkw-Stellplätze', min_value=1, blank=True, null=True)
+  stellplaetze_wohnmobil = PositiveSmallIntegerMinField('Wohnmobilstellplätze', min_value=1, blank=True, null=True)
+  stellplaetze_bus = PositiveSmallIntegerMinField('Busstellplätze', min_value=1, blank=True, null=True)
+  gebuehren_halbe_stunde = models.DecimalField('Gebühren pro ½ h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro ½ h</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  gebuehren_eine_stunde = models.DecimalField('Gebühren pro 1 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro 1 h</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  gebuehren_zwei_stunden = models.DecimalField('Gebühren pro 2 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro 2 h</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  gebuehren_ganztags = models.DecimalField('Gebühren ganztags (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren ganztags</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"parkmoeglichkeiten_hro'
+    verbose_name = 'Parkmöglichkeit'
+    verbose_name_plural = 'Parkmöglichkeiten'
+    description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'standort': 'Standort',
+      'betreiber': 'Betreiber'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'art': 'art__art',
+      'betreiber': 'betreiber__bezeichnung'
+    }
+    map_feature_tooltip_fields = ['art', 'standort']
+    map_filter_fields = {
+      'art': 'Art',
+      'standort': 'Standort',
+      'betreiber': 'Betreiber'
+    }
+    map_filter_fields_as_list = ['art', 'betreiber']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return str(self.art) + ' ' + self.standort + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Parkmoeglichkeiten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Parkmoeglichkeiten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Parkmoeglichkeiten)
+
+signals.post_delete.connect(remove_permissions, sender=Parkmoeglichkeiten)
+
+
 # Pflegeeinrichtungen
 
 class Pflegeeinrichtungen(models.Model):
@@ -2186,7 +2423,7 @@ class Pflegeeinrichtungen(models.Model):
   art = models.ForeignKey(Arten_Pflegeeinrichtungen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  plaetze = models.PositiveSmallIntegerField('Plätze', blank=True, null=True)
+  plaetze = PositiveSmallIntegerMinField('Plätze', min_value=1, blank=True, null=True)
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
   email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
@@ -2358,7 +2595,7 @@ class Vereine(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  vereinsregister_id = models.PositiveSmallIntegerField('ID im Vereinsregister', unique=True, blank=True, null=True)
+  vereinsregister_id = PositiveSmallIntegerMinField('ID im Vereinsregister', min_value=1, unique=True, blank=True, null=True)
   vereinsregister_datum = models.DateField('Datum des Eintrags im Vereinsregister', blank=True, null=True)
   schlagwoerter = ChoiceArrayField(models.CharField('Schlagwörter', max_length=255, choices=()), verbose_name='Schlagwörter')
   telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
@@ -2661,85 +2898,6 @@ class Haltestellenkataster_Fotos(models.Model):
     return str(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
 
 
-# isi1
-class Kunstimoeffentlichenraum(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  ausfuehrung = models.CharField('Ausführung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  schoepfer = models.CharField('Schöpfer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  entstehungsjahr = PositiveSmallIntegerRangeField('Entstehungsjahr', min_value=1218, max_value=current_year(), blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"kunst_im_oeffentlichen_raum'
-    verbose_name = 'Kunst im öffentlichen Raum'
-    verbose_name_plural = 'Kunst im öffentlichen Raum'
-    description = 'Kunst im öffentlichen Raum der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'bezeichnung', 'schoepfer', 'entstehungsjahr']
-    list_fields_labels = ['UUID', 'Bezeichnung', 'Schöpfer', 'Entstehungsjahr']
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.strasse_name:
-      if self.hausnummer:
-        if self.hausnummer_zusatz:
-          return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-        else:
-          return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-      else:
-        return self.bezeichnung + ', ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi1
-class Ladestationen_Elektrofahrzeuge(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  geplant = models.BooleanField(' geplant', blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  betriebsart = models.CharField('Betriebsart', max_length=255, choices=BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE)
-  betreiber = models.CharField('Betreiber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  verbund = models.CharField('Verbund', max_length=255, choices=VERBUND_LADESTATIONEN_ELEKTROFAHRZEUGE, blank=True, null=True)
-  anzahl_ladepunkte = models.PositiveSmallIntegerField('Anzahl an Ladepunkten')
-  arten_ladepunkte = models.CharField('Arten der Ladepunkte', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  ladekarten = models.CharField('Ladekarten', max_length=255, choices=LADEKARTEN_LADESTATIONEN_ELEKTROFAHRZEUGE, blank=True, null=True)
-  kosten = models.CharField('Kosten', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  oeffnungszeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"ladestationen_elektrofahrzeuge'
-    verbose_name = 'Ladestation für Elektrofahrzeuge'
-    verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
-    description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'betriebsart', 'betreiber', 'verbund', 'geplant']
-    list_fields_labels = ['Bezeichnung', 'Betriebsart', 'Betreiber', 'Verbund', 'geplant']
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (' + self.betreiber + ')'
-    else:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (' + self.betreiber + ')'
-
-
 # isi2
 class Meldedienst_flaechenhaft(models.Model):
   id = models.AutoField(primary_key=True)
@@ -2806,52 +2964,6 @@ class Meldedienst_punkthaft(models.Model):
   
   def __str__(self):
     return self.art + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi1
-class Parkmoeglichkeiten(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices=ART_PARKMOEGLICHKEITEN)
-  standort = models.CharField('Standort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  betreiber = models.CharField('Betreiber', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  stellplaetze_pkw = models.PositiveSmallIntegerField('Pkw-Stellplätze', blank=True, null=True)
-  stellplaetze_wohnmobil = models.PositiveSmallIntegerField('Wohnmobil-Stellplätze', blank=True, null=True)
-  stellplaetze_bus = models.PositiveSmallIntegerField('Bus-Stellplätze', blank=True, null=True)
-  gebuehren_halbe_stunde = models.DecimalField('Gebühren ½ h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren je ½ h müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_eine_stunde = models.DecimalField('Gebühren 1 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren je 1 h müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_zwei_stunden = models.DecimalField('Gebühren 2 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren je 2 h müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_ganztags = models.DecimalField('Gebühren ganztags (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren ganztags müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_anmerkungen = models.CharField('Anmerkungen zu den Gebühren', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"parkmoeglichkeiten'
-    verbose_name = 'Parkmöglichkeit'
-    verbose_name_plural = 'Parkmöglichkeiten'
-    description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'standort']
-    list_fields_labels = ['UUID', 'Art', 'Standort']
-    map_feature_tooltip_field = 'standort'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.strasse_name:
-      if self.hausnummer:
-        if self.hausnummer_zusatz:
-          return self.standort + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-        else:
-          return self.standort + ' (' + self.art + '), ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-      else:
-        return self.standort + ' (' + self.art + '), ' + self.strasse_name + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.standort + ' (' + self.art + '), ' + ' (UUID: ' + str(self.uuid) + ')'
 
 
 class Parkscheinautomaten_Tarife(models.Model):

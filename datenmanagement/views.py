@@ -447,6 +447,7 @@ class DataMapView(generic.ListView):
     context['map_filter_fields_json'] = (json.dumps(list(self.model._meta.map_filter_fields.keys())) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_labels'] = (list(self.model._meta.map_filter_fields.values()) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_as_list'] = (self.model._meta.map_filter_fields_as_list if hasattr(self.model._meta, 'map_filter_fields_as_list') else None)
+    context['map_filter_boolean_fields_as_checkbox'] = (self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(self.model._meta, 'map_filter_boolean_fields_as_checkbox') else None)
     context['map_filter_field_hide_initial'] = (next(iter(self.model._meta.map_filter_hide_initial.keys())) if hasattr(self.model._meta, 'map_filter_hide_initial') and len(self.model._meta.map_filter_hide_initial) == 1 else None)
     context['map_filter_value_hide_initial'] = (next(iter(self.model._meta.map_filter_hide_initial.values())) if hasattr(self.model._meta, 'map_filter_hide_initial') and len(self.model._meta.map_filter_hide_initial) == 1 else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)

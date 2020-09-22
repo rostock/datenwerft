@@ -122,7 +122,7 @@ def get_and_concat_values_of_map_feature_tooltip_fields(value):
   for field in value.__class__._meta.map_feature_tooltip_fields:
     field_value = ''
     if field:
-      field_value = getattr(value, field)
+      field_value = str(getattr(value, field))
     tooltip_value = (tooltip_value + ' ' + field_value if index > 0 else field_value)
     index += 1
   tooltip_value = tooltip_value.strip()

@@ -118,6 +118,17 @@
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                       </div>
                     </div>
+                  {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
+                    {% if map_filter_boolean_fields_as_checkbox %}
+                      <div class="filter-input">
+                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                      </div>
+                    {% else %}
+                      <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" data-nullable data-intervalside="both">
+                        <option value="True">ja</option>
+                        <option value="False">nein</option>
+                      </select>
+                    {% endif %}
                   {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
                     <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></select>
                   {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
@@ -455,7 +466,7 @@
 
         // Filter initialisieren
 
-        // über alle Filterfelder gehen...
+        // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
         $('.filter-input').each(function() {
           // Feld als Objekt mit Name und Typ erstellen
           var filterField = new Object();
@@ -478,6 +489,20 @@
             filterField.value = [];
             listFilterLists.push(filterField);
           }
+        });
+
+        // über alle Boolean-Filterfelder gehen...
+        $('.filter-input input[type=checkbox]').each(function() {
+          // Feld als Objekt mit Name und Typ erstellen
+          var filterField = new Object();
+          filterField.name = $(this).attr('name');
+          filterField.type = $(this).data('type');
+          if ($(this).is(':checked')) {
+            filterField.value = 'True';
+          } else {
+            filterField.value = 'False';
+          }
+          listFilterLists.push(filterField);
         });
 
         // über alle Checkbox-Filterfelder gehen...
@@ -681,7 +706,7 @@
           // Liste für Filterobjekte
           var filterAttributesList = [];
 
-          // über alle Filter (außer Checkboxen-Sets) gehen...
+          // über alle Filter (außer Boolean-Filter und Checkboxen-Sets) gehen...
           $('.filter-input').each(function() {
             if ($(this).val()) {
               // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
@@ -695,9 +720,33 @@
                 var dummy = filterAttribute.value.split('.');
                 filterAttribute.value = new Date(dummy[2], dummy[1] - 1, dummy[0]);
               }
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Boolean-Filter handelt!
+              else if (filterAttribute.type == 'boolean') {
+                if ($(this).is(':checked')) {
+                  filterAttribute.value = 'True';
+                } else {
+                  filterAttribute.value = 'False';
+                }
+              }
               // Filterobjekt zur Liste für Filterobjekte hinzufügen
               filterAttributesList.push(filterAttribute);
             }
+          });
+
+          // über alle Boolean-Filter gehen...
+          $('.filter-input input[type=checkbox]').each(function() {
+            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
+            var filterAttribute = new Object();
+            filterAttribute.name = $(this).attr('name');
+            filterAttribute.type = $(this).data('type');
+            filterAttribute.intervalside = $(this).data('intervalside');
+            if ($(this).is(':checked')) {
+              filterAttribute.value = 'True';
+            } else {
+              filterAttribute.value = 'False';
+            }
+            // Filterobjekt zur Liste für Filterobjekte hinzufügen
+            filterAttributesList.push(filterAttribute);
           });
 
           // über alle Checkboxen-Sets gehen...
@@ -755,9 +804,16 @@
                     }
                   // ansonsten einen Vergleich durchführen und unpassende GeoJSON-Features ausblenden
                   } else if (filterAttributesList[i].type != 'checkbox-set') {
+                    console.log(filterAttributesList[i].type);
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                       if (moment(new Date(filterAttributesList[i].value), 'day').format('YYYY-MM-DD') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').format('YYYY-MM-DD')) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    } else if (filterAttributesList[i].type === 'boolean') {
+                      console.log(layer.feature.properties[filterAttributesList[i].name]);
+                      console.log(filterAttributesList[i].value);
+                      if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
                         layer.getElement().style.display = 'none';
                       }
                     } else {
@@ -823,11 +879,30 @@
               $(this).val('');
             }
           });
+
+          $('.filter-input input[type=checkbox]').each(function() {
+            // falls initialer Wert vorhanden...
+            if ($(this).data('initial')) {
+              // Filter auf initialen Wert setzen
+              var initialValue = $(this).data('initial');
+              if (initialValue.toLowerCase() === 'false') {
+                $(this).prop('checked', false);
+              } else {
+                $(this).prop('checked', true);
+              }
+            }
+            // ansonsten Filter auf leeren Wert setzen
+            else if ($(this).data('type') === 'boolean') {
+              $(this).prop('checked', false);
+            }
+          });
+
           $('.filter-checkbox-fieldset').each(function() {
             $(this).find('input:checked').each(function() {
               $(this).prop('checked', false);
             });
           });
+
           showAllMapFeatures();
           currentFilterExtent = [];
         });
