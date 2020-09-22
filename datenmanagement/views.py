@@ -207,10 +207,12 @@ class DataForm(ModelForm):
 
     for field in self.fields.values():
       if field.label == 'Geometrie':
-        message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
+        required_message = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
       else:
-        message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(label = field.label)
-      field.error_messages = { 'required': message, 'invalid_image': 'Sie müssen eine valide Bilddatei hochladen!' }
+        required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(label = field.label)
+      invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
+      unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut <strong><em>{label}</em></strong>!'.format(label = field.label)
+      field.error_messages = { 'required': required_message, 'invalid_image': invalid_image_message, 'unique': unique_message }
 
   # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit Namen foto existiert.
   def clean_foto(self):
@@ -319,7 +321,7 @@ class DataView(BaseDatatableView):
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
           data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
         elif value is not None and value == True and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
-          data = '<i class="fas fa-exclamation-triangle text-danger"></i>'
+          data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!"></i>'
         elif value is not None and column == 'foto':
           data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
           if self.thumbs is not None and self.thumbs == True:

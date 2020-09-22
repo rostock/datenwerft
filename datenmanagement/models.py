@@ -292,34 +292,34 @@ anfuehrungszeichen_regex = r'^(?!.*\").*$'
 anfuehrungszeichen_message = 'Der Text darf keine doppelten Schreibmaschinensatz-Anführungszeichen (") enthalten. Stattdessen müssen die typographisch korrekten Anführungszeichen („“) verwendet werden.'
 apostroph_regex = r'^(?!.*\').*$'
 apostroph_message = 'Der Text darf keine einfachen Schreibmaschinensatz-Anführungszeichen (\') enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
-doppelleerzeichen_regex = r'^(?!.*  ).*$'
-doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen enthalten.'
-gravis_regex = r'^(?!.*`).*$'
-gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
 bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
 bindestrich_leerzeichen_message = 'Im Text darf nach einen Bindestrich kein Leerzeichen stehen.'
+doppelleerzeichen_regex = r'^(?!.*  ).*$'
+doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen enthalten.'
+email_message = 'Die <strong><em>E-Mail-Adresse</em></strong> muss syntaktisch korrekt sein und daher folgendes Format aufweisen: abc-123.098_zyx@xyz-567.def.abc'
+gravis_regex = r'^(?!.*`).*$'
+gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss der typographisch korrekte Apostroph (’) verwendet werden.'
+inventarnummer_regex = r'^[0-9]{8}$'
+inventarnummer_message = 'Die <strong><em>Inventarnummer</em></strong> muss aus genau acht Ziffern bestehen.'
 leerzeichen_bindestrich_regex = r'^(?!.* -).*$'
 leerzeichen_bindestrich_message = 'Im Text darf vor einem Bindestrich kein Leerzeichen stehen.'
+rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
+rufnummer_message = 'Die Schreibweise von <strong><em>Rufnummern</em></strong> muss der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen und daher folgendes Format aufweisen: +49 381 3816256'
+url_message = 'Die Adresse der <strong><em>Website</em></strong> muss syntaktisch korrekt sein und daher folgendes Format aufweisen: http[s]://abc-123.098_zyx.xyz-567/def/abc'
 
 
 # speziell
 
+denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
+denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit einer Ziffer beginnen und mit einer Ziffer oder einem Kleinbuchstaben enden.'
 geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
-geraetenummer_message = 'Die Gerätenummer muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
+geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
 hafas_id_regex = r'^[0-9]{8}$'
-hafas_id_message = 'Die HAFAS-ID muss aus genau acht Ziffern bestehen.'
+hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
 id_containerstellplatz_regex = r'^[0-9]{2}-[0-9]{2}$'
-id_containerstellplatz_message = 'Die ID des Containerstellplatzes muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
-inventarnummer_regex = r'^[0-9]{8}$'
-inventarnummer_message = 'Die Inventarnummer muss aus genau acht Ziffern bestehen.'
-postleitzahl_regex = r'^[0-9]{5}$'
-postleitzahl_message = 'Eine Postleitzahl muss aus genau fünf Ziffern bestehen.'
+id_containerstellplatz_message = 'Die <strong><em>ID</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
 registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
-registriernummer_bauamt_message = 'Die Registriernummer des Bauamtes muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
-rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
-rufnummer_message = 'Die Schreibweise von Rufnummern muss der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen und daher folgendes Format aufweisen: +49 381 3816256'
-email_message = 'Die E-Mail-Adresse muss syntaktisch korrekt sein und daher folgendes Format aufweisen: abc-123.098_zyx@xyz-567.ghi.abc'
-url_message = 'Die Adresse der Website muss syntaktisch korrekt sein und daher folgendes Format aufweisen: http[s]://abc-123.098_zyx.xyz-567/ghi/abc'
+registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
 
 
 
@@ -345,11 +345,6 @@ ART_FLIESSGEWAESSER = (
   ('Durchlass', 'Durchlass'),
   ('offen', 'offen'),
   ('Rohrleitung', 'Rohrleitung'),
-)
-
-ART_HUNDETOILETTE = (
-  ('Beutelspender', 'Beutelspender'),
-  ('Hundetoilette', 'Hundetoilette'),
 )
 
 ART_MELDEDIENST_FLAECHENHAFT = (
@@ -407,11 +402,6 @@ BETRIEBSART_LADESTATIONEN_ELEKTROFAHRZEUGE = (
   ('halböffentlich', 'halböffentlich'),
   ('öffentlich', 'öffentlich'),
   ('privat', 'privat'),
-)
-
-BEWIRTSCHAFTER_HUNDETOILETTE = (
-  (73, 'Amt für Umwelt- und Klimaschutz'),
-  (87, 'Tourismuszentrale Rostock und Warnemünde'),
 )
 
 BEWIRTSCHAFTER_ALTKLEIDER_CONTAINERSTELLPLAETZE = (
@@ -500,29 +490,6 @@ GENEHMIGUNGSBEHOERDE_UVP_VORHABEN = (
   ('Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock'),
 )
 
-KLASSEN_VEREINE = (
-  ('Arbeit', 'Arbeit'),
-  ('Bildung und Wissenschaft', 'Bildung und Wissenschaft'),
-  ('Denkmalpflege', 'Denkmalpflege'),
-  ('Gesundheit', 'Gesundheit'),
-  ('Gewerbe', 'Gewerbe'),
-  ('Geschichte', 'Geschichte'),
-  ('Hilfe', 'Hilfe'),
-  ('Familie', 'Familie'),
-  ('Freizeit', 'Freizeit'),
-  ('Interessenvertretung', 'Interessenvertretung'),
-  ('Kinder und Jugend', 'Kinder und Jugend'),
-  ('Kunst und Kultur', 'Kunst und Kultur'),
-  ('Militär', 'Militär'),
-  ('Senioren', 'Senioren'),
-  ('Selbsthilfe', 'Selbsthilfe'),
-  ('Sport', 'Sport'),
-  ('Tiere', 'Tiere'),
-  ('Tradition', 'Tradition'),
-  ('Umwelt', 'Umwelt'),
-  ('Verbraucher', 'Verbraucher'),
-)
-
 LADEKARTEN_LADESTATIONEN_ELEKTROFAHRZEUGE = (
   ('ADAC e-Charge', 'ADAC e-Charge'),
   ('beliebige RFID-Ladekarten', 'beliebige RFID-Ladekarten'),
@@ -602,11 +569,6 @@ MASTTYPEN_HALTESTELLEN = (
   ('HB+6', 'HB+6'),
 )
 
-MATERIAL_DENKSTEINE = (
-  ('Metall', 'Metall'),
-  ('Stein', 'Stein'),
-)
-
 MOTIVE_HALTESTELLEN = (
   ('Mast', 'Mast'),
   ('Wartebereich von Stirnseite', 'Wartebereich von Stirnseite'),
@@ -629,12 +591,6 @@ SITZBANKTYPEN_HALTESTELLEN = (
   ('Holzlattung auf Waschbetonfüßen', 'Holzlattung auf Waschbetonfüßen'),
   ('Sitzbank mit Armlehne', 'Sitzbank mit Armlehne'),
   ('Sitzbank ohne Armlehne', 'Sitzbank ohne Armlehne'),
-)
-
-TITEL_DENKSTEINE = (
-  ('Dr.', 'Dr.'),
-  ('Prof.', 'Prof.'),
-  ('Prof. Dr.', 'Prof. Dr.'),
 )
 
 TYP_HALTESTELLEN = (
@@ -729,6 +685,23 @@ class Art(models.Model):
     return self.art
 
 
+class Material(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  material = models.CharField('Material', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    abstract = True
+    managed = False
+    codelist = True
+    list_fields = {
+     'material': 'Material'
+    }
+    ordering = ['material'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.material
+
+
 class Schlagwort(models.Model):
   uuid = models.UUIDField(primary_key=True, editable=False)
   schlagwort = models.CharField('Schlagwort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
@@ -810,6 +783,7 @@ class Arten_Baudenkmale(Art):
     verbose_name_plural = 'Arten von Baudenkmalen'
     description = 'Arten von Baudenkmalen'
 
+
 # Arten von Fair-Trade-Einrichtungen
 
 class Arten_FairTrade(Art):
@@ -819,6 +793,7 @@ class Arten_FairTrade(Art):
     verbose_name_plural = 'Arten von Fair-Trade-Einrichtungen'
     description = 'Arten von Fair-Trade-Einrichtungen'
 
+
 # Arten von Feuerwachen
 
 class Arten_Feuerwachen(Art):
@@ -827,6 +802,17 @@ class Arten_Feuerwachen(Art):
     verbose_name = 'Art einer Feuerwache'
     verbose_name_plural = 'Arten von Feuerwachen'
     description = 'Arten von Feuerwachen'
+
+
+# Arten von Hundetoiletten
+
+class Arten_Hundetoiletten(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_hundetoiletten'
+    verbose_name = 'Art einer Hundetoilette'
+    verbose_name_plural = 'Arten von Hundetoiletten'
+    description = 'Arten von Hundetoiletten'
+
 
 # Arten von Pflegeeinrichtungen
 
@@ -928,6 +914,38 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     return self.bezeichnung
 
 
+# Materialien von Denksteinen
+
+class Materialien_Denksteine(Material):
+  class Meta(Material.Meta):
+    db_table = 'codelisten\".\"materialien_denksteine'
+    verbose_name = 'Material eines Denksteins'
+    verbose_name_plural = 'Materialien von Denksteinen'
+    description = 'Materialien von Denksteinen'
+
+
+# Personentitel
+
+class Personentitel(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"personentitel'
+    verbose_name = 'Personentitel'
+    verbose_name_plural = 'Personentitel'
+    description = 'Personentitel'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung
+
+
 # Schlagwörter für Bildungsträger
 
 class Schlagwoerter_Bildungstraeger(Schlagwort):
@@ -936,6 +954,16 @@ class Schlagwoerter_Bildungstraeger(Schlagwort):
     verbose_name = 'Schlagwort für einen Bildungsträger'
     verbose_name_plural = 'Schlagwörter für Bildungsträger'
     description = 'Schlagwörter für Bildungsträger'
+
+
+# Schlagwörter für Vereine
+
+class Schlagwoerter_Vereine(Schlagwort):
+  class Meta(Schlagwort.Meta):
+    db_table = 'codelisten\".\"schlagwoerter_vereine'
+    verbose_name = 'Schlagwort für einen Verein'
+    verbose_name_plural = 'Schlagwörter für Vereine'
+    description = 'Schlagwörter für Vereine'
 
 
 # Sparten von Baustellen
@@ -1684,6 +1712,76 @@ signals.post_save.connect(assign_permissions, sender=Denkmalbereiche)
 signals.post_delete.connect(remove_permissions, sender=Denkmalbereiche)
 
 
+# Denksteine
+
+class Denksteine(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  nummer = models.CharField('Nummer', max_length=255, validators=[RegexValidator(regex=denksteine_nummer_regex, message=denksteine_nummer_message)])
+  titel = models.ForeignKey(Personentitel, verbose_name='Titel', on_delete=models.SET_NULL, db_column='titel', to_field='uuid', related_name='titel+', blank=True, null=True)
+  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message), RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
+  geburtsjahr = PositiveSmallIntegerRangeField('Geburtsjahr', min_value=1850, max_value=1945)
+  sterbejahr = PositiveSmallIntegerRangeField('Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
+  text_auf_dem_stein = models.CharField('Text auf dem Stein', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  ehemalige_adresse = models.CharField(' ehemalige Adresse', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  material = models.ForeignKey(Materialien_Denksteine, verbose_name='Material', on_delete=models.RESTRICT, db_column='material', to_field='uuid', related_name='materialien+')
+  erstes_verlegejahr = PositiveSmallIntegerRangeField(' erstes Verlegejahr', min_value=2002, max_value=current_year())
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"denksteine_hro'
+    verbose_name = 'Denkstein'
+    verbose_name_plural = 'Denksteine'
+    description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'nummer': 'Nummer',
+      'titel': 'Titel',
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'geburtsjahr': 'Geburtsjahr',
+      'sterbejahr': 'Sterbejahr'
+    }
+    list_fields_with_number = ['geburtsjahr', 'sterbejahr']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'titel': 'titel__bezeichnung'
+    }
+    map_feature_tooltip_fields = ['vorname', 'nachname']
+    map_filter_fields = {
+      'nummer': 'Nummer',
+      'titel': 'Titel',
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'geburtsjahr': 'Geburtsjahr',
+      'sterbejahr': 'Sterbejahr'
+    }
+    map_filter_fields_as_list = ['titel']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return (str(self.titel) + ' ' if self.titel else '') + self.vorname + ' ' + self.nachname + ' (* ' + str(self.geburtsjahr) + (', † ' + str(self.sterbejahr) if self.sterbejahr else '') + ')' + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Denksteine, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Denksteine, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Denksteine)
+
+signals.post_delete.connect(remove_permissions, sender=Denksteine)
+
+
 # Fair Trade
 
 class FairTrade(models.Model):
@@ -1854,6 +1952,69 @@ class Hospize(models.Model):
 signals.post_save.connect(assign_permissions, sender=Hospize)
 
 signals.post_delete.connect(remove_permissions, sender=Hospize)
+
+
+# Hundetoiletten
+
+class Hundetoiletten(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  deaktiviert = models.DateField('Außerbetriebstellung', blank=True, null=True)
+  id = models.CharField('ID', max_length=8, default='00000000')
+  art = models.ForeignKey(Arten_Hundetoiletten, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', max_value=current_year(), blank=True, null=True)
+  bewirtschafter = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter', on_delete=models.RESTRICT, db_column='bewirtschafter', to_field='uuid', related_name='bewirtschafter+')
+  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"hundetoiletten_hro'
+    verbose_name = 'Hundetoilette'
+    verbose_name_plural = 'Hundetoiletten'
+    description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'deaktiviert': 'Außerbetriebstellung',
+      'id': 'ID',
+      'art': 'Art',
+      'bewirtschafter': 'Bewirtschafter',
+      'pflegeobjekt': 'Pflegeobjekt'
+    }
+    list_fields_with_date = ['deaktiviert']
+    list_fields_with_number = ['id']
+    list_fields_with_foreign_key = {
+      'art': 'art__art',
+      'bewirtschafter': 'bewirtschafter__bezeichnung'
+    }
+    readonly_fields = ['deaktiviert', 'id']
+    map_feature_tooltip_field = 'id'
+    map_filter_fields = {
+      'id': 'ID',
+      'art': 'Art',
+      'bewirtschafter': 'Bewirtschafter',
+      'pflegeobjekt': 'Pflegeobjekt'
+    }
+    map_filter_fields_as_list = ['art', 'bewirtschafter']
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.id + ' [Art: ' + str(self.art) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Hundetoiletten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Hundetoiletten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Hundetoiletten)
+
+signals.post_delete.connect(remove_permissions, sender=Hundetoiletten)
 
 
 # Kindertagespflegeeinrichtungen
@@ -2190,6 +2351,65 @@ signals.post_save.connect(assign_permissions, sender=Stadtteil_Begegnungszentren
 signals.post_delete.connect(remove_permissions, sender=Stadtteil_Begegnungszentren)
 
 
+# Vereine
+
+class Vereine(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  vereinsregister_id = models.PositiveSmallIntegerField('ID im Vereinsregister', unique=True, blank=True, null=True)
+  vereinsregister_datum = models.DateField('Datum des Eintrags im Vereinsregister', blank=True, null=True)
+  schlagwoerter = ChoiceArrayField(models.CharField('Schlagwörter', max_length=255, choices=()), verbose_name='Schlagwörter')
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"vereine_hro'
+    verbose_name = 'Verein'
+    verbose_name_plural = 'Vereine'
+    description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'schlagwoerter': 'Schlagwoerter_Vereine'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'schlagwoerter': 'Schlagwörter'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'schlagwoerter': 'Schlagwörter'
+    }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Vereine, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Vereine, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Vereine)
+
+signals.post_delete.connect(remove_permissions, sender=Vereine)
+
+
 
 
 
@@ -2251,49 +2471,6 @@ class Containerstellplaetze(models.Model):
   
   def __str__(self):
     return 'Containerstellplatz' + (' mit ID ' + self.id_containerstellplatz + ' und Bezeichnung ' if self.id_containerstellplatz else ' mit Bezeichnung ') + self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '')
-
-
-# isi1
-class Denksteine(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  nummer = models.CharField('Nummer', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  titel = models.CharField('Titel', max_length=255, choices=TITEL_DENKSTEINE, blank=True, null=True)
-  vorname = models.CharField('Vorname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  nachname = models.CharField('Nachname', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  namensanzeige = models.CharField('Name', max_length=255, blank=True, null=True)
-  geburtsjahr = PositiveSmallIntegerRangeField('Geburtsjahr', min_value=1850, max_value=1945)
-  sterbejahr = PositiveSmallIntegerRangeField('Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
-  text_auf_dem_stein = models.CharField('Text auf dem Stein', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  ehemalige_adresse = models.CharField(' ehemalige Adresse', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  erstes_verlegejahr = PositiveSmallIntegerRangeField(' erstes Verlegejahr', min_value=2002, max_value=current_year())
-  material = models.CharField('Material', max_length=255, choices=MATERIAL_DENKSTEINE)
-  website = models.CharField('Website', max_length=255, validators=[URLValidator(message=url_message)])
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"denksteine'
-    verbose_name = 'Denkstein'
-    verbose_name_plural = 'Denksteine'
-    description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'nummer', 'namensanzeige', 'adressanzeige']
-    list_fields_labels = ['UUID', 'Nummer', 'Name', 'Adresse']
-    readonly_fields = ['namensanzeige', 'adressanzeige']
-    map_feature_tooltip_field = 'namensanzeige'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.nummer + ', ' + self.namensanzeige + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
 
 
 # isi2
@@ -2482,40 +2659,6 @@ class Haltestellenkataster_Fotos(models.Model):
   
   def __str__(self):
     return str(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
-
-
-# isi2
-class Hundetoiletten(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  id_hundetoilette = models.CharField('ID', default='', max_length=8)
-  gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices=ART_HUNDETOILETTE)
-  bewirtschafter_id = models.PositiveSmallIntegerField('Bewirtschafter', choices=BEWIRTSCHAFTER_HUNDETOILETTE)
-  bewirtschafter = models.CharField('Bewirtschafter', max_length=255, editable=False)
-  pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  aufstellungsjahr = PositiveSmallIntegerRangeField('Aufstellungsjahr', min_value=1900, max_value=current_year(), blank=True, null=True)
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"hundetoiletten'
-    verbose_name = 'Hundetoilette'
-    verbose_name_plural = 'Hundetoiletten'
-    description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['gueltigkeit_bis', 'id_hundetoilette', 'art', 'pflegeobjekt', 'adressanzeige', 'bewirtschafter']
-    list_fields_with_date = ['gueltigkeit_bis']
-    list_fields_labels = ['Außerbetriebstellung', 'ID', 'Art', 'Pflegeobjekt', 'Adresse', 'Bewirtschafter']
-    readonly_fields = ['id_hundetoilette', 'adressanzeige']
-    map_feature_tooltip_field = 'id_hundetoilette'
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return 'Hundetoilette mit ID ' + self.id_hundetoilette + ', Art ' + self.art + ', im Pflegeobjekt ' + self.pflegeobjekt + (', ' + self.adressanzeige if self.adressanzeige else '') + ', mit Bewirtschafter ' + self.bewirtschafter
 
 
 # isi1
@@ -2842,44 +2985,7 @@ class Uvp_Vorpruefung(models.Model):
   
   def __str__(self):
     return str(self.parent) + ' (Datum des Posteingangs: ' + datetime.strptime(str(self.datum_posteingang), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Art: ' + self.art + ', Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ergebnis: ' + self.ergebnis + ')'
-
-
-# isi1
-class Vereine(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse', max_length=255)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  klassen = models.CharField('Kategorien', max_length=255, choices=KLASSEN_VEREINE)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  barrierefrei = models.BooleanField(' barrierefrei', blank=True, null=True)
-  telefon = models.CharField('Telefon', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
-  email = models.CharField('E-Mail', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
-  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"vereine'
-    verbose_name = 'Verein'
-    verbose_name_plural = 'Vereine'
-    description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'klassen']
-    list_fields_labels = ['Bezeichnung', 'Kategorien']
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    if self.hausnummer_zusatz:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + self.hausnummer_zusatz + ' (UUID: ' + str(self.uuid) + ')'
-    else:
-      return self.bezeichnung + ', ' + self.strasse_name + ' ' + self.hausnummer + ' (UUID: ' + str(self.uuid) + ')'
-
-  def get_klassen_display(self):
-    return ', '.join(self.klassen)
+ 
 
 
 @receiver(signals.pre_save, sender=Containerstellplaetze)

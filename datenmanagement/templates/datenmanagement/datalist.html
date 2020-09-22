@@ -29,7 +29,7 @@
       {% if user|user_has_model_add_permission:model_name_lower %}
         <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
       {% endif %}
-      {% if object_list %}
+      {% if object_list and geometry_type %}
         <a class="btn btn-secondary btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
       {% endif %}
       <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">zurück</a>
@@ -84,6 +84,13 @@
               'orderable': false,
               'targets': -1
             }],
+            createdRow: function(row, data, dataIndex) {
+              if ($(row).find('td:nth-child(2)').text() === 'nein') {
+                $(row).addClass('text-muted');
+              } else if ($(row).find('.text-danger').length) {
+                $(row).addClass('text-danger');
+              }
+            },
             dom: '<Bfr<t>ilp>',
             fixedHeader: true,
             language: {
