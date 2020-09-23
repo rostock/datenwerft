@@ -232,6 +232,17 @@ class NullTextField(models.TextField):
     })
 
 
+class PositiveIntegerRangeField(models.PositiveIntegerField):
+  def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
+    self.min_value, self.max_value = min_value, max_value
+    models.PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
+    
+  def formfield(self, **kwargs):
+    defaults = {'min_value': self.min_value, 'max_value': self.max_value}
+    defaults.update(kwargs)
+    return super(PositiveIntegerRangeField, self).formfield(**defaults)
+
+
 class PositiveSmallIntegerMinField(models.PositiveSmallIntegerField):
   def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
     self.min_value = min_value
@@ -324,14 +335,20 @@ url_message = 'Die Adresse der <strong><em>Website</em></strong> muss syntaktisc
 
 denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
 denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit einer Ziffer beginnen und mit einer Ziffer oder einem Kleinbuchstaben enden.'
-geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
-geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
+parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
+parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em></strong> muss aus genau einem Großbuchstaben sowie genau einer Ziffer bestehen.'
+parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
+parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
+uvp_vorhaben_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
+uvp_vorhaben_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
+zonen_parkscheinautomaten_zone_regex = r'^[A-Z]$'
+zonen_parkscheinautomaten_zone_message = 'Die <strong><em>Zone</em></strong> muss aus genau einem Großbuchstaben bestehen.'
+
+
 hafas_id_regex = r'^[0-9]{8}$'
 hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
 id_containerstellplatz_regex = r'^[0-9]{2}-[0-9]{2}$'
 id_containerstellplatz_message = 'Die <strong><em>ID</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
-registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
-registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
 
 
 
@@ -357,27 +374,6 @@ ART_FLIESSGEWAESSER = (
   ('Durchlass', 'Durchlass'),
   ('offen', 'offen'),
   ('Rohrleitung', 'Rohrleitung'),
-)
-
-ART_MELDEDIENST_FLAECHENHAFT = (
-  ('Nutzungsart', 'Nutzungsart'),
-  ('Topographie', 'Topographie'),
-)
-
-ART_MELDEDIENST_PUNKTHAFT = (
-  ('Abriss', 'Abriss'),
-  ('Gebäude', 'Gebäude'),
-)
-
-ART_UVP_VORPRUEFUNG = (
-  ('allgemeine Vorprüfung', 'allgemeine Vorprüfung'),
-  ('standortbezogene Vorprüfung', 'standortbezogene Vorprüfung'),
-)
-
-ART_VORGANG_UVP_VORHABEN = (
-  ('Bauantrag', 'Bauantrag'),
-  ('externe Genehmigungsplanung', 'externe Genehmigungsplanung'),
-  ('Genehmigungsplanung der Hanse- und Universitätsstadt Rostock', 'Genehmigungsplanung der Hanse- und Universitätsstadt Rostock'),
 )
 
 AUSFUEHRUNG_HALTESTELLEN = (
@@ -439,25 +435,6 @@ DFI_TYPEN_HALTESTELLEN = (
   ('8-zeilig', '8-zeilig'),
 )
 
-E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
-  ('Dauerstrom', 'Dauerstrom'),
-  ('Solarpanel', 'Solarpanel'),
-  ('Straßenbeleuchtung', 'Straßenbeleuchtung'),
-)
-
-EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE = (
-  ('min', 'Minuten'),
-  ('h', 'Stunden'),
-  ('d', 'Tage'),
-)
-
-ERGEBNIS_UVP_VORPRUEFUNG = (
-  ('in Bearbeitung', 'in Bearbeitung'),
-  ('UVP-Pflicht', 'UVP-Pflicht'),
-  ('keine UVP-Pflicht', 'keine UVP-Pflicht'),
-  ('freiwillige UVP', 'freiwillige UVP'),
-)
-
 FAHRGASTUNTERSTANDSTYPEN_HALTESTELLEN = (
   ('Beton-WH', 'Beton-WH'),
   ('Foster', 'Foster'),
@@ -469,25 +446,6 @@ FAHRGASTUNTERSTANDSTYPEN_HALTESTELLEN = (
 FAHRPLANVITRINENTYPEN_HALTESTELLEN = (
   ('Infovitrine 2xA3', 'Infovitrine 2xA3'),
   ('Infovitrine 3xA3', 'Infovitrine 3xA3'),
-)
-
-GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE = (
-  ('2 min = 0,10 €', '2 min = 0,10 €'),
-  ('3 min = 0,10 €', '3 min = 0,10 €'),
-  ('4 min = 0,10 €', '4 min = 0,10 €'),
-  ('6 min = 0,10 €', '6 min = 0,10 €'),
-  ('6 min = 0,50 €', '6 min = 0,50 €'),
-  ('10 min = 0,10 €', '10 min = 0,10 €'),
-  ('12 min = 0,10 €', '12 min = 0,10 €'),
-)
-
-GENEHMIGUNGSBEHOERDE_UVP_VORHABEN = (
-  ('Hafen- und Seemannsamt der Hanse- und Universitätsstadt Rostock', 'Hafen- und Seemannsamt der Hanse- und Universitätsstadt Rostock'),
-  ('Ministerium für Energie, Infrastruktur und Digitalisierung Mecklenburg-Vorpommern', 'Ministerium für Energie, Infrastruktur und Digitalisierung Mecklenburg-Vorpommern'),
-  ('Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburg', 'Staatliches Amt für Landwirtschaft und Umwelt Mittleres Mecklenburg'),
-  ('Tiefbauamt der Hanse- und Universitätsstadt Rostock', 'Tiefbauamt der Hanse- und Universitätsstadt Rostock'),
-  ('Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Bauaufsichtsbehörde der Hanse- und Universitätsstadt Rostock'),
-  ('Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock', 'Untere Wasserbehörde der Hanse- und Universitätsstadt Rostock'),
 )
 
 LINIEN_HALTESTELLEN = (
@@ -558,11 +516,6 @@ MOTIVE_HALTESTELLEN = (
   ('Wartebereich von vorne', 'Wartebereich von vorne'),
 )
 
-RECHTSGRUNDLAGE_UVP_VORHABEN = (
-  ('Gesetz über die Umweltverträglichkeitsprüfung (UVPG)', 'Gesetz über die Umweltverträglichkeitsprüfung (UVPG)'),
-  ('Gesetz über die Umweltverträglichkeitsprüfung in Mecklenburg-Vorpommern (LUVPG M-V)', 'Gesetz über die Umweltverträglichkeitsprüfung in Mecklenburg-Vorpommern (LUVPG M-V)'),
-)
-
 SCHAEDEN_HALTESTELLEN = (
   ('keine Schäden', 'keine Schäden'),
   ('leichte Schäden', 'leichte Schäden'),
@@ -585,15 +538,6 @@ TYP_HALTESTELLEN = (
   ('Straßenbahnhaltestelle', 'Straßenbahnhaltestelle'),
 )
 
-TYP_UVP_VORHABEN = (
-  ('Nr. 13.12', 'Nr. 13.12'),
-  ('Nr. 13.18', 'Nr. 13.18'),
-  ('Nr. 13.18.1', 'Nr. 13.18.1'),
-  ('Nr. 13.18.2', 'Nr. 13.18.2'),
-  ('Nr. 23', 'Nr. 23'),
-  ('Nr. 30', 'Nr. 30'),
-)
-
 VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
   ('alternative Bedienform', 'alternative Bedienform'),
   ('Autofähre', 'Autofähre'),
@@ -608,20 +552,6 @@ ZH_TYPEN_HALTESTELLEN = (
   ('Haltestellenverteiler', 'Haltestellenverteiler'),
   ('Kabelverteilerschrank', 'Kabelverteilerschrank'),
   ('Zähleranschlusssäule', 'Zähleranschlusssäule'),
-)
-
-ZONE_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN = (
-  ('A', 'A'),
-  ('B', 'B'),
-  ('C', 'C'),
-  ('D', 'D'),
-  ('W', 'W'),
-  ('X', 'X'),
-)
-
-ZUGELASSENE_MUENZEN_PARKSCHEINAUTOMATEN_TARIFE = (
-  ('0,10 € – 1,00 €', '0,10 € – 1,00 €'),
-  ('0,10 € – 2,00 €', '0,10 € – 2,00 €'),
 )
 
 
@@ -788,6 +718,26 @@ class Arten_Hundetoiletten(Art):
     description = 'Arten von Hundetoiletten'
 
 
+# Arten von Meldediensten (flächenhaft)
+
+class Arten_Meldedienst_flaechenhaft(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_meldedienst_flaechenhaft'
+    verbose_name = 'Art eines Meldedienstes (flächenhaft)'
+    verbose_name_plural = 'Arten von Meldediensten (flächenhaft)'
+    description = 'Arten von Meldediensten (flächenhaft)'
+
+
+# Arten von Meldediensten (punkthaft)
+
+class Arten_Meldedienst_punkthaft(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_meldedienst_punkthaft'
+    verbose_name = 'Art eines Meldedienstes (punkthaft)'
+    verbose_name_plural = 'Arten von Meldediensten (punkthaft)'
+    description = 'Arten von Meldediensten (punkthaft)'
+
+
 # Arten von Parkmöglichkeiten
 
 class Arten_Parkmoeglichkeiten(Art):
@@ -806,6 +756,16 @@ class Arten_Pflegeeinrichtungen(Art):
     verbose_name = 'Art einer Pflegeeinrichtung'
     verbose_name_plural = 'Arten von Pflegeeinrichtungen'
     description = 'Arten von Pflegeeinrichtungen'
+
+
+# Arten von UVP-Vorprüfungen
+
+class Arten_UVP_Vorpruefungen(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_uvp_vorpruefungen'
+    verbose_name = 'Art einer UVP-Vorprüfung'
+    verbose_name_plural = 'Arten von UVP-Vorprüfungen'
+    description = 'Arten von UVP-Vorprüfungen'
 
 
 # Carsharing-Anbieter
@@ -920,6 +880,72 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     return self.bezeichnung
 
 
+# E-Anschlüsse für Parkscheinautomaten
+
+class E_Anschluesse_Parkscheinautomaten(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  e_anschluss = models.CharField('E-Anschluss', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"e_anschluesse_parkscheinautomaten'
+    verbose_name = 'E-Anschluss für einen Parkscheinautomaten'
+    verbose_name_plural = 'E-Anschlüsse für Parkscheinautomaten'
+    description = 'E-Anschlüsse für Parkscheinautomaten'
+    list_fields = {
+      'e_anschluss': 'E-Anschluss'
+    }
+    ordering = ['e_anschluss'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.e_anschluss
+
+
+# Ergebnisse von UVP-Vorprüfungen
+
+class Ergebnisse_UVP_Vorpruefungen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  ergebnis = models.CharField('Ergebnis', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"ergebnisse_uvp_vorpruefungen'
+    verbose_name = 'Ergebnis einer UVP-Vorprüfung'
+    verbose_name_plural = 'Ergebnisse von UVP-Vorprüfungen'
+    description = 'Ergebnisse von UVP-Vorprüfungen'
+    list_fields = {
+      'ergebnis': 'Ergebnis'
+    }
+    ordering = ['ergebnis'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.ergebnis
+
+
+# Genehmigungsbehörden von UVP-Vorhaben
+
+class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  genehmigungsbehoerde = models.CharField('Genehmigungsbehörde', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"genehmigungsbehoerden_uvp_vorhaben'
+    verbose_name = 'Genehmigungsbehörde eines UVP-Vorhabens'
+    verbose_name_plural = 'Genehmigungsbehörden von UVP-Vorhaben'
+    description = 'Genehmigungsbehörden von UVP-Vorhaben'
+    list_fields = {
+      'genehmigungsbehoerde': 'Genehmigungsbehörde'
+    }
+    ordering = ['genehmigungsbehoerde'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.genehmigungsbehoerde
+
+
 # Ladekarten für Ladestationen für Elektrofahrzeuge
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
@@ -972,6 +998,28 @@ class Personentitel(models.Model):
   
   def __str__(self):
     return self.bezeichnung
+
+
+# Rechtsgrundlagen von UVP-Vorhaben
+
+class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  rechtsgrundlage = models.CharField('Rechtsgrundlage', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"rechtsgrundlagen_uvp_vorhaben'
+    verbose_name = 'Rechtsgrundlage eines UVP-Vorhabens'
+    verbose_name_plural = 'Rechtsgrundlagen von UVP-Vorhaben'
+    description = 'Rechtsgrundlagen von UVP-Vorhaben'
+    list_fields = {
+      'rechtsgrundlage': 'Rechtsgrundlage'
+    }
+    ordering = ['rechtsgrundlage'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.rechtsgrundlage
 
 
 # Schlagwörter für Bildungsträger
@@ -1082,6 +1130,28 @@ class Typen_Abfallbehaelter(models.Model):
     return self.typ
 
 
+# Typen von UVP-Vorhaben
+
+class Typen_UVP_Vorhaben(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  typ = models.CharField('Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"typen_uvp_vorhaben'
+    verbose_name = 'Typ eines UVP-Vorhabens'
+    verbose_name_plural = 'Typen von UVP-Vorhaben'
+    description = 'Typen von UVP-Vorhaben'
+    list_fields = {
+      'typ': 'Typ'
+    }
+    ordering = ['typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.typ
+
+
 # Verbünde von Ladestationen für Elektrofahrzeuge
 
 class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
@@ -1126,6 +1196,74 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
     return self.verkehrliche_lage
 
 
+# Vorgangsarten von UVP-Vorhaben
+
+class Vorgangsarten_UVP_Vorhaben(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  vorgangsart = models.CharField('Vorgangsart', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"vorgangsarten_uvp_vorhaben'
+    verbose_name = 'Vorgangsart eines UVP-Vorhabens'
+    verbose_name_plural = 'Vorgangsarten von UVP-Vorhaben'
+    description = 'Vorgangsarten von UVP-Vorhaben'
+    list_fields = {
+      'vorgangsart': 'Vorgangsart'
+    }
+    ordering = ['vorgangsart'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.vorgangsart
+
+
+# Zeiteinheiten
+
+class Zeiteinheiten(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  zeiteinheit = models.CharField('Zeiteinheit', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  erlaeuterung = models.CharField('Erläuterung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"zeiteinheiten'
+    verbose_name = 'Zeiteinheit'
+    verbose_name_plural = 'Zeiteinheiten'
+    description = 'Zeiteinheiten'
+    list_fields = {
+      'zeiteinheit': 'Zeiteinheit',
+      'erlaeuterung': 'Erläuterung'
+    }
+    ordering = ['erlaeuterung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.erlaeuterung
+
+
+# Zonen für Parkscheinautomaten
+
+class Zonen_Parkscheinautomaten(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  zone = models.CharField('Zone', max_length=1, validators=[RegexValidator(regex=zonen_parkscheinautomaten_zone_regex, message=zonen_parkscheinautomaten_zone_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"zonen_parkscheinautomaten'
+    verbose_name = 'Zone für einen Parkscheinautomaten'
+    verbose_name_plural = 'Zonen für Parkscheinautomaten'
+    description = 'Zonen für Parkscheinautomaten'
+    list_fields = {
+      'zone': 'Zone'
+    }
+    ordering = ['zone'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.zone
+
+
 
 #
 # Datenthemen
@@ -1144,7 +1282,7 @@ class Abfallbehaelter(models.Model):
   bewirtschafter = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter', on_delete=models.RESTRICT, db_column='bewirtschafter', to_field='uuid', related_name='bewirtschafter+')
   pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.')], blank=True, null=True)
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9999.99'), 'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.')], blank=True, null=True)
   haltestelle = models.BooleanField('Lage an einer Haltestelle', blank=True, null=True)
   sommer_mo = PositiveSmallIntegerRangeField('Anzahl Leerungen montags im Sommer', min_value=1, blank=True, null=True)
   sommer_di = PositiveSmallIntegerRangeField('Anzahl Leerungen dienstags im Sommer', min_value=1, blank=True, null=True)
@@ -2017,7 +2155,7 @@ class Hundetoiletten(models.Model):
   bewirtschafter = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter', on_delete=models.RESTRICT, db_column='bewirtschafter', to_field='uuid', related_name='bewirtschafter+')
   pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.')], blank=True, null=True)
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9999.99'), 'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.')], blank=True, null=True)
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -2306,6 +2444,117 @@ signals.post_save.connect(assign_permissions, sender=Ladestationen_Elektrofahrze
 signals.post_delete.connect(remove_permissions, sender=Ladestationen_Elektrofahrzeuge)
 
 
+# Meldedienst (flächenhaft)
+
+class Meldedienst_flaechenhaft(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  art = models.ForeignKey(Arten_Meldedienst_flaechenhaft, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  datum = models.DateField('Datum', default=date.today)
+  geometrie = models.PolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"meldedienst_flaechenhaft_hro'
+    verbose_name = 'Meldedienst (flächenhaft)'
+    verbose_name_plural = 'Meldedienst (flächenhaft)'
+    description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'bearbeiter': 'Bearbeiter',
+      'bemerkungen': 'Bemerkungen',
+      'datum': 'Datum'
+    }
+    list_fields_with_date = ['datum']
+    list_fields_with_foreign_key = {
+      'art': 'art__art'
+    }
+    map_feature_tooltip_field = 'art'
+    map_filter_fields = {
+      'art': 'Art',
+      'bearbeiter': 'Bearbeiter',
+      'datum': 'Datum'
+    }
+    map_filter_fields_as_list = ['art']
+    geometry_type = 'Polygon'
+
+  def __str__(self):
+    return str(self.art) + ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meldedienst_flaechenhaft, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Meldedienst_flaechenhaft)
+
+signals.post_delete.connect(remove_permissions, sender=Meldedienst_flaechenhaft)
+
+
+# Meldedienst (punkthaft)
+
+class Meldedienst_punkthaft(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  art = models.ForeignKey(Arten_Meldedienst_punkthaft, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  datum = models.DateField('Datum', default=date.today)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"meldedienst_punkthaft_hro'
+    verbose_name = 'Meldedienst (punkthaft)'
+    verbose_name_plural = 'Meldedienst (punkthaft)'
+    description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'bearbeiter': 'Bearbeiter',
+      'bemerkungen': 'Bemerkungen',
+      'datum': 'Datum'
+    }
+    list_fields_with_date = ['datum']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'art': 'art__art'
+    }
+    map_feature_tooltip_field = 'art'
+    map_filter_fields = {
+      'art': 'Art',
+      'bearbeiter': 'Bearbeiter',
+      'datum': 'Datum'
+    }
+    map_filter_fields_as_list = ['art']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return str(self.art) + ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meldedienst_punkthaft, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meldedienst_punkthaft, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Meldedienst_punkthaft)
+
+signals.post_delete.connect(remove_permissions, sender=Meldedienst_punkthaft)
+
+
 # Mobilpunkte
 
 class Mobilpunkte(models.Model):
@@ -2362,10 +2611,10 @@ class Parkmoeglichkeiten(models.Model):
   stellplaetze_pkw = PositiveSmallIntegerMinField('Pkw-Stellplätze', min_value=1, blank=True, null=True)
   stellplaetze_wohnmobil = PositiveSmallIntegerMinField('Wohnmobilstellplätze', min_value=1, blank=True, null=True)
   stellplaetze_bus = PositiveSmallIntegerMinField('Busstellplätze', min_value=1, blank=True, null=True)
-  gebuehren_halbe_stunde = models.DecimalField('Gebühren pro ½ h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro ½ h</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_eine_stunde = models.DecimalField('Gebühren pro 1 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro 1 h</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_zwei_stunden = models.DecimalField('Gebühren pro 2 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro 2 h</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  gebuehren_ganztags = models.DecimalField('Gebühren ganztags (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren ganztags</em></strong> müssen mindestens 0,01 € betragen.')], blank=True, null=True)
+  gebuehren_halbe_stunde = models.DecimalField('Gebühren pro ½ h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro ½ h</em></strong> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Gebühren pro ½ h</em></strong> dürfen höchstens 9,99 € betragen.')], blank=True, null=True)
+  gebuehren_eine_stunde = models.DecimalField('Gebühren pro 1 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro 1 h</em></strong> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Gebühren pro 1 h</em></strong> dürfen höchstens 9,99 € betragen.')], blank=True, null=True)
+  gebuehren_zwei_stunden = models.DecimalField('Gebühren pro 2 h (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro 2 h</em></strong> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Gebühren pro 2 h</em></strong> dürfen höchstens 9,99 € betragen.')], blank=True, null=True)
+  gebuehren_ganztags = models.DecimalField('Gebühren ganztags (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren ganztags</em></strong> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Gebühren ganztags</em></strong> dürfen höchstens 9,99 € betragen.')], blank=True, null=True)
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -2412,6 +2661,121 @@ class Parkmoeglichkeiten(models.Model):
 signals.post_save.connect(assign_permissions, sender=Parkmoeglichkeiten)
 
 signals.post_delete.connect(remove_permissions, sender=Parkmoeglichkeiten)
+
+
+# Tarife der Parkscheinautomaten
+
+class Parkscheinautomaten_Tarife(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  zeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
+  normaltarif_parkdauer_min = PositiveSmallIntegerMinField('Mindestparkdauer Normaltarif', min_value=1)
+  normaltarif_parkdauer_min_einheit = models.ForeignKey(Zeiteinheiten, verbose_name='Einheit der Mindestparkdauer Normaltarif', on_delete=models.RESTRICT, db_column='normaltarif_parkdauer_min_einheit', to_field='uuid', related_name='normaltarif_parkdauer_min_einheiten+')
+  normaltarif_parkdauer_max = PositiveSmallIntegerMinField('Maximalparkdauer Normaltarif', min_value=1)
+  normaltarif_parkdauer_max_einheit = models.ForeignKey(Zeiteinheiten, verbose_name='Einheit der Maximalparkdauer Normaltarif', on_delete=models.RESTRICT, db_column='normaltarif_parkdauer_max_einheit', to_field='uuid', related_name='normaltarif_parkdauer_max_einheiten+')
+  normaltarif_gebuehren_max = models.DecimalField('Maximalgebühren Normaltarif (in €)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Maximalgebühren Normaltarif</strong></em> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Maximalgebühren Normaltarif</em></strong> dürfen höchstens 99,99 € betragen.')], blank=True, null=True)
+  normaltarif_gebuehren_pro_stunde = models.DecimalField('Gebühren pro Stunde Normaltarif (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro Stunde Normaltarif</strong></em> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Gebühren pro Stunde Normaltarif</em></strong> dürfen höchstens 9,99 € betragen.')], blank=True, null=True)
+  normaltarif_gebuehrenschritte = models.CharField('Gebührenschritte Normaltarif', max_length=255, blank=True, null=True)
+  veranstaltungstarif_parkdauer_min = PositiveSmallIntegerMinField('Mindestparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
+  veranstaltungstarif_parkdauer_min_einheit = models.ForeignKey(Zeiteinheiten, verbose_name='Einheit der Mindestparkdauer Veranstaltungstarif', on_delete=models.SET_NULL, db_column='veranstaltungstarif_parkdauer_min_einheit', to_field='uuid', related_name='veranstaltungstarif_parkdauer_min_einheiten+', blank=True, null=True)
+  veranstaltungstarif_parkdauer_max = PositiveSmallIntegerMinField('Maximalparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
+  veranstaltungstarif_parkdauer_max_einheit = models.ForeignKey(Zeiteinheiten, verbose_name='Einheit der Maximalparkdauer Veranstaltungstarif', on_delete=models.SET_NULL, db_column='veranstaltungstarif_parkdauer_max_einheit', to_field='uuid', related_name='veranstaltungstarif_parkdauer_max_einheiten+', blank=True, null=True)
+  veranstaltungstarif_gebuehren_max = models.DecimalField('Maximalgebühren Veranstaltungstarif (in €)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Maximalgebühren Veranstaltungstarif</strong></em> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Maximalgebühren Veranstaltungstarif</em></strong> dürfen höchstens 99,99 € betragen.')], blank=True, null=True)
+  veranstaltungstarif_gebuehren_pro_stunde = models.DecimalField('Gebühren pro Stunde Veranstaltungstarif (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Gebühren pro Stunde Veranstaltungstarif</strong></em> müssen mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Gebühren pro Stunde Veranstaltungstarif</em></strong> dürfen höchstens 9,99 € betragen.')], blank=True, null=True)
+  veranstaltungstarif_gebuehrenschritte = models.CharField('Gebührenschritte Veranstaltungstarif', max_length=255, blank=True, null=True)
+  zugelassene_muenzen = models.CharField(' zugelassene Münzen', max_length=255)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"parkscheinautomaten_tarife_hro'
+    verbose_name = 'Tarif der Parkscheinautomaten'
+    verbose_name_plural = 'Tarife der Parkscheinautomaten'
+    description = 'Tarife der Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'zeiten': 'Bewirtschaftungszeiten'
+    }
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Parkscheinautomaten_Tarife, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Parkscheinautomaten_Tarife, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Parkscheinautomaten_Tarife)
+
+signals.post_delete.connect(remove_permissions, sender=Parkscheinautomaten_Tarife)
+
+
+# Parkscheinautomaten
+
+class Parkscheinautomaten_Parkscheinautomaten(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  parkscheinautomaten_tarif = models.ForeignKey(Parkscheinautomaten_Tarife, verbose_name='Tarif', on_delete=models.CASCADE, db_column='parkscheinautomaten_tarif', to_field='uuid', related_name='parkscheinautomaten_tarife+')
+  nummer = models.PositiveSmallIntegerField('Nummer')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  zone = models.ForeignKey(Zonen_Parkscheinautomaten, verbose_name='Zone', on_delete=models.RESTRICT, db_column='zone', to_field='uuid', related_name='zonen+')
+  handyparkzone = PositiveIntegerRangeField('Handyparkzone', min_value=100000, max_value=999999)
+  bewohnerparkgebiet = models.CharField('Bewohnerparkgebiet', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=parkscheinautomaten_bewohnerparkgebiet_regex, message=parkscheinautomaten_bewohnerparkgebiet_message)])
+  geraetenummer = models.CharField('Gerätenummer', max_length=8, validators=[RegexValidator(regex=parkscheinautomaten_geraetenummer_regex, message=parkscheinautomaten_geraetenummer_message)])
+  inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
+  e_anschluss = models.ForeignKey(E_Anschluesse_Parkscheinautomaten, verbose_name='E-Anschluss', on_delete=models.RESTRICT, db_column='e_anschluss', to_field='uuid', related_name='e_anschluesse+')
+  stellplaetze_pkw = PositiveSmallIntegerMinField('Pkw-Stellplätze', min_value=1, blank=True, null=True)
+  stellplaetze_bus = PositiveSmallIntegerMinField('Bus-Stellplätze', min_value=1, blank=True, null=True)
+  haendlerkartennummer = PositiveIntegerRangeField('Händlerkartennummer', min_value=1000000000, max_value=9999999999, blank=True, null=True)
+  laufzeit_geldkarte = models.DateField('Laufzeit der Geldkarte', blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"parkscheinautomaten_parkscheinautomaten_hro'
+    verbose_name = 'Parkscheinautomat'
+    verbose_name_plural = 'Parkscheinautomaten'
+    description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'parkscheinautomaten_tarif': 'Tarif',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'zone': 'Zone'
+    }
+    list_fields_with_foreign_key = {
+      'parkscheinautomaten_tarif': 'parkscheinautomaten_tarif__bezeichnung',
+      'zone': 'zone__zone'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'parkscheinautomaten_tarif': 'Tarif',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'zone': 'Zone'
+    }
+    map_filter_fields_as_list = ['parkscheinautomaten_tarif', 'zone']
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Parkscheinautomaten_Parkscheinautomaten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Parkscheinautomaten_Parkscheinautomaten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Parkscheinautomaten_Parkscheinautomaten)
+
+signals.post_delete.connect(remove_permissions, sender=Parkscheinautomaten_Parkscheinautomaten)
 
 
 # Pflegeeinrichtungen
@@ -2586,6 +2950,125 @@ class Stadtteil_Begegnungszentren(models.Model):
 signals.post_save.connect(assign_permissions, sender=Stadtteil_Begegnungszentren)
 
 signals.post_delete.connect(remove_permissions, sender=Stadtteil_Begegnungszentren)
+
+
+# UVP-Vorhaben
+
+class UVP_Vorhaben(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  vorgangsart = models.ForeignKey(Vorgangsarten_UVP_Vorhaben, verbose_name='Vorgangsart', on_delete=models.RESTRICT, db_column='vorgangsart', to_field='uuid', related_name='vorgangsarten+')
+  genehmigungsbehoerde = models.ForeignKey(Genehmigungsbehoerden_UVP_Vorhaben, verbose_name='Genehmigungsbehörde', on_delete=models.RESTRICT, db_column='genehmigungsbehoerde', to_field='uuid', related_name='genehmigungsbehoerden+')
+  datum_posteingang_genehmigungsbehoerde = models.DateField('Datum des Posteingangs bei der Genehmigungsbehörde')
+  registriernummer_bauamt = models.CharField('Registriernummer des Bauamtes', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=uvp_vorhaben_registriernummer_bauamt_regex, message=uvp_vorhaben_registriernummer_bauamt_message)])
+  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  rechtsgrundlage = models.ForeignKey(Rechtsgrundlagen_UVP_Vorhaben, verbose_name='Rechtsgrundlage', on_delete=models.RESTRICT, db_column='rechtsgrundlage', to_field='uuid', related_name='rechtsgrundlagen+')
+  typ = models.ForeignKey(Typen_UVP_Vorhaben, verbose_name='Typ', on_delete=models.RESTRICT, db_column='typ', to_field='uuid', related_name='typen+')
+  geometrie = models.PolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"uvp_vorhaben_hro'
+    verbose_name = 'UVP-Vorhaben'
+    verbose_name_plural = 'UVP-Vorhaben'
+    description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'vorgangsart': 'Vorgangsart',
+      'genehmigungsbehoerde': 'Genehmigungsbehörde',
+      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der Genehmigungsbehörde',
+      'rechtsgrundlage': 'Rechtsgrundlage',
+      'typ': 'Typ'
+    }
+    list_fields_with_foreign_key = {
+      'vorgangsart': 'vorgangsart__vorgangsart',
+      'genehmigungsbehoerde': 'genehmigungsbehoerde__genehmigungsbehoerde',
+      'rechtsgrundlage': 'rechtsgrundlage__rechtsgrundlage',
+      'typ': 'typ__typ'
+    }
+    list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'vorgangsart': 'Vorgangsart',
+      'genehmigungsbehoerde': 'Genehmigungsbehörde',
+      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der Genehmigungsbehörde',
+      'rechtsgrundlage': 'Rechtsgrundlage',
+      'typ': 'Typ'
+    }
+    map_filter_fields_as_list = ['vorgangsart', 'genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
+    geometry_type = 'Polygon'
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(UVP_Vorhaben, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(UVP_Vorhaben, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=UVP_Vorhaben)
+
+signals.post_delete.connect(remove_permissions, sender=UVP_Vorhaben)
+
+
+# UVP-Vorprüfungen
+
+class UVP_Vorpruefungen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  uvp_vorhaben = models.ForeignKey(UVP_Vorhaben, verbose_name='Vorhaben', on_delete=models.CASCADE, db_column='uvp_vorhaben', to_field='uuid', related_name='uvp_vorhaben+')
+  art = models.ForeignKey(Arten_UVP_Vorpruefungen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  datum_posteingang = models.DateField('Datum des Posteingangs')
+  datum = models.DateField('Datum', default=date.today)
+  ergebnis = models.ForeignKey(Ergebnisse_UVP_Vorpruefungen, verbose_name='Ergebnis', on_delete=models.RESTRICT, db_column='ergebnis', to_field='uuid', related_name='ergebnisse+')
+  datum_bekanntmachung = models.DateField('Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True)
+  datum_veroeffentlichung = models.DateField('Datum Veröffentlichung UVP-Portal', blank=True, null=True)
+  pruefprotokoll = models.CharField('Prüfprotokoll', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"uvp_vorpruefungen_hro'
+    verbose_name = 'UVP-Vorprüfungen'
+    verbose_name_plural = 'UVP-Vorprüfungen'
+    description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'uvp_vorhaben': 'Vorhaben',
+      'art': 'Art',
+      'datum_posteingang': 'Datum des Posteingangs',
+      'datum': 'Datum',
+      'ergebnis': 'Ergebnis'
+    }
+    list_fields_with_foreign_key = {
+      'uvp_vorhaben': 'uvp_vorhaben__bezeichnung',
+      'art': 'art__art',
+      'ergebnis': 'ergebnis__ergebnis'
+    }
+    list_fields_with_date = ['datum_posteingang', 'datum']
+    object_title = 'die UVP-Vorprüfung'
+    foreign_key_label = 'Vorhaben'
+
+  def __str__(self):
+    return str(self.uvp_vorhaben) + ' mit Datum ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ' [Art: ' + str(self.art) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(UVP_Vorpruefungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(UVP_Vorpruefungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=UVP_Vorpruefungen)
+
+signals.post_delete.connect(remove_permissions, sender=UVP_Vorpruefungen)
 
 
 # Vereine
@@ -2896,207 +3379,6 @@ class Haltestellenkataster_Fotos(models.Model):
   
   def __str__(self):
     return str(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
-
-
-# isi2
-class Meldedienst_flaechenhaft(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices=ART_MELDEDIENST_FLAECHENHAFT)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  datum = models.DateField('Datum', default=date.today)
-  gueltigkeit_von = models.DateField(default=date.today, editable=False)
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PolygonField('Geometrie', srid=25833)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"meldedienst_flaechenhaft'
-    verbose_name = 'Meldedienst (flächenhaft)'
-    verbose_name_plural = 'Meldedienst (flächenhaft)'
-    description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von']
-    list_fields_with_date = ['gueltigkeit_von']
-    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_field = 'uuid'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'PolygonField'
-  
-  def __str__(self):
-    return self.art + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
-
-
-# isi2
-class Meldedienst_punkthaft(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices=ART_MELDEDIENST_PUNKTHAFT)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  datum = models.DateField('Datum', default=date.today)
-  gueltigkeit_von = models.DateField(default=date.today, editable=False)
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"meldedienst_punkthaft'
-    verbose_name = 'Meldedienst (punkthaft)'
-    verbose_name_plural = 'Meldedienst (punkthaft)'
-    description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'art', 'adressanzeige', 'bearbeiter', 'gueltigkeit_von']
-    list_fields_with_date = ['gueltigkeit_von']
-    list_fields_labels = ['UUID', 'Art', 'Adresse', 'Bearbeiter', 'geändert']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_field = 'uuid'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return self.art + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
-
-
-class Parkscheinautomaten_Tarife(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bewirtschaftungszeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
-  normaltarif_parkdauer_min = models.PositiveSmallIntegerField('Mindestparkdauer Normaltarif')
-  normaltarif_parkdauer_min_einheit = models.CharField('Einheit der Mindestparkdauer Normaltarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE)
-  normaltarif_parkdauer_max = models.PositiveSmallIntegerField('Maximalparkdauer Normaltarif')
-  normaltarif_parkdauer_max_einheit = models.CharField('Einheit der Maximalparkdauer Normaltarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE)
-  normaltarif_gebuehren_max = models.DecimalField('Maximalgebühren Normaltarif (in €)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Maximalgebühren Normaltarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  normaltarif_gebuehren_pro_stunde = models.DecimalField('Gebühren pro Stunde Normaltarif (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren pro Stunde Normaltarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  normaltarif_gebuehrenschritte = models.CharField('Gebührenschritte Normaltarif', max_length=255, choices=GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
-  veranstaltungstarif_parkdauer_min = models.PositiveSmallIntegerField('Mindestparkdauer Veranstaltungstarif', blank=True, null=True)
-  veranstaltungstarif_parkdauer_min_einheit = models.CharField('Einheit der Mindestparkdauer Veranstaltungstarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
-  veranstaltungstarif_parkdauer_max = models.PositiveSmallIntegerField('Maximalparkdauer Veranstaltungstarif', blank=True, null=True)
-  veranstaltungstarif_parkdauer_max_einheit = models.CharField('Einheit der Maximalparkdauer Veranstaltungstarif', max_length=255, choices=EINHEIT_PARKDAUER_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
-  veranstaltungstarif_gebuehren_max = models.DecimalField('Maximalgebühren Veranstaltungstarif (in €)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Maximalgebühren Veranstaltungstarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  veranstaltungstarif_gebuehren_pro_stunde = models.DecimalField('Gebühren pro Stunde Veranstaltungstarif (in €)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Gebühren pro Stunde Veranstaltungstarif müssen mindestens 0,01 € betragen.')], blank=True, null=True)
-  veranstaltungstarif_gebuehrenschritte = models.CharField('Gebührenschritte Veranstaltungstarif', max_length=255, choices=GEBUEHRENSCHRITTE_PARKSCHEINAUTOMATEN_TARIFE, blank=True, null=True)
-  zugelassene_muenzen = models.CharField('zugelassene Münzen', max_length=255, choices=ZUGELASSENE_MUENZEN_PARKSCHEINAUTOMATEN_TARIFE)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"parkscheinautomaten_tarife'
-    verbose_name = 'Parkscheinautomaten (Tarif)'
-    verbose_name_plural = 'Parkscheinautomaten (Tarife)'
-    description = 'Tarife für die Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'bewirtschaftungszeiten']
-    list_fields_labels = ['Bezeichnung', 'Bewirtschaftungszeiten']
-    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.bezeichnung + ' (Bewirtschaftungszeiten: ' + self.bewirtschaftungszeiten + ')'
-
-
-class Parkscheinautomaten_Parkscheinautomaten(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  parent = models.ForeignKey(Parkscheinautomaten_Tarife, on_delete=models.PROTECT, db_column='parkscheinautomaten_tarif', to_field='uuid')
-  nummer = models.PositiveSmallIntegerField('Nummer')
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  zone = models.CharField('Zone', blank=False, max_length=255, choices=ZONE_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN)
-  handyparkzone = models.PositiveIntegerField('Handyparkzone', validators=[MinValueValidator(100000, 'Die Handyparkzone muss einen Wert größer gleich 100000 aufweisen.'), MaxValueValidator(999999, 'Die Handyparkzone muss einen Wert kleiner gleich 999999 aufweisen.')])
-  bewohnerparkgebiet = models.CharField('Bewohnerparkgebiet', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  geraetenummer = models.CharField('Gerätenummer', max_length=8, validators=[RegexValidator(regex=geraetenummer_regex, message=geraetenummer_message)])
-  inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
-  e_anschluss = models.CharField('E-Anschluss', max_length=255, choices=E_ANSCHLUSS_PARKSCHEINAUTOMATEN_PARKSCHEINAUTOMATEN)
-  stellplaetze_pkw = models.PositiveSmallIntegerField('Pkw-Stellplätze', blank=True, null=True)
-  stellplaetze_bus = models.PositiveSmallIntegerField('Bus-Stellplätze', blank=True, null=True)
-  haendlerkartennummer = models.PositiveIntegerField('Händlerkartennummer', blank=True, null=True, validators=[MinValueValidator(1000000000, 'Die Händlerkartennummer muss einen Wert größer gleich 1000000000 aufweisen.'), MaxValueValidator(9999999999, 'Die Händlerkartennummer muss einen Wert kleiner gleich 9999999999 aufweisen.')])
-  laufzeit_geldkarte = models.DateField('Laufzeit der Geldkarte', blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"parkscheinautomaten_parkscheinautomaten'
-    verbose_name = 'Parkscheinautomaten (Parkscheinautomat)'
-    verbose_name_plural = 'Parkscheinautomaten (Parkscheinautomaten)'
-    description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['bezeichnung', 'nummer', 'zone', 'parent']
-    list_fields_labels = ['Bezeichnung', 'Nummer', 'Zone', 'Tarif']
-    object_title = 'der Parkscheinautomat'
-    foreign_key_label = 'Tarif'
-    map_feature_tooltip_field = 'bezeichnung'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return str(self.parent) + ', ' + self.bezeichnung + ', mit Nummer ' + str(self.nummer) + ', in Zone ' + self.zone
-
-
-class Uvp_Vorhaben(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  art_vorgang = models.CharField('Art des Vorgangs', max_length=255, choices=ART_VORGANG_UVP_VORHABEN)
-  genehmigungsbehoerde = models.CharField('Genehmigungsbehörde', max_length=255, choices=GENEHMIGUNGSBEHOERDE_UVP_VORHABEN)
-  datum_posteingang_genehmigungsbehoerde = models.DateField('Datum des Posteingangs bei der Genehmigungsbehörde', default=date.today)
-  registriernummer_bauamt = models.CharField('Registriernummer des Bauamtes', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=registriernummer_bauamt_regex, message=registriernummer_bauamt_message)])
-  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  rechtsgrundlage = models.CharField('Rechtsgrundlage', max_length=255, choices=RECHTSGRUNDLAGE_UVP_VORHABEN)
-  typ = models.CharField('Typ', max_length=255, choices=TYP_UVP_VORHABEN)
-  geometrie = models.PolygonField('Geometrie', srid=25833)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"uvp_vorhaben'
-    verbose_name = 'Vorhaben (UVP)'
-    verbose_name_plural = 'Vorhaben (UVP)'
-    description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
-    list_fields = ['bezeichnung', 'art_vorgang', 'genehmigungsbehoerde', 'datum_posteingang_genehmigungsbehoerde', 'rechtsgrundlage', 'typ']
-    list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
-    list_fields_labels = ['Bezeichnung', 'Art des Vorgangs', 'Genehmigungsbehörde', 'Datum des Posteingangs bei der Genehmigungsbehörde', 'Rechtsgrundlage', 'Typ']
-    map_feature_tooltip_field = 'bezeichnung'
-    geometry_type = 'PolygonField'
-    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.bezeichnung
-
-
-class Uvp_Vorpruefung(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  parent = models.ForeignKey(Uvp_Vorhaben, on_delete=models.PROTECT, db_column='uvp_vorhaben', to_field='uuid')
-  datum_posteingang = models.DateField('Datum des Posteingangs', default=date.today)
-  art = models.CharField('Art', max_length=255, choices=ART_UVP_VORPRUEFUNG)
-  datum = models.DateField('Datum', default=date.today)
-  ergebnis = models.CharField('Ergebnis', max_length=255, choices=ERGEBNIS_UVP_VORPRUEFUNG)
-  datum_bekanntmachung = models.DateField('Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True)
-  datum_veroeffentlichung = models.DateField('Datum Veröffentlichung UVP-Portal', blank=True, null=True)
-  pruefprotokoll = models.CharField('Prüfprotokoll', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"uvp_vorpruefungen'
-    verbose_name = 'UVP-Vorprüfung'
-    verbose_name_plural = 'UVP-Vorprüfungen'
-    description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
-    list_fields = ['parent', 'datum_posteingang', 'art', 'datum', 'ergebnis']
-    list_fields_with_date = ['datum_posteingang', 'datum']
-    list_fields_labels = ['Vorhaben', 'Datum des Posteingangs', 'Art', 'Datum', 'Ergebnis']
-    object_title = 'die UVP-Vorprüfung'
-    foreign_key_label = 'Vorhaben'
-  
-  def __str__(self):
-    return str(self.parent) + ' (Datum des Posteingangs: ' + datetime.strptime(str(self.datum_posteingang), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Art: ' + self.art + ', Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ergebnis: ' + self.ergebnis + ')'
  
 
 
