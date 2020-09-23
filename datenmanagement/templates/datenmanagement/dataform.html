@@ -88,9 +88,9 @@
             {% endif %}
             {% if not address_mandatory %}
               {% if address_type == 'Adresse' %}
-                <input disabled id="mapToAddress" class="btn btn-success btn-in-a-row" type="button" value="Adresse übernehmen"/>
+                <input disabled id="mapToAddress" class="btn btn-success{% if geometry_type == 'Point' %} btn-in-a-row{% endif %}" type="button" value="Adresse übernehmen"/>
               {% elif address_type == 'Straße' %}
-                <input disabled id="mapToStreet" class="btn btn-success btn-in-a-row" type="button" value="Straße übernehmen"/>
+                <input disabled id="mapToStreet" class="btn btn-success{% if geometry_type == 'Point' %} btn-in-a-row{% endif %}" type="button" value="Straße übernehmen"/>
               {% endif %}
             {% endif %}
           {% endif %}

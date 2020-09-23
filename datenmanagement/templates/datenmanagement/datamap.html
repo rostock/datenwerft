@@ -720,14 +720,6 @@
                 var dummy = filterAttribute.value.split('.');
                 filterAttribute.value = new Date(dummy[2], dummy[1] - 1, dummy[0]);
               }
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Boolean-Filter handelt!
-              else if (filterAttribute.type == 'boolean') {
-                if ($(this).is(':checked')) {
-                  filterAttribute.value = 'True';
-                } else {
-                  filterAttribute.value = 'False';
-                }
-              }
               // Filterobjekt zur Liste für Filterobjekte hinzufügen
               filterAttributesList.push(filterAttribute);
             }
@@ -804,16 +796,9 @@
                     }
                   // ansonsten einen Vergleich durchführen und unpassende GeoJSON-Features ausblenden
                   } else if (filterAttributesList[i].type != 'checkbox-set') {
-                    console.log(filterAttributesList[i].type);
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                       if (moment(new Date(filterAttributesList[i].value), 'day').format('YYYY-MM-DD') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').format('YYYY-MM-DD')) {
-                        layer.getElement().style.display = 'none';
-                      }
-                    } else if (filterAttributesList[i].type === 'boolean') {
-                      console.log(layer.feature.properties[filterAttributesList[i].name]);
-                      console.log(filterAttributesList[i].value);
-                      if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
                         layer.getElement().style.display = 'none';
                       }
                     } else {
@@ -892,7 +877,7 @@
               }
             }
             // ansonsten Filter auf leeren Wert setzen
-            else if ($(this).data('type') === 'boolean') {
+            else {
               $(this).prop('checked', false);
             }
           });
