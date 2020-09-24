@@ -370,12 +370,6 @@ id_containerstellplatz_message = 'Die <strong><em>ID</em></strong> muss aus gena
 # LEGACY
 #
 
-ART_FLIESSGEWAESSER = (
-  ('Durchlass', 'Durchlass'),
-  ('offen', 'offen'),
-  ('Rohrleitung', 'Rohrleitung'),
-)
-
 AUSFUEHRUNG_HALTESTELLEN = (
   ('Noppen', 'Noppen'),
   ('Rillenplatten', 'Rillenplatten'),
@@ -708,6 +702,16 @@ class Arten_Feuerwachen(Art):
     description = 'Arten von Feuerwachen'
 
 
+# Arten von Fließgewässern
+
+class Arten_Fliessgewaesser(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_fliessgewaesser'
+    verbose_name = 'Art eines Fließgewässers'
+    verbose_name_plural = 'Arten von Fließgewässern'
+    description = 'Arten von Fließgewässern'
+
+
 # Arten von Hundetoiletten
 
 class Arten_Hundetoiletten(Art):
@@ -976,6 +980,29 @@ class Materialien_Denksteine(Material):
     verbose_name = 'Material eines Denksteins'
     verbose_name_plural = 'Materialien von Denksteinen'
     description = 'Materialien von Denksteinen'
+
+
+# Ordnungen von Fließgewässern
+
+class Ordnungen_Fliessgewaesser(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  ordnung = PositiveSmallIntegerMinField('Ordnung', min_value=1)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"ordnungen_fliessgewaesser'
+    verbose_name = 'Ordnung eines Fließgewässers'
+    verbose_name_plural = 'Ordnungen von Fließgewässern'
+    description = 'Ordnungen von Fließgewässern'
+    list_fields = {
+      'ordnung': 'Ordnung'
+    }
+    list_fields_with_number = ['ordnung']
+    ordering = ['ordnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.ordnung
 
 
 # Personentitel
@@ -2084,6 +2111,66 @@ class Feuerwachen(models.Model):
 signals.post_save.connect(assign_permissions, sender=Feuerwachen)
 
 signals.post_delete.connect(remove_permissions, sender=Feuerwachen)
+
+
+# Gutachterfotos
+
+class Gutachterfotos(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  datum = models.DateField('Datum', default=date.today)
+  aufnahmedatum = models.DateField('Aufnahmedatum')
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'gutachterfotos'), max_length=255)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"gutachterfotos_hro'
+    verbose_name = 'Gutachterfoto'
+    verbose_name_plural = 'Gutachterfotos'
+    description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bearbeiter': 'Bearbeiter',
+      'datum': 'Datum',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'foto': 'Foto'
+    }
+    list_fields_with_date = ['datum', 'aufnahmedatum']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse'
+    }
+    map_feature_tooltip_field = 'datum'
+    map_filter_fields = {
+      'datum': 'Datum',
+      'aufnahmedatum': 'Aufnahmedatum'
+    }
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return 'Gutachterfoto mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Gutachterfotos, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Gutachterfotos, self).delete(*args, **kwargs)
+
+signals.post_save.connect(photo_post_processing, sender=Gutachterfotos)
+
+signals.post_save.connect(assign_permissions, sender=Gutachterfotos)
+
+signals.post_delete.connect(delete_photo, sender=Gutachterfotos)
+
+signals.post_delete.connect(remove_permissions, sender=Gutachterfotos)
 
 
 # Hospize
@@ -3200,7 +3287,7 @@ class Fliessgewaesser(models.Model):
   nummer = models.CharField('Nummer', max_length=255)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   ordnung = PositiveSmallIntegerRangeField('Ordnung', min_value=1, max_value=2, blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices=ART_FLIESSGEWAESSER)
+  art = models.CharField('Art', max_length=255, choices='')
   nennweite = models.PositiveIntegerField('Nennweite (in Millimetern)', blank=True, null=True)
   geometrie = models.LineStringField('Geometrie', srid=25833)
 
@@ -3221,39 +3308,6 @@ class Fliessgewaesser(models.Model):
     else:
       output_ordnung = ''
     return self.art + output_ordnung + ', Nummer ' + self.nummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
-class Gutachterfotos(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  strasse_name = models.CharField('Adresse/Straße', max_length=255, blank=True, null=True)
-  hausnummer = models.CharField(max_length=4, blank=True, null=True)
-  hausnummer_zusatz = models.CharField(max_length=2, blank=True, null=True)
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bemerkung = models.CharField('Bemerkung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  datum = models.DateField('Datum', default=date.today)
-  aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'gutachterfotos'), max_length=255)
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"gutachterfotos'
-    verbose_name = 'Gutachterfoto'
-    verbose_name_plural = 'Gutachterfotos'
-    description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['uuid', 'adressanzeige', 'bearbeiter', 'datum', 'aufnahmedatum']
-    list_fields_with_date = ['datum', 'aufnahmedatum']
-    list_fields_labels = ['UUID', 'Adresse', 'Bearbeiter', 'Datum', 'Aufnahmedatum']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_field = 'uuid'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return 'Gutachterfoto mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') + (', ' + self.adressanzeige if self.adressanzeige else '') + ' (UUID: ' + str(self.uuid) + ')'
 
 
 class Haltestellenkataster_Haltestellen(models.Model):
@@ -3428,41 +3482,6 @@ def containerstellplatz_post_save_handler(sender, instance, **kwargs):
 
 @receiver(signals.post_delete, sender=Containerstellplaetze)
 def containerstellplatz_post_delete_handler(sender, instance, **kwargs):
-  # ab hier in Funktion A auslagern
-  if instance.foto:
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      if settings.MEDIA_ROOT and settings.MEDIA_URL:
-        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-      else:
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = BASE_DIR + instance.foto.url
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      try:
-        os.remove(thumb)
-      except OSError:
-        pass
-    instance.foto.delete(False)
-
-
-@receiver(signals.post_save, sender=Gutachterfotos)
-def gutachterfoto_post_save_handler(sender, instance, **kwargs):
-  if instance.foto:
-    if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-    else:
-      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-      path = BASE_DIR + instance.foto.url
-    rotate_image(path)
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      thumb_path = os.path.dirname(path) + '/thumbs'
-      if not os.path.exists(thumb_path):
-        os.mkdir(thumb_path)
-      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      thumb_image(path, thumb_path)
-
-
-@receiver(signals.post_delete, sender=Gutachterfotos)
-def gutachterfoto_post_delete_handler(sender, instance, **kwargs):
   # ab hier in Funktion A auslagern
   if instance.foto:
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
