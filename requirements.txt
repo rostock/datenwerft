@@ -1,11 +1,12 @@
-Django>=3.0.2
+Django>=3.1.1
 django-auth-ldap
+django-currentuser
 django-datatables-view
 django-guardian
 django-leaflet
-djangorestframework
 django-tempus-dominus
 django-user-agents
+djangorestframework
 Pillow
 psycopg2
 PyYAML
