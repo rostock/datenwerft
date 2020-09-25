@@ -271,9 +271,6 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 #
 
 options.DEFAULT_NAMES += (
-  # LEGACY
-  'list_fields_labels',
-  
   'codelist',                               # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
   'description',                            # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
   'choices_models_for_choices_fields',      # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
@@ -333,8 +330,14 @@ url_message = 'Die Adresse der <strong><em>Website</em></strong> muss syntaktisc
 
 # speziell
 
+containerstellplaetze_id_regex = r'^[0-9]{2}-[0-9]{2}$'
+containerstellplaetze_id_message = 'Die <strong><em>ID</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
 denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
 denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit einer Ziffer beginnen und mit einer Ziffer oder einem Kleinbuchstaben enden.'
+haltestellenkataster_haltestellen_hst_hafas_id_regex = r'^[0-9]{8}$'
+haltestellenkataster_haltestellen_hst_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
+linien_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
+linien_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer Ziffer oder einem Großbuchstaben beginnen, der bzw. dem optional weitere Ziffern und/oder Großbuchstaben folgen können.'
 parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
 parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em></strong> muss aus genau einem Großbuchstaben sowie genau einer Ziffer bestehen.'
 parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
@@ -343,222 +346,6 @@ uvp_vorhaben_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
 uvp_vorhaben_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
 zonen_parkscheinautomaten_zone_regex = r'^[A-Z]$'
 zonen_parkscheinautomaten_zone_message = 'Die <strong><em>Zone</em></strong> muss aus genau einem Großbuchstaben bestehen.'
-
-
-hafas_id_regex = r'^[0-9]{8}$'
-hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
-id_containerstellplatz_regex = r'^[0-9]{2}-[0-9]{2}$'
-id_containerstellplatz_message = 'Die <strong><em>ID</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-# LEGACY
-#
-
-AUSFUEHRUNG_HALTESTELLEN = (
-  ('Noppen', 'Noppen'),
-  ('Rillenplatten', 'Rillenplatten'),
-  ('Rippenplatten', 'Rippenplatten'),
-)
-
-BEFESTIGUNGSART_AUFSTELLFLAECHE_BUS_HALTESTELLEN = (
-  ('Asphalt', 'Asphalt'),
-  ('Beton', 'Beton'),
-  ('Betonverbundpflaster', 'Betonverbundpflaster'),
-  ('Großpflaster', 'Großpflaster'),
-  ('halbstarre Decke', 'halbstarre Decke'),
-  ('Natursteingroßpflaster', 'Natursteingroßpflaster'),
-  ('sonstige', 'sonstige'),
-)
-
-BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN = (
-  ('Asphalt', 'Asphalt'),
-  ('Beton', 'Beton'),
-  ('Betonpflaster', 'Betonpflaster'),
-  ('Betonplatten', 'Betonplatten'),
-  ('sonstige', 'sonstige'),
-)
-
-BEWIRTSCHAFTER_ALTKLEIDER_CONTAINERSTELLPLAETZE = (
-  (3, 'Deutsches Rotes Kreuz Kreisverband Rostock e.V.'),
-  (2, 'EAST-WEST Textilrecycling Kursun GmbH'),
-  (8, 'FWS GmbH'),
-  (5, 'Güstrower Werkstätten GmbH'),
-  (9, 'HUMANA Kleidersammlung GmbH'),
-  (4, 'Retextil Recycling International GmbH & Co. KG'),
-  (6, 'Sibitex International'),
-  (7, 'Textil-Recycling K. & A. Wenkhaus GmbH'),
-  (1, 'Veolia Umweltservice Nord GmbH'),
-  (10, 'VerSeRo GmbH'),
-  (11, 'SOEX Collecting Germany GmbH'),
-  (12, 'Malteser Hilfsdienst gGmbH und e.V.'),
-)
-
-BEWIRTSCHAFTER_GLAS_CONTAINERSTELLPLAETZE = (
-  (1, 'Veolia Umweltservice Nord GmbH'),
-)
-
-BEWIRTSCHAFTER_GRUNDUNDBODEN_CONTAINERSTELLPLAETZE = (
-  (62, 'Kataster-, Vermessungs- und Liegenschaftsamt'),
-  (67, 'Amt für Stadtgrün, Naturschutz und Landschaftspflege'),
-  (73, 'Amt für Umwelt- und Klimaschutz'),
-  (66, 'Tiefbauamt'),
-)
-
-BEWIRTSCHAFTER_PAPIER_CONTAINERSTELLPLAETZE = (
-  (1, 'Veolia Umweltservice Nord GmbH'),
-)
-
-DFI_TYPEN_HALTESTELLEN = (
-  ('4-zeilig', '4-zeilig'),
-  ('8-zeilig', '8-zeilig'),
-)
-
-FAHRGASTUNTERSTANDSTYPEN_HALTESTELLEN = (
-  ('Beton-WH', 'Beton-WH'),
-  ('Foster', 'Foster'),
-  ('MURANO', 'MURANO'),
-  ('Orion-Anlage', 'Orion-Anlage'),
-  ('Trafic', 'Trafic'),
-)
-
-FAHRPLANVITRINENTYPEN_HALTESTELLEN = (
-  ('Infovitrine 2xA3', 'Infovitrine 2xA3'),
-  ('Infovitrine 3xA3', 'Infovitrine 3xA3'),
-)
-
-LINIEN_HALTESTELLEN = (
-  ('1', '1'),
-  ('2', '2'),
-  ('3', '3'),
-  ('4', '4'),
-  ('5', '5'),
-  ('6', '6'),
-  ('16', '16'),
-  ('17', '17'),
-  ('18', '18'),
-  ('19', '19'),
-  ('22', '22'),
-  ('23', '23'),
-  ('25', '25'),
-  ('26', '26'),
-  ('27', '27'),
-  ('28', '28'),
-  ('30', '30'),
-  ('30A', '30A'),
-  ('31', '31'),
-  ('34', '34'),
-  ('35', '35'),
-  ('36', '36'),
-  ('37', '37'),
-  ('38', '38'),
-  ('39', '39'),
-  ('45', '45'),
-  ('45A', '45A'),
-  ('49', '49'),
-  ('102', '102'),
-  ('106', '106'),
-  ('112', '112'),
-  ('113', '113'),
-  ('118', '118'),
-  ('119', '119'),
-  ('120', '120'),
-  ('121', '121'),
-  ('122', '122'),
-  ('123', '123'),
-  ('127', '127'),
-  ('128', '128'),
-  ('129', '129'),
-  ('137', '137'),
-  ('140', '140'),
-  ('284', '284'),
-  ('304', '304'),
-  ('F1', 'F1'),
-  ('F1A', 'F1A'),
-  ('F2', 'F2'),
-  ('X41', 'X41'),
-)
-
-MASTTYPEN_HALTESTELLEN = (
-  ('2H+7', '2H+7'),
-  ('2H+8', '2H+8'),
-  ('HB+2', 'HB+2'),
-  ('HB+3', 'HB+3'),
-  ('HB+4', 'HB+4'),
-  ('HB+5', 'HB+5'),
-  ('HB+6', 'HB+6'),
-)
-
-MOTIVE_HALTESTELLEN = (
-  ('Mast', 'Mast'),
-  ('Wartebereich von Stirnseite', 'Wartebereich von Stirnseite'),
-  ('Wartebereich von vorne', 'Wartebereich von vorne'),
-)
-
-SCHAEDEN_HALTESTELLEN = (
-  ('keine Schäden', 'keine Schäden'),
-  ('leichte Schäden', 'leichte Schäden'),
-  ('mittelschwere Schäden', 'mittelschwere Schäden'),
-  ('schwere Schäden', 'schwere Schäden'),
-)
-
-SITZBANKTYPEN_HALTESTELLEN = (
-  ('Holzlattung auf Waschbetonfüßen', 'Holzlattung auf Waschbetonfüßen'),
-  ('Sitzbank mit Armlehne', 'Sitzbank mit Armlehne'),
-  ('Sitzbank ohne Armlehne', 'Sitzbank ohne Armlehne'),
-)
-
-TYP_HALTESTELLEN = (
-  ('Bushaltestelle (am Fahrbahnrand)', 'Bushaltestelle (am Fahrbahnrand)'),
-  ('Bushaltestelle (Busbucht)', 'Bushaltestelle (Busbucht)'),
-  ('Bushaltestelle (Buskap)', 'Bushaltestelle (Buskap)'),
-  ('Doppelhaltestelle', 'Doppelhaltestelle'),
-  ('Kombihaltestelle', 'Kombihaltestelle'),
-  ('Straßenbahnhaltestelle', 'Straßenbahnhaltestelle'),
-)
-
-VERKEHRSMITTELKLASSEN_HALTESTELLEN = (
-  ('alternative Bedienform', 'alternative Bedienform'),
-  ('Autofähre', 'Autofähre'),
-  ('Personenfähre', 'Personenfähre'),
-  ('Regionalbus', 'Regionalbus'),
-  ('Schienenersatzverkehr', 'Schienenersatzverkehr'),
-  ('Stadtbus', 'Stadtbus'),
-  ('Straßenbahn', 'Straßenbahn'),
-)
-
-ZH_TYPEN_HALTESTELLEN = (
-  ('Haltestellenverteiler', 'Haltestellenverteiler'),
-  ('Kabelverteilerschrank', 'Kabelverteilerschrank'),
-  ('Zähleranschlusssäule', 'Zähleranschlusssäule'),
-)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -583,21 +370,21 @@ class Art(models.Model):
     return self.art
 
 
-class Material(models.Model):
+class Befestigungsart(models.Model):
   uuid = models.UUIDField(primary_key=True, editable=False)
-  material = models.CharField('Material', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  befestigungsart = models.CharField('Befestigungsart', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
     abstract = True
     managed = False
     codelist = True
     list_fields = {
-     'material': 'Material'
+     'befestigungsart': 'Befestigungsart'
     }
-    ordering = ['material'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    ordering = ['befestigungsart'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.material
+    return self.befestigungsart
 
 
 class Schlagwort(models.Model):
@@ -615,6 +402,40 @@ class Schlagwort(models.Model):
   
   def __str__(self):
     return self.schlagwort
+
+
+class Status(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  status = models.CharField('Status', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    abstract = True
+    managed = False
+    codelist = True
+    list_fields = {
+     'status': 'Status'
+    }
+    ordering = ['status'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.status
+
+
+class Typ(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  typ = models.CharField('Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    abstract = True
+    managed = False
+    codelist = True
+    list_fields = {
+     'typ': 'Typ'
+    }
+    ordering = ['typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.typ
 
 
 
@@ -671,6 +492,50 @@ class Strassen(models.Model):
 #
 # Codelisten
 #
+
+# Carsharing-Anbieter
+
+class Anbieter_Carsharing(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  anbieter = models.CharField('Anbieter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"anbieter_carsharing'
+    verbose_name = 'Carsharing-Anbieter'
+    verbose_name_plural = 'Carsharing-Anbieter'
+    description = 'Carsharing-Anbieter'
+    list_fields = {
+      'anbieter': 'Anbieter'
+    }
+    ordering = ['anbieter'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.anbieter
+
+
+# Angebote bei Mobilpunkten
+
+class Angebote_Mobilpunkte(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  angebot = models.CharField('Angebot', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"angebote_mobilpunkte'
+    verbose_name = 'Angebot bei einem Mobilpunkt'
+    verbose_name_plural = 'Angebote bei Mobilpunkten'
+    description = 'Angebote bei Mobilpunkten'
+    list_fields = {
+      'angebot': 'Angebot'
+    }
+    ordering = ['angebot'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.angebot
+
 
 # Arten von Baudenkmalen
 
@@ -772,50 +637,6 @@ class Arten_UVP_Vorpruefungen(Art):
     description = 'Arten von UVP-Vorprüfungen'
 
 
-# Carsharing-Anbieter
-
-class Anbieter_Carsharing(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
-  anbieter = models.CharField('Anbieter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"anbieter_carsharing'
-    verbose_name = 'Carsharing-Anbieter'
-    verbose_name_plural = 'Carsharing-Anbieter'
-    description = 'Carsharing-Anbieter'
-    list_fields = {
-      'anbieter': 'Anbieter'
-    }
-    ordering = ['anbieter'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.anbieter
-
-
-# Angebote bei Mobilpunkten
-
-class Angebote_Mobilpunkte(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
-  angebot = models.CharField('Angebot', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"angebote_mobilpunkte'
-    verbose_name = 'Angebot bei einem Mobilpunkt'
-    verbose_name_plural = 'Angebote bei Mobilpunkten'
-    description = 'Angebote bei Mobilpunkten'
-    list_fields = {
-      'angebot': 'Angebot'
-    }
-    ordering = ['angebot'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.angebot
-
-
 # Auftraggeber von Baustellen
 
 class Auftraggeber_Baustellen(models.Model):
@@ -836,6 +657,48 @@ class Auftraggeber_Baustellen(models.Model):
   
   def __str__(self):
     return self.auftraggeber
+
+
+# Ausführungen innerhalb eines Haltestellenkatasters
+
+class Ausfuehrungen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  ausfuehrung = models.CharField('Ausführung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"ausfuehrungen_haltestellenkataster'
+    verbose_name = 'Ausführung innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Ausführungen innerhalb eines Haltestellenkatasters'
+    description = 'Ausführungen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'ausfuehrung': 'Ausführung'
+    }
+    ordering = ['ausfuehrung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.ausfuehrung
+
+
+# Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters
+
+class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(Befestigungsart):
+  class Meta(Befestigungsart.Meta):
+    db_table = 'codelisten\".\"befestigungsarten_aufstellflaeche_bus_haltestellenkataster'
+    verbose_name = 'Befestigungsart der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
+    description = 'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
+
+
+# Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters
+
+class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
+  class Meta(Befestigungsart.Meta):
+    db_table = 'codelisten\".\"befestigungsarten_warteflaeche_haltestellenkataster'
+    verbose_name = 'Befestigungsart der Wartefläche innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
+    description = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
 
 
 # Betriebsarten
@@ -884,6 +747,28 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     return self.bezeichnung
 
 
+# Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
+
+class DFI_Typen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  dfi_typ = models.CharField('DFI-Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"dfi_typen_haltestellenkataster'
+    verbose_name = 'Typ eines Dynamischen Fahrgastinformationssystems innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    description = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'dfi_typ': 'DFI-Typ'
+    }
+    ordering = ['dfi_typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.dfi_typ
+
+
 # E-Anschlüsse für Parkscheinautomaten
 
 class E_Anschluesse_Parkscheinautomaten(models.Model):
@@ -926,6 +811,50 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
   
   def __str__(self):
     return self.ergebnis
+
+
+# Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
+
+class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  fahrgastunterstandstypen = models.CharField('Fahrgastunterstandstyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"fahrgastunterstandstypen_haltestellenkataster'
+    verbose_name = 'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
+    description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fahrgastunterstandstypen': 'Fahrgastunterstandstyp'
+    }
+    ordering = ['fahrgastunterstandstypen'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.fahrgastunterstandstypen
+
+
+# Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
+
+class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  fahrplanvitrinentyp = models.CharField('Fahrplanvitrinentyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"fahrplanvitrinentypen_haltestellenkataster'
+    verbose_name = 'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
+    description = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'
+    }
+    ordering = ['fahrplanvitrinentyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.fahrplanvitrinentyp
 
 
 # Genehmigungsbehörden von UVP-Vorhaben
@@ -972,14 +901,48 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
     return self.ladekarte
 
 
+# Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH
+
+class Linien(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  linie = models.CharField('Linie', max_length=4, validators=[RegexValidator(regex=linien_linie_regex, message=linien_linie_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"linien'
+    verbose_name = 'Linie der Rostocker Straßenbahn AG und/oder der Regionalbus Rostock GmbH'
+    verbose_name_plural = 'Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH'
+    description = 'Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH'
+    list_fields = {
+      'linie': 'Linie'
+    }
+    ordering = ['linie'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.linie
+
+
 # Materialien von Denksteinen
 
-class Materialien_Denksteine(Material):
-  class Meta(Material.Meta):
+class Materialien_Denksteine(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  material = models.CharField('Material', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
     db_table = 'codelisten\".\"materialien_denksteine'
     verbose_name = 'Material eines Denksteins'
     verbose_name_plural = 'Materialien von Denksteinen'
     description = 'Materialien von Denksteinen'
+    list_fields = {
+     'material': 'Material'
+    }
+    ordering = ['material'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.material
 
 
 # Ordnungen von Fließgewässern
@@ -1002,7 +965,7 @@ class Ordnungen_Fliessgewaesser(models.Model):
     ordering = ['ordnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.ordnung
+    return str(self.ordnung)
 
 
 # Personentitel
@@ -1091,92 +1054,44 @@ class Sparten_Baustellen(models.Model):
     return self.sparte
 
 
-# Status von Baustellen
+# Status von Baustellen (geplant)
 
-class Status_Baustellen_geplant(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
-  status = models.CharField('Status', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
+class Status_Baustellen_geplant(Status):
+  class Meta(Status.Meta):
     db_table = 'codelisten\".\"status_baustellen_geplant'
     verbose_name = 'Status einer Baustelle (geplant)'
     verbose_name_plural = 'Status von Baustellen (geplant)'
     description = 'Status von Baustellen (geplant)'
-    list_fields = {
-      'status': 'Status'
-    }
-    ordering = ['status'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.status
 
 
 # Status von Fotos der Baustellen-Fotodokumentation
 
-class Status_Baustellen_Fotodokumentation_Fotos(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
-  status = models.CharField('Status', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
+class Status_Baustellen_Fotodokumentation_Fotos(Status):
+  class Meta(Status.Meta):
     db_table = 'codelisten\".\"status_baustellen_fotodokumentation_fotos'
     verbose_name = 'Status eines Fotos der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Status von Fotos der Baustellen-Fotodokumentation'
     description = 'Status von Fotos der Baustellen-Fotodokumentation'
-    list_fields = {
-      'status': 'Status'
-    }
-    ordering = ['status'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.status
 
 
 # Typen von Abfallbehältern
 
-class Typen_Abfallbehaelter(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
-  typ = models.CharField('Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
+class Typen_Abfallbehaelter(Typ):
+  class Meta(Typ.Meta):
     db_table = 'codelisten\".\"typen_abfallbehaelter'
     verbose_name = 'Typ eines Abfallbehälters'
     verbose_name_plural = 'Typen von Abfallbehältern'
     description = 'Typen von Abfallbehältern'
-    list_fields = {
-      'typ': 'Typ'
-    }
-    ordering = ['typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.typ
 
 
 # Typen von UVP-Vorhaben
 
-class Typen_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
-  typ = models.CharField('Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
+class Typen_UVP_Vorhaben(Typ):
+  class Meta(Typ.Meta):
     db_table = 'codelisten\".\"typen_uvp_vorhaben'
     verbose_name = 'Typ eines UVP-Vorhabens'
     verbose_name_plural = 'Typen von UVP-Vorhaben'
     description = 'Typen von UVP-Vorhaben'
-    list_fields = {
-      'typ': 'Typ'
-    }
-    ordering = ['typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.typ
 
 
 # Verbünde von Ladestationen für Elektrofahrzeuge
@@ -1310,7 +1225,7 @@ class Abfallbehaelter(models.Model):
   pflegeobjekt = models.CharField('Pflegeobjekt', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   inventarnummer = models.CharField('Inventarnummer', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
   anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=6, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('9999.99'), 'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.')], blank=True, null=True)
-  haltestelle = models.BooleanField('Lage an einer Haltestelle', blank=True, null=True)
+  haltestelle = models.BooleanField('Lage an einer Haltestelle?', blank=True, null=True)
   sommer_mo = PositiveSmallIntegerRangeField('Anzahl Leerungen montags im Sommer', min_value=1, blank=True, null=True)
   sommer_di = PositiveSmallIntegerRangeField('Anzahl Leerungen dienstags im Sommer', min_value=1, blank=True, null=True)
   sommer_mi = PositiveSmallIntegerRangeField('Anzahl Leerungen mittwochs im Sommer', min_value=1, blank=True, null=True)
@@ -1885,6 +1800,88 @@ signals.post_save.connect(assign_permissions, sender=Carsharing_Stationen)
 signals.post_delete.connect(remove_permissions, sender=Carsharing_Stationen)
 
 
+# Containerstellplätze
+
+class Containerstellplaetze(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  deaktiviert = models.DateField('Außerbetriebstellung', blank=True, null=True)
+  id = models.CharField('ID', max_length=5, blank=True, null=True, validators=[RegexValidator(regex=containerstellplaetze_id_regex, message=containerstellplaetze_id_message)])
+  privat = models.BooleanField(' privat?')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bewirtschafter_grundundboden = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter Grund und Boden', on_delete=models.SET_NULL, db_column='bewirtschafter_grundundboden', to_field='uuid', related_name='bewirtschafter_grundundboden+', blank=True, null=True)
+  bewirtschafter_glas = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter Glas', on_delete=models.SET_NULL, db_column='bewirtschafter_glas', to_field='uuid', related_name='bewirtschafter_glas+', blank=True, null=True)
+  anzahl_glas = PositiveSmallIntegerMinField('Anzahl Glas normal', min_value=1, blank=True, null=True)
+  anzahl_glas_unterflur = PositiveSmallIntegerMinField('Anzahl Glas unterflur', min_value=1, blank=True, null=True)
+  bewirtschafter_papier = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter Papier', on_delete=models.SET_NULL, db_column='bewirtschafter_papier', to_field='uuid', related_name='bewirtschafter_papier+', blank=True, null=True)
+  anzahl_papier = PositiveSmallIntegerMinField('Anzahl Papier normal', min_value=1, blank=True, null=True)
+  anzahl_papier_unterflur = PositiveSmallIntegerMinField('Anzahl Papier unterflur', min_value=1, blank=True, null=True)
+  bewirtschafter_altkleider = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Bewirtschafter Altkleider', on_delete=models.SET_NULL, db_column='bewirtschafter_altkleider', to_field='uuid', related_name='bewirtschafter_altkleider+', blank=True, null=True)
+  anzahl_altkleider = PositiveSmallIntegerMinField('Anzahl Altkleider', min_value=1, blank=True, null=True)
+  inbetriebnahmejahr = PositiveSmallIntegerRangeField('Inbetriebnahmejahr', max_value=current_year(), blank=True, null=True)
+  inventarnummer = models.CharField('Inventarnummer Stellplatz', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
+  inventarnummer_grundundboden = models.CharField('Inventarnummer Grund und Boden', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
+  inventarnummer_zaun = models.CharField('Inventarnummer Zaun', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
+  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'), MaxValueValidator(Decimal('99999.99'), 'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 99.999,99 € betragen.')], blank=True, null=True)
+  oeffentliche_widmung = models.BooleanField(' öffentliche Widmung?', blank=True, null=True)
+  bga = models.BooleanField('Zuordnung BgA Stellplatz?', blank=True, null=True)
+  bga_grundundboden = models.BooleanField('Zuordnung BgA Grund und Boden?', blank=True, null=True)
+  bga_zaun = models.BooleanField('Zuordnung BgA Zaun?', blank=True, null=True)
+  art_eigentumserwerb = models.CharField('Art des Eigentumserwerbs Stellplatz', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  art_eigentumserwerb_zaun = models.CharField('Art des Eigentumserwerbs Zaun', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  vertraege = models.CharField('Verträge', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  winterdienst_a = models.BooleanField('Winterdienst A?', blank=True, null=True)
+  winterdienst_b = models.BooleanField('Winterdienst B?', blank=True, null=True)
+  winterdienst_c = models.BooleanField('Winterdienst C?', blank=True, null=True)
+  flaeche = models.DecimalField('Fläche (in m²)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'), MaxValueValidator(Decimal('999.99'), 'Die <strong><em>Fläche</em></strong> darf höchstens 999,99 m² betragen.')], blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'containerstellplaetze'), max_length=255, blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"containerstellplaetze_hro'
+    verbose_name = 'Containerstellplatz'
+    verbose_name_plural = 'Containerstellplätze'
+    description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'deaktiviert': 'Außerbetriebstellung',
+      'id': 'ID',
+      'privat': 'privat?',
+      'bezeichnung': 'Bezeichnung',
+      'foto': 'Foto'
+    }
+    list_fields_with_date = ['deaktiviert']
+    readonly_fields = ['deaktiviert']
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'id': 'ID',
+      'privat': 'privat?',
+      'bezeichnung': 'Bezeichnung'
+    }
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Containerstellplaetze, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Containerstellplaetze, self).delete(*args, **kwargs)
+
+signals.post_save.connect(photo_post_processing, sender=Containerstellplaetze)
+
+signals.post_save.connect(assign_permissions, sender=Containerstellplaetze)
+
+signals.post_delete.connect(delete_photo, sender=Containerstellplaetze)
+
+signals.post_delete.connect(remove_permissions, sender=Containerstellplaetze)
+
+
 # Denkmalbereiche
 
 class Denkmalbereiche(models.Model):
@@ -2111,6 +2108,67 @@ class Feuerwachen(models.Model):
 signals.post_save.connect(assign_permissions, sender=Feuerwachen)
 
 signals.post_delete.connect(remove_permissions, sender=Feuerwachen)
+
+
+# Fließgewässer
+
+class Fliessgewaesser(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  nummer = models.CharField('Nummer', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  art = models.ForeignKey(Arten_Fliessgewaesser, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  ordnung = models.ForeignKey(Ordnungen_Fliessgewaesser, verbose_name='Ordnung', on_delete=models.SET_NULL, db_column='ordnung', to_field='uuid', related_name='ordnungen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  nennweite = PositiveSmallIntegerMinField('Nennweite (in mm)', min_value=50, blank=True, null=True)
+  laenge = models.PositiveIntegerField('Länge (in m)', default=0)
+  laenge_in_hro = models.PositiveIntegerField('Länge innerhalb Rostocks (in m)', blank=True, null=True)
+  geometrie = models.LineStringField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"fliessgewaesser_hro'
+    verbose_name = 'Fließgewässer'
+    verbose_name_plural = 'Fließgewässer'
+    description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'nummer': 'Nummer',
+      'art': 'Art',
+      'ordnung': 'Ordnung',
+      'bezeichnung': 'Bezeichnung',
+      'laenge': 'Länge (in m)',
+      'laenge_in_hro': 'Länge innerhalb Rostocks (in m)'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art__art',
+      'ordnung': 'ordnung__ordnung'
+    }
+    list_fields_with_number = ['laenge', 'laenge_in_hro']
+    readonly_fields = ['laenge', 'laenge_in_hro']
+    map_feature_tooltip_field = 'nummer'
+    map_filter_fields = {
+      'nummer': 'Nummer',
+      'art': 'Art',
+      'ordnung': 'Ordnung',
+      'bezeichnung': 'Bezeichnung'
+    }
+    map_filter_fields_as_list = ['art', 'ordnung']
+    geometry_type = 'LineString'
+
+  def __str__(self):
+    return self.nummer + ' [Art: ' + str(self.art) + (', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fliessgewaesser, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fliessgewaesser, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Fliessgewaesser)
+
+signals.post_delete.connect(remove_permissions, sender=Fliessgewaesser)
 
 
 # Gutachterfotos
@@ -3215,329 +3273,3 @@ class Vereine(models.Model):
 signals.post_save.connect(assign_permissions, sender=Vereine)
 
 signals.post_delete.connect(remove_permissions, sender=Vereine)
-
-
-
-
-
-
-# isi3
-class Containerstellplaetze(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  gueltigkeit_bis = models.DateField('Außerbetriebstellung', blank=True, null=True)
-  privat = models.BooleanField(' privat', blank=True, null=True)
-  id_containerstellplatz = models.CharField('ID', max_length=5, validators=[RegexValidator(regex=id_containerstellplatz_regex, message=id_containerstellplatz_message)], blank=True, null=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  anzahl_glas = models.PositiveSmallIntegerField('Anzahl Glas normal', blank=True, null=True)
-  anzahl_glas_unterflur = models.PositiveSmallIntegerField('Anzahl Glas unterflur', blank=True, null=True)
-  bewirtschafter_id_glas = models.PositiveSmallIntegerField('Bewirtschafter Glas', choices=BEWIRTSCHAFTER_GLAS_CONTAINERSTELLPLAETZE, blank=True, null=True)
-  bewirtschafter_glas = models.CharField('Bewirtschafter Glas', max_length=255, editable=False)
-  anzahl_papier = models.PositiveSmallIntegerField('Anzahl Papier normal', blank=True, null=True)
-  anzahl_papier_unterflur = models.PositiveSmallIntegerField('Anzahl Papier unterflur', blank=True, null=True)
-  bewirtschafter_id_papier = models.PositiveSmallIntegerField('Bewirtschafter Papier', choices=BEWIRTSCHAFTER_PAPIER_CONTAINERSTELLPLAETZE, blank=True, null=True)
-  bewirtschafter_papier = models.CharField('Bewirtschafter Papier', max_length=255, editable=False)
-  anzahl_altkleider = models.PositiveSmallIntegerField('Anzahl Altkleider', blank=True, null=True)
-  bewirtschafter_id_altkleider = models.PositiveSmallIntegerField('Bewirtschafter Altkleider', choices=BEWIRTSCHAFTER_ALTKLEIDER_CONTAINERSTELLPLAETZE, blank=True, null=True)
-  bewirtschafter_altkleider = models.CharField('Bewirtschafter Altkleider', max_length=255, editable=False)
-  inbetriebnahmejahr = PositiveSmallIntegerRangeField('Inbetriebnahmejahr', min_value=1900, max_value=current_year(), blank=True, null=True)
-  flaeche = models.DecimalField('Stellplatzfläche (in m²)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die Stellplatzfläche muss mindestens 0,01 m² groß sein.')], blank=True, null=True)
-  inventarnummer_grundundboden = models.CharField('Inventarnummer Grund und Boden', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  inventarnummer = models.CharField('Inventarnummer Stellplatz', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  inventarnummer_zaun = models.CharField('Inventarnummer Zaun', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=inventarnummer_regex, message=inventarnummer_message)])
-  anschaffungswert = models.DecimalField('Anschaffungswert (in €)', max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Anschaffungswert muss mindestens 0,01 € betragen.')], blank=True, null=True)
-  bewirtschafter_id_grundundboden = models.PositiveSmallIntegerField('Bewirtschafter Grund und Boden', choices=BEWIRTSCHAFTER_GRUNDUNDBODEN_CONTAINERSTELLPLAETZE, blank=True, null=True)
-  bewirtschafter_grundundboden = models.CharField('Bewirtschafter Grund und Boden', max_length=255, editable=False)
-  oeffentliche_widmung = models.BooleanField('öffentliche Widmung', blank=True, null=True)
-  art_eigentumserwerb = models.CharField('Art des Eigentumserwerbs Stellplatz', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  art_eigentumserwerb_zaun = models.CharField('Art des Eigentumserwerbs Zaun', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  vertraege = models.CharField('Verträge', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bga_grundundboden = models.BooleanField('Zuordnung BgA Grund und Boden', blank=True, null=True)
-  bga = models.BooleanField('Zuordnung BgA Stellplatz', blank=True, null=True)
-  bga_zaun = models.BooleanField('Zuordnung BgA Zaun', blank=True, null=True)
-  winterdienst_a = models.BooleanField('Winterdienst A', blank=True, null=True)
-  winterdienst_b = models.BooleanField('Winterdienst B', blank=True, null=True)
-  winterdienst_c = models.BooleanField('Winterdienst C', blank=True, null=True)
-  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'containerstellplaetze'), max_length=255, blank=True, null=True)
-  adressanzeige = models.CharField('Adresse', max_length=255, blank=True, null=True)
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"containerstellplaetze'
-    verbose_name = 'Containerstellplatz'
-    verbose_name_plural = 'Containerstellplätze'
-    description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['gueltigkeit_bis', 'privat', 'id_containerstellplatz', 'bezeichnung', 'adressanzeige']
-    list_fields_with_date = ['gueltigkeit_bis']
-    list_fields_labels = ['Außerbetriebstellung', 'privat', 'ID', 'Bezeichnung', 'Adresse']
-    readonly_fields = ['adressanzeige']
-    map_feature_tooltip_field = 'id_containerstellplatz'
-    geometry_type = 'Point'
-  
-  def __str__(self):
-    return 'Containerstellplatz' + (' mit ID ' + self.id_containerstellplatz + ' und Bezeichnung ' if self.id_containerstellplatz else ' mit Bezeichnung ') + self.bezeichnung + (', ' + self.adressanzeige if self.adressanzeige else '')
-
-
-# isi2
-class Fliessgewaesser(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  nummer = models.CharField('Nummer', max_length=255)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  ordnung = PositiveSmallIntegerRangeField('Ordnung', min_value=1, max_value=2, blank=True, null=True)
-  art = models.CharField('Art', max_length=255, choices='')
-  nennweite = models.PositiveIntegerField('Nennweite (in Millimetern)', blank=True, null=True)
-  geometrie = models.LineStringField('Geometrie', srid=25833)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"fliessgewaesser'
-    verbose_name = 'Fließgewässer'
-    verbose_name_plural = 'Fließgewässer'
-    description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
-    list_fields = ['uuid', 'nummer', 'bezeichnung', 'ordnung', 'art']
-    list_fields_labels = ['UUID', 'Nummer', 'Bezeichnung', 'Ordnung', 'Art']
-    map_feature_tooltip_field = 'nummer'
-    geometry_type = 'LineString'
-  
-  def __str__(self):
-    if self.ordnung:
-      output_ordnung = ', ' + str(self.ordnung) + '. Ordnung'
-    else:
-      output_ordnung = ''
-    return self.art + output_ordnung + ', Nummer ' + self.nummer + ' (UUID: ' + str(self.uuid) + ')'
-
-
-class Haltestellenkataster_Haltestellen(models.Model):
-  id = models.AutoField(primary_key=True)
-  uuid = models.UUIDField('UUID', default=uuid.uuid4, unique=True, editable=False)
-  gemeindeteilanzeige = models.CharField('Gemeindeteil', max_length=255, blank=True, null=True)
-  hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  hst_hafas_id = models.CharField('HAFAS-ID', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=hafas_id_regex, message=hafas_id_message)])
-  hst_bus_bahnsteigbezeichnung = models.CharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  hst_richtung = models.CharField('Richtungsinformation', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  hst_kategorie = models.CharField('Haltestellenkategorie', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  hst_linien = models.CharField(' bedienende Linie(n)', max_length=255, choices=LINIEN_HALTESTELLEN, blank=True, null=True)
-  hst_rsag = models.BooleanField(' bedient durch Rostocker Straßenbahn AG?', blank=True, null=True)
-  hst_rebus = models.BooleanField(' bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True)
-  hst_nur_ausstieg = models.BooleanField(' nur Ausstieg?', blank=True, null=True)
-  hst_nur_einstieg = models.BooleanField(' nur Einstieg?', blank=True, null=True)
-  hst_verkehrsmittelklassen = models.CharField('Verkehrsmittelklasse(n)', max_length=255, choices=VERKEHRSMITTELKLASSEN_HALTESTELLEN)
-  hst_fahrgastzahl = models.PositiveIntegerField(' durchschnittliche Fahrgastzahl', blank=True, null=True)
-  bau_typ = models.CharField('Typ', max_length=255, choices=TYP_HALTESTELLEN, blank=True, null=True)
-  bau_wartebereich_laenge = models.DecimalField('Länge des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m lang sein.')], blank=True, null=True)
-  bau_wartebereich_breite = models.DecimalField('Breite des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der Wartebereich muss mindestens 0,01 m breit sein.')], blank=True, null=True)
-  bau_befestigungsart_aufstellflaeche_bus = models.CharField('Befestigungsart der Aufstellfläche Bus', max_length=255, choices=BEFESTIGUNGSART_AUFSTELLFLAECHE_BUS_HALTESTELLEN, blank=True, null=True)
-  bau_zustand_aufstellflaeche_bus = models.CharField('Zustand der Aufstellfläche Bus', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True, null=True)
-  bau_befestigungsart_warteflaeche = models.CharField('Befestigungsart der Wartefläche', max_length=255, choices=BEFESTIGUNGSART_WARTEFLAECHE_HALTESTELLEN, blank=True, null=True)
-  bau_zustand_warteflaeche = models.CharField('Zustand der Wartefläche', max_length=255, choices=SCHAEDEN_HALTESTELLEN, blank=True, null=True)
-  bf_einstieg = models.BooleanField(' barrierefreier Einstieg vorhanden?', blank=True, null=True)
-  bf_zu_abgaenge = models.BooleanField(' barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True)
-  bf_bewegungsraum = models.BooleanField(' barrierefreier Bewegungsraum vorhanden?', blank=True, null=True)
-  tl_auffindestreifen = models.BooleanField('Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True)
-  tl_auffindestreifen_ausfuehrung = models.CharField('Taktiles Leitsystem: Ausführung Auffindestreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True, null=True)
-  tl_auffindestreifen_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Auffindestreifens (in cm)', blank=True, null=True)
-  tl_einstiegsfeld = models.BooleanField('Taktiles Leitsystem: Einstiegsfeld vorhanden?', blank=True, null=True)
-  tl_einstiegsfeld_ausfuehrung = models.CharField('Taktiles Leitsystem: Ausführung Einstiegsfeld', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True, null=True)
-  tl_einstiegsfeld_breite = models.PositiveIntegerField('Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)', blank=True, null=True)
-  tl_leitstreifen = models.BooleanField('Taktiles Leitsystem: Leitstreifen vorhanden?', blank=True, null=True)
-  tl_leitstreifen_ausfuehrung = models.CharField('Taktiles Leitsystem: Ausführung Leitstreifen', max_length=255, choices=AUSFUEHRUNG_HALTESTELLEN, blank=True, null=True)
-  tl_leitstreifen_laenge = models.PositiveIntegerField('Taktiles Leitsystem: Länge des Leitstreifens (in cm)', blank=True, null=True)
-  tl_aufmerksamkeitsfeld = models.BooleanField('Aufmerksamkeitsfeld (1. Tür) vorhanden?', blank=True, null=True)
-  tl_bahnsteigkante_visuell = models.BooleanField('Bahnsteigkante visuell erkennbar?', blank=True, null=True)
-  tl_bahnsteigkante_taktil = models.BooleanField('Bahnsteigkante taktil erkennbar?', blank=True, null=True)
-  as_zh_typ = models.CharField('ZH-Typ', max_length=255, choices=ZH_TYPEN_HALTESTELLEN, blank=True, null=True)
-  as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
-  as_h_masttyp = models.CharField('Typ des Mastes', max_length=255, choices=MASTTYPEN_HALTESTELLEN, blank=True, null=True)
-  as_papierkorb = models.BooleanField('Papierkorb vorhanden?', blank=True, null=True)
-  as_fahrgastunterstand = models.BooleanField('Fahrgastunterstand vorhanden?', blank=True, null=True)
-  as_fahrgastunterstandstyp = models.CharField('Typ des Fahrgastunterstands', max_length=255, choices=FAHRGASTUNTERSTANDSTYPEN_HALTESTELLEN, blank=True, null=True)
-  as_sitzbank_mit_armlehne = models.BooleanField('Sitzbank mit Armlehne vorhanden?', blank=True, null=True)
-  as_sitzbank_ohne_armlehne = models.BooleanField('Sitzbank ohne Armlehne vorhanden?', blank=True, null=True)
-  as_sitzbanktyp = models.CharField('Typ der Sitzbank', max_length=255, choices=SITZBANKTYPEN_HALTESTELLEN, blank=True, null=True)
-  as_gelaender = models.BooleanField('Geländer vorhanden?', blank=True, null=True)
-  as_fahrplanvitrine = models.BooleanField('Fahrplanvitrine vorhanden?', blank=True, null=True)
-  as_fahrplanvitrinentyp = models.CharField('Typ der Fahrplanvitrine', max_length=255, choices=FAHRPLANVITRINENTYPEN_HALTESTELLEN, blank=True, null=True)
-  as_tarifinformation = models.BooleanField('Tarifinformation vorhanden?', blank=True, null=True)
-  as_liniennetzplan = models.BooleanField('Liniennetzplan vorhanden?', blank=True, null=True)
-  as_fahrplan = models.BooleanField('Fahrplan vorhanden?', blank=True, null=True)
-  as_fahrausweisautomat = models.BooleanField('Fahrausweisautomat vorhanden?', blank=True, null=True)
-  as_lautsprecher = models.BooleanField('Lautsprecher vorhanden?', blank=True, null=True)
-  as_dfi = models.BooleanField('Dynamisches Fahrgastinformationssystem vorhanden?', blank=True, null=True)
-  as_dfi_typ = models.CharField('Typ des Dynamischen Fahrgastinformationssystems', max_length=255, choices=DFI_TYPEN_HALTESTELLEN, blank=True, null=True)
-  as_anfragetaster = models.BooleanField('Anfragetaster vorhanden?', blank=True, null=True)
-  as_blindenschrift = models.BooleanField('Haltestellen-/Linieninformationen in Blindenschrift vorhanden?', blank=True, null=True)
-  as_beleuchtung = models.BooleanField('Beleuchtung vorhanden?', blank=True, null=True)
-  as_hinweis_warnblinklicht_ein = models.BooleanField('Hinweis „Warnblinklicht ein“ vorhanden?', blank=True, null=True)
-  bfe_park_and_ride = models.BooleanField('P+R-Parkplatz in Umgebung vorhanden?', blank=True, null=True)
-  bfe_fahrradabstellmoeglichkeit = models.BooleanField('Fahrradabstellmöglichkeit in Umgebung vorhanden?', blank=True, null=True)
-  bfe_querungshilfe = models.BooleanField('Querungshilfe in Umgebung vorhanden?', blank=True, null=True)
-  bfe_fussgaengerueberweg = models.BooleanField('Fußgängerüberweg in Umgebung vorhanden?', blank=True, null=True)
-  bfe_seniorenheim = models.BooleanField('Seniorenheim in Umgebung vorhanden?', blank=True, null=True)
-  bfe_pflegeeinrichtung = models.BooleanField('Pflegeeinrichtung in Umgebung vorhanden?', blank=True, null=True)
-  bfe_medizinische_versorgungseinrichtung = models.BooleanField('Medizinische Versorgungseinrichtung in Umgebung vorhanden?', blank=True, null=True)
-  bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"haltestellenkataster_haltestellen'
-    verbose_name = 'Haltestellenkataster (Haltestelle)'
-    verbose_name_plural = 'Haltestellenkataster (Haltestellen)'
-    description = 'Haltestellen im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['id', 'gemeindeteilanzeige', 'hst_bezeichnung', 'hst_hafas_id', 'hst_bus_bahnsteigbezeichnung', 'bearbeiter']
-    list_fields_labels = ['Haltestellennummer', 'Gemeindeteil', 'Haltestellenbezeichnung', 'HAFAS-ID', 'Bus-/Bahnsteigbezeichnung', 'Bearbeiter']
-    list_fields_with_number = ['id']
-    readonly_fields = ['gemeindeteilanzeige']
-    map_feature_tooltip_field = 'hst_bezeichnung'
-    geometry_type = 'Point'
-    ordering = ['id'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    if self.hst_hafas_id:
-      if self.hst_bus_bahnsteigbezeichnung:
-        return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ' – HAFAS-ID ' + self.hst_hafas_id + ' – Bus-/Bahnsteig ' + self.hst_bus_bahnsteigbezeichnung + ')'
-      else:
-        return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ' – HAFAS-ID ' + self.hst_hafas_id + ')'
-    elif self.hst_bus_bahnsteigbezeichnung:
-      return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ' – Bus-/Bahnsteig ' + self.hst_bus_bahnsteigbezeichnung + ')'
-    else:
-      return 'Haltestelle ' + str(self.id) + ' (' + self.hst_bezeichnung + ')'
-
-
-class Haltestellenkataster_Fotos(models.Model):
-  id = models.AutoField(primary_key=True)
-  parent = models.ForeignKey(Haltestellenkataster_Haltestellen, on_delete=models.CASCADE, db_column='haltestellenkataster_haltestelle', to_field='uuid')
-  dateiname_original = models.CharField('Original-Dateiname', default='', max_length=255)
-  motiv = models.CharField('Motiv', max_length=255, choices=MOTIVE_HALTESTELLEN)
-  aufnahmedatum = models.DateField('Aufnahmedatum')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'), max_length=255)
-
-  class Meta:
-    managed = False
-    db_table = 'daten\".\"haltestellenkataster_fotos'
-    verbose_name = 'Haltestellenkataster (Foto)'
-    verbose_name_plural = 'Haltestellenkataster (Fotos)'
-    description = 'Fotos im Rahmen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
-    list_fields = ['parent', 'motiv', 'aufnahmedatum', 'foto', 'dateiname_original']
-    list_fields_with_date = ['aufnahmedatum']
-    list_fields_labels = ['zu Haltestelle', 'Motiv', 'Aufnahmedatum', 'Foto', 'Original-Dateiname']
-    readonly_fields = ['dateiname_original']
-    object_title = 'das Foto'
-    foreign_key_label = 'Haltestelle'
-    thumbs = True
-    multi_foto_field = True
-  
-  def __str__(self):
-    return str(self.parent) + ', Motiv ' + self.motiv + ', mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
- 
-
-
-@receiver(signals.pre_save, sender=Containerstellplaetze)
-def containerstellplatz_pre_save_handler(sender, instance, **kwargs):
-  # ab hier in Funktion B auslagern
-  try:
-    old = Containerstellplaetze.objects.get(pk=instance.pk)
-    if old and old.foto and old.foto.url:
-      instance.original_url = old.foto.url
-  except Containerstellplaetze.DoesNotExist:
-    pass
-
-
-@receiver(signals.post_save, sender=Containerstellplaetze)
-def containerstellplatz_post_save_handler(sender, instance, **kwargs):
-  if instance.foto:
-    if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-    else:
-      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-      path = BASE_DIR + instance.foto.url
-    rotate_image(path)
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      thumb_path = os.path.dirname(path) + '/thumbs'
-      if not os.path.exists(thumb_path):
-        os.mkdir(thumb_path)
-      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      thumb_image(path, thumb_path)
-  elif instance.original_url:
-    instance.foto = None
-    if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + instance.original_url[len(settings.MEDIA_URL):]
-    else:
-      path = instance.original_url
-    try:
-      os.remove(path)
-    except OSError:
-      pass
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      try:
-        os.remove(thumb)
-      except OSError:
-        pass
-
-
-@receiver(signals.post_delete, sender=Containerstellplaetze)
-def containerstellplatz_post_delete_handler(sender, instance, **kwargs):
-  # ab hier in Funktion A auslagern
-  if instance.foto:
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      if settings.MEDIA_ROOT and settings.MEDIA_URL:
-        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-      else:
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = BASE_DIR + instance.foto.url
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      try:
-        os.remove(thumb)
-      except OSError:
-        pass
-    instance.foto.delete(False)
-
-
-@receiver(signals.pre_save, sender=Haltestellenkataster_Fotos)
-def haltestellenkataster_pre_save_handler(sender, instance, **kwargs):
-  # ab hier in Funktion B auslagern
-  try:
-    old = Haltestellenkataster_Fotos.objects.get(pk=instance.pk)
-    if old and old.foto and old.foto.name:
-      instance.original_url = old.foto.name
-  except Haltestellenkataster_Fotos.DoesNotExist:
-    pass
-
-
-@receiver(signals.post_save, sender=Haltestellenkataster_Fotos)
-def haltestellenkataster_post_save_handler(sender, instance, **kwargs):
-  if instance.foto:
-    if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-    else:
-      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-      path = BASE_DIR + instance.foto.url
-    rotate_image(path)
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      thumb_path = os.path.dirname(path) + '/thumbs'
-      if not os.path.exists(thumb_path):
-        os.mkdir(thumb_path)
-      thumb_path = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      thumb_image(path, thumb_path)
-
-
-@receiver(signals.post_delete, sender=Haltestellenkataster_Fotos)
-def haltestellenkataster_post_delete_handler(sender, instance, **kwargs):
-  if instance.foto:
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
-      if settings.MEDIA_ROOT and settings.MEDIA_URL:
-        path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
-      else:
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = BASE_DIR + instance.foto.url
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
-      try:
-        os.remove(thumb)
-      except OSError:
-        pass
-    instance.foto.delete(False)

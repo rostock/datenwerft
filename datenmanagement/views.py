@@ -323,12 +323,15 @@ class DataView(BaseDatatableView):
         elif value is not None and value == True and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
           data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!"></i>'
         elif value is not None and column == 'foto':
-          data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
-          if self.thumbs is not None and self.thumbs == True:
-            data += '<img src="' + get_thumb_url(value.url) + '" alt="Vorschau" />'
-          else:
-            data += '<img src="' + value.url + '" alt="Vorschau" width="70px" />'
-          data += '</a>'
+          try:
+            data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
+            if self.thumbs is not None and self.thumbs == True:
+              data += '<img src="' + get_thumb_url(value.url) + '" alt="Vorschau" />'
+            else:
+              data += '<img src="' + value.url + '" alt="Vorschau" width="70px" />'
+            data += '</a>'
+          except ValueError:
+            pass
         elif value is not None and value == True:
           data = 'ja'
         elif value is not None and value == False:
