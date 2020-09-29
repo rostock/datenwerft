@@ -469,6 +469,9 @@
         return this.nodeType == 3
       }).remove();
       $('td').find('a').parent().find('input[type="file"]').before('ändern in: ');
+      $('<br />').insertBefore($('input[type="checkbox"][name$="-clear"]'));
+      $('label[for$="-clear_id"]').addClass('label-with-margin');
+      $('label[for$="-clear_id"]').text('löschen');
 
       // bestimmte Werte in Auswahllisten mit Kleinbuchstaben versehen
       $('td').find('option').each(function () {

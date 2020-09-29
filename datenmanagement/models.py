@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import connection
 from django.db.models import options, signals
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
@@ -150,6 +151,12 @@ def rotate_image(path):
     pass
 
 
+def sequence_id(sequence_name):
+  with connection.cursor() as cursor:
+    cursor.execute("""SELECT nextval('""" + sequence_name + """')""")
+    return cursor.fetchone()[0]
+
+
 def thumb_image(path, thumb_path):
   try:
     image = Image.open(path)
@@ -241,6 +248,17 @@ class PositiveIntegerRangeField(models.PositiveIntegerField):
     defaults = {'min_value': self.min_value, 'max_value': self.max_value}
     defaults.update(kwargs)
     return super(PositiveIntegerRangeField, self).formfield(**defaults)
+
+
+class PositiveIntegerMinField(models.PositiveIntegerField):
+  def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
+    self.min_value = min_value
+    models.PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
+    
+  def formfield(self, **kwargs):
+    defaults = {'min_value': self.min_value}
+    defaults.update(kwargs)
+    return super(PositiveIntegerMinField, self).formfield(**defaults)
 
 
 class PositiveSmallIntegerMinField(models.PositiveSmallIntegerField):
@@ -817,7 +835,7 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
 
 class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
   uuid = models.UUIDField(primary_key=True, editable=False)
-  fahrgastunterstandstypen = models.CharField('Fahrgastunterstandstyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  fahrgastunterstandstyp = models.CharField('Fahrgastunterstandstyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
     managed = False
@@ -827,12 +845,12 @@ class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
     verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
     description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
     list_fields = {
-      'fahrgastunterstandstypen': 'Fahrgastunterstandstyp'
+      'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'
     }
-    ordering = ['fahrgastunterstandstypen'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    ordering = ['fahrgastunterstandstyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.fahrgastunterstandstypen
+    return self.fahrgastunterstandstyp
 
 
 # Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
@@ -855,6 +873,28 @@ class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
   
   def __str__(self):
     return self.fahrplanvitrinentyp
+
+
+# Fotomotive innerhalb eines Haltestellenkatasters
+
+class Fotomotive_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  fotomotiv = models.CharField('Fotomotiv', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"fotomotive_haltestellenkataster'
+    verbose_name = 'Fotomotiv innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Fotomotive innerhalb eines Haltestellenkatasters'
+    description = 'Fotomotive innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fotomotiv': 'Fotomotiv'
+    }
+    ordering = ['fotomotiv'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.fotomotiv
 
 
 # Genehmigungsbehörden von UVP-Vorhaben
@@ -921,6 +961,28 @@ class Linien(models.Model):
   
   def __str__(self):
     return self.linie
+
+
+# Masttypen innerhalb eines Haltestellenkatasters
+
+class Masttypen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  masttyp = models.CharField('Masttyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"masttypen_haltestellenkataster'
+    verbose_name = 'Masttyp innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Masttypen innerhalb eines Haltestellenkatasters'
+    description = 'Masttypen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'masttyp': 'Masttyp'
+    }
+    ordering = ['masttyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.masttyp
 
 
 # Materialien von Denksteinen
@@ -1012,6 +1074,28 @@ class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
     return self.rechtsgrundlage
 
 
+# Schäden innerhalb eines Haltestellenkatasters
+
+class Schaeden_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  schaden = models.CharField('Schaden', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"schaeden_haltestellenkataster'
+    verbose_name = 'Schaden innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Schäden innerhalb eines Haltestellenkatasters'
+    description = 'Schäden innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'schaden': 'Schaden'
+    }
+    ordering = ['schaden'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.schaden
+
+
 # Schlagwörter für Bildungsträger
 
 class Schlagwoerter_Bildungstraeger(Schlagwort):
@@ -1030,6 +1114,28 @@ class Schlagwoerter_Vereine(Schlagwort):
     verbose_name = 'Schlagwort für einen Verein'
     verbose_name_plural = 'Schlagwörter für Vereine'
     description = 'Schlagwörter für Vereine'
+
+
+# Sitzbanktypen innerhalb eines Haltestellenkatasters
+
+class Sitzbanktypen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  sitzbanktyp = models.CharField('Sitzbanktyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"sitzbanktypen_haltestellenkataster'
+    verbose_name = 'Sitzbanktyp innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Sitzbanktypen innerhalb eines Haltestellenkatasters'
+    description = 'Sitzbanktypen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'sitzbanktyp': 'Sitzbanktyp'
+    }
+    ordering = ['sitzbanktyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.sitzbanktyp
 
 
 # Sparten von Baustellen
@@ -1082,6 +1188,16 @@ class Typen_Abfallbehaelter(Typ):
     verbose_name = 'Typ eines Abfallbehälters'
     verbose_name_plural = 'Typen von Abfallbehältern'
     description = 'Typen von Abfallbehältern'
+
+
+# Typen von Haltestellen
+
+class Typen_Haltestellen(Typ):
+  class Meta(Typ.Meta):
+    db_table = 'codelisten\".\"typen_haltestellen'
+    verbose_name = 'Typ einer Haltestelle'
+    verbose_name_plural = 'Typen von Haltestellen'
+    description = 'Typen von Haltestellen'
 
 
 # Typen von UVP-Vorhaben
@@ -1138,6 +1254,28 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
     return self.verkehrliche_lage
 
 
+# Verkehrsmittelklassen
+
+class Verkehrsmittelklassen(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  verkehrsmittelklasse = models.CharField('Verkehrsmittelklasse', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"verkehrsmittelklassen'
+    verbose_name = 'Verkehrsmittelklasse'
+    verbose_name_plural = 'Verkehrsmittelklassen'
+    description = 'Verkehrsmittelklassen'
+    list_fields = {
+      'verkehrsmittelklasse': 'Verkehrsmittelklasse'
+    }
+    ordering = ['verkehrsmittelklasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.verkehrsmittelklasse
+
+
 # Vorgangsarten von UVP-Vorhaben
 
 class Vorgangsarten_UVP_Vorhaben(models.Model):
@@ -1182,6 +1320,28 @@ class Zeiteinheiten(models.Model):
   
   def __str__(self):
     return self.erlaeuterung
+
+
+# ZH-Typen innerhalb eines Haltestellenkatasters
+
+class ZH_Typen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  zh_typ = models.CharField('ZH-Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"zh_typen_haltestellenkataster'
+    verbose_name = 'ZH-Typ innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'ZH-Typen innerhalb eines Haltestellenkatasters'
+    description = 'ZH-Typen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'zh_typ': 'ZH-Typ'
+    }
+    ordering = ['zh_typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.zh_typ
 
 
 # Zonen für Parkscheinautomaten
@@ -1491,10 +1651,6 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     verbose_name = 'Foto der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Fotos der Baustellen-Fotodokumentation'
     description = 'Fotos der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt Rostock'
-    choices_models_for_choices_fields = {
-      'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
-      'sparten': 'Sparten_Baustellen'
-    }
     list_fields = {
       'aktiv': 'aktiv?',
       'baustellen_fotodokumentation_baustelle': 'Baustelle',
@@ -2286,6 +2442,177 @@ class Hospize(models.Model):
 signals.post_save.connect(assign_permissions, sender=Hospize)
 
 signals.post_delete.connect(remove_permissions, sender=Hospize)
+
+
+# Haltestellen des Haltestellenkatasters
+
+class Haltestellenkataster_Haltestellen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  deaktiviert = models.DateField('Außerbetriebstellung', blank=True, null=True)
+  id = models.PositiveIntegerField('ID', default=sequence_id('fachdaten.haltestellenkataster_haltestellen_hro_id_seq'))
+  hst_bezeichnung = models.CharField('Haltestellenbezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_hafas_id = models.CharField('HAFAS-ID', max_length=8, blank=True, null=True, validators=[RegexValidator(regex=haltestellenkataster_haltestellen_hst_hafas_id_regex, message=haltestellenkataster_haltestellen_hst_hafas_id_message)])
+  hst_bus_bahnsteigbezeichnung = models.CharField('Bus-/Bahnsteigbezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_richtung = models.CharField('Richtungsinformation', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_kategorie = models.CharField('Haltestellenkategorie', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hst_linien = ChoiceArrayField(models.CharField(' bedienende Linie(n)', max_length=4, choices=()), verbose_name=' bedienende Linie(n)', blank=True, null=True)
+  hst_rsag = models.BooleanField(' bedient durch Rostocker Straßenbahn AG?', blank=True, null=True)
+  hst_rebus = models.BooleanField(' bedient durch rebus Regionalbus Rostock GmbH?', blank=True, null=True)
+  hst_nur_ausstieg = models.BooleanField(' nur Ausstieg?', blank=True, null=True)
+  hst_nur_einstieg = models.BooleanField(' nur Einstieg?', blank=True, null=True)
+  hst_verkehrsmittelklassen = ChoiceArrayField(models.CharField('Verkehrsmittelklasse(n)', max_length=255, choices=()), verbose_name='Verkehrsmittelklasse(n)')
+  hst_fahrgastzahl = PositiveIntegerMinField(' durchschnittliche Fahrgastzahl', min_value=1, blank=True, null=True)
+  bau_typ = models.ForeignKey(Typen_Haltestellen, verbose_name='Typ', on_delete=models.SET_NULL, db_column='bau_typ', to_field='uuid', related_name='bau_typen+', blank=True, null=True)
+  bau_wartebereich_laenge = models.DecimalField('Länge des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Wartebereich</em></strong> muss mindestens 0,01 m lang sein.'), MaxValueValidator(Decimal('999.99'), 'Der <strong><em>Wartebereich</em></strong> darf höchstens 999,99 m lang sein.')], blank=True, null=True)
+  bau_wartebereich_breite = models.DecimalField('Breite des Wartebereichs (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Wartebereich</em></strong> muss mindestens 0,01 m breit sein.'), MaxValueValidator(Decimal('999.99'), 'Der <strong><em>Wartebereich</em></strong> darf höchstens 999,99 m breit sein.')], blank=True, null=True)
+  bau_befestigungsart_aufstellflaeche_bus = models.ForeignKey(Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, verbose_name='Befestigungsart der Aufstellfläche Bus', on_delete=models.SET_NULL, db_column='bau_befestigungsart_aufstellflaeche_bus', to_field='uuid', related_name='bau_befestigungsarten_aufstellflaeche_bus+', blank=True, null=True)
+  bau_zustand_aufstellflaeche_bus = models.ForeignKey(Schaeden_Haltestellenkataster, verbose_name='Zustand der Aufstellfläche Bus', on_delete=models.SET_NULL, db_column='bau_zustand_aufstellflaeche_bus', to_field='uuid', related_name='bau_zustaende_aufstellflaeche_bus+', blank=True, null=True)
+  bau_befestigungsart_warteflaeche = models.ForeignKey(Befestigungsarten_Warteflaeche_Haltestellenkataster, verbose_name='Befestigungsart der Wartefläche', on_delete=models.SET_NULL, db_column='bau_befestigungsart_warteflaeche', to_field='uuid', related_name='bau_befestigungsarten_warteflaeche+', blank=True, null=True)
+  bau_befestigungsart_warteflaeche = models.ForeignKey(Schaeden_Haltestellenkataster, verbose_name='Zustand der Wartefläche', on_delete=models.SET_NULL, db_column='bau_befestigungsart_warteflaeche', to_field='uuid', related_name='bau_befestigungsarten_warteflaeche+', blank=True, null=True)
+  bf_einstieg = models.BooleanField(' barrierefreier Einstieg vorhanden?', blank=True, null=True)
+  bf_zu_abgaenge = models.BooleanField(' barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True)
+  bf_bewegungsraum = models.BooleanField(' barrierefreier Bewegungsraum vorhanden?', blank=True, null=True)
+  tl_auffindestreifen = models.BooleanField('Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True)
+  tl_auffindestreifen_ausfuehrung = models.ForeignKey(Ausfuehrungen_Haltestellenkataster, verbose_name='Taktiles Leitsystem: Ausführung Auffindestreifen', on_delete=models.SET_NULL, db_column='tl_auffindestreifen_ausfuehrung', to_field='uuid', related_name='tl_auffindestreifen_ausfuehrungen+', blank=True, null=True)
+  tl_auffindestreifen_breite = PositiveIntegerMinField('Taktiles Leitsystem: Breite des Auffindestreifens (in cm)', min_value=1, blank=True, null=True)
+  tl_einstiegsfeld = models.BooleanField('Taktiles Leitsystem: Einstiegsfeld vorhanden?', blank=True, null=True)
+  tl_einstiegsfeld_ausfuehrung = models.ForeignKey(Ausfuehrungen_Haltestellenkataster, verbose_name='Taktiles Leitsystem: Ausführung Einstiegsfeld', on_delete=models.SET_NULL, db_column='tl_einstiegsfeld_ausfuehrung', to_field='uuid', related_name='tl_einstiegsfeld_ausfuehrungen+', blank=True, null=True)
+  tl_einstiegsfeld_breite = PositiveIntegerMinField('Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)', min_value=1, blank=True, null=True)
+  tl_leitstreifen = models.BooleanField('Taktiles Leitsystem: Leitstreifen vorhanden?', blank=True, null=True)
+  tl_leitstreifen_ausfuehrung = models.ForeignKey(Ausfuehrungen_Haltestellenkataster, verbose_name='Taktiles Leitsystem: Ausführung Leitstreifen', on_delete=models.SET_NULL, db_column='tl_leitstreifen_ausfuehrung', to_field='uuid', related_name='tl_leitstreifen_ausfuehrungen+', blank=True, null=True)
+  tl_leitstreifen_laenge = PositiveIntegerMinField('Taktiles Leitsystem: Länge des Leitstreifens (in cm)', min_value=1, blank=True, null=True)
+  tl_aufmerksamkeitsfeld = models.BooleanField('Aufmerksamkeitsfeld (1. Tür) vorhanden?', blank=True, null=True)
+  tl_bahnsteigkante_visuell = models.BooleanField('Bahnsteigkante visuell erkennbar?', blank=True, null=True)
+  tl_bahnsteigkante_taktil = models.BooleanField('Bahnsteigkante taktil erkennbar?', blank=True, null=True)
+  as_zh_typ = models.ForeignKey(ZH_Typen_Haltestellenkataster, verbose_name='ZH-Typ', on_delete=models.SET_NULL, db_column='as_zh_typ', to_field='uuid', related_name='as_zh_typen+', blank=True, null=True)
+  as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
+  as_h_masttyp = models.ForeignKey(Masttypen_Haltestellenkataster, verbose_name='Masttyp', on_delete=models.SET_NULL, db_column='as_h_masttyp', to_field='uuid', related_name='as_h_masttypen+', blank=True, null=True)
+  as_papierkorb = models.BooleanField('Papierkorb vorhanden?', blank=True, null=True)
+  as_fahrgastunterstand = models.BooleanField('Fahrgastunterstand vorhanden?', blank=True, null=True)
+  as_fahrgastunterstandstyp = models.ForeignKey(Fahrgastunterstandstypen_Haltestellenkataster, verbose_name='Typ des Fahrgastunterstand', on_delete=models.SET_NULL, db_column='as_fahrgastunterstandstyp', to_field='uuid', related_name='as_fahrgastunterstandstypen+', blank=True, null=True)
+  as_sitzbank_mit_armlehne = models.BooleanField('Sitzbank mit Armlehne vorhanden?', blank=True, null=True)
+  as_sitzbank_ohne_armlehne = models.BooleanField('Sitzbank ohne Armlehne vorhanden?', blank=True, null=True)
+  as_sitzbanktyp = models.ForeignKey(Sitzbanktypen_Haltestellenkataster, verbose_name='Typ der Sitzbank', on_delete=models.SET_NULL, db_column='as_sitzbanktyp', to_field='uuid', related_name='as_sitzbanktypen+', blank=True, null=True)
+  as_gelaender = models.BooleanField('Geländer vorhanden?', blank=True, null=True)
+  as_fahrplanvitrine = models.BooleanField('Fahrplanvitrine vorhanden?', blank=True, null=True)
+  as_fahrplanvitrinentyp = models.ForeignKey(Fahrplanvitrinentypen_Haltestellenkataster, verbose_name='Typ der Fahrplanvitrine', on_delete=models.SET_NULL, db_column='as_fahrplanvitrinentyp', to_field='uuid', related_name='as_fahrplanvitrinentypen+', blank=True, null=True)
+  as_tarifinformation = models.BooleanField('Tarifinformation vorhanden?', blank=True, null=True)
+  as_liniennetzplan = models.BooleanField('Liniennetzplan vorhanden?', blank=True, null=True)
+  as_fahrplan = models.BooleanField('Fahrplan vorhanden?', blank=True, null=True)
+  as_fahrausweisautomat = models.BooleanField('Fahrausweisautomat vorhanden?', blank=True, null=True)
+  as_lautsprecher = models.BooleanField('Lautsprecher vorhanden?', blank=True, null=True)
+  as_dfi = models.BooleanField('Dynamisches Fahrgastinformationssystem vorhanden?', blank=True, null=True)
+  as_dfi_typ = models.ForeignKey(DFI_Typen_Haltestellenkataster, verbose_name='Typ des Dynamischen Fahrgastinformationssystems', on_delete=models.SET_NULL, db_column='as_dfi_typ', to_field='uuid', related_name='as_dfi_typen+', blank=True, null=True)
+  as_anfragetaster = models.BooleanField('Anfragetaster vorhanden?', blank=True, null=True)
+  as_blindenschrift = models.BooleanField('Haltestellen-/Linieninformationen in Blindenschrift vorhanden?', blank=True, null=True)
+  as_beleuchtung = models.BooleanField('Beleuchtung vorhanden?', blank=True, null=True)
+  as_hinweis_warnblinklicht_ein = models.BooleanField('Hinweis „Warnblinklicht ein“ vorhanden?', blank=True, null=True)
+  bfe_park_and_ride = models.BooleanField('P+R-Parkplatz in Umgebung vorhanden?', blank=True, null=True)
+  bfe_fahrradabstellmoeglichkeit = models.BooleanField('Fahrradabstellmöglichkeit in Umgebung vorhanden?', blank=True, null=True)
+  bfe_querungshilfe = models.BooleanField('Querungshilfe in Umgebung vorhanden?', blank=True, null=True)
+  bfe_fussgaengerueberweg = models.BooleanField('Fußgängerüberweg in Umgebung vorhanden?', blank=True, null=True)
+  bfe_seniorenheim = models.BooleanField('Seniorenheim in Umgebung vorhanden?', blank=True, null=True)
+  bfe_pflegeeinrichtung = models.BooleanField('Pflegeeinrichtung in Umgebung vorhanden?', blank=True, null=True)
+  bfe_medizinische_versorgungseinrichtung = models.BooleanField('Medizinische Versorgungseinrichtung in Umgebung vorhanden?', blank=True, null=True)
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bemerkungen = NullTextField('Bemerkungen', max_length=500, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"haltestellenkataster_haltestellen_hro'
+    verbose_name = 'Haltestelle des Haltestellenkatasters'
+    verbose_name_plural = 'Haltestellen des Haltestellenkatasters'
+    description = 'Haltestellen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'hst_linien': 'Linien',
+      'hst_verkehrsmittelklassen': 'Verkehrsmittelklassen'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'deaktiviert': 'Außerbetriebstellung',
+      'id': 'ID',
+      'hst_bezeichnung': 'Haltestellenbezeichnung',
+      'hst_hafas_id': 'HAFAS-ID',
+      'hst_bus_bahnsteigbezeichnung': 'Bus-/Bahnsteigbezeichnung'
+    }
+    list_fields_with_number = ['id']
+    readonly_fields = ['id']
+    map_feature_tooltip_field = 'hst_bezeichnung'
+    geometry_type = 'Point'
+    ordering = ['id'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.hst_bezeichnung + ' [ID: ' + str(self.id) + (', HAFAS-ID: ' + self.hst_hafas_id if self.hst_hafas_id else '') + (', Bus-/Bahnsteig: ' + self.hst_bus_bahnsteigbezeichnung if self.hst_bus_bahnsteigbezeichnung else '') + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Haltestellenkataster_Haltestellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Haltestellenkataster_Haltestellen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Haltestellenkataster_Haltestellen)
+
+signals.post_delete.connect(remove_permissions, sender=Haltestellenkataster_Haltestellen)
+
+
+# Fotos des Haltestellenkatasters
+
+class Haltestellenkataster_Fotos(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  haltestellenkataster_haltestelle = models.ForeignKey(Haltestellenkataster_Haltestellen, verbose_name='Haltestelle', on_delete=models.CASCADE, db_column='haltestellenkataster_haltestelle', to_field='uuid', related_name='haltestellenkataster_haltestellen+')
+  motiv = models.ForeignKey(Fotomotive_Haltestellenkataster, verbose_name='Motiv', on_delete=models.RESTRICT, db_column='motiv', to_field='uuid', related_name='motive+')
+  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
+  dateiname_original = models.CharField('Original-Dateiname', max_length=255, default='ohne')
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'), max_length=255)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"haltestellenkataster_fotos_hro'
+    verbose_name = 'Foto des Haltestellenkatasters'
+    verbose_name_plural = 'Fotos des Haltestellenkatasters'
+    description = 'Fotos des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'haltestellenkataster_haltestelle': 'Haltestelle',
+      'motiv': 'Motiv',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'dateiname_original': 'Original-Dateiname',
+      'foto': 'Foto'
+    }
+    readonly_fields = ['dateiname_original']
+    list_fields_with_date = ['aufnahmedatum']
+    list_fields_with_foreign_key = {
+      'haltestellenkataster_haltestelle': 'haltestellenkataster_haltestelle__id',
+      'motiv': 'motiv__fotomotiv'
+    }
+    object_title = 'das Foto'
+    foreign_key_label = 'Haltestelle'
+    thumbs = True
+    multi_foto_field = True
+  
+  def __str__(self):
+    return str(self.haltestellenkataster_haltestelle) + ' mit Motiv ' + str(self.motiv) + ' und Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Haltestellenkataster_Fotos, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Haltestellenkataster_Fotos, self).delete(*args, **kwargs)
+
+signals.post_save.connect(photo_post_processing, sender=Haltestellenkataster_Fotos)
+
+signals.post_save.connect(assign_permissions, sender=Haltestellenkataster_Fotos)
+
+signals.post_delete.connect(delete_photo, sender=Haltestellenkataster_Fotos)
+
+signals.post_delete.connect(remove_permissions, sender=Haltestellenkataster_Fotos)
 
 
 # Hundetoiletten
