@@ -45,13 +45,12 @@ def assign_permissions(sender, instance, created, **kwargs):
         if group.permissions.filter(codename = 'delete_' + model_name):
           assign_perm('datenmanagement.delete_' + model_name, group, instance)
   elif hasattr(instance.__class__._meta, 'group_with_users_for_choice_field') and Group.objects.filter(name = instance.__class__._meta.group_with_users_for_choice_field).exists():
-    if user.groups.filter(name = instance.__class__._meta.group_with_users_for_choice_field).exists():
-      mail = instance.ansprechpartner.split()[-1]
-      mail = re.sub(r'\(', '', re.sub(r'\)', '', mail))
-      if User.objects.filter(email__iexact = mail).exists():
-        user = User.objects.get(email__iexact = mail)
-        assign_perm('datenmanagement.change_' + model_name, user, instance)
-        assign_perm('datenmanagement.delete_' + model_name, user, instance)
+    mail = instance.ansprechpartner.split()[-1]
+    mail = re.sub(r'\(', '', re.sub(r'\)', '', mail))
+    if User.objects.filter(email__iexact = mail).exists():
+      user = User.objects.get(email__iexact = mail)
+      assign_perm('datenmanagement.change_' + model_name, user, instance)
+      assign_perm('datenmanagement.delete_' + model_name, user, instance)
 
 
 def current_year():
