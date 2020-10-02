@@ -78,6 +78,33 @@ def delete_photo(sender, instance, **kwargs):
     instance.foto.delete(False)
 
 
+def delete_photo_after_emptied(sender, instance, created, **kwargs):
+  if not instance.foto and not created:
+    pre_save_instance = instance._pre_save_instance
+    if settings.MEDIA_ROOT and settings.MEDIA_URL:
+      path = settings.MEDIA_ROOT + '/' + pre_save_instance.foto.url[len(settings.MEDIA_URL):]
+    else:
+      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+      path = BASE_DIR + pre_save_instance.foto.url
+    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
+      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      try:
+        os.remove(thumb)
+      except OSError:
+        pass
+    try:
+      os.remove(path)
+    except OSError:
+      pass
+
+
+def get_pre_save_instance(sender, instance, **kwargs):
+  try:
+    instance._pre_save_instance = sender.objects.get(pk=instance.uuid)
+  except sender.DoesNotExist:
+    instance._pre_save_instance = instance
+
+
 def path_and_rename(path):
   def wrapper(instance, filename):
     if hasattr(instance, 'dateiname_original'):
@@ -2016,6 +2043,7 @@ class Containerstellplaetze(models.Model):
       'bezeichnung': 'Bezeichnung'
     }
     geometry_type = 'Point'
+    thumbs = True
 
   def __str__(self):
     return self.bezeichnung
@@ -2028,7 +2056,11 @@ class Containerstellplaetze(models.Model):
     self.current_authenticated_user = get_current_authenticated_user()
     super(Containerstellplaetze, self).delete(*args, **kwargs)
 
+signals.pre_save.connect(get_pre_save_instance, sender=Containerstellplaetze)
+
 signals.post_save.connect(photo_post_processing, sender=Containerstellplaetze)
+
+signals.post_save.connect(delete_photo_after_emptied, sender=Containerstellplaetze)
 
 signals.post_save.connect(assign_permissions, sender=Containerstellplaetze)
 
@@ -2365,6 +2397,7 @@ class Gutachterfotos(models.Model):
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'Point'
+    thumbs = True
 
   def __str__(self):
     return 'Gutachterfoto mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
