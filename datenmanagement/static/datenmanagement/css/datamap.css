@@ -14,21 +14,24 @@
   height:100%;
 }
 
-#searchtext {
+#searchtext,
+.filter-checkbox-fieldset,
+.filter-checkbox-fieldset label,
+.filter-checkbox-label,
+.filter-input:not(.datetimepicker-input) {
   width:100%;
 }
 
+.filter-checkbox-fieldset {
+  margin-top:.5rem;
+}
+
 .filter-checkbox-fieldset label {
-  width:100%;
   font-weight:normal;
 }
 
 .filter-checkbox-fieldset input {
   margin-right:.5rem;
-}
-
-.filter-input:not(.datetimepicker-input) {
-  width:100%;
 }
 
 .input-reset {
