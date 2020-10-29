@@ -60,7 +60,7 @@
       {% if map_filters_enabled %}
         <div id="filter" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
           <h5>Filter für Kartenobjekte</h5>
-          <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv (wie „UND“)!</strong></div>
+          <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv</strong> (wie „UND“)</div>
           {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
             <div id="filter-intervall">
               {% for map_rangefilter_field in map_rangefilter_fields %}
@@ -132,11 +132,12 @@
                   {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
                     <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></select>
                   {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
-                    Listeneinträge haben folgende Filterwirkung:
-                    <select id="filtertype-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="custom-select filtertype">
+                    Listeneinträge
+                    <select id="filtertype-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filtertype">
                       <option value="additive">additiv (wie „UND“)</option>
                       <option value="exclusive">exklusiv (wie „ODER“)</option>
                     </select>
+                    filtern
                     <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></fieldset>
                   {% else %}
                     <div class="input-group">

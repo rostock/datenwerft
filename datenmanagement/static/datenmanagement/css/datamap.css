@@ -34,6 +34,11 @@
   margin-right:.5rem;
 }
 
+.filtertype {
+  margin-left:.3rem;
+  margin-right:.3rem;
+}
+
 .input-reset {
   z-index:100;
   margin-left:-40px;
