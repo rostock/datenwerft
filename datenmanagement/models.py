@@ -388,6 +388,8 @@ parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
 parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em></strong> muss aus genau einem Großbuchstaben sowie genau einer Ziffer bestehen.'
 parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
 parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
+poller_nummer_regex = r'^[A-Z][0-9]{0,2}$'
+poller_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus genau einem Großbuchstaben bestehen, der um eine oder zwei Ziffer(n) ergänzt werden kann.'
 uvp_vorhaben_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
 uvp_vorhaben_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
 zonen_parkscheinautomaten_zone_regex = r'^[A-Z]$'
@@ -673,6 +675,16 @@ class Arten_Pflegeeinrichtungen(Art):
     description = 'Arten von Pflegeeinrichtungen'
 
 
+# Arten von Pollern
+
+class Arten_Poller(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_poller'
+    verbose_name = 'Art eines Pollers'
+    verbose_name_plural = 'Arten von Pollern'
+    description = 'Arten von Pollern'
+
+
 # Arten von UVP-Vorprüfungen
 
 class Arten_UVP_Vorpruefungen(Art):
@@ -947,6 +959,28 @@ class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
     return self.genehmigungsbehoerde
 
 
+# Hersteller von Pollern
+
+class Hersteller_Poller(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"hersteller_poller'
+    verbose_name = 'Hersteller eines Pollers'
+    verbose_name_plural = 'Hersteller von Pollern'
+    description = 'Hersteller von Pollern'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung
+
+
 # Ladekarten für Ladestationen für Elektrofahrzeuge
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
@@ -1144,6 +1178,28 @@ class Schlagwoerter_Vereine(Schlagwort):
     description = 'Schlagwörter für Vereine'
 
 
+# Schließungen von Pollern
+
+class Schliessungen_Poller(models.Model):
+  uuid = models.UUIDField(primary_key=True, editable=False)
+  schliessung = models.CharField('Schließung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"schliessungen_poller'
+    verbose_name = 'Schließung eines Pollers'
+    verbose_name_plural = 'Schließungen von Pollern'
+    description = 'Schließungen von Pollern'
+    list_fields = {
+      'schliessung': 'Schließung'
+    }
+    ordering = ['schliessung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.schliessung
+
+
 # Sitzbanktypen innerhalb eines Haltestellenkatasters
 
 class Sitzbanktypen_Haltestellenkataster(models.Model):
@@ -1208,6 +1264,16 @@ class Status_Baustellen_Fotodokumentation_Fotos(Status):
     description = 'Status von Fotos der Baustellen-Fotodokumentation'
 
 
+# Status von Pollern
+
+class Status_Poller(Status):
+  class Meta(Status.Meta):
+    db_table = 'codelisten\".\"status_poller'
+    verbose_name = 'Status eines Pollers'
+    verbose_name_plural = 'Status von Pollern'
+    description = 'Status von Pollern'
+
+
 # Typen von Abfallbehältern
 
 class Typen_Abfallbehaelter(Typ):
@@ -1226,6 +1292,16 @@ class Typen_Haltestellen(Typ):
     verbose_name = 'Typ einer Haltestelle'
     verbose_name_plural = 'Typen von Haltestellen'
     description = 'Typen von Haltestellen'
+
+
+# Typen von Pollern
+
+class Typen_Poller(Typ):
+  class Meta(Typ.Meta):
+    db_table = 'codelisten\".\"typen_poller'
+    verbose_name = 'Typ eines Pollers'
+    verbose_name_plural = 'Typen von Pollern'
+    description = 'Typen von Pollern'
 
 
 # Typen von UVP-Vorhaben
@@ -3342,6 +3418,80 @@ class Pflegeeinrichtungen(models.Model):
 signals.post_save.connect(assign_permissions, sender=Pflegeeinrichtungen)
 
 signals.post_delete.connect(remove_permissions, sender=Pflegeeinrichtungen)
+
+
+# Poller
+
+class Poller(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  art = models.ForeignKey(Arten_Poller, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  nummer = models.CharField('Nummer', max_length=3, blank=True, null=True, validators=[RegexValidator(regex=poller_nummer_regex, message=poller_nummer_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  status = models.ForeignKey(Status_Poller, verbose_name='Status', on_delete=models.RESTRICT, db_column='status', to_field='uuid', related_name='status+')
+  zeiten = models.CharField('Lieferzeiten', max_length=255, blank=True, null=True)
+  hersteller = models.ForeignKey(Hersteller_Poller, verbose_name='Hersteller', on_delete=models.SET_NULL, db_column='hersteller', to_field='uuid', related_name='hersteller+', blank=True, null=True)
+  typ = models.ForeignKey(Typen_Poller, verbose_name='Typ', on_delete=models.SET_NULL, db_column='typ', to_field='uuid', related_name='typen+', blank=True, null=True)
+  anzahl = PositiveSmallIntegerMinField('Anzahl', min_value=1, blank=True, null=True)
+  schliessungen = ChoiceArrayField(models.CharField('Schließungen', max_length=255, choices=()), verbose_name='Schließungen', blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"poller_hro'
+    verbose_name = 'Poller'
+    verbose_name_plural = 'Poller'
+    description = 'Poller in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'schliessungen': 'Schliessungen_Poller'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'status': 'Status',
+      'hersteller': 'Hersteller',
+      'typ': 'Typ',
+      'anzahl': 'Anzahl',
+      'schliessungen': 'Schließungen'
+    }
+    list_fields_with_number = ['anzahl']
+    list_fields_with_foreign_key = {
+      'art': 'art__art',
+      'status': 'status__status',
+      'hersteller': 'hersteller__bezeichnung',
+      'typ': 'typ__typ'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'art': 'Art',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'status': 'Status',
+      'hersteller': 'Hersteller',
+      'typ': 'Typ',
+      'anzahl': 'Anzahl',
+      'schliessungen': 'Schließungen'
+    }
+    map_filter_fields_as_list = ['art', 'status', 'hersteller', 'typ']
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return (self.nummer if self.nummer else '') + self.bezeichnung + ' [Status: ' + str(self.status) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Poller, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Poller, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Poller)
 
 
 # Rettungswachen
