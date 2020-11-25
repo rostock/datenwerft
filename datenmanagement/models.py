@@ -402,7 +402,7 @@ zonen_parkscheinautomaten_zone_message = 'Die <strong><em>Zone</em></strong> mus
 #
 
 class Art(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   art = models.CharField('Art', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -419,7 +419,7 @@ class Art(models.Model):
 
 
 class Befestigungsart(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   befestigungsart = models.CharField('Befestigungsart', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -436,7 +436,7 @@ class Befestigungsart(models.Model):
 
 
 class Schlagwort(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   schlagwort = models.CharField('Schlagwort', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -453,7 +453,7 @@ class Schlagwort(models.Model):
 
 
 class Status(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   status = models.CharField('Status', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -470,7 +470,7 @@ class Status(models.Model):
 
 
 class Typ(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   typ = models.CharField('Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -492,7 +492,7 @@ class Typ(models.Model):
 #
 
 class Adressen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   adresse = models.CharField('Adresse', max_length=255, editable=False)
 
   class Meta:
@@ -510,6 +510,18 @@ class Adressen(models.Model):
   def __str__(self):
     return self.adresse
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Adressen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Adressen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Adressen)
+
+signals.post_delete.connect(remove_permissions, sender=Adressen)
+
 
 
 #
@@ -517,7 +529,7 @@ class Adressen(models.Model):
 #
 
 class Strassen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   strasse = models.CharField('Straße', max_length=255, editable=False)
 
   class Meta:
@@ -535,6 +547,18 @@ class Strassen(models.Model):
   def __str__(self):
     return self.strasse
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Strassen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Strassen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Strassen)
+
+signals.post_delete.connect(remove_permissions, sender=Strassen)
+
 
 
 #
@@ -544,7 +568,7 @@ class Strassen(models.Model):
 # Carsharing-Anbieter
 
 class Anbieter_Carsharing(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   anbieter = models.CharField('Anbieter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -562,11 +586,23 @@ class Anbieter_Carsharing(models.Model):
   def __str__(self):
     return self.anbieter
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Anbieter_Carsharing, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Anbieter_Carsharing, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Anbieter_Carsharing)
+
+signals.post_delete.connect(remove_permissions, sender=Anbieter_Carsharing)
+
 
 # Angebote bei Mobilpunkten
 
 class Angebote_Mobilpunkte(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   angebot = models.CharField('Angebot', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -584,6 +620,18 @@ class Angebote_Mobilpunkte(models.Model):
   def __str__(self):
     return self.angebot
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Angebote_Mobilpunkte, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Angebote_Mobilpunkte, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Angebote_Mobilpunkte)
+
+signals.post_delete.connect(remove_permissions, sender=Angebote_Mobilpunkte)
+
 
 # Arten von Baudenkmalen
 
@@ -593,6 +641,18 @@ class Arten_Baudenkmale(Art):
     verbose_name = 'Art eines Baudenkmals'
     verbose_name_plural = 'Arten von Baudenkmalen'
     description = 'Arten von Baudenkmalen'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Baudenkmale, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Baudenkmale, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Baudenkmale)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Baudenkmale)
 
 
 # Arten von Fair-Trade-Einrichtungen
@@ -604,6 +664,18 @@ class Arten_FairTrade(Art):
     verbose_name_plural = 'Arten von Fair-Trade-Einrichtungen'
     description = 'Arten von Fair-Trade-Einrichtungen'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_FairTrade, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_FairTrade, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_FairTrade)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_FairTrade)
+
 
 # Arten von Feuerwachen
 
@@ -613,6 +685,18 @@ class Arten_Feuerwachen(Art):
     verbose_name = 'Art einer Feuerwache'
     verbose_name_plural = 'Arten von Feuerwachen'
     description = 'Arten von Feuerwachen'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Feuerwachen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Feuerwachen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Feuerwachen)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Feuerwachen)
 
 
 # Arten von Fließgewässern
@@ -624,6 +708,18 @@ class Arten_Fliessgewaesser(Art):
     verbose_name_plural = 'Arten von Fließgewässern'
     description = 'Arten von Fließgewässern'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Fliessgewaesser, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Fliessgewaesser, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Fliessgewaesser)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Fliessgewaesser)
+
 
 # Arten von Hundetoiletten
 
@@ -633,6 +729,18 @@ class Arten_Hundetoiletten(Art):
     verbose_name = 'Art einer Hundetoilette'
     verbose_name_plural = 'Arten von Hundetoiletten'
     description = 'Arten von Hundetoiletten'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Hundetoiletten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Hundetoiletten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Hundetoiletten)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Hundetoiletten)
 
 
 # Arten von Meldediensten (flächenhaft)
@@ -644,6 +752,18 @@ class Arten_Meldedienst_flaechenhaft(Art):
     verbose_name_plural = 'Arten von Meldediensten (flächenhaft)'
     description = 'Arten von Meldediensten (flächenhaft)'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Meldedienst_flaechenhaft, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Meldedienst_flaechenhaft)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Meldedienst_flaechenhaft)
+
 
 # Arten von Meldediensten (punkthaft)
 
@@ -653,6 +773,18 @@ class Arten_Meldedienst_punkthaft(Art):
     verbose_name = 'Art eines Meldedienstes (punkthaft)'
     verbose_name_plural = 'Arten von Meldediensten (punkthaft)'
     description = 'Arten von Meldediensten (punkthaft)'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Meldedienst_punkthaft, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Meldedienst_punkthaft, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Meldedienst_punkthaft)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Meldedienst_punkthaft)
 
 
 # Arten von Parkmöglichkeiten
@@ -664,6 +796,18 @@ class Arten_Parkmoeglichkeiten(Art):
     verbose_name_plural = 'Arten von Parkmöglichkeiten'
     description = 'Arten von Parkmöglichkeiten'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Parkmoeglichkeiten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Parkmoeglichkeiten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Parkmoeglichkeiten)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Parkmoeglichkeiten)
+
 
 # Arten von Pflegeeinrichtungen
 
@@ -673,6 +817,18 @@ class Arten_Pflegeeinrichtungen(Art):
     verbose_name = 'Art einer Pflegeeinrichtung'
     verbose_name_plural = 'Arten von Pflegeeinrichtungen'
     description = 'Arten von Pflegeeinrichtungen'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Pflegeeinrichtungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Pflegeeinrichtungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Pflegeeinrichtungen)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Pflegeeinrichtungen)
 
 
 # Arten von Pollern
@@ -684,6 +840,18 @@ class Arten_Poller(Art):
     verbose_name_plural = 'Arten von Pollern'
     description = 'Arten von Pollern'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Poller, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Poller, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Poller)
+
 
 # Arten von UVP-Vorprüfungen
 
@@ -694,11 +862,23 @@ class Arten_UVP_Vorpruefungen(Art):
     verbose_name_plural = 'Arten von UVP-Vorprüfungen'
     description = 'Arten von UVP-Vorprüfungen'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_UVP_Vorpruefungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_UVP_Vorpruefungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_UVP_Vorpruefungen)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_UVP_Vorpruefungen)
+
 
 # Auftraggeber von Baustellen
 
 class Auftraggeber_Baustellen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   auftraggeber = models.CharField('Auftraggeber', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -716,11 +896,23 @@ class Auftraggeber_Baustellen(models.Model):
   def __str__(self):
     return self.auftraggeber
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Auftraggeber_Baustellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Auftraggeber_Baustellen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Auftraggeber_Baustellen)
+
+signals.post_delete.connect(remove_permissions, sender=Auftraggeber_Baustellen)
+
 
 # Ausführungen innerhalb eines Haltestellenkatasters
 
 class Ausfuehrungen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ausfuehrung = models.CharField('Ausführung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -738,6 +930,18 @@ class Ausfuehrungen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.ausfuehrung
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ausfuehrungen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ausfuehrungen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Ausfuehrungen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Ausfuehrungen_Haltestellenkataster)
+
 
 # Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters
 
@@ -747,6 +951,18 @@ class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(Befestigungsart
     verbose_name = 'Befestigungsart der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
     verbose_name_plural = 'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
     description = 'Befestigungsarten der Aufstellfläche Bus innerhalb eines Haltestellenkatasters'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster)
 
 
 # Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters
@@ -758,11 +974,23 @@ class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
     verbose_name_plural = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
     description = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Befestigungsarten_Warteflaeche_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Befestigungsarten_Warteflaeche_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Befestigungsarten_Warteflaeche_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Befestigungsarten_Warteflaeche_Haltestellenkataster)
+
 
 # Betriebsarten
 
 class Betriebsarten(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   betriebsart = models.CharField('Betriebsart', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -780,11 +1008,23 @@ class Betriebsarten(models.Model):
   def __str__(self):
     return self.betriebsart
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Betriebsarten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Betriebsarten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Betriebsarten)
+
+signals.post_delete.connect(remove_permissions, sender=Betriebsarten)
+
 
 # Bewirtschafter, Betreiber, Träger, Eigentümer etc.
 
 class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   art = models.CharField('Art', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
@@ -804,11 +1044,23 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
   def __str__(self):
     return self.bezeichnung
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Bewirtschafter_Betreiber_Traeger_Eigentuemer, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Bewirtschafter_Betreiber_Traeger_Eigentuemer, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Bewirtschafter_Betreiber_Traeger_Eigentuemer)
+
+signals.post_delete.connect(remove_permissions, sender=Bewirtschafter_Betreiber_Traeger_Eigentuemer)
+
 
 # Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
 
 class DFI_Typen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   dfi_typ = models.CharField('DFI-Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -826,11 +1078,23 @@ class DFI_Typen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.dfi_typ
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(DFI_Typen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(DFI_Typen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=DFI_Typen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=DFI_Typen_Haltestellenkataster)
+
 
 # E-Anschlüsse für Parkscheinautomaten
 
 class E_Anschluesse_Parkscheinautomaten(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   e_anschluss = models.CharField('E-Anschluss', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -848,11 +1112,23 @@ class E_Anschluesse_Parkscheinautomaten(models.Model):
   def __str__(self):
     return self.e_anschluss
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(E_Anschluesse_Parkscheinautomaten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(E_Anschluesse_Parkscheinautomaten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=E_Anschluesse_Parkscheinautomaten)
+
+signals.post_delete.connect(remove_permissions, sender=E_Anschluesse_Parkscheinautomaten)
+
 
 # Ergebnisse von UVP-Vorprüfungen
 
 class Ergebnisse_UVP_Vorpruefungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ergebnis = models.CharField('Ergebnis', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -870,11 +1146,23 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
   def __str__(self):
     return self.ergebnis
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ergebnisse_UVP_Vorpruefungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ergebnisse_UVP_Vorpruefungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Ergebnisse_UVP_Vorpruefungen)
+
+signals.post_delete.connect(remove_permissions, sender=Ergebnisse_UVP_Vorpruefungen)
+
 
 # Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
 
 class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   fahrgastunterstandstyp = models.CharField('Fahrgastunterstandstyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -892,11 +1180,23 @@ class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.fahrgastunterstandstyp
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrgastunterstandstypen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrgastunterstandstypen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Fahrgastunterstandstypen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Fahrgastunterstandstypen_Haltestellenkataster)
+
 
 # Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
 
 class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   fahrplanvitrinentyp = models.CharField('Fahrplanvitrinentyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -914,11 +1214,23 @@ class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.fahrplanvitrinentyp
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrplanvitrinentypen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrplanvitrinentypen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Fahrplanvitrinentypen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Fahrplanvitrinentypen_Haltestellenkataster)
+
 
 # Fotomotive innerhalb eines Haltestellenkatasters
 
 class Fotomotive_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   fotomotiv = models.CharField('Fotomotiv', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -936,11 +1248,23 @@ class Fotomotive_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.fotomotiv
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fotomotive_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fotomotive_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Fotomotive_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Fotomotive_Haltestellenkataster)
+
 
 # Genehmigungsbehörden von UVP-Vorhaben
 
 class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   genehmigungsbehoerde = models.CharField('Genehmigungsbehörde', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -958,11 +1282,23 @@ class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
   def __str__(self):
     return self.genehmigungsbehoerde
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Genehmigungsbehoerden_UVP_Vorhaben, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Genehmigungsbehoerden_UVP_Vorhaben, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Genehmigungsbehoerden_UVP_Vorhaben)
+
+signals.post_delete.connect(remove_permissions, sender=Genehmigungsbehoerden_UVP_Vorhaben)
+
 
 # Hersteller von Pollern
 
 class Hersteller_Poller(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -980,11 +1316,23 @@ class Hersteller_Poller(models.Model):
   def __str__(self):
     return self.bezeichnung
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Hersteller_Poller, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Hersteller_Poller, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Hersteller_Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Hersteller_Poller)
+
 
 # Ladekarten für Ladestationen für Elektrofahrzeuge
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ladekarte = models.CharField('Ladekarte', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1002,11 +1350,23 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
   def __str__(self):
     return self.ladekarte
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ladekarten_Ladestationen_Elektrofahrzeuge, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ladekarten_Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Ladekarten_Ladestationen_Elektrofahrzeuge)
+
+signals.post_delete.connect(remove_permissions, sender=Ladekarten_Ladestationen_Elektrofahrzeuge)
+
 
 # Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH
 
 class Linien(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   linie = models.CharField('Linie', max_length=4, validators=[RegexValidator(regex=linien_linie_regex, message=linien_linie_message)])
 
   class Meta:
@@ -1024,11 +1384,23 @@ class Linien(models.Model):
   def __str__(self):
     return self.linie
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Linien, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Linien, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Linien)
+
+signals.post_delete.connect(remove_permissions, sender=Linien)
+
 
 # Masttypen innerhalb eines Haltestellenkatasters
 
 class Masttypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   masttyp = models.CharField('Masttyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1046,11 +1418,23 @@ class Masttypen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.masttyp
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Masttypen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Masttypen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Masttypen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Masttypen_Haltestellenkataster)
+
 
 # Materialien von Denksteinen
 
 class Materialien_Denksteine(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   material = models.CharField('Material', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1068,11 +1452,23 @@ class Materialien_Denksteine(models.Model):
   def __str__(self):
     return self.material
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Materialien_Denksteine, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Materialien_Denksteine, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Materialien_Denksteine)
+
+signals.post_delete.connect(remove_permissions, sender=Materialien_Denksteine)
+
 
 # Ordnungen von Fließgewässern
 
 class Ordnungen_Fliessgewaesser(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordnung = PositiveSmallIntegerMinField('Ordnung', min_value=1)
 
   class Meta:
@@ -1091,11 +1487,23 @@ class Ordnungen_Fliessgewaesser(models.Model):
   def __str__(self):
     return str(self.ordnung)
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ordnungen_Fliessgewaesser, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Ordnungen_Fliessgewaesser, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Ordnungen_Fliessgewaesser)
+
+signals.post_delete.connect(remove_permissions, sender=Ordnungen_Fliessgewaesser)
+
 
 # Personentitel
 
 class Personentitel(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1113,11 +1521,23 @@ class Personentitel(models.Model):
   def __str__(self):
     return self.bezeichnung
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Personentitel, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Personentitel, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Personentitel)
+
+signals.post_delete.connect(remove_permissions, sender=Personentitel)
+
 
 # Rechtsgrundlagen von UVP-Vorhaben
 
 class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   rechtsgrundlage = models.CharField('Rechtsgrundlage', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1135,11 +1555,23 @@ class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
   def __str__(self):
     return self.rechtsgrundlage
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Rechtsgrundlagen_UVP_Vorhaben, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Rechtsgrundlagen_UVP_Vorhaben, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Rechtsgrundlagen_UVP_Vorhaben)
+
+signals.post_delete.connect(remove_permissions, sender=Rechtsgrundlagen_UVP_Vorhaben)
+
 
 # Schäden innerhalb eines Haltestellenkatasters
 
 class Schaeden_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   schaden = models.CharField('Schaden', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1157,6 +1589,18 @@ class Schaeden_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.schaden
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schaeden_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schaeden_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Schaeden_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Schaeden_Haltestellenkataster)
+
 
 # Schlagwörter für Bildungsträger
 
@@ -1166,6 +1610,18 @@ class Schlagwoerter_Bildungstraeger(Schlagwort):
     verbose_name = 'Schlagwort für einen Bildungsträger'
     verbose_name_plural = 'Schlagwörter für Bildungsträger'
     description = 'Schlagwörter für Bildungsträger'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schlagwoerter_Bildungstraeger, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schlagwoerter_Bildungstraeger, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Schlagwoerter_Bildungstraeger)
+
+signals.post_delete.connect(remove_permissions, sender=Schlagwoerter_Bildungstraeger)
 
 
 # Schlagwörter für Vereine
@@ -1177,11 +1633,23 @@ class Schlagwoerter_Vereine(Schlagwort):
     verbose_name_plural = 'Schlagwörter für Vereine'
     description = 'Schlagwörter für Vereine'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schlagwoerter_Vereine, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schlagwoerter_Vereine, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Schlagwoerter_Vereine)
+
+signals.post_delete.connect(remove_permissions, sender=Schlagwoerter_Vereine)
+
 
 # Schließungen von Pollern
 
 class Schliessungen_Poller(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   schliessung = models.CharField('Schließung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1199,11 +1667,23 @@ class Schliessungen_Poller(models.Model):
   def __str__(self):
     return self.schliessung
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schliessungen_Poller, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schliessungen_Poller, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Schliessungen_Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Schliessungen_Poller)
+
 
 # Sitzbanktypen innerhalb eines Haltestellenkatasters
 
 class Sitzbanktypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   sitzbanktyp = models.CharField('Sitzbanktyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1221,11 +1701,23 @@ class Sitzbanktypen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.sitzbanktyp
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sitzbanktypen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sitzbanktypen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Sitzbanktypen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Sitzbanktypen_Haltestellenkataster)
+
 
 # Sparten von Baustellen
 
 class Sparten_Baustellen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   sparte = models.CharField('Sparte', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1243,6 +1735,18 @@ class Sparten_Baustellen(models.Model):
   def __str__(self):
     return self.sparte
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sparten_Baustellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sparten_Baustellen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Sparten_Baustellen)
+
+signals.post_delete.connect(remove_permissions, sender=Sparten_Baustellen)
+
 
 # Status von Baustellen (geplant)
 
@@ -1252,6 +1756,18 @@ class Status_Baustellen_geplant(Status):
     verbose_name = 'Status einer Baustelle (geplant)'
     verbose_name_plural = 'Status von Baustellen (geplant)'
     description = 'Status von Baustellen (geplant)'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Status_Baustellen_geplant, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Status_Baustellen_geplant, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Status_Baustellen_geplant)
+
+signals.post_delete.connect(remove_permissions, sender=Status_Baustellen_geplant)
 
 
 # Status von Fotos der Baustellen-Fotodokumentation
@@ -1263,6 +1779,18 @@ class Status_Baustellen_Fotodokumentation_Fotos(Status):
     verbose_name_plural = 'Status von Fotos der Baustellen-Fotodokumentation'
     description = 'Status von Fotos der Baustellen-Fotodokumentation'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Status_Baustellen_Fotodokumentation_Fotos, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Status_Baustellen_Fotodokumentation_Fotos, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Status_Baustellen_Fotodokumentation_Fotos)
+
+signals.post_delete.connect(remove_permissions, sender=Status_Baustellen_Fotodokumentation_Fotos)
+
 
 # Status von Pollern
 
@@ -1272,6 +1800,18 @@ class Status_Poller(Status):
     verbose_name = 'Status eines Pollers'
     verbose_name_plural = 'Status von Pollern'
     description = 'Status von Pollern'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Status_Poller, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Status_Poller, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Status_Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Status_Poller)
 
 
 # Typen von Abfallbehältern
@@ -1283,6 +1823,18 @@ class Typen_Abfallbehaelter(Typ):
     verbose_name_plural = 'Typen von Abfallbehältern'
     description = 'Typen von Abfallbehältern'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_Abfallbehaelter, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_Abfallbehaelter, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Typen_Abfallbehaelter)
+
+signals.post_delete.connect(remove_permissions, sender=Typen_Abfallbehaelter)
+
 
 # Typen von Haltestellen
 
@@ -1292,6 +1844,18 @@ class Typen_Haltestellen(Typ):
     verbose_name = 'Typ einer Haltestelle'
     verbose_name_plural = 'Typen von Haltestellen'
     description = 'Typen von Haltestellen'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_Haltestellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_Haltestellen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Typen_Haltestellen)
+
+signals.post_delete.connect(remove_permissions, sender=Typen_Haltestellen)
 
 
 # Typen von Pollern
@@ -1303,6 +1867,18 @@ class Typen_Poller(Typ):
     verbose_name_plural = 'Typen von Pollern'
     description = 'Typen von Pollern'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_Poller, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_Poller, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Typen_Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Typen_Poller)
+
 
 # Typen von UVP-Vorhaben
 
@@ -1313,11 +1889,23 @@ class Typen_UVP_Vorhaben(Typ):
     verbose_name_plural = 'Typen von UVP-Vorhaben'
     description = 'Typen von UVP-Vorhaben'
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_UVP_Vorhaben, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Typen_UVP_Vorhaben, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Typen_UVP_Vorhaben)
+
+signals.post_delete.connect(remove_permissions, sender=Typen_UVP_Vorhaben)
+
 
 # Verbünde von Ladestationen für Elektrofahrzeuge
 
 class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   verbund = models.CharField('Verbund', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1335,11 +1923,23 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
   def __str__(self):
     return self.verbund
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verbuende_Ladestationen_Elektrofahrzeuge, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verbuende_Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Verbuende_Ladestationen_Elektrofahrzeuge)
+
+signals.post_delete.connect(remove_permissions, sender=Verbuende_Ladestationen_Elektrofahrzeuge)
+
 
 # Verkehrliche Lagen von Baustellen
 
 class Verkehrliche_Lagen_Baustellen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   verkehrliche_lage = models.CharField(' verkehrliche Lage', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1357,11 +1957,23 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
   def __str__(self):
     return self.verkehrliche_lage
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verkehrliche_Lagen_Baustellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verkehrliche_Lagen_Baustellen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Verkehrliche_Lagen_Baustellen)
+
+signals.post_delete.connect(remove_permissions, sender=Verkehrliche_Lagen_Baustellen)
+
 
 # Verkehrsmittelklassen
 
 class Verkehrsmittelklassen(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   verkehrsmittelklasse = models.CharField('Verkehrsmittelklasse', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1379,11 +1991,23 @@ class Verkehrsmittelklassen(models.Model):
   def __str__(self):
     return self.verkehrsmittelklasse
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verkehrsmittelklassen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verkehrsmittelklassen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Verkehrsmittelklassen)
+
+signals.post_delete.connect(remove_permissions, sender=Verkehrsmittelklassen)
+
 
 # Vorgangsarten von UVP-Vorhaben
 
 class Vorgangsarten_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   vorgangsart = models.CharField('Vorgangsart', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1401,11 +2025,23 @@ class Vorgangsarten_UVP_Vorhaben(models.Model):
   def __str__(self):
     return self.vorgangsart
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Vorgangsarten_UVP_Vorhaben, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Vorgangsarten_UVP_Vorhaben, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Vorgangsarten_UVP_Vorhaben)
+
+signals.post_delete.connect(remove_permissions, sender=Vorgangsarten_UVP_Vorhaben)
+
 
 # Zeiteinheiten
 
 class Zeiteinheiten(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zeiteinheit = models.CharField('Zeiteinheit', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   erlaeuterung = models.CharField('Erläuterung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
@@ -1425,11 +2061,23 @@ class Zeiteinheiten(models.Model):
   def __str__(self):
     return self.erlaeuterung
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Zeiteinheiten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Zeiteinheiten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Zeiteinheiten)
+
+signals.post_delete.connect(remove_permissions, sender=Zeiteinheiten)
+
 
 # ZH-Typen innerhalb eines Haltestellenkatasters
 
 class ZH_Typen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zh_typ = models.CharField('ZH-Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
@@ -1447,11 +2095,23 @@ class ZH_Typen_Haltestellenkataster(models.Model):
   def __str__(self):
     return self.zh_typ
 
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(ZH_Typen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(ZH_Typen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=ZH_Typen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=ZH_Typen_Haltestellenkataster)
+
 
 # Zonen für Parkscheinautomaten
 
 class Zonen_Parkscheinautomaten(models.Model):
-  uuid = models.UUIDField(primary_key=True, editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zone = models.CharField('Zone', max_length=1, validators=[RegexValidator(regex=zonen_parkscheinautomaten_zone_regex, message=zonen_parkscheinautomaten_zone_message)])
 
   class Meta:
@@ -1468,6 +2128,18 @@ class Zonen_Parkscheinautomaten(models.Model):
   
   def __str__(self):
     return self.zone
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Zonen_Parkscheinautomaten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Zonen_Parkscheinautomaten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Zonen_Parkscheinautomaten)
+
+signals.post_delete.connect(remove_permissions, sender=Zonen_Parkscheinautomaten)
 
 
 
@@ -3432,7 +4104,7 @@ class Poller(models.Model):
   zeiten = models.CharField('Lieferzeiten', max_length=255, blank=True, null=True)
   hersteller = models.ForeignKey(Hersteller_Poller, verbose_name='Hersteller', on_delete=models.SET_NULL, db_column='hersteller', to_field='uuid', related_name='hersteller+', blank=True, null=True)
   typ = models.ForeignKey(Typen_Poller, verbose_name='Typ', on_delete=models.SET_NULL, db_column='typ', to_field='uuid', related_name='typen+', blank=True, null=True)
-  anzahl = PositiveSmallIntegerMinField('Anzahl', min_value=1, blank=True, null=True)
+  anzahl = PositiveSmallIntegerMinField('Anzahl', min_value=1)
   schliessungen = ChoiceArrayField(models.CharField('Schließungen', max_length=255, choices=()), verbose_name='Schließungen', blank=True, null=True)
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
@@ -3479,7 +4151,7 @@ class Poller(models.Model):
     geometry_type = 'Point'
   
   def __str__(self):
-    return (self.nummer if self.nummer else '') + self.bezeichnung + ' [Status: ' + str(self.status) + ']'
+    return (self.nummer + ', ' if self.nummer else '') + self.bezeichnung + ' [Status: ' + str(self.status) + ']'
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
