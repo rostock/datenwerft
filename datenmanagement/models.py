@@ -565,39 +565,6 @@ signals.post_delete.connect(remove_permissions, sender=Strassen)
 # Codelisten
 #
 
-# Carsharing-Anbieter
-
-class Anbieter_Carsharing(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  anbieter = models.CharField('Anbieter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"anbieter_carsharing'
-    verbose_name = 'Carsharing-Anbieter'
-    verbose_name_plural = 'Carsharing-Anbieter'
-    description = 'Carsharing-Anbieter'
-    list_fields = {
-      'anbieter': 'Anbieter'
-    }
-    ordering = ['anbieter'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.anbieter
-
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Anbieter_Carsharing, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Anbieter_Carsharing, self).delete(*args, **kwargs)
-
-signals.post_save.connect(assign_permissions, sender=Anbieter_Carsharing)
-
-signals.post_delete.connect(remove_permissions, sender=Anbieter_Carsharing)
-
 
 # Angebote bei Mobilpunkten
 
@@ -675,6 +642,28 @@ class Arten_FairTrade(Art):
 signals.post_save.connect(assign_permissions, sender=Arten_FairTrade)
 
 signals.post_delete.connect(remove_permissions, sender=Arten_FairTrade)
+
+
+# Arten von Feldsportanlagen
+
+class Arten_Feldsportanlagen(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_feldsportanlagen'
+    verbose_name = 'Art einer Feldsportanlage'
+    verbose_name_plural = 'Arten von Feldsportanlagen'
+    description = 'Arten von Feldsportanlagen'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Feldsportanlagen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Feldsportanlagen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Feldsportanlagen)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Feldsportanlagen)
 
 
 # Arten von Feuerwachen
@@ -1057,38 +1046,38 @@ signals.post_save.connect(assign_permissions, sender=Bewirtschafter_Betreiber_Tr
 signals.post_delete.connect(remove_permissions, sender=Bewirtschafter_Betreiber_Traeger_Eigentuemer)
 
 
-# Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
+# Carsharing-Anbieter
 
-class DFI_Typen_Haltestellenkataster(models.Model):
+class Anbieter_Carsharing(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  dfi_typ = models.CharField('DFI-Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  anbieter = models.CharField('Anbieter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
     managed = False
     codelist = True
-    db_table = 'codelisten\".\"dfi_typen_haltestellenkataster'
-    verbose_name = 'Typ eines Dynamischen Fahrgastinformationssystems innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
-    description = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    db_table = 'codelisten\".\"anbieter_carsharing'
+    verbose_name = 'Carsharing-Anbieter'
+    verbose_name_plural = 'Carsharing-Anbieter'
+    description = 'Carsharing-Anbieter'
     list_fields = {
-      'dfi_typ': 'DFI-Typ'
+      'anbieter': 'Anbieter'
     }
-    ordering = ['dfi_typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    ordering = ['anbieter'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.dfi_typ
+    return self.anbieter
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
-    super(DFI_Typen_Haltestellenkataster, self).save(*args, **kwargs)
+    super(Anbieter_Carsharing, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
-    super(DFI_Typen_Haltestellenkataster, self).delete(*args, **kwargs)
+    super(Anbieter_Carsharing, self).delete(*args, **kwargs)
 
-signals.post_save.connect(assign_permissions, sender=DFI_Typen_Haltestellenkataster)
+signals.post_save.connect(assign_permissions, sender=Anbieter_Carsharing)
 
-signals.post_delete.connect(remove_permissions, sender=DFI_Typen_Haltestellenkataster)
+signals.post_delete.connect(remove_permissions, sender=Anbieter_Carsharing)
 
 
 # E-Anschlüsse für Parkscheinautomaten
@@ -1157,74 +1146,6 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
 signals.post_save.connect(assign_permissions, sender=Ergebnisse_UVP_Vorpruefungen)
 
 signals.post_delete.connect(remove_permissions, sender=Ergebnisse_UVP_Vorpruefungen)
-
-
-# Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
-
-class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  fahrgastunterstandstyp = models.CharField('Fahrgastunterstandstyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"fahrgastunterstandstypen_haltestellenkataster'
-    verbose_name = 'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
-    description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'
-    }
-    ordering = ['fahrgastunterstandstyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.fahrgastunterstandstyp
-
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Fahrgastunterstandstypen_Haltestellenkataster, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Fahrgastunterstandstypen_Haltestellenkataster, self).delete(*args, **kwargs)
-
-signals.post_save.connect(assign_permissions, sender=Fahrgastunterstandstypen_Haltestellenkataster)
-
-signals.post_delete.connect(remove_permissions, sender=Fahrgastunterstandstypen_Haltestellenkataster)
-
-
-# Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
-
-class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  fahrplanvitrinentyp = models.CharField('Fahrplanvitrinentyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"fahrplanvitrinentypen_haltestellenkataster'
-    verbose_name = 'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
-    description = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'
-    }
-    ordering = ['fahrplanvitrinentyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
-  
-  def __str__(self):
-    return self.fahrplanvitrinentyp
-
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Fahrplanvitrinentypen_Haltestellenkataster, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Fahrplanvitrinentypen_Haltestellenkataster, self).delete(*args, **kwargs)
-
-signals.post_save.connect(assign_permissions, sender=Fahrplanvitrinentypen_Haltestellenkataster)
-
-signals.post_delete.connect(remove_permissions, sender=Fahrplanvitrinentypen_Haltestellenkataster)
 
 
 # Fotomotive innerhalb eines Haltestellenkatasters
@@ -1748,6 +1669,40 @@ signals.post_save.connect(assign_permissions, sender=Sparten_Baustellen)
 signals.post_delete.connect(remove_permissions, sender=Sparten_Baustellen)
 
 
+# Sportarten
+
+class Sportarten(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"sportarten'
+    verbose_name = 'Sportart'
+    verbose_name_plural = 'Sportarten'
+    description = 'Sportarten'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sportarten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sportarten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Sportarten)
+
+signals.post_delete.connect(remove_permissions, sender=Sportarten)
+
+
 # Status von Baustellen (geplant)
 
 class Status_Baustellen_geplant(Status):
@@ -1834,6 +1789,108 @@ class Typen_Abfallbehaelter(Typ):
 signals.post_save.connect(assign_permissions, sender=Typen_Abfallbehaelter)
 
 signals.post_delete.connect(remove_permissions, sender=Typen_Abfallbehaelter)
+
+
+# Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
+
+class DFI_Typen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  dfi_typ = models.CharField('DFI-Typ', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"dfi_typen_haltestellenkataster'
+    verbose_name = 'Typ eines Dynamischen Fahrgastinformationssystems innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    description = 'Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'dfi_typ': 'DFI-Typ'
+    }
+    ordering = ['dfi_typ'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.dfi_typ
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(DFI_Typen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(DFI_Typen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=DFI_Typen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=DFI_Typen_Haltestellenkataster)
+
+
+# Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
+
+class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  fahrgastunterstandstyp = models.CharField('Fahrgastunterstandstyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"fahrgastunterstandstypen_haltestellenkataster'
+    verbose_name = 'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
+    description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'
+    }
+    ordering = ['fahrgastunterstandstyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.fahrgastunterstandstyp
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrgastunterstandstypen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrgastunterstandstypen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Fahrgastunterstandstypen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Fahrgastunterstandstypen_Haltestellenkataster)
+
+
+# Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
+
+class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  fahrplanvitrinentyp = models.CharField('Fahrplanvitrinentyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"fahrplanvitrinentypen_haltestellenkataster'
+    verbose_name = 'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
+    description = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'
+    }
+    ordering = ['fahrplanvitrinentyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.fahrplanvitrinentyp
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrplanvitrinentypen_Haltestellenkataster, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Fahrplanvitrinentypen_Haltestellenkataster, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Fahrplanvitrinentypen_Haltestellenkataster)
+
+signals.post_delete.connect(remove_permissions, sender=Fahrplanvitrinentypen_Haltestellenkataster)
 
 
 # Typen von Haltestellen
@@ -2991,6 +3048,68 @@ signals.post_save.connect(assign_permissions, sender=FairTrade)
 signals.post_delete.connect(remove_permissions, sender=FairTrade)
 
 
+# Feldsportanlagen
+
+class Feldsportanlagen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  art = models.ForeignKey(Arten_Feldsportanlagen, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'feldsportanlagen'), max_length=255, blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"feldsportanlagen_hro'
+    verbose_name = 'Feldsportanlage'
+    verbose_name_plural = 'Feldsportanlagen'
+    description = 'Feldsportanlagen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+      'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art__art',
+      'traeger': 'traeger__bezeichnung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    map_filter_fields_as_list = ['art', 'traeger']
+    geometry_type = 'Point'
+    thumbs = True
+
+  def __str__(self):
+    return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Feldsportanlagen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Feldsportanlagen, self).delete(*args, **kwargs)
+
+signals.pre_save.connect(get_pre_save_instance, sender=Feldsportanlagen)
+
+signals.post_save.connect(photo_post_processing, sender=Feldsportanlagen)
+
+signals.post_save.connect(delete_photo_after_emptied, sender=Feldsportanlagen)
+
+signals.post_save.connect(assign_permissions, sender=Feldsportanlagen)
+
+signals.post_delete.connect(delete_photo, sender=Feldsportanlagen)
+
+signals.post_delete.connect(remove_permissions, sender=Feldsportanlagen)
+
+
 # Feuerwachen
 
 class Feuerwachen(models.Model):
@@ -3106,6 +3225,67 @@ class Fliessgewaesser(models.Model):
 signals.post_save.connect(assign_permissions, sender=Fliessgewaesser)
 
 signals.post_delete.connect(remove_permissions, sender=Fliessgewaesser)
+
+
+# Gerätespielanlagen
+
+class Geraetespielanlagen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
+  beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'geraetespielanlagen'), max_length=255, blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"geraetespielanlagen_hro'
+    verbose_name = 'Gerätespielanlage'
+    verbose_name_plural = 'Gerätespielanlagen'
+    description = 'Gerätespielanlagen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+      'beschreibung': 'Beschreibung',
+      'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'traeger': 'traeger__bezeichnung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+      'beschreibung': 'Beschreibung'
+    }
+    map_filter_fields_as_list = ['traeger']
+    geometry_type = 'Point'
+    thumbs = True
+
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Geraetespielanlagen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Geraetespielanlagen, self).delete(*args, **kwargs)
+
+signals.pre_save.connect(get_pre_save_instance, sender=Geraetespielanlagen)
+
+signals.post_save.connect(photo_post_processing, sender=Geraetespielanlagen)
+
+signals.post_save.connect(delete_photo_after_emptied, sender=Geraetespielanlagen)
+
+signals.post_save.connect(assign_permissions, sender=Geraetespielanlagen)
+
+signals.post_delete.connect(delete_photo, sender=Geraetespielanlagen)
+
+signals.post_delete.connect(remove_permissions, sender=Geraetespielanlagen)
 
 
 # Gutachterfotos
@@ -4222,6 +4402,75 @@ class Rettungswachen(models.Model):
 signals.post_save.connect(assign_permissions, sender=Rettungswachen)
 
 signals.post_delete.connect(remove_permissions, sender=Rettungswachen)
+
+
+# Sporthallen
+
+class Sporthallen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  traeger = models.ForeignKey(Bewirtschafter_Betreiber_Traeger_Eigentuemer, verbose_name='Träger', on_delete=models.RESTRICT, db_column='traeger', to_field='uuid', related_name='traeger+')
+  sportart = models.ForeignKey(Sportarten, verbose_name='Sportart', on_delete=models.RESTRICT, db_column='sportart', to_field='uuid', related_name='sportarten+')
+  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'sporthallen'), max_length=255, blank=True, null=True)
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"sporthallen_hro'
+    verbose_name = 'Sporthalle'
+    verbose_name_plural = 'Sporthallen'
+    description = 'Sporthallen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+      'sportart': 'Sportart',
+      'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse',
+      'traeger': 'traeger__bezeichnung',
+      'sportart': 'sportart__bezeichnung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+      'sportart': 'Sportart'
+    }
+    map_filter_fields_as_list = ['traeger', 'sportart']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+    thumbs = True
+  
+  def __str__(self):
+    return self.bezeichnung + ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sporthallen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Sporthallen, self).delete(*args, **kwargs)
+
+signals.pre_save.connect(get_pre_save_instance, sender=Sporthallen)
+
+signals.post_save.connect(photo_post_processing, sender=Sporthallen)
+
+signals.post_save.connect(delete_photo_after_emptied, sender=Sporthallen)
+
+signals.post_save.connect(assign_permissions, sender=Sporthallen)
+
+signals.post_delete.connect(delete_photo, sender=Sporthallen)
+
+signals.post_delete.connect(remove_permissions, sender=Sporthallen)
 
 
 # Stadtteil- und Begegnungszentren
