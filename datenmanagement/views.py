@@ -2,6 +2,7 @@ import json
 import os
 import re
 import requests
+import time
 import uuid
 from datetime import datetime
 from django.apps import apps
@@ -324,11 +325,11 @@ class DataView(BaseDatatableView):
           data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!"></i>'
         elif value is not None and column == 'foto':
           try:
-            data = '<a href="' + value.url + '" target="_blank" title="große Ansicht öffnen…">'
+            data = '<a href="' + value.url + '?' + str(time.time()) + '" target="_blank" title="große Ansicht öffnen…">'
             if self.thumbs is not None and self.thumbs == True:
-              data += '<img src="' + get_thumb_url(value.url) + '" alt="Vorschau" />'
+              data += '<img src="' + get_thumb_url(value.url) + '?' + str(time.time()) + '" alt="Vorschau" />'
             else:
-              data += '<img src="' + value.url + '" alt="Vorschau" width="70px" />'
+              data += '<img src="' + value.url + '?' + str(time.time()) + '" alt="Vorschau" width="70px" />'
             data += '</a>'
           except ValueError:
             pass
