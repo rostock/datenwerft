@@ -602,6 +602,40 @@ signals.post_save.connect(assign_permissions, sender=Angebote_Mobilpunkte)
 signals.post_delete.connect(remove_permissions, sender=Angebote_Mobilpunkte)
 
 
+# Angelberechtigungen
+
+class Angelberechtigungen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  angelberechtigung = models.CharField('Angelberechtigung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"angelberechtigungen'
+    verbose_name = 'Angelberechtigung'
+    verbose_name_plural = 'Angelberechtigungen'
+    description = 'Angelberechtigungen'
+    list_fields = {
+      'angelberechtigung': 'Angelberechtigung'
+    }
+    ordering = ['angelberechtigung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.angelberechtigung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Angelberechtigungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Angelberechtigungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Angelberechtigungen)
+
+signals.post_delete.connect(remove_permissions, sender=Angelberechtigungen)
+
+
 # Arten von Baudenkmalen
 
 class Arten_Baudenkmale(Art):
@@ -1296,7 +1330,7 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
     managed = False
     codelist = True
     db_table = 'codelisten\".\"ladekarten_ladestationen_elektrofahrzeuge'
-    verbose_name = 'Ladekartenfür eine Ladestation für Elektrofahrzeuge'
+    verbose_name = 'Ladekarte für eine Ladestation für Elektrofahrzeuge'
     verbose_name_plural = 'Ladekarten für Ladestationen für Elektrofahrzeuge'
     description = 'Ladekarten für Ladestationen für Elektrofahrzeuge'
     list_fields = {
@@ -2356,6 +2390,45 @@ class Abfallbehaelter(models.Model):
 signals.post_save.connect(assign_permissions, sender=Abfallbehaelter)
 
 signals.post_delete.connect(remove_permissions, sender=Abfallbehaelter)
+
+
+# Angelverbotsbereiche
+
+class Angelverbotsbereiche(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.LineStringField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"angelverbotsbereiche_hro'
+    verbose_name = 'Angelverbotsbereich'
+    verbose_name_plural = 'Angelverbotsbereiche'
+    description = 'Angelverbotsbereiche der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    geometry_type = 'LineString'
+
+  def __str__(self):
+    return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Angelverbotsbereiche, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Angelverbotsbereiche, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Angelverbotsbereiche)
+
+signals.post_delete.connect(remove_permissions, sender=Angelverbotsbereiche)
 
 
 # Aufteilungspläne nach Wohnungseigentumsgesetz
@@ -4881,3 +4954,62 @@ class Vereine(models.Model):
 signals.post_save.connect(assign_permissions, sender=Vereine)
 
 signals.post_delete.connect(remove_permissions, sender=Vereine)
+
+
+# Verkaufstellen für Angelberechtigungen
+
+class Verkaufstellen_Angelberechtigungen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(Adressen, verbose_name='Adresse', on_delete=models.SET_NULL, db_column='adresse', to_field='uuid', related_name='adressen+', blank=True, null=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  berechtigungen = ChoiceArrayField(models.CharField('verkaufte Berechtigung(en)', max_length=255, choices=()), verbose_name='verkaufte Berechtigung(en)', blank=True, null=True)
+  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = models.CharField('Öffnungszeiten', max_length=255, blank=True, null=True)
+  telefon_festnetz = models.CharField('Telefon (Festnetz)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  telefon_mobil = models.CharField('Telefon (mobil)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=rufnummer_regex, message=rufnummer_message)])
+  email = models.CharField('E-Mail-Adresse', max_length=255, blank=True, null=True, validators=[EmailValidator(message=email_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+  
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"verkaufstellen_angelberechtigungen_hro'
+    verbose_name = 'Verkaufstelle für Angelberechtigungen'
+    verbose_name_plural = 'Verkaufstellen für Angelberechtigungen'
+    description = 'Verkaufstellen für Angelberechtigungen in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'berechtigungen': 'Angelberechtigungen'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bezeichnung': 'Bezeichnung',
+      'berechtigungen': 'verkaufte Berechtigung(en)'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse__adresse'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'berechtigungen': 'verkaufte Berechtigung(en)'
+    }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+  
+  def __str__(self):
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verkaufstellen_Angelberechtigungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Verkaufstellen_Angelberechtigungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Verkaufstellen_Angelberechtigungen)
+
+signals.post_delete.connect(remove_permissions, sender=Verkaufstellen_Angelberechtigungen)
