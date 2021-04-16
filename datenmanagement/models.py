@@ -377,9 +377,11 @@ url_message = 'Die Adresse der <strong><em>Website</em></strong> muss syntaktisc
 # speziell
 
 containerstellplaetze_id_regex = r'^[0-9]{2}-[0-9]{2}$'
-containerstellplaetze_id_message = 'Die <strong><em>ID</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich und abermals genau zwei Ziffern bestehen.'
+containerstellplaetze_id_message = 'Die <strong><em>ID</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Bindestrich, und abermals genau zwei Ziffern bestehen.'
 denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
 denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit einer Ziffer beginnen und mit einer Ziffer oder einem Kleinbuchstaben enden.'
+durchlaesse_durchlaesse_aktenzeichen_regex = r'^[A-Z-]{2,}\.[0-9]{1,2}-[0-9]{1,2}(-[0-9]{1,2})?$'
+durchlaesse_durchlaesse_aktenzeichen_message = 'Das <strong><em>Aktenzeichen</em></strong> muss aus mindestens zwei Großbuchstaben und/oder Bindestrichen, gefolgt von genau einem Punkt, einer oder zwei Ziffern, gefolgt von genau einem Bindestrich, und abermals einer oder zwei Ziffern bestehen. Darauf können optional nochmals genau ein Bindestrich sowie abermals eine oder zwei Ziffern folgen.'
 fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_message = 'Der <strong><em>Code</em></strong> muss entweder <em>A, B</em> oder <em>C</em> lauten.'
 haltestellenkataster_haltestellen_hst_hafas_id_regex = r'^[0-9]{8}$'
@@ -389,7 +391,7 @@ linien_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer Ziffe
 parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
 parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em></strong> muss aus genau einem Großbuchstaben sowie genau einer Ziffer bestehen.'
 parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
-parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich und abermals genau fünf Ziffern bestehen.'
+parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich, und abermals genau fünf Ziffern bestehen.'
 poller_nummer_regex = r'^[A-Z][0-9]{0,2}$'
 poller_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus genau einem Großbuchstaben bestehen, der um eine oder zwei Ziffer(n) ergänzt werden kann.'
 uvp_vorhaben_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
@@ -435,6 +437,23 @@ class Befestigungsart(models.Model):
   
   def __str__(self):
     return self.befestigungsart
+
+
+class Material(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  material = models.CharField('Material', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+
+  class Meta:
+    abstract = True
+    managed = False
+    codelist = True
+    list_fields = {
+     'material': 'Material'
+    }
+    ordering = ['material'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.material
 
 
 class Schlagwort(models.Model):
@@ -656,6 +675,28 @@ class Arten_Baudenkmale(Art):
 signals.post_save.connect(assign_permissions, sender=Arten_Baudenkmale)
 
 signals.post_delete.connect(remove_permissions, sender=Arten_Baudenkmale)
+
+
+# Arten von Durchlässen
+
+class Arten_Durchlaesse(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_durchlaesse'
+    verbose_name = 'Art eines Durchlasses'
+    verbose_name_plural = 'Arten von Durchlässen'
+    description = 'Arten von Durchlässen'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Durchlaesse, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Durchlaesse, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Durchlaesse)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Durchlaesse)
 
 
 # Arten von Fair-Trade-Einrichtungen
@@ -1424,25 +1465,13 @@ signals.post_delete.connect(remove_permissions, sender=Masttypen_Haltestellenkat
 
 # Materialien von Denksteinen
 
-class Materialien_Denksteine(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  material = models.CharField('Material', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-
-  class Meta:
-    managed = False
-    codelist = True
+class Materialien_Denksteine(Material):
+  class Meta(Material.Meta):
     db_table = 'codelisten\".\"materialien_denksteine'
     verbose_name = 'Material eines Denksteins'
     verbose_name_plural = 'Materialien von Denksteinen'
     description = 'Materialien von Denksteinen'
-    list_fields = {
-     'material': 'Material'
-    }
-    ordering = ['material'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
-  def __str__(self):
-    return self.material
-
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
     super(Materialien_Denksteine, self).save(*args, **kwargs)
@@ -1454,6 +1483,28 @@ class Materialien_Denksteine(models.Model):
 signals.post_save.connect(assign_permissions, sender=Materialien_Denksteine)
 
 signals.post_delete.connect(remove_permissions, sender=Materialien_Denksteine)
+
+
+# Materialien von Durchlässen
+
+class Materialien_Durchlaesse(Material):
+  class Meta(Material.Meta):
+    db_table = 'codelisten\".\"materialien_durchlaesse'
+    verbose_name = 'Material eines Durchlasses'
+    verbose_name_plural = 'Materialien von Durchlässen'
+    description = 'Materialien von Durchlässen'
+  
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Materialien_Durchlaesse, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Materialien_Durchlaesse, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Materialien_Durchlaesse)
+
+signals.post_delete.connect(remove_permissions, sender=Materialien_Durchlaesse)
 
 
 # Ordnungen von Fließgewässern
@@ -2304,6 +2355,40 @@ signals.post_save.connect(assign_permissions, sender=Zonen_Parkscheinautomaten)
 signals.post_delete.connect(remove_permissions, sender=Zonen_Parkscheinautomaten)
 
 
+# Zustandsbewertungen
+
+class Zustandsbewertungen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  zustandsbewertung = PositiveSmallIntegerMinField('Zustandsbewertung', min_value=1)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"zustandsbewertungen'
+    verbose_name = 'Zustandsbewertung'
+    verbose_name_plural = 'Zustandsbewertungen'
+    description = 'Zustandsbewertungen'
+    list_fields = {
+      'zustandsbewertung': 'Zustandsbewertung'
+    }
+    ordering = ['zustandsbewertung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return str(self.zustandsbewertung)
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Zustandsbewertungen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Zustandsbewertungen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Zustandsbewertungen)
+
+signals.post_delete.connect(remove_permissions, sender=Zustandsbewertungen)
+
+
 
 #
 # Datenthemen
@@ -3133,6 +3218,127 @@ signals.post_save.connect(assign_permissions, sender=Denksteine)
 signals.post_delete.connect(remove_permissions, sender=Denksteine)
 
 
+# Durchlässe
+
+class Durchlaesse_Durchlaesse(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  art = models.ForeignKey(Arten_Durchlaesse, verbose_name='Art', on_delete=models.SET_NULL, db_column='art', to_field='uuid', related_name='arten+', blank=True, null=True)
+  aktenzeichen = models.CharField('Aktenzeichen', max_length=255, validators=[RegexValidator(regex=durchlaesse_durchlaesse_aktenzeichen_regex, message=durchlaesse_durchlaesse_aktenzeichen_message)])
+  material = models.ForeignKey(Materialien_Durchlaesse, verbose_name='Material', on_delete=models.SET_NULL, db_column='material', to_field='uuid', related_name='materialien+', blank=True, null=True)
+  baujahr = PositiveSmallIntegerRangeField('Baujahr', max_value=current_year(), blank=True, null=True)
+  nennweite = PositiveSmallIntegerMinField('Nennweite (in mm)', min_value=100, blank=True, null=True)
+  laenge = models.DecimalField('Länge (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Durchlass</em></strong> muss mindestens 0,01 m lang sein.'), MaxValueValidator(Decimal('999.99'), 'Der <strong><em>Durchlass</em></strong> darf höchstens 999,99 m lang sein.')], blank=True, null=True)
+  nebenanlagen = models.CharField('Nebenanlagen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  zubehoer = models.CharField('Zubehör', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  zustand_durchlass = models.ForeignKey(Zustandsbewertungen, verbose_name='Zustand des Durchlasses', on_delete=models.SET_NULL, db_column='zustand_durchlass', to_field='uuid', related_name='zustaende_durchlaesse+', blank=True, null=True)
+  zustand_nebenanlagen = models.ForeignKey(Zustandsbewertungen, verbose_name='Zustand der Nebenanlagen', on_delete=models.SET_NULL, db_column='zustand_nebenanlagen', to_field='uuid', related_name='zustaende_nebenanlagen+', blank=True, null=True)
+  zustand_zubehoer = models.ForeignKey(Zustandsbewertungen, verbose_name='Zustand des Zubehörs', on_delete=models.SET_NULL, db_column='zustand_zubehoer', to_field='uuid', related_name='zustaende_zubehoer+', blank=True, null=True)
+  kontrolle = models.DateField('Kontrolle', blank=True, null=True)
+  bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  zustaendigkeit = models.CharField('Zuständigkeit', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bearbeiter = models.CharField('Bearbeiter', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"durchlaesse_durchlaesse_hro'
+    verbose_name = 'Durchlass'
+    verbose_name_plural = 'Durchlässe'
+    description = 'Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'aktenzeichen': 'Aktenzeichen',
+      'material': 'Material',
+      'baujahr': 'Baujahr',
+      'nennweite': 'Nennweite (in mm)',
+      'laenge': 'Länge (in m)',
+      'zustaendigkeit': 'Zuständigkeit',
+      'bearbeiter': 'Bearbeiter'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art__art',
+    }
+    list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
+    map_feature_tooltip_field = 'aktenzeichen'
+    map_filter_fields = {
+      'art': 'Art',
+      'aktenzeichen': 'Aktenzeichen',
+      'material': 'Material',
+      'zustaendigkeit': 'Zuständigkeit',
+      'bearbeiter': 'Bearbeiter'
+    }
+    map_filter_fields_as_list = ['art', 'material']
+    geometry_type = 'Point'
+    ordering = ['aktenzeichen'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.aktenzeichen
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Durchlaesse_Durchlaesse, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Durchlaesse_Durchlaesse, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Durchlaesse_Durchlaesse)
+
+signals.post_delete.connect(remove_permissions, sender=Durchlaesse_Durchlaesse)
+
+
+# Fotos der Durchlässe
+
+class Durchlaesse_Fotos(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  durchlaesse_durchlass = models.ForeignKey(Durchlaesse_Durchlaesse, verbose_name='Durchlass', on_delete=models.CASCADE, db_column='durchlaesse_durchlass', to_field='uuid', related_name='durchlaesse_durchlaesse+')
+  dateiname_original = models.CharField('Original-Dateiname', max_length=255, default='ohne')
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'durchlaesse'), max_length=255)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"durchlaesse_fotos_hro'
+    verbose_name = 'Foto des Durchlasses'
+    verbose_name_plural = 'Fotos der Durchlässe'
+    description = 'Fotos der Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'durchlaesse_durchlass': 'Durchlass',
+      'dateiname_original': 'Original-Dateiname',
+      'foto': 'Foto'
+    }
+    readonly_fields = ['dateiname_original']
+    list_fields_with_foreign_key = {
+      'durchlaesse_durchlass': 'durchlaesse_durchlass__aktenzeichen'
+    }
+    object_title = 'das Foto'
+    foreign_key_label = 'Durchlass'
+    thumbs = True
+    multi_foto_field = True
+  
+  def __str__(self):
+    return str(self.durchlaesse_durchlass)
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Durchlaesse_Fotos, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Durchlaesse_Fotos, self).delete(*args, **kwargs)
+
+signals.post_save.connect(photo_post_processing, sender=Durchlaesse_Fotos)
+
+signals.post_save.connect(assign_permissions, sender=Durchlaesse_Fotos)
+
+signals.post_delete.connect(delete_photo, sender=Durchlaesse_Fotos)
+
+signals.post_delete.connect(remove_permissions, sender=Durchlaesse_Fotos)
+
+
 # Fair Trade
 
 class FairTrade(models.Model):
@@ -3319,7 +3525,7 @@ class Fliessgewaesser(models.Model):
   art = models.ForeignKey(Arten_Fliessgewaesser, verbose_name='Art', on_delete=models.RESTRICT, db_column='art', to_field='uuid', related_name='arten+')
   ordnung = models.ForeignKey(Ordnungen_Fliessgewaesser, verbose_name='Ordnung', on_delete=models.SET_NULL, db_column='ordnung', to_field='uuid', related_name='ordnungen+', blank=True, null=True)
   bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  nennweite = PositiveSmallIntegerMinField('Nennweite (in mm)', min_value=50, blank=True, null=True)
+  nennweite = PositiveSmallIntegerMinField('Nennweite (in mm)', min_value=100, blank=True, null=True)
   laenge = models.PositiveIntegerField('Länge (in m)', default=0)
   laenge_in_hro = models.PositiveIntegerField('Länge innerhalb Rostocks (in m)', blank=True, null=True)
   geometrie = models.LineStringField('Geometrie', srid=25833)
