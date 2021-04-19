@@ -3259,6 +3259,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     }
     list_fields_with_foreign_key = {
       'art': 'art__art',
+      'material': 'material__material'
     }
     list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
     map_feature_tooltip_field = 'aktenzeichen'
