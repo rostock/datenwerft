@@ -3297,7 +3297,7 @@ class Durchlaesse_Fotos(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   durchlaesse_durchlass = models.ForeignKey(Durchlaesse_Durchlaesse, verbose_name='Durchlass', on_delete=models.CASCADE, db_column='durchlaesse_durchlass', to_field='uuid', related_name='durchlaesse_durchlaesse+')
   dateiname_original = models.CharField('Original-Dateiname', max_length=255, default='ohne')
-  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'durchlaesse'), max_length=255)
+  foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'durchlaesse'), max_length=255)
 
   class Meta:
     managed = False
