@@ -384,6 +384,8 @@ durchlaesse_durchlaesse_aktenzeichen_regex = r'^[A-Z-]{2,}\.[0-9]{1,2}-[0-9]{1,2
 durchlaesse_durchlaesse_aktenzeichen_message = 'Das <strong><em>Aktenzeichen</em></strong> muss aus mindestens zwei Großbuchstaben und/oder Bindestrichen, gefolgt von genau einem Punkt, einer oder zwei Ziffern, gefolgt von genau einem Bindestrich, und abermals einer oder zwei Ziffern bestehen. Darauf können optional nochmals genau ein Bindestrich sowie abermals eine oder zwei Ziffern folgen.'
 fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_message = 'Der <strong><em>Code</em></strong> muss entweder <em>A, B</em> oder <em>C</em> lauten.'
+haefen_abkuerzung_regex = r'^[A-Z-]{3,5}$'
+haefen_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss aus drei, vier oder fünf Großbuchstaben und/oder Bindestrichen bestehen.'
 haltestellenkataster_haltestellen_hst_hafas_id_regex = r'^[0-9]{8}$'
 haltestellenkataster_haltestellen_hst_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
 linien_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
@@ -1325,6 +1327,45 @@ class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
 signals.post_save.connect(assign_permissions, sender=Genehmigungsbehoerden_UVP_Vorhaben)
 
 signals.post_delete.connect(remove_permissions, sender=Genehmigungsbehoerden_UVP_Vorhaben)
+
+
+# Häfen
+
+class Haefen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  abkuerzung = models.CharField('Abkürzung', max_length=5, validators=[RegexValidator(regex=haefen_abkuerzung_regex, message=haefen_abkuerzung_message)])
+  code = PositiveSmallIntegerRangeField('Code', min_value=1, blank=True, null=True)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"haefen'
+    verbose_name = 'Hafen'
+    verbose_name_plural = 'Häfen'
+    description = 'Häfen'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'abkuerzung': 'Abkürzung',
+      'code': 'Code'
+    }
+    list_fields_with_number = ['code']
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Haefen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Haefen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Haefen)
+
+signals.post_delete.connect(remove_permissions, sender=Haefen)
 
 
 # Hersteller von Pollern
@@ -3228,7 +3269,7 @@ class Durchlaesse_Durchlaesse(models.Model):
   material = models.ForeignKey(Materialien_Durchlaesse, verbose_name='Material', on_delete=models.SET_NULL, db_column='material', to_field='uuid', related_name='materialien+', blank=True, null=True)
   baujahr = PositiveSmallIntegerRangeField('Baujahr', max_value=current_year(), blank=True, null=True)
   nennweite = PositiveSmallIntegerMinField('Nennweite (in mm)', min_value=100, blank=True, null=True)
-  laenge = models.DecimalField('Länge (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>Durchlass</em></strong> muss mindestens 0,01 m lang sein.'), MaxValueValidator(Decimal('999.99'), 'Der <strong><em>Durchlass</em></strong> darf höchstens 999,99 m lang sein.')], blank=True, null=True)
+  laenge = models.DecimalField('Länge (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'), MaxValueValidator(Decimal('999.99'), 'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.')], blank=True, null=True)
   nebenanlagen = NullTextField('Nebenanlagen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   zubehoer = NullTextField('Zubehör', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   zustand_durchlass = models.ForeignKey(Zustandsbewertungen, verbose_name='Zustand des Durchlasses', on_delete=models.SET_NULL, db_column='zustand_durchlass', to_field='uuid', related_name='zustaende_durchlaesse+', blank=True, null=True)
@@ -4809,6 +4850,65 @@ class Rettungswachen(models.Model):
 signals.post_save.connect(assign_permissions, sender=Rettungswachen)
 
 signals.post_delete.connect(remove_permissions, sender=Rettungswachen)
+
+
+# Schiffsliegeplätze
+
+class Schiffsliegeplaetze(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  hafen = models.ForeignKey(Haefen, verbose_name='Hafen', on_delete=models.CASCADE, db_column='hafen', to_field='uuid', related_name='haefen+')
+  liegeplatznummer = models.CharField('Liegeplatz', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  liegeplatzlaenge = models.DecimalField('Liegeplatzlänge (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Liegeplatzlänge</em></strong> muss mindestens 0,01 m betragen.'), MaxValueValidator(Decimal('999.99'), 'Die <strong><em>Liegeplatzlänge</em></strong> darf höchstens 999,99 m betragen.')], blank=True, null=True)
+  zulaessiger_tiefgang = models.DecimalField('zulässiger Tiefgang (in m)', max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Der <strong><em>zulässige Tiefgang</em></strong> muss mindestens 0,01 m betragen.'), MaxValueValidator(Decimal('99.99'), 'Der <strong><em>zulässige Tiefgang</em></strong> darf höchstens 99,99 m betragen.')], blank=True, null=True)
+  zulaessige_schiffslaenge = models.DecimalField('zulässige Schiffslänge (in m)', max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>zulässige Schiffslänge</em></strong> muss mindestens 0,01 m betragen.'), MaxValueValidator(Decimal('999.99'), 'Die <strong><em>zulässige Schiffslänge</em></strong> darf höchstens 999,99 m betragen.')], blank=True, null=True)
+  kaihoehe = models.DecimalField('Kaihöhe (in m)', max_digits=3, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Kaihöhe</em></strong> muss mindestens 0,01 m betragen.'), MaxValueValidator(Decimal('9.99'), 'Die <strong><em>Kaihöhe</em></strong> darf höchstens 9,99 m betragen.')], blank=True, null=True)
+  pollerzug = models.CharField('Pollerzug', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  poller_von = models.CharField('Poller (von)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  poller_bis = models.CharField('Poller (bis)', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  geometrie = models.PolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"schiffsliegeplaetze_hro'
+    verbose_name = 'Schiffsliegeplatz'
+    verbose_name_plural = 'Schiffsliegeplätze'
+    description = 'Schiffsliegeplätze der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'hafen': 'Hafen',
+      'liegeplatznummer': 'Liegeplatz',
+      'bezeichnung': 'Bezeichnung',
+      'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)'
+    }
+    list_fields_with_foreign_key = {
+      'hafen': 'hafen__bezeichnung'
+    }
+    list_fields_with_number = ['zulaessiger_tiefgang']
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'hafen': 'Hafen',
+      'liegeplatznummer': 'Liegeplatz',
+      'bezeichnung': 'Bezeichnung',
+    }
+    map_filter_fields_as_list = ['hafen']
+    geometry_type = 'Polygon'
+
+  def __str__(self):
+    return self.liegeplatznummer + ', ' + self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schiffsliegeplaetze, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Schiffsliegeplaetze, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Schiffsliegeplaetze)
+
+signals.post_delete.connect(remove_permissions, sender=Schiffsliegeplaetze)
 
 
 # Sporthallen
