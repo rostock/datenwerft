@@ -3296,6 +3296,8 @@ class Durchlaesse_Fotos(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   durchlaesse_durchlass = models.ForeignKey(Durchlaesse_Durchlaesse, verbose_name='Durchlass', on_delete=models.CASCADE, db_column='durchlaesse_durchlass', to_field='uuid', related_name='durchlaesse_durchlaesse+')
+  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today, blank=True, null=True)
+  bemerkungen = NullTextField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   dateiname_original = models.CharField('Original-Dateiname', max_length=255, default='ohne')
   foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PUBLIC + 'durchlaesse'), max_length=255)
 
@@ -3308,10 +3310,13 @@ class Durchlaesse_Fotos(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'durchlaesse_durchlass': 'Durchlass',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'bemerkungen': 'Bemerkungen',
       'dateiname_original': 'Original-Dateiname',
       'foto': 'Foto'
     }
     readonly_fields = ['dateiname_original']
+    list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
       'durchlaesse_durchlass': 'durchlaesse_durchlass__aktenzeichen'
     }
@@ -3321,7 +3326,7 @@ class Durchlaesse_Fotos(models.Model):
     multi_foto_field = True
   
   def __str__(self):
-    return str(self.durchlaesse_durchlass)
+    return str(self.durchlaesse_durchlass) + (' mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') + ', ' if self.aufnahmedatum else '')
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
@@ -3338,6 +3343,7 @@ signals.post_save.connect(assign_permissions, sender=Durchlaesse_Fotos)
 signals.post_delete.connect(delete_photo, sender=Durchlaesse_Fotos)
 
 signals.post_delete.connect(remove_permissions, sender=Durchlaesse_Fotos)
+
 
 
 # Fair Trade
@@ -3698,7 +3704,7 @@ class Gutachterfotos(models.Model):
   bearbeiter = models.CharField('Bearbeiter', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   bemerkungen = models.CharField('Bemerkungen', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   datum = models.DateField('Datum', default=date.today)
-  aufnahmedatum = models.DateField('Aufnahmedatum')
+  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
   foto = models.ImageField('Foto', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PHOTO_PATH_PREFIX_PRIVATE + 'gutachterfotos'), max_length=255)
   geometrie = models.PointField('Geometrie', srid=25833, default='POINT(0 0)')
 

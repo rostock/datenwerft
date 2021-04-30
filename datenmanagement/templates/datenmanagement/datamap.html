@@ -819,6 +819,10 @@
                       if (moment(new Date(filterAttributesList[i].value), 'day').format('YYYY-MM-DD') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').format('YYYY-MM-DD')) {
                         layer.getElement().style.display = 'none';
                       }
+                    } else if (filterAttributesList[i].type === 'list') {
+                      if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() != filterAttributesList[i].value.toLowerCase()) {
+                        layer.getElement().style.display = 'none';
+                      }
                     } else {
                       if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1) {
                         layer.getElement().style.display = 'none';
