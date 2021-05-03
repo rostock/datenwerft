@@ -315,31 +315,32 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 #
 
 options.DEFAULT_NAMES += (
-  'codelist',                               # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
-  'description',                            # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
-  'choices_models_for_choices_fields',      # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
-  'list_fields',                            # Pflicht  ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
-  'list_fields_with_number',                # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
-  'list_fields_with_date',                  # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
-  'list_fields_with_foreign_key',           # optional ; Textdictionary ; Namen der Felder (als Keys), die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden werden
-  'highlight_flag',                         # optional ; Text           ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
-  'readonly_fields',                        # optional ; Textliste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
-  'object_title',                           # optional ; Text           ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
-  'foreign_key_label',                      # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'map_feature_tooltip_field',              # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
-  'map_feature_tooltip_fields',             # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
-  'map_rangefilter_fields',                 # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
-  'map_filter_fields',                      # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
-  'map_filter_fields_as_list',              # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
-  'map_filter_boolean_fields_as_checkbox',  # optional ; Boolean        ; Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen, als Checkboxen dargestellt werden (True)?
-  'map_filter_hide_initial',                # optional ; Textdictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
-  'address_type',                           # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
-  'address_mandatory',                      # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
-  'geometry_type',                          # optional ; Text           ; Geometrietyp
-  'thumbs',                                 # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
-  'multi_foto_field',                       # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
-  'group_with_users_for_choice_field',      # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group'                             # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'codelist',                                 # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
+  'description',                              # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
+  'choices_models_for_choices_fields',        # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
+  'list_fields',                              # Pflicht  ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
+  'list_fields_with_number',                  # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
+  'list_fields_with_date',                    # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
+  'list_fields_with_foreign_key',             # optional ; Textdictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
+  'list_fields_with_foreign_key_to_linkify',  # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, die für die Tabelle der Listenansicht in Fremdschlüssellinks umgewandelt werden sollen
+  'highlight_flag',                           # optional ; Text           ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
+  'readonly_fields',                          # optional ; Textliste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  'object_title',                             # optional ; Text           ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
+  'foreign_key_label',                        # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
+  'map_feature_tooltip_field',                # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'map_feature_tooltip_fields',               # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
+  'map_rangefilter_fields',                   # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
+  'map_filter_fields',                        # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
+  'map_filter_fields_as_list',                # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
+  'map_filter_boolean_fields_as_checkbox',    # optional ; Boolean        ; Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen, als Checkboxen dargestellt werden (True)?
+  'map_filter_hide_initial',                  # optional ; Textdictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
+  'address_type',                             # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
+  'address_mandatory',                        # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
+  'geometry_type',                            # optional ; Text           ; Geometrietyp
+  'thumbs',                                   # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
+  'multi_foto_field',                         # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'group_with_users_for_choice_field',        # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
+  'admin_group'                               # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
 )
 
 
@@ -2485,9 +2486,9 @@ class Abfallbehaelter(models.Model):
     list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
-      'typ': 'typ__typ',
-      'eigentuemer': 'eigentuemer__bezeichnung',
-      'bewirtschafter': 'bewirtschafter__bezeichnung'
+      'typ': 'typ',
+      'eigentuemer': 'bezeichnung',
+      'bewirtschafter': 'bezeichnung'
     }
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
@@ -2586,7 +2587,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     }
     list_fields_with_date = ['datum_abgeschlossenheitserklaerung', 'datum']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse'
+      'adresse': 'adresse'
     }
     map_feature_tooltip_field = 'datum'
     map_filter_fields = {
@@ -2641,8 +2642,8 @@ class Baudenkmale(models.Model):
       'beschreibung': 'Beschreibung'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'art': 'art__art'
+      'adresse': 'adresse',
+      'art': 'art'
     }
     map_feature_tooltip_field = 'beschreibung'
     map_filter_fields = {
@@ -2706,8 +2707,8 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       'bemerkungen': 'Bemerkungen'
     }
     list_fields_with_foreign_key = {
-      'strasse': 'strasse__strasse',
-      'auftraggeber': 'auftraggeber__auftraggeber'
+      'strasse': 'strasse',
+      'auftraggeber': 'auftraggeber'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -2765,9 +2766,10 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
-      'baustellen_fotodokumentation_baustelle': 'baustellen_fotodokumentation_baustelle__bezeichnung',
-      'status': 'status__status'
+      'baustellen_fotodokumentation_baustelle': 'bezeichnung',
+      'status': 'status'
     }
+    list_fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
     thumbs = True
@@ -2840,9 +2842,9 @@ class Baustellen_geplant(models.Model):
     }
     list_fields_with_date = ['beginn', 'ende']
     list_fields_with_foreign_key = {
-      'strasse': 'strasse__strasse',
-      'auftraggeber': 'auftraggeber__auftraggeber',
-      'status': 'status__status'
+      'strasse': 'strasse',
+      'auftraggeber': 'auftraggeber',
+      'status': 'status'
     }
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
@@ -2910,8 +2912,8 @@ class Behinderteneinrichtungen(models.Model):
       'traeger': 'Träger'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'traeger': 'traeger__bezeichnung'
+      'adresse': 'adresse',
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -2972,7 +2974,7 @@ class Bildungstraeger(models.Model):
       'schlagwoerter': 'Schlagwörter'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse'
+      'adresse': 'adresse'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3030,8 +3032,8 @@ class Carsharing_Stationen(models.Model):
     }
     list_fields_with_number = ['anzahl_fahrzeuge']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'anbieter': 'anbieter__anbieter'
+      'adresse': 'adresse',
+      'anbieter': 'anbieter'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3226,8 +3228,8 @@ class Denksteine(models.Model):
     }
     list_fields_with_number = ['geburtsjahr', 'sterbejahr']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'titel': 'titel__bezeichnung'
+      'adresse': 'adresse',
+      'titel': 'bezeichnung'
     }
     map_feature_tooltip_fields = ['titel', 'vorname', 'nachname']
     map_filter_fields = {
@@ -3299,8 +3301,8 @@ class Durchlaesse_Durchlaesse(models.Model):
       'bearbeiter': 'Bearbeiter'
     }
     list_fields_with_foreign_key = {
-      'art': 'art__art',
-      'material': 'material__material'
+      'art': 'art',
+      'material': 'material'
     }
     list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
     map_feature_tooltip_field = 'aktenzeichen'
@@ -3359,8 +3361,9 @@ class Durchlaesse_Fotos(models.Model):
     readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
-      'durchlaesse_durchlass': 'durchlaesse_durchlass__aktenzeichen'
+      'durchlaesse_durchlass': 'aktenzeichen'
     }
+    list_fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
     object_title = 'das Foto'
     foreign_key_label = 'Durchlass'
     thumbs = True
@@ -3417,8 +3420,8 @@ class FairTrade(models.Model):
       'bezeichnung': 'Bezeichnung'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'art': 'art__art'
+      'adresse': 'adresse',
+      'art': 'art'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3471,8 +3474,8 @@ class Feldsportanlagen(models.Model):
       'foto': 'Foto'
     }
     list_fields_with_foreign_key = {
-      'art': 'art__art',
-      'traeger': 'traeger__bezeichnung'
+      'art': 'art',
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3535,8 +3538,8 @@ class Feuerwachen(models.Model):
       'bezeichnung': 'Bezeichnung'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'art': 'art__art'
+      'adresse': 'adresse',
+      'art': 'art'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3594,8 +3597,8 @@ class Fliessgewaesser(models.Model):
       'laenge_in_hro': 'Länge innerhalb Rostocks (in m)'
     }
     list_fields_with_foreign_key = {
-      'art': 'art__art',
-      'ordnung': 'ordnung__ordnung'
+      'art': 'art',
+      'ordnung': 'ordnung'
     }
     list_fields_with_number = ['laenge', 'laenge_in_hro']
     readonly_fields = ['laenge', 'laenge_in_hro']
@@ -3648,7 +3651,7 @@ class Geh_Radwegereinigung(models.Model):
       'beschreibung': 'Beschreibung'
     }
     list_fields_with_foreign_key = {
-      'strasse': 'strasse__strasse'
+      'strasse': 'strasse'
     }
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
@@ -3700,7 +3703,7 @@ class Geraetespielanlagen(models.Model):
       'foto': 'Foto'
     }
     list_fields_with_foreign_key = {
-      'traeger': 'traeger__bezeichnung'
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3765,7 +3768,7 @@ class Gutachterfotos(models.Model):
     }
     list_fields_with_date = ['datum', 'aufnahmedatum']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse'
+      'adresse': 'adresse'
     }
     map_feature_tooltip_field = 'datum'
     map_filter_fields = {
@@ -3825,8 +3828,8 @@ class Hospize(models.Model):
       'traeger': 'Träger'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'traeger': 'traeger__bezeichnung'
+      'adresse': 'adresse',
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3999,9 +4002,10 @@ class Haltestellenkataster_Fotos(models.Model):
     readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
-      'haltestellenkataster_haltestelle': 'haltestellenkataster_haltestelle__id',
-      'motiv': 'motiv__fotomotiv'
+      'haltestellenkataster_haltestelle': 'id',
+      'motiv': 'fotomotiv'
     }
+    list_fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
     object_title = 'das Foto'
     foreign_key_label = 'Haltestelle'
     thumbs = True
@@ -4060,8 +4064,8 @@ class Hundetoiletten(models.Model):
     list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
-      'art': 'art__art',
-      'bewirtschafter': 'bewirtschafter__bezeichnung'
+      'art': 'art',
+      'bewirtschafter': 'bezeichnung'
     }
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
@@ -4123,7 +4127,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
     }
     list_fields_with_number = ['plaetze']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse'
+      'adresse': 'adresse'
     }
     map_feature_tooltip_fields = ['vorname', 'nachname']
     map_filter_fields = {
@@ -4178,8 +4182,8 @@ class Kinder_Jugendbetreuung(models.Model):
       'traeger': 'Träger'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'traeger': 'traeger__bezeichnung'
+      'adresse': 'adresse',
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -4292,10 +4296,10 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
     }
     list_fields_with_number = ['anzahl_ladepunkte']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'betreiber': 'betreiber__bezeichnung',
-      'verbund': 'verbund__verbund',
-      'betriebsart': 'betriebsart__betriebsart'
+      'adresse': 'adresse',
+      'betreiber': 'bezeichnung',
+      'verbund': 'verbund',
+      'betriebsart': 'betriebsart'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -4354,7 +4358,7 @@ class Meldedienst_flaechenhaft(models.Model):
     }
     list_fields_with_date = ['datum']
     list_fields_with_foreign_key = {
-      'art': 'art__art'
+      'art': 'art'
     }
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
@@ -4409,8 +4413,8 @@ class Meldedienst_punkthaft(models.Model):
     }
     list_fields_with_date = ['datum']
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'art': 'art__art'
+      'adresse': 'adresse',
+      'art': 'art'
     }
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
@@ -4516,9 +4520,9 @@ class Parkmoeglichkeiten(models.Model):
       'betreiber': 'Betreiber'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'art': 'art__art',
-      'betreiber': 'betreiber__bezeichnung'
+      'adresse': 'adresse',
+      'art': 'art',
+      'betreiber': 'bezeichnung'
     }
     map_feature_tooltip_fields = ['art', 'standort']
     map_filter_fields = {
@@ -4633,9 +4637,10 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
       'zone': 'Zone'
     }
     list_fields_with_foreign_key = {
-      'parkscheinautomaten_tarif': 'parkscheinautomaten_tarif__bezeichnung',
-      'zone': 'zone__zone'
+      'parkscheinautomaten_tarif': 'bezeichnung',
+      'zone': 'zone'
     }
+    list_fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'parkscheinautomaten_tarif': 'Tarif',
@@ -4692,8 +4697,8 @@ class Pflegeeinrichtungen(models.Model):
       'betreiber': 'Betreiber'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'art': 'art__art'
+      'adresse': 'adresse',
+      'art': 'art'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -4761,10 +4766,10 @@ class Poller(models.Model):
     }
     list_fields_with_number = ['anzahl']
     list_fields_with_foreign_key = {
-      'art': 'art__art',
-      'status': 'status__status',
-      'hersteller': 'hersteller__bezeichnung',
-      'typ': 'typ__typ'
+      'art': 'art',
+      'status': 'status',
+      'hersteller': 'bezeichnung',
+      'typ': 'typ'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -4823,8 +4828,8 @@ class Rettungswachen(models.Model):
       'traeger': 'Träger'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'traeger': 'traeger__bezeichnung'
+      'adresse': 'adresse',
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -4883,7 +4888,7 @@ class Schiffsliegeplaetze(models.Model):
       'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)'
     }
     list_fields_with_foreign_key = {
-      'hafen': 'hafen__bezeichnung'
+      'hafen': 'bezeichnung'
     }
     list_fields_with_number = ['zulaessiger_tiefgang']
     map_feature_tooltip_field = 'bezeichnung'
@@ -4940,9 +4945,9 @@ class Sporthallen(models.Model):
       'foto': 'Foto'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'traeger': 'traeger__bezeichnung',
-      'sportart': 'sportart__bezeichnung'
+      'adresse': 'adresse',
+      'traeger': 'bezeichnung',
+      'sportart': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -5009,8 +5014,8 @@ class Stadtteil_Begegnungszentren(models.Model):
       'traeger': 'Träger'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse',
-      'traeger': 'traeger__bezeichnung'
+      'adresse': 'adresse',
+      'traeger': 'bezeichnung'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -5061,9 +5066,9 @@ class Strassenreinigung(models.Model):
       'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
     }
     list_fields_with_foreign_key = {
-      'strasse': 'strasse__strasse',
-      'reinigungsklasse': 'reinigungsklasse__code',
-      'fahrbahnwinterdienst': 'fahrbahnwinterdienst__code'
+      'strasse': 'strasse',
+      'reinigungsklasse': 'code',
+      'fahrbahnwinterdienst': 'code'
     }
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
@@ -5122,10 +5127,10 @@ class UVP_Vorhaben(models.Model):
       'typ': 'Typ'
     }
     list_fields_with_foreign_key = {
-      'vorgangsart': 'vorgangsart__vorgangsart',
-      'genehmigungsbehoerde': 'genehmigungsbehoerde__genehmigungsbehoerde',
-      'rechtsgrundlage': 'rechtsgrundlage__rechtsgrundlage',
-      'typ': 'typ__typ'
+      'vorgangsart': 'vorgangsart',
+      'genehmigungsbehoerde': 'genehmigungsbehoerde',
+      'rechtsgrundlage': 'rechtsgrundlage',
+      'typ': 'typ'
     }
     list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
     map_feature_tooltip_field = 'bezeichnung'
@@ -5185,12 +5190,13 @@ class UVP_Vorpruefungen(models.Model):
       'datum': 'Datum',
       'ergebnis': 'Ergebnis'
     }
-    list_fields_with_foreign_key = {
-      'uvp_vorhaben': 'uvp_vorhaben__bezeichnung',
-      'art': 'art__art',
-      'ergebnis': 'ergebnis__ergebnis'
-    }
     list_fields_with_date = ['datum_posteingang', 'datum']
+    list_fields_with_foreign_key = {
+      'uvp_vorhaben': 'bezeichnung',
+      'art': 'art',
+      'ergebnis': 'ergebnis'
+    }
+    list_fields_with_foreign_key_to_linkify = ['uvp_vorhaben']
     object_title = 'die UVP-Vorprüfung'
     foreign_key_label = 'Vorhaben'
 
@@ -5242,7 +5248,7 @@ class Vereine(models.Model):
       'schlagwoerter': 'Schlagwörter'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse'
+      'adresse': 'adresse'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -5301,7 +5307,7 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
       'berechtigungen': 'verkaufte Berechtigung(en)'
     }
     list_fields_with_foreign_key = {
-      'adresse': 'adresse__adresse'
+      'adresse': 'adresse'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {

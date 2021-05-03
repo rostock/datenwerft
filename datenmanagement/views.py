@@ -296,6 +296,7 @@ class DataView(BaseDatatableView):
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
     self.columns = self.model._meta.list_fields
+    self.columns_with_foreign_key_to_linkify = (self.model._meta.list_fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'list_fields_with_foreign_key_to_linkify') else None)
     self.columns_with_foreign_key = (self.model._meta.list_fields_with_foreign_key if hasattr(self.model._meta, 'list_fields_with_foreign_key') else None)
     self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
     self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
@@ -314,10 +315,16 @@ class DataView(BaseDatatableView):
         item_data.append('<input class="action-checkbox" type="checkbox" value="' + str(item_id) + '">')
       else:
         item_data.append('')
-      for column in list(self.columns.keys()):
+      for column in self.columns:
         data = None
         value = getattr(item, column)
-        if value is not None and self.columns_with_number is not None and column in self.columns_with_number:
+        if value is not None and self.columns_with_foreign_key is not None and column in self.columns_with_foreign_key and self.columns_with_foreign_key_to_linkify is not None and column in self.columns_with_foreign_key_to_linkify:
+          foreign_model = value._meta.label
+          foreign_model_primary_key = value._meta.pk.name
+          foreign_model_title = self.columns.get(column)
+          foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
+          data = '<a href="' + reverse('datenmanagement:' + foreign_model.replace(value._meta.app_label + '.', '') + 'change', args=[getattr(value, foreign_model_primary_key)]) + '" title="' + foreign_model_title + ' bearbeiten">' + getattr(value, foreign_model_attribute_for_text) + '</a>'
+        elif value is not None and self.columns_with_number is not None and column in self.columns_with_number:
           data = value
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
           data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
@@ -359,11 +366,11 @@ class DataView(BaseDatatableView):
     search = self.request.GET.get('search[value]', None)
     if search:
       qs_params = None
-      for column in list(self.columns.keys()):
+      for column in self.columns:
         if self.columns_with_foreign_key:
           column_with_foreign_key = self.columns_with_foreign_key.get(column)
           if column_with_foreign_key is not None:
-            column = column_with_foreign_key
+            column = column + str('__') + column_with_foreign_key
         kwargs = {
           '{0}__{1}'.format(column, 'icontains'): search
         }
