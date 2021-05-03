@@ -315,32 +315,32 @@ class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
 #
 
 options.DEFAULT_NAMES += (
-  'codelist',                                 # optional ; Boolean        ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
-  'description',                              # Pflicht  ; Text           ; Beschreibung bzw. Langtitel des Datenthemas
-  'choices_models_for_choices_fields',        # optional ; Textdictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
-  'list_fields',                              # Pflicht  ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
-  'list_fields_with_number',                  # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind
-  'list_fields_with_date',                    # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind
-  'list_fields_with_foreign_key',             # optional ; Textdictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
-  'list_fields_with_foreign_key_to_linkify',  # optional ; Textliste      ; Liste mit den Namen der Felder aus list_fields, die für die Tabelle der Listenansicht in Fremdschlüssellinks umgewandelt werden sollen
-  'highlight_flag',                           # optional ; Text           ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
-  'readonly_fields',                          # optional ; Textliste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
-  'object_title',                             # optional ; Text           ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
-  'foreign_key_label',                        # optional ; Text           ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
-  'map_feature_tooltip_field',                # optional ; Text           ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
-  'map_feature_tooltip_fields',               # optional ; Textliste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
-  'map_rangefilter_fields',                   # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
-  'map_filter_fields',                        # optional ; Textdictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
-  'map_filter_fields_as_list',                # optional ; Textliste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
-  'map_filter_boolean_fields_as_checkbox',    # optional ; Boolean        ; Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen, als Checkboxen dargestellt werden (True)?
-  'map_filter_hide_initial',                  # optional ; Textdictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
-  'address_type',                             # optional ; Text           ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
-  'address_mandatory',                        # optional ; Boolean        ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
-  'geometry_type',                            # optional ; Text           ; Geometrietyp
-  'thumbs',                                   # optional ; Boolean        ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
-  'multi_foto_field',                         # optional ; Boolean        ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
-  'group_with_users_for_choice_field',        # optional ; Text           ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group'                               # optional ; Text           ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'codelist',                                 # optional ; Boolean    ; Handelt es sich um eine Codeliste, die dann für normale Benutzer in der Liste der verfügbaren Datenthemen nicht auftaucht (True)?
+  'description',                              # Pflicht  ; Text       ; Beschreibung bzw. Langtitel des Datenthemas
+  'choices_models_for_choices_fields',        # optional ; Dictionary ; Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind, die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
+  'list_fields',                              # Pflicht  ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
+  'list_fields_with_number',                  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
+  'list_fields_with_date',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
+  'list_fields_with_foreign_key',             # optional ; Dictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
+  'list_fields_with_foreign_key_to_linkify',  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, die für die Tabelle der Listenansicht in Fremdschlüssellinks umgewandelt werden sollen
+  'highlight_flag',                           # optional ; Text       ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
+  'readonly_fields',                          # optional ; Liste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  'object_title',                             # optional ; Text       ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
+  'foreign_key_label',                        # optional ; Text       ; Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
+  'map_feature_tooltip_field',                # optional ; Text       ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
+  'map_feature_tooltip_fields',               # optional ; Liste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
+  'map_rangefilter_fields',                   # optional ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
+  'map_filter_fields',                        # optional ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
+  'map_filter_fields_as_list',                # optional ; Liste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
+  'map_filter_boolean_fields_as_checkbox',    # optional ; Boolean    ; Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen, als Checkboxen dargestellt werden (True)?
+  'map_filter_hide_initial',                  # optional ; Dictionary ; Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld genau diesen bestimmten Wert aufweisen
+  'address_type',                             # optional ; Text       ; Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
+  'address_mandatory',                        # optional ; Boolean    ; Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine Pflichtangabe sein (True)?
+  'geometry_type',                            # optional ; Text       ; Geometrietyp
+  'thumbs',                                   # optional ; Boolean    ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
+  'multi_foto_field',                         # optional ; Boolean    ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
+  'group_with_users_for_choice_field',        # optional ; Text       ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
+  'admin_group'                               # optional ; Text       ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
 )
 
 
