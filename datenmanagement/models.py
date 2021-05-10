@@ -322,7 +322,7 @@ options.DEFAULT_NAMES += (
   'list_fields_with_number',                  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_date',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_foreign_key',             # optional ; Dictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
-  'list_fields_with_foreign_key_to_linkify',  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, die für die Tabelle der Listenansicht in Fremdschlüssellinks umgewandelt werden sollen
+  'fields_with_foreign_key_to_linkify',       # optional ; Liste      ; Liste mit den Namen der Felder, deren Werte mit Fremdschlüssellinks versehen werden sollen
   'highlight_flag',                           # optional ; Text       ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
   'readonly_fields',                          # optional ; Liste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
   'object_title',                             # optional ; Text       ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
@@ -2769,7 +2769,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
       'baustellen_fotodokumentation_baustelle': 'bezeichnung',
       'status': 'status'
     }
-    list_fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
+    fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
     thumbs = True
@@ -3363,7 +3363,7 @@ class Durchlaesse_Fotos(models.Model):
     list_fields_with_foreign_key = {
       'durchlaesse_durchlass': 'aktenzeichen'
     }
-    list_fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
+    fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
     object_title = 'das Foto'
     foreign_key_label = 'Durchlass'
     thumbs = True
@@ -4005,7 +4005,7 @@ class Haltestellenkataster_Fotos(models.Model):
       'haltestellenkataster_haltestelle': 'id',
       'motiv': 'fotomotiv'
     }
-    list_fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
+    fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
     object_title = 'das Foto'
     foreign_key_label = 'Haltestelle'
     thumbs = True
@@ -4640,7 +4640,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
       'parkscheinautomaten_tarif': 'bezeichnung',
       'zone': 'zone'
     }
-    list_fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
+    fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'parkscheinautomaten_tarif': 'Tarif',
@@ -5196,7 +5196,7 @@ class UVP_Vorpruefungen(models.Model):
       'art': 'art',
       'ergebnis': 'ergebnis'
     }
-    list_fields_with_foreign_key_to_linkify = ['uvp_vorhaben']
+    fields_with_foreign_key_to_linkify = ['uvp_vorhaben']
     object_title = 'die UVP-Vorprüfung'
     foreign_key_label = 'Vorhaben'
 

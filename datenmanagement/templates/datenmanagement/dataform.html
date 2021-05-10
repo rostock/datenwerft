@@ -62,7 +62,17 @@
             <tr>
               <td>
                 {% if field|is_field_hours_related_field %}
-                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten" target="_blank"><i class="fas fa-question-circle"></i></span> Hilfe</a>)</small>
+                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-question-circle"></i></span> Hilfe</a>)</small>
+                {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
+                  {% if object and user|user_has_object_change_permission:object %} %}
+                    {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
+                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-edit" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                    {% endwith %}
+                  {% else %}
+                    {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
+                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-edit" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                    {% endwith %}
+                  {% endif %}
                 {% else %}
                   {{ field.label_tag }}
                 {% endif %}
@@ -449,7 +459,7 @@
       // verhindern, dass HTML5-/jQuery-Fehlermeldungen bei Pflichtfeldern die Django-Fehlermeldungen überdecken
       $('[required]').removeAttr('required');
 
-      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 PIxeln)
+      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
       {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
         var top = $('#custom-form').position().top + $('#custom-form').height() + 20;
         $('#buttons').offset({
@@ -459,6 +469,26 @@
 
       // Labels für verpflichtende Boolean-Felder anpassen
       $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
+
+      // Fremdschlüssellinks dynamisch anpassen je nach aktueller Auswahl in entsprechenden Auswahlfeldern (bei leerer Auswahl Link verstecken)
+      {% if fields_with_foreign_key_to_linkify and user|user_has_object_change_permission:object or not object %}
+        {% for field in fields_with_foreign_key_to_linkify %}
+          $('select#id_' + '{{ field }}').each(function () {
+            $(this).on('change', function() {
+              var link = $('a#link_' + '{{ field }}');
+              var href = link.prop('href');
+              var value = $(this).find(':selected').val();
+              if (value) {
+                href = href.replace(/\/change\/.*/, '/change/' + value + '/');
+                link.prop('href', href);
+                link.prop('hidden', false);
+              } else {
+                link.prop('hidden', true);
+              }
+            });
+          });
+        {% endfor %}
+      {% endif %}
 
       // Links auf vorhandene Fotos, PDF etc. immer in neuem Tab öffnen
       $('td').find('a').attr('title', 'in neuem Tab öffnen…');

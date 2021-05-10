@@ -150,6 +150,7 @@ class DataForm(ModelForm):
   required_css_class = 'required'
   
   def __init__(self, *args, **kwargs):
+    fields_with_foreign_key_to_linkify = kwargs.pop('fields_with_foreign_key_to_linkify', None)
     choices_models_for_choices_fields = kwargs.pop('choices_models_for_choices_fields', None)
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
     admin_group = kwargs.pop('admin_group', None)
@@ -160,6 +161,7 @@ class DataForm(ModelForm):
     request = kwargs.pop('request', None)
     kwargs.setdefault('label_suffix', '')
     super(DataForm, self).__init__(*args, **kwargs)
+    self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
     self.admin_group = admin_group
@@ -296,7 +298,7 @@ class DataView(BaseDatatableView):
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
     self.columns = self.model._meta.list_fields
-    self.columns_with_foreign_key_to_linkify = (self.model._meta.list_fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'list_fields_with_foreign_key_to_linkify') else None)
+    self.columns_with_foreign_key_to_linkify = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     self.columns_with_foreign_key = (self.model._meta.list_fields_with_foreign_key if hasattr(self.model._meta, 'list_fields_with_foreign_key') else None)
     self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
     self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
@@ -323,7 +325,7 @@ class DataView(BaseDatatableView):
           foreign_model_primary_key = value._meta.pk.name
           foreign_model_title = self.columns.get(column)
           foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
-          data = '<a href="' + reverse('datenmanagement:' + foreign_model.replace(value._meta.app_label + '.', '') + 'change', args=[getattr(value, foreign_model_primary_key)]) + '" class="required" title="' + foreign_model_title + ' bearbeiten">' + getattr(value, foreign_model_attribute_for_text) + '</a>'
+          data = '<a href="' + reverse('datenmanagement:' + foreign_model.replace(value._meta.app_label + '.', '') + 'change', args=[getattr(value, foreign_model_primary_key)]) + '" target="_blank" class="required" title="' + foreign_model_title + ' ansehen oder bearbeiten">' + getattr(value, foreign_model_attribute_for_text) + '</a>'
         elif value is not None and self.columns_with_number is not None and column in self.columns_with_number:
           data = value
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
@@ -468,12 +470,14 @@ class DataMapView(generic.ListView):
 class DataAddView(generic.CreateView):
   def get_form_kwargs(self):
     kwargs = super(DataAddView, self).get_form_kwargs()
+    self.fields_with_foreign_key_to_linkify = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.multi_foto_field = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     self.multi_files = (self.request.FILES if hasattr(self.model._meta, 'multi_foto_field') and self.request.method == 'POST' else None)
     self.file = (self.request.FILES if self.request.method == 'POST' else None)
+    kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['admin_group'] = self.admin_group
@@ -499,6 +503,7 @@ class DataAddView(generic.CreateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['fields_with_foreign_key_to_linkify'] = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     context['choices_models_for_choices_fields'] = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
     context['address_mandatory'] = (self.model._meta.address_mandatory if hasattr(self.model._meta, 'address_mandatory') else None)
@@ -531,10 +536,12 @@ class DataAddView(generic.CreateView):
 class DataChangeView(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(DataChangeView, self).get_form_kwargs()
+    self.fields_with_foreign_key_to_linkify = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.file = (self.request.FILES if self.request.method == 'POST' else None)
+    kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['admin_group'] = self.admin_group
@@ -558,6 +565,7 @@ class DataChangeView(generic.UpdateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['fields_with_foreign_key_to_linkify'] = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     context['choices_models_for_choices_fields'] = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
     context['address_mandatory'] = (self.model._meta.address_mandatory if hasattr(self.model._meta, 'address_mandatory') else None)

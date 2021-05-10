@@ -45,6 +45,12 @@ def get_class_verbose_name_plural(value):
 
 
 @register.filter
+def get_foreign_key_field_class_name(field_name, model_name):
+  model = apps.get_app_config('datenmanagement').get_model(model_name)
+  return model._meta.get_field(field_name).remote_field.model.__name__
+
+
+@register.filter
 def get_list_item_by_index(list, i):
   return list[i]
 
@@ -84,7 +90,7 @@ def get_value_of_field(value, field):
   if isinstance(return_value, list):
     return ', '.join(return_value)
   else:
-    return getattr(value, field)
+    return return_value
 
 
 @register.filter
