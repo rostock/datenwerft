@@ -323,6 +323,7 @@ options.DEFAULT_NAMES += (
   'list_fields_with_date',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_foreign_key',             # optional ; Dictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
   'fields_with_foreign_key_to_linkify',       # optional ; Liste      ; Liste mit den Namen der Felder, deren Werte mit Fremdschlüssellinks versehen werden sollen
+  'associated_models',                        # optional ; Dictionary ; Sollen andere Modelle (als Keys), die mit Fremdschlüsselfeldern (als Values) auf dieses Model verweisen, herangezogen werden, um entsprechende Links auf der Bearbeitungsseite und in der Tabelle der Listenansicht dieses Modelle bereitzustellen?
   'highlight_flag',                           # optional ; Text       ; Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten entsprechender Zeilen herangezogen werden soll
   'readonly_fields',                          # optional ; Liste      ; Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
   'object_title',                             # optional ; Text       ; Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
@@ -2710,6 +2711,9 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       'strasse': 'strasse',
       'auftraggeber': 'auftraggeber'
     }
+    associated_models = {
+      'Baustellen_Fotodokumentation_Fotos': 'baustellen_fotodokumentation_baustelle'
+    }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -3305,6 +3309,9 @@ class Durchlaesse_Durchlaesse(models.Model):
       'material': 'material'
     }
     list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
+    associated_models = {
+      'Durchlaesse_Fotos': 'durchlaesse_durchlass'
+    }
     map_feature_tooltip_field = 'aktenzeichen'
     map_filter_fields = {
       'art': 'Art',
@@ -3370,7 +3377,7 @@ class Durchlaesse_Fotos(models.Model):
     multi_foto_field = True
   
   def __str__(self):
-    return str(self.durchlaesse_durchlass) + (' mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') + ', ' if self.aufnahmedatum else '')
+    return str(self.durchlaesse_durchlass) + (' mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') if self.aufnahmedatum else '')
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
@@ -3953,6 +3960,9 @@ class Haltestellenkataster_Haltestellen(models.Model):
       'hst_bus_bahnsteigbezeichnung': 'Bus-/Bahnsteigbezeichnung'
     }
     list_fields_with_number = ['id']
+    associated_models = {
+      'Haltestellenkataster_Fotos': 'haltestellenkataster_haltestelle'
+    }
     readonly_fields = ['id']
     map_feature_tooltip_field = 'hst_bezeichnung'
     geometry_type = 'Point'
@@ -4585,6 +4595,9 @@ class Parkscheinautomaten_Tarife(models.Model):
       'bezeichnung': 'Bezeichnung',
       'zeiten': 'Bewirtschaftungszeiten'
     }
+    associated_models = {
+      'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'
+    }
     ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
@@ -5133,6 +5146,9 @@ class UVP_Vorhaben(models.Model):
       'typ': 'typ'
     }
     list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
+    associated_models = {
+      'UVP_Vorpruefungen': 'uvp_vorhaben'
+    }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -5179,7 +5195,7 @@ class UVP_Vorpruefungen(models.Model):
   class Meta:
     managed = False
     db_table = 'fachdaten\".\"uvp_vorpruefungen_hro'
-    verbose_name = 'UVP-Vorprüfungen'
+    verbose_name = 'UVP-Vorprüfung'
     verbose_name_plural = 'UVP-Vorprüfungen'
     description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
     list_fields = {

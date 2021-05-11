@@ -53,6 +53,17 @@
     {% endif %}
     <div class="spacer-small"></div>
   {% endif %}
+  {% if object and associated_objects %}
+    <div class="alert alert-primary" role="alert">
+      <h5 class="alert-heading">assozierte Datensätze</h5>
+      <ul>
+        {% for associated_object in associated_objects %}
+          <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-edit"></i></a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="spacer-small"></div>
+  {% endif %}
 	<form class="form" role="form" method="post" enctype="multipart/form-data" action="">
   {% csrf_token %}
     <div {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}class="row"{% endif %} id="custom-form">

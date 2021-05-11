@@ -53,7 +53,7 @@ def assign_widgets(field, widget = None):
 def delete_object_immediately(request, pk):
   model_name = re.sub('^.*\/', '', re.sub('\/deleteimmediately.*$', '', request.path_info))
   model = apps.get_app_config('datenmanagement').get_model(model_name)
-  obj = get_object_or_404(model, pk = pk)
+  obj = get_object_or_404(model, pk=pk)
   if ObjectPermissionChecker(request.user).has_perm('delete_' + model_name.lower(), obj):
     obj.delete()
   else:
@@ -150,6 +150,7 @@ class DataForm(ModelForm):
   required_css_class = 'required'
   
   def __init__(self, *args, **kwargs):
+    associated_objects = kwargs.pop('associated_objects', None)
     fields_with_foreign_key_to_linkify = kwargs.pop('fields_with_foreign_key_to_linkify', None)
     choices_models_for_choices_fields = kwargs.pop('choices_models_for_choices_fields', None)
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
@@ -161,6 +162,7 @@ class DataForm(ModelForm):
     request = kwargs.pop('request', None)
     kwargs.setdefault('label_suffix', '')
     super(DataForm, self).__init__(*args, **kwargs)
+    self.associated_objects = associated_objects
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
@@ -536,11 +538,14 @@ class DataAddView(generic.CreateView):
 class DataChangeView(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(DataChangeView, self).get_form_kwargs()
+    self.associated_objects = None
+    self.associated_models = (self.model._meta.associated_models if hasattr(self.model._meta, 'associated_models') else None)
     self.fields_with_foreign_key_to_linkify = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     self.group_with_users_for_choice_field = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.file = (self.request.FILES if self.request.method == 'POST' else None)
+    kwargs['associated_objects'] = self.associated_objects
     kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
@@ -548,6 +553,25 @@ class DataChangeView(generic.UpdateView):
     kwargs['file'] = self.file
     kwargs['model'] = self.model
     kwargs['request'] = self.request
+
+    # andere Models für die Bereitstellung entsprechender Links heranziehen
+    if self.associated_models:
+      self.associated_objects = []
+      for associated_model in self.associated_models:
+        associated_model_model = apps.get_app_config('datenmanagement').get_model(associated_model)
+        associated_model_foreign_key_field = self.associated_models.get(associated_model)
+        filter = {}
+        filter[associated_model_foreign_key_field] = self.object.pk
+        for associated_object in associated_model_model.objects.filter(**filter):
+          associated_object_dict = {
+            'title': (re.sub('^.* ', '', associated_model_model._meta.object_title) + ' zu ' + associated_model_model._meta.foreign_key_label if hasattr(associated_model_model._meta, 'object_title') and hasattr(associated_model_model._meta, 'foreign_key_label') else associated_model_model._meta.verbose_name),
+            'name': str(associated_object),
+            'id': associated_object.pk,
+            'link': reverse('datenmanagement:' + associated_model + 'change', args=[associated_object.pk])
+          }
+          self.associated_objects.append(associated_object_dict)
+      kwargs['associated_objects'] = self.associated_objects
+
     return kwargs
 
   def __init__(self, model = None, template_name = None, success_url = None):
@@ -565,6 +589,7 @@ class DataChangeView(generic.UpdateView):
     context['model_verbose_name'] = self.model._meta.verbose_name
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['associated_objects'] = (self.associated_objects if self.associated_objects else None)
     context['fields_with_foreign_key_to_linkify'] = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     context['choices_models_for_choices_fields'] = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)
