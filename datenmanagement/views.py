@@ -151,6 +151,7 @@ class DataForm(ModelForm):
   
   def __init__(self, *args, **kwargs):
     associated_objects = kwargs.pop('associated_objects', None)
+    associated_new = kwargs.pop('associated_new', None)
     fields_with_foreign_key_to_linkify = kwargs.pop('fields_with_foreign_key_to_linkify', None)
     choices_models_for_choices_fields = kwargs.pop('choices_models_for_choices_fields', None)
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
@@ -163,6 +164,7 @@ class DataForm(ModelForm):
     kwargs.setdefault('label_suffix', '')
     super(DataForm, self).__init__(*args, **kwargs)
     self.associated_objects = associated_objects
+    self.associated_new = associated_new
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
@@ -519,16 +521,19 @@ class DataAddView(generic.CreateView):
   def get_initial(self):
     ansprechpartner = None
     bearbeiter = None
+    preselect_field = self.request.GET.get('preselect_field', 'foobar')
+    preselect_value = self.request.GET.get('preselect_value', '')
     for field in self.model._meta.get_fields():
       if field.name == 'ansprechpartner':
         ansprechpartner = (self.request.user.first_name + ' ' + self.request.user.last_name if self.request.user.first_name and self.request.user.last_name else self.request.user.username) + ' (' + self.request.user.email.lower() + ')'
       if field.name == 'bearbeiter':
         bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name if self.request.user.first_name and self.request.user.last_name else self.request.user.username
-    if ansprechpartner or bearbeiter:
+    if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
       if self.request.user.is_superuser or (hasattr(self.model._meta, 'admin_group') and self.request.user.groups.filter(name = self.model._meta.admin_group).exists()) or not hasattr(self.model._meta, 'group_with_users_for_choice_field') or not hasattr(self.model._meta, 'admin_group'):
         return {
           'ansprechpartner': ansprechpartner,
-          'bearbeiter': bearbeiter
+          'bearbeiter': bearbeiter,
+          preselect_field: preselect_value
         }
 
   def form_valid(self, form):
@@ -539,6 +544,7 @@ class DataChangeView(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(DataChangeView, self).get_form_kwargs()
     self.associated_objects = None
+    self.associated_new = None
     self.associated_models = (self.model._meta.associated_models if hasattr(self.model._meta, 'associated_models') else None)
     self.fields_with_foreign_key_to_linkify = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     self.choices_models_for_choices_fields = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
@@ -546,6 +552,7 @@ class DataChangeView(generic.UpdateView):
     self.admin_group = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     self.file = (self.request.FILES if self.request.method == 'POST' else None)
     kwargs['associated_objects'] = self.associated_objects
+    kwargs['associated_new'] = self.associated_new
     kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
@@ -554,23 +561,46 @@ class DataChangeView(generic.UpdateView):
     kwargs['model'] = self.model
     kwargs['request'] = self.request
 
-    # andere Models für die Bereitstellung entsprechender Links heranziehen
+    # assoziierte Modelle für die Bereitstellung entsprechender Links heranziehen
     if self.associated_models:
+      self.associated_new = []
       self.associated_objects = []
       for associated_model in self.associated_models:
         associated_model_model = apps.get_app_config('datenmanagement').get_model(associated_model)
         associated_model_foreign_key_field = self.associated_models.get(associated_model)
+        title = (re.sub('^.* ', '', associated_model_model._meta.object_title) + ' zu ' + associated_model_model._meta.foreign_key_label if hasattr(associated_model_model._meta, 'object_title') and hasattr(associated_model_model._meta, 'foreign_key_label') else associated_model_model._meta.verbose_name)
+        associated_new_dict = {
+          'title': title,
+          'link': reverse('datenmanagement:' + associated_model + 'add') + '?preselect_field=' + associated_model_foreign_key_field + '&preselect_value=' + str(self.object.pk)
+        }
+        self.associated_new.append(associated_new_dict)
         filter = {}
         filter[associated_model_foreign_key_field] = self.object.pk
         for associated_object in associated_model_model.objects.filter(**filter):
+          foto = (associated_object.foto if hasattr(associated_object, 'foto') else None)
+          thumbs = (associated_model_model._meta.thumbs if foto and hasattr(associated_model_model._meta, 'thumbs') else None)
+          preview_img_url = ''
+          preview_thumb_url = ''
+          if foto:
+            try:
+              preview_img_url = foto.url + '?' + str(time.time())
+              if thumbs is not None and thumbs == True:
+                preview_thumb_url = get_thumb_url(foto.url) + '?' + str(time.time())
+              else:
+                preview_thumb_url = ''
+            except ValueError:
+              pass
           associated_object_dict = {
-            'title': (re.sub('^.* ', '', associated_model_model._meta.object_title) + ' zu ' + associated_model_model._meta.foreign_key_label if hasattr(associated_model_model._meta, 'object_title') and hasattr(associated_model_model._meta, 'foreign_key_label') else associated_model_model._meta.verbose_name),
+            'title': title,
             'name': str(associated_object),
             'id': associated_object.pk,
-            'link': reverse('datenmanagement:' + associated_model + 'change', args=[associated_object.pk])
+            'link': reverse('datenmanagement:' + associated_model + 'change', args=[associated_object.pk]),
+            'preview_img_url': preview_img_url,
+            'preview_thumb_url': preview_thumb_url
           }
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
+      kwargs['associated_new'] = self.associated_new
 
     return kwargs
 
@@ -590,6 +620,7 @@ class DataChangeView(generic.UpdateView):
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
     context['associated_objects'] = (self.associated_objects if self.associated_objects else None)
+    context['associated_new'] = (self.associated_new if self.associated_new else None)
     context['fields_with_foreign_key_to_linkify'] = (self.model._meta.fields_with_foreign_key_to_linkify if hasattr(self.model._meta, 'fields_with_foreign_key_to_linkify') else None)
     context['choices_models_for_choices_fields'] = (self.model._meta.choices_models_for_choices_fields if hasattr(self.model._meta, 'choices_models_for_choices_fields') else None)
     context['address_type'] = (self.model._meta.address_type if hasattr(self.model._meta, 'address_type') else None)

@@ -53,14 +53,24 @@
     {% endif %}
     <div class="spacer-small"></div>
   {% endif %}
-  {% if object and associated_objects %}
+  {% if associated_new %}
     <div class="alert alert-primary" role="alert">
-      <h5 class="alert-heading">assozierte Datensätze</h5>
-      <ul>
-        {% for associated_object in associated_objects %}
-          <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-edit"></i></a></li>
-        {% endfor %}
-      </ul>
+      <h5 class="alert-heading">assoziierte Datensätze</h5>
+      {% if object and associated_objects %}
+        <ul>
+          {% for associated_object in associated_objects %}
+            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-external-link-alt"></i></a></li>{% if associated_object.preview_img_url %} <a href="{{ associated_object.preview_img_url }}" target="_blank" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px" /></a>{% endif %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        (noch) keine assoziierten Datensätze vorhanden
+      {% endif %}
+      <hr/>
+      {% for associated_new_entry in associated_new %}
+        <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
+          <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank">{{ associated_new_entry.title }} anlegen <small><i class="fas fa-external-link-alt"></i></small></a>
+        </p>
+      {% endfor %}
     </div>
     <div class="spacer-small"></div>
   {% endif %}
@@ -77,11 +87,11 @@
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                   {% if object and user|user_has_object_change_permission:object %} %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
-                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-edit" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-external-link-alt" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% else %}
                     {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
-                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-edit" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-external-link-alt" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
                 {% else %}
