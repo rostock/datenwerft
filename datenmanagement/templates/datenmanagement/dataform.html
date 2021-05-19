@@ -195,10 +195,13 @@
       geodjango_id_geometrie.store_class = L.FieldStore;
       (new L.GeometryField(geodjango_id_geometrie)).addTo(map);
 
-      // Editier- und Löschmöglichkeit der Geometrie deaktivieren deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
+      // Editier- und Löschmöglichkeit der Geometrie deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
       {% if not user|user_has_object_change_permission:object %}
         $('.leaflet-draw').hide();
       {% endif %}
+
+      // überzähliges Marker-Werkzeug deaktivieren
+      $('.leaflet-draw-draw-circlemarker').remove();
 
       // falls Geometrie punkthaft ist...
       {% if geometry_type == 'Point' %}
