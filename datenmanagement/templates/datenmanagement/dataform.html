@@ -239,9 +239,13 @@
         });
       {% endif %}
 
+      // Konstanten definieren
+      var wmsFormat = 'image/png';
+      var maxZoom = 19;
+
       // ORKa.MV definieren
       var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: maxZoom,
         attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
       });
 
@@ -250,29 +254,29 @@
 
       // OpenStreetMap definieren
       var osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: maxZoom,
         attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
       });
 
       // Liegenschaftskarte definieren
       var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte/wms', {
         layers: 'hro.liegenschaftskarte',
-        format: 'image/png',
-        maxZoom: 19,
+        format: wmsFormat,
+        maxZoom: maxZoom,
         attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
       });
 
       // Luftbild definieren
       var luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: maxZoom,
         attribution: '© GeoBasis-DE/M-V'
       });
 
       // Kilometerquadrate ETRS89/UTM-33N definieren
       var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
         layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-        format: 'image/png',
-        maxZoom: 19,
+        format: wmsFormat,
+        maxZoom: maxZoom,
         transparent: true
       });
 
@@ -288,6 +292,19 @@
       var overlayMaps = {
         'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
       };
+
+      // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
+      {% if additional_wms_layers %}
+        {% for additional_wms_layer in additional_wms_layers %}
+          var overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
+            layers: '{{ additional_wms_layer.layers }}',
+            format: wmsFormat,
+            maxZoom: maxZoom,
+            transparent: true
+          });
+          overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
+        {% endfor %}
+      {% endif %}
 
       // Umschalter für Hintergrundkarten zur Karte hinzufügen
       L.control.layers(baseMaps,overlayMaps).addTo(map);

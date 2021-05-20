@@ -341,7 +341,8 @@ options.DEFAULT_NAMES += (
   'thumbs',                                   # optional ; Boolean    ; Sollen Thumbnails aus den hochgeladenen Fotos erzeugt werden (True)?
   'multi_foto_field',                         # optional ; Boolean    ; Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto. Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen foto existieren!
   'group_with_users_for_choice_field',        # optional ; Text       ; Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen
-  'admin_group'                               # optional ; Text       ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'admin_group',                              # optional ; Text       ; Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
+  'additional_wms_layers'                     # optional ; Liste      ; Eigenschaften zusätzlicher WMS-Layer, die für dieses Modell in den jeweiligen Kartenansichten optional mit angeboten werden sollen
 )
 
 
@@ -3665,6 +3666,13 @@ class Geh_Radwegereinigung(models.Model):
       'nummer': 'Nummer',
       'beschreibung': 'Beschreibung'
     }
+    additional_wms_layers = [
+      {
+        'title': 'Geh- und Radwegereinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.geh_und_radwegereinigung'
+      }
+    ]
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiLineString'
@@ -5089,6 +5097,13 @@ class Strassenreinigung(models.Model):
       'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
     }
     map_filter_fields_as_list = ['reinigungsklasse', 'fahrbahnwinterdienst']
+    additional_wms_layers = [
+      {
+        'title': 'Straßenreinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.strassenreinigung'
+      }
+    ]
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiLineString'

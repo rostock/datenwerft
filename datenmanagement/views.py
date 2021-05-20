@@ -293,6 +293,7 @@ class StartView(generic.ListView):
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
+    context['additional_wms_layers'] = (self.model._meta.additional_wms_layers if hasattr(self.model._meta, 'additional_wms_layers') else None)
     return context
 
 
@@ -467,6 +468,7 @@ class DataMapView(generic.ListView):
     context['map_filter_boolean_fields_as_checkbox'] = (self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(self.model._meta, 'map_filter_boolean_fields_as_checkbox') else None)
     context['map_filter_field_hide_initial'] = (next(iter(self.model._meta.map_filter_hide_initial.keys())) if hasattr(self.model._meta, 'map_filter_hide_initial') and len(self.model._meta.map_filter_hide_initial) == 1 else None)
     context['map_filter_value_hide_initial'] = (next(iter(self.model._meta.map_filter_hide_initial.values())) if hasattr(self.model._meta, 'map_filter_hide_initial') and len(self.model._meta.map_filter_hide_initial) == 1 else None)
+    context['additional_wms_layers'] = (self.model._meta.additional_wms_layers if hasattr(self.model._meta, 'additional_wms_layers') else None)
     context['geometry_type'] = (self.model._meta.geometry_type if hasattr(self.model._meta, 'geometry_type') else None)
     return context
 
@@ -516,6 +518,7 @@ class DataAddView(generic.CreateView):
     context['multi_foto_field'] = (self.model._meta.multi_foto_field if hasattr(self.model._meta, 'multi_foto_field') else None)
     context['group_with_users_for_choice_field'] = (self.model._meta.group_with_users_for_choice_field if hasattr(self.model._meta, 'group_with_users_for_choice_field') else None)
     context['admin_group'] = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
+    context['additional_wms_layers'] = (self.model._meta.additional_wms_layers if hasattr(self.model._meta, 'additional_wms_layers') else None)
     return context
 
   def get_initial(self):
@@ -631,6 +634,7 @@ class DataChangeView(generic.UpdateView):
     context['admin_group'] = (self.model._meta.admin_group if hasattr(self.model._meta, 'admin_group') else None)
     context['current_address'] = (self.object.adresse.pk if hasattr(self.model._meta, 'address_type') and self.model._meta.address_type == 'Adresse' and self.object.adresse else None)
     context['current_street'] = (self.object.strasse.pk if hasattr(self.model._meta, 'address_type') and self.model._meta.address_type == 'Straße' and self.object.strasse else None)
+    context['additional_wms_layers'] = (self.model._meta.additional_wms_layers if hasattr(self.model._meta, 'additional_wms_layers') else None)
     return context
 
   def get_initial(self):
