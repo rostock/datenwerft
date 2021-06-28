@@ -330,7 +330,7 @@ class DataView(BaseDatatableView):
           foreign_model_primary_key = value._meta.pk.name
           foreign_model_title = self.columns.get(column)
           foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
-          data = '<a href="' + reverse('datenmanagement:' + foreign_model.replace(value._meta.app_label + '.', '') + 'change', args=[getattr(value, foreign_model_primary_key)]) + '" target="_blank" class="required" title="' + foreign_model_title + ' ansehen oder bearbeiten">' + getattr(value, foreign_model_attribute_for_text) + '</a>'
+          data = '<a href="' + reverse('datenmanagement:' + foreign_model.replace(value._meta.app_label + '.', '') + 'change', args=[getattr(value, foreign_model_primary_key)]) + '" target="_blank" class="required" title="' + foreign_model_title + ' ansehen oder bearbeiten">' + str(getattr(value, foreign_model_attribute_for_text)) + '</a>'
         elif value is not None and self.columns_with_number is not None and column in self.columns_with_number:
           data = value
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
