@@ -307,6 +307,7 @@ class DataView(BaseDatatableView):
     self.columns_with_foreign_key = (self.model._meta.list_fields_with_foreign_key if hasattr(self.model._meta, 'list_fields_with_foreign_key') else None)
     self.columns_with_number = (self.model._meta.list_fields_with_number if hasattr(self.model._meta, 'list_fields_with_number') else None)
     self.columns_with_date = (self.model._meta.list_fields_with_date if hasattr(self.model._meta, 'list_fields_with_date') else None)
+    self.columns_with_link = (self.model._meta.list_fields_with_link if hasattr(self.model._meta, 'list_fields_with_link') else None)
     self.column_as_highlight_flag = (self.model._meta.highlight_flag if hasattr(self.model._meta, 'highlight_flag') else None)
     self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     super(DataView, self).__init__()
@@ -335,6 +336,8 @@ class DataView(BaseDatatableView):
           data = value
         elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
           data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
+        elif value is not None and self.columns_with_link is not None and column in self.columns_with_link:
+          data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
         elif value is not None and value == True and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
           data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!"></i>'
         elif value is not None and column == 'foto':
