@@ -1,6 +1,6 @@
 # Datenerfassung
 
-Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://www.djangoproject.com) aufsetzt
+Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://www.djangoproject.com/) aufsetzt
 
 ## Voraussetzungen
 
@@ -23,7 +23,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
         source /srv/www/htdocs/datenerfassung/virtualenv/bin/activate
 
-1.  benötigte *Python*-Module (unter anderem [*Django*](https://www.djangoproject.com/)) installieren via *pip*:
+1.  benötigte *Python*-Module (unter anderem *Django*) installieren via *pip*:
 
         pip install -r /srv/www/htdocs/datenerfassung/datenerfassung/requirements.txt
 
