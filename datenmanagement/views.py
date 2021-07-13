@@ -347,6 +347,11 @@ class DataView(BaseDatatableView):
             data += '</a>'
           except ValueError:
             pass
+        elif value is not None and (column == 'dokument' or column == 'pdf'):
+          try:
+            data = '<a href="' + value.url + '?' + str(time.time()) + '" target="_blank" title="PDF öffnen…">PDF</a>'
+          except ValueError:
+            pass
         elif value is not None and value == True:
           data = 'ja'
         elif value is not None and value == False:

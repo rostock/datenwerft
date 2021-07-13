@@ -2851,6 +2851,9 @@ class Baustellen_geplant(models.Model):
       'auftraggeber': 'auftraggeber',
       'status': 'status'
     }
+    associated_models = {
+      'Baustellen_geplant_Dokumente': 'baustelle_geplant'
+    }
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
     map_rangefilter_fields = {
@@ -2872,6 +2875,7 @@ class Baustellen_geplant(models.Model):
     geometry_type = 'MultiPolygon'
     group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
     admin_group = 'baustellen_geplant_full'
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
     return self.bezeichnung + ' [' + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn: ' + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ende: ' + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
@@ -2887,6 +2891,52 @@ class Baustellen_geplant(models.Model):
 signals.post_save.connect(assign_permissions, sender=Baustellen_geplant)
 
 signals.post_delete.connect(remove_permissions, sender=Baustellen_geplant)
+
+
+# Dokumente der Baustellen (geplant)
+
+class Baustellen_geplant_Dokumente(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  baustelle_geplant = models.ForeignKey(Baustellen_geplant, verbose_name='Baustelle (geplant)', on_delete=models.CASCADE, db_column='baustelle_geplant', to_field='uuid', related_name='baustellen_geplant+')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  dokument = models.FileField('Dokument', storage=OverwriteStorage(), upload_to=path_and_rename(settings.PDF_PATH_PREFIX_PUBLIC + 'baustellen_geplant'), max_length=255)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"baustellen_geplant_dokumente'
+    verbose_name = 'Dokument der Baustelle (geplant)'
+    verbose_name_plural = 'Dokumente der Baustellen (geplant)'
+    description = 'Dokumente der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'baustelle_geplant': 'Baustelle (geplant)',
+      'bezeichnung': 'Bezeichnung',
+      'dokument': 'Dokument'
+    }
+    list_fields_with_foreign_key = {
+      'baustelle_geplant': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['baustelle_geplant']
+    object_title = 'das Dokument'
+    foreign_key_label = 'Baustelle (geplant)'
+  
+  def __str__(self):
+    return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_geplant_Dokumente, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_geplant_Dokumente, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Baustellen_geplant_Dokumente)
+
+signals.post_delete.connect(delete_pdf, sender=Baustellen_geplant_Dokumente)
+
+signals.post_delete.connect(remove_permissions, sender=Baustellen_geplant_Dokumente)
 
 
 # Behinderteneinrichtungen
