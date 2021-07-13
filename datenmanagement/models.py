@@ -58,12 +58,14 @@ def current_year():
 
 
 def delete_pdf(sender, instance, **kwargs):
-  if instance.pdf:
+  if hasattr(instance, 'pdf') and instance.pdf:
     instance.pdf.delete(False)
+  elif hasattr(instance, 'dokument') and instance.dokument:
+    instance.dokument.delete(False)
 
 
 def delete_photo(sender, instance, **kwargs):
-  if instance.foto:
+  if hasattr(instance, 'foto') and instance.foto:
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs == True:
       if settings.MEDIA_ROOT and settings.MEDIA_URL:
         path = settings.MEDIA_ROOT + '/' + instance.foto.url[len(settings.MEDIA_URL):]
