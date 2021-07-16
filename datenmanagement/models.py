@@ -323,7 +323,6 @@ options.DEFAULT_NAMES += (
   'list_fields',                              # Pflicht  ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
   'list_fields_with_number',                  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_date',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
-  'list_fields_with_link',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte in der Tabelle der Listenansicht als Links dargestellt werden sollen
   'list_fields_with_foreign_key',             # optional ; Dictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
   'fields_with_foreign_key_to_linkify',       # optional ; Liste      ; Liste mit den Namen der Felder, deren Werte mit Fremdschlüssellinks versehen werden sollen
   'associated_models',                        # optional ; Dictionary ; Sollen andere Modelle (als Keys), die mit Fremdschlüsselfeldern (als Values) auf dieses Model verweisen, herangezogen werden, um entsprechende Links auf der Bearbeitungsseite und in der Tabelle der Listenansicht dieses Modelle bereitzustellen?
@@ -2855,7 +2854,8 @@ class Baustellen_geplant(models.Model):
       'status': 'status'
     }
     associated_models = {
-      'Baustellen_geplant_Dokumente': 'baustelle_geplant'
+      'Baustellen_geplant_Dokumente': 'baustelle_geplant',
+      'Baustellen_geplant_Links': 'baustelle_geplant'
     }
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
@@ -2940,6 +2940,50 @@ signals.post_save.connect(assign_permissions, sender=Baustellen_geplant_Dokument
 signals.post_delete.connect(delete_pdf, sender=Baustellen_geplant_Dokumente)
 
 signals.post_delete.connect(remove_permissions, sender=Baustellen_geplant_Dokumente)
+
+
+# Links der Baustellen (geplant)
+
+class Baustellen_geplant_Links(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  baustelle_geplant = models.ForeignKey(Baustellen_geplant, verbose_name='Baustelle (geplant)', on_delete=models.CASCADE, db_column='baustelle_geplant', to_field='uuid', related_name='baustellen_geplant+')
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  link = models.CharField('Link', max_length=255, validators=[URLValidator(message=url_message)])
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"baustellen_geplant_links'
+    verbose_name = 'Link der Baustelle (geplant)'
+    verbose_name_plural = 'Links der Baustellen (geplant)'
+    description = 'Links der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'baustelle_geplant': 'Baustelle (geplant)',
+      'bezeichnung': 'Bezeichnung',
+      'link': 'Link'
+    }
+    list_fields_with_foreign_key = {
+      'baustelle_geplant': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['baustelle_geplant']
+    object_title = 'der Link'
+    foreign_key_label = 'Baustelle (geplant)'
+  
+  def __str__(self):
+    return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_geplant_Links, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Baustellen_geplant_Links, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Baustellen_geplant_Links)
+
+signals.post_delete.connect(remove_permissions, sender=Baustellen_geplant_Links)
 
 
 # Behinderteneinrichtungen
@@ -4428,7 +4472,6 @@ class Meilensteinplan_Ziele(models.Model):
       'website': 'Website'
     }
     list_fields_with_number = ['start', 'ende']
-    list_fields_with_link = ['website']
     associated_models = {
       'Meilensteinplan_Meilensteine': 'meilensteinplan_ziel'
     }
@@ -4482,7 +4525,6 @@ class Meilensteinplan_Meilensteine(models.Model):
       'website': 'Website'
     }
     list_fields_with_number = ['laufende_nummer', 'start', 'ende']
-    list_fields_with_link = ['website']
     list_fields_with_foreign_key = {
       'meilensteinplan_ziel': 'bezeichnung'
     }
@@ -4643,7 +4685,6 @@ class Mobilpunkte(models.Model):
       'angebote': 'Angebote',
       'website': 'Website'
     }
-    list_fields_with_link = ['website']
     map_feature_tooltip_field = 'bezeichnung'
     geometry_type = 'Point'
   
