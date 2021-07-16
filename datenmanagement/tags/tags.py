@@ -14,6 +14,14 @@ register = template.Library()
 
 
 @register.filter
+def customize_error_message(value):
+  if 'existiert bereits' in value:
+    return value[:-1]
+  else:
+    return 'Fehler bei der Eingabe'
+
+
+@register.filter
 def get_class_description(value):
   return value.__class__._meta.description
 

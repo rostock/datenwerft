@@ -323,6 +323,7 @@ options.DEFAULT_NAMES += (
   'list_fields',                              # Pflicht  ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels (als Values)
   'list_fields_with_number',                  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_date',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
+  'list_fields_with_link',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte in der Tabelle der Listenansicht als Links dargestellt werden sollen
   'list_fields_with_foreign_key',             # optional ; Dictionary ; Namen der Felder (als Keys) aus list_fields, die für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt werden sollen, damit sie in der jeweils referenzierten Tabelle auch gefunden und in der Tabelle der Listenansicht dargestellt werden
   'fields_with_foreign_key_to_linkify',       # optional ; Liste      ; Liste mit den Namen der Felder, deren Werte mit Fremdschlüssellinks versehen werden sollen
   'associated_models',                        # optional ; Dictionary ; Sollen andere Modelle (als Keys), die mit Fremdschlüsselfeldern (als Values) auf dieses Model verweisen, herangezogen werden, um entsprechende Links auf der Bearbeitungsseite und in der Tabelle der Listenansicht dieses Modelle bereitzustellen?
@@ -4402,6 +4403,110 @@ signals.post_save.connect(assign_permissions, sender=Ladestationen_Elektrofahrze
 signals.post_delete.connect(remove_permissions, sender=Ladestationen_Elektrofahrzeuge)
 
 
+# Ziele des Meilensteinplans
+
+class Meilensteinplan_Ziele(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hintergrund = models.CharField('Hintergrund/Basis/Beschluss', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  start = PositiveSmallIntegerRangeField('Start', min_value=(current_year() - 10), max_value=(current_year() + 20), blank=True, null=True)
+  ende = PositiveSmallIntegerRangeField('Ende', min_value=current_year(), max_value=(current_year() + 20), blank=True, null=True)
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"meilensteinplan_ziele_hro'
+    verbose_name = 'Ziel des Meilensteinplans'
+    verbose_name_plural = 'Ziele des Meilensteinplans'
+    description = 'Ziele des Meilensteinplans „Rostocker Jahrzehnt“ der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'start': 'Start',
+      'ende': 'Ende',
+      'website': 'Website'
+    }
+    list_fields_with_number = ['start', 'ende']
+    list_fields_with_link = ['website']
+    associated_models = {
+      'Meilensteinplan_Meilensteine': 'meilensteinplan_ziel'
+    }
+    ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meilensteinplan_Ziele, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meilensteinplan_Ziele, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Meilensteinplan_Ziele)
+
+signals.post_delete.connect(remove_permissions, sender=Meilensteinplan_Ziele)
+
+
+# Meilensteine des Meilensteinplans
+
+class Meilensteinplan_Meilensteine(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  meilensteinplan_ziel = models.ForeignKey(Meilensteinplan_Ziele, verbose_name='Ziel', on_delete=models.CASCADE, db_column='meilensteinplan_ziel', to_field='uuid', related_name='meilensteinplan_ziel+')
+  laufende_nummer = PositiveSmallIntegerMinField(' laufende Nummer', min_value=1)
+  bezeichnung = models.CharField('Bezeichnung', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  hintergrund = models.CharField('Hintergrund/Basis/Beschluss', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  foerdersumme = models.CharField('Fördersumme/finanzieller Umfang', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  mittelherkunft = models.CharField('Mittelherkunft', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  start = PositiveSmallIntegerRangeField('Start', min_value=(current_year() - 10), max_value=(current_year() + 20), blank=True, null=True)
+  ende = PositiveSmallIntegerRangeField('Ende', min_value=current_year(), max_value=(current_year() + 20), blank=True, null=True)
+  bearbeitungsstand = models.CharField('Bearbeitungsstand/Zwischenschritte', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  website = models.CharField('Website', max_length=255, blank=True, null=True, validators=[URLValidator(message=url_message)])
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"meilensteinplan_meilensteine_hro'
+    verbose_name = 'Meilenstein des Meilensteinplans'
+    verbose_name_plural = 'Meilensteine des Meilensteinplans'
+    description = 'Meilensteine des Meilensteinplans „Rostocker Jahrzehnt“ der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'meilensteinplan_ziel': 'Ziel',
+      'laufende_nummer': 'laufende Nummer',
+      'bezeichnung': 'Bezeichnung',
+      'start': 'Start',
+      'ende': 'Ende',
+      'website': 'Website'
+    }
+    list_fields_with_number = ['laufende_nummer', 'start', 'ende']
+    list_fields_with_link = ['website']
+    list_fields_with_foreign_key = {
+      'meilensteinplan_ziel': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['meilensteinplan_ziel']
+    object_title = 'den Meilenstein'
+    foreign_key_label = 'Ziel'
+    unique_together = ('meilensteinplan_ziel', 'laufende_nummer')
+
+  def __str__(self):
+    return str(self.meilensteinplan_ziel) + ' mit laufender Nummer ' + str(self.laufende_nummer)
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meilensteinplan_Meilensteine, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Meilensteinplan_Meilensteine, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Meilensteinplan_Meilensteine)
+
+signals.post_delete.connect(remove_permissions, sender=Meilensteinplan_Meilensteine)
+
+
 # Meldedienst (flächenhaft)
 
 class Meldedienst_flaechenhaft(models.Model):
@@ -4538,6 +4643,7 @@ class Mobilpunkte(models.Model):
       'angebote': 'Angebote',
       'website': 'Website'
     }
+    list_fields_with_link = ['website']
     map_feature_tooltip_field = 'bezeichnung'
     geometry_type = 'Point'
   

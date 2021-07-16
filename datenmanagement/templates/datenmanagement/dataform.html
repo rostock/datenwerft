@@ -47,7 +47,7 @@
     {% if form.non_field_errors %}
       {% for error in form.non_field_errors %}
         <div class="alert alert-danger" role="alert">
-          Fehler bei der Eingabe
+          {{ error|customize_error_message }}
         </div>
       {% endfor %}
     {% endif %}
