@@ -2587,6 +2587,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       'adresse': 'Adresse',
       'aktenzeichen': 'Aktenzeichen',
       'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
+      'pdf': 'PDF',
       'datum': 'Datum'
     }
     list_fields_with_date = ['datum_abgeschlossenheitserklaerung', 'datum']
