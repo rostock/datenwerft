@@ -333,6 +333,7 @@ options.DEFAULT_NAMES += (
   'map_feature_tooltip_field',                # optional ; Text       ; Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
   'map_feature_tooltip_fields',               # optional ; Liste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
   'map_rangefilter_fields',                   # optional ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
+  'map_deadlinefilter_fields',                # optional ; Liste      ; Namen von genau zwei Datumsfeldern, die in der Kartenansicht für einen Stichtagsfilter herangezogen werden sollen – Achtung: Verarbeitung nur als Paar!
   'map_filter_fields',                        # optional ; Dictionary ; Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
   'map_filter_fields_as_list',                # optional ; Liste      ; Namen der Felder aus map_filter_fields, die als Listenfilter auftreten sollen
   'map_filter_boolean_fields_as_checkbox',    # optional ; Boolean    ; Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen, als Checkboxen dargestellt werden (True)?
@@ -2864,6 +2865,7 @@ class Baustellen_geplant(models.Model):
       'beginn': 'Beginn',
       'ende': 'Ende'
     }
+    map_deadlinefilter_fields = ['beginn', 'ende']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'sparten': 'Sparte(n)',

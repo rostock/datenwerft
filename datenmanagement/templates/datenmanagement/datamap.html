@@ -61,8 +61,24 @@
         <div id="filter" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
           <h5>Filter für Kartenobjekte</h5>
           <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv</strong> (wie „UND“)</div>
+          {% if map_deadlinefilter_fields %}
+            <div id="filter-deadline">
+              <div class="row">
+                <label>Stichtag</label>
+                <div class="input-group">
+                  <input id="filter-input-deadline" type="text" name="deadline" data-target="#filter-input-deadline" class="filter-input datetimepicker-input" data-type="date" data-nullable data-intervalside="both">
+                  <button class="input-reset btn bg-transparent">
+                    <i class="fa fa-times" title="Filterfeld leeren"></i>
+                  </button>
+                  <div class="input-group-append" data-target="#filter-input-deadline" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
           {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
-            <div id="filter-intervall">
+            <div id="filter-interval">
               {% for map_rangefilter_field in map_rangefilter_fields %}
                 {% if not forloop.counter|divisibleby:2 %}
                   {% with naechster_index=forloop.counter0|add:1 %}
@@ -312,6 +328,16 @@
           {% endif %}
           {% if highlight_flag %}
             geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag|safe }}';
+          {% endif %}
+          // für alle Stichtagsfilterfelder...
+          {% if map_deadlinefilter_fields %}
+            {% for map_deadlinefilter_field in map_deadlinefilter_fields %}
+              // Property zu GeoJSON-Feature hinzufügen mit Namen des Stichtagsfilterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
+              {% with current_field=map_deadlinefilter_fields|get_list_item_by_index:forloop.counter0 %}
+                // auf passende Formatierung achten, da es sich beim Feld um ein Datumsfeld handelt
+                geoJsonFeature.properties['deadline_{{ forloop.counter0 }}'] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+              {% endwith %}
+            {% endfor %}
           {% endif %}
           // für alle Intervallfilterfelder...
           {% if map_rangefilter_fields %}
@@ -754,6 +780,7 @@
           // über alle Checkboxen-Sets gehen...
           $('.filter-checkbox-fieldset').each(function() {
             // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
+            var checkedObjectsAtAll = false;
             var filterAttribute = new Object();
             var name = $(this).attr('name');
             filterAttribute.name = name;
@@ -763,10 +790,11 @@
             filterAttribute.value = [];
             // Wertliste des Filterobjekts mit dem Wert jeder aktiven Checkbox befüllen
             $(this).find('input:checked').each(function() {
+              checkedObjectsAtAll = true;
               filterAttribute.value.push($(this).val());
             });
-            // Filterobjekt zur Liste für Filterobjekte hinzufügen
-            filterAttributesList.push(filterAttribute);
+            if (checkedObjectsAtAll)
+              filterAttributesList.push(filterAttribute);
           });
 
           // über alle Filterobjekte gehen...
@@ -775,8 +803,14 @@
               if (layer.feature) {
                 layer.getElement().style.display = '';
                 for (var i = 0; i < filterAttributesList.length; i++) {
+                  // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+                  if (filterAttributesList[i].name === 'deadline') {
+                    // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
+                    if (!(moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties['deadline_0']), 'day')) || !(moment(new Date(layer.feature.properties['deadline_1']), 'day').isAfter(new Date(filterAttributesList[i].value), 'day'))) {
+                      layer.getElement().style.display = 'none';
+                    }
                   // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
-                  if (filterAttributesList[i].intervalside === 'left') {
+                  } else if (filterAttributesList[i].intervalside === 'left') {
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                       if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
@@ -926,8 +960,6 @@
         $('.input-reset').on('click', function() {
           $(this).prev().val('');
         });
-
-        // map-control
 
         // bei Klick auf Button zum Setzen des initialen Kartenausschnitts
         $('#map-extent-initial').on('click', function() {

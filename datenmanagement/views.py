@@ -468,6 +468,7 @@ class DataMapView(generic.ListView):
     context['map_rangefilter_fields'] = (list(self.model._meta.map_rangefilter_fields.keys()) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
     context['map_rangefilter_fields_json'] = (json.dumps(list(self.model._meta.map_rangefilter_fields.keys())) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
     context['map_rangefilter_fields_labels'] = (list(self.model._meta.map_rangefilter_fields.values()) if hasattr(self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_deadlinefilter_fields'] = (self.model._meta.map_deadlinefilter_fields if hasattr(self.model._meta, 'map_deadlinefilter_fields') else None)
     context['map_filter_fields'] = (list(self.model._meta.map_filter_fields.keys()) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_json'] = (json.dumps(list(self.model._meta.map_filter_fields.keys())) if hasattr(self.model._meta, 'map_filter_fields') else None)
     context['map_filter_fields_labels'] = (list(self.model._meta.map_filter_fields.values()) if hasattr(self.model._meta, 'map_filter_fields') else None)
