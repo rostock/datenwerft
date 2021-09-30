@@ -1408,6 +1408,40 @@ signals.post_save.connect(assign_permissions, sender=Hersteller_Poller)
 signals.post_delete.connect(remove_permissions, sender=Hersteller_Poller)
 
 
+# inoffizielle Straßen
+
+class Inoffizielle_Strassen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  strasse = models.CharField('Straße', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'basisdaten\".\"inoffizielle_strassenliste_datenerfassung_hro'
+    verbose_name = 'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
+    verbose_name_plural = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
+    description = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+     'strasse': 'Straße'
+    }
+    ordering = ['strasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+  
+  def __str__(self):
+    return self.strasse
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Inoffizielle_Strassen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Inoffizielle_Strassen, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Inoffizielle_Strassen)
+
+signals.post_delete.connect(remove_permissions, sender=Inoffizielle_Strassen)
+
+
 # Ladekarten für Ladestationen für Elektrofahrzeuge
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
@@ -3742,8 +3776,11 @@ class Geh_Radwegereinigung(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
+  inoffizielle_strasse = models.ForeignKey(Inoffizielle_Strassen, verbose_name='inoffizielle Straße', on_delete=models.SET_NULL, db_column='inoffizielle_strasse', to_field='uuid', related_name='inoffizielle_strassen+', blank=True, null=True)
   nummer = models.CharField('Nummer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+  reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
+  laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
   geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
   class Meta:
@@ -3755,17 +3792,27 @@ class Geh_Radwegereinigung(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse': 'Straße',
+      'inoffizielle_strasse': 'inoffizielle Straße',
       'nummer': 'Nummer',
-      'beschreibung': 'Beschreibung'
+      'beschreibung': 'Beschreibung',
+      'reinigungsklasse': 'Reinigungsklasse',
+      'laenge': 'Länge (in m)'
     }
     list_fields_with_foreign_key = {
-      'strasse': 'strasse'
+      'strasse': 'strasse',
+      'inoffizielle_strasse': 'strasse',
+      'reinigungsklasse': 'code'
     }
+    list_fields_with_number = ['laenge']
+    readonly_fields = ['laenge']
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
+      'inoffizielle_strasse': 'inoffizielle Straße',
       'nummer': 'Nummer',
-      'beschreibung': 'Beschreibung'
+      'beschreibung': 'Beschreibung',
+      'reinigungsklasse': 'Reinigungsklasse'
     }
+    map_filter_fields_as_list = ['inoffizielle_strasse', 'reinigungsklasse']
     additional_wms_layers = [
       {
         'title': 'Geh- und Radwegereinigung',
@@ -3778,7 +3825,7 @@ class Geh_Radwegereinigung(models.Model):
     geometry_type = 'MultiLineString'
   
   def __str__(self):
-    return str(self.uuid) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
+    return str(self.uuid) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
@@ -5272,8 +5319,10 @@ class Strassenreinigung(models.Model):
   uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
+  inoffizielle_strasse = models.ForeignKey(Inoffizielle_Strassen, verbose_name='inoffizielle Straße', on_delete=models.SET_NULL, db_column='inoffizielle_strasse', to_field='uuid', related_name='inoffizielle_strassen+', blank=True, null=True)
   reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
   fahrbahnwinterdienst = models.ForeignKey(Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, verbose_name='Fahrbahnwinterdienst', on_delete=models.SET_NULL, db_column='fahrbahnwinterdienst', to_field='uuid', related_name='fahrbahnwinterdienst_strassenreinigungssatzung_hro+', blank=True, null=True)
+  laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
   geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
   class Meta:
@@ -5285,20 +5334,26 @@ class Strassenreinigung(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse': 'Straße',
+      'inoffizielle_strasse': 'inoffizielle Straße',
       'reinigungsklasse': 'Reinigungsklasse',
-      'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
+      'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
+      'laenge': 'Länge (in m)'
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
+      'inoffizielle_strasse': 'strasse',
       'reinigungsklasse': 'code',
       'fahrbahnwinterdienst': 'code'
     }
+    list_fields_with_number = ['laenge']
+    readonly_fields = ['laenge']
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
+      'inoffizielle_strasse': 'inoffizielle Straße',
       'reinigungsklasse': 'Reinigungsklasse',
       'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
     }
-    map_filter_fields_as_list = ['reinigungsklasse', 'fahrbahnwinterdienst']
+    map_filter_fields_as_list = ['inoffizielle_strasse', 'reinigungsklasse', 'fahrbahnwinterdienst']
     additional_wms_layers = [
       {
         'title': 'Straßenreinigung',
@@ -5311,7 +5366,7 @@ class Strassenreinigung(models.Model):
     geometry_type = 'MultiLineString'
   
   def __str__(self):
-    return str(self.uuid) + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
+    return str(self.uuid) + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
