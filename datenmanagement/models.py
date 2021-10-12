@@ -3911,6 +3911,7 @@ class Geh_Radwegereinigung(models.Model):
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'id': 'ID',
+      'strasse': 'Straße',
       'inoffizielle_strasse': 'inoffizielle Straße',
       'nummer': 'Nummer',
       'beschreibung': 'Beschreibung',
@@ -3919,7 +3920,7 @@ class Geh_Radwegereinigung(models.Model):
       'wegetyp': 'Wegetyp',
       'breite': 'Breite (in m)'
     }
-    map_filter_fields_as_list = ['inoffizielle_strasse', 'reinigungsklasse', 'wegeart', 'wegetyp']
+    map_filter_fields_as_list = ['strasse', 'inoffizielle_strasse', 'reinigungsklasse', 'wegeart', 'wegetyp']
     additional_wms_layers = [
       {
         'title': 'Geh- und Radwegereinigung',
@@ -5459,11 +5460,12 @@ class Strassenreinigung(models.Model):
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'id': 'ID',
+      'strasse': 'Straße',
       'inoffizielle_strasse': 'inoffizielle Straße',
       'reinigungsklasse': 'Reinigungsklasse',
       'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
     }
-    map_filter_fields_as_list = ['inoffizielle_strasse', 'reinigungsklasse', 'fahrbahnwinterdienst']
+    map_filter_fields_as_list = ['strasse', 'inoffizielle_strasse', 'reinigungsklasse', 'fahrbahnwinterdienst']
     additional_wms_layers = [
       {
         'title': 'Straßenreinigung',
