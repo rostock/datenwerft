@@ -3924,8 +3924,8 @@ class Geh_Radwegereinigung(models.Model):
     additional_wms_layers = [
       {
         'title': 'Geh- und Radwegereinigung',
-        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
-        'layers': 'hro.strassenreinigung.geh_und_radwegereinigung'
+        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
       }
     ]
     address_type = 'Straße'
