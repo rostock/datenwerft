@@ -1,7 +1,5 @@
-import json
 import os
 import re
-import requests
 import uuid
 from datenmanagement.storage import OverwriteStorage
 from datetime import date, datetime
@@ -13,21 +11,19 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection
 from django.db.models import options, signals
-from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
-from django.dispatch import receiver
-from django.utils.crypto import get_random_string
-from django.utils.encoding import force_text
+from django.core.validators import EmailValidator, MaxValueValidator,\
+  MinValueValidator, RegexValidator, URLValidator
 from django_currentuser.middleware import get_current_authenticated_user
 from guardian.shortcuts import assign_perm, remove_perm
 from PIL import Image, ExifTags
 
 
+# Besonderheit dieses Projektes: Django organisiert nicht die DB. Es soll
+# auf die zugreifen.
 
 #
 # eigene Funktionen
 #
-
 def assign_permissions(sender, instance, created, **kwargs):
   model_name = instance.__class__.__name__.lower()
   user = getattr(instance, 'current_authenticated_user', None)
@@ -54,6 +50,10 @@ def assign_permissions(sender, instance, created, **kwargs):
 
 
 def current_year():
+  """
+  :return: current year
+  :rtype: int
+  """
   return int(date.today().year)
 
 
@@ -1699,7 +1699,7 @@ class Schaeden_Haltestellenkataster(models.Model):
   schaden = models.CharField('Schaden', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
   class Meta:
-    managed = False
+    managed = False # Django kümmert sich nicht
     codelist = True
     db_table = 'codelisten\".\"schaeden_haltestellenkataster'
     verbose_name = 'Schaden innerhalb eines Haltestellenkatasters'
