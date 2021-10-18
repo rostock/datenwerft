@@ -8,6 +8,11 @@ db.sqlite3
 # Datenerfassung
 datenmanagement/migrations
 datenerfassung/secrets.py
+datenerfassung/static
+datenerfassung/uploads
 hilfe/build
 /static
 /uploads
+
+# PyCharm
+.idea/
