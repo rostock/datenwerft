@@ -138,7 +138,8 @@ class DatenmanagementViewSet(viewsets.ModelViewSet):
         if self.serializer_class is not None:
             return self.serializer_class
 
-        class DatenmanagementSerializer(serializers.HyperlinkedModelSerializer):
+        class DatenmanagementSerializer(
+                serializers.HyperlinkedModelSerializer):
             class Meta:
                 model = self.model
         self.serializer_class = DatenmanagementSerializer
