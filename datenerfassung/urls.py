@@ -23,6 +23,9 @@ from guardian.models import UserObjectPermission, GroupObjectPermission
 from rest_framework import routers, serializers, viewsets
 
 
+#
+# Definition von Serializer-Klassen mit Feldern passend zu den Models
+#
 class PermissionSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='permission-detail',
@@ -123,8 +126,6 @@ class GroupObjectPermissionSerializer(serializers.HyperlinkedModelSerializer):
         model = GroupObjectPermission
 
 
-# Definition der View-Klassen als Unterklassen von viewsets.ModelViewSet
-
 class DatenmanagementViewSet(viewsets.ModelViewSet):
     @classmethod
     def create_custom(cls, **kwargs):
@@ -181,13 +182,17 @@ class GroupObjectPermissionViewSet(viewsets.ModelViewSet):
 # set of URLs."
 # https://www.django-rest-framework.org/api-guide/routers/
 
+# Dient zum Routen der Anfragen Abhängig von beispielsweise Nutzergruppen und
+# Berechtigungen
 router = routers.DefaultRouter()
-router.register(r'user', UserViewSet)
-router.register(r'group', GroupViewSet)
-router.register(r'permission', PermissionViewSet)
-router.register(r'content_type', ContentTypeViewSet)
-router.register(r'user_object_permission', UserObjectPermissionViewSet)
-router.register(r'group_object_permission', GroupObjectPermissionViewSet)
+router.register(prefix=r'user', viewset=UserViewSet)
+router.register(prefix=r'group', viewset=GroupViewSet)
+router.register(prefix=r'permission', viewset=PermissionViewSet)
+router.register(prefix=r'content_type', viewset=ContentTypeViewSet)
+router.register(prefix=r'user_object_permission',
+                viewset=UserObjectPermissionViewSet)
+router.register(prefix=r'group_object_permission',
+                viewset=GroupObjectPermissionViewSet)
 
 
 app_models = apps.get_app_config('datenmanagement').get_models()
@@ -201,23 +206,31 @@ for model in app_models:
 
 # Routen der URLs zu Views
 urlpatterns = [
+    # '' -> Redirect auf 'datenerfassung/datenmanagement'
     url(regex=r'^$',
         view=RedirectView.as_view(url='/datenerfassung/datenmanagement')),
+    # 'admin/' -> Django Adminpanel
     url(regex=r'^admin/',
         view=admin.site.urls),
+    # Einloggen: 'accounts/login'
+    # mit Redirect für angemeldete Nutzer
     url(regex=r'^accounts/login/$',
         view=LoginView.as_view(
             template_name='_registration/login.html',
             redirect_authenticated_user=True
         ),
         name='login'),
+    # Ausloggen: 'accounts/logout/'
     url(regex=r'^accounts/logout/$',
         view=LogoutView.as_view(template_name='_registration/logout.html'),
         name='logout'),
+    # Routen von Api URLs
     url(regex=r'^api/',
         view=include(router.urls)),
+    # Routen der Api Authentifizierung
     url(regex=r'^api-auth/',
         view=include('rest_framework.urls')),
+    # 'datenmanagement' -> Datenmanagement App
     url(regex=r'^datenmanagement/',
         view=include('datenmanagement.urls')),
 ]
