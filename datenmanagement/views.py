@@ -392,6 +392,10 @@ class DataForm(ModelForm):
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
     # Namen foto existiert.
     def clean_foto(self):
+        """
+
+        :return:
+        """
         if self.multi_foto_field and self.multi_foto_field:
             # alle weiteren Operationen nur durchführen, wenn auch wirklich
             # alle Pflichtfelder gefüllt sind – ansonsten klappt die Übernahme
@@ -429,6 +433,10 @@ class DataForm(ModelForm):
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
     # Namen dateiname_original existiert.
     def clean_dateiname_original(self):
+        """
+
+        :return:
+        """
         data = self.cleaned_data['dateiname_original']
         if self.multi_foto_field and self.multi_foto_field:
             if self.multi_files:
@@ -442,6 +450,10 @@ class DataForm(ModelForm):
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
     # Namen geometrie existiert.
     def clean_geometrie(self):
+        """
+
+        :return:
+        """
         data = self.cleaned_data['geometrie']
         error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
         if '-' in str(data):
@@ -549,16 +561,19 @@ class DataView(BaseDatatableView):
                     foreign_model = value._meta.label
                     foreign_model_primary_key = value._meta.pk.name
                     foreign_model_title = self.columns.get(column)
-                    foreign_model_attribute_for_text = self.columns_with_foreign_key.get(
-                        column)
+                    foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
                     data = '<a href="' + reverse(
                         'datenmanagement:' + foreign_model.replace(
                             value._meta.app_label + '.',
-                            '') + 'change',
+                            ''
+                        ) + 'change',
                         args=[
                             getattr(
                                 value,
-                                foreign_model_primary_key)]) + '" target="_blank" class="required" title="' + foreign_model_title + ' ansehen oder bearbeiten">' + str(
+                                foreign_model_primary_key
+                            )
+                        ]
+                    ) + '" target="_blank" class="required" title="' + foreign_model_title + ' ansehen oder bearbeiten">' + str(
                         getattr(
                             value,
                             foreign_model_attribute_for_text)) + '</a>'
@@ -590,15 +605,14 @@ class DataView(BaseDatatableView):
                             time.time()) + '" target="_blank" title="PDF öffnen…">PDF</a>'
                     except ValueError:
                         pass
-                elif value is not None and value:
-                    data = 'ja'
-                elif value is not None and value == False:
-                    data = 'nein'
+                elif value is not None and value is True:
+                    data = 'ja'  # True durch 'Ja' ersetzen
+                elif value is not None and value is False:
+                    data = 'nein'  # False durch 'nein' ersetzen
                 elif value is not None and type(value) in [list, tuple]:
                     data = ', '.join(map(str, value))
-                elif value is not None and isinstance(value,
-                                                      str) and value.startswith(
-                        'http'):
+                elif value is not None and \
+                        isinstance(value, str) and value.startswith('http'):
                     data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
                 elif value is not None:
                     data = escape(value)
@@ -812,9 +826,18 @@ class DataAddView(generic.CreateView):
     Kategoriespezifisches Formular zur Erfassung eines Datensatzes.
     """
 
+    def __init__(self, model=None, template_name=None, success_url=None):
+        self.model = model
+        self.template_name = template_name
+        self.success_url = success_url
+        self.form_class = modelform_factory(self.model, form=DataForm,
+                                            fields='__all__',
+                                            formfield_callback=assign_widgets)
+        super(DataAddView, self).__init__()
+
     def get_form_kwargs(self):
         """
-        Liefert **kwargs für das Formular.
+        Liefert **kwargs als Dictionary für ein Formular.
 
         :return: Dictionary mit Formularattributen
         """
@@ -858,15 +881,6 @@ class DataAddView(generic.CreateView):
         kwargs['model'] = self.model
         kwargs['request'] = self.request
         return kwargs
-
-    def __init__(self, model=None, template_name=None, success_url=None):
-        self.model = model
-        self.template_name = template_name
-        self.success_url = success_url
-        self.form_class = modelform_factory(self.model, form=DataForm,
-                                            fields='__all__',
-                                            formfield_callback=assign_widgets)
-        super(DataAddView, self).__init__()
 
     def get_context_data(self, **kwargs):
         """
@@ -919,6 +933,7 @@ class DataAddView(generic.CreateView):
 
     def get_initial(self):
         """
+        Liefert
 
         :return:
         """
@@ -928,8 +943,13 @@ class DataAddView(generic.CreateView):
         preselect_value = self.request.GET.get('preselect_value', '')
         for field in self.model._meta.get_fields():
             if field.name == 'ansprechpartner':
-                ansprechpartner = (self.request.user.first_name + ' ' + \
-                                   self.request.user.last_name if self.request.user.first_name and self.request.user.last_name else self.request.user.username) + ' (' + self.request.user.email.lower() + ')'
+                ansprechpartner = (
+                    self.request.user.first_name + ' '
+                    + self.request.user.last_name if (
+                            self.request.user.first_name and
+                            self.request.user.last_name
+                    ) else self.request.user.username
+                ) + ' (' + self.request.user.email.lower() + ')'
             if field.name == 'bearbeiter':
                 bearbeiter = self.request.user.first_name + ' ' + \
                     self.request.user.last_name if self.request.user.first_name and self.request.user.last_name else self.request.user.username
@@ -952,19 +972,24 @@ class DataAddView(generic.CreateView):
 
     def form_valid(self, form):
         """
+        Sendet ein HTTPResponse, wenn Formular valide ist
 
-        :param form:
-        :return:
+        :param form: Formular, welches geprüftwerden soll
+        :return: Success URL als HTTPResponse, falls valide
         """
         return super(DataAddView, self).form_valid(form)
 
 
 class DataChangeView(generic.UpdateView):
     """
-
+    Sicht, wenn
     """
 
     def get_form_kwargs(self):
+        """
+
+        :return:
+        """
         kwargs = super(DataChangeView, self).get_form_kwargs()
         self.associated_objects = None
         self.associated_new = None
@@ -1089,7 +1114,7 @@ class DataChangeView(generic.UpdateView):
         Liefert Dictionary mit Context-Daten des Views
 
         :param kwargs:
-        :return:
+        :return: Context als Dict
         """
         context = super(DataChangeView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
@@ -1133,7 +1158,8 @@ class DataChangeView(generic.UpdateView):
         context['current_address'] = (
             self.object.adresse.pk if hasattr(
                 self.model._meta,
-                'address_type') and self.model._meta.address_type == 'Adresse' and self.object.adresse else None)
+                'address_type'
+            ) and self.model._meta.address_type == 'Adresse' and self.object.adresse else None)
         context['current_street'] = (
             self.object.strasse.pk if hasattr(
                 self.model._meta,
@@ -1145,29 +1171,33 @@ class DataChangeView(generic.UpdateView):
 
     def get_initial(self):
         """
+        Liefert entweder Adresse oder Straße des Objektes, falls eines der
+        beiden existiert. Falls nicht, wird ein leeres Dictionary zurückgegeben.
 
-        :return:
+        :return: Leeres Dict oder Dict mit Adresse oder Straße.
         """
         if hasattr(self.model._meta, 'address_type'):
-            if self.model._meta.address_type == 'Adresse' and self.object.adresse:
-                return {
-                    'adresse': self.object.adresse
-                }
-            elif self.model._meta.address_type == 'Straße' and self.object.strasse:
-                return {
-                    'strasse': self.object.strasse
-                }
+            if self.model._meta.address_type == 'Adresse' and \
+                    self.object.adresse:
+                return {'adresse': self.object.adresse}
+            elif self.model._meta.address_type == 'Straße' and \
+                    self.object.strasse:
+                return {'strasse': self.object.strasse}
             else:
-                return {
-                }
+                return {}
         else:
-            return {
-            }
+            return {}
 
     def form_valid(self, form):
         return super(DataChangeView, self).form_valid(form)
 
     def get_object(self, *args, **kwargs):
+        """
+
+        :param args:
+        :param kwargs:
+        :return:
+        """
         obj = super(DataChangeView, self).get_object(*args, **kwargs)
         userobjperm_change = ObjectPermissionChecker(
             self.request.user).has_perm(
