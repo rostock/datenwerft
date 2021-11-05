@@ -2940,8 +2940,8 @@ class Baustellen_geplant(models.Model):
   lagebeschreibung = models.CharField('Lagebeschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   verkehrliche_lagen = ChoiceArrayField(models.CharField(' verkehrliche Lage(n)', max_length=255, choices=()), verbose_name=' verkehrliche Lage(n)')
   sparten = ChoiceArrayField(models.CharField('Sparte(n)', max_length=255, choices=()), verbose_name='Sparte(n)')
-  beginn = models.DateField('Beginn')
-  ende = models.DateField('Ende')
+  beginn = models.DateField('Beginn der Baumaßnahmen')
+  ende = models.DateField('Ende der Baumaßnahmen')
   auftraggeber = models.ForeignKey(Auftraggeber_Baustellen, verbose_name='Auftraggeber', on_delete=models.RESTRICT, db_column='auftraggeber', to_field='uuid', related_name='auftraggeber+')
   ansprechpartner = models.CharField('Ansprechpartner', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=ansprechpartner_regex, message=ansprechpartner_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
   status = models.ForeignKey(Status_Baustellen_geplant, verbose_name='Status', on_delete=models.RESTRICT, db_column='status', to_field='uuid', related_name='status+')
@@ -2965,8 +2965,8 @@ class Baustellen_geplant(models.Model):
       'bezeichnung': 'Bezeichnung',
       'verkehrliche_lagen': 'verkehrliche Lage(n)',
       'sparten': 'Sparte(n)',
-      'beginn': 'Beginn',
-      'ende': 'Ende',
+      'beginn': 'Beginn der Baumaßnahmen',
+      'ende': 'Ende der Baumaßnahmen',
       'auftraggeber': 'Auftraggeber',
       'ansprechpartner': 'Ansprechpartner',
       'status': 'Status',
@@ -2986,8 +2986,8 @@ class Baustellen_geplant(models.Model):
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
     map_rangefilter_fields = {
-      'beginn': 'Beginn',
-      'ende': 'Ende'
+      'beginn': 'Beginn der Baumaßnahmen',
+      'ende': 'Ende der Baumaßnahmen'
     }
     map_deadlinefilter_fields = ['beginn', 'ende']
     map_filter_fields = {
@@ -3008,7 +3008,7 @@ class Baustellen_geplant(models.Model):
     ordering = ['bezeichnung'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
   
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn: ' + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ende: ' + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
+    return self.bezeichnung + ' [' + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn der Baumaßnahmen: ' + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ende der Baumaßnahmen: ' + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
