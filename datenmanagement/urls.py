@@ -30,6 +30,7 @@ urlpatterns = [
         name='reversesearch'),
 ]
 
+# Erzeuge Views für jedes Model
 app_models = apps.get_app_config(app_name).get_models()
 for model in app_models:
     model_name = model.__name__
@@ -51,7 +52,7 @@ for model in app_models:
         name=model_name + 'start'
     ))
 
-    # DataView
+    # DataView (BaseDatatableView)
     urlpatterns.append(url(
         regex=regex + r'data/$',
         view=permission_required(
@@ -64,7 +65,7 @@ for model in app_models:
         name=model_name + 'data'
     ))
 
-    # DataListView
+    # DataListView (ListView)
     urlpatterns.append(url(
         regex=regex + r'list/$',
         view=permission_required(
@@ -78,7 +79,7 @@ for model in app_models:
         name=model_name + 'list'
     ))
 
-    # DataMapView
+    # DataMapView (ListView)
     urlpatterns.append(url(
         regex=regex + r'map/$',
         view=permission_required(
@@ -92,7 +93,7 @@ for model in app_models:
         name=model_name + 'map'
     ))
 
-    # DataAddView
+    # DataAddView (CreateView)
     urlpatterns.append(url(
         regex=regex + r'add/$',
         view=permission_required(
@@ -105,7 +106,7 @@ for model in app_models:
         name=model_name + 'add'
     ))
 
-    #
+    # DataChangeView (UpdateView)
     urlpatterns.append(url(
         regex=regex + r'change/(?P<pk>.*)/$',
         view=permission_required(
@@ -120,7 +121,7 @@ for model in app_models:
         name=model_name + 'change'
     ))
 
-    #
+    # DeleteView
     urlpatterns.append(url(
         regex=regex + r'delete/(?P<pk>.*)/$',
         view=permission_required(

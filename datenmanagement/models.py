@@ -11,6 +11,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection
 from django.db.models import options, signals
+from django.core import exceptions
 from django.core.validators import EmailValidator, MaxValueValidator, \
     MinValueValidator, RegexValidator, URLValidator
 from django_currentuser.middleware import get_current_authenticated_user
@@ -3688,11 +3689,11 @@ signals.post_delete.connect(remove_permissions, sender=Abfallbehaelter)
 # Angelverbotsbereiche
 
 class Angelverbotsbereiche(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  beschreibung = NullTextField('Beschreibung', max_length=1000, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    beschreibung = NullTextField('Beschreibung', max_length=1000, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    geometrie = models.LineStringField('Geometrie', srid=25833)
 
     class Meta:
         managed = False
@@ -3719,6 +3720,7 @@ class Angelverbotsbereiche(models.Model):
     def delete(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
         super(Angelverbotsbereiche, self).delete(*args, **kwargs)
+
 
 
 signals.post_save.connect(assign_permissions, sender=Angelverbotsbereiche)

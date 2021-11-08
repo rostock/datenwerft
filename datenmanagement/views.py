@@ -537,9 +537,11 @@ class DataView(BaseDatatableView):
 
     def prepare_results(self, qs):
         """
+        Checkt Datensatz auf Datentypen und erstellt daraus eine
+        Liste mit angepasstem Inhalt (Bsp: True -> ja)
 
         :param qs: QuerySet
-        :return: Json
+        :return: Liste
         """
         json_data = []
         for item in qs:
@@ -653,6 +655,11 @@ class DataView(BaseDatatableView):
         return json_data
 
     def filter_queryset(self, qs):
+        """
+
+        :param qs:
+        :return:
+        """
         search = self.request.GET.get('search[value]', None)
         if search:
             qs_params = None
