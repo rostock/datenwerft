@@ -66,6 +66,7 @@ for model in app_models:
     ))
 
     # DataListView (ListView)
+    # Liste eines Datenthemas anzeigen
     urlpatterns.append(url(
         regex=regex + r'list/$',
         view=permission_required(
@@ -80,6 +81,7 @@ for model in app_models:
     ))
 
     # DataMapView (ListView)
+    # Informationen zu Datenthema auf Karte anzeigen
     urlpatterns.append(url(
         regex=regex + r'map/$',
         view=permission_required(
@@ -94,6 +96,7 @@ for model in app_models:
     ))
 
     # DataAddView (CreateView)
+    # Formular um neuen Datensatz hinzuzufügen
     urlpatterns.append(url(
         regex=regex + r'add/$',
         view=permission_required(
@@ -107,6 +110,7 @@ for model in app_models:
     ))
 
     # DataChangeView (UpdateView)
+    # Formular um Datensatz zu bearbeiten
     urlpatterns.append(url(
         regex=regex + r'change/(?P<pk>.*)/$',
         view=permission_required(

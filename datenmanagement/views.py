@@ -751,7 +751,7 @@ class DataMapView(generic.ListView):
     sowie katergiespezifische Kartenfiltern.
     """
 
-    def __init__(self, model=None, template_name=None, success_url=None):
+    def __init__(self, model=None, template_name=None):
         self.model = model
         self.template_name = template_name
         super(DataMapView, self).__init__()
@@ -989,7 +989,7 @@ class DataAddView(generic.CreateView):
 
 class DataChangeView(generic.UpdateView):
     """
-    Sicht, wenn
+    Informationen zu Datenthema auf Karte
     """
 
     def get_form_kwargs(self):
