@@ -3000,6 +3000,13 @@ class Baustellen_geplant(models.Model):
     map_filter_hide_initial = {
       'status': 'abgeschlossen'
     }
+    additional_wms_layers = [
+      {
+        'title': 'Baustellen (geplant)',
+        'url': 'https://geo.sv.rostock.de/geodienste/baustellen_geplant/wms',
+        'layers': 'hro.baustellen_geplant.baustellen_geplant'
+      }
+    ]
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiPolygon'
