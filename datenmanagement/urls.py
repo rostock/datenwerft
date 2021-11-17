@@ -1,9 +1,10 @@
+import re
 from django.apps import apps
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
 from . import views
-import re
+
 
 
 def permission_required(*perms):
@@ -145,4 +146,14 @@ for model in app_models:
             'datenmanagement.delete_' + model_name_lower
         )(views.delete_object_immediately),
         name=model_name + 'deleteimmediately'
+    ))
+
+    urlpatterns.append(url(
+        regex=regex + r'geometry/$',
+        view=permission_required(
+            'datenmanagement.view_' + model_name_lower
+        )(views.GeometryView.as_view(
+            model=model
+        )),
+        name=model_name + 'geometry'
     ))

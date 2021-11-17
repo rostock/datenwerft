@@ -4,6 +4,7 @@ import re
 import requests
 import time
 import uuid
+
 from datetime import datetime
 from django.apps import apps
 from django.conf import settings
@@ -17,17 +18,20 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape
-from django.views import generic
+from django.views import generic, View
+from django.views.decorators.http import require_http_methods
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
+from jsonview.views import JsonView
 from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
-
+#from datenmanagement.urls import app_name
 
 #
 # eigene Funktionen
 #
+
 
 def assign_widgets(field):
     """
@@ -541,7 +545,7 @@ class DataView(BaseDatatableView):
         Liste mit angepasstem Inhalt (Bsp: True -> ja)
 
         :param qs: QuerySet
-        :return: Liste
+        :return: Json
         """
         json_data = []
         for item in qs:
@@ -748,7 +752,7 @@ class DataListView(generic.ListView):
 class DataMapView(generic.ListView):
     """
     Zeigt Karte mit ausgewählten Objekten, der ausgewählten Katergorie,
-    sowie katergiespezifische Kartenfiltern.
+    sowie Kategorie-spezifische Kartenfiltern.
     """
 
     def __init__(self, model=None, template_name=None):
@@ -933,9 +937,16 @@ class DataAddView(generic.CreateView):
         context['admin_group'] = (
             self.model._meta.admin_group if hasattr(self.model._meta,
                                                     'admin_group') else None)
+        # Zusätzliche Kartenlayer, wie z.B. Fahrradkarte
         context['additional_wms_layers'] = (
             self.model._meta.additional_wms_layers if hasattr(
                 self.model._meta, 'additional_wms_layers') else None)
+        # Liste aller Datensätze für die Overlay-Daten-Liste
+        model_list = []
+        app_models = apps.get_app_config('datenmanagement').get_models()
+        for model in app_models:
+            model_list.append(model)
+        context['model_list'] = model_list
         return context
 
     def get_initial(self):
@@ -1237,3 +1248,24 @@ class DataDeleteView(generic.DeleteView):
         if not userobjperm_delete:
             raise PermissionDenied()
         return obj
+
+
+class GeometryView(JsonView):
+    """
+    Dient zum Abfragen von Geometrien einzelner Models.
+    """
+    model = None
+
+    def __init__(self, model):
+        self.model = model
+        super(GeometryView, self).__init__()
+
+    def get_context_data(self, **kwargs):
+        context = super(GeometryView, self).get_context_data(**kwargs)
+        # context['model_name'] = self.model.__name__
+        # context['geometry_type'] = self.model._meta.geometry_type
+        geom = list(self.model.objects.values_list('geometrie', flat=True))
+        for i in range(len(geom)):
+            geom[i] = str(geom[i])
+        context['object_list'] = geom
+        return context

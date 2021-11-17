@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
     'requests',
     'rest_framework',
     'tempus_dominus',
+    'jsonview'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
