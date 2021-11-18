@@ -211,13 +211,13 @@
         map.eachLayer(function (layer) {
           if (layer._latlng) {
             if ((layer.getLatLng().lat) == 0 || (layer.getLatLng().lon) == 0) {
-              default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
+              let default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
               default_zoom = default_zoom.match(/ [0-9]+/).toString();
               default_zoom = default_zoom.trim();
-              default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
-              default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
+              let default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
+              let default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
               default_center_x = default_center_x.trim();
-              default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
+              let default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
               default_center_y = default_center_y.trim();
               map.panTo([default_center_y, default_center_x]);
               map.setZoom(default_zoom);
@@ -293,6 +293,14 @@
         'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
       };
 
+      // EPSG:25833 definieren
+      proj4.defs([
+        [
+          'EPSG:25833',
+          '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
+        ],
+      ]);
+
       // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
       {% if additional_wms_layers %}
         {% for additional_wms_layer in additional_wms_layers %}
@@ -308,6 +316,76 @@
 
       // Umschalter für Hintergrundkarten zur Karte hinzufügen
       L.control.layers(baseMaps,overlayMaps).addTo(map);
+      // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
+      let dataLayerControl = new L.control.layers({}, {}).addTo(map);
+
+      // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
+      {% for datenthema in model_list %}
+        {% with datenthema_name=datenthema|get_class_name %}
+          {%  with datenthema_name_lower=datenthema_name|lower %}
+            {% if not datenthema|is_class_codelist %}
+              fetch(
+                ' {% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %} '
+              ).then(
+                (response) => {
+                  return response.json();
+                }
+              ).then(
+                (data) => {
+                  if ( data.hasOwnProperty('object_list') ) {
+                    console.log(data.object_list);
+                    // neue leere GeoJSON-FeatureCollection definieren
+                    let geoJsonFeatureCollection = {
+                      type: 'FeatureCollection',
+                      features: []
+                    };
+
+                    let wkt = new Wkt.Wkt();
+                    for (let i = 0; i < data.object_list.length; i++) {
+                      let item = data.object_list[i]
+                      wkt.read(item.substring(item.indexOf(';') + 1, item.length));
+                      // neues leeres GeoJSON-Feature definieren
+                      let geoJsonFeature = {
+                        type: 'Feature',
+                        geometry: null,
+                        properties: [],
+                        crs: {
+                          type: 'name',
+                          properties: {
+                            'name': 'urn:ogc:def:crs:EPSG::25833'
+                          }
+                        }
+                      };
+                      geoJsonFeature.geometry = wkt.toJson();
+                      geoJsonFeatureCollection.features.push(geoJsonFeature);
+                    }
+                    console.log(geoJsonFeatureCollection);
+                    // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+                    let geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection);
+                    //map.addLayer(geoJsonLayer);
+
+                    dataLayerControl.addOverlay(geoJsonLayer, '{{ datenthema_name }}');
+                  } else {
+                    console.log('No object_list...');
+                    dataLayerControl.addOverlay(L.tileLayer(''), '{{ datenthema_name }}')
+                  }
+                }
+              ).catch(
+                function(err) {
+                  console.log('Fetch Error: ' + err);
+                }
+              );
+            {% endif %}
+          {% endwith %}
+        {% endwith %}
+      {% endfor %}
+
+
+      for (const checkbox in document.getElementsByTagName("checkbox")) {
+          if (checkbox.includes("leaflet")) {
+              console.log('pling' + checkbox.checked);
+          }
+      };
 
       // Standortbestimmung
       {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
@@ -423,10 +501,10 @@
 
       // Adressensuche initialisieren
 
-      results = $('div.results');
+      let results = $('div.results');
       {% if address_type %}
         {% if address_type == 'Adresse' %}
-          searchField = $('#id_adresse');
+          let searchField = $('#id_adresse');
         {% elif address_type == 'Straße' %}
           searchField = $('#id_strasse');
         {% endif %}
@@ -642,7 +720,7 @@
     }
 
     function adoptResult(json, type) {
-      var erfolg = false;
+      let erfolg = false;
       if (type === 'Straße') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Straße') {
@@ -684,7 +762,7 @@
       jQuery.each(json.features, function(index, item) {
         // falls Feature nicht historisch ist:
         if (!item.properties.historisch) {
-          var titel = '';
+          let titel = '';
           if (item.properties._title_.indexOf(', ') != -1)
             titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
           else
@@ -692,11 +770,11 @@
           // falls Datenmodell Adressenbezug vorsieht:
           {% if address_type %}
             // nur Objektgruppen berücksichtigen, die mit dem Typ des Adressenbezugs übereinstimmen
-            var substring = item.properties.objektgruppe;
+            let substring = item.properties.objektgruppe;
             if (item.properties.objektgruppe.indexOf(' HRO') != -1)
               substring = item.properties.objektgruppe.substring(0, item.properties.objektgruppe.lastIndexOf(' HRO'));
             if (substring === '{{ address_type }}') {
-              var result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
+              let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
               if (item.properties.gemeindeteil_abkuerzung)
                 result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
               result += '</div>';
@@ -704,7 +782,7 @@
             }
           // ansonsten: alle Objektgruppen anzeigen
           {% else %}
-            var result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
+            let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
             if (item.properties.gemeindeteil_abkuerzung)
               result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
             result += '<small class="text-muted"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
