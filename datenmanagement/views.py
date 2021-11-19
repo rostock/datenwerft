@@ -945,7 +945,9 @@ class DataAddView(generic.CreateView):
         model_list = []
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
-            model_list.append(model)
+            # Aussortieren der Datensätze ohne Geometrie
+            if hasattr(model, 'geometrie'):
+                model_list.append(model)
         context['model_list'] = model_list
         return context
 

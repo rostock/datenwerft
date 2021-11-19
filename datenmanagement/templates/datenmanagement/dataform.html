@@ -323,23 +323,23 @@
       {% for datenthema in model_list %}
         {% with datenthema_name=datenthema|get_class_name %}
           {%  with datenthema_name_lower=datenthema_name|lower %}
+            // Aussortieren der Codelisten und der Models mit 'foto' (haben keine Geometrie)
             {% if not datenthema|is_class_codelist %}
-              fetch(
-                ' {% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %} '
-              ).then(
-                (response) => {
-                  return response.json();
-                }
-              ).then(
-                (data) => {
-                  if ( data.hasOwnProperty('object_list') ) {
-                    console.log(data.object_list);
+              let {{ datenthema_name_lower }} = new L.Proj.geoJson();
+              dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ datenthema_name }}');
+              {{ datenthema_name_lower }}.on('add', function () {
+                fetch(
+                  ' {% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %} '
+                ).then(
+                  (response) => response.json()
+                ).then(
+                  (data) => {
                     // neue leere GeoJSON-FeatureCollection definieren
                     let geoJsonFeatureCollection = {
                       type: 'FeatureCollection',
+                      datenthema: '{{ datenthema_name }}',
                       features: []
                     };
-
                     let wkt = new Wkt.Wkt();
                     for (let i = 0; i < data.object_list.length; i++) {
                       let item = data.object_list[i]
@@ -359,22 +359,61 @@
                       geoJsonFeature.geometry = wkt.toJson();
                       geoJsonFeatureCollection.features.push(geoJsonFeature);
                     }
-                    console.log(geoJsonFeatureCollection);
-                    // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-                    let geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection);
-                    //map.addLayer(geoJsonLayer);
-
-                    dataLayerControl.addOverlay(geoJsonLayer, '{{ datenthema_name }}');
-                  } else {
-                    console.log('No object_list...');
-                    dataLayerControl.addOverlay(L.tileLayer(''), '{{ datenthema_name }}')
+                    {{ datenthema_name_lower }}.addData(geoJsonFeatureCollection)
                   }
+                ).catch(
+                  function(err) {
+                    console.log('Fetch Error: ' + err);
+                  }
+                );
+              });
+
+
+              /*
+              fetch(
+                ' {% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %} '
+              ).then(
+                (response) => response.json()
+              ).then(
+                (data) => {
+                  // neue leere GeoJSON-FeatureCollection definieren
+                  let geoJsonFeatureCollection = {
+                    type: 'FeatureCollection',
+                    datenthema: '{{ datenthema_name }}',
+                    features: []
+                  };
+
+                  let wkt = new Wkt.Wkt();
+                  for (let i = 0; i < data.object_list.length; i++) {
+                    let item = data.object_list[i]
+                    wkt.read(item.substring(item.indexOf(';') + 1, item.length));
+                    // neues leeres GeoJSON-Feature definieren
+                    let geoJsonFeature = {
+                      type: 'Feature',
+                      geometry: null,
+                      properties: [],
+                      crs: {
+                        type: 'name',
+                        properties: {
+                          'name': 'urn:ogc:def:crs:EPSG::25833'
+                        }
+                      }
+                    };
+                    geoJsonFeature.geometry = wkt.toJson();
+                    geoJsonFeatureCollection.features.push(geoJsonFeature);
+                  }
+                  // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+                  let geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection);
+                  //map.addLayer(geoJsonLayer);
+
+                  dataLayerControl.addOverlay(geoJsonLayer, '{{ datenthema_name }}');
                 }
               ).catch(
                 function(err) {
                   console.log('Fetch Error: ' + err);
                 }
               );
+              */
             {% endif %}
           {% endwith %}
         {% endwith %}
