@@ -71,3 +71,10 @@ ul:not([class]){
 .result-element:hover .text-muted {
   color:#000;
 }
+
+/*
+ * Leaflet Button für Datenlayer überschreiben
+ */
+.leaflet-top.leaflet-right .leaflet-control-layers:nth-child(2) .leaflet-control-layers-toggle {
+    background-image: url("../img/DatenLayer.svg");
+}
