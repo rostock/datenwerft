@@ -331,30 +331,13 @@
               dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ datenthema_name }}');
               // Beim hinzufügen des Layers Daten laden
               {{ datenthema_name_lower }}.on('add', function () {
-                let blub = loadExternalData('{% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %}');
-                console.log('blub = ', blub);
+                loadExternalData(
+                  '{% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %}',
+                  '{{ datenthema_name }}',
+                  this
+                );
+                //console.log('blub = ', blub);
                 // Daten zum entsprechenden Layer hinzufügen
-                let objekt = {
-                  "type": "Feature",
-                  "geometry": {
-                    "coordinates": [
-                      313095.0438354717,
-                      5996839.707244413
-                    ],
-                    "type": "Point"
-                  },
-                  "properties": [],
-                  "crs": {
-                    "type": "name",
-                    "properties": {
-                      "name": "urn:ogc:def:crs:EPSG::25833"
-                    }
-                  }
-                }
-                console.dir(blub);
-                {{ datenthema_name_lower }}.addData(objekt);
-                //{{ datenthema_name_lower }}.addData(blub);
-
               });
             {% endif %}
           {% endwith %}
@@ -869,23 +852,24 @@
       }
     })
 
-    function loadExternalData(baseUrl) {
+    function loadExternalData(baseUrl, dthema, layer) {
       // Berechnen des Bounding-Circle
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
       let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.05;
       let protocol = window.location.protocol;
       let host = window.location.host;
-      let geoJsonFeatureCollection = {
-        type: 'FeatureCollection',
-        features: []
-      };
       fetch(
         String(protocol + '//' + host + baseUrl + '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad)
       ).then(
         (response) => response.json()
       ).then(
         (data) => {
+          let geoJsonFeatureCollection = {
+            type: 'FeatureCollection',
+            datenthema: dthema,
+            features: []
+          };
           // neue leere GeoJSON-FeatureCollection definieren
           let wkt = new Wkt.Wkt();
           for (let i = 0; i < data.object_list.length; i++) {
@@ -906,14 +890,16 @@
             geoJsonFeature.geometry = wkt.toJson();
             geoJsonFeatureCollection.features.push(geoJsonFeature);
           }
+          console.log(geoJsonFeatureCollection);
+          layer.addData(geoJsonFeatureCollection);
         }
       ).catch(
         function(err) {
           console.log('Fetch Error: ' + err);
         }
       );
-      console.log(geoJsonFeatureCollection);
-      return geoJsonFeatureCollection;
+
+
     }
   </script>
 {% endblock %}
