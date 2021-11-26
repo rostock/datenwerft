@@ -9,6 +9,7 @@ from datetime import datetime
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
+from django.contrib.gis.geos import GEOSGeometry, Point
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
@@ -1264,9 +1265,15 @@ class GeometryView(JsonView):
 
     def get_context_data(self, **kwargs):
         context = super(GeometryView, self).get_context_data(**kwargs)
-        # context['model_name'] = self.model.__name__
+        context['model_name'] = self.model._meta.verbose_name
         # context['geometry_type'] = self.model._meta.geometry_type
-        geom = list(self.model.objects.values_list('geometrie', flat=True))
+        lat = float(self.request.GET.get('lat'))
+        lng = float(self.request.GET.get('lng'))
+        rad = float(self.request.GET.get('rad'))
+        circle = Point(lng, lat, srid=4326)
+        circle.transform(25833)
+        geom = list(self.model.objects.values_list('geometrie', flat=True).filter(geometrie__contained=circle.buffer(rad)))
+        print(geom)
         for i in range(len(geom)):
             geom[i] = str(geom[i])
         context['object_list'] = geom

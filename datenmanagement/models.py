@@ -465,7 +465,11 @@ options.DEFAULT_NAMES += (
     # optional ; Liste      ; Eigenschaften zusätzlicher WMS-Layer, die für
     # dieses Modell in den jeweiligen Kartenansichten optional mit angeboten
     # werden sollen
-    'additional_wms_layers'
+    'additional_wms_layers',
+    #
+    #
+    #
+    'as_overlay'
 )
 
 
@@ -2741,6 +2745,7 @@ class Typen_Abfallbehaelter(Typ):
         verbose_name = 'Typ eines Abfallbehälters'
         verbose_name_plural = 'Typen von Abfallbehältern'
         description = 'Typen von Abfallbehältern'
+        as_overlay = True
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
@@ -3708,6 +3713,7 @@ class Angelverbotsbereiche(models.Model):
         }
         map_feature_tooltip_field = 'bezeichnung'
         geometry_type = 'LineString'
+        as_overlay = True
 
     def __str__(self):
         return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + \
@@ -3910,6 +3916,7 @@ class Baudenkmale(models.Model):
         address_type = 'Adresse'
         address_mandatory = False
         geometry_type = 'MultiPolygon'
+        as_overlay = True
 
     def __str__(self):
         return self.beschreibung + ' [' + ('Adresse: ' + str(
@@ -4305,6 +4312,7 @@ class Baustellen_geplant(models.Model):
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
         # Kindtabellen sortiert aufgelistet
         ordering = ['bezeichnung']
+        as_overlay = True
 
     def __str__(self):
         return self.bezeichnung + ' [' + ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn: ' + datetime.strptime(str(
@@ -5047,6 +5055,7 @@ class Containerstellplaetze(models.Model):
         }
         geometry_type = 'Point'
         thumbs = True
+        as_overlay = True
 
     def __str__(self):
         return self.bezeichnung
@@ -5118,6 +5127,7 @@ class Denkmalbereiche(models.Model):
             'beschreibung': 'Beschreibung'
         }
         geometry_type = 'MultiPolygon'
+        as_overlay = True
 
     def __str__(self):
         return self.bezeichnung + \
@@ -5442,6 +5452,7 @@ class Durchlaesse_Durchlaesse(models.Model):
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
         # Kindtabellen sortiert aufgelistet
         ordering = ['aktenzeichen']
+        as_overlay = True
 
     def __str__(self):
         return self.aktenzeichen
@@ -5957,6 +5968,7 @@ class Fliessgewaesser(models.Model):
         }
         map_filter_fields_as_list = ['art', 'ordnung']
         geometry_type = 'LineString'
+        as_overlay = True
 
     def __str__(self):
         return self.nummer + \
@@ -6047,6 +6059,7 @@ class Geh_Radwegereinigung(models.Model):
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiLineString'
+    as_overlay = True
 
   def __str__(self):
     return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Wegeart ' + str(self.wegeart) if self.wegeart else '') + (', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
@@ -6761,6 +6774,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
         # Kindtabellen sortiert aufgelistet
         ordering = ['id']
+        as_overlay = True
 
     def __str__(self):
         return self.hst_bezeichnung + ' [ID: ' + str(self.id) + (', HAFAS-ID: ' + self.hst_hafas_id if self.hst_hafas_id else '') + (
@@ -6970,6 +6984,7 @@ class Hundetoiletten(models.Model):
         }
         map_filter_fields_as_list = ['art', 'bewirtschafter']
         geometry_type = 'Point'
+        as_overlay = True
 
     def __str__(self):
         return self.id + ' [Art: ' + str(self.art) + ']'
@@ -8250,6 +8265,7 @@ class Parkscheinautomaten_Tarife(models.Model):
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
         # Kindtabellen sortiert aufgelistet
         ordering = ['bezeichnung']
+        as_overlay = True
 
     def __str__(self):
         return self.bezeichnung
@@ -8646,6 +8662,7 @@ class Poller(models.Model):
         }
         map_filter_fields_as_list = ['art', 'status', 'hersteller', 'typ']
         geometry_type = 'Point'
+        as_overlay = True
 
     def __str__(self):
         return (self.nummer + ', ' if self.nummer else '') + \
@@ -8862,21 +8879,53 @@ class Schiffsliegeplaetze(models.Model):
         blank=True,
         null=True)
     pollerzug = models.CharField(
-        'Pollerzug', max_length=255, blank=True, null=True, validators=[
+        'Pollerzug',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     poller_von = models.CharField(
-        'Poller (von)', max_length=255, blank=True, null=True, validators=[
+        'Poller (von)',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     poller_bis = models.CharField(
         'Poller (bis)', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
@@ -8912,6 +8961,7 @@ class Schiffsliegeplaetze(models.Model):
         }
         map_filter_fields_as_list = ['hafen']
         geometry_type = 'Polygon'
+        as_overlay = True
 
     def __str__(self):
         return self.liegeplatznummer + ', ' + \
@@ -8949,13 +8999,27 @@ class Sporthallen(models.Model):
         blank=True,
         null=True)
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     traeger = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
         verbose_name='Träger',
@@ -9063,13 +9127,27 @@ class Stadtteil_Begegnungszentren(models.Model):
         blank=True,
         null=True)
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     traeger = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
         verbose_name='Träger',
@@ -9171,61 +9249,112 @@ signals.post_delete.connect(
 # Straßenreinigung
 
 class Strassenreinigung(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  id = models.CharField('ID', max_length=14, default='0000000000-000')
-  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
-  inoffizielle_strasse = models.ForeignKey(Inoffizielle_Strassen, verbose_name='inoffizielle Straße', on_delete=models.SET_NULL, db_column='inoffizielle_strasse', to_field='uuid', related_name='inoffizielle_strassen+', blank=True, null=True)
-  reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
-  fahrbahnwinterdienst = models.ForeignKey(Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, verbose_name='Fahrbahnwinterdienst', on_delete=models.SET_NULL, db_column='fahrbahnwinterdienst', to_field='uuid', related_name='fahrbahnwinterdienst_strassenreinigungssatzung_hro+', blank=True, null=True)
-  laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    id = models.CharField('ID', max_length=14, default='0000000000-000')
+    strasse = models.ForeignKey(
+        Strassen,
+        verbose_name='Straße',
+        on_delete=models.SET_NULL,
+        db_column='strasse',
+        to_field='uuid',
+        related_name='strassen+',
+        blank=True,
+        null=True
+    )
+    inoffizielle_strasse = models.ForeignKey(
+        Inoffizielle_Strassen,
+        verbose_name='inoffizielle Straße',
+        on_delete=models.SET_NULL,
+        db_column='inoffizielle_strasse',
+        to_field='uuid',
+        related_name='inoffizielle_strassen+',
+        blank=True,
+        null=True
+    )
+    reinigungsklasse = models.ForeignKey(
+        Reinigungsklassen_Strassenreinigungssatzung_HRO,
+        verbose_name='Reinigungsklasse',
+        on_delete=models.SET_NULL,
+        db_column='reinigungsklasse',
+        to_field='uuid',
+        related_name='reinigungsklassen_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    fahrbahnwinterdienst = models.ForeignKey(
+        Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
+        verbose_name='Fahrbahnwinterdienst',
+        on_delete=models.SET_NULL,
+        db_column='fahrbahnwinterdienst',
+        to_field='uuid',
+        related_name='fahrbahnwinterdienst_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    laenge = models.DecimalField(
+        'Länge (in m)',
+        max_digits=6,
+        decimal_places=2,
+        default=0
+    )
+    geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
-    db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
-    verbose_name = 'Straßenreinigung'
-    verbose_name_plural = 'Straßenreinigung'
-    description = 'Straßenreinigung der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'strasse': 'Straße',
-      'inoffizielle_strasse': 'inoffizielle Straße',
-      'reinigungsklasse': 'Reinigungsklasse',
-      'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
-      'laenge': 'Länge (in m)'
-    }
-    list_fields_with_foreign_key = {
-      'strasse': 'strasse',
-      'inoffizielle_strasse': 'strasse',
-      'reinigungsklasse': 'code',
-      'fahrbahnwinterdienst': 'code'
-    }
-    list_fields_with_number = ['id', 'laenge']
-    readonly_fields = ['id', 'laenge']
-    map_feature_tooltip_field = 'id'
-    map_filter_fields = {
-      'id': 'ID',
-      'strasse': 'Straße',
-      'inoffizielle_strasse': 'inoffizielle Straße',
-      'reinigungsklasse': 'Reinigungsklasse',
-      'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
-    }
-    map_filter_fields_as_list = ['strasse', 'inoffizielle_strasse', 'reinigungsklasse', 'fahrbahnwinterdienst']
-    additional_wms_layers = [
-      {
-        'title': 'Straßenreinigung',
-        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
-        'layers': 'hro.strassenreinigung.strassenreinigung'
-      }
-    ]
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiLineString'
+    class Meta:
+        managed = False
+        db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
+        verbose_name = 'Straßenreinigung'
+        verbose_name_plural = 'Straßenreinigung'
+        description = 'Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'id': 'ID',
+            'strasse': 'Straße',
+            'inoffizielle_strasse': 'inoffizielle Straße',
+            'reinigungsklasse': 'Reinigungsklasse',
+            'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
+            'laenge': 'Länge (in m)'
+        }
+        list_fields_with_foreign_key = {
+            'strasse': 'strasse',
+            'inoffizielle_strasse': 'strasse',
+            'reinigungsklasse': 'code',
+            'fahrbahnwinterdienst': 'code'
+        }
+        list_fields_with_number = ['id', 'laenge']
+        readonly_fields = ['id', 'laenge']
+        map_feature_tooltip_field = 'id'
+        map_filter_fields = {
+            'id': 'ID',
+            'strasse': 'Straße',
+            'inoffizielle_strasse': 'inoffizielle Straße',
+            'reinigungsklasse': 'Reinigungsklasse',
+            'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
+        }
+        map_filter_fields_as_list = [
+            'strasse',
+            'inoffizielle_strasse',
+            'reinigungsklasse',
+            'fahrbahnwinterdienst'
+        ]
+        additional_wms_layers = [
+            {
+                'title': 'Straßenreinigung',
+                'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+                'layers': 'hro.strassenreinigung.strassenreinigung'
+            }
+        ]
+        address_type = 'Straße'
+        address_mandatory = False
+        geometry_type = 'MultiLineString'
+        as_overlay = True
 
-  def __str__(self):
-    return str(self.id) + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+    def __str__(self):
+        return str(self.id) + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
@@ -9252,11 +9381,23 @@ class UVP_Vorhaben(models.Model):
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     vorgangsart = models.ForeignKey(
         Vorgangsarten_UVP_Vorhaben,
         verbose_name='Vorgangsart',
@@ -9281,15 +9422,34 @@ class UVP_Vorhaben(models.Model):
         validators=[
             RegexValidator(
                 regex=uvp_vorhaben_registriernummer_bauamt_regex,
-                message=uvp_vorhaben_registriernummer_bauamt_message)])
+                message=uvp_vorhaben_registriernummer_bauamt_message
+            )
+        ]
+    )
     aktenzeichen = models.CharField(
-        'Aktenzeichen', max_length=255, blank=True, null=True, validators=[
+        'Aktenzeichen',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     rechtsgrundlage = models.ForeignKey(
         Rechtsgrundlagen_UVP_Vorhaben,
         verbose_name='Rechtsgrundlage',
@@ -9347,6 +9507,7 @@ class UVP_Vorhaben(models.Model):
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
         # Kindtabellen sortiert aufgelistet
         ordering = ['bezeichnung']
+        as_overlay = True
 
     def __str__(self):
         return self.bezeichnung
@@ -9401,13 +9562,29 @@ class UVP_Vorpruefungen(models.Model):
     datum_veroeffentlichung = models.DateField(
         'Datum Veröffentlichung UVP-Portal', blank=True, null=True)
     pruefprotokoll = models.CharField(
-        'Prüfprotokoll', max_length=255, blank=True, null=True, validators=[
+        'Prüfprotokoll',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
 
     class Meta:
         managed = False
@@ -9469,15 +9646,34 @@ class Vereine(models.Model):
         blank=True,
         null=True)
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     vereinsregister_id = PositiveSmallIntegerMinField(
-        'ID im Vereinsregister', min_value=1, unique=True, blank=True, null=True)
+        'ID im Vereinsregister',
+        min_value=1,
+        unique=True,
+        blank=True,
+        null=True
+    )
     vereinsregister_datum = models.DateField(
         'Datum des Eintrags im Vereinsregister', blank=True, null=True)
     schlagwoerter = ChoiceArrayField(
@@ -9586,13 +9782,27 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
         blank=True,
         null=True)
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     berechtigungen = ChoiceArrayField(
         models.CharField(
             'verkaufte Berechtigung(en)',

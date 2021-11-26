@@ -325,95 +325,37 @@
           {%  with datenthema_name_lower=datenthema_name|lower %}
             // Aussortieren der Codelisten und der Models mit 'foto' (haben keine Geometrie)
             {% if not datenthema|is_class_codelist %}
+              // GeoJson-Projektions-Layer initialisieren
               let {{ datenthema_name_lower }} = new L.Proj.geoJson();
+              // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
               dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ datenthema_name }}');
+              // Beim hinzufügen des Layers Daten laden
               {{ datenthema_name_lower }}.on('add', function () {
-                fetch(
-                  ' {% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %} '
-                ).then(
-                  (response) => response.json()
-                ).then(
-                  (data) => {
-                    // neue leere GeoJSON-FeatureCollection definieren
-                    let geoJsonFeatureCollection = {
-                      type: 'FeatureCollection',
-                      datenthema: '{{ datenthema_name }}',
-                      features: []
-                    };
-                    let wkt = new Wkt.Wkt();
-                    for (let i = 0; i < data.object_list.length; i++) {
-                      let item = data.object_list[i]
-                      wkt.read(item.substring(item.indexOf(';') + 1, item.length));
-                      // neues leeres GeoJSON-Feature definieren
-                      let geoJsonFeature = {
-                        type: 'Feature',
-                        geometry: null,
-                        properties: [],
-                        crs: {
-                          type: 'name',
-                          properties: {
-                            'name': 'urn:ogc:def:crs:EPSG::25833'
-                          }
-                        }
-                      };
-                      geoJsonFeature.geometry = wkt.toJson();
-                      geoJsonFeatureCollection.features.push(geoJsonFeature);
+                let blub = loadExternalData('{% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %}');
+                console.log('blub = ', blub);
+                // Daten zum entsprechenden Layer hinzufügen
+                let objekt = {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      313095.0438354717,
+                      5996839.707244413
+                    ],
+                    "type": "Point"
+                  },
+                  "properties": [],
+                  "crs": {
+                    "type": "name",
+                    "properties": {
+                      "name": "urn:ogc:def:crs:EPSG::25833"
                     }
-                    {{ datenthema_name_lower }}.addData(geoJsonFeatureCollection)
                   }
-                ).catch(
-                  function(err) {
-                    console.log('Fetch Error: ' + err);
-                  }
-                );
+                }
+                console.dir(blub);
+                {{ datenthema_name_lower }}.addData(objekt);
+                //{{ datenthema_name_lower }}.addData(blub);
+
               });
-
-
-              /*
-              fetch(
-                ' {% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %} '
-              ).then(
-                (response) => response.json()
-              ).then(
-                (data) => {
-                  // neue leere GeoJSON-FeatureCollection definieren
-                  let geoJsonFeatureCollection = {
-                    type: 'FeatureCollection',
-                    datenthema: '{{ datenthema_name }}',
-                    features: []
-                  };
-
-                  let wkt = new Wkt.Wkt();
-                  for (let i = 0; i < data.object_list.length; i++) {
-                    let item = data.object_list[i]
-                    wkt.read(item.substring(item.indexOf(';') + 1, item.length));
-                    // neues leeres GeoJSON-Feature definieren
-                    let geoJsonFeature = {
-                      type: 'Feature',
-                      geometry: null,
-                      properties: [],
-                      crs: {
-                        type: 'name',
-                        properties: {
-                          'name': 'urn:ogc:def:crs:EPSG::25833'
-                        }
-                      }
-                    };
-                    geoJsonFeature.geometry = wkt.toJson();
-                    geoJsonFeatureCollection.features.push(geoJsonFeature);
-                  }
-                  // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-                  let geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection);
-                  //map.addLayer(geoJsonLayer);
-
-                  dataLayerControl.addOverlay(geoJsonLayer, '{{ datenthema_name }}');
-                }
-              ).catch(
-                function(err) {
-                  console.log('Fetch Error: ' + err);
-                }
-              );
-              */
             {% endif %}
           {% endwith %}
         {% endwith %}
@@ -523,7 +465,7 @@
 
       // Multi-Datei-Feld behandeln
 
-      var fotoField = $('input#id_foto');
+      let fotoField = $('input#id_foto');
       if (fotoField.length) {
         fotoField.attr('accept', 'image/*');
         {% if multi_foto_field %}
@@ -533,7 +475,7 @@
         {% endif %}
       }
 
-      var pdfField = $('input#id_pdf');
+      let pdfField = $('input#id_pdf');
       if (pdfField.length) {
         pdfField.attr('accept', 'application/pdf');
       }
@@ -619,7 +561,7 @@
 
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
       {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
-        var top = $('#custom-form').position().top + $('#custom-form').height() + 20;
+        let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
         $('#buttons').offset({
           top: top
         });
@@ -674,8 +616,8 @@
 
     // Adresse oder Straße als Marker in Karte übernehmen
     function getAddress(map) {
-      var x = 0;
-      var y = 0;
+      let x = 0;
+      let y = 0;
       map.eachLayer(function (layer) {
         if (layer._latlng) {
           if (FEATURE_GEOMETRY.type === 'Point') {
@@ -688,13 +630,13 @@
           layer.setLatLng([y, x]);
         }
       });
-      var coords = $('#id_geometrie').val();
+      let coords = $('#id_geometrie').val();
       if (coords.indexOf('0,0') !== -1) {
-        var newCoords = coords.replace(/[0-9]+/, x);
+        let newCoords = coords.replace(/[0-9]+/, x);
         $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
       }
       else {
-        var newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
+        let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
         $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
       }
     }
@@ -886,6 +828,92 @@
         if ($.trim($('#id_strasse').val()).length)
           $('#id_strasse').val($('#id_strasse_uuid').val());
       {% endif %}
+    }
+
+    L.Control.Layers.include({
+      getOverlays: function () {
+        // create hash to hold all layers
+        let control, layers;
+        layers = {};
+        control = this;
+
+        // loop thru all layers in control
+        control._layers.forEach(function(obj) {
+          let layerName;
+
+          // check if layer is an overlay
+          if (obj.overlay) {
+            // get name of overlay
+            layerName = obj.name;
+            // store whether it's present on the map or not
+            return layers[layerName] = control._map.hasLayer(obj.layer);
+          }
+        });
+        return layers;
+      }
+    });
+
+    L.Control.Layers.include({
+      getActiveOverlays: function () {
+        let control, activeLayers;
+        activeLayers = {};
+        control = this;
+        control._layers.forEach(function (obj) {
+          let layerName;
+          if (obj.overlay && control._map.hasLayer(obj.layer)) {
+            layerName = obj.name;
+            return activeLayers[layerName] = control._map.hasLayer(obj.layer);
+          }
+        });
+        return activeLayers;
+      }
+    })
+
+    function loadExternalData(baseUrl) {
+      // Berechnen des Bounding-Circle
+      let mapPart = window.currMap.getBounds();
+      let center = window.currMap.getCenter();
+      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.05;
+      let protocol = window.location.protocol;
+      let host = window.location.host;
+      let geoJsonFeatureCollection = {
+        type: 'FeatureCollection',
+        features: []
+      };
+      fetch(
+        String(protocol + '//' + host + baseUrl + '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad)
+      ).then(
+        (response) => response.json()
+      ).then(
+        (data) => {
+          // neue leere GeoJSON-FeatureCollection definieren
+          let wkt = new Wkt.Wkt();
+          for (let i = 0; i < data.object_list.length; i++) {
+            let item = data.object_list[i];
+            wkt.read(item.substring(item.indexOf(';') + 1, item.length));
+            // neues leeres GeoJSON-Feature definieren
+            let geoJsonFeature = {
+              type: 'Feature',
+              geometry: null,
+              properties: [],
+              crs: {
+                type: 'name',
+                properties: {
+                  'name': 'urn:ogc:def:crs:EPSG::25833'
+                }
+              }
+            };
+            geoJsonFeature.geometry = wkt.toJson();
+            geoJsonFeatureCollection.features.push(geoJsonFeature);
+          }
+        }
+      ).catch(
+        function(err) {
+          console.log('Fetch Error: ' + err);
+        }
+      );
+      console.log(geoJsonFeatureCollection);
+      return geoJsonFeatureCollection;
     }
   </script>
 {% endblock %}
