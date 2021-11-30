@@ -259,7 +259,7 @@
       });
 
       // Liegenschaftskarte definieren
-      var liegenschaftskarte = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/liegenschaftskarte/wms', {
+      var liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
         layers: 'hro.liegenschaftskarte',
         format: wmsFormat,
         maxZoom: maxZoom,
