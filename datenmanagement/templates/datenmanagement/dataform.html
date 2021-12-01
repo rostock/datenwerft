@@ -12,6 +12,7 @@
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-geoman/leaflet-geoman.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform-mobile.css' %}" />
   {% else %}
@@ -29,6 +30,7 @@
   <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet-geoman/leaflet-geoman.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -318,14 +320,17 @@
       L.control.layers(baseMaps,overlayMaps).addTo(map);
       // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
       let dataLayerControl = new L.control.layers({}, {}).addTo(map);
+
+      // Speichern der Themenspezifischen URLs für späteren Aufruf
       const minLayerZoom = 13;
       let themaUrl = {};
 
-      // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
+      // iteriere durch alle Models/Datenthemen
+      // key = Datenthema-Name und value = Verbose Name
       {% for key, value in model_list.items %}
-        {%  with datenthema_name_lower=key|lower %}
-          // GeoJson-Projektions-Layer initialisieren
+        {% with datenthema_name_lower=key|lower %}
           themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+          // GeoJson-Projektions-Layer initialisieren
           let {{ datenthema_name_lower }} = new L.Proj.geoJson();
           // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
           dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
