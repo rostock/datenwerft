@@ -947,7 +947,7 @@ class DataAddView(generic.CreateView):
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
             # Aussortieren der Datensätze ohne Geometrie
-            if hasattr(model, 'geometrie'):
+            if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay == True:
                 model_list.append(model)
         context['model_list'] = model_list
         return context
@@ -1272,8 +1272,9 @@ class GeometryView(JsonView):
         rad = float(self.request.GET.get('rad'))
         circle = Point(lng, lat, srid=4326)
         circle.transform(25833)
+        uuids = list(self.model.objects.values_list('uuid', flat=True).filter(geometrie__contained=circle.buffer(rad)))
+        context['uuids'] = uuids
         geom = list(self.model.objects.values_list('geometrie', flat=True).filter(geometrie__contained=circle.buffer(rad)))
-        print(geom)
         for i in range(len(geom)):
             geom[i] = str(geom[i])
         context['object_list'] = geom

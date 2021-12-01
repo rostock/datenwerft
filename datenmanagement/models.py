@@ -8265,7 +8265,7 @@ class Parkscheinautomaten_Tarife(models.Model):
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
         # Kindtabellen sortiert aufgelistet
         ordering = ['bezeichnung']
-        as_overlay = True
+        as_overlay = False
 
     def __str__(self):
         return self.bezeichnung
@@ -8387,6 +8387,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         }
         map_filter_fields_as_list = ['parkscheinautomaten_tarif', 'zone']
         geometry_type = 'Point'
+        as_overlay = True
 
     def __str__(self):
         return self.bezeichnung

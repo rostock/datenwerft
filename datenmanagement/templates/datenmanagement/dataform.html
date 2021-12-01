@@ -304,7 +304,7 @@
       // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
       {% if additional_wms_layers %}
         {% for additional_wms_layer in additional_wms_layers %}
-          var overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
+          let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
             layers: '{{ additional_wms_layer.layers }}',
             format: wmsFormat,
             maxZoom: maxZoom,
@@ -319,6 +319,8 @@
       // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
       let dataLayerControl = new L.control.layers({}, {}).addTo(map);
 
+      let themaUrl = {};
+
       // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
       {% for datenthema in model_list %}
         {% with datenthema_name=datenthema|get_class_name %}
@@ -326,6 +328,7 @@
             // Aussortieren der Codelisten und der Models mit 'foto' (haben keine Geometrie)
             {% if not datenthema|is_class_codelist %}
               // GeoJson-Projektions-Layer initialisieren
+              themaUrl = {...themaUrl, {{ datenthema_name }}: '{% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %}'};
               let {{ datenthema_name_lower }} = new L.Proj.geoJson();
               // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
               dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ datenthema_name }}');
@@ -344,12 +347,17 @@
         {% endwith %}
       {% endfor %}
 
+      // Laden der erxternen Datensätze, nach dem Bewegen der der Karte
+      map.on('moveend', function (){
+        let list = dataLayerControl.getActiveOverlays();
+        console.log('Liste = ', list);
+        for (const key in list) {
+          console.log('URL = ', themaUrl['key']);
+          console.log('Layer = ', list[key]);
+          loadExternalData(themaUrl[key], list[key]);
+        };
+      });
 
-      for (const checkbox in document.getElementsByTagName("checkbox")) {
-          if (checkbox.includes("leaflet")) {
-              console.log('pling' + checkbox.checked);
-          }
-      };
 
       // Standortbestimmung
       {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
@@ -393,7 +401,7 @@
         {% if not user|user_has_object_delete_permission:object %}
           {% for field in form %}
             {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
-              var value = '';
+              let value = '';
               {% if field.name == 'ansprechpartner' %}
                 value = '{{ object.ansprechpartner }}';
               {% endif %}
@@ -486,7 +494,7 @@
 
       searchField.keyup(function() {
         if ($(this).val().length >= 3) {
-          var searchText = searchField.val();
+          let searchText = searchField.val();
           
           $.ajax({
             url: '{% url "datenmanagement:addresssearch" %}',
@@ -558,9 +566,9 @@
         {% for field in fields_with_foreign_key_to_linkify %}
           $('select#id_' + '{{ field }}').each(function () {
             $(this).on('change', function() {
-              var link = $('a#link_' + '{{ field }}');
-              var href = link.prop('href');
-              var value = $(this).find(':selected').val();
+              let link = $('a#link_' + '{{ field }}');
+              let href = link.prop('href');
+              let value = $(this).find(':selected').val();
               if (value) {
                 href = href.replace(/\/change\/.*/, '/change/' + value + '/');
                 link.prop('href', href);
@@ -813,46 +821,26 @@
       {% endif %}
     }
 
-    L.Control.Layers.include({
-      getOverlays: function () {
-        // create hash to hold all layers
-        let control, layers;
-        layers = {};
-        control = this;
-
-        // loop thru all layers in control
-        control._layers.forEach(function(obj) {
-          let layerName;
-
-          // check if layer is an overlay
-          if (obj.overlay) {
-            // get name of overlay
-            layerName = obj.name;
-            // store whether it's present on the map or not
-            return layers[layerName] = control._map.hasLayer(obj.layer);
-          }
-        });
-        return layers;
-      }
-    });
 
     L.Control.Layers.include({
       getActiveOverlays: function () {
         let control, activeLayers;
         activeLayers = {};
         control = this;
-        control._layers.forEach(function (obj) {
-          let layerName;
-          if (obj.overlay && control._map.hasLayer(obj.layer)) {
-            layerName = obj.name;
-            return activeLayers[layerName] = control._map.hasLayer(obj.layer);
+        control._layers.forEach((layer) => {
+          if (layer.overlay && control._map.hasLayer(layer.layer)) {
+            window.currMap.eachLayer((lay) => {
+              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection' && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
+                activeLayers[layer.name] = lay;
+              }
+            })
           }
         });
         return activeLayers;
       }
     })
 
-    function loadExternalData(baseUrl, dthema, layer) {
+    function loadExternalData(baseUrl, layer) {
       // Berechnen des Bounding-Circle
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
@@ -867,7 +855,6 @@
         (data) => {
           let geoJsonFeatureCollection = {
             type: 'FeatureCollection',
-            datenthema: dthema,
             features: []
           };
           // neue leere GeoJSON-FeatureCollection definieren
@@ -879,7 +866,10 @@
             let geoJsonFeature = {
               type: 'Feature',
               geometry: null,
-              properties: [],
+              properties: {
+                'uuid': data.uuids[i],
+                'datenthema': data.model_thema,
+              },
               crs: {
                 type: 'name',
                 properties: {
@@ -888,9 +878,16 @@
               }
             };
             geoJsonFeature.geometry = wkt.toJson();
-            geoJsonFeatureCollection.features.push(geoJsonFeature);
+            let exists = false;
+            for (let e of layer.toGeoJSON().features){
+              if (e.properties.uuid === geoJsonFeature.properties.uuid){
+                exists = true;
+              }
+            }
+            if (exists === false){
+              geoJsonFeatureCollection.features.push(geoJsonFeature);
+            }
           }
-          console.log(geoJsonFeatureCollection);
           layer.addData(geoJsonFeatureCollection);
         }
       ).catch(
