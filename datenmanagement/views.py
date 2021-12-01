@@ -943,12 +943,12 @@ class DataAddView(generic.CreateView):
             self.model._meta.additional_wms_layers if hasattr(
                 self.model._meta, 'additional_wms_layers') else None)
         # Liste aller Datensätze für die Overlay-Daten-Liste
-        model_list = []
+        model_list = {}
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
             # Aussortieren der Datensätze ohne Geometrie
             if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay == True:
-                model_list.append(model)
+                model_list[model.__name__] = model._meta.verbose_name
         context['model_list'] = model_list
         return context
 
@@ -1188,6 +1188,15 @@ class DataChangeView(generic.UpdateView):
         context['additional_wms_layers'] = (
             self.model._meta.additional_wms_layers if hasattr(
                 self.model._meta, 'additional_wms_layers') else None)
+        # Hinzufügen anderer Datensätze
+        model_list = {}
+        app_models = apps.get_app_config('datenmanagement').get_models()
+        for model in app_models:
+            # Aussortieren der Datensätze ohne Geometrie
+            if hasattr(model._meta,
+                       'as_overlay') and model._meta.as_overlay == True:
+                model_list[model.__name__] = model._meta.verbose_name
+        context['model_list'] = model_list
         return context
 
     def get_initial(self):

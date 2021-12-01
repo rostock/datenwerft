@@ -322,38 +322,42 @@
       let themaUrl = {};
 
       // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
-      {% for datenthema in model_list %}
-        {% with datenthema_name=datenthema|get_class_name %}
-          {%  with datenthema_name_lower=datenthema_name|lower %}
-            // Aussortieren der Codelisten und der Models mit 'foto' (haben keine Geometrie)
-            {% if not datenthema|is_class_codelist %}
-              // GeoJson-Projektions-Layer initialisieren
-              themaUrl = {...themaUrl, {{ datenthema_name }}: '{% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %}'};
-              let {{ datenthema_name_lower }} = new L.Proj.geoJson();
-              // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
-              dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ datenthema_name }}');
-              // Beim hinzufügen des Layers Daten laden
-              {{ datenthema_name_lower }}.on('add', function () {
-                loadExternalData(
-                  '{% url 'datenmanagement:'|add:datenthema_name|add:'geometry' %}',
-                  '{{ datenthema_name }}',
-                  this
-                );
-                //console.log('blub = ', blub);
-                // Daten zum entsprechenden Layer hinzufügen
-              });
-            {% endif %}
-          {% endwith %}
+      {% for key, value in model_list.items %}
+        {%  with datenthema_name_lower=key|lower %}
+          // GeoJson-Projektions-Layer initialisieren
+          themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+          let {{ datenthema_name_lower }} = new L.Proj.geoJson();
+          // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
+          dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
+          // Beim hinzufügen des Layers Daten laden
+          {{ datenthema_name_lower }}.on('add', function () {
+            loadExternalData(
+              '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
+              this
+            );
+            // Daten zum entsprechenden Layer hinzufügen
+          });
         {% endwith %}
       {% endfor %}
 
-      // Laden der erxternen Datensätze, nach dem Bewegen der der Karte
+      // Laden der externen Datensätze, nach dem Bewegen der der Karte
       map.on('moveend', function (){
         let list = dataLayerControl.getActiveOverlays();
-        console.log('Liste = ', list);
+        //console.log('Liste = ', list);
         for (const key in list) {
-          console.log('URL = ', themaUrl['key']);
-          console.log('Layer = ', list[key]);
+          //console.log('URL = ', themaUrl['key']);
+          //console.log('Layer = ', list[key]);
+          loadExternalData(themaUrl[key], list[key]);
+        };
+      });
+
+      // Laden der externen Datensätze, nach dem Zoomen der der Karte
+      map.on('zoomend', function (){
+        let list = dataLayerControl.getActiveOverlays();
+        //console.log('Liste = ', list);
+        for (const key in list) {
+          //console.log('URL = ', themaUrl['key']);
+          //console.log('Layer = ', list[key]);
           loadExternalData(themaUrl[key], list[key]);
         };
       });
@@ -824,11 +828,9 @@
 
     L.Control.Layers.include({
       getActiveOverlays: function () {
-        let control, activeLayers;
-        activeLayers = {};
-        control = this;
-        control._layers.forEach((layer) => {
-          if (layer.overlay && control._map.hasLayer(layer.layer)) {
+        let activeLayers = {};
+        this._layers.forEach((layer) => {
+          if (layer.overlay && this._map.hasLayer(layer.layer)) {
             window.currMap.eachLayer((lay) => {
               if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection' && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
                 activeLayers[layer.name] = lay;
@@ -868,7 +870,7 @@
               geometry: null,
               properties: {
                 'uuid': data.uuids[i],
-                'datenthema': data.model_thema,
+                'datenthema': data.model_name,
               },
               crs: {
                 type: 'name',

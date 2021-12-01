@@ -2745,7 +2745,7 @@ class Typen_Abfallbehaelter(Typ):
         verbose_name = 'Typ eines Abfallbehälters'
         verbose_name_plural = 'Typen von Abfallbehältern'
         description = 'Typen von Abfallbehältern'
-        as_overlay = True
+
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
@@ -3673,6 +3673,7 @@ class Abfallbehaelter(models.Model):
         }
         map_filter_fields_as_list = ['typ', 'eigentuemer', 'bewirtschafter']
         geometry_type = 'Point'
+        as_overlay = True
 
     def __str__(self):
         return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
