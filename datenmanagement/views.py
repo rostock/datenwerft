@@ -1281,10 +1281,20 @@ class GeometryView(JsonView):
         rad = float(self.request.GET.get('rad'))
         circle = Point(lng, lat, srid=4326)
         circle.transform(25833)
-        uuids = list(self.model.objects.values_list('uuid', flat=True).filter(geometrie__contained=circle.buffer(rad)))
+        query = list(
+            self.model.objects.values_list(
+                'uuid',
+                'geometrie',
+                flat=False
+            ).filter(
+            geometrie__contained=circle.buffer(rad)
+            )
+        )
+        uuids = []
+        geom = []
+        for i in range(len(query)):
+            uuids.append(query[i][0])
+            geom.append(str(query[i][1]))
         context['uuids'] = uuids
-        geom = list(self.model.objects.values_list('geometrie', flat=True).filter(geometrie__contained=circle.buffer(rad)))
-        for i in range(len(geom)):
-            geom[i] = str(geom[i])
         context['object_list'] = geom
         return context
