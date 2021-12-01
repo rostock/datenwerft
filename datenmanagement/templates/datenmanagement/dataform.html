@@ -211,13 +211,13 @@
         map.eachLayer(function (layer) {
           if (layer._latlng) {
             if ((layer.getLatLng().lat) == 0 || (layer.getLatLng().lon) == 0) {
-              default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
+              let default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
               default_zoom = default_zoom.match(/ [0-9]+/).toString();
               default_zoom = default_zoom.trim();
-              default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
-              default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
+              let default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
+              let default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
               default_center_x = default_center_x.trim();
-              default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
+              let default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
               default_center_y = default_center_y.trim();
               map.panTo([default_center_y, default_center_x]);
               map.setZoom(default_zoom);
@@ -240,11 +240,11 @@
       {% endif %}
 
       // Konstanten definieren
-      var wmsFormat = 'image/png';
-      var maxZoom = 19;
+      const wmsFormat = 'image/png';
+      const maxZoom = 19;
 
       // ORKa.MV definieren
-      var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+      const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
         maxZoom: maxZoom,
         attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
       });
@@ -253,13 +253,13 @@
       map.addLayer(orkamv);
 
       // OpenStreetMap definieren
-      var osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: maxZoom,
         attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
       });
 
       // Liegenschaftskarte definieren
-      var liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
+      const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
         layers: 'hro.liegenschaftskarte',
         format: wmsFormat,
         maxZoom: maxZoom,
@@ -267,13 +267,13 @@
       });
 
       // Luftbild definieren
-      var luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+      const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
         maxZoom: maxZoom,
         attribution: '© GeoBasis-DE/M-V'
       });
 
       // Kilometerquadrate ETRS89/UTM-33N definieren
-      var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+      const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
         layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
         format: wmsFormat,
         maxZoom: maxZoom,
@@ -281,7 +281,7 @@
       });
 
       // definierte Karten als Hintergrundkarten zusammenfassen
-      var baseMaps = {
+      const baseMaps = {
         'Liegenschaftskarte': liegenschaftskarte,
         'Luftbild': luftbild,
         'ORKa.MV': orkamv,
@@ -289,14 +289,22 @@
       };
 
       // definierte Karten als Overlay-Karten zusammenfassen
-      var overlayMaps = {
+      let overlayMaps = {
         'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
       };
+
+      // EPSG:25833 definieren
+      proj4.defs([
+        [
+          'EPSG:25833',
+          '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
+        ],
+      ]);
 
       // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
       {% if additional_wms_layers %}
         {% for additional_wms_layer in additional_wms_layers %}
-          var overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
+          let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
             layers: '{{ additional_wms_layer.layers }}',
             format: wmsFormat,
             maxZoom: maxZoom,
@@ -308,6 +316,52 @@
 
       // Umschalter für Hintergrundkarten zur Karte hinzufügen
       L.control.layers(baseMaps,overlayMaps).addTo(map);
+      // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
+      let dataLayerControl = new L.control.layers({}, {}).addTo(map);
+
+      let themaUrl = {};
+
+      // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
+      {% for key, value in model_list.items %}
+        {%  with datenthema_name_lower=key|lower %}
+          // GeoJson-Projektions-Layer initialisieren
+          themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+          let {{ datenthema_name_lower }} = new L.Proj.geoJson();
+          // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
+          dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
+          // Beim hinzufügen des Layers Daten laden
+          {{ datenthema_name_lower }}.on('add', function () {
+            loadExternalData(
+              '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
+              this
+            );
+            // Daten zum entsprechenden Layer hinzufügen
+          });
+        {% endwith %}
+      {% endfor %}
+
+      // Laden der externen Datensätze, nach dem Bewegen der der Karte
+      map.on('moveend', function (){
+        let list = dataLayerControl.getActiveOverlays();
+        //console.log('Liste = ', list);
+        for (const key in list) {
+          //console.log('URL = ', themaUrl['key']);
+          //console.log('Layer = ', list[key]);
+          loadExternalData(themaUrl[key], list[key]);
+        };
+      });
+
+      // Laden der externen Datensätze, nach dem Zoomen der der Karte
+      map.on('zoomend', function (){
+        let list = dataLayerControl.getActiveOverlays();
+        //console.log('Liste = ', list);
+        for (const key in list) {
+          //console.log('URL = ', themaUrl['key']);
+          //console.log('Layer = ', list[key]);
+          loadExternalData(themaUrl[key], list[key]);
+        };
+      });
+
 
       // Standortbestimmung
       {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
@@ -351,7 +405,7 @@
         {% if not user|user_has_object_delete_permission:object %}
           {% for field in form %}
             {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
-              var value = '';
+              let value = '';
               {% if field.name == 'ansprechpartner' %}
                 value = '{{ object.ansprechpartner }}';
               {% endif %}
@@ -406,7 +460,7 @@
 
       // Multi-Datei-Feld behandeln
 
-      var fotoField = $('input#id_foto');
+      let fotoField = $('input#id_foto');
       if (fotoField.length) {
         fotoField.attr('accept', 'image/*');
         {% if multi_foto_field %}
@@ -416,17 +470,17 @@
         {% endif %}
       }
 
-      var pdfField = $('input#id_pdf');
+      let pdfField = $('input#id_pdf');
       if (pdfField.length) {
         pdfField.attr('accept', 'application/pdf');
       }
 
       // Adressensuche initialisieren
 
-      results = $('div.results');
+      let results = $('div.results');
       {% if address_type %}
         {% if address_type == 'Adresse' %}
-          searchField = $('#id_adresse');
+          let searchField = $('#id_adresse');
         {% elif address_type == 'Straße' %}
           searchField = $('#id_strasse');
         {% endif %}
@@ -444,7 +498,7 @@
 
       searchField.keyup(function() {
         if ($(this).val().length >= 3) {
-          var searchText = searchField.val();
+          let searchText = searchField.val();
           
           $.ajax({
             url: '{% url "datenmanagement:addresssearch" %}',
@@ -502,7 +556,7 @@
 
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
       {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
-        var top = $('#custom-form').position().top + $('#custom-form').height() + 20;
+        let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
         $('#buttons').offset({
           top: top
         });
@@ -516,9 +570,9 @@
         {% for field in fields_with_foreign_key_to_linkify %}
           $('select#id_' + '{{ field }}').each(function () {
             $(this).on('change', function() {
-              var link = $('a#link_' + '{{ field }}');
-              var href = link.prop('href');
-              var value = $(this).find(':selected').val();
+              let link = $('a#link_' + '{{ field }}');
+              let href = link.prop('href');
+              let value = $(this).find(':selected').val();
               if (value) {
                 href = href.replace(/\/change\/.*/, '/change/' + value + '/');
                 link.prop('href', href);
@@ -557,8 +611,8 @@
 
     // Adresse oder Straße als Marker in Karte übernehmen
     function getAddress(map) {
-      var x = 0;
-      var y = 0;
+      let x = 0;
+      let y = 0;
       map.eachLayer(function (layer) {
         if (layer._latlng) {
           if (FEATURE_GEOMETRY.type === 'Point') {
@@ -571,13 +625,13 @@
           layer.setLatLng([y, x]);
         }
       });
-      var coords = $('#id_geometrie').val();
+      let coords = $('#id_geometrie').val();
       if (coords.indexOf('0,0') !== -1) {
-        var newCoords = coords.replace(/[0-9]+/, x);
+        let newCoords = coords.replace(/[0-9]+/, x);
         $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
       }
       else {
-        var newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
+        let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
         $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
       }
     }
@@ -642,7 +696,7 @@
     }
 
     function adoptResult(json, type) {
-      var erfolg = false;
+      let erfolg = false;
       if (type === 'Straße') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Straße') {
@@ -684,7 +738,7 @@
       jQuery.each(json.features, function(index, item) {
         // falls Feature nicht historisch ist:
         if (!item.properties.historisch) {
-          var titel = '';
+          let titel = '';
           if (item.properties._title_.indexOf(', ') != -1)
             titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
           else
@@ -692,11 +746,11 @@
           // falls Datenmodell Adressenbezug vorsieht:
           {% if address_type %}
             // nur Objektgruppen berücksichtigen, die mit dem Typ des Adressenbezugs übereinstimmen
-            var substring = item.properties.objektgruppe;
+            let substring = item.properties.objektgruppe;
             if (item.properties.objektgruppe.indexOf(' HRO') != -1)
               substring = item.properties.objektgruppe.substring(0, item.properties.objektgruppe.lastIndexOf(' HRO'));
             if (substring === '{{ address_type }}') {
-              var result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
+              let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
               if (item.properties.gemeindeteil_abkuerzung)
                 result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
               result += '</div>';
@@ -704,7 +758,7 @@
             }
           // ansonsten: alle Objektgruppen anzeigen
           {% else %}
-            var result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
+            let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
             if (item.properties.gemeindeteil_abkuerzung)
               result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
             result += '<small class="text-muted"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
@@ -769,6 +823,82 @@
         if ($.trim($('#id_strasse').val()).length)
           $('#id_strasse').val($('#id_strasse_uuid').val());
       {% endif %}
+    }
+
+
+    L.Control.Layers.include({
+      getActiveOverlays: function () {
+        let activeLayers = {};
+        this._layers.forEach((layer) => {
+          if (layer.overlay && this._map.hasLayer(layer.layer)) {
+            window.currMap.eachLayer((lay) => {
+              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection' && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
+                activeLayers[layer.name] = lay;
+              }
+            })
+          }
+        });
+        return activeLayers;
+      }
+    })
+
+    function loadExternalData(baseUrl, layer) {
+      // Berechnen des Bounding-Circle
+      let mapPart = window.currMap.getBounds();
+      let center = window.currMap.getCenter();
+      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.05;
+      let protocol = window.location.protocol;
+      let host = window.location.host;
+      fetch(
+        String(protocol + '//' + host + baseUrl + '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad)
+      ).then(
+        (response) => response.json()
+      ).then(
+        (data) => {
+          let geoJsonFeatureCollection = {
+            type: 'FeatureCollection',
+            features: []
+          };
+          // neue leere GeoJSON-FeatureCollection definieren
+          let wkt = new Wkt.Wkt();
+          for (let i = 0; i < data.object_list.length; i++) {
+            let item = data.object_list[i];
+            wkt.read(item.substring(item.indexOf(';') + 1, item.length));
+            // neues leeres GeoJSON-Feature definieren
+            let geoJsonFeature = {
+              type: 'Feature',
+              geometry: null,
+              properties: {
+                'uuid': data.uuids[i],
+                'datenthema': data.model_name,
+              },
+              crs: {
+                type: 'name',
+                properties: {
+                  'name': 'urn:ogc:def:crs:EPSG::25833'
+                }
+              }
+            };
+            geoJsonFeature.geometry = wkt.toJson();
+            let exists = false;
+            for (let e of layer.toGeoJSON().features){
+              if (e.properties.uuid === geoJsonFeature.properties.uuid){
+                exists = true;
+              }
+            }
+            if (exists === false){
+              geoJsonFeatureCollection.features.push(geoJsonFeature);
+            }
+          }
+          layer.addData(geoJsonFeatureCollection);
+        }
+      ).catch(
+        function(err) {
+          console.log('Fetch Error: ' + err);
+        }
+      );
+
+
     }
   </script>
 {% endblock %}

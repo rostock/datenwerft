@@ -73,7 +73,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 Wenn das Deployment mittels *Apache HTTP Server* realisiert werden soll, **muss** dessen Modul [*mod_wsgi*](https://modwsgi.readthedocs.io) (für *Python* v3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von *Python*-Anwendungen zur Verfügung stellt.
 
 Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle *Python*-Umgebung einen *Python*-Interpreter der Version 3.6):
-    
+
         Alias               /datenerfassung/static /srv/www/htdocs/datenerfassung/datenerfassung/static
         Alias               /datenerfassung/uploads /srv/www/htdocs/datenerfassung/datenerfassung/uploads
         WSGIDaemonProcess   datenerfassung processes=2 threads=128 python-path=/srv/www/htdocs/datenerfassung/datenerfassung:/srv/www/htdocs/datenerfassung/virtualenv/lib/python3.6/site-packages
@@ -94,3 +94,12 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
           Order deny,allow
           Require all granted
         </Directory>
+
+
+## Entwicklung
+Der Python Quellcode ist nach der Style Konvetion [PEP8](https://www.python.org/dev/peps/pep-0008/) verfasst.
+Zur Entwicklung wird ein Tool wie [pycodestyle](https://pypi.org/project/pycodestyle/) zur Überprüfung des Codes 
+empfohlen.
+
+Die Dokumentation wird durch Docstrings mit [reStructuredText](https://docutils.sourceforge.io/rst.html) geschrieben und 
+mit [Sqhinx](https://www.sphinx-doc.org/en/master/index.html) gesetzt.

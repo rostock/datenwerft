@@ -27,41 +27,42 @@ DATENMANAGEMENT_VERSION = '4.2.3'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 DJANGO_APPS = [
-  'django.contrib.admin',
-  'django.contrib.auth',
-  'django.contrib.contenttypes',
-  'django.contrib.sessions',
-  'django.contrib.messages',
-  'django.contrib.staticfiles',
-  'django.contrib.gis',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.gis',
 ]
 
 LOCAL_APPS = [
-  'datenmanagement',
+    'datenmanagement',
 ]
 
 THIRD_PARTY_APPS = [
-  'django_user_agents',
-  'guardian',
-  'leaflet',
-  'requests',
-  'rest_framework',
-  'tempus_dominus',
+    'django_user_agents',
+    'guardian',
+    'leaflet',
+    'requests',
+    'rest_framework',
+    'tempus_dominus',
+    'jsonview'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
-  'django.middleware.security.SecurityMiddleware',
-  'django.contrib.sessions.middleware.SessionMiddleware',
-  'django.middleware.common.CommonMiddleware',
-  'django.middleware.csrf.CsrfViewMiddleware',
-  'django.contrib.auth.middleware.AuthenticationMiddleware',
-  'django.contrib.messages.middleware.MessageMiddleware',
-  'django.middleware.clickjacking.XFrameOptionsMiddleware',
-  'django.middleware.gzip.GZipMiddleware',
-  'django_user_agents.middleware.UserAgentMiddleware',
-  'django_currentuser.middleware.ThreadLocalUserMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
+    'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'datenerfassung.urls'
@@ -83,36 +84,36 @@ X_FRAME_OPTIONS = 'DENY'
 # Leaflet
 
 LEAFLET_CONFIG = {
-  'SPATIAL_EXTENT': (10.53001,52.98541,14.68873,54.82175),
-  'DEFAULT_CENTER': (54.14775,12.14945),
-  'DEFAULT_ZOOM': 11,
-  'MIN_ZOOM': 11,
-  'MAX_ZOOM': 19,
-  'TILES': [],
-  'SRID': 3857,
-  'ATTRIBUTION_PREFIX': '',
-  'RESET_VIEW': False,
-  'PLUGINS': {
-    'forms': {
-      'auto_include': True
+    'SPATIAL_EXTENT': (10.53001, 52.98541, 14.68873, 54.82175),
+    'DEFAULT_CENTER': (54.14775, 12.14945),
+    'DEFAULT_ZOOM': 11,
+    'MIN_ZOOM': 11,
+    'MAX_ZOOM': 19,
+    'TILES': [],
+    'SRID': 3857,
+    'ATTRIBUTION_PREFIX': '',
+    'RESET_VIEW': False,
+    'PLUGINS': {
+        'forms': {
+            'auto_include': True
+        }
     }
-  }
 }
 
 
 # REST framework
 
 REST_FRAMEWORK = {
-  'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.IsAdminUser',
-  ],
-  'DATETIME_FORMAT': 'iso-8601',
-  'DATE_FORMAT': 'iso-8601',
-  'TIME_FORMAT': 'iso-8601',
-  'DEFAULT_RENDERER_CLASSES': (
-    'rest_framework.renderers.JSONRenderer',
-    'rest_framework.renderers.BrowsableAPIRenderer',
-  ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAdminUser',
+    ],
+    'DATETIME_FORMAT': 'iso-8601',
+    'DATE_FORMAT': 'iso-8601',
+    'TIME_FORMAT': 'iso-8601',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
 }
 
 
@@ -139,6 +140,6 @@ USE_TZ = True
 # die nicht unter Git-Versionskontrolle fallen sollen
 
 try:
-  from datenerfassung.secrets import *
+    from datenerfassung.secrets import *
 except ImportError:
-  pass
+    pass

@@ -6,6 +6,7 @@ django-guardian
 django-leaflet
 django-tempus-dominus
 django-user-agents
+django-jsonview
 djangorestframework
 Pillow
 psycopg2

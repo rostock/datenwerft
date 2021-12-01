@@ -33,7 +33,7 @@
   <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"'></script>
+  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -192,11 +192,11 @@
         window.currMap = map;
 
         // Konstanten definieren
-        var wmsFormat = 'image/png';
-        var maxZoom = 19;
+        const wmsFormat = 'image/png';
+        const maxZoom = 19;
 
         // ORKa.MV definieren
-        var orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+        const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
           maxZoom: maxZoom,
           attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
         });
@@ -205,13 +205,13 @@
         map.addLayer(orkamv);
 
         // OpenStreetMap definieren
-        var osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: maxZoom,
           attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
         });
 
         // Liegenschaftskarte definieren
-        var liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
+        const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
           layers: 'hro.liegenschaftskarte',
           format: wmsFormat,
           maxZoom: maxZoom,
@@ -219,13 +219,13 @@
         });
 
         // Luftbild definieren
-        var luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+        const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
           maxZoom: maxZoom,
           attribution: '© GeoBasis-DE/M-V'
         });
 
         // Kilometerquadrate ETRS89/UTM-33N definieren
-        var kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+        const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
           layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
           format: wmsFormat,
           maxZoom: maxZoom,
@@ -233,7 +233,7 @@
         });
 
         // definierte Karten als Hintergrundkarten zusammenfassen
-        var baseMaps = {
+        let baseMaps = {
           'Liegenschaftskarte': liegenschaftskarte,
           'Luftbild': luftbild,
           'ORKa.MV': orkamv,
@@ -241,7 +241,7 @@
         };
 
         // definierte Karten als Overlay-Karten zusammenfassen
-        var overlayMaps = {
+        let overlayMaps = {
           'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
         };
 
@@ -250,7 +250,7 @@
 
         // Standortbestimmung
         {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-          var locationControl = L.control.locate({
+          let locationControl = L.control.locate({
             drawCircle: false,
             drawMarker: false,
             flyTo: true,
@@ -447,19 +447,19 @@
       // Adressensuche und Filter
       $(document).ready(function() {
         // Variable für Bounding Box der aktuellen Filtermenge anlegen
-        var currentFilterExtent = [];
+        let currentFilterExtent = [];
 
         // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
-        var intervalFilterMin = [];
+        let intervalFilterMin = [];
 
         // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
-        var intervalFilterMax = [];
+        let intervalFilterMax = [];
 
         // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
-        var listFilterLists = [];
+        let listFilterLists = [];
 
         // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
-        var checkboxFilterLists = [];
+        let checkboxFilterLists = [];
 
         // Adressensuche initialisieren
 
@@ -478,7 +478,7 @@
         // bei Eingabe in entsprechendes Eingabefeld Adressensuche durchführen
         searchField.keyup(function() {
           if ($(this).val().length >= 3) {
-            var searchText = searchField.val();
+            let searchText = searchField.val();
             
             $.ajax({
               url: '{% url "datenmanagement:addresssearch" %}',
@@ -510,17 +510,17 @@
           filterField.type = $(this).data('type');
           filterField.value = '';
           // falls es sich um ein Intervallfilterfeld handelt...
-          if ($(this).data('intervalside') == 'left' || $(this).data('intervalside') == 'right') {
+          if ($(this).data('intervalside') === 'left' || $(this).data('intervalside') === 'right') {
             // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
-            if ($(this).data('intervalside') == 'left')
+            if ($(this).data('intervalside') === 'left')
               // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
               intervalFilterMin.push(filterField);
             // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
-            else if ($(this).data('intervalside') == 'right')
+            else if ($(this).data('intervalside') === 'right')
               // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
               intervalFilterMax.push(filterField);
           // falls es sich um ein Listenfeld handelt...
-          } else if ($(this).data('type') == 'list') {
+          } else if ($(this).data('type') === 'list') {
             // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
             filterField.value = [];
             listFilterLists.push(filterField);
@@ -874,7 +874,7 @@
                   var east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
                   var south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
                   var west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
-                  if (currentFilterExtent.length == 0) {
+                  if (currentFilterExtent.length === 0) {
                     currentFilterExtent[0] = [];
                     currentFilterExtent[0][0] = north;
                     currentFilterExtent[0][1] = east;
