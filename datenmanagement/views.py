@@ -9,8 +9,9 @@ from datetime import datetime
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.contrib.gis.geos import GEOSGeometry, Point
+from django.contrib.gis.geos import Point
 from django.core.exceptions import PermissionDenied
+from django.db import connections, connection
 from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
     UUIDField, ValidationError
@@ -19,8 +20,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape
-from django.views import generic, View
-from django.views.decorators.http import require_http_methods
+from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from jsonview.views import JsonView
@@ -1275,16 +1275,22 @@ class GeometryView(JsonView):
     def get_context_data(self, **kwargs):
         context = super(GeometryView, self).get_context_data(**kwargs)
         context['model_name'] = self.model._meta.verbose_name
-        # context['geometry_type'] = self.model._meta.geometry_type
         lat = float(self.request.GET.get('lat'))
         lng = float(self.request.GET.get('lng'))
         rad = float(self.request.GET.get('rad'))
-        circle = Point(lng, lat, srid=4326)
-        circle.transform(25833)
-        uuids = list(self.model.objects.values_list('uuid', flat=True).filter(geometrie__contained=circle.buffer(rad)))
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
+                self.model._meta.db_table.replace('"', '') +
+                ' WHERE st_contains(st_buffer(st_transform(st_setsrid(st_makepoint(%s, %s),4326)::geometry,25833),%s),geometrie);',
+                [lng, lat, rad]
+            )
+            row = cursor.fetchall()
+        uuids = []
+        geom = []
+        for i in range(len(row)):
+            uuids.append(row[i][0])
+            geom.append(str(row[i][1]))
         context['uuids'] = uuids
-        geom = list(self.model.objects.values_list('geometrie', flat=True).filter(geometrie__contained=circle.buffer(rad)))
-        for i in range(len(geom)):
-            geom[i] = str(geom[i])
         context['object_list'] = geom
         return context

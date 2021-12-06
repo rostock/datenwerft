@@ -294,12 +294,12 @@
       };
 
       // EPSG:25833 definieren
-      proj4.defs([
-        [
-          'EPSG:25833',
-          '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
-        ],
-      ]);
+      //proj4.defs([
+      //[
+      //    'EPSG:25833',
+      //    '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
+      //  ],
+      //]);
 
       // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
       {% if additional_wms_layers %}
@@ -318,7 +318,7 @@
       L.control.layers(baseMaps,overlayMaps).addTo(map);
       // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
       let dataLayerControl = new L.control.layers({}, {}).addTo(map);
-
+      const minLayerZoom = 13;
       let themaUrl = {};
 
       // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
@@ -331,11 +331,14 @@
           dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
           // Beim hinzufügen des Layers Daten laden
           {{ datenthema_name_lower }}.on('add', function () {
-            loadExternalData(
-              '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
-              this
-            );
+            console.log('DataAdd: ', map.getZoom());
+            if (map.getZoom() > minLayerZoom) {
+              loadExternalData(
+                '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
+                this
+              );
             // Daten zum entsprechenden Layer hinzufügen
+            };
           });
         {% endwith %}
       {% endfor %}
@@ -344,10 +347,19 @@
       map.on('moveend', function (){
         let list = dataLayerControl.getActiveOverlays();
         //console.log('Liste = ', list);
-        for (const key in list) {
-          //console.log('URL = ', themaUrl['key']);
-          //console.log('Layer = ', list[key]);
-          loadExternalData(themaUrl[key], list[key]);
+        console.log('Moveend: ', map.getZoom())
+        if (map.getZoom() > minLayerZoom){
+          for (const key in list) {
+            //console.log('URL = ', themaUrl['key']);
+            //console.log('Layer = ', list[key]);
+            loadExternalData(themaUrl[key], list[key]);
+          };
+        } else {
+          window.currMap.eachLayer((layer) => {
+            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection') {
+              layer.clearLayers();
+            }
+          });
         };
       });
 
@@ -355,10 +367,19 @@
       map.on('zoomend', function (){
         let list = dataLayerControl.getActiveOverlays();
         //console.log('Liste = ', list);
-        for (const key in list) {
-          //console.log('URL = ', themaUrl['key']);
-          //console.log('Layer = ', list[key]);
-          loadExternalData(themaUrl[key], list[key]);
+        console.log('Zoomend: ', map.getZoom())
+        if (map.getZoom() > minLayerZoom){
+          for (const key in list) {
+            //console.log('URL = ', themaUrl['key']);
+            //console.log('Layer = ', list[key]);
+            loadExternalData(themaUrl[key], list[key]);
+          };
+        } else {
+          window.currMap.eachLayer((layer) => {
+            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection'){
+              layer.clearLayers();
+            }
+          });
         };
       });
 
@@ -832,7 +853,7 @@
         this._layers.forEach((layer) => {
           if (layer.overlay && this._map.hasLayer(layer.layer)) {
             window.currMap.eachLayer((lay) => {
-              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection' && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
+              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){ // && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
                 activeLayers[layer.name] = lay;
               }
             })
@@ -846,7 +867,7 @@
       // Berechnen des Bounding-Circle
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
-      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.05;
+      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.2;
       let protocol = window.location.protocol;
       let host = window.location.host;
       fetch(
@@ -875,7 +896,7 @@
               crs: {
                 type: 'name',
                 properties: {
-                  'name': 'urn:ogc:def:crs:EPSG::25833'
+                  'name': 'urn:ogc:def:crs:EPSG::4326'
                 }
               }
             };

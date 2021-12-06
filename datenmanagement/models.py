@@ -3533,13 +3533,27 @@ class Abfallbehaelter(models.Model):
         to_field='uuid',
         related_name='bewirtschafter+')
     pflegeobjekt = models.CharField(
-        'Pflegeobjekt', max_length=255, validators=[
+        'Pflegeobjekt',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     inventarnummer = models.CharField(
         'Inventarnummer',
         max_length=8,
@@ -3548,7 +3562,10 @@ class Abfallbehaelter(models.Model):
         validators=[
             RegexValidator(
                 regex=inventarnummer_regex,
-                message=inventarnummer_message)])
+                message=inventarnummer_message
+            )
+        ]
+    )
     anschaffungswert = models.DecimalField(
         'Anschaffungswert (in €)',
         max_digits=6,
@@ -3597,7 +3614,10 @@ class Abfallbehaelter(models.Model):
         blank=True,
         null=True)
     winter_mo = PositiveSmallIntegerRangeField(
-        'Anzahl Leerungen montags im Winter', min_value=1, blank=True, null=True)
+        'Anzahl Leerungen montags im Winter',
+        min_value=1,
+        blank=True,
+        null=True)
     winter_di = PositiveSmallIntegerRangeField(
         'Anzahl Leerungen dienstags im Winter',
         min_value=1,
@@ -3629,13 +3649,29 @@ class Abfallbehaelter(models.Model):
         blank=True,
         null=True)
     bemerkungen = models.CharField(
-        'Bemerkungen', max_length=255, blank=True, null=True, validators=[
+        'Bemerkungen',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -3695,9 +3731,33 @@ signals.post_delete.connect(remove_permissions, sender=Abfallbehaelter)
 # Angelverbotsbereiche
 
 class Angelverbotsbereiche(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
     aktiv = models.BooleanField(' aktiv?', default=True)
-    bezeichnung = models.CharField('Bezeichnung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    bezeichnung = models.CharField(
+        'Bezeichnung',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
     beschreibung = NullTextField('Beschreibung', max_length=1000, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     geometrie = models.LineStringField('Geometrie', srid=25833)
 
@@ -3729,9 +3789,7 @@ class Angelverbotsbereiche(models.Model):
         super(Angelverbotsbereiche, self).delete(*args, **kwargs)
 
 
-
 signals.post_save.connect(assign_permissions, sender=Angelverbotsbereiche)
-
 signals.post_delete.connect(remove_permissions, sender=Angelverbotsbereiche)
 
 
@@ -3755,29 +3813,47 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     aktenzeichen = models.CharField(
         'Aktenzeichen', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
     datum_abgeschlossenheitserklaerung = models.DateField(
         'Datum der Abgeschlossenheitserklärung', blank=True, null=True)
     bearbeiter = models.CharField(
         'Bearbeiter', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
     bemerkungen = models.CharField(
         'Bemerkungen', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
     datum = models.DateField('Datum', default=date.today)
     pdf = models.FileField(
         'PDF',
