@@ -948,7 +948,7 @@ class DataAddView(generic.CreateView):
         for model in app_models:
             # Aussortieren der Datensätze ohne Geometrie
             if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay == True:
-                model_list[model.__name__] = model._meta.verbose_name
+                model_list[model.__name__] = model._meta.verbose_name_plural
         context['model_list'] = model_list
         return context
 
@@ -1274,7 +1274,6 @@ class GeometryView(JsonView):
 
     def get_context_data(self, **kwargs):
         context = super(GeometryView, self).get_context_data(**kwargs)
-        context['model_name'] = self.model._meta.verbose_name
         lat = float(self.request.GET.get('lat'))
         lng = float(self.request.GET.get('lng'))
         rad = float(self.request.GET.get('rad'))
