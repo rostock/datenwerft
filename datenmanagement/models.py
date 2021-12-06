@@ -517,6 +517,8 @@ haefen_abkuerzung_regex = r'^[A-Z-]{3,5}$'
 haefen_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss aus drei, vier oder fünf Großbuchstaben und/oder Bindestrichen bestehen.'
 haltestellenkataster_haltestellen_hst_hafas_id_regex = r'^[0-9]{8}$'
 haltestellenkataster_haltestellen_hst_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
+hydranten_bezeichnung_regex = r'^HSA .*$'
+hydranten_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> muss mit der Großbuchstabenfolge <em>HSA</em> beginnen, gefolgt von genau einem Leerzeichen. Die übrigen Zeichen können beliebig gewählt werden.'
 linien_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
 linien_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer Ziffer oder einem Großbuchstaben beginnen, der bzw. dem optional weitere Ziffern und/oder Großbuchstaben folgen können.'
 parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
@@ -1440,6 +1442,53 @@ class Betriebsarten(models.Model):
 signals.post_save.connect(assign_permissions, sender=Betriebsarten)
 
 signals.post_delete.connect(remove_permissions, sender=Betriebsarten)
+
+
+# Betriebszeiten
+
+class Betriebszeiten(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    betriebszeit = models.CharField(
+        'Betriebszeit', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"betriebszeiten'
+        verbose_name = 'Betriebszeit'
+        verbose_name_plural = 'Betriebszeiten'
+        description = 'Betriebszeiten'
+        list_fields = {
+            'betriebszeit': 'Betriebszeit'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['betriebszeit']
+
+    def __str__(self):
+        return self.betriebszeit
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Betriebszeiten, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Betriebszeiten, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Betriebszeiten)
+
+signals.post_delete.connect(remove_permissions, sender=Betriebszeiten)
 
 
 # Bewirtschafter, Betreiber, Träger, Eigentümer etc.
@@ -7078,6 +7127,147 @@ class Hundetoiletten(models.Model):
 signals.post_save.connect(assign_permissions, sender=Hundetoiletten)
 
 signals.post_delete.connect(remove_permissions, sender=Hundetoiletten)
+
+
+# Hydranten
+
+class Hydranten(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    bezeichnung = models.CharField(
+        'Bezeichnung',
+        max_length=255,
+        validators=[
+            RegexValidator(
+                regex=hydranten_bezeichnung_regex,
+                message=hydranten_bezeichnung_message)])
+    eigentuemer = models.ForeignKey(
+        Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+        verbose_name='Eigentümer',
+        on_delete=models.RESTRICT,
+        db_column='eigentuemer',
+        to_field='uuid',
+        related_name='eigentuemer+')
+    bewirtschafter = models.ForeignKey(
+        Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+        verbose_name='Bewirtschafter',
+        on_delete=models.RESTRICT,
+        db_column='bewirtschafter',
+        to_field='uuid',
+        related_name='bewirtschafter+')
+    feuerloeschgeeignet = models.BooleanField(' feuerlöschgeeignet?')
+    betriebszeit = models.ForeignKey(
+        Betriebszeiten,
+        verbose_name='Betriebszeit',
+        on_delete=models.RESTRICT,
+        db_column='betriebszeit',
+        to_field='uuid',
+        related_name='betriebszeiten+')
+    entnahme = models.CharField(
+        'Entnahme',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
+    hauptwasserzaehler = models.CharField(
+        'Hauptwasserzähler',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
+    geometrie = models.PointField(
+        'Geometrie', srid=25833, default='POINT(0 0)')
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"hydranten_hro'
+        verbose_name = 'Hydrant'
+        verbose_name_plural = 'Hydranten'
+        description = 'Hydranten im Eigentum der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'bezeichnung': 'Bezeichnung',
+            'eigentuemer': 'Eigentümer',
+            'bewirtschafter': 'Bewirtschafter',
+            'feuerloeschgeeignet': 'feuerlöschgeeignet?',
+            'betriebszeit': 'Betriebszeit',
+            'entnahme': 'Entnahme',
+            'hauptwasserzaehler': 'Hauptwasserzähler'
+        }
+        list_fields_with_foreign_key = {
+            'eigentuemer': 'bezeichnung',
+            'bewirtschafter': 'bezeichnung',
+            'betriebszeit': 'betriebszeit'
+        }
+        map_feature_tooltip_field = 'bezeichnung'
+        map_filter_fields = {
+            'aktiv': 'aktiv?',
+            'bezeichnung': 'Bezeichnung',
+            'eigentuemer': 'Eigentümer',
+            'bewirtschafter': 'Bewirtschafter',
+            'feuerloeschgeeignet': 'feuerlöschgeeignet?',
+            'betriebszeit': 'Betriebszeit',
+            'entnahme': 'Entnahme',
+            'hauptwasserzaehler': 'Hauptwasserzähler'
+        }
+        map_filter_fields_as_list = ['eigentuemer', 'bewirtschafter', 'betriebszeit']
+        geometry_type = 'Point'
+        as_overlay = True
+
+    def __str__(self):
+        return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Hydranten, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Hydranten, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Hydranten)
+
+signals.post_delete.connect(remove_permissions, sender=Hydranten)
 
 
 # Kindertagespflegeeinrichtungen
