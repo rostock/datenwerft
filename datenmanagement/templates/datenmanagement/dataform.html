@@ -206,7 +206,7 @@
       // falls Geometrie punkthaft ist...
       {% if geometry_type == 'Point' %}
         // Editier- und Löschmöglichkeit der Geometrie deaktivieren
-        $('.leaflet-draw-edit-edit').parent().parent().remove();
+        //$('.leaflet-draw-edit-edit').parent().parent().remove();
         // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
         map.eachLayer(function (layer) {
           if (layer._latlng) {
@@ -331,13 +331,24 @@
           dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
           // Beim hinzufügen des Layers Daten laden
           {{ datenthema_name_lower }}.on('add', function () {
-            console.log('DataAdd: ', map.getZoom());
             if (map.getZoom() > minLayerZoom) {
               loadExternalData(
                 '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
                 this
               );
             // Daten zum entsprechenden Layer hinzufügen
+            // 'Anheben' des Layers, welches bearbeitet wird
+            map.eachLayer((layer) => {
+              if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+                layer.eachLayer((lay) => {
+                  if (lay instanceof L.Marker){
+                    lay.setZIndexOffset(1000);
+                  } else {
+                    lay.bringToFront();
+                  }
+                });
+              }
+            });
             };
           });
         {% endwith %}
@@ -346,14 +357,22 @@
       // Laden der externen Datensätze, nach dem Bewegen der der Karte
       map.on('moveend', function (){
         let list = dataLayerControl.getActiveOverlays();
-        //console.log('Liste = ', list);
-        console.log('Moveend: ', map.getZoom())
         if (map.getZoom() > minLayerZoom){
           for (const key in list) {
-            //console.log('URL = ', themaUrl['key']);
-            //console.log('Layer = ', list[key]);
             loadExternalData(themaUrl[key], list[key]);
           };
+          // 'Anheben' des Layers, welches bearbeitet wird
+          map.eachLayer((layer) => {
+            if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+              layer.eachLayer((lay) => {
+                if (lay instanceof L.Marker){
+                  lay.setZIndexOffset(1000);
+                } else {
+                  lay.bringToFront();
+                }
+              });
+            }
+          });
         } else {
           window.currMap.eachLayer((layer) => {
             if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection') {
@@ -366,14 +385,22 @@
       // Laden der externen Datensätze, nach dem Zoomen der der Karte
       map.on('zoomend', function (){
         let list = dataLayerControl.getActiveOverlays();
-        //console.log('Liste = ', list);
-        console.log('Zoomend: ', map.getZoom())
         if (map.getZoom() > minLayerZoom){
           for (const key in list) {
-            //console.log('URL = ', themaUrl['key']);
-            //console.log('Layer = ', list[key]);
             loadExternalData(themaUrl[key], list[key]);
           };
+          // 'Anheben' des Layers, welches bearbeitet wird
+          map.eachLayer((layer) => {
+            if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+              layer.eachLayer((lay) => {
+                if (lay instanceof L.Marker){
+                  lay.setZIndexOffset(1000);
+                } else {
+                  lay.bringToFront();
+                }
+              });
+            }
+          });
         } else {
           window.currMap.eachLayer((layer) => {
             if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection'){
