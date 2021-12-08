@@ -8,11 +8,10 @@
 
 {% block style %}
   {{ block.super }}
-  {% leaflet_css plugins="forms" %}
+  {% leaflet_css plugins="geoman" %}
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-geoman/leaflet-geoman.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform-mobile.css' %}" />
   {% else %}
@@ -22,7 +21,7 @@
 
 {% block scripts %}
   {{ block.super }}
-  {% leaflet_js plugins="forms" %}
+  {% leaflet_js plugins="geoman" %}
   <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
@@ -30,7 +29,6 @@
   <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet-geoman/leaflet-geoman.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -112,7 +110,7 @@
     </div>
     {% if geometry_type %}
       <div id="map-adresssearch-container-form">
-        {{ form.geometrie }}
+        {% leaflet_map "id_geometrie-map" callback="id_geometrie_map_callback" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="spacer-small"></div>
@@ -193,9 +191,62 @@
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
       window.currMap = map;
 
-      // Geometrie und deren Editierung aktivieren
-      geodjango_id_geometrie.store_class = L.FieldStore;
-      (new L.GeometryField(geodjango_id_geometrie)).addTo(map);
+      /*
+       * Leaflet-Geoman Konfigurationen
+       */
+
+      map.pm.setLang('de');   // Tooltip-Sprache setzen
+
+      map.pm.setPathOptions({
+        color: 'red',               // Farbe für gezeichnete Objekte
+        fillColor: 'red',           // Füllfarbe für gezeichnete Objekte
+        requireSnapToFinish: true,  // Zeichnen von Polygonen endet mit bestehendem Punkt
+        templineStyle: {
+          color: 'red',             // Farbe während des zeichnens
+        },
+      });
+
+      {% if geometry_type == 'Point' %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false, // Punktueller Kreis
+          drawCircle: false, // Kreis
+          drawPolyline: false, // Linie
+          drawRectangle: false, // Rechteck
+          drawPolygon: false, // Polygon
+          cutPolygon: false, // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false, // Geometrie rotieren
+        });
+      {% elif geometry_type == 'LineString' %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false, // Punktueller Kreis
+          drawCircle: false, // Kreis
+          drawMarker: false, // Marker
+          drawRectangle: false, // Rechteck
+          drawPolygon: false, // Polygon
+          cutPolygon: false, // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false, // Geometrie rotieren
+        });
+      {% else %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false, // Punktueller Kreis
+          drawCircle: false, // Kreis
+          drawMarker: false, // Marker
+          drawPolyline: false, // Linie
+          rotateMode: false, // Geometrie rotieren
+        });
+      {% endif %}
+
+
+
+      // Leaflet.Draw: Geometrie und deren Editierung aktivieren
+      //geodjango_id_geometrie.store_class = L.FieldStore;
+      //(new L.GeometryField(geodjango_id_geometrie)).addTo(map);
 
       // Editier- und Löschmöglichkeit der Geometrie deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
       {% if not user|user_has_object_change_permission:object %}
@@ -385,6 +436,7 @@
             }
           });
         };
+
       });
 
       // Laden der externen Datensätze, nach dem Zoomen der der Karte
@@ -414,6 +466,7 @@
           });
         };
       });
+
 
 
       // Standortbestimmung
@@ -944,6 +997,13 @@
             }
           }
           layer.addData(geoJsonFeatureCollection);
+          layer.pm.setOptions({
+            draggable: false,
+            allowEditing: false,
+            allowRemoval: false,
+            allowCutting: false,
+            allowRotation: false
+          })
         }
       ).catch(
         function(err) {
