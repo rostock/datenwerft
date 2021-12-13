@@ -488,7 +488,7 @@
 
       // falls Datenmodell Adressenbezug vorsieht...
       {% if address_type %}
-        map.on('draw:created', function (e) {
+        map.on('pm:create', function (e) {
           // ...und dieser eine Pflichtangabe ist:
           {% if address_mandatory %}
             // Adressenbezug jedesmal ändern, wenn sich die Geometrie ändert
@@ -539,7 +539,7 @@
               inputField.closest('tr').hide();
             } else {
               inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + inputField.val() + '</em></span>');
-              var label = inputField.parent().closest('tr').find('label');
+              let label = inputField.parent().closest('tr').find('label');
               label.wrapInner('<em></em>');
               inputField.hide();
               if ($('div*[data-target="#id_{{ field }}"]'))
@@ -583,7 +583,7 @@
 
       // Adressensuche initialisieren
 
-      let results = $('div.results');
+      results = $('div.results');
       {% if address_type %}
         {% if address_type == 'Adresse' %}
           let searchField = $('#id_adresse');
@@ -720,7 +720,7 @@
       let x = 0;
       let y = 0;
       map.eachLayer(function (layer) {
-        if (layer._latlng) {
+        if (layer._drawnByGeoman && layer._latlng) {
           if (FEATURE_GEOMETRY.type === 'Point') {
             x = FEATURE_GEOMETRY.coordinates[0];
             y = FEATURE_GEOMETRY.coordinates[1];
@@ -731,7 +731,7 @@
           layer.setLatLng([y, x]);
         }
       });
-      let coords = $('#id_geometrie').val();
+      coords = $('#id_geometrie').val();
       if (coords.indexOf('0,0') !== -1) {
         let newCoords = coords.replace(/[0-9]+/, x);
         $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
@@ -745,14 +745,14 @@
     // Adresse oder Straße aus Karte übernehmen
     function setAddressOrStreet(type, map) {
       map.eachLayer(function (layer) {
-        if (layer._latlng || layer._latlngs) {
-          json = layer.toGeoJSON();
+        if (layer._drawnByGeoman && (layer._latlng || layer._latlngs)) {
+          let json = layer.toGeoJSON();
+          let xArray = [];
+          let yArray = [];
+          let ort = [];
           {% if 'point' in geometry_type|lower %}
-            var ort = json.geometry.coordinates;
+            ort = json.geometry.coordinates;
           {% elif 'line' in geometry_type|lower %}
-            var xArray = [];
-            var yArray = [];
-            var ort = [];
             Array.min = function( array ){
               return Math.min.apply( Math, array );
             };
@@ -766,9 +766,6 @@
             ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
             ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
           {% elif 'polygon' in geometry_type|lower %}
-            var xArray = [];
-            var yArray = [];
-            var ort = [];
             Array.min = function( array ){
               return Math.min.apply( Math, array );
             };
@@ -938,10 +935,10 @@
         this._layers.forEach((layer) => {
           if (layer.overlay && this._map.hasLayer(layer.layer)) {
             window.currMap.eachLayer((lay) => {
-              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){ // && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
+              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){
                 activeLayers[layer.name] = lay;
               }
-            })
+            });
           }
         });
         return activeLayers;
