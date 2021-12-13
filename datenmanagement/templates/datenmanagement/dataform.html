@@ -206,7 +206,7 @@
       // falls Geometrie punkthaft ist...
       {% if geometry_type == 'Point' %}
         // Editier- und Löschmöglichkeit der Geometrie deaktivieren
-        //$('.leaflet-draw-edit-edit').parent().parent().remove();
+        $('.leaflet-draw-edit-edit').parent().parent().remove();
         // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
         map.eachLayer(function (layer) {
           if (layer._latlng) {
@@ -525,7 +525,7 @@
 
       // Adressensuche initialisieren
 
-      let results = $('div.results');
+      results = $('div.results');
       {% if address_type %}
         {% if address_type == 'Adresse' %}
           let searchField = $('#id_adresse');
