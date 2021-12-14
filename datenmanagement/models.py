@@ -1739,7 +1739,7 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(models.Model):
         codelist = True
         db_table = 'codelisten\".\"fahrbahnwinterdienst_strassenreinigungssatzung_hro'
         verbose_name = 'Fahrbahnwinterdienst gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-        verbose_name_plural = 'Fahrbahnwinterdienst auf Fahrbahnen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Fahrbahnwinterdienst gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         description = 'Fahrbahnwinterdienst gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'code': 'Code'
@@ -2308,6 +2308,40 @@ signals.post_save.connect(assign_permissions, sender=Personentitel)
 signals.post_delete.connect(remove_permissions, sender=Personentitel)
 
 
+# Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
+
+class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  raeumbreite = models.DecimalField('Räumbreite (in m)', max_digits=4, decimal_places=2)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"raeumbreiten_strassenreinigungssatzung_hro'
+    verbose_name = 'Räumbreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    verbose_name_plural = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    description = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'raeumbreite': 'Räumbreite'
+    }
+    ordering = ['raeumbreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+
+  def __str__(self):
+    return str(self.raeumbreite)
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Raeumbreiten_Strassenreinigungssatzung_HRO)
+
+signals.post_delete.connect(remove_permissions, sender=Raeumbreiten_Strassenreinigungssatzung_HRO)
+
+
 # Rechtsgrundlagen von UVP-Vorhaben
 
 class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
@@ -2374,7 +2408,7 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
         codelist = True
         db_table = 'codelisten\".\"reinigungsklassen_strassenreinigungssatzung_hro'
         verbose_name = 'Reinigungsklasse gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-        verbose_name_plural = 'Reinigungsklassen auf Fahrbahnen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         description = 'Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'code': 'Code'
@@ -2411,6 +2445,68 @@ signals.post_save.connect(
 signals.post_delete.connect(
     remove_permissions,
     sender=Reinigungsklassen_Strassenreinigungssatzung_HRO)
+
+
+# Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und
+# Universitätsstadt Rostock
+
+class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1, max_value=5)
+    reinigungsrhythmus = models.CharField(
+        'Reinigungsrhythmus', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"reinigungsrhythmen_strassenreinigungssatzung_hro'
+        verbose_name = 'Reinigungsrhythmus gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        description = 'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'ordinalzahl': 'Ordinalzahl'
+        }
+        list_fields_with_number = ['ordinalzahl']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['ordinalzahl']
+
+    def __str__(self):
+        return str(self.reinigungsrhythmus)
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+            self).save(
+            *args,
+            **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+            self).delete(
+            *args,
+            **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Reinigungsrhythmen_Strassenreinigungssatzung_HRO)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Reinigungsrhythmen_Strassenreinigungssatzung_HRO)
 
 
 # Schäden innerhalb eines Haltestellenkatasters
@@ -3298,6 +3394,122 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
 signals.post_save.connect(assign_permissions, sender=Wegebreiten_Strassenreinigungssatzung_HRO)
 
 signals.post_delete.connect(remove_permissions, sender=Wegebreiten_Strassenreinigungssatzung_HRO)
+
+
+# Wegereinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und
+# Universitätsstadt Rostock
+
+class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    code = PositiveSmallIntegerRangeField('Code', min_value=1, max_value=7)
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"wegereinigungsklassen_strassenreinigungssatzung_hro'
+        verbose_name = 'Wegereinigungsklasse gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Wegereinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        description = 'Wegereinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'code': 'Code'
+        }
+        list_fields_with_number = ['code']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['code']
+
+    def __str__(self):
+        return str(self.code)
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+            self).save(
+            *args,
+            **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+            self).delete(
+            *args,
+            **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Wegereinigungsklassen_Strassenreinigungssatzung_HRO)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Wegereinigungsklassen_Strassenreinigungssatzung_HRO)
+
+
+# Wegereinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und
+# Universitätsstadt Rostock
+
+class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1, max_value=11)
+    reinigungsrhythmus = models.CharField(
+        'Reinigungsrhythmus', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"wegereinigungsrhythmen_strassenreinigungssatzung_hro'
+        verbose_name = 'Wegereinigungsrhythmus gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Wegereinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        description = 'Wegereinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'ordinalzahl': 'Ordinalzahl'
+        }
+        list_fields_with_number = ['ordinalzahl']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['ordinalzahl']
+
+    def __str__(self):
+        return str(self.reinigungsrhythmus)
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+            self).save(
+            *args,
+            **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+            self).delete(
+            *args,
+            **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO)
 
 
 # Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
@@ -6117,78 +6329,199 @@ signals.post_delete.connect(remove_permissions, sender=Fliessgewaesser)
 # Geh- und Radwegereinigung
 
 class Geh_Radwegereinigung(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  id = models.CharField('ID', max_length=14, default='0000000000-000')
-  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
-  inoffizielle_strasse = models.ForeignKey(Inoffizielle_Strassen, verbose_name='inoffizielle Straße', on_delete=models.SET_NULL, db_column='inoffizielle_strasse', to_field='uuid', related_name='inoffizielle_strassen+', blank=True, null=True)
-  nummer = models.CharField('Nummer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  wegeart = models.ForeignKey(Arten_Wege, verbose_name='Wegeart', on_delete=models.CASCADE, db_column='wegeart', to_field='uuid', related_name='wegearten+')
-  wegetyp = models.ForeignKey(Wegetypen_Strassenreinigungssatzung_HRO, verbose_name='Wegetyp', on_delete=models.CASCADE, db_column='wegetyp', to_field='uuid', related_name='wegetypen_strassenreinigungssatzung_hro+', blank=True, null=True)
-  reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
-  laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
-  breite = models.ForeignKey(Wegebreiten_Strassenreinigungssatzung_HRO, verbose_name='Breite (in m)', on_delete=models.CASCADE, db_column='breite', to_field='uuid', related_name='wegebreiten_strassenreinigungssatzung_hro+', blank=True, null=True)
-  flaeche = models.DecimalField('Fläche (in m²)', max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'), MaxValueValidator(Decimal('99999.99'), 'Die <strong><em>Fläche</em></strong> darf höchstens 99.999,99 m² betragen.')], blank=True, null=True)
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    id = models.CharField('ID', max_length=14, default='0000000000-000')
+    strasse = models.ForeignKey(
+        Strassen,
+        verbose_name='Straße',
+        on_delete=models.SET_NULL,
+        db_column='strasse',
+        to_field='uuid',
+        related_name='strassen+',
+        blank=True,
+        null=True
+    )
+    inoffizielle_strasse = models.ForeignKey(
+        Inoffizielle_Strassen,
+        verbose_name=' inoffizielle Straße',
+        on_delete=models.SET_NULL,
+        db_column='inoffizielle_strasse',
+        to_field='uuid',
+        related_name='inoffizielle_strassen+',
+        blank=True,
+        null=True
+    )
+    nummer = models.CharField(
+        'Nummer', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+    beschreibung = models.CharField(
+        'Beschreibung', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+    wegeart = models.ForeignKey(
+        Arten_Wege,
+        verbose_name='Wegeart',
+        on_delete=models.CASCADE,
+        db_column='wegeart',
+        to_field='uuid',
+        related_name='wegearten+'
+    )
+    wegetyp = models.ForeignKey(
+        Wegetypen_Strassenreinigungssatzung_HRO,
+        verbose_name='Wegetyp',
+        on_delete=models.CASCADE,
+        db_column='wegetyp',
+        to_field='uuid',
+        related_name='wegetypen_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    reinigungsklasse = models.ForeignKey(
+        Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+        verbose_name='Reinigungsklasse',
+        on_delete=models.SET_NULL,
+        db_column='reinigungsklasse',
+        to_field='uuid',
+        related_name='wegereinigungsklassen_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    reinigungsrhythmus = models.ForeignKey(
+        Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+        verbose_name='Reinigungsrhythmus',
+        on_delete=models.SET_NULL,
+        db_column='reinigungsrhythmus',
+        to_field='uuid',
+        related_name='wegereinigungsrhythmen_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    winterdienst = models.BooleanField(
+        'Winterdienst?',
+        blank=True,
+        null=True)
+    raeumbreite = models.ForeignKey(
+        Raeumbreiten_Strassenreinigungssatzung_HRO,
+        verbose_name='Räumbreite im Winterdienst (in m)',
+        on_delete=models.CASCADE,
+        db_column='raeumbreite',
+        to_field='uuid',
+        related_name='raeumbreiten_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
+    breite = models.ForeignKey(
+        Wegebreiten_Strassenreinigungssatzung_HRO,
+        verbose_name='Breite (in m)',
+        on_delete=models.CASCADE,
+        db_column='breite',
+        to_field='uuid',
+        related_name='wegebreiten_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    flaeche = models.DecimalField(
+        'Fläche (in m²)',
+        max_digits=7,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(
+                Decimal('0.01'),
+                'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'),
+            MaxValueValidator(
+                Decimal('99999.99'),
+                'Die <strong><em>Fläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
+        blank=True,
+        null=True
+    )
+    geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
-    db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
-    verbose_name = 'Geh- und Radwegereinigung'
-    verbose_name_plural = 'Geh- und Radwegereinigung'
-    description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'strasse': 'Straße',
-      'inoffizielle_strasse': 'inoffizielle Straße',
-      'nummer': 'Nummer',
-      'beschreibung': 'Beschreibung',
-      'wegeart': 'Wegeart',
-      'wegetyp': 'Wegetyp',
-      'reinigungsklasse': 'Reinigungsklasse',
-      'laenge': 'Länge (in m)',
-      'breite': 'Breite (in m)',
-      'flaeche': 'Fläche (in m²)'
-    }
-    list_fields_with_foreign_key = {
-      'strasse': 'strasse',
-      'inoffizielle_strasse': 'strasse',
-      'reinigungsklasse': 'code',
-      'wegeart': 'art',
-      'wegetyp': 'wegetyp',
-      'breite': 'wegebreite'
-    }
-    list_fields_with_number = ['id', 'laenge', 'flaeche']
-    readonly_fields = ['id', 'laenge']
-    map_feature_tooltip_field = 'id'
-    map_filter_fields = {
-      'id': 'ID',
-      'strasse': 'Straße',
-      'inoffizielle_strasse': 'inoffizielle Straße',
-      'nummer': 'Nummer',
-      'beschreibung': 'Beschreibung',
-      'reinigungsklasse': 'Reinigungsklasse',
-      'wegeart': 'Wegeart',
-      'wegetyp': 'Wegetyp',
-      'breite': 'Breite (in m)'
-    }
-    map_filter_fields_as_list = ['strasse', 'inoffizielle_strasse', 'reinigungsklasse', 'wegeart', 'wegetyp']
-    additional_wms_layers = [
-      {
-        'title': 'Geh- und Radwegereinigung',
-        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
-        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+    class Meta:
+      managed = False
+      db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
+      verbose_name = 'Geh- und Radwegereinigung'
+      verbose_name_plural = 'Geh- und Radwegereinigung'
+      description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+      list_fields = {
+        'aktiv': 'aktiv?',
+        'id': 'ID',
+        'strasse': 'Straße',
+        'inoffizielle_strasse': 'inoffizielle Straße',
+        'nummer': 'Nummer',
+        'beschreibung': 'Beschreibung',
+        'wegeart': 'Wegeart',
+        'wegetyp': 'Wegetyp',
+        'reinigungsklasse': 'Reinigungsklasse',
+        'winterdienst': 'Winterdienst?',
+        'laenge': 'Länge (in m)',
+        'breite': 'Breite (in m)',
+        'flaeche': 'Fläche (in m²)'
       }
-    ]
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiLineString'
-    as_overlay = True
+      list_fields_with_foreign_key = {
+        'strasse': 'strasse',
+        'inoffizielle_strasse': 'strasse',
+        'reinigungsklasse': 'code',
+        'reinigungsrhythmus': 'reinigungsrhythmus',
+        'wegeart': 'art',
+        'wegetyp': 'wegetyp',
+        'breite': 'wegebreite'
+      }
+      list_fields_with_number = ['id', 'laenge', 'flaeche']
+      readonly_fields = ['id', 'laenge']
+      map_feature_tooltip_field = 'id'
+      map_filter_fields = {
+        'id': 'ID',
+        'strasse': 'Straße',
+        'inoffizielle_strasse': 'inoffizielle Straße',
+        'nummer': 'Nummer',
+        'beschreibung': 'Beschreibung',
+        'wegeart': 'Wegeart',
+        'wegetyp': 'Wegetyp',
+        'reinigungsklasse': 'Reinigungsklasse',
+        'reinigungsrhythmus': 'Reinigungsrhythmus',
+        'winterdienst': 'Winterdienst?',
+        'raeumbreite': 'Räumbreite im Winterdienst (in m)',
+        'breite': 'Breite (in m)',
+        'flaeche': 'Fläche (in m²)'
+      }
+      map_filter_fields_as_list = [
+          'strasse',
+          'inoffizielle_strasse',
+          'wegeart',
+          'wegetyp',
+          'reinigungsklasse',
+          'reinigungsrhythmus',
+          'winterdienst'
+      ]
+      additional_wms_layers = [
+          {
+            'title': 'Geh- und Radwegereinigung',
+            'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+            'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+          }
+      ]
+      address_type = 'Straße'
+      address_mandatory = False
+      geometry_type = 'MultiLineString'
+      as_overlay = True
 
-  def __str__(self):
-    return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Wegeart ' + str(self.wegeart) if self.wegeart else '') + (', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+    def __str__(self):
+        return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', Wegeart ' + str(self.wegeart) if self.wegeart else '') + (', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', mit Winterdienst' if self.winterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
@@ -9536,7 +9869,7 @@ class Strassenreinigung(models.Model):
     )
     inoffizielle_strasse = models.ForeignKey(
         Inoffizielle_Strassen,
-        verbose_name='inoffizielle Straße',
+        verbose_name=' inoffizielle Straße',
         on_delete=models.SET_NULL,
         db_column='inoffizielle_strasse',
         to_field='uuid',
@@ -9544,6 +9877,15 @@ class Strassenreinigung(models.Model):
         blank=True,
         null=True
     )
+    beschreibung = models.CharField(
+        'Beschreibung', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+    ausserhalb = models.BooleanField(' außerhalb geschlossener Ortslage?')
     reinigungsklasse = models.ForeignKey(
         Reinigungsklassen_Strassenreinigungssatzung_HRO,
         verbose_name='Reinigungsklasse',
@@ -9551,6 +9893,16 @@ class Strassenreinigung(models.Model):
         db_column='reinigungsklasse',
         to_field='uuid',
         related_name='reinigungsklassen_strassenreinigungssatzung_hro+',
+        blank=True,
+        null=True
+    )
+    reinigungsrhythmus = models.ForeignKey(
+        Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+        verbose_name='Reinigungsrhythmus',
+        on_delete=models.SET_NULL,
+        db_column='reinigungsrhythmus',
+        to_field='uuid',
+        related_name='reinigungsrhythmen_strassenreinigungssatzung_hro+',
         blank=True,
         null=True
     )
@@ -9583,7 +9935,10 @@ class Strassenreinigung(models.Model):
             'id': 'ID',
             'strasse': 'Straße',
             'inoffizielle_strasse': 'inoffizielle Straße',
+            'beschreibung': 'Beschreibung',
+            'ausserhalb': 'außerhalb geschlossener Ortslage?',
             'reinigungsklasse': 'Reinigungsklasse',
+            'reinigungsrhythmus': 'Reinigungsrhythmus',
             'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
             'laenge': 'Länge (in m)'
         }
@@ -9591,6 +9946,7 @@ class Strassenreinigung(models.Model):
             'strasse': 'strasse',
             'inoffizielle_strasse': 'strasse',
             'reinigungsklasse': 'code',
+            'reinigungsrhythmus': 'reinigungsrhythmus',
             'fahrbahnwinterdienst': 'code'
         }
         list_fields_with_number = ['id', 'laenge']
@@ -9600,13 +9956,17 @@ class Strassenreinigung(models.Model):
             'id': 'ID',
             'strasse': 'Straße',
             'inoffizielle_strasse': 'inoffizielle Straße',
+            'beschreibung': 'Beschreibung',
+            'ausserhalb': 'außerhalb geschlossener Ortslage?',
             'reinigungsklasse': 'Reinigungsklasse',
+            'reinigungsrhythmus': 'Reinigungsrhythmus',
             'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
         }
         map_filter_fields_as_list = [
             'strasse',
             'inoffizielle_strasse',
             'reinigungsklasse',
+            'reinigungsrhythmus',
             'fahrbahnwinterdienst'
         ]
         additional_wms_layers = [
@@ -9622,7 +9982,7 @@ class Strassenreinigung(models.Model):
         as_overlay = True
 
     def __str__(self):
-        return str(self.id) + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+        return str(self.id) + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', außerhalb geschlossener Ortslage' if self.ausserhalb else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Fahrbahnwinterdienst ' + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()

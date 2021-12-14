@@ -140,7 +140,7 @@
                         <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                       </div>
                     {% else %}
-                      <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" data-nullable data-intervalside="both">
+                      <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="list" data-nullable data-boolean data-intervalside="both">
                         <option value="True">ja</option>
                         <option value="False">nein</option>
                       </select>
@@ -692,12 +692,14 @@
               listFilterLists[i].value.sort(function (a, b) {
                 return a.toLowerCase().localeCompare(b.toLowerCase());
               });
-              for (var j = 0; j < listFilterLists[i].value.length; j++) {
-                // Werteliste als Optionen im Listenfeld abbilden
-                $(this).append($('<option>', {
-                  value: listFilterLists[i].value[j],
-                  text: listFilterLists[i].value[j]
-                }));
+              if (typeof $(this).data('boolean') == 'undefined') {
+                for (var j = 0; j < listFilterLists[i].value.length; j++) {
+                  // Werteliste als Optionen im Listenfeld abbilden
+                  $(this).append($('<option>', {
+                    value: listFilterLists[i].value[j],
+                    text: listFilterLists[i].value[j]
+                  }));
+                }
               }
               break;
             }
