@@ -9,9 +9,8 @@ from datetime import datetime
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.contrib.gis.geos import Point
 from django.core.exceptions import PermissionDenied
-from django.db import connections, connection
+from django.db import connection
 from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
     UUIDField, ValidationError

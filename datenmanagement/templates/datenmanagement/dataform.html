@@ -129,18 +129,18 @@
         <div id="address-search-container">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
-              {{ form.adresse.label_tag }}
-              {{ form.adresse }}
+              <label for="id_adresse">Adresse</label>
+              <input id="id_adresse" type="text" name="adresse" maxlength="255" autocomplete="off" placeholder="Adresse eingeben…">
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
-              {{ form.strasse.label_tag }}
-              {{ form.strasse }}
+              <label for="id_strasse">Straße</label>
+              <input id="id_strasse" type="text" name="strasse" maxlength="255" autocomplete="off" placeholder="Straße eingeben…">
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
               <label for="id_address_search">Adressensuche</label>
-              <input id="id_address_search" type="text" name="address_search" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+              <input id="id_address_search" type="text" name="address_search" maxlength="255" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
             {% endif %}
           {% endif %}
           <div id="results-container" class="results"></div>
@@ -185,7 +185,7 @@
     $('.datetimepicker-input').datetimepicker();
 
     // globale Variablen
-    var FEATURE_GEOMETRY = [];
+    let FEATURE_GEOMETRY = []; // wird in showResults() befüllt
 
     function id_geometrie_map_callback(map, options) {
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
@@ -197,6 +197,7 @@
 
       map.pm.setLang('de');   // Tooltip-Sprache setzen
 
+      // TODO: aktuellen Marker in Rot
       map.pm.setPathOptions({
         color: 'red',               // Farbe für gezeichnete Objekte
         fillColor: 'red',           // Füllfarbe für gezeichnete Objekte
@@ -206,39 +207,46 @@
         },
       });
 
+      map.pm.setGlobalOptions({
+        snapDistance: 10,
+      })
+
       {% if geometry_type == 'Point' %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
           position: 'topleft',
-          drawCircleMarker: false, // Punktueller Kreis
-          drawCircle: false, // Kreis
-          drawPolyline: false, // Linie
-          drawRectangle: false, // Rechteck
-          drawPolygon: false, // Polygon
-          cutPolygon: false, // Polygon aus anderer Geometrie ausschneiden
-          rotateMode: false, // Geometrie rotieren
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawPolyline: false,      // Linie
+          drawRectangle: false,     // Rechteck
+          drawPolygon: false,       // Polygon
+          editMode: false,          // Editieren des Punktes deaktivieren
+          cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false,        // Geometrie rotieren
         });
       {% elif geometry_type == 'LineString' %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
           position: 'topleft',
-          drawCircleMarker: false, // Punktueller Kreis
-          drawCircle: false, // Kreis
-          drawMarker: false, // Marker
-          drawRectangle: false, // Rechteck
-          drawPolygon: false, // Polygon
-          cutPolygon: false, // Polygon aus anderer Geometrie ausschneiden
-          rotateMode: false, // Geometrie rotieren
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawMarker: false,        // Marker
+          drawRectangle: false,     // Rechteck
+          drawPolygon: false,       // Polygon
+          dragMode: false,          // Verschieben deaktivieren
+          cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false,        // Geometrie rotieren
         });
       {% else %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
           position: 'topleft',
-          drawCircleMarker: false, // Punktueller Kreis
-          drawCircle: false, // Kreis
-          drawMarker: false, // Marker
-          drawPolyline: false, // Linie
-          rotateMode: false, // Geometrie rotieren
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawMarker: false,        // Marker
+          drawPolyline: false,      // Linie
+          //dragMode: false,          // Verschieben deaktivieren
+          //rotateMode: false,        // Geometrie rotieren
         });
       {% endif %}
 
@@ -392,26 +400,29 @@
                 '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
                 this
               );
-            // Daten zum entsprechenden Layer hinzufügen
-            // 'Anheben' des Layers, welches bearbeitet wird
-            map.eachLayer((layer) => {
-              if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
-                layer.eachLayer((lay) => {
-                  if (lay instanceof L.Marker){
-                    lay.setZIndexOffset(1000);
-                  } else {
-                    lay.bringToFront();
-                  }
-                });
-              }
-            });
-            };
+              // Daten zum entsprechenden Layer hinzufügen
+              // 'Anheben' des Layers, welches bearbeitet wird
+              map.eachLayer((layer) => {
+                if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+                  layer.eachLayer((lay) => {
+                    if (lay instanceof L.Marker){
+                      lay.setZIndexOffset(1000);
+                    } else {
+                      lay.bringToFront();
+                    }
+                  });
+                }
+              });
+            }
           });
         {% endwith %}
       {% endfor %}
 
-      // Laden der externen Datensätze, nach dem Bewegen der der Karte
+
       map.on('moveend', function (){
+        /*
+         * Laden der externen Datensätze, nach dem Bewegen der der Karte
+         */
         let list = dataLayerControl.getActiveOverlays();
         if (map.getZoom() > minLayerZoom){
           for (const key in list) {
@@ -439,8 +450,11 @@
 
       });
 
-      // Laden der externen Datensätze, nach dem Zoomen der der Karte
+
       map.on('zoomend', function (){
+        /*
+         * Laden der externen Datensätze, nach dem Zoomen der Karte
+         */
         let list = dataLayerControl.getActiveOverlays();
         if (map.getZoom() > minLayerZoom){
           for (const key in list) {
@@ -468,8 +482,9 @@
       });
 
 
-
-      // Standortbestimmung
+      /*
+       * Standortbestimmung
+       */
       {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
         var locationControl = L.control.locate({
           drawCircle: false,
@@ -486,13 +501,33 @@
         locationControl.addTo(map);
       {% endif %}
 
+
+      /*
+       * Beim Hinzufügen oder Editieren einer Geometrie wird die Addresse gesetzt
+       */
       // falls Datenmodell Adressenbezug vorsieht...
       {% if address_type %}
-        map.on('pm:create', function (e) {
+        map.on('pm:create', function ({layer}) {
           // ...und dieser eine Pflichtangabe ist:
+          console.log(layer);
+          console.log('{{ address_mandatory }}');
           {% if address_mandatory %}
-            // Adressenbezug jedesmal ändern, wenn sich die Geometrie ändert
-            setAddressOrStreet('{{ address_type }}', map);
+            // Adressenbezug setzen für gesetze Geometrie
+            setAddressOrStreet('{{ address_type }}', map, layer);
+            {% if geometry_type == "Point" %}
+              // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
+              layer.on('pm:dragend', (e) => {
+                console.log('e: ', e);
+                setAddressOrStreet('{{ address_type }}', map, e.layer);
+              });
+            {% else %}
+              console.log('hallo');
+              // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
+              layer.on('pm:update', (e) => {
+                console.log('e: ', e);
+                setAddressOrStreet('{{ address_type }}', map, e.layer);
+              });
+            {% endif %}
           {% else %}
             $('#addressToMap').prop('disabled', false);
             $('#mapToAddress').prop('disabled', false);
@@ -502,8 +537,8 @@
       {% endif %}
     }
 
-    $(document).ready(function() {
 
+    $(document).ready(function() {
       // falls Gruppe von Benutzern gesetzt ist, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen:
       // Auswahlfeld Ansprechpartner/Bearbeiter in normales Feld umwandeln...
       {% if group_with_users_for_choice_field %}
@@ -529,6 +564,7 @@
           {% endfor %}
         {% endif %}
       {% endif %}
+
 
       // Read-only-Felder behandeln
       {% if readonly_fields %}
@@ -641,19 +677,22 @@
         });
       {% endif %}
 
+      // Butten: 'Marker setzen'
       $('#addressToMap').on('click', function() {
         getAddress(window.currMap);
         $('#mapToAddress').prop('disabled', false);
         $('#mapToStreet').prop('disabled', false);
       });
 
+      // Button: 'Adresse setzen'
       $('#mapToAddress').on('click', function() {
-        setAddressOrStreet('{{ address_type }}', window.currMap);
+        setAddressOrStreet('{{ address_type }}', window.currMap, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
+      // Button: 'Straße setzen'
       $('#mapToStreet').on('click', function() {
-        setAddressOrStreet('{{ address_type }}', window.currMap);
+        setAddressOrStreet('{{ address_type }}', window.currMap, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
@@ -715,11 +754,17 @@
       });
     });
 
-    // Adresse oder Straße als Marker in Karte übernehmen
+
     function getAddress(map) {
+      /*
+       * Marker auf Adresse oder Straße aus Adressfeld setzen
+       *
+       * TODO: Marker erzeugen, falls nicht vorhanden
+       */
       let x = 0;
       let y = 0;
-      map.eachLayer(function (layer) {
+      if (map.pm.getGeomanLayers().length > 0){
+        let layer = map.pm.getGeomanLayers()[0];
         if (layer._drawnByGeoman && layer._latlng) {
           if (FEATURE_GEOMETRY.type === 'Point') {
             x = FEATURE_GEOMETRY.coordinates[0];
@@ -729,81 +774,100 @@
             y = FEATURE_GEOMETRY.coordinates[0][0][1] + ((FEATURE_GEOMETRY.coordinates[0][2][1] - FEATURE_GEOMETRY.coordinates[0][0][1]) / 2);
           }
           layer.setLatLng([y, x]);
+          coords = $('#id_geometrie').val();
+          //
+          // TODO: 'coords is undefined' da '#id_geometrie' nicht existiert
+          //
+          if (coords.indexOf('0,0') !== -1) {
+            let newCoords = coords.replace(/[0-9]+/, x); //
+            $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
+          }
+          else {
+            let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
+            $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
+          }
         }
-      });
-      coords = $('#id_geometrie').val();
-      if (coords.indexOf('0,0') !== -1) {
-        let newCoords = coords.replace(/[0-9]+/, x);
-        $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
+      } else {
+        {% if geometry_type == "Point" %}
+          x = FEATURE_GEOMETRY.coordinates[0];
+          y = FEATURE_GEOMETRY.coordinates[1];
+          console.log('x = ', x, '; y = ', y);
+          L.Marker([y, x],{}).addTo(window.currMap);
+        {% endif %}
       }
-      else {
-        let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
-        $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
-      }
+      //map.eachLayer(function (layer) {
+        // Suche vorhandene Geometrie
+
+      //});
     }
 
-    // Adresse oder Straße aus Karte übernehmen
-    function setAddressOrStreet(type, map) {
-      map.eachLayer(function (layer) {
-        if (layer._drawnByGeoman && (layer._latlng || layer._latlngs)) {
-          let json = layer.toGeoJSON();
-          let xArray = [];
-          let yArray = [];
-          let ort = [];
-          {% if 'point' in geometry_type|lower %}
-            ort = json.geometry.coordinates;
-          {% elif 'line' in geometry_type|lower %}
-            Array.min = function( array ){
-              return Math.min.apply( Math, array );
-            };
-            Array.max = function( array ){
-              return Math.max.apply( Math, array );
-            };
-            $.each(json.geometry.coordinates, function(index, value) {
-              xArray.push(json.geometry.coordinates[index][0]);
-              yArray.push(json.geometry.coordinates[index][1]);
-            });
-            ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-            ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
-          {% elif 'polygon' in geometry_type|lower %}
-            Array.min = function( array ){
-              return Math.min.apply( Math, array );
-            };
-            Array.max = function( array ){
-              return Math.max.apply( Math, array );
-            };
-            $.each(json.geometry.coordinates, function(index_outer, value_outer) {
-              $.each(json.geometry.coordinates[index_outer], function(index_inner, value_inner) {
-                xArray.push(json.geometry.coordinates[index_outer][index_inner][0]);
-                yArray.push(json.geometry.coordinates[index_outer][index_inner][1]);
-              });
-            });
-            ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-            ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
-          {% endif %}
-          $.ajax({
-            url: '{% url "datenmanagement:reversesearch" %}',
-            dataType: 'json',
-            data: {
-              x: ort[0],
-              y: ort[1],
-            },
-            success: function(data) {
-              if (ort[0] != 0 && ort[1] != 0) {
-                adoptResult(data, type);
-              }
-            }
+
+    function setAddressOrStreet(type, map, layer) {
+      /*
+       * Übernimmt Adresse aus Koordinaten eines Layers
+       *
+       * TODO: Überprüfen ob 'map' überflüssig ist und ggf. in Funktionsaufrufen entfernen
+       */
+      let json = layer.toGeoJSON();
+      let xArray = [];
+      let yArray = [];
+      let ort = [];
+      {% if 'point' in geometry_type|lower %}
+        ort = json.geometry.coordinates;
+      {% elif 'line' in geometry_type|lower %}
+        Array.min = function( array ){
+          return Math.min.apply( Math, array );
+        };
+        Array.max = function( array ){
+          return Math.max.apply( Math, array );
+        };
+        $.each(json.geometry.coordinates, function(index, value) {
+          xArray.push(json.geometry.coordinates[index][0]);
+          yArray.push(json.geometry.coordinates[index][1]);
+        });
+        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
+        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+      {% elif 'polygon' in geometry_type|lower %}
+        Array.min = function( array ){
+          return Math.min.apply( Math, array );
+        };
+        Array.max = function( array ){
+          return Math.max.apply( Math, array );
+        };
+        $.each(json.geometry.coordinates, function(index_outer, value_outer) {
+          $.each(json.geometry.coordinates[index_outer], function(index_inner, value_inner) {
+            xArray.push(json.geometry.coordinates[index_outer][index_inner][0]);
+            yArray.push(json.geometry.coordinates[index_outer][index_inner][1]);
           });
+        });
+        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
+        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+      {% endif %}
+
+      $.ajax({
+        url: '{% url "datenmanagement:reversesearch" %}',
+        dataType: 'json',
+        data: {
+          x: ort[0],
+          y: ort[1],
+        },
+        success: function(data) {
+          if (ort[0] != 0 && ort[1] != 0) {
+            adoptResult(data, type);
+          }
         }
       });
     }
 
     function adoptResult(json, type) {
+      /*
+       *
+       */
       let erfolg = false;
       if (type === 'Straße') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Straße') {
-            var text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+            let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
             if (item.properties.gemeindeteil_abkuerzung)
               text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
             $('#id_strasse').val(text);
@@ -817,7 +881,7 @@
       } else if (type === 'Adresse') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Adresse') {
-            var text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+            let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
             if (item.properties.gemeindeteil_abkuerzung)
               text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
             $('#id_adresse').val(text);
@@ -831,11 +895,13 @@
       }
     }
 
-    // Resultate der Adressensuche
-    function showResults(json) {
 
-      // Resultate leeren
-      results.children().remove();
+    function showResults(json) {
+      /*
+       * Anzeigen der Ergebnisse der Adresssuche
+       */
+
+      results.children().remove();  // alte Ergebnisse entfernen
 
       // JSON durchgehen und je Feature ein Resultat bauen
       jQuery.each(json.features, function(index, item) {
@@ -891,6 +957,8 @@
           $('#id_address_search').val($(this).children('strong').text());
         {% endif %}
         FEATURE_GEOMETRY = json.features[$(this).data('feature')].geometry;
+        console.log('Langes Statement', json.features[$(this).data('feature')].geometry);
+        console.log('FEATURE_GEOMETRY in showResults(): ', FEATURE_GEOMETRY);
         if (FEATURE_GEOMETRY.type === 'Point') {
           window.currMap.fitBounds([
             [
@@ -931,6 +999,9 @@
 
     L.Control.Layers.include({
       getActiveOverlays: function () {
+        /*
+         *
+         */
         let activeLayers = {};
         this._layers.forEach((layer) => {
           if (layer.overlay && this._map.hasLayer(layer.layer)) {
@@ -946,6 +1017,9 @@
     })
 
     function loadExternalData(baseUrl, layer) {
+      /*
+       *
+       */
       // Berechnen des Bounding-Circle
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
