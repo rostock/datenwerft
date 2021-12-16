@@ -514,19 +514,19 @@
           console.log('{{ address_mandatory }}');
           {% if address_mandatory %}
             // Adressenbezug setzen für gesetze Geometrie
-            setAddressOrStreet('{{ address_type }}', map, layer);
+            setAddressOrStreet('{{ address_type }}', layer);
             {% if geometry_type == "Point" %}
               // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
               layer.on('pm:dragend', (e) => {
                 console.log('e: ', e);
-                setAddressOrStreet('{{ address_type }}', map, e.layer);
+                setAddressOrStreet('{{ address_type }}', e.layer);
               });
             {% else %}
               console.log('hallo');
               // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
               layer.on('pm:update', (e) => {
                 console.log('e: ', e);
-                setAddressOrStreet('{{ address_type }}', map, e.layer);
+                setAddressOrStreet('{{ address_type }}', e.layer);
               });
             {% endif %}
           {% else %}
@@ -687,13 +687,13 @@
 
       // Button: 'Adresse setzen'
       $('#mapToAddress').on('click', function() {
-        setAddressOrStreet('{{ address_type }}', window.currMap, window.currMap.pm.getGeomanLayers()[0]);
+        setAddressOrStreet('{{ address_type }}', window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
       // Button: 'Straße setzen'
       $('#mapToStreet').on('click', function() {
-        setAddressOrStreet('{{ address_type }}', window.currMap, window.currMap.pm.getGeomanLayers()[0]);
+        setAddressOrStreet('{{ address_type }}', window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
@@ -795,11 +795,9 @@
     }
 
 
-    function setAddressOrStreet(type, map, layer) {
+    function setAddressOrStreet(type, layer) {
       /*
        * Übernimmt Adresse aus Koordinaten eines Layers
-       *
-       * TODO: Überprüfen ob 'map' überflüssig ist und ggf. in Funktionsaufrufen entfernen
        */
       let json = layer.toGeoJSON();
       let xArray = [];
