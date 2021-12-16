@@ -110,6 +110,7 @@
     </div>
     {% if geometry_type %}
       <div id="map-adresssearch-container-form">
+        <textarea type="hidden" id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [ 0.0, 0.0 ] }</textarea>
         {% leaflet_map "id_geometrie-map" callback="id_geometrie_map_callback" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
@@ -758,8 +759,6 @@
     function getAddress(map) {
       /*
        * Marker auf Adresse oder Straße aus Adressfeld setzen
-       *
-       * TODO: Marker erzeugen, falls nicht vorhanden
        */
       let x = 0;
       let y = 0;
@@ -774,31 +773,25 @@
             y = FEATURE_GEOMETRY.coordinates[0][0][1] + ((FEATURE_GEOMETRY.coordinates[0][2][1] - FEATURE_GEOMETRY.coordinates[0][0][1]) / 2);
           }
           layer.setLatLng([y, x]);
-          coords = $('#id_geometrie').val();
-          //
-          // TODO: 'coords is undefined' da '#id_geometrie' nicht existiert
-          //
-          if (coords.indexOf('0,0') !== -1) {
-            let newCoords = coords.replace(/[0-9]+/, x); //
-            $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
-          }
-          else {
-            let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
-            $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
-          }
         }
       } else {
         {% if geometry_type == "Point" %}
           x = FEATURE_GEOMETRY.coordinates[0];
           y = FEATURE_GEOMETRY.coordinates[1];
           console.log('x = ', x, '; y = ', y);
-          L.Marker([y, x],{}).addTo(window.currMap);
+          new L.Marker([y, x],{}).addTo(window.currMap);
         {% endif %}
       }
-      //map.eachLayer(function (layer) {
-        // Suche vorhandene Geometrie
-
-      //});
+      coords = $('#id_geometrie').val();
+      if (coords.indexOf('0,0') !== -1) {
+        console.log('if');
+        let newCoords = coords.replace(/[0-9]+/, x); //
+        $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
+      } else {
+        console.log('else');
+        let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
+        $('#id_geometrie').val(newCoords.replace(/\,\s[0-9]+\.[0-9]+/, ', ' + y));
+      }
     }
 
 
