@@ -110,7 +110,11 @@
     </div>
     {% if geometry_type %}
       <div id="map-adresssearch-container-form">
-        <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [ 0.0, 0.0 ] }</textarea>
+        {% if geometry %}
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
+        {% else %}
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [ 0.0,0.0 ] }</textarea>
+        {% endif %}
         {% leaflet_map "id_geometrie-map" callback="id_geometrie_map_callback" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
@@ -192,6 +196,17 @@
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
       window.currMap = map;
 
+      // Einige Konstanten und Variablen initialisieren und definieren
+      const wmsFormat = 'image/png';
+      const maxZoom = 19;
+      const minLayerZoom = 13;
+      let themaUrl = {};
+
+      // EPSG:25833 definieren
+      proj4.defs([
+        ['EPSG:25833', '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'],
+      ]);
+
       /*
        * Leaflet-Geoman Konfigurationen
        */
@@ -210,6 +225,7 @@
 
       map.pm.setGlobalOptions({
         snapDistance: 10,
+        continueDrawing: false,
       })
 
       {% if geometry_type == 'Point' %}
@@ -252,23 +268,98 @@
       {% endif %}
 
 
+      /*
+       * Definition der Hintergrundkarten
+       */
 
-      // Leaflet.Draw: Geometrie und deren Editierung aktivieren
-      //geodjango_id_geometrie.store_class = L.FieldStore;
-      //(new L.GeometryField(geodjango_id_geometrie)).addTo(map);
+      // Standart-Layer: ORKa.MV
+      const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+        maxZoom: maxZoom,
+        attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
+      });
 
-      // Editier- und Löschmöglichkeit der Geometrie deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
-      {% if not user|user_has_object_change_permission:object %}
-        $('.leaflet-draw').hide();
+      // ORKa.MV standardmäßig zur Karte hinzufügen
+      map.addLayer(orkamv);
+
+      // OpenStreetMap
+      const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: maxZoom,
+        attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
+      });
+
+      // Liegenschaftskarte
+      const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
+        layers: 'hro.liegenschaftskarte',
+        format: wmsFormat,
+        maxZoom: maxZoom,
+        attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
+      });
+
+      // Luftbild
+      const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+        maxZoom: maxZoom,
+        attribution: '© GeoBasis-DE/M-V'
+      });
+
+      // Kilometerquadrate ETRS89/UTM-33N
+      const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+        layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+        format: wmsFormat,
+        maxZoom: maxZoom,
+        transparent: true
+      });
+
+      // definierte Karten als Hintergrundkarten zusammenfassen
+      const baseMaps = {
+        'Liegenschaftskarte': liegenschaftskarte,
+        'Luftbild': luftbild,
+        'ORKa.MV': orkamv,
+        'OpenStreetMap': osm
+      };
+
+      // definierte Karten als Overlay-Karten zusammenfassen
+      let overlayMaps = {
+        'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
+      };
+
+
+      /*
+       * zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
+       */
+      {% if additional_wms_layers %}
+        {% for additional_wms_layer in additional_wms_layers %}
+          let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
+            layers: '{{ additional_wms_layer.layers }}',
+            format: wmsFormat,
+            maxZoom: maxZoom,
+            transparent: true
+          });
+          overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
+        {% endfor %}
       {% endif %}
 
-      // überzähliges Marker-Werkzeug deaktivieren
-      $('.leaflet-draw-draw-circlemarker').remove();
+      // Control-Menü für Hintergrundkarten zur Map hinzufügen
+      L.control.layers(baseMaps,overlayMaps).addTo(map);
+
+
+      /*
+       * Im Change View Geometrie auf Karte anzeigen
+       */
+      {% if geometry %}
+        let geojson = {
+          "type": "Feature",
+          "properties": {},
+          "geometry": JSON.parse($('#id_geometrie').val())
+          }
+        let changeGeom = new L.geoJSON(geojson).addTo(map);
+        changeGeom._changeGeom = true;
+        changeGeom.eachLayer((layer) => {
+          layer._drawnByGeoman = true;
+        })
+      {% endif %}
 
       // falls Geometrie punkthaft ist...
       {% if geometry_type == 'Point' %}
-        // Editier- und Löschmöglichkeit der Geometrie deaktivieren
-        //$('.leaflet-draw-edit-edit').parent().parent().remove();
         // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
         map.eachLayer(function (layer) {
           if (layer._latlng) {
@@ -301,92 +392,15 @@
         });
       {% endif %}
 
-      // Konstanten definieren
-      const wmsFormat = 'image/png';
-      const maxZoom = 19;
 
-      // ORKa.MV definieren
-      const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
-        attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
-      });
+      /*
+       * Zusätzliche Datenthemen anbieten
+       */
 
-      // ORKa.MV standardmäßig zur Karte hinzufügen
-      map.addLayer(orkamv);
-
-      // OpenStreetMap definieren
-      const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
-        attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
-      });
-
-      // Liegenschaftskarte definieren
-      const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
-        layers: 'hro.liegenschaftskarte',
-        format: wmsFormat,
-        maxZoom: maxZoom,
-        attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
-      });
-
-      // Luftbild definieren
-      const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
-        attribution: '© GeoBasis-DE/M-V'
-      });
-
-      // Kilometerquadrate ETRS89/UTM-33N definieren
-      const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-        layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-        format: wmsFormat,
-        maxZoom: maxZoom,
-        transparent: true
-      });
-
-      // definierte Karten als Hintergrundkarten zusammenfassen
-      const baseMaps = {
-        'Liegenschaftskarte': liegenschaftskarte,
-        'Luftbild': luftbild,
-        'ORKa.MV': orkamv,
-        'OpenStreetMap': osm
-      };
-
-      // definierte Karten als Overlay-Karten zusammenfassen
-      let overlayMaps = {
-        'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
-      };
-
-      // EPSG:25833 definieren
-      //proj4.defs([
-      //[
-      //    'EPSG:25833',
-      //    '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
-      //  ],
-      //]);
-
-      // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
-      {% if additional_wms_layers %}
-        {% for additional_wms_layer in additional_wms_layers %}
-          let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
-            layers: '{{ additional_wms_layer.layers }}',
-            format: wmsFormat,
-            maxZoom: maxZoom,
-            transparent: true
-          });
-          overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
-        {% endfor %}
-      {% endif %}
-
-      // Umschalter für Hintergrundkarten zur Karte hinzufügen
-      L.control.layers(baseMaps,overlayMaps).addTo(map);
       // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
       let dataLayerControl = new L.control.layers({}, {}).addTo(map);
 
-      // Speichern der Themenspezifischen URLs für späteren Aufruf
-      const minLayerZoom = 13;
-      let themaUrl = {};
-
-      // iteriere durch alle Models/Datenthemen
-      // key = Datenthema-Name und value = Verbose Name
+      // iteriere durch alle Datenthemen
       {% for key, value in model_list.items %}
         {% with datenthema_name_lower=key|lower %}
           themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
@@ -397,14 +411,15 @@
           // Beim hinzufügen des Layers Daten laden
           {{ datenthema_name_lower }}.on('add', function () {
             if (map.getZoom() > minLayerZoom) {
+              // Daten zum entsprechenden Layer hinzufügen
               loadExternalData(
                 '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
                 this
               );
-              // Daten zum entsprechenden Layer hinzufügen
-              // 'Anheben' des Layers, welches bearbeitet wird
+
               map.eachLayer((layer) => {
-                if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+                // 'Anheben' des Layers, welches bearbeitet wird
+                if (layer._drawnByGeoman === true){
                   layer.eachLayer((lay) => {
                     if (lay instanceof L.Marker){
                       lay.setZIndexOffset(1000);
@@ -431,7 +446,7 @@
           };
           // 'Anheben' des Layers, welches bearbeitet wird
           map.eachLayer((layer) => {
-            if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+            if (layer._drawnByGeoman === true){
               layer.eachLayer((lay) => {
                 if (lay instanceof L.Marker){
                   lay.setZIndexOffset(1000);
@@ -443,7 +458,7 @@
           });
         } else {
           window.currMap.eachLayer((layer) => {
-            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection') {
+            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)) {
               layer.clearLayers();
             }
           });
@@ -463,7 +478,7 @@
           };
           // 'Anheben' des Layers, welches bearbeitet wird
           map.eachLayer((layer) => {
-            if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
+            if (layer._drawnByGeoman){
               layer.eachLayer((lay) => {
                 if (lay instanceof L.Marker){
                   lay.setZIndexOffset(1000);
@@ -475,7 +490,7 @@
           });
         } else {
           window.currMap.eachLayer((layer) => {
-            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection'){
+            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)){
               layer.clearLayers();
             }
           });
@@ -504,12 +519,11 @@
 
 
       /*
-       * Beim Hinzufügen oder Editieren einer Geometrie wird die Addresse gesetzt
+       * Wenn Datenmodell Adressbezug vorsieht und dies ein Pflichangabe ist, wird
+       * beim Hinzufügen oder Editieren einer Geometrie die Addresse gesetzt.
        */
-      // falls Datenmodell Adressenbezug vorsieht...
       {% if address_type %}
         map.on('pm:create', function ({layer}) {
-          // ...und dieser eine Pflichtangabe ist:
           console.log(layer);
           console.log('{{ address_mandatory }}');
           {% if address_mandatory %}
