@@ -207,6 +207,25 @@
         ['EPSG:25833', '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'],
       ]);
 
+      let greenMarker = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      let redMarker = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+
       /*
        * Leaflet-Geoman Konfigurationen
        */
@@ -225,7 +244,10 @@
 
       map.pm.setGlobalOptions({
         snapDistance: 10,
-        continueDrawing: false,
+        continueDrawing: false,   // Nach Hinzufügen einer Geometrie
+        markerStyle: {
+          icon: redMarker,
+        }
       })
 
       {% if geometry_type == 'Point' %}
@@ -262,8 +284,8 @@
           drawCircle: false,        // Kreis
           drawMarker: false,        // Marker
           drawPolyline: false,      // Linie
-          //dragMode: false,          // Verschieben deaktivieren
-          //rotateMode: false,        // Geometrie rotieren
+          dragMode: false,          // Verschieben deaktivieren
+          rotateMode: false,        // Geometrie rotieren
         });
       {% endif %}
 
@@ -351,11 +373,22 @@
           "properties": {},
           "geometry": JSON.parse($('#id_geometrie').val())
           }
-        let changeGeom = new L.geoJSON(geojson).addTo(map);
+        let changeGeom = new L.geoJSON(geojson, {
+          pointToLayer: function (feature, latlng) {
+            // here you would difference between marker and circle
+            return L.marker(latlng,  {icon: redMarker});
+          },
+          templineStyle: {
+            color: 'red',             // Farbe während des zeichnens
+          },
+          color: 'red',
+          fillColor: 'red',
+        }).addTo(map);
         changeGeom._changeGeom = true;
         changeGeom.eachLayer((layer) => {
           layer._drawnByGeoman = true;
-        })
+        });
+        console.log(changeGeom);
       {% endif %}
 
       // falls Geometrie punkthaft ist...
@@ -420,13 +453,11 @@
               map.eachLayer((layer) => {
                 // 'Anheben' des Layers, welches bearbeitet wird
                 if (layer._drawnByGeoman === true){
-                  layer.eachLayer((lay) => {
-                    if (lay instanceof L.Marker){
-                      lay.setZIndexOffset(1000);
-                    } else {
-                      lay.bringToFront();
-                    }
-                  });
+                  if (layer instanceof L.Marker){
+                    layer.setZIndexOffset(1000);
+                  } else {
+                    layer.bringToFront();
+                  }
                 }
               });
             }
@@ -435,10 +466,10 @@
       {% endfor %}
 
 
+      /*
+       * Laden der externen Datensätze, nach dem Bewegen der Karte
+      */
       map.on('moveend', function (){
-        /*
-         * Laden der externen Datensätze, nach dem Bewegen der der Karte
-         */
         let list = dataLayerControl.getActiveOverlays();
         if (map.getZoom() > minLayerZoom){
           for (const key in list) {
@@ -447,13 +478,11 @@
           // 'Anheben' des Layers, welches bearbeitet wird
           map.eachLayer((layer) => {
             if (layer._drawnByGeoman === true){
-              layer.eachLayer((lay) => {
-                if (lay instanceof L.Marker){
-                  lay.setZIndexOffset(1000);
-                } else {
-                  lay.bringToFront();
-                }
-              });
+              if (layer instanceof L.Marker){
+                layer.setZIndexOffset(1000);
+              } else {
+                layer.bringToFront();
+              }
             }
           });
         } else {
@@ -467,10 +496,10 @@
       });
 
 
+      /*
+       * Laden der externen Datensätze, nach dem Zoomen der Karte
+       */
       map.on('zoomend', function (){
-        /*
-         * Laden der externen Datensätze, nach dem Zoomen der Karte
-         */
         let list = dataLayerControl.getActiveOverlays();
         if (map.getZoom() > minLayerZoom){
           for (const key in list) {
@@ -478,14 +507,12 @@
           };
           // 'Anheben' des Layers, welches bearbeitet wird
           map.eachLayer((layer) => {
-            if (layer._drawnByGeoman){
-              layer.eachLayer((lay) => {
-                if (lay instanceof L.Marker){
-                  lay.setZIndexOffset(1000);
-                } else {
-                  lay.bringToFront();
-                }
-              });
+            if (layer._drawnByGeoman === true){
+              if (layer instanceof L.Marker){
+                layer.setZIndexOffset(1000);
+              } else {
+                layer.bringToFront();
+              }
             }
           });
         } else {
