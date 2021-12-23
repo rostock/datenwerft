@@ -524,6 +524,18 @@
         };
       });
 
+      /*
+       * Beim Start des Modus 'Zeichnen' überprüfen, ob es bereits Geoman Layer gibt.
+       * Falls ja, lösche diese.
+       */
+      map.on('pm:drawstart', (e) => {
+        if (map.pm.getGeomanLayers().length > 0){
+          map.pm.getGeomanLayers().forEach((item) => {
+            map.removeLayer(item);
+          })
+        }
+      });
+
 
       /*
        * Standortbestimmung
