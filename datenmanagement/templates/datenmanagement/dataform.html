@@ -192,6 +192,33 @@
     // globale Variablen
     let FEATURE_GEOMETRY = []; // wird in showResults() befüllt
 
+    let blueMarker = new L.Icon({
+        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_blau.svg" %}',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      let greenMarker = new L.Icon({
+        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_gruen.svg" %}',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      let redMarker = new L.Icon({
+        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_rot.svg" %}',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
     function id_geometrie_map_callback(map, options) {
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
       window.currMap = map;
@@ -207,23 +234,6 @@
         ['EPSG:25833', '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'],
       ]);
 
-      let greenMarker = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
-
-      let redMarker = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
 
 
       /*
@@ -529,11 +539,13 @@
        * Falls ja, lösche diese.
        */
       map.on('pm:drawstart', (e) => {
-        if (map.pm.getGeomanLayers().length > 0){
-          map.pm.getGeomanLayers().forEach((item) => {
-            map.removeLayer(item);
-          })
-        }
+        {% if geometry_type == 'Point' or geometry_type == 'LineString' or geometry_type == 'Polygon' %}
+          if (map.pm.getGeomanLayers().length > 0){
+            map.pm.getGeomanLayers().forEach((item) => {
+              map.removeLayer(item);
+            })
+          }
+        {% endif %}
       });
 
 
@@ -831,19 +843,8 @@
         {% if geometry_type == "Point" %}
           x = FEATURE_GEOMETRY.coordinates[0];
           y = FEATURE_GEOMETRY.coordinates[1];
-          console.log('x = ', x, '; y = ', y);
-          new L.Marker([y, x],{}).addTo(window.currMap);
+          new L.Marker([y, x],{icon: redMarker,}).addTo(window.currMap);
         {% endif %}
-      }
-      coords = $('#id_geometrie').val();
-      if (coords.indexOf('0,0') !== -1) {
-        console.log('if');
-        let newCoords = coords.replace(/[0-9]+/, x); //
-        $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
-      } else {
-        console.log('else');
-        let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
-        $('#id_geometrie').val(newCoords.replace(/\,\s[0-9]+\.[0-9]+/, ', ' + y));
       }
     }
 
@@ -1038,6 +1039,8 @@
         if ($.trim($('#id_strasse').val()).length)
           $('#id_strasse').val($('#id_strasse_uuid').val());
       {% endif %}
+      setCoordinates();
+
     }
 
 
@@ -1125,8 +1128,31 @@
           console.log('Fetch Error: ' + err);
         }
       );
+    }
 
-
+    function setCoordinates() {
+      let jsonGeometrie;
+      {% if geometry_type == 'MultiPolygon' or geometry_type == 'MultiPoint' or geometry_type == 'MultiLineString' %}
+        let coords = [];
+        let temp;
+        currMap.pm.getGeomanLayers().forEach(function (layer) {
+          temp = layer.toGeoJSON().geometry
+          // Geoman malt mit Polygonen. Daher überprüfen ob Layer Polygon oder Multipolygon ist.
+          if (temp.type.search('Multi') > -1) {
+            coords.push(temp.coordinates[0]);
+          } else {
+            coords.push(temp.coordinates);
+          }
+        });
+        jsonGeometrie = {
+          'type': '{{ geometry_type }}',
+          'coordinates': coords,
+        };
+        console.log(jsonGeometrie);
+      {% else %}
+        jsonGeometrie = currMap.pm.getGeomanLayers()[0].toGeoJSON().geometry;
+      {% endif %}
+      $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
     }
   </script>
 {% endblock %}
