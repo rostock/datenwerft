@@ -1,11 +1,12 @@
 import json
 import os
+import pytz
 import re
 import requests
 import time
 import uuid
 
-from datetime import datetime
+from datetime import datetime, timezone
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
@@ -27,7 +28,7 @@ from jsonview.views import JsonView
 from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
-#from datenmanagement.urls import app_name
+
 
 #
 # eigene Funktionen
@@ -379,10 +380,10 @@ class DataForm(ModelForm):
 
         for field in self.fields.values():
             if field.label == 'Geometrie':
-                required_message = 'Es muss ein Marker in der Karte gesetzt' \
-                                   'werden bzw. eine Linie oder Fläche' \
-                                   'gezeichnet werden, falls es sich um Daten' \
-                                   'linien- oder flächenhafter Repräsentation' \
+                required_message = 'Es muss ein Marker in der Karte gesetzt ' \
+                                   'werden bzw. eine Linie oder Fläche ' \
+                                   'gezeichnet werden, falls es sich um Daten ' \
+                                   'linien- oder flächenhafter Repräsentation ' \
                                    'handelt!'
             else:
                 required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(
@@ -533,6 +534,10 @@ class DataView(BaseDatatableView):
             self.model._meta.list_fields_with_date if hasattr(
                 self.model._meta,
                 'list_fields_with_date') else None)
+        self.columns_with_datetime = (
+            self.model._meta.list_fields_with_datetime if hasattr(
+                self.model._meta,
+                'list_fields_with_datetime') else None)
         self.column_as_highlight_flag = (
             self.model._meta.highlight_flag if hasattr(
                 self.model._meta, 'highlight_flag') else None)
@@ -589,6 +594,12 @@ class DataView(BaseDatatableView):
                 elif value is not None and self.columns_with_date is not None and column in self.columns_with_date:
                     data = datetime.strptime(str(value), '%Y-%m-%d').strftime(
                         '%d.%m.%Y')
+                elif value is not None and self.columns_with_datetime is not None and column in self.columns_with_datetime:
+                    local_tz = pytz.timezone('Europe/Berlin')
+                    datetimestamp_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(value))
+                    datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+                    datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+                    data = datetimestamp_str
                 elif value is not None and value and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
                     data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!"></i>'
                 elif value is not None and column == 'foto':

@@ -85,13 +85,13 @@
                   <div class="row">
                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
-                      {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
+                      {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
                         <button class="input-reset btn bg-transparent">
                           <i class="fa fa-times" title="Filterfeld leeren"></i>
                         </button>
                         <div class="input-group-append" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                          <div class="input-group-text"><i class="fa fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
                         </div>
                       {% else %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
@@ -101,13 +101,13 @@
                   <div class="row">
                     <label>{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
-                      {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input datetimepicker-input" data-type="date" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
+                      {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
                         <button class="input-reset btn bg-transparent">
                           <i class="fa fa-times" title="Filterfeld leeren"></i>
                         </button>
                         <div class="input-group-append" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                          <div class="input-group-text"><i class="fa fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
                         </div>
                       {% else %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
@@ -124,14 +124,14 @@
               {% for map_filter_field in map_filter_fields %}
                 <div class="row">
                   <label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} class="filter-checkbox-label"{% endif %}>{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
-                  {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
+                  {% if 'Date' in map_filter_field|get_type_of_field:model_name %}
                     <div class="input-group">
-                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="date" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                       <button class="input-reset btn bg-transparent">
                         <i class="fa fa-times" title="Filterfeld leeren"></i>
                       </button>
                       <div class="input-group-append" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        <div class="input-group-text"><i class="fa fa-{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
                       </div>
                     </div>
                   {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
@@ -318,7 +318,7 @@
           // Properties zu GeoJSON-Feature hinzufügen
           geoJsonFeature.properties.uuid = '{{ object.uuid }}';
           {% if map_feature_tooltip_field %}
-            {% if map_feature_tooltip_field|get_type_of_field:model_name == 'DateField' %}
+            {% if 'Date' in map_feature_tooltip_field|get_type_of_field:model_name %}
               geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field:True }}';
             {% else %}
               geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
@@ -334,7 +334,6 @@
             {% for map_deadlinefilter_field in map_deadlinefilter_fields %}
               // Property zu GeoJSON-Feature hinzufügen mit Namen des Stichtagsfilterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
               {% with current_field=map_deadlinefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                // auf passende Formatierung achten, da es sich beim Feld um ein Datumsfeld handelt
                 geoJsonFeature.properties['deadline_{{ forloop.counter0 }}'] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
               {% endwith %}
             {% endfor %}
@@ -347,6 +346,9 @@
                 {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
                   // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
                   geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                {% elif map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}
+                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Feld mit Datum und Zeit handelt!
+                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
                 {% else %}
                   geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field|safe }};
                 {% endif %}
@@ -361,6 +363,9 @@
                 {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
                   // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
                   geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
+                {% elif map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}
+                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Feld mit Datum und Zeit handelt!
+                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
                 {% else %}
                   geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|safe }}';
                 {% endif %}
@@ -577,6 +582,22 @@
                         break;
                       }
                     }
+                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Feld mit Datum und Zeit handelt!
+                  {% elif map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}
+                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
+                    for (var i = 0; i < intervalFilterMin.length; i++) {
+                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'second').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}'), 'second'))) {
+                        intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
+                        break;
+                      }
+                    }
+                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
+                    for (var i = 0; i < intervalFilterMax.length; i++) {
+                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}'), 'second').isAfter(new Date(intervalFilterMax[i].value), 'second'))) {
+                        intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
+                        break;
+                      }
+                    }
                   {% else %}
                     // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMin.length; i++) {
@@ -642,43 +663,48 @@
 
         // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
         $('.datetimepicker-input').each(function() {
-          // Variable für initiales Datum
-          var initialDate = '';
+          // Variable für initiales Datum bzw. initiales Datum mit Zeit
+          var initialDateTime = '';
 
-          // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
+          // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
           for (var i = 0; i < intervalFilterMin.length; i++) {
             if (intervalFilterMin[i].name === $(this).attr('name')) {
-              initialDate = intervalFilterMin[i].value;
+              initialDateTime = intervalFilterMin[i].value;
               break;
             }
           }
 
-          // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum auf dortigen Wert setzen
+          // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
           for (var i = 0; i < intervalFilterMax.length; i++) {
             if (intervalFilterMax[i].name === $(this).attr('name')) {
-              initialDate = intervalFilterMax[i].value;
+              initialDateTime = intervalFilterMax[i].value;
               break;
             }
           }
 
-          // falls Variable für initiales Datum gefüllt ist...
-          if (initialDate !== '') {
-            // initiales Datum auf entsprechenden Wert setzen
-            if (initialDate.indexOf('-') !== -1) {
-              var dummy = initialDate.split('-');
+          // falls Variable für initiales Datum bzw. initiales Datum mit Zeit gefüllt ist...
+          if (initialDateTime !== '') {
+            // initiales Datum bzw. initiales Datum mit Zeit auf entsprechenden Wert setzen
+            var dummyDate = '';
+            var dummyTime = '';
+            if (initialDateTime.length === 10) {
+              dummyDate = initialDateTime.split('-');
+            } else {
+              dummyDate = initialDateTime.slice(0, 10).split('-');
+              dummyTime = initialDateTime.slice(11).split(':');
             }
             $(this).datetimepicker({
               locale: 'de',
-              format: 'L',
-              date: (initialDate.indexOf('-') !== -1) ? (new Date(dummy[0], dummy[1] - 1, dummy[2])) : (new Date(initialDate))
+              format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss',
+              date: (initialDateTime.length === 10) ? (new Date(dummyDate[0], dummyDate[1] - 1, dummyDate[2])) : (new Date(dummyDate[0], dummyDate[1] - 1, dummyDate[2], dummyTime[0], dummyTime[1], dummyTime[2]))
             });
-            // zusätzlich data-Attribut hinzufügen mit initialem Datum (benötigt beim Zurücksetzen der Filter)
-            $(this).attr('data-initial', initialDate);
-          // ansonsten ohne initiales Datum
+            // zusätzlich data-Attribut hinzufügen mit initialem Datum bzw. initialem Datum mit Zeit (benötigt beim Zurücksetzen der Filter)
+            $(this).attr('data-initial', initialDateTime);
+          // ansonsten ohne initiales Datum bzw. initiales Datum mit Zeit
           } else {
             $(this).datetimepicker({
               locale: 'de',
-              format: 'L'
+              format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss'
             });
           }
         });
@@ -754,9 +780,15 @@
               filterAttribute.intervalside = $(this).data('intervalside');
               filterAttribute.value = $(this).val();
               // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-              if (filterAttribute.type == 'date' && filterAttribute.value.indexOf('.') !== -1) {
-                var dummy = filterAttribute.value.split('.');
-                filterAttribute.value = new Date(dummy[2], dummy[1] - 1, dummy[0]);
+              if (filterAttribute.type == 'date') {
+                var dummyDate = filterAttribute.value.split('.');
+                filterAttribute.value = new Date(dummyDate[2], dummyDate[1] - 1, dummyDate[0]);
+              }
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Filter mit Datum und Zeit handelt!
+              else if (filterAttribute.type == 'datetime') {
+                var dummyDate = filterAttribute.value.slice(0, 10).split('.');
+                var dummyTime = filterAttribute.value.slice(11).split(':');
+                filterAttribute.value = new Date(dummyDate[2], dummyDate[1] - 1, dummyDate[0], dummyTime[0], dummyTime[1], dummyTime[2]);
               }
               // Filterobjekt zur Liste für Filterobjekte hinzufügen
               filterAttributesList.push(filterAttribute);
@@ -818,6 +850,11 @@
                       if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
                         layer.getElement().style.display = 'none';
                       }
+                    } else if (filterAttributesList[i].type === 'datetime') {
+                      // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+                      if (moment(new Date(filterAttributesList[i].value), 'second').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'second')) {
+                        layer.getElement().style.display = 'none';
+                      }
                     } else {
                       if (layer.feature.properties[filterAttributesList[i].name] < filterAttributesList[i].value) {
                         layer.getElement().style.display = 'none';
@@ -828,6 +865,11 @@
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                       if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').isAfter(new Date(filterAttributesList[i].value), 'day')) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    } else if (filterAttributesList[i].type === 'datetime') {
+                      // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+                      if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'second').isAfter(new Date(filterAttributesList[i].value), 'second')) {
                         layer.getElement().style.display = 'none';
                       }
                     } else {
@@ -857,6 +899,11 @@
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                       if (moment(new Date(filterAttributesList[i].value), 'day').format('YYYY-MM-DD') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').format('YYYY-MM-DD')) {
+                        layer.getElement().style.display = 'none';
+                      }
+                    } else if (filterAttributesList[i].type === 'datetime') {
+                      // auf passende Formatierung achten, wenn es sich beim Filter um einen Filter mit Datum und Zeit handelt!
+                      if (moment(new Date(filterAttributesList[i].value), 'second').format('YYYY-MM-DD HH:mm:ss') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'second').format('YYYY-MM-DD HH:mm:ss')) {
                         layer.getElement().style.display = 'none';
                       }
                     } else if (filterAttributesList[i].type === 'list') {
@@ -912,11 +959,12 @@
               // Filter auf initialen Wert setzen
               var initialValue = $(this).data('initial');
               if ($(this).data('type') === 'date') {
-                // Achtung bei Datumsfiltern!
-                if (initialValue.indexOf('-') !== -1) {
-                  var dummy = initialValue.split('-');
-                }
-                $(this).val(dummy[2] + '.' + dummy[1] + '.' + dummy[0]);
+                var dummyDate = initialValue.split('-');
+                $(this).val(dummyDate[2] + '.' + dummyDate[1] + '.' + dummyDate[0]);
+              } else if ($(this).data('type') === 'datetime') {
+                var dummyDate = initialValue.slice(0, 10).split('-');
+                var dummyTime = initialValue.slice(11);
+                $(this).val(dummyDate[2] + '.' + dummyDate[1] + '.' + dummyDate[0] + ' ' + dummyTime);
               } else {
                 $(this).val($(this).data('initial'));
               }

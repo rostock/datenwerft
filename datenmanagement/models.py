@@ -1,8 +1,9 @@
 import os
+import pytz
 import re
 import uuid
 from datenmanagement.storage import OverwriteStorage
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import *
 from django import forms
 from django.conf import settings
@@ -388,6 +389,7 @@ options.DEFAULT_NAMES += (
     'list_fields',
     'list_fields_with_number',                  # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte von einem numerischen Datentyp sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
     'list_fields_with_date',                    # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
+    'list_fields_with_datetime',                # optional ; Liste      ; Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp Datum mit Zeit sind und die daher entsprechend behandelt werden müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
     # optional ; Dictionary ; Namen der Felder (als Keys) aus list_fields, die
     # für die Tabelle der Listenansicht in Namen von Fremdschlüsselfeldern
     # (als Values) umgewandelt werden sollen, damit sie in der jeweils
@@ -1178,6 +1180,29 @@ class Arten_Poller(Art):
 
 
 signals.post_save.connect(assign_permissions, sender=Arten_Poller)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Poller)
+
+
+# Arten von Tierseuchenkontrollen
+
+class Arten_Tierseuchenkontrollen(Art):
+    class Meta(Art.Meta):
+        db_table = 'codelisten\".\"arten_tierseuchenkontrollen'
+        verbose_name = 'Art einer Tierseuchenkontrolle'
+        verbose_name_plural = 'Arten von Tierseuchenkontrollen'
+        description = 'Arten von Tierseuchenkontrollen'
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Arten_Tierseuchenkontrollen, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Arten_Tierseuchenkontrollen, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Arten_Tierseuchenkontrollen)
 
 signals.post_delete.connect(remove_permissions, sender=Arten_Poller)
 
@@ -2455,7 +2480,7 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1, max_value=5)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     reinigungsrhythmus = models.CharField(
         'Reinigungsrhythmus', max_length=255, validators=[
             RegexValidator(
@@ -2473,7 +2498,8 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
         verbose_name_plural = 'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         description = 'Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         list_fields = {
-            'ordinalzahl': 'Ordinalzahl'
+            'ordinalzahl': 'Ordinalzahl',
+            'reinigungsrhythmus': 'Reinigungsrhythmus'
         }
         list_fields_with_number = ['ordinalzahl']
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
@@ -2880,6 +2906,59 @@ class Status_Poller(Status):
 signals.post_save.connect(assign_permissions, sender=Status_Poller)
 
 signals.post_delete.connect(remove_permissions, sender=Status_Poller)
+
+
+# Tierseuchen
+
+class Tierseuchen(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    bezeichnung = models.CharField(
+        'Bezeichnung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"tierseuchen'
+        verbose_name = 'Tierseuche'
+        verbose_name_plural = 'Tierseuchen'
+        description = 'Tierseuchen'
+        list_fields = {
+            'bezeichnung': 'Bezeichnung'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['bezeichnung']
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchen, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchen, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Tierseuchen)
+
+signals.post_delete.connect(remove_permissions, sender=Tierseuchen)
 
 
 # Typen von Abfallbehältern
@@ -3458,7 +3537,7 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1, max_value=11)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     reinigungsrhythmus = models.CharField(
         'Reinigungsrhythmus', max_length=255, validators=[
             RegexValidator(
@@ -3476,7 +3555,8 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
         verbose_name_plural = 'Wegereinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         description = 'Wegereinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
         list_fields = {
-            'ordinalzahl': 'Ordinalzahl'
+            'ordinalzahl': 'Ordinalzahl',
+            'reinigungsrhythmus': 'Reinigungsrhythmus'
         }
         list_fields_with_number = ['ordinalzahl']
         # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
@@ -3710,6 +3790,74 @@ signals.post_save.connect(assign_permissions, sender=Zonen_Parkscheinautomaten)
 signals.post_delete.connect(
     remove_permissions,
     sender=Zonen_Parkscheinautomaten)
+
+
+# Zustände von Tierseuchenzäunen
+
+class Zustaende_Tierseuchenzaeune(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    zustand = models.CharField(
+        'Zustand', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"zustaende_tierseuchenzaeune'
+        verbose_name = 'Zustand eines Tierseuchenzaunes'
+        verbose_name_plural = 'Zustände von Tierseuchenzäunen'
+        description = 'Zustände von Tierseuchenzäunen'
+        list_fields = {
+            'ordinalzahl': 'Ordinalzahl',
+            'zustand': 'Zustand'
+        }
+        list_fields_with_number = ['ordinalzahl']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['ordinalzahl']
+
+    def __str__(self):
+        return str(self.zustand)
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Zustaende_Tierseuchenzaeune,
+            self).save(
+            *args,
+            **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Zustaende_Tierseuchenzaeune,
+            self).delete(
+            *args,
+            **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Zustaende_Tierseuchenzaeune)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Zustaende_Tierseuchenzaeune)
 
 
 # Zustandsbewertungen
@@ -9996,6 +10144,295 @@ class Strassenreinigung(models.Model):
 signals.post_save.connect(assign_permissions, sender=Strassenreinigung)
 
 signals.post_delete.connect(remove_permissions, sender=Strassenreinigung)
+
+
+# Tierseuchenfunde
+
+class Tierseuchenfunde(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    tierseuche = models.ForeignKey(
+        Tierseuchen,
+        verbose_name='Tierseuche',
+        on_delete=models.RESTRICT,
+        db_column='tierseuche',
+        to_field='uuid',
+        related_name='tierseuchen+')
+    zeitpunkt = models.DateTimeField('Zeitpunkt')
+    geometrie = models.PointField(
+        'Geometrie', srid=25833, default='POINT(0 0)')
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"tierseuchenfunde_hro'
+        verbose_name = 'Tierseuchenfund'
+        verbose_name_plural = 'Tierseuchenfunde'
+        description = 'Tierseuchenfunde in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'tierseuche': 'Tierseuche',
+            'zeitpunkt': 'Zeitpunkt'}
+        list_fields_with_datetime = ['zeitpunkt']
+        list_fields_with_foreign_key = {
+            'tierseuche': 'bezeichnung'
+        }
+        map_feature_tooltip_field = 'tierseuche'
+        map_filter_fields = {
+            'tierseuche': 'Tierseuche',
+            'zeitpunkt': 'Zeitpunkt'}
+        map_filter_fields_as_list = [
+            'tierseuche']
+        geometry_type = 'Point'
+
+    def __str__(self):
+        local_tz = pytz.timezone('Europe/Berlin')
+        zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
+        zeitpunkt = datetime.strptime(zeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+        return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchenfunde, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchenfunde, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Tierseuchenfunde)
+
+signals.post_delete.connect(remove_permissions, sender=Tierseuchenfunde)
+
+
+# Tierseuchenkontrollgebiete
+
+class Tierseuchenkontrollgebiete(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    tierseuche = models.ForeignKey(
+        Tierseuchen,
+        verbose_name='Tierseuche',
+        on_delete=models.RESTRICT,
+        db_column='tierseuche',
+        to_field='uuid',
+        related_name='tierseuchen+')
+    bezeichnung = models.CharField(
+        'Bezeichnung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
+    geometrie = models.PolygonField('Geometrie', srid=25833)
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"tierseuchenkontrollgebiete_hro'
+        verbose_name = 'Tierseuchenkontrollgebiet'
+        verbose_name_plural = 'Tierseuchenkontrollgebiete'
+        description = 'Tierseuchenkontrollgebiete in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'tierseuche': 'Tierseuche',
+            'bezeichnung': 'Bezeichnung'}
+        list_fields_with_foreign_key = {
+            'tierseuche': 'bezeichnung'
+        }
+        associated_models = {
+            'Tierseuchennachweise': 'kontrollgebiet'
+        }
+        map_feature_tooltip_field = 'bezeichnung'
+        map_filter_fields = {
+            'tierseuche': 'Tierseuche',
+            'bezeichnung': 'Bezeichnung'}
+        map_filter_fields_as_list = [
+            'tierseuche']
+        geometry_type = 'Polygon'
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['bezeichnung']
+        as_overlay = True
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchenkontrollgebiete, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchenkontrollgebiete, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Tierseuchenkontrollgebiete)
+
+signals.post_delete.connect(remove_permissions, sender=Tierseuchenkontrollgebiete)
+
+
+# Tierseuchennachweise
+
+class Tierseuchennachweise(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    kontrollgebiet = models.ForeignKey(
+        Tierseuchenkontrollgebiete,
+        verbose_name='Kontrollgebiet',
+        on_delete=models.CASCADE,
+        db_column='kontrollgebiet',
+        to_field='uuid',
+        related_name='kontrollgebiete+')
+    art_kontrolle = models.ForeignKey(
+        Arten_Tierseuchenkontrollen,
+        verbose_name='Art der Kontrolle',
+        on_delete=models.RESTRICT,
+        db_column='art_kontrolle',
+        to_field='uuid',
+        related_name='arten_kontrolle+')
+    startzeitpunkt = models.DateTimeField('Startzeitpunkt')
+    endzeitpunkt = models.DateTimeField('Endzeitpunkt')
+    geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"tierseuchennachweise_hro'
+        verbose_name = 'Tierseuchennachweis'
+        verbose_name_plural = 'Tierseuchennachweise'
+        description = 'Tierseuchennachweise in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'kontrollgebiet': 'Kontrollgebiet',
+            'art_kontrolle': 'Art der Kontrolle',
+            'startzeitpunkt': 'Startzeitpunkt',
+            'endzeitpunkt': 'Endzeitpunkt'}
+        list_fields_with_datetime = ['startzeitpunkt', 'endzeitpunkt']
+        list_fields_with_foreign_key = {
+            'kontrollgebiet': 'bezeichnung',
+            'art_kontrolle': 'art'
+        }
+        map_feature_tooltip_field = 'art_kontrolle'
+        map_rangefilter_fields = {
+            'startzeitpunkt': 'Startzeitpunkt',
+            'endzeitpunkt': 'Endzeitpunkt'
+        }
+        map_filter_fields = {
+            'kontrollgebiet': 'Kontrollgebiet',
+            'art_kontrolle': 'Art der Kontrolle'}
+        map_filter_fields_as_list = [
+            'kontrollgebiet', 'art_kontrolle']
+        geometry_type = 'MultiLineString'
+        fields_with_foreign_key_to_linkify = ['kontrollgebiet']
+        object_title = 'der Tierseuchennachweis'
+        foreign_key_label = 'Kontrollgebiet'
+
+    def __str__(self):
+        local_tz = pytz.timezone('Europe/Berlin')
+        startzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.startzeitpunkt))
+        startzeitpunkt = datetime.strptime(startzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
+        endzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.endzeitpunkt))
+        endzeitpunkt = datetime.strptime(endzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+        return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' + str(self.art_kontrolle) + ']'
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchennachweise, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchennachweise, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Tierseuchennachweise)
+
+signals.post_delete.connect(remove_permissions, sender=Tierseuchennachweise)
+
+
+# Tierseuchenzäune
+
+class Tierseuchenzaeune(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    tierseuche = models.ForeignKey(
+        Tierseuchen,
+        verbose_name='Tierseuche',
+        on_delete=models.RESTRICT,
+        db_column='tierseuche',
+        to_field='uuid',
+        related_name='tierseuchen+')
+    zustand = models.ForeignKey(
+        Zustaende_Tierseuchenzaeune,
+        verbose_name='Zustand',
+        on_delete=models.RESTRICT,
+        db_column='zustand',
+        to_field='uuid',
+        related_name='zustaende+')
+    geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"tierseuchenzaeune_hro'
+        verbose_name = 'Tierseuchenzaun'
+        verbose_name_plural = 'Tierseuchenzäune'
+        description = 'Tierseuchenzäune in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'tierseuche': 'Tierseuche',
+            'zustand': 'Zustand'}
+        list_fields_with_foreign_key = {
+            'tierseuche': 'bezeichnung',
+            'zustand': 'zustand'
+        }
+        map_feature_tooltip_field = 'zustand'
+        map_filter_fields = {
+            'tierseuche': 'Tierseuche',
+            'zustand': 'Zustand'}
+        map_filter_fields_as_list = [
+            'tierseuche', 'zustand']
+        geometry_type = 'MultiLineString'
+
+    def __str__(self):
+        return str(self.tierseuche) + ', ' + str(self.zustand)
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchenzaeune, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Tierseuchenzaeune, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Tierseuchenzaeune)
+
+signals.post_delete.connect(remove_permissions, sender=Tierseuchenzaeune)
 
 
 # UVP-Vorhaben
