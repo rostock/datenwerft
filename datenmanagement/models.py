@@ -10188,7 +10188,7 @@ class Tierseuchenfunde(models.Model):
         geometry_type = 'Point'
 
     def __str__(self):
-        local_tz = pytz.timezone('Europe/Berlin')
+        local_tz = pytz.timezone(settings.TIME_ZONE)
         zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
         zeitpunkt = datetime.strptime(zeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
         zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
@@ -10349,7 +10349,7 @@ class Tierseuchennachweise(models.Model):
         foreign_key_label = 'Kontrollgebiet'
 
     def __str__(self):
-        local_tz = pytz.timezone('Europe/Berlin')
+        local_tz = pytz.timezone(settings.TIME_ZONE)
         startzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.startzeitpunkt))
         startzeitpunkt = datetime.strptime(startzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
         startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')

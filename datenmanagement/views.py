@@ -595,7 +595,7 @@ class DataView(BaseDatatableView):
                     data = datetime.strptime(str(value), '%Y-%m-%d').strftime(
                         '%d.%m.%Y')
                 elif value is not None and self.columns_with_datetime is not None and column in self.columns_with_datetime:
-                    local_tz = pytz.timezone('Europe/Berlin')
+                    local_tz = pytz.timezone(settings.TIME_ZONE)
                     datetimestamp_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(value))
                     datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
                     datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
