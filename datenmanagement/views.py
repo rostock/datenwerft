@@ -10,9 +10,8 @@ from datetime import datetime, timezone
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.contrib.gis.geos import Point
 from django.core.exceptions import PermissionDenied
-from django.db import connections, connection
+from django.db import connection
 from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
     UUIDField, ValidationError
@@ -1077,9 +1076,11 @@ class DataChangeView(generic.UpdateView):
                     ' zu ' +
                     associated_model_model._meta.foreign_key_label if hasattr(
                         associated_model_model._meta,
-                        'object_title') and hasattr(
+                        'object_title'
+                    ) and hasattr(
                         associated_model_model._meta,
-                        'foreign_key_label') else associated_model_model._meta.verbose_name)
+                        'foreign_key_label'
+                    ) else associated_model_model._meta.verbose_name)
                 associated_new_dict = {
                     'title': title,
                     'link': reverse(
@@ -1177,6 +1178,18 @@ class DataChangeView(generic.UpdateView):
         context['geometry_type'] = (
             self.model._meta.geometry_type if hasattr(
                 self.model._meta, 'geometry_type') else None)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT st_asgeojson(st_transform(geometrie, 4326)) FROM ' +
+                self.model._meta.db_table.replace('"', '') +
+                ' WHERE UUID=%s;',
+                [self.kwargs['pk']]
+            )
+            result = cursor.fetchone()[0]
+            context['geometry'] = (
+                result if hasattr(
+                self.model._meta, 'geometry_type') else None)
+
         context['readonly_fields'] = (
             self.model._meta.readonly_fields if hasattr(
                 self.model._meta, 'readonly_fields') else None)

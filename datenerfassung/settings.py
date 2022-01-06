@@ -96,6 +96,11 @@ LEAFLET_CONFIG = {
     'PLUGINS': {
         'forms': {
             'auto_include': True
+        },
+        'geoman': {
+            'css': ['leaflet-geoman/leaflet-geoman.css'],
+            'js': ['leaflet-geoman/leaflet-geoman.min.js'],
+            'auto_include': True
         }
     }
 }

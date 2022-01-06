@@ -419,7 +419,8 @@ options.DEFAULT_NAMES += (
     # optional ; Text       ; Name des Feldes, dessen Werte in der
     # Kartenansicht als Tooltip der Kartenobjekte angezeigt werden sollen
     'map_feature_tooltip_field',
-    'map_feature_tooltip_fields',               # optional ; Liste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
+    'map_feature_tooltip_fields',
+    # optional ; Liste      ; Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
     # optional ; Dictionary ; Namen der Felder (als Keys), die in genau dieser
     # Reihenfolge in der Kartenansicht als Intervallfilter auftreten sollen,
     # mit ihren Titeln (als Values) – Achtung: Verarbeitung immer paarweise!
@@ -448,7 +449,8 @@ options.DEFAULT_NAMES += (
     # optional ; Boolean    ; Soll die Adresse oder die Straße (je nach Typ
     # des Adressenbezugs) eine Pflichtangabe sein (True)?
     'address_mandatory',
-    'geometry_type',                            # optional ; Text       ; Geometrietyp
+    'geometry_type',
+    # optional ; Text       ; Geometrietyp
     # optional ; Boolean    ; Sollen Thumbnails aus den hochgeladenen Fotos
     # erzeugt werden (True)?
     'thumbs',
@@ -545,13 +547,23 @@ class Art(models.Model):
         default=uuid.uuid4,
         editable=False)
     art = models.CharField(
-        'Art', max_length=255, validators=[
+        'Art',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
 
     class Meta:
         abstract = True
@@ -574,13 +586,24 @@ class Befestigungsart(models.Model):
         default=uuid.uuid4,
         editable=False)
     befestigungsart = models.CharField(
-        'Befestigungsart', max_length=255, validators=[
+        'Befestigungsart',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message)])
 
     class Meta:
         abstract = True
@@ -603,13 +626,24 @@ class Material(models.Model):
         default=uuid.uuid4,
         editable=False)
     material = models.CharField(
-        'Material', max_length=255, validators=[
+        'Material',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message)])
 
     class Meta:
         abstract = True
@@ -634,11 +668,21 @@ class Schlagwort(models.Model):
     schlagwort = models.CharField(
         'Schlagwort', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         abstract = True
@@ -661,13 +705,24 @@ class Status(models.Model):
         default=uuid.uuid4,
         editable=False)
     status = models.CharField(
-        'Status', max_length=255, validators=[
+        'Status',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message)])
 
     class Meta:
         abstract = True
@@ -690,13 +745,24 @@ class Typ(models.Model):
         default=uuid.uuid4,
         editable=False)
     typ = models.CharField(
-        'Typ', max_length=255, validators=[
+        'Typ',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message)])
 
     class Meta:
         abstract = True
@@ -810,13 +876,25 @@ class Angebote_Mobilpunkte(models.Model):
         default=uuid.uuid4,
         editable=False)
     angebot = models.CharField(
-        'Angebot', max_length=255, validators=[
+        'Angebot',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -857,13 +935,25 @@ class Angelberechtigungen(models.Model):
         default=uuid.uuid4,
         editable=False)
     angelberechtigung = models.CharField(
-        'Angelberechtigung', max_length=255, validators=[
+        'Angelberechtigung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -1260,13 +1350,25 @@ class Auftraggeber_Baustellen(models.Model):
         default=uuid.uuid4,
         editable=False)
     auftraggeber = models.CharField(
-        'Auftraggeber', max_length=255, validators=[
+        'Auftraggeber',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -1309,11 +1411,21 @@ class Ausfuehrungen_Haltestellenkataster(models.Model):
     ausfuehrung = models.CharField(
         'Ausführung', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -1432,11 +1544,21 @@ class Betriebsarten(models.Model):
     betriebsart = models.CharField(
         'Betriebsart', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -1479,11 +1601,21 @@ class Betriebszeiten(models.Model):
     betriebszeit = models.CharField(
         'Betriebszeit', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -1526,19 +1658,33 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message
+            )])
     art = models.CharField(
         'Art', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message
+            )])
 
     class Meta:
         managed = False
@@ -1594,11 +1740,18 @@ class Anbieter_Carsharing(models.Model):
     anbieter = models.CharField(
         'Anbieter', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message
+            )])
 
     class Meta:
         managed = False

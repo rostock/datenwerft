@@ -8,7 +8,7 @@
 
 {% block style %}
   {{ block.super }}
-  {% leaflet_css plugins="forms" %}
+  {% leaflet_css plugins="geoman" %}
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.72.0/L.Control.Locate.min.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
@@ -21,7 +21,7 @@
 
 {% block scripts %}
   {{ block.super }}
-  {% leaflet_js plugins="forms" %}
+  {% leaflet_js plugins="geoman" %}
   <script type="text/javascript" src="{% static 'proj4js-2.6.2/proj4.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket-1.3.6/wicket-leaflet.js' %}"></script>
@@ -110,7 +110,12 @@
     </div>
     {% if geometry_type %}
       <div id="map-adresssearch-container-form">
-        {{ form.geometrie }}
+        {% if geometry %}
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
+        {% else %}
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [ 0.0,0.0 ] }</textarea>
+        {% endif %}
+        {% leaflet_map "id_geometrie-map" callback="id_geometrie_map_callback" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="spacer-small"></div>
@@ -129,18 +134,18 @@
         <div id="address-search-container">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
-              {{ form.adresse.label_tag }}
-              {{ form.adresse }}
+              <label for="id_adresse">Adresse</label>
+              <input id="id_adresse" type="text" name="adresse" maxlength="255" autocomplete="off" placeholder="Adresse eingeben…">
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
-              {{ form.strasse.label_tag }}
-              {{ form.strasse }}
+              <label for="id_strasse">Straße</label>
+              <input id="id_strasse" type="text" name="strasse" maxlength="255" autocomplete="off" placeholder="Straße eingeben…">
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
               <label for="id_address_search">Adressensuche</label>
-              <input id="id_address_search" type="text" name="address_search" maxlength="255" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+              <input id="id_address_search" type="text" name="address_search" maxlength="255" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
             {% endif %}
           {% endif %}
           <div id="results-container" class="results"></div>
@@ -185,28 +190,219 @@
     $('.datetimepicker-input').datetimepicker();
 
     // globale Variablen
-    var FEATURE_GEOMETRY = [];
+    let FEATURE_GEOMETRY = []; // wird in showResults() befüllt
+
+    // Bunte Marker für Leaflet konfigurieren
+    let blueMarker = new L.Icon({
+        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_blau.svg" %}',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      let greenMarker = new L.Icon({
+        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_gruen.svg" %}',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      let redMarker = new L.Icon({
+        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_rot.svg" %}',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
 
     function id_geometrie_map_callback(map, options) {
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
       window.currMap = map;
 
-      // Geometrie und deren Editierung aktivieren
-      geodjango_id_geometrie.store_class = L.FieldStore;
-      (new L.GeometryField(geodjango_id_geometrie)).addTo(map);
+      // Einige Konstanten und Variablen initialisieren und definieren
+      const wmsFormat = 'image/png';
+      const maxZoom = 19;
+      const minLayerZoom = 13;
+      let themaUrl = {};
 
-      // Editier- und Löschmöglichkeit der Geometrie deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
-      {% if not user|user_has_object_change_permission:object %}
-        $('.leaflet-draw').hide();
+      // EPSG:25833 definieren
+      proj4.defs([
+        ['EPSG:25833', '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'],
+      ]);
+
+
+
+      /*
+       * Leaflet-Geoman Konfigurationen
+       */
+
+      map.pm.setLang('de');   // Tooltip-Sprache setzen
+
+      map.pm.setPathOptions({
+        color: 'red',               // Farbe für gezeichnete Objekte
+        fillColor: 'red',           // Füllfarbe für gezeichnete Objekte
+        requireSnapToFinish: true,  // Zeichnen von Polygonen endet mit bestehendem Punkt
+        templineStyle: {
+          color: 'red',             // Farbe während des zeichnens
+        },
+      });
+
+      map.pm.setGlobalOptions({
+        snapDistance: 10,
+        continueDrawing: false,   // Nach Hinzufügen einer Geometrie
+        markerStyle: {
+          icon: redMarker,
+        }
+      })
+
+      {% if geometry_type == 'Point' %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawPolyline: false,      // Linie
+          drawRectangle: false,     // Rechteck
+          drawPolygon: false,       // Polygon
+          editMode: false,          // Editieren des Punktes deaktivieren
+          cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false,        // Geometrie rotieren
+        });
+      {% elif geometry_type == 'LineString' %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawMarker: false,        // Marker
+          drawRectangle: false,     // Rechteck
+          drawPolygon: false,       // Polygon
+          dragMode: false,          // Verschieben deaktivieren
+          cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false,        // Geometrie rotieren
+        });
+      {% else %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawMarker: false,        // Marker
+          drawPolyline: false,      // Linie
+          dragMode: false,          // Verschieben deaktivieren
+          rotateMode: false,        // Geometrie rotieren
+        });
       {% endif %}
 
-      // überzähliges Marker-Werkzeug deaktivieren
-      $('.leaflet-draw-draw-circlemarker').remove();
+
+      /*
+       * Definition der Hintergrundkarten
+       */
+
+      // Standart-Layer: ORKa.MV
+      const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+        maxZoom: maxZoom,
+        attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
+      });
+
+      // ORKa.MV standardmäßig zur Karte hinzufügen
+      map.addLayer(orkamv);
+
+      // OpenStreetMap
+      const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: maxZoom,
+        attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
+      });
+
+      // Liegenschaftskarte
+      const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
+        layers: 'hro.liegenschaftskarte',
+        format: wmsFormat,
+        maxZoom: maxZoom,
+        attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
+      });
+
+      // Luftbild
+      const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+        maxZoom: maxZoom,
+        attribution: '© GeoBasis-DE/M-V'
+      });
+
+      // Kilometerquadrate ETRS89/UTM-33N
+      const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+        layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+        format: wmsFormat,
+        maxZoom: maxZoom,
+        transparent: true
+      });
+
+      // definierte Karten als Hintergrundkarten zusammenfassen
+      const baseMaps = {
+        'Liegenschaftskarte': liegenschaftskarte,
+        'Luftbild': luftbild,
+        'ORKa.MV': orkamv,
+        'OpenStreetMap': osm
+      };
+
+      // definierte Karten als Overlay-Karten zusammenfassen
+      let overlayMaps = {
+        'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
+      };
+
+
+      /*
+       * zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
+       */
+      {% if additional_wms_layers %}
+        {% for additional_wms_layer in additional_wms_layers %}
+          let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
+            layers: '{{ additional_wms_layer.layers }}',
+            format: wmsFormat,
+            maxZoom: maxZoom,
+            transparent: true
+          });
+          overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
+        {% endfor %}
+      {% endif %}
+
+      // Control-Menü für Hintergrundkarten zur Map hinzufügen
+      L.control.layers(baseMaps,overlayMaps).addTo(map);
+
+
+      /*
+       * Im Change View Geometrie auf Karte anzeigen
+       */
+      {% if geometry %}
+        let geojson = {
+          "type": "Feature",
+          "properties": {},
+          "geometry": JSON.parse($('#id_geometrie').val())
+          }
+        let changeGeom = new L.geoJSON(geojson, {
+          pointToLayer: function (feature, latlng) {
+            // here you would difference between marker and circle
+            return L.marker(latlng,  {icon: redMarker});
+          },
+          templineStyle: {
+            color: 'red',             // Farbe während des zeichnens
+          },
+          color: 'red',
+          fillColor: 'red',
+        }).addTo(map);
+        changeGeom._changeGeom = true;
+        changeGeom.eachLayer((layer) => {
+          layer._drawnByGeoman = true;
+        });
+        console.log(changeGeom);
+      {% endif %}
 
       // falls Geometrie punkthaft ist...
       {% if geometry_type == 'Point' %}
-        // Editier- und Löschmöglichkeit der Geometrie deaktivieren
-        $('.leaflet-draw-edit-edit').parent().parent().remove();
         // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
         map.eachLayer(function (layer) {
           if (layer._latlng) {
@@ -239,122 +435,50 @@
         });
       {% endif %}
 
-      // Konstanten definieren
-      const wmsFormat = 'image/png';
-      const maxZoom = 19;
 
-      // ORKa.MV definieren
-      const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
-        attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
-      });
+      /*
+       * Zusätzliche Datenthemen anbieten
+       */
 
-      // ORKa.MV standardmäßig zur Karte hinzufügen
-      map.addLayer(orkamv);
-
-      // OpenStreetMap definieren
-      const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
-        attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
-      });
-
-      // Liegenschaftskarte definieren
-      const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
-        layers: 'hro.liegenschaftskarte',
-        format: wmsFormat,
-        maxZoom: maxZoom,
-        attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
-      });
-
-      // Luftbild definieren
-      const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
-        attribution: '© GeoBasis-DE/M-V'
-      });
-
-      // Kilometerquadrate ETRS89/UTM-33N definieren
-      const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-        layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-        format: wmsFormat,
-        maxZoom: maxZoom,
-        transparent: true
-      });
-
-      // definierte Karten als Hintergrundkarten zusammenfassen
-      const baseMaps = {
-        'Liegenschaftskarte': liegenschaftskarte,
-        'Luftbild': luftbild,
-        'ORKa.MV': orkamv,
-        'OpenStreetMap': osm
-      };
-
-      // definierte Karten als Overlay-Karten zusammenfassen
-      let overlayMaps = {
-        'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
-      };
-
-      // EPSG:25833 definieren
-      //proj4.defs([
-      //[
-      //    'EPSG:25833',
-      //    '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
-      //  ],
-      //]);
-
-      // zusätzliche WMS-Layer definieren und als Overlay-Karten hinzufügen
-      {% if additional_wms_layers %}
-        {% for additional_wms_layer in additional_wms_layers %}
-          let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
-            layers: '{{ additional_wms_layer.layers }}',
-            format: wmsFormat,
-            maxZoom: maxZoom,
-            transparent: true
-          });
-          overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
-        {% endfor %}
-      {% endif %}
-
-      // Umschalter für Hintergrundkarten zur Karte hinzufügen
-      L.control.layers(baseMaps,overlayMaps).addTo(map);
       // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
       let dataLayerControl = new L.control.layers({}, {}).addTo(map);
-      const minLayerZoom = 13;
-      let themaUrl = {};
 
-      // iteriere durch alle Models/Datenthemen und nutze nur die, die keine Codeliste sind.
+      // iteriere durch alle Datenthemen
       {% for key, value in model_list.items %}
-        {%  with datenthema_name_lower=key|lower %}
-          // GeoJson-Projektions-Layer initialisieren
+        {% with datenthema_name_lower=key|lower %}
           themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+          // GeoJson-Projektions-Layer initialisieren
           let {{ datenthema_name_lower }} = new L.Proj.geoJson();
           // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
           dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
           // Beim hinzufügen des Layers Daten laden
           {{ datenthema_name_lower }}.on('add', function () {
             if (map.getZoom() > minLayerZoom) {
+              // Daten zum entsprechenden Layer hinzufügen
               loadExternalData(
                 '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
                 this
               );
-            // Daten zum entsprechenden Layer hinzufügen
-            // 'Anheben' des Layers, welches bearbeitet wird
-            map.eachLayer((layer) => {
-              if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
-                layer.eachLayer((lay) => {
-                  if (lay instanceof L.Marker){
-                    lay.setZIndexOffset(1000);
+
+              map.eachLayer((layer) => {
+                // 'Anheben' des Layers, welches bearbeitet wird
+                if (layer._drawnByGeoman === true){
+                  if (layer instanceof L.Marker){
+                    layer.setZIndexOffset(1000);
                   } else {
-                    lay.bringToFront();
+                    layer.bringToFront();
                   }
-                });
-              }
-            });
-            };
+                }
+              });
+            }
           });
         {% endwith %}
       {% endfor %}
 
-      // Laden der externen Datensätze, nach dem Bewegen der der Karte
+
+      /*
+       * Laden der externen Datensätze, nach dem Bewegen der Karte
+      */
       map.on('moveend', function (){
         let list = dataLayerControl.getActiveOverlays();
         if (map.getZoom() > minLayerZoom){
@@ -363,26 +487,27 @@
           };
           // 'Anheben' des Layers, welches bearbeitet wird
           map.eachLayer((layer) => {
-            if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
-              layer.eachLayer((lay) => {
-                if (lay instanceof L.Marker){
-                  lay.setZIndexOffset(1000);
-                } else {
-                  lay.bringToFront();
-                }
-              });
+            if (layer._drawnByGeoman === true){
+              if (layer instanceof L.Marker){
+                layer.setZIndexOffset(1000);
+              } else {
+                layer.bringToFront();
+              }
             }
           });
         } else {
           window.currMap.eachLayer((layer) => {
-            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection') {
+            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)) {
               layer.clearLayers();
             }
           });
         };
       });
 
-      // Laden der externen Datensätze, nach dem Zoomen der der Karte
+
+      /*
+       * Laden der externen Datensätze, nach dem Zoomen der Karte
+       */
       map.on('zoomend', function (){
         let list = dataLayerControl.getActiveOverlays();
         if (map.getZoom() > minLayerZoom){
@@ -391,27 +516,41 @@
           };
           // 'Anheben' des Layers, welches bearbeitet wird
           map.eachLayer((layer) => {
-            if (layer instanceof L.LayerGroup && !(layer instanceof L.GeoJSON)){
-              layer.eachLayer((lay) => {
-                if (lay instanceof L.Marker){
-                  lay.setZIndexOffset(1000);
-                } else {
-                  lay.bringToFront();
-                }
-              });
+            if (layer._drawnByGeoman === true){
+              if (layer instanceof L.Marker){
+                layer.setZIndexOffset(1000);
+              } else {
+                layer.bringToFront();
+              }
             }
           });
         } else {
           window.currMap.eachLayer((layer) => {
-            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection'){
+            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)){
               layer.clearLayers();
             }
           });
         };
       });
 
+      /*
+       * Beim Start des Modus 'Zeichnen' überprüfen, ob es bereits Geoman Layer gibt.
+       * Falls ja, lösche diese.
+       */
+      map.on('pm:drawstart', (e) => {
+        {% if geometry_type == 'Point' or geometry_type == 'LineString' or geometry_type == 'Polygon' %}
+          if (map.pm.getGeomanLayers().length > 0){
+            map.pm.getGeomanLayers().forEach((item) => {
+              map.removeLayer(item);
+            })
+          }
+        {% endif %}
+      });
 
-      // Standortbestimmung
+
+      /*
+       * Standortbestimmung
+       */
       {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
         var locationControl = L.control.locate({
           drawCircle: false,
@@ -428,13 +567,31 @@
         locationControl.addTo(map);
       {% endif %}
 
-      // falls Datenmodell Adressenbezug vorsieht...
+
+      /*
+       * Wenn Datenmodell Adressbezug vorsieht und dies ein Pflichangabe ist, wird
+       * beim Hinzufügen oder Editieren einer Geometrie die Addresse gesetzt.
+       */
       {% if address_type %}
-        map.on('draw:created', function (e) {
-          // ...und dieser eine Pflichtangabe ist:
+        map.on('pm:create', function ({layer}) {
+          console.log(layer);
+          console.log('{{ address_mandatory }}');
           {% if address_mandatory %}
-            // Adressenbezug jedesmal ändern, wenn sich die Geometrie ändert
-            setAddressOrStreet('{{ address_type }}', map);
+            // Adressenbezug setzen für gesetze Geometrie
+            setAddressOrStreet('{{ address_type }}', layer);
+            {% if geometry_type == "Point" %}
+              // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
+              layer.on('pm:dragend', (e) => {
+                console.log('e: ', e);
+                setAddressOrStreet('{{ address_type }}', e.layer);
+              });
+            {% else %}
+              // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
+              layer.on('pm:update', (e) => {
+                console.log('e: ', e);
+                setAddressOrStreet('{{ address_type }}', e.layer);
+              });
+            {% endif %}
           {% else %}
             $('#addressToMap').prop('disabled', false);
             $('#mapToAddress').prop('disabled', false);
@@ -444,8 +601,8 @@
       {% endif %}
     }
 
-    $(document).ready(function() {
 
+    $(document).ready(function() {
       // falls Gruppe von Benutzern gesetzt ist, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen:
       // Auswahlfeld Ansprechpartner/Bearbeiter in normales Feld umwandeln...
       {% if group_with_users_for_choice_field %}
@@ -472,6 +629,7 @@
         {% endif %}
       {% endif %}
 
+
       // Read-only-Felder behandeln
       {% if readonly_fields %}
         {% for field in readonly_fields %}
@@ -481,7 +639,7 @@
               inputField.closest('tr').hide();
             } else {
               inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + inputField.val() + '</em></span>');
-              var label = inputField.parent().closest('tr').find('label');
+              let label = inputField.parent().closest('tr').find('label');
               label.wrapInner('<em></em>');
               inputField.hide();
               if ($('div*[data-target="#id_{{ field }}"]'))
@@ -583,19 +741,22 @@
         });
       {% endif %}
 
+      // Butten: 'Marker setzen'
       $('#addressToMap').on('click', function() {
         getAddress(window.currMap);
         $('#mapToAddress').prop('disabled', false);
         $('#mapToStreet').prop('disabled', false);
       });
 
+      // Button: 'Adresse setzen'
       $('#mapToAddress').on('click', function() {
-        setAddressOrStreet('{{ address_type }}', window.currMap);
+        setAddressOrStreet('{{ address_type }}', window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
+      // Button: 'Straße setzen'
       $('#mapToStreet').on('click', function() {
-        setAddressOrStreet('{{ address_type }}', window.currMap);
+        setAddressOrStreet('{{ address_type }}', window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
@@ -657,12 +818,16 @@
       });
     });
 
-    // Adresse oder Straße als Marker in Karte übernehmen
+
     function getAddress(map) {
+      /*
+       * Marker auf Adresse oder Straße aus Adressfeld setzen
+       */
       let x = 0;
       let y = 0;
-      map.eachLayer(function (layer) {
-        if (layer._latlng) {
+      if (map.pm.getGeomanLayers().length > 0){
+        let layer = map.pm.getGeomanLayers()[0];
+        if (layer._drawnByGeoman && layer._latlng) {
           if (FEATURE_GEOMETRY.type === 'Point') {
             x = FEATURE_GEOMETRY.coordinates[0];
             y = FEATURE_GEOMETRY.coordinates[1];
@@ -672,83 +837,80 @@
           }
           layer.setLatLng([y, x]);
         }
-      });
-      let coords = $('#id_geometrie').val();
-      if (coords.indexOf('0,0') !== -1) {
-        let newCoords = coords.replace(/[0-9]+/, x);
-        $('#id_geometrie').val(newCoords.replace(/\,[0-9]+/, ', ' + y));
-      }
-      else {
-        let newCoords = coords.replace(/[0-9]+\.[0-9]+/, x);
-        $('#id_geometrie').val(newCoords.replace(/\,[0-9]+\.[0-9]+/, ', ' + y));
+      } else {
+        {% if geometry_type == "Point" %}
+          x = FEATURE_GEOMETRY.coordinates[0];
+          y = FEATURE_GEOMETRY.coordinates[1];
+          new L.Marker([y, x],{icon: redMarker,}).addTo(window.currMap);
+        {% endif %}
       }
     }
 
-    // Adresse oder Straße aus Karte übernehmen
-    function setAddressOrStreet(type, map) {
-      map.eachLayer(function (layer) {
-        if (layer._latlng || layer._latlngs) {
-          json = layer.toGeoJSON();
-          {% if 'point' in geometry_type|lower %}
-            var ort = json.geometry.coordinates;
-          {% elif 'line' in geometry_type|lower %}
-            var xArray = [];
-            var yArray = [];
-            var ort = [];
-            Array.min = function( array ){
-              return Math.min.apply( Math, array );
-            };
-            Array.max = function( array ){
-              return Math.max.apply( Math, array );
-            };
-            $.each(json.geometry.coordinates, function(index, value) {
-              xArray.push(json.geometry.coordinates[index][0]);
-              yArray.push(json.geometry.coordinates[index][1]);
-            });
-            ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-            ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
-          {% elif 'polygon' in geometry_type|lower %}
-            var xArray = [];
-            var yArray = [];
-            var ort = [];
-            Array.min = function( array ){
-              return Math.min.apply( Math, array );
-            };
-            Array.max = function( array ){
-              return Math.max.apply( Math, array );
-            };
-            $.each(json.geometry.coordinates, function(index_outer, value_outer) {
-              $.each(json.geometry.coordinates[index_outer], function(index_inner, value_inner) {
-                xArray.push(json.geometry.coordinates[index_outer][index_inner][0]);
-                yArray.push(json.geometry.coordinates[index_outer][index_inner][1]);
-              });
-            });
-            ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-            ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
-          {% endif %}
-          $.ajax({
-            url: '{% url "datenmanagement:reversesearch" %}',
-            dataType: 'json',
-            data: {
-              x: ort[0],
-              y: ort[1],
-            },
-            success: function(data) {
-              if (ort[0] != 0 && ort[1] != 0) {
-                adoptResult(data, type);
-              }
-            }
+
+    function setAddressOrStreet(type, layer) {
+      /*
+       * Übernimmt Adresse aus Koordinaten eines Layers
+       */
+      let json = layer.toGeoJSON();
+      let xArray = [];
+      let yArray = [];
+      let ort = [];
+      {% if 'point' in geometry_type|lower %}
+        ort = json.geometry.coordinates;
+      {% elif 'line' in geometry_type|lower %}
+        Array.min = function( array ){
+          return Math.min.apply( Math, array );
+        };
+        Array.max = function( array ){
+          return Math.max.apply( Math, array );
+        };
+        $.each(json.geometry.coordinates, function(index, value) {
+          xArray.push(json.geometry.coordinates[index][0]);
+          yArray.push(json.geometry.coordinates[index][1]);
+        });
+        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
+        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+      {% elif 'polygon' in geometry_type|lower %}
+        Array.min = function( array ){
+          return Math.min.apply( Math, array );
+        };
+        Array.max = function( array ){
+          return Math.max.apply( Math, array );
+        };
+        $.each(json.geometry.coordinates, function(index_outer, value_outer) {
+          $.each(json.geometry.coordinates[index_outer], function(index_inner, value_inner) {
+            xArray.push(json.geometry.coordinates[index_outer][index_inner][0]);
+            yArray.push(json.geometry.coordinates[index_outer][index_inner][1]);
           });
+        });
+        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
+        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+      {% endif %}
+
+      $.ajax({
+        url: '{% url "datenmanagement:reversesearch" %}',
+        dataType: 'json',
+        data: {
+          x: ort[0],
+          y: ort[1],
+        },
+        success: function(data) {
+          if (ort[0] != 0 && ort[1] != 0) {
+            adoptResult(data, type);
+          }
         }
       });
     }
 
     function adoptResult(json, type) {
+      /*
+       *
+       */
       let erfolg = false;
       if (type === 'Straße') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Straße') {
-            var text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+            let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
             if (item.properties.gemeindeteil_abkuerzung)
               text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
             $('#id_strasse').val(text);
@@ -762,7 +924,7 @@
       } else if (type === 'Adresse') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Adresse') {
-            var text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+            let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
             if (item.properties.gemeindeteil_abkuerzung)
               text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
             $('#id_adresse').val(text);
@@ -776,11 +938,13 @@
       }
     }
 
-    // Resultate der Adressensuche
-    function showResults(json) {
 
-      // Resultate leeren
-      results.children().remove();
+    function showResults(json) {
+      /*
+       * Anzeigen der Ergebnisse der Adresssuche
+       */
+
+      results.children().remove();  // alte Ergebnisse entfernen
 
       // JSON durchgehen und je Feature ein Resultat bauen
       jQuery.each(json.features, function(index, item) {
@@ -871,19 +1035,24 @@
         if ($.trim($('#id_strasse').val()).length)
           $('#id_strasse').val($('#id_strasse_uuid').val());
       {% endif %}
+      setCoordinates();
+
     }
 
 
     L.Control.Layers.include({
       getActiveOverlays: function () {
+        /*
+         *
+         */
         let activeLayers = {};
         this._layers.forEach((layer) => {
           if (layer.overlay && this._map.hasLayer(layer.layer)) {
             window.currMap.eachLayer((lay) => {
-              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){ // && lay.toGeoJSON().features.length > 0 && lay.toGeoJSON().features[0].properties.datenthema){
+              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){
                 activeLayers[layer.name] = lay;
               }
-            })
+            });
           }
         });
         return activeLayers;
@@ -891,6 +1060,9 @@
     })
 
     function loadExternalData(baseUrl, layer) {
+      /*
+       *
+       */
       // Berechnen des Bounding-Circle
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
@@ -939,14 +1111,70 @@
             }
           }
           layer.addData(geoJsonFeatureCollection);
+          layer.pm.setOptions({
+            draggable: false,
+            allowEditing: false,
+            allowRemoval: false,
+            allowCutting: false,
+            allowRotation: false
+          })
         }
       ).catch(
         function(err) {
           console.log('Fetch Error: ' + err);
         }
       );
-
-
     }
+
+    function setCoordinates() {
+      let jsonGeometrie;
+      {% if geometry_type == 'MultiPolygon' or geometry_type == 'MultiPoint' or geometry_type == 'MultiLineString' %}
+        let coords = [];
+        let temp;
+        currMap.pm.getGeomanLayers().forEach(function (layer) {
+          temp = layer.toGeoJSON().geometry
+          // Geoman malt mit Polygonen. Daher überprüfen ob Layer Polygon oder Multipolygon ist.
+          if (temp.type.search('Multi') > -1) {
+            coords.push(temp.coordinates[0]);
+          } else {
+            coords.push(temp.coordinates);
+          }
+        });
+        jsonGeometrie = {
+          'type': '{{ geometry_type }}',
+          'coordinates': coords,
+        };
+        console.log(jsonGeometrie);
+      {% else %}
+        jsonGeometrie = currMap.pm.getGeomanLayers()[0].toGeoJSON().geometry;
+      {% endif %}
+      $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
+    }
+
+    /*
+      Lizenz und Copyright Hinweise für leaflet-geoman:
+
+      MIT License
+
+      Copyright (c) 2017 Sumit Kumar
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+     */
   </script>
 {% endblock %}
