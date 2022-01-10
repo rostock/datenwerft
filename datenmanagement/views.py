@@ -26,7 +26,7 @@ from jsonview.views import JsonView
 from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
-#from datenmanagement.urls import app_name
+
 
 #
 # eigene Funktionen
@@ -377,12 +377,13 @@ class DataForm(ModelForm):
                     self.fields[field.name].choices = choices
 
         for field in self.fields.values():
+            print('Label: ', field.label)
             if field.label == 'Geometrie':
                 required_message = 'Es muss ein Marker in der Karte gesetzt' \
                                    'werden bzw. eine Linie oder Fläche' \
                                    'gezeichnet werden, falls es sich um Daten' \
                                    'linien- oder flächenhafter Repräsentation' \
-                                   'handelt!'
+                                   ' handelt!'
             else:
                 required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(
                     label=field.label)
@@ -392,6 +393,7 @@ class DataForm(ModelForm):
             field.error_messages = {'required': required_message,
                                     'invalid_image': invalid_image_message,
                                     'unique': unique_message}
+
 
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
     # Namen foto existiert.
@@ -458,9 +460,13 @@ class DataForm(ModelForm):
 
         :return:
         """
+        print('============================================================')
+        print('huhuhuhuh')
+        print('============================================================')
         data = self.cleaned_data['geometrie']
+        print(data)
         error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
-        if '-' in str(data):
+        if 'EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data):
             raise ValidationError(error_text)
         return data
 
