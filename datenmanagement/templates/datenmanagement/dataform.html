@@ -541,7 +541,9 @@
         {% if geometry_type == 'Point' or geometry_type == 'LineString' or geometry_type == 'Polygon' %}
           if (map.pm.getGeomanLayers().length > 0){
             map.pm.getGeomanLayers().forEach((item) => {
-              map.removeLayer(item);
+              if (item._drawnByGeoman === true){
+                map.removeLayer(item);
+              }
             })
           }
         {% endif %}
@@ -1114,6 +1116,7 @@
             allowCutting: false,
             allowRotation: false
           }); // Geoman Optionen setzen
+          layer._drawnByGeoman = false;
         }
       ).catch(
         function(err) {
@@ -1128,7 +1131,7 @@
         let coords = [];
         let temp;
         currMap.pm.getGeomanLayers().forEach(function (layer) {
-          temp = layer.toGeoJSON().geometry
+          temp = layer.toGeoJSON().geometry;
           // Geoman malt mit Polygonen. Daher überprüfen ob Layer Polygon oder Multipolygon ist.
           if (temp.type.search('Multi') > -1) {
             coords.push(temp.coordinates[0]);
