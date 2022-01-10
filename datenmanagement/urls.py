@@ -150,10 +150,6 @@ for model in app_models:
 
     urlpatterns.append(url(
         regex=regex + r'geometry/',
-        view=permission_required(
-            'datenmanagement.view_' + model_name_lower
-        )(views.GeometryView.as_view(
-            model=model
-        )),
+        view=login_required(views.GeometryView.as_view(model=model)),
         name=model_name + 'geometry'
     ))
