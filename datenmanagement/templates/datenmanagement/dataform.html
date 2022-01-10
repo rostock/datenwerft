@@ -300,7 +300,6 @@
         });
       {% endif %}
 
-
       /*
        * Definition der Hintergrundkarten
        */
@@ -399,7 +398,6 @@
         changeGeom.eachLayer((layer) => {
           layer._drawnByGeoman = true;
         });
-        console.log(changeGeom);
       {% endif %}
 
       // falls Geometrie punkthaft ist...
@@ -576,21 +574,17 @@
        */
       {% if address_type %}
         map.on('pm:create', function ({layer}) {
-          console.log(layer);
-          console.log('{{ address_mandatory }}');
           {% if address_mandatory %}
             // Adressenbezug setzen für gesetze Geometrie
             setAddressOrStreet('{{ address_type }}', layer);
             {% if geometry_type == "Point" %}
               // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
               layer.on('pm:dragend', (e) => {
-                console.log('e: ', e);
                 setAddressOrStreet('{{ address_type }}', e.layer);
               });
             {% else %}
               // Bei Bewegungs-Event (nur bei Markern) setze Adresse neu
               layer.on('pm:update', (e) => {
-                console.log('e: ', e);
                 setAddressOrStreet('{{ address_type }}', e.layer);
               });
             {% endif %}
@@ -1002,8 +996,6 @@
           $('#id_address_search').val($(this).children('strong').text());
         {% endif %}
         FEATURE_GEOMETRY = json.features[$(this).data('feature')].geometry;
-        console.log('Langes Statement', json.features[$(this).data('feature')].geometry);
-        console.log('FEATURE_GEOMETRY in showResults(): ', FEATURE_GEOMETRY);
         if (FEATURE_GEOMETRY.type === 'Point') {
           window.currMap.fitBounds([
             [
@@ -1148,7 +1140,6 @@
           'type': '{{ geometry_type }}',
           'coordinates': coords,
         };
-        console.log(jsonGeometrie);
       {% else %}
         jsonGeometrie = currMap.pm.getGeomanLayers()[0].toGeoJSON().geometry;
       {% endif %}
