@@ -1057,12 +1057,11 @@
 
     function loadExternalData(baseUrl, layer) {
       /*
-       *
+       * Nachladen zusätzlicher Datenthemen im aktuellen Sichtbereich
        */
-      // Berechnen des Bounding-Circle
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
-      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.2;
+      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.2; // Berechnen des Bounding-Circle
       let protocol = window.location.protocol;
       let host = window.location.host;
       fetch(
@@ -1071,11 +1070,11 @@
         (response) => response.json()
       ).then(
         (data) => {
+          // neue leere GeoJSON-FeatureCollection definieren
           let geoJsonFeatureCollection = {
             type: 'FeatureCollection',
             features: []
           };
-          // neue leere GeoJSON-FeatureCollection definieren
           let wkt = new Wkt.Wkt();
           for (let i = 0; i < data.object_list.length; i++) {
             let item = data.object_list[i];
@@ -1096,6 +1095,7 @@
               }
             };
             geoJsonFeature.geometry = wkt.toJson();
+            // Verhindern, dass Daten doppelt auf der Karte angezeigt werden
             let exists = false;
             for (let e of layer.toGeoJSON().features){
               if (e.properties.uuid === geoJsonFeature.properties.uuid){
@@ -1113,7 +1113,7 @@
             allowRemoval: false,
             allowCutting: false,
             allowRotation: false
-          })
+          }); // Geoman Optionen setzen
         }
       ).catch(
         function(err) {
