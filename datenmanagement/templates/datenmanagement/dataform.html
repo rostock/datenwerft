@@ -1177,7 +1177,9 @@
             temp = layer.toGeoJSON().geometry;
             // Geoman malt mit Polygonen. Daher überprüfen ob Layer Polygon oder Multipolygon ist.
             if (temp.type.search('Multi') > -1) {
-              coords.push(temp.coordinates[0]);
+              for (let i = 0; i < temp.coordinates.length; i++) {
+                coords.push(temp.coordinates[i]);
+              }
             } else {
               coords.push(temp.coordinates);
             }
