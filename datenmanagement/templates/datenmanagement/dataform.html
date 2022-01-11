@@ -304,7 +304,7 @@
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
         });
-      {% elif geometry_type == 'LineString' or geometry_type == 'MultiLineString' %}
+      {% elif 'LineString' in geometry_type and model_name != 'Tierseuchennachweise' %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
           position: 'topleft',
@@ -317,7 +317,19 @@
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
         });
-      {% else %}
+      {% elif geometry_type == 'Polygon' %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawMarker: false,        // Marker
+          drawPolyline: false,      // Linie
+          dragMode: false,          // Verschieben deaktivieren
+          cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false,        // Geometrie rotieren
+        });
+      {% elif geometry_type == 'MultiPolygon' %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
           position: 'topleft',
@@ -327,6 +339,22 @@
           drawPolyline: false,      // Linie
           dragMode: false,          // Verschieben deaktivieren
           rotateMode: false,        // Geometrie rotieren
+        });
+      {% else %}
+        // Leaflet-Geoman controls zur Map hinzufügen
+        map.pm.addControls({
+          position: 'topleft',
+          drawCircleMarker: false,  // Punktueller Kreis
+          drawCircle: false,        // Kreis
+          drawMarker: false,        // Marker
+          drawPolyline: false,      // Linie
+          drawRectangle: false,     // Rechteck
+          drawPolygon: false,       // Polygon
+          dragMode: false,          // Verschieben deaktivieren
+          editMode: false,          // Editieren des Punktes deaktivieren
+          cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
+          rotateMode: false,        // Geometrie rotieren
+          removalMode: false,       // Entfernen von Layern deaktivieren
         });
       {% endif %}
 
