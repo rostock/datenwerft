@@ -6270,78 +6270,78 @@ signals.post_delete.connect(remove_permissions, sender=Fliessgewaesser)
 # Geh- und Radwegereinigung
 
 class Geh_Radwegereinigung(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  id = models.CharField('ID', max_length=14, default='0000000000-000')
-  strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
-  inoffizielle_strasse = models.ForeignKey(Inoffizielle_Strassen, verbose_name='inoffizielle Straße', on_delete=models.SET_NULL, db_column='inoffizielle_strasse', to_field='uuid', related_name='inoffizielle_strassen+', blank=True, null=True)
-  nummer = models.CharField('Nummer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
-  wegeart = models.ForeignKey(Arten_Wege, verbose_name='Wegeart', on_delete=models.CASCADE, db_column='wegeart', to_field='uuid', related_name='wegearten+')
-  wegetyp = models.ForeignKey(Wegetypen_Strassenreinigungssatzung_HRO, verbose_name='Wegetyp', on_delete=models.CASCADE, db_column='wegetyp', to_field='uuid', related_name='wegetypen_strassenreinigungssatzung_hro+', blank=True, null=True)
-  reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
-  laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
-  breite = models.ForeignKey(Wegebreiten_Strassenreinigungssatzung_HRO, verbose_name='Breite (in m)', on_delete=models.CASCADE, db_column='breite', to_field='uuid', related_name='wegebreiten_strassenreinigungssatzung_hro+', blank=True, null=True)
-  flaeche = models.DecimalField('Fläche (in m²)', max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'), MaxValueValidator(Decimal('99999.99'), 'Die <strong><em>Fläche</em></strong> darf höchstens 99.999,99 m² betragen.')], blank=True, null=True)
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    id = models.CharField('ID', max_length=14, default='0000000000-000')
+    strasse = models.ForeignKey(Strassen, verbose_name='Straße', on_delete=models.SET_NULL, db_column='strasse', to_field='uuid', related_name='strassen+', blank=True, null=True)
+    inoffizielle_strasse = models.ForeignKey(Inoffizielle_Strassen, verbose_name='inoffizielle Straße', on_delete=models.SET_NULL, db_column='inoffizielle_strasse', to_field='uuid', related_name='inoffizielle_strassen+', blank=True, null=True)
+    nummer = models.CharField('Nummer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    wegeart = models.ForeignKey(Arten_Wege, verbose_name='Wegeart', on_delete=models.CASCADE, db_column='wegeart', to_field='uuid', related_name='wegearten+')
+    wegetyp = models.ForeignKey(Wegetypen_Strassenreinigungssatzung_HRO, verbose_name='Wegetyp', on_delete=models.CASCADE, db_column='wegetyp', to_field='uuid', related_name='wegetypen_strassenreinigungssatzung_hro+', blank=True, null=True)
+    reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
+    laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
+    breite = models.ForeignKey(Wegebreiten_Strassenreinigungssatzung_HRO, verbose_name='Breite (in m)', on_delete=models.CASCADE, db_column='breite', to_field='uuid', related_name='wegebreiten_strassenreinigungssatzung_hro+', blank=True, null=True)
+    flaeche = models.DecimalField('Fläche (in m²)', max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'), MaxValueValidator(Decimal('99999.99'), 'Die <strong><em>Fläche</em></strong> darf höchstens 99.999,99 m² betragen.')], blank=True, null=True)
+    geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
-    db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
-    verbose_name = 'Geh- und Radwegereinigung'
-    verbose_name_plural = 'Geh- und Radwegereinigung'
-    description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'id': 'ID',
-      'strasse': 'Straße',
-      'inoffizielle_strasse': 'inoffizielle Straße',
-      'nummer': 'Nummer',
-      'beschreibung': 'Beschreibung',
-      'wegeart': 'Wegeart',
-      'wegetyp': 'Wegetyp',
-      'reinigungsklasse': 'Reinigungsklasse',
-      'laenge': 'Länge (in m)',
-      'breite': 'Breite (in m)',
-      'flaeche': 'Fläche (in m²)'
-    }
-    list_fields_with_foreign_key = {
-      'strasse': 'strasse',
-      'inoffizielle_strasse': 'strasse',
-      'reinigungsklasse': 'code',
-      'wegeart': 'art',
-      'wegetyp': 'wegetyp',
-      'breite': 'wegebreite'
-    }
-    list_fields_with_number = ['id', 'laenge', 'flaeche']
-    readonly_fields = ['id', 'laenge']
-    map_feature_tooltip_field = 'id'
-    map_filter_fields = {
-      'id': 'ID',
-      'strasse': 'Straße',
-      'inoffizielle_strasse': 'inoffizielle Straße',
-      'nummer': 'Nummer',
-      'beschreibung': 'Beschreibung',
-      'reinigungsklasse': 'Reinigungsklasse',
-      'wegeart': 'Wegeart',
-      'wegetyp': 'Wegetyp',
-      'breite': 'Breite (in m)'
-    }
-    map_filter_fields_as_list = ['strasse', 'inoffizielle_strasse', 'reinigungsklasse', 'wegeart', 'wegetyp']
-    additional_wms_layers = [
-      {
-        'title': 'Geh- und Radwegereinigung',
-        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
-        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
-      }
-    ]
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiLineString'
-    as_overlay = True
+    class Meta:
+        managed = False
+        db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
+        verbose_name = 'Geh- und Radwegereinigung'
+        verbose_name_plural = 'Geh- und Radwegereinigung'
+        description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'id': 'ID',
+            'strasse': 'Straße',
+            'inoffizielle_strasse': 'inoffizielle Straße',
+            'nummer': 'Nummer',
+            'beschreibung': 'Beschreibung',
+            'wegeart': 'Wegeart',
+            'wegetyp': 'Wegetyp',
+            'reinigungsklasse': 'Reinigungsklasse',
+            'laenge': 'Länge (in m)',
+            'breite': 'Breite (in m)',
+            'flaeche': 'Fläche (in m²)'
+        }
+        list_fields_with_foreign_key = {
+            'strasse': 'strasse',
+            'inoffizielle_strasse': 'strasse',
+            'reinigungsklasse': 'code',
+            'wegeart': 'art',
+            'wegetyp': 'wegetyp',
+            'breite': 'wegebreite'
+        }
+        list_fields_with_number = ['id', 'laenge', 'flaeche']
+        readonly_fields = ['id', 'laenge']
+        map_feature_tooltip_field = 'id'
+        map_filter_fields = {
+            'id': 'ID',
+            'strasse': 'Straße',
+            'inoffizielle_strasse': 'inoffizielle Straße',
+            'nummer': 'Nummer',
+            'beschreibung': 'Beschreibung',
+            'reinigungsklasse': 'Reinigungsklasse',
+            'wegeart': 'Wegeart',
+            'wegetyp': 'Wegetyp',
+            'breite': 'Breite (in m)'
+        }
+        map_filter_fields_as_list = ['strasse', 'inoffizielle_strasse', 'reinigungsklasse', 'wegeart', 'wegetyp']
+        additional_wms_layers = [
+            {
+                'title': 'Geh- und Radwegereinigung',
+                'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+                'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+            }
+        ]
+        address_type = 'Straße'
+        address_mandatory = False
+        geometry_type = 'MultiLineString'
+        as_overlay = True
 
-  def __str__(self):
-    return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Wegeart ' + str(self.wegeart) if self.wegeart else '') + (', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+    def __str__(self):
+        return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (', ' + str(self.beschreibung) if self.beschreibung else '') + (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (', Wegeart ' + str(self.wegeart) if self.wegeart else '') + (', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '') + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (' [inoffizielle Straße: ' + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
