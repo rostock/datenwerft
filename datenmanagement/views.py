@@ -394,6 +394,7 @@ class DataForm(ModelForm):
                                     'invalid_image': invalid_image_message,
                                     'unique': unique_message}
 
+
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
     # Namen foto existiert.
     def clean_foto(self):
@@ -461,7 +462,7 @@ class DataForm(ModelForm):
         """
         data = self.cleaned_data['geometrie']
         error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche gezeichnet werden, falls es sich um Daten linien- oder flächenhafter Repräsentation handelt!'
-        if '-' in str(data):
+        if 'EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data):
             raise ValidationError(error_text)
         return data
 
