@@ -224,6 +224,13 @@
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
       window.currMap = map;
 
+      // Standard-Zoom-Kontrollelemente entfernen und durch solche mit eigenen Tooltips ersetzen
+      map.zoomControl.remove();
+      L.control.zoom({
+        zoomInTitle:'hineinzoomen',
+        zoomOutTitle:'herauszoomen'
+      }).addTo(map);
+
       // Einige Konstanten und Variablen initialisieren und definieren
       const wmsFormat = 'image/png';
       const maxZoom = 19;
@@ -241,7 +248,31 @@
        * Leaflet-Geoman Konfigurationen
        */
 
-      map.pm.setLang('de');   // Tooltip-Sprache setzen
+      const customTranslation = {
+        actions: {
+          cancel: 'abbrechen',
+          finish: 'beenden',
+          removeLastVertex: 'letzten Stützpunkt löschen',
+        },
+        buttonTitles: {
+          cutButton: 'vorhandene(s) Kartenobjekt(e) ausschneiden',
+          deleteButton: 'vorhandene(s) Kartenobjekt(e) löschen',
+          dragButton: 'vorhandene(s) Kartenobjekt(e) verschieben',
+          drawLineButton: 'Linie zeichnen',
+          drawMarkerButton: 'Marker setzen',
+          editButton: 'vorhandene(s) Kartenobjekt(e) bearbeiten',
+        },
+        tooltips: {
+          continueLine: 'klicken, um weiteren Stützpunkt zu setzen',
+          finishLine: 'weitere Stützpunkte setzen oder auf beliebigen Stützpunkt klicken, um Linie abzuschließen',
+          finishPoly: 'weitere Stützpunkte setzen oder auf ersten Stützpunkt klicken, um Polygon abzuschließen',
+          finishRect: 'klicken, um Rechteck abzuschließen',
+          firstVertex: 'klicken, um ersten Stützpunkt zu setzen',
+          placeMarker: 'klicken, um Marker zu setzen',
+        },
+      };
+
+      map.pm.setLang('customDe', customTranslation, 'de');   // Tooltip-Sprache setzen
 
       map.pm.setPathOptions({
         color: 'red',               // Farbe für gezeichnete Objekte

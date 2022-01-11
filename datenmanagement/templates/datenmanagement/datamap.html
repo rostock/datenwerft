@@ -191,6 +191,13 @@
         // Karte auch in anderen JavaScript-Funktionen verfügbar machen
         window.currMap = map;
 
+        // Standard-Zoom-Kontrollelemente entfernen und durch solche mit eigenen Tooltips ersetzen
+        map.zoomControl.remove();
+        L.control.zoom({
+          zoomInTitle:'hineinzoomen',
+          zoomOutTitle:'herauszoomen'
+        }).addTo(map);
+
         // Konstanten definieren
         const wmsFormat = 'image/png';
         const maxZoom = 19;
