@@ -2164,31 +2164,31 @@ signals.post_delete.connect(remove_permissions, sender=Hersteller_Poller)
 # inoffizielle Straßen
 
 class Inoffizielle_Strassen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  strasse = models.CharField('Straße', max_length=255, editable=False)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    strasse = models.CharField('Straße', max_length=255, editable=False)
 
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'basisdaten\".\"inoffizielle_strassenliste_datenerfassung_hro'
-    verbose_name = 'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
-    description = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-     'strasse': 'Straße'
-    }
-    ordering = ['strasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'basisdaten\".\"inoffizielle_strassenliste_datenerfassung_hro'
+        verbose_name = 'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
+        description = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+          'strasse': 'Straße'
+        }
+        ordering = ['strasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
 
-  def __str__(self):
-    return self.strasse
+    def __str__(self):
+        return self.strasse
 
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Inoffizielle_Strassen, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Inoffizielle_Strassen, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Inoffizielle_Strassen, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Inoffizielle_Strassen, self).delete(*args, **kwargs)
 
 signals.post_save.connect(assign_permissions, sender=Inoffizielle_Strassen)
 
@@ -2489,31 +2489,31 @@ signals.post_delete.connect(remove_permissions, sender=Personentitel)
 # Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
 
 class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  raeumbreite = models.DecimalField('Räumbreite (in m)', max_digits=4, decimal_places=2)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    raeumbreite = models.DecimalField('Räumbreite (in m)', max_digits=4, decimal_places=2)
 
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"raeumbreiten_strassenreinigungssatzung_hro'
-    verbose_name = 'Räumbreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    description = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'raeumbreite': 'Räumbreite'
-    }
-    ordering = ['raeumbreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"raeumbreiten_strassenreinigungssatzung_hro'
+        verbose_name = 'Räumbreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        description = 'Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'raeumbreite': 'Räumbreite'
+        }
+        ordering = ['raeumbreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
 
-  def __str__(self):
-    return str(self.raeumbreite)
+    def __str__(self):
+        return str(self.raeumbreite)
 
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
 
 signals.post_save.connect(assign_permissions, sender=Raeumbreiten_Strassenreinigungssatzung_HRO)
 
@@ -3597,31 +3597,31 @@ signals.post_delete.connect(
 # Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
 
 class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  wegebreite = models.DecimalField('Wegebreite (in m)', max_digits=4, decimal_places=2)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    wegebreite = models.DecimalField('Wegebreite (in m)', max_digits=4, decimal_places=2)
 
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"wegebreiten_strassenreinigungssatzung_hro'
-    verbose_name = 'Wegebreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    description = 'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'wegebreite': 'Wegebreite'
-    }
-    ordering = ['wegebreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"wegebreiten_strassenreinigungssatzung_hro'
+        verbose_name = 'Wegebreite gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        description = 'Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'wegebreite': 'Wegebreite'
+        }
+        ordering = ['wegebreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
 
-  def __str__(self):
-    return str(self.wegebreite)
+    def __str__(self):
+        return str(self.wegebreite)
 
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Wegebreiten_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Wegebreiten_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Wegebreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Wegebreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
 
 signals.post_save.connect(assign_permissions, sender=Wegebreiten_Strassenreinigungssatzung_HRO)
 
@@ -3748,31 +3748,31 @@ signals.post_delete.connect(
 # Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock
 
 class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  wegetyp = models.CharField('Wegetyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    wegetyp = models.CharField('Wegetyp', max_length=255, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
 
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"wegetypen_strassenreinigungssatzung_hro'
-    verbose_name = 'Wegetyp gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    verbose_name_plural = 'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    description = 'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'wegetyp': 'Wegetyp'
-    }
-    ordering = ['wegetyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"wegetypen_strassenreinigungssatzung_hro'
+        verbose_name = 'Wegetyp gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        verbose_name_plural = 'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        description = 'Wegetypen gemäß Straßenreinigungssatzung der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'wegetyp': 'Wegetyp'
+        }
+        ordering = ['wegetyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
 
-  def __str__(self):
-    return str(self.wegetyp)
+    def __str__(self):
+        return str(self.wegetyp)
 
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Wegetypen_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Wegetypen_Strassenreinigungssatzung_HRO, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Wegetypen_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Wegetypen_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
 
 signals.post_save.connect(assign_permissions, sender=Wegetypen_Strassenreinigungssatzung_HRO)
 

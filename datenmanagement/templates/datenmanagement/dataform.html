@@ -247,7 +247,7 @@
       /*
        * Leaflet-Geoman Konfigurationen
        */
-
+       // eigene Übersetzungen definieren
       const customTranslation = {
         actions: {
           cancel: 'abbrechen',
@@ -255,12 +255,12 @@
           removeLastVertex: 'letzten Stützpunkt löschen',
         },
         buttonTitles: {
-          cutButton: 'vorhandene(s) Kartenobjekt(e) ausschneiden',
-          deleteButton: 'vorhandene(s) Kartenobjekt(e) löschen',
-          dragButton: 'vorhandene(s) Kartenobjekt(e) verschieben',
+          cutButton: 'Teile aus vorhandenen Kartenobjekten ausschneiden',
+          deleteButton: 'vorhandene Kartenobjekte löschen',
+          dragButton: 'vorhandene Kartenobjekte verschieben',
           drawLineButton: 'Linie zeichnen',
           drawMarkerButton: 'Marker setzen',
-          editButton: 'vorhandene(s) Kartenobjekt(e) bearbeiten',
+          editButton: 'vorhandene Kartenobjekte bearbeiten',
         },
         tooltips: {
           continueLine: 'klicken, um weiteren Stützpunkt zu setzen',
@@ -272,7 +272,7 @@
         },
       };
 
-      map.pm.setLang('customDe', customTranslation, 'de');   // Tooltip-Sprache setzen
+      map.pm.setLang('customDe', customTranslation, 'de');   // Tooltip-Sprache mit eigenen Übersetzungen setzen
 
       map.pm.setPathOptions({
         color: 'red',               // Farbe für gezeichnete Objekte
@@ -444,7 +444,7 @@
         let changeGeom = new L.geoJSON(geojson, {
           pointToLayer: function (feature, latlng) {
             // here you would difference between marker and circle
-            return L.marker(latlng,  {icon: redMarker});
+            return L.marker(latlng, {icon: redMarker});
           },
           templineStyle: {
             color: 'red',             // Farbe während des zeichnens
@@ -452,43 +452,10 @@
           color: 'red',
           fillColor: 'red',
         }).addTo(map);
+        map.fitBounds(changeGeom.getBounds());
         changeGeom._changeGeom = true;
         changeGeom.eachLayer((layer) => {
           layer._drawnByGeoman = true;
-        });
-      {% endif %}
-
-      // falls Geometrie punkthaft ist...
-      {% if geometry_type == 'Point' %}
-        // initial zoomen gemäß Leaflet-Konfiguration aus settings.py
-        map.eachLayer(function (layer) {
-          if (layer._latlng) {
-            if ((layer.getLatLng().lat) == 0 || (layer.getLatLng().lon) == 0) {
-              let default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
-              default_zoom = default_zoom.match(/ [0-9]+/).toString();
-              default_zoom = default_zoom.trim();
-              let default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
-              let default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
-              default_center_x = default_center_x.trim();
-              let default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
-              default_center_y = default_center_y.trim();
-              map.panTo([default_center_y, default_center_x]);
-              map.setZoom(default_zoom);
-            }
-            else {
-              $('#addressToMap').prop('disabled', false);
-              $('#mapToAddress').prop('disabled', false);
-              $('#mapToStreet').prop('disabled', false);
-            }
-          }
-        });
-      // ansonsten...
-      {% else %}
-        map.eachLayer(function (layer) {
-          if (layer._latlng || layer._latlngs) {
-            $('#mapToAddress').prop('disabled', false);
-            $('#mapToStreet').prop('disabled', false);
-          }
         });
       {% endif %}
 
