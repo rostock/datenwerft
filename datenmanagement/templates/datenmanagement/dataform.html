@@ -863,9 +863,16 @@
         }
       } else {
         {% if geometry_type == "Point" %}
-          x = FEATURE_GEOMETRY.coordinates[0];
-          y = FEATURE_GEOMETRY.coordinates[1];
-          new L.Marker([y, x],{icon: redMarker,}).addTo(window.currMap);
+          if (FEATURE_GEOMETRY.type === 'Point') {
+            x = FEATURE_GEOMETRY.coordinates[0];
+            y = FEATURE_GEOMETRY.coordinates[1];
+          } else {
+            x = FEATURE_GEOMETRY.coordinates[0][1][0] + ((FEATURE_GEOMETRY.coordinates[0][0][0] - FEATURE_GEOMETRY.coordinates[0][1][0]) / 2);
+            y = FEATURE_GEOMETRY.coordinates[0][0][1] + ((FEATURE_GEOMETRY.coordinates[0][2][1] - FEATURE_GEOMETRY.coordinates[0][0][1]) / 2);
+          }
+          let layer = new L.Marker([y, x],{icon: redMarker,});
+          layer._drawnByGeoman = true; 
+          layer.addTo(window.currMap); 
         {% endif %}
       }
     }
