@@ -134,12 +134,12 @@
         <div id="address-search-container">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
-              <label for="id_adresse">Adresse</label>
-              <input id="id_adresse" type="text" name="adresse" maxlength="255" autocomplete="off" placeholder="Adresse eingeben…">
+              {{ form.adresse.label_tag }}
+              {{ form.adresse }}
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
-              <label for="id_strasse">Straße</label>
-              <input id="id_strasse" type="text" name="strasse" maxlength="255" autocomplete="off" placeholder="Straße eingeben…">
+              {{ form.strasse.label_tag }}
+              {{ form.strasse }}
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% endif %}
           {% else %}
@@ -301,8 +301,10 @@
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
           editMode: false,          // Editieren des Punktes deaktivieren
+          dragMode: false,          // Verschieben deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
+          removalMode: false,       // Geometrie löschen
         });
       {% elif 'LineString' in geometry_type and model_name != 'Tierseuchennachweise' %}
         // Leaflet-Geoman controls zur Map hinzufügen
@@ -313,7 +315,6 @@
           drawMarker: false,        // Marker
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
-          dragMode: false,          // Verschieben deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
         });
