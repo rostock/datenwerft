@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
-    UUIDField, ValidationError
+    UUIDField, ValidationError, TextInput
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -355,11 +355,19 @@ class DataForm(ModelForm):
                 if field.name == 'adresse':
                     self.fields[field.name] = AddressUUIDField(
                         label=field.verbose_name,
+                        widget=TextInput(attrs={
+                            'autocomplete': 'off',
+                            'placeholder': 'Adresse eingeben…'
+                        }),
                         required=self.address_mandatory
                     )
                 elif field.name == 'strasse':
                     self.fields[field.name] = StreetUUIDField(
                         label=field.verbose_name,
+                        widget=TextInput(attrs={
+                            'autocomplete': 'off',
+                            'placeholder': 'Straße eingeben…'
+                        }),
                         required=self.address_mandatory
                     )
             # bestimmte Modelle für bestimmte Felder zur Befüllung
