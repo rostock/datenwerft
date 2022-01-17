@@ -92,3 +92,16 @@
 .result-element:hover .text-muted {
   color:#000;
 }
+
+/*
+ * Leaflet-Buttons für Location überschreiben
+ */
+.leaflet-control-locate a .leaflet-control-locate-location-arrow {
+    -webkit-mask-image: url("../img/location-arrow-solid.svg");
+    mask-image: url("../img/location-arrow-solid.svg");
+}
+
+.leaflet-control-locate a .leaflet-control-locate-spinner {
+    -webkit-mask-image: url("../img/spinner-solid.svg");
+    mask-image: url("../img/spinner-solid.svg");
+}

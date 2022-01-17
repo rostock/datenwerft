@@ -98,8 +98,8 @@ LEAFLET_CONFIG = {
             'auto_include': True
         },
         'geoman': {
-            'css': ['leaflet-geoman/leaflet-geoman.css'],
-            'js': ['leaflet-geoman/leaflet-geoman.min.js'],
+            'css': ['leaflet-geoman-2.11.4/leaflet-geoman.css'],
+            'js': ['leaflet-geoman-2.11.4/leaflet-geoman.min.js'],
             'auto_include': True
         }
     }
