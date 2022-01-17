@@ -972,8 +972,8 @@ class DataAddView(generic.CreateView):
                 model_list[model.__name__] = model._meta.verbose_name_plural
         context['model_list'] = model_list
         # GPX Input Feld
-        if hasattr(model._meta, 'gpx_input'):
-            context['gpx_input'] = True,
+        if hasattr(self.model._meta, 'gpx_input'):
+            context['gpx_input'] = self.model._meta.gpx_input,
         return context
 
     def get_initial(self):
@@ -1236,8 +1236,8 @@ class DataChangeView(generic.UpdateView):
                 model_list[model.__name__] = model._meta.verbose_name
         context['model_list'] = model_list
         #GPX Input Feld
-        if hasattr(model._meta, 'gpx_input'):
-            context['gpx_input'] = True,
+        if hasattr(self.model._meta, 'gpx_input'):
+            context['gpx_input'] = self.model._meta.gpx_input,
         return context
 
     def get_initial(self):
