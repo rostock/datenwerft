@@ -83,7 +83,7 @@
             <tr>
               <td>
                 {% if field|is_field_hours_related_field %}
-                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-question-circle"></i></span> Hilfe</a>)</small>
+                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-question-circle"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                   {% if object and user|user_has_object_change_permission:object %} %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
