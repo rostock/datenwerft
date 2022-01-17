@@ -531,6 +531,8 @@ parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
 parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich, und abermals genau fünf Ziffern bestehen.'
 poller_nummer_regex = r'^[A-Z][0-9]{0,2}$'
 poller_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus genau einem Großbuchstaben bestehen, der um eine oder zwei Ziffer(n) ergänzt werden kann.'
+trinkwassernotbrunnen_nummer_regex = r'^13003000-[0-9]{3}$'
+trinkwassernotbrunnen_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus <em>13003000-,</em> gefolgt von genau drei Ziffern, bestehen.'
 uvp_vorhaben_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
 uvp_vorhaben_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
 zonen_parkscheinautomaten_zone_regex = r'^[A-Z]$'
@@ -10465,6 +10467,120 @@ class Tierseuchenzaeune(models.Model):
 signals.post_save.connect(assign_permissions, sender=Tierseuchenzaeune)
 
 signals.post_delete.connect(remove_permissions, sender=Tierseuchenzaeune)
+
+
+# Trinkwassernotbrunnen
+
+class Trinkwassernotbrunnen(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    nummer = models.CharField(
+        'Nummer',
+        max_length=12,
+        validators=[
+            RegexValidator(
+                regex=trinkwassernotbrunnen_nummer_regex,
+                message=trinkwassernotbrunnen_nummer_message)])
+    bezeichnung = models.CharField(
+        'Bezeichnung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+    eigentuemer = models.ForeignKey(
+        Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+        verbose_name='Eigentümer',
+        on_delete=models.SET_NULL,
+        db_column='eigentuemer',
+        to_field='uuid',
+        related_name='eigentuemer+',
+        blank=True,
+        null=True)
+    betreiber = models.ForeignKey(
+        Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+        verbose_name='Betreiber',
+        on_delete=models.RESTRICT,
+        db_column='betreiber',
+        to_field='uuid',
+        related_name='betreiber+')
+    betriebsbereit = models.BooleanField(' betriebsbereit?')
+    bohrtiefe = models.DecimalField(
+        'Bohrtiefe (in m)',
+        max_digits=4,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(
+                Decimal('0.01'),
+                'Die <strong><em>Bohrtiefe</em></strong> muss mindestens 0,01 m betragen.'),
+            MaxValueValidator(
+                Decimal('9999.99'),
+                'Die <strong><em>Bohrtiefe</em></strong> darf höchstens 99,99 m betragen.')])
+    ausbautiefe = models.DecimalField(
+        'Ausbautiefe (in m)',
+        max_digits=4,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(
+                Decimal('0.01'),
+                'Die <strong><em>Ausbautiefe</em></strong> muss mindestens 0,01 m betragen.'),
+            MaxValueValidator(
+                Decimal('9999.99'),
+                'Die <strong><em>Ausbautiefe</em></strong> darf höchstens 99,99 m betragen.')])
+    geometrie = models.PointField(
+        'Geometrie', srid=25833, default='POINT(0 0)')
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"trinkwassernotbrunnen_hro'
+        verbose_name = 'Trinkwassernotbrunnen'
+        verbose_name_plural = 'Trinkwassernotbrunnen'
+        description = 'Trinkwassernotbrunnen in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'nummer': 'Nummer',
+            'bezeichnung': 'Bezeichnung',
+            'eigentuemer': 'Eigentümer',
+            'betreiber': 'Betreiber',
+            'betriebsbereit': 'betriebsbereit?',
+            'bohrtiefe': 'Bohrtiefe (in m)',
+            'ausbautiefe': 'Ausbautiefe (in m)'
+        }
+        list_fields_with_number = ['bohrtiefe', 'ausbautiefe']
+        list_fields_with_foreign_key = {
+            'eigentuemer': 'bezeichnung',
+            'betreiber': 'bezeichnung'
+        }
+        map_feature_tooltip_field = 'nummer'
+        map_filter_fields = {
+            'nummer': 'Nummer',
+            'bezeichnung': 'Bezeichnung',
+            'eigentuemer': 'Eigentümer',
+            'betreiber': 'Betreiber',
+            'betriebsbereit': 'betriebsbereit?'
+        }
+        map_filter_fields_as_list = ['eigentuemer', 'betreiber']
+        geometry_type = 'Point'
+
+    def __str__(self):
+        return self.id + ' [Art: ' + str(self.art) + ']'
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Trinkwassernotbrunnen, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Trinkwassernotbrunnen, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Trinkwassernotbrunnen)
+
+signals.post_delete.connect(remove_permissions, sender=Trinkwassernotbrunnen)
 
 
 # UVP-Vorhaben
