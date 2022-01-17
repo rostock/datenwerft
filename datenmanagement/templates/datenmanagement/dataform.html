@@ -106,6 +106,19 @@
             </tr>
           {% endif %}
         {% endfor %}
+        {% if gpx_input %}
+          <tr>
+            <td>
+              <label for="id_gpx" class="required">GPX-Track</label>
+            </td>
+            <td>
+              <div class="custom-file">
+                  <input type="file" accept=".gpx" id="id_gpx" class="custom-file" name="gpx">
+                  <label for="id_gpx" id="id_gpxLabel" class="custom-file-label">*.gpx</label>
+              </div>
+            </td>
+          </tr>
+        {% endif %}
       </table>
     </div>
     {% if geometry_type %}
@@ -246,7 +259,7 @@
 
       // Einige Konstanten und Variablen initialisieren und definieren
       const wmsFormat = 'image/png';
-      const maxZoom = 19;
+      const maxLayerZoom = 19;
       const minLayerZoom = 13;
       let themaUrl = {};
 
@@ -314,10 +327,8 @@
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
           editMode: false,          // Editieren des Punktes deaktivieren
-          dragMode: false,          // Verschieben deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
-          removalMode: false,       // Geometrie löschen
         });
       {% elif 'LineString' in geometry_type and model_name != 'Tierseuchennachweise' %}
         // Leaflet-Geoman controls zur Map hinzufügen
@@ -379,7 +390,7 @@
 
       // Standart-Layer: ORKa.MV
       const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
+        maxZoom: maxLayerZoom,
         attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
       });
 
@@ -388,7 +399,7 @@
 
       // OpenStreetMap
       const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
+        maxZoom: maxLayerZoom,
         attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
       });
 
@@ -396,13 +407,13 @@
       const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
         layers: 'hro.liegenschaftskarte',
         format: wmsFormat,
-        maxZoom: maxZoom,
+        maxZoom: maxLayerZoom,
         attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
       });
 
       // Luftbild
       const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxZoom,
+        maxZoom: maxLayerZoom,
         attribution: '© GeoBasis-DE/M-V'
       });
 
@@ -410,7 +421,7 @@
       const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
         layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
         format: wmsFormat,
-        maxZoom: maxZoom,
+        maxZoom: maxLayerZoom,
         transparent: true
       });
 
@@ -436,7 +447,7 @@
           let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
             layers: '{{ additional_wms_layer.layers }}',
             format: wmsFormat,
-            maxZoom: maxZoom,
+            maxZoom: maxLayerZoom,
             transparent: true
           });
           overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
@@ -475,44 +486,46 @@
       {% endif %}
 
 
-      /*
-       * Zusätzliche Datenthemen anbieten
-       */
+      {% if model_name != 'Tierseuchennachweise' %}
+        /*
+         * Zusätzliche Datenthemen anbieten
+         */
 
-      // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
-      let dataLayerControl = new L.control.layers({}, {}).addTo(map);
+        // Füge zweiten Layer-Control Button ein zum Anzeigen von Datensätzen
+        let dataLayerControl = new L.control.layers({}, {}).addTo(map);
 
-      // iteriere durch alle Datenthemen
-      {% for key, value in model_list.items %}
-        {% with datenthema_name_lower=key|lower %}
-          themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
-          // GeoJson-Projektions-Layer initialisieren
-          let {{ datenthema_name_lower }} = new L.Proj.geoJson();
-          // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
-          dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
-          // Beim hinzufügen des Layers Daten laden
-          {{ datenthema_name_lower }}.on('add', function () {
-            if (map.getZoom() > minLayerZoom) {
-              // Daten zum entsprechenden Layer hinzufügen
-              loadExternalData(
-                '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
-                this
-              );
+        // iteriere durch alle Datenthemen
+        {% for key, value in model_list.items %}
+          {% with datenthema_name_lower=key|lower %}
+            themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+            // GeoJson-Projektions-Layer initialisieren
+            let {{ datenthema_name_lower }} = new L.Proj.geoJson();
+            // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
+            dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
+            // Beim hinzufügen des Layers Daten laden
+            {{ datenthema_name_lower }}.on('add', function () {
+              if (map.getZoom() > minLayerZoom) {
+                // Daten zum entsprechenden Layer hinzufügen
+                loadExternalData(
+                  '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
+                  this
+                );
 
-              map.eachLayer((layer) => {
-                // 'Anheben' des Layers, welches bearbeitet wird
-                if (layer._drawnByGeoman === true){
-                  if (layer instanceof L.Marker){
-                    layer.setZIndexOffset(1000);
-                  } else {
-                    layer.bringToFront();
+                map.eachLayer((layer) => {
+                  // 'Anheben' des Layers, welches bearbeitet wird
+                  if (layer._drawnByGeoman === true){
+                    if (layer instanceof L.Marker){
+                      layer.setZIndexOffset(1000);
+                    } else {
+                      layer.bringToFront();
+                    }
                   }
-                }
-              });
-            }
-          });
-        {% endwith %}
-      {% endfor %}
+                });
+              }
+            });
+          {% endwith %}
+        {% endfor %}
+      {% endif %}
 
 
       /*
@@ -1050,8 +1063,11 @@
       });
     }
 
-    // Adresse bzw. Straße auf Werte der entsprechenden Hidden-Input-Felder setzen
+
     function setAddressUuid() {
+      /*
+       * Adresse bzw. Straße auf Werte der entsprechenden Hidden-Input-Felder setzen
+       */
       {% if address_type == 'Adresse' %}
         if ($.trim($('#id_adresse').val()).length)
           $('#id_adresse').val($('#id_adresse_uuid').val());
@@ -1067,7 +1083,7 @@
     L.Control.Layers.include({
       getActiveOverlays: function () {
         /*
-         *
+         * Liefert Liste der aktivierten Layer im Layer-Auswahl-Button
          */
         let activeLayers = {};
         this._layers.forEach((layer) => {
@@ -1152,6 +1168,9 @@
     }
 
     function setCoordinates() {
+      /*
+       * Koordinaten der gezeichneten Layer auf der Karten in Hidden-Inputfeld #id_geometry schreiben
+       */
       let jsonGeometrie;
       if (currMap.pm.getGeomanDrawLayers().length < 1){
         jsonGeometrie = {
@@ -1192,6 +1211,93 @@
       }
     }
 
+    {% if gpx_input %}
+      document.querySelector('#id_gpx').addEventListener('change', function(e) {
+        /*
+         * Bei Auswahl von Datei im GPX-Upload Feld, wird Label mit Dateinamen überschrieben und die ausgewählte GPX zum
+         * Server geschickt. Als Response wird der Inhalt der GPX als GeoJson erwartet mit den zusätzlichen Attributen
+         * 'Startzeitpunkt' und Endzeitpunkt. Diese Attribute werden beim Empfangen in die dafür vorgesehenen Input-Felder
+         * geschrieben und die Geometrie auf der Karte gezeichnet.
+         */
+        let file = document.getElementById('id_gpx').files[0];
+        let fileName = file.name;
+        let formData = new FormData();
+        formData.append('gpx', file);
+
+        // Überschreiben des Labels vom Input mit Dateinamen
+        document.getElementById('id_gpxLabel').innerHTML = fileName;
+
+        // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
+        currMap.pm.getGeomanDrawLayers().forEach((layer) => {
+          currMap.pm.removeLayer(layer);
+        });
+
+        // Upload der GPX-Datei und Warten auf Response
+        fetch(
+          '{% url "datenmanagement:gpxtogeojson" %}', {
+            method: 'POST',
+            body: formData,
+          }
+        ).then(
+          (response) => {
+            return response.json();
+          }
+        ).then(
+          (data) => {
+            // Wenn data StatusCode enthält (Fehler bei der Kommunikation mit FME) => Ausgabe des Fehlers
+            if (data.StatusCode){
+              console.log('Fehler bei Kommunikation mit FME aufgetreten.');
+              console.log(data);
+            } else {
+              // Start- und Endzeitpunkte aus Json auslesen
+              let start = new Date(data.features[0].properties.startzeitpunkt);
+              let ende = new Date(data.features[0].properties.endzeitpunkt);
+              // Startzeitpunkt umwandeln in benötigtes Format (DD.MM.YYYY hh.mm.ss)
+              let stringStartDate = new Intl.DateTimeFormat(
+                'de-DE', {
+                  month: '2-digit', day: '2-digit', year: 'numeric',
+                }).format(start);
+              let stringStartTime = new Intl.DateTimeFormat(
+                'de-DE', {
+                  hour: "numeric", minute: "numeric", second: "numeric",
+                  hour12: false
+                }).format(start);
+              // Endzeitpunkt umwandeln in benötigtes Format (DD.MM.YYYY hh.mm.ss)
+              let stringEndeDate = new Intl.DateTimeFormat(
+                'de-DE', {
+                  month: '2-digit', day: '2-digit', year: 'numeric'
+                }).format(ende);
+              let stringEndeTime = new Intl.DateTimeFormat(
+                'de-DE', {
+                  hour: "numeric", minute: "numeric", second: "numeric",
+                  hour12: false
+                }).format(ende);
+              // Start- und Endzeitpunkt in Inputfelder schreiben
+              document.getElementById('id_startzeitpunkt').value = String(stringStartDate + " " + stringStartTime);
+              document.getElementById('id_endzeitpunkt').value = String(stringEndeDate + " " + stringEndeTime);
+              // Layer erzeugen
+              let track = new L.geoJSON(data);
+              // Layer und alle Sublayer zu Geoman Draw Layer hinzufügen
+              track._changeGeom = true;
+              track.eachLayer((layer) => {
+                layer._drawnByGeoman = true;
+              });
+              // Layer zur Karte hinzufügen
+              track.addTo(currMap);
+            }
+          }
+        ).catch(
+          (error) => {
+            console.log('Fetch Error: ' + error);
+          }
+        );
+      });
+    {% endif %}
+
+
+
+
+
     /*
       Lizenz und Copyright Hinweise für leaflet-geoman:
 
@@ -1217,5 +1323,7 @@
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
      */
+
+
   </script>
 {% endblock %}

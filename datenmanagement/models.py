@@ -463,8 +463,9 @@ options.DEFAULT_NAMES += (
     # Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt
     # werden sollen
     'group_with_users_for_choice_field',
-    # optional ; Text       ; Name der Gruppe von Benutzern, die als
-    # Admin-Gruppe für dieses Datenthema gelten soll
+    # optional;
+    # Text;
+    # Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema gelten soll
     'admin_group',
     # optional ; Liste      ; Eigenschaften zusätzlicher WMS-Layer, die für
     # dieses Modell in den jeweiligen Kartenansichten optional mit angeboten
@@ -473,7 +474,11 @@ options.DEFAULT_NAMES += (
     #
     #
     #
-    'as_overlay'
+    'as_overlay',
+    # optional; Boolean
+    #
+    #
+    'gpx_input'
 )
 
 
@@ -10381,6 +10386,7 @@ class Tierseuchennachweise(models.Model):
         fields_with_foreign_key_to_linkify = ['kontrollgebiet']
         object_title = 'der Tierseuchennachweis'
         foreign_key_label = 'Kontrollgebiet'
+        gpx_input = True
 
     def __str__(self):
         local_tz = pytz.timezone(settings.TIME_ZONE)

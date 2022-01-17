@@ -16,17 +16,19 @@ from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
     UUIDField, ValidationError, TextInput
 from django.forms.models import modelform_factory
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from jsonview.views import JsonView
 from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
+from datenerfassung.secrets import FME_TOKEN, FME_URL
 
 
 #
@@ -969,6 +971,9 @@ class DataAddView(generic.CreateView):
             if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay == True:
                 model_list[model.__name__] = model._meta.verbose_name_plural
         context['model_list'] = model_list
+        # GPX Input Feld
+        if hasattr(self.model._meta, 'gpx_input'):
+            context['gpx_input'] = self.model._meta.gpx_input,
         return context
 
     def get_initial(self):
@@ -1230,6 +1235,9 @@ class DataChangeView(generic.UpdateView):
                        'as_overlay') and model._meta.as_overlay == True:
                 model_list[model.__name__] = model._meta.verbose_name
         context['model_list'] = model_list
+        #GPX Input Feld
+        if hasattr(self.model._meta, 'gpx_input'):
+            context['gpx_input'] = self.model._meta.gpx_input,
         return context
 
     def get_initial(self):
@@ -1326,3 +1334,52 @@ class GeometryView(JsonView):
         context['uuids'] = uuids
         context['object_list'] = geom
         return context
+
+
+class GPXtoGeoJson(generic.View):
+    """
+    Weiterleiten einer GPX Datei an FME und zurückgeben des generierten GeoJsons
+    """
+    http_method_names = ['post', ]
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        """
+        ``dispatch()`` wird von ``GPXtoGeoJson.as_view()`` in ``urls.py``
+        aufgerufen. ``dispatch()`` leitet auf ``post()`` weiter, da ein
+        **POST** Request ausgeführt wurde.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return super(GPXtoGeoJson, self).dispatch(request, *args, **kwargs)
+
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        """
+        Automatisch von ``dispatch()`` aufgerufen.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return: GeoJson des übergebenen GPX oder FME Fehler
+        """
+        # Name 'gpx' Kommt aus dem Inputfeld im Template
+        gpxFile = request.FILES['gpx']
+        x = requests.post(
+            url=FME_URL,
+            headers={
+                "Authorization": FME_TOKEN,
+                "Content-Type": "application/gpx+xml",
+                "Accept": "application/geo+json",
+            },
+            data=gpxFile,
+        )
+        if (x.status_code != 200):
+            response = {
+                "StatusCode": x.status_code,
+                "FMELog": x.text
+            }
+            return JsonResponse(data=response.json())
+        else:
+            return JsonResponse(data=x.json())

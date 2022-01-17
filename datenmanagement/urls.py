@@ -29,6 +29,11 @@ urlpatterns = [
     url(regex=r'reversesearch$',
         view=login_required(views.ReverseSearchView.as_view()),
         name='reversesearch'),
+    # GPX => GeoJson
+    url(
+        regex=r'gpxtogeojson/$',
+        view=login_required()(views.GPXtoGeoJson.as_view()),
+        name='gpxtogeojson'),
 ]
 
 # Erzeuge Views für jedes Model
