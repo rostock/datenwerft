@@ -1317,13 +1317,13 @@
           }
         ).catch(
           (error) => {
-            /*$('id_gpxLoading-header').append(
+            $('#id_gpxLoading-header').append(
               '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
                 '<span aria-hidden="true">&times;</span>' +
               '</button>'
-            );*/
-            $('id_gpxLoading-title').text("Ein Fehler ist aufgetreten");
-            $('id_gpxLoading-body').text("Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuche es erneut oder kontaktiere einen Administrator.");
+            );
+            $('#id_gpxLoading-title').text("Ein Fehler ist aufgetreten");
+            $('#id_gpxLoading-body').text("Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuche es erneut oder kontaktiere einen Administrator.");
             console.log(error);
           }
         );
