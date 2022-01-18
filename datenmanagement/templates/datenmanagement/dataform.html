@@ -261,20 +261,22 @@
         zoomOutTitle:'herauszoomen'
       }).addTo(map);
 
-      // Standortbestimmung hinzufügen
-      var locationControl = L.control.locate({
-        drawCircle: false,
-        drawMarker: false,
-        flyTo: true,
-        locateOptions: {
-          enableHighAccuracy: true
-        },
-        setView: 'untilPan',
-        strings: {
-          title: 'Standortbestimmung'
-        }
-      });
-      locationControl.addTo(map);
+      {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+        // bei mobilen Geräten: Standortbestimmung hinzufügen
+        var locationControl = L.control.locate({
+          drawCircle: false,
+          drawMarker: false,
+          flyTo: true,
+          locateOptions: {
+            enableHighAccuracy: true
+          },
+          setView: 'untilPan',
+          strings: {
+            title: 'Standortbestimmung'
+          }
+        });
+        locationControl.addTo(map);
+      {% endif %}
 
       // Einige Konstanten und Variablen initialisieren und definieren
       const wmsFormat = 'image/png';
