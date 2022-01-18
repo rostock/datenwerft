@@ -217,10 +217,7 @@
 	</form>
   <script type="text/javascript">
     // Date-/Time-/Date-Time-Picker
-    $('.datetimepicker-input').datetimepicker({
-      locale: 'de',
-      format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss'
-    });
+    $('.datetimepicker-input').datetimepicker();
 
     // globale Variablen
     let FEATURE_GEOMETRY = []; // wird in showResults() befüllt
@@ -1274,35 +1271,35 @@
           (data) => {
             // Wenn data StatusCode enthält (Fehler bei der Kommunikation mit FME) => Ausgabe des Fehlers
             if (data.StatusCode){
-              console.log('Fehler bei Kommunikation mit FME aufgetreten.');
+              console.log('Fehler bei Kommunikation mit FME');
               console.log(data);
             } else {
               // Start- und Endzeitpunkte aus Json auslesen
               let start = new Date(data.features[0].properties.startzeitpunkt);
               let ende = new Date(data.features[0].properties.endzeitpunkt);
-              // Startzeitpunkt umwandeln in benötigtes Format (DD.MM.YYYY hh.mm.ss)
+              // Startzeitpunkt umwandeln in benötigtes Format (DD.MM.YYYY HH:mm:ss)
               let stringStartDate = new Intl.DateTimeFormat(
                 'de-DE', {
                   month: '2-digit', day: '2-digit', year: 'numeric',
                 }).format(start);
               let stringStartTime = new Intl.DateTimeFormat(
                 'de-DE', {
-                  hour: "numeric", minute: "numeric", second: "numeric",
+                  hour: 'numeric', minute: 'numeric', second: 'numeric',
                   hour12: false
                 }).format(start);
-              // Endzeitpunkt umwandeln in benötigtes Format (DD.MM.YYYY hh.mm.ss)
+              // Endzeitpunkt umwandeln in benötigtes Format (DD.MM.YYYY HH:mm:ss)
               let stringEndeDate = new Intl.DateTimeFormat(
                 'de-DE', {
                   month: '2-digit', day: '2-digit', year: 'numeric'
                 }).format(ende);
               let stringEndeTime = new Intl.DateTimeFormat(
                 'de-DE', {
-                  hour: "numeric", minute: "numeric", second: "numeric",
+                  hour: 'numeric', minute: 'numeric', second: 'numeric',
                   hour12: false
                 }).format(ende);
               // Start- und Endzeitpunkt in Inputfelder schreiben
-              $('#id_startzeitpunkt').val(String(stringStartDate + " " + stringStartTime));
-              $('#id_endzeitpunkt').val(String(stringEndeDate + " " + stringEndeTime));
+              $('#id_startzeitpunkt').val(String(stringStartDate + ' ' + stringStartTime));
+              $('#id_endzeitpunkt').val(String(stringEndeDate + ' ' + stringEndeTime));
               // Layer erzeugen
               let track = new L.geoJSON(data);
               // Layer und alle Sublayer zu Geoman Draw Layer hinzufügen
@@ -1322,16 +1319,21 @@
                 '<span aria-hidden="true">&times;</span>' +
               '</button>'
             );
-            $('#id_gpxLoading-title').text("Ein Fehler ist aufgetreten");
-            $('#id_gpxLoading-body').text("Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuche es erneut oder kontaktiere einen Administrator.");
+            $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
+            $('#id_gpxLoading-body').text(
+              'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. ' +
+              'Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
+            );
+            $('#id_gpxLoading-body').after(
+              '<div class="modal-footer">' +
+                '<button type="button" class="btn btn-primary" data-dismiss="modal">schließen</button>' +
+              '</div>'
+            );
             console.log(error);
           }
         );
       });
     {% endif %}
-
-
-
 
 
     /*

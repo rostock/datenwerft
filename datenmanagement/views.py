@@ -608,7 +608,7 @@ class DataView(BaseDatatableView):
                     local_tz = pytz.timezone(settings.TIME_ZONE)
                     datetimestamp_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(value))
                     datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
-                    datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M Uhr')
+                    datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
                     data = datetimestamp_str
                 elif value is not None and value and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
                     data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!"></i>'

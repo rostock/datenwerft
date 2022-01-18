@@ -28,6 +28,11 @@ ul:not([class]){
   height:100%;
 }
 
+#id_gpxLabel.custom-file-label::after {
+  content:"Datei auswählen";
+  cursor:pointer;
+}
+
 .label-with-margin {
   margin-left:.3rem;
 }
@@ -70,6 +75,12 @@ ul:not([class]){
 
 .result-element:hover .text-muted {
   color:#000;
+}
+
+.timepicker td,
+.timepicker th {
+  border:none !important;
+  padding:0 !important;
 }
 
 /*
