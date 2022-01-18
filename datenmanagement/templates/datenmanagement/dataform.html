@@ -199,10 +199,10 @@
       <div id="id_gpxLoading" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Auswerten der GPX-Datei</h5>
+            <div class="modal-header" id="id_gpxLoading-header">
+              <h5 class="modal-title" id="id_gpxLoading-title">Auswerten der GPX-Datei</h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="id_gpxLoading-body">
               Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.
               <div class="text-center">
                 <div class="spinner-border m-4" role="status">
@@ -1317,7 +1317,14 @@
           }
         ).catch(
           (error) => {
-            console.log('Fetch Error: ' + error);
+            /*$('id_gpxLoading-header').append(
+              '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span>' +
+              '</button>'
+            );*/
+            $('id_gpxLoading-title').text("Ein Fehler ist aufgetreten");
+            $('id_gpxLoading-body').text("Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuche es erneut oder kontaktiere einen Administrator.");
+            console.log(error);
           }
         );
       });

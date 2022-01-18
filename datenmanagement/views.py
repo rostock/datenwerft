@@ -1377,8 +1377,8 @@ class GPXtoGeoJson(generic.View):
         )
         if (x.status_code != 200):
             response = {
-                "StatusCode": x.status_code,
-                "FMELog": x.text
+                "StatusCode": str(x.status_code),
+                "FMELog": str(x.text)
             }
             return JsonResponse(data=response.json())
         else:
