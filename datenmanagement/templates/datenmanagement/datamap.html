@@ -255,20 +255,22 @@
         // Umschalter für Hintergrundkarten zur Karte hinzufügen
         L.control.layers(baseMaps,overlayMaps).addTo(map);
 
-        // Standortbestimmung hinzufügen
-        let locationControl = L.control.locate({
-          drawCircle: false,
-          drawMarker: false,
-          flyTo: true,
-          locateOptions: {
-            enableHighAccuracy: true
-          },
-          setView: 'untilPan',
-          strings: {
-            title: 'Standortbestimmung'
-          }
-        });
-        locationControl.addTo(map);
+        {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+          // bei mobilen Geräten: Standortbestimmung hinzufügen
+          let locationControl = L.control.locate({
+            drawCircle: false,
+            drawMarker: false,
+            flyTo: true,
+            locateOptions: {
+              enableHighAccuracy: true
+            },
+            setView: 'untilPan',
+            strings: {
+              title: 'Standortbestimmung'
+            }
+          });
+          locationControl.addTo(map);
+      {% endif %}
 
         // EPSG:25833 definieren
         proj4.defs([
