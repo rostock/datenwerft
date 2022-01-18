@@ -195,6 +195,25 @@
         </div>
       </div>
     {% endif %}
+    {% if gpx_input %}
+      <div id="id_gpxLoading" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Auswerten der GPX-Datei</h5>
+            </div>
+            <div class="modal-body">
+              Die GPX Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen kleinen Moment dauern.
+              <div class="text-center">
+                <div class="spinner-border m-4" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
 	</form>
   <script type="text/javascript">
     // Date-/Time-/Date-Time-Picker
@@ -525,65 +544,66 @@
             });
           {% endwith %}
         {% endfor %}
+
+
+        /*
+         * Laden der externen Datensätze, nach dem Bewegen der Karte
+         */
+        map.on('moveend', function (){
+          let list = dataLayerControl.getActiveOverlays();
+          if (map.getZoom() > minLayerZoom){
+            for (const key in list) {
+              loadExternalData(themaUrl[key], list[key]);
+            };
+            // 'Anheben' des Layers, welches bearbeitet wird
+            map.eachLayer((layer) => {
+              if (layer._drawnByGeoman === true){
+                if (layer instanceof L.Marker){
+                  layer.setZIndexOffset(1000);
+                } else {
+                  layer.bringToFront();
+                }
+              }
+            });
+          } else {
+            window.currMap.eachLayer((layer) => {
+              if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)) {
+                layer.clearLayers();
+              }
+            });
+          };
+        });
+
+
+        /*
+         * Laden der externen Datensätze, nach dem Zoomen der Karte
+         */
+        map.on('zoomend', function (){
+          let list = dataLayerControl.getActiveOverlays();
+          if (map.getZoom() > minLayerZoom){
+            for (const key in list) {
+              loadExternalData(themaUrl[key], list[key]);
+            };
+            // 'Anheben' des Layers, welches bearbeitet wird
+            map.eachLayer((layer) => {
+              if (layer._drawnByGeoman === true){
+                if (layer instanceof L.Marker){
+                  layer.setZIndexOffset(1000);
+                } else {
+                  layer.bringToFront();
+                }
+              }
+            });
+          } else {
+            window.currMap.eachLayer((layer) => {
+              if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)){
+                layer.clearLayers();
+              }
+            });
+          };
+        });
       {% endif %}
 
-
-      /*
-       * Laden der externen Datensätze, nach dem Bewegen der Karte
-      */
-      map.on('moveend', function (){
-        let list = dataLayerControl.getActiveOverlays();
-        if (map.getZoom() > minLayerZoom){
-          for (const key in list) {
-            loadExternalData(themaUrl[key], list[key]);
-          };
-          // 'Anheben' des Layers, welches bearbeitet wird
-          map.eachLayer((layer) => {
-            if (layer._drawnByGeoman === true){
-              if (layer instanceof L.Marker){
-                layer.setZIndexOffset(1000);
-              } else {
-                layer.bringToFront();
-              }
-            }
-          });
-        } else {
-          window.currMap.eachLayer((layer) => {
-            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)) {
-              layer.clearLayers();
-            }
-          });
-        };
-      });
-
-
-      /*
-       * Laden der externen Datensätze, nach dem Zoomen der Karte
-       */
-      map.on('zoomend', function (){
-        let list = dataLayerControl.getActiveOverlays();
-        if (map.getZoom() > minLayerZoom){
-          for (const key in list) {
-            loadExternalData(themaUrl[key], list[key]);
-          };
-          // 'Anheben' des Layers, welches bearbeitet wird
-          map.eachLayer((layer) => {
-            if (layer._drawnByGeoman === true){
-              if (layer instanceof L.Marker){
-                layer.setZIndexOffset(1000);
-              } else {
-                layer.bringToFront();
-              }
-            }
-          });
-        } else {
-          window.currMap.eachLayer((layer) => {
-            if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)){
-              layer.clearLayers();
-            }
-          });
-        };
-      });
 
       /*
        * Beim Start des Modus 'Zeichnen' überprüfen, ob es bereits Geoman Layer gibt.
@@ -1219,6 +1239,9 @@
          * 'Startzeitpunkt' und Endzeitpunkt. Diese Attribute werden beim Empfangen in die dafür vorgesehenen Input-Felder
          * geschrieben und die Geometrie auf der Karte gezeichnet.
          */
+
+        $('#id_gpxLoading').modal('show');
+
         let file = document.getElementById('id_gpx').files[0];
         let fileName = file.name;
         let formData = new FormData();
@@ -1228,27 +1251,9 @@
         document.getElementById('id_gpxLabel').innerHTML = fileName;
 
         // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
-        currMap.pm.getGeomanDrawLayers().forEach((layer) => {
-          currMap.pm.removeLayer(layer);
+        currMap.pm.getGeomanLayers().forEach((layer) => {
+          layer.remove();
         });
-
-        $('body').append(
-        '<div class="modal-dialog" role="document" id="id_gpxLoading">' +
-          '<div class="modal-content">' +
-            '<div class="modal-header">' +
-              '<h5 class="modal-title">Auswerten der GPX-Datei</h5>' +
-            '</div>' +
-            '<div class="modal-body">' +
-              'Die GPX Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen kleinen Moment dauern.' +
-              '<div class="text-center">' +
-                '<div class="spinner-border m-4" role="status">' +
-                  '<span class="sr-only">Loading...</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>'
-        );
 
         // Upload der GPX-Datei und Warten auf Response
         fetch(
@@ -1303,8 +1308,7 @@
               // Layer zur Karte hinzufügen
               track.addTo(currMap);
             }
-            let waitingBox = document.getElementById('id_gpxLoading');
-            waitingBox.parentElement.removeChild(waitingBox);
+            $('#id_gpxLoading').modal('hide');
           }
         ).catch(
           (error) => {
