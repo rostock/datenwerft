@@ -10230,7 +10230,7 @@ class Tierseuchenfunde(models.Model):
         local_tz = pytz.timezone(settings.TIME_ZONE)
         zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
         zeitpunkt = datetime.strptime(zeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
-        zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+        zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M Uhr')
         return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str
 
     def save(self, *args, **kwargs):
@@ -10392,10 +10392,10 @@ class Tierseuchennachweise(models.Model):
         local_tz = pytz.timezone(settings.TIME_ZONE)
         startzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.startzeitpunkt))
         startzeitpunkt = datetime.strptime(startzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
-        startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
+        startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M Uhr,')
         endzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.endzeitpunkt))
         endzeitpunkt = datetime.strptime(endzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
-        endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+        endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M Uhr')
         return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' + str(self.art_kontrolle) + ']'
 
     def save(self, *args, **kwargs):

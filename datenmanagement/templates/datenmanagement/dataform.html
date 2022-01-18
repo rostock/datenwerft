@@ -109,7 +109,7 @@
         {% if gpx_input %}
           <tr>
             <td>
-              <label for="id_gpx" class="required">GPX-Track</label>
+              <label for="id_gpx" class="required">GPX-Datei</label>
             </td>
             <td>
               <div class="custom-file">
@@ -203,10 +203,10 @@
               <h5 class="modal-title">Auswerten der GPX-Datei</h5>
             </div>
             <div class="modal-body">
-              Die GPX Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen kleinen Moment dauern.
+              Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.
               <div class="text-center">
                 <div class="spinner-border m-4" role="status">
-                  <span class="sr-only">Loading...</span>
+                  <span class="sr-only">laden…</span>
                 </div>
               </div>
             </div>
@@ -217,7 +217,10 @@
 	</form>
   <script type="text/javascript">
     // Date-/Time-/Date-Time-Picker
-    $('.datetimepicker-input').datetimepicker();
+    $('.datetimepicker-input').datetimepicker({
+      locale: 'de',
+      format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss'
+    });
 
     // globale Variablen
     let FEATURE_GEOMETRY = []; // wird in showResults() befüllt
@@ -1234,7 +1237,7 @@
     }
 
     {% if gpx_input %}
-      document.querySelector('#id_gpx').addEventListener('change', function(e) {
+      $('#id_gpx').change(function(e) {
         /*
          * Bei Auswahl von Datei im GPX-Upload Feld, wird Label mit Dateinamen überschrieben und die ausgewählte GPX zum
          * Server geschickt. Als Response wird der Inhalt der GPX als GeoJson erwartet mit den zusätzlichen Attributen
@@ -1244,13 +1247,13 @@
 
         $('#id_gpxLoading').modal('show');
 
-        let file = document.getElementById('id_gpx').files[0];
+        let file = e.target.files[0];
         let fileName = file.name;
         let formData = new FormData();
         formData.append('gpx', file);
 
         // Überschreiben des Labels vom Input mit Dateinamen
-        document.getElementById('id_gpxLabel').innerHTML = fileName;
+        $('#id_gpxLabel').text(fileName);
 
         // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {
@@ -1298,8 +1301,8 @@
                   hour12: false
                 }).format(ende);
               // Start- und Endzeitpunkt in Inputfelder schreiben
-              document.getElementById('id_startzeitpunkt').value = String(stringStartDate + " " + stringStartTime);
-              document.getElementById('id_endzeitpunkt').value = String(stringEndeDate + " " + stringEndeTime);
+              $('#id_startzeitpunkt').val(String(stringStartDate + " " + stringStartTime));
+              $('#id_endzeitpunkt').val(String(stringEndeDate + " " + stringEndeTime));
               // Layer erzeugen
               let track = new L.geoJSON(data);
               // Layer und alle Sublayer zu Geoman Draw Layer hinzufügen
