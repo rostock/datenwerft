@@ -1232,6 +1232,24 @@
           currMap.pm.removeLayer(layer);
         });
 
+        $('body').append(
+        '<div class="modal-dialog" role="document" id="id_gpxLoading">' +
+          '<div class="modal-content">' +
+            '<div class="modal-header">' +
+              '<h5 class="modal-title">Auswerten der GPX-Datei</h5>' +
+            '</div>' +
+            '<div class="modal-body">' +
+              'Die GPX Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen kleinen Moment dauern.' +
+              '<div class="text-center">' +
+                '<div class="spinner-border m-4" role="status">' +
+                  '<span class="sr-only">Loading...</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+        );
+
         // Upload der GPX-Datei und Warten auf Response
         fetch(
           '{% url "datenmanagement:gpxtogeojson" %}', {
@@ -1285,6 +1303,8 @@
               // Layer zur Karte hinzufügen
               track.addTo(currMap);
             }
+            let waitingBox = document.getElementById('id_gpxLoading');
+            waitingBox.parentElement.removeChild(waitingBox);
           }
         ).catch(
           (error) => {
