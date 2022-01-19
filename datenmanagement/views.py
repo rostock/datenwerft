@@ -1356,6 +1356,22 @@ class GeometryView(JsonView):
                     geom.append(str(row[i][1]))
                 context['uuids'] = uuids
                 context['object_list'] = geom
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
+                    self.model._meta.db_table.replace('"', '') + ';',
+                    []
+                )
+                row = cursor.fetchall()
+                uuids = []
+                geom = []
+                for i in range(len(row)):
+                    uuids.append(row[i][0])
+                    geom.append(str(row[i][1]))
+                context['uuids'] = uuids
+                context['object_list'] = geom
+
         return context
 
 
