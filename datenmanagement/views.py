@@ -1330,7 +1330,9 @@ class GeometryView(JsonView):
                     [pk]
                 )
                 uuid, geom = cursor.fetchone() # Tupel
+                context['uuid'] = uuid
                 context['geometry'] = geom
+                context['model_name'] = self.model.__name__
 
 
         elif self.request.GET.get('lat') and self.request.GET.get('lng'):
@@ -1356,6 +1358,7 @@ class GeometryView(JsonView):
                     geom.append(str(row[i][1]))
                 context['uuids'] = uuids
                 context['object_list'] = geom
+                context['model_name'] = self.model.__name__
         else:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -1371,6 +1374,7 @@ class GeometryView(JsonView):
                     geom.append(str(row[i][1]))
                 context['uuids'] = uuids
                 context['object_list'] = geom
+                context['model_name'] = self.model.__name__
 
         return context
 
