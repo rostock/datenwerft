@@ -1257,7 +1257,9 @@
 
         // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {
-          layer.remove();
+          if (layer.toGeoJSON().properties.datenthema !== 'Tierseuchenkontrollgebiete'){
+            layer.remove();
+          }
         });
 
         // Upload der GPX-Datei und Warten auf Response
@@ -1304,7 +1306,9 @@
               $('#id_startzeitpunkt').val(String(stringStartDate + " " + stringStartTime));
               $('#id_endzeitpunkt').val(String(stringEndeDate + " " + stringEndeTime));
               // Layer erzeugen
-              let track = new L.geoJSON(data);
+              let track = new L.geoJSON(data, {
+                color: 'red',
+              });
               // Layer und alle Sublayer zu Geoman Draw Layer hinzufügen
               track._changeGeom = true;
               track.eachLayer((layer) => {
@@ -1328,6 +1332,54 @@
           }
         );
       });
+    {% endif %}
+
+    {% if model_name == "Tierseuchennachweise" %}
+      $('#id_kontrollgebiet').change(function() {
+        let element = $('#id_kontrollgebiet option:selected')[0];
+        let url = "{% url 'datenmanagement:'|add:'Tierseuchenkontrollgebiete'|add:'geometry' %}";
+        currMap.pm.getGeomanLayers().forEach((layer) => {
+          if (layer.toGeoJSON().properties.datenthema){
+            layer.remove();
+          }
+        });
+        fetch(
+          String(url + '?pk=' + element.getAttribute('value'))
+        ).then(
+          (response) => {
+            return response.json();
+          }
+        ).then(
+          (data) => {
+            let wkt = new Wkt.Wkt();
+            let geom = data.geometry;
+            wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
+            let geoJsonFeature = {
+              type: 'Feature',
+              geometry: null,
+              properties: {
+                'uuid': data.uuid,
+                'datenthema': data.model_name,
+              },
+              crs: {
+                type: 'name',
+                properties: {
+                  'name': 'urn:ogc:def:crs:EPSG::4326'
+                }
+              }
+            };
+            geoJsonFeature.geometry = wkt.toJson();
+            let gebiet = new L.geoJSON(geoJsonFeature).addTo(currMap);
+
+
+          }
+        ).catch(
+          (error) => {
+            console.log(error);
+          }
+        );
+      });
+
     {% endif %}
 
 
