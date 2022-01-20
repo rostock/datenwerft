@@ -387,6 +387,20 @@
           dragMode: false,          // Verschieben deaktivieren
           rotateMode: false,        // Geometrie rotieren
         });
+
+        // copy a rectangle and customize its name, block, title and actions
+        map.pm.Toolbar.createCustomControl({
+          name: 'RectangleCopy',
+          title: 'Display text on hover button',
+          block: 'edit',
+          className: 'custom-control-icon',
+          toggle: false,
+          afterClick: ()=>{
+            alert('Store Shapes')
+          }
+        });
+
+
       {% else %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
