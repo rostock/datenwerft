@@ -68,10 +68,10 @@
                 <div class="input-group">
                   <input id="filter-input-deadline" type="text" name="deadline" data-target="#filter-input-deadline" class="filter-input datetimepicker-input" data-type="date" data-nullable data-intervalside="both">
                   <button class="input-reset btn bg-transparent">
-                    <i class="fa fa-times" title="Filterfeld leeren"></i>
+                    <i class="fas fa-times" title="Filterfeld leeren"></i>
                   </button>
                   <div class="input-group-append" data-target="#filter-input-deadline" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    <div class="input-group-text"><i class="fas fa-calendar"></i></div>
                   </div>
                 </div>
               </div>
@@ -88,10 +88,10 @@
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
                         <button class="input-reset btn bg-transparent">
-                          <i class="fa fa-times" title="Filterfeld leeren"></i>
+                          <i class="fas fa-times" title="Filterfeld leeren"></i>
                         </button>
                         <div class="input-group-append" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
+                          <div class="input-group-text"><i class="fas fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
                         </div>
                       {% else %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
@@ -104,10 +104,10 @@
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
                         <button class="input-reset btn bg-transparent">
-                          <i class="fa fa-times" title="Filterfeld leeren"></i>
+                          <i class="fas fa-times" title="Filterfeld leeren"></i>
                         </button>
                         <div class="input-group-append" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
+                          <div class="input-group-text"><i class="fas fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
                         </div>
                       {% else %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
@@ -128,10 +128,10 @@
                     <div class="input-group">
                       <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input datetimepicker-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                       <button class="input-reset btn bg-transparent">
-                        <i class="fa fa-times" title="Filterfeld leeren"></i>
+                        <i class="fas fa-times" title="Filterfeld leeren"></i>
                       </button>
                       <div class="input-group-append" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
+                        <div class="input-group-text"><i class="fas fa-{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i></div>
                       </div>
                     </div>
                   {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
@@ -159,7 +159,7 @@
                     <div class="input-group">
                       <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                       <button class="input-reset btn bg-transparent">
-                        <i class="fa fa-times" title="Filterfeld leeren"></i>
+                        <i class="fas fa-times" title="Filterfeld leeren"></i>
                       </button>
                     </div>
                   {% endif %}
@@ -701,6 +701,41 @@
               dummyTime = initialDateTime.slice(11).split(':');
             }
             $(this).datetimepicker({
+              icons: {
+                date: 'far fa-calendar',
+                time: 'far fa-clock',
+                today: 'far fa-calendar-check'
+              },
+              buttons: {
+                showClose: true,
+                showToday: true
+              },
+              tooltips: {
+                today: 'heute/jetzt',
+                clear: 'zurücksetzen',
+                close: 'schließen',
+                selectMonth: 'Monat auswählen',
+                prevMonth: 'vorheriger Monat',
+                nextMonth: 'nächster Monat',
+                selectYear: 'Jahr auswählen',
+                prevYear: 'vorheriges Jahr',
+                nextYear: 'nächstes Jahr',
+                selectDecade: 'Dekade auswählen',
+                prevDecade: 'vorherige Dekade',
+                nextDecade: 'nächste Dekade',
+                prevCentury: 'vorheriges Jahrhundert',
+                nextCentury: 'nächstes Jahrhundert',
+                selectTime: 'Zeitpunkt auswählen',
+                incrementHour: 'eine Stunde mehr',
+                pickHour: 'Stunde auswählen',
+                decrementHour:'eine Stunde weniger',
+                incrementMinute: 'eine Minute mehr',
+                pickMinute: 'Minute auswählen',
+                decrementMinute:'eine Minute weniger',
+                incrementSecond: 'eine Sekunde mehr',
+                pickSecond: 'Sekunde auswählen',
+                decrementSecond:'eine Sekunde weniger'
+              },
               locale: 'de',
               format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss',
               date: (initialDateTime.length === 10) ? (new Date(dummyDate[0], dummyDate[1] - 1, dummyDate[2])) : (new Date(dummyDate[0], dummyDate[1] - 1, dummyDate[2], dummyTime[0], dummyTime[1], dummyTime[2]))
@@ -710,6 +745,41 @@
           // ansonsten ohne initiales Datum bzw. initiales Datum mit Zeit
           } else {
             $(this).datetimepicker({
+              icons: {
+                date: 'far fa-calendar',
+                time: 'far fa-clock',
+                today: 'far fa-calendar-check'
+              },
+              buttons: {
+                showClose: true,
+                showToday: true
+              },
+              tooltips: {
+                today: 'heute/jetzt',
+                clear: 'zurücksetzen',
+                close: 'schließen',
+                selectMonth: 'Monat auswählen',
+                prevMonth: 'vorheriger Monat',
+                nextMonth: 'nächster Monat',
+                selectYear: 'Jahr auswählen',
+                prevYear: 'vorheriges Jahr',
+                nextYear: 'nächstes Jahr',
+                selectDecade: 'Dekade auswählen',
+                prevDecade: 'vorherige Dekade',
+                nextDecade: 'nächste Dekade',
+                prevCentury: 'vorheriges Jahrhundert',
+                nextCentury: 'nächstes Jahrhundert',
+                selectTime: 'Zeitpunkt auswählen',
+                incrementHour: 'eine Stunde mehr',
+                pickHour: 'Stunde auswählen',
+                decrementHour:'eine Stunde weniger',
+                incrementMinute: 'eine Minute mehr',
+                pickMinute: 'Minute auswählen',
+                decrementMinute:'eine Minute weniger',
+                incrementSecond: 'eine Sekunde mehr',
+                pickSecond: 'Sekunde auswählen',
+                decrementSecond:'eine Sekunde weniger'
+              },
               locale: 'de',
               format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss'
             });

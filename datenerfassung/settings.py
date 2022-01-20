@@ -126,6 +126,8 @@ REST_FRAMEWORK = {
 
 TEMPUS_DOMINUS_LOCALIZE = True
 
+TEMPUS_DOMINUS_INCLUDE_ASSETS = False
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

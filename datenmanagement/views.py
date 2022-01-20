@@ -48,12 +48,12 @@ def assign_widgets(field):
     elif field.__class__.__name__ == 'DateField':
         return field.formfield(widget=DatePicker(attrs={
             'input_toggle': False,
-            'append': 'fa fa-calendar'
+            'append': 'fas fa-calendar'
         }))
     elif field.__class__.__name__ == 'DateTimeField':
         return field.formfield(widget=DateTimePicker(attrs={
             'input_toggle': False,
-            'append': 'fa fa-clock'
+            'append': 'fas fa-clock'
         }))
     elif field.__class__.__name__ == 'ChoiceArrayField':
         return field.formfield(empty_value=None,
