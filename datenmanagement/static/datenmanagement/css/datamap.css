@@ -22,6 +22,18 @@
   width:100%;
 }
 
+.bootstrap-datetimepicker-widget a {
+  color:#000 !important;
+}
+
+.bootstrap-datetimepicker-widget table td.active {
+  background-color:#000 !important;
+}
+
+.bootstrap-datetimepicker-widget table td.today:before {
+  border-bottom-color:#000 !important;
+}
+
 .filter-checkbox-fieldset {
   margin-top:.5rem;
 }
