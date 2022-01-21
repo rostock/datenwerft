@@ -6645,10 +6645,10 @@ class Geh_Radwegereinigung(models.Model):
     nummer = models.CharField('Nummer', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     beschreibung = models.CharField('Beschreibung', max_length=255, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     wegeart = models.ForeignKey(Arten_Wege, verbose_name='Wegeart', on_delete=models.CASCADE, db_column='wegeart', to_field='uuid', related_name='wegearten+')
-    wegetyp = models.ForeignKey(Wegetypen_Strassenreinigungssatzung_HRO, verbose_name='Wegetyp', on_delete=models.CASCADE, db_column='wegetyp', to_field='uuid', related_name='wegetypen_strassenreinigungssatzung_hro+', blank=True, null=True)
-    reinigungsklasse = models.ForeignKey(Reinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen_strassenreinigungssatzung_hro+', blank=True, null=True)
+    wegetyp = models.ForeignKey(Wegetypen_Strassenreinigungssatzung_HRO, verbose_name='Wegetyp', on_delete=models.CASCADE, db_column='wegetyp', to_field='uuid', related_name='wegetypen+', blank=True, null=True)
+    reinigungsklasse = models.ForeignKey(Wegereinigungsklassen_Strassenreinigungssatzung_HRO, verbose_name='Reinigungsklasse', on_delete=models.SET_NULL, db_column='reinigungsklasse', to_field='uuid', related_name='reinigungsklassen+', blank=True, null=True)
     laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
-    breite = models.ForeignKey(Wegebreiten_Strassenreinigungssatzung_HRO, verbose_name='Breite (in m)', on_delete=models.CASCADE, db_column='breite', to_field='uuid', related_name='wegebreiten_strassenreinigungssatzung_hro+', blank=True, null=True)
+    breite = models.ForeignKey(Wegebreiten_Strassenreinigungssatzung_HRO, verbose_name='Breite (in m)', on_delete=models.CASCADE, db_column='breite', to_field='uuid', related_name='wegebreiten+', blank=True, null=True)
     flaeche = models.DecimalField('Fläche (in m²)', max_digits=7, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'), 'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'), MaxValueValidator(Decimal('99999.99'), 'Die <strong><em>Fläche</em></strong> darf höchstens 99.999,99 m² betragen.')], blank=True, null=True)
     geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
@@ -10079,7 +10079,7 @@ class Strassenreinigung(models.Model):
         on_delete=models.SET_NULL,
         db_column='reinigungsklasse',
         to_field='uuid',
-        related_name='reinigungsklassen_strassenreinigungssatzung_hro+',
+        related_name='reinigungsklassen+',
         blank=True,
         null=True
     )
@@ -10089,7 +10089,7 @@ class Strassenreinigung(models.Model):
         on_delete=models.SET_NULL,
         db_column='reinigungsrhythmus',
         to_field='uuid',
-        related_name='reinigungsrhythmen_strassenreinigungssatzung_hro+',
+        related_name='reinigungsrhythmen+',
         blank=True,
         null=True
     )
@@ -10099,7 +10099,7 @@ class Strassenreinigung(models.Model):
         on_delete=models.SET_NULL,
         db_column='fahrbahnwinterdienst',
         to_field='uuid',
-        related_name='fahrbahnwinterdienst_strassenreinigungssatzung_hro+',
+        related_name='fahrbahnwinterdienste+',
         blank=True,
         null=True
     )
