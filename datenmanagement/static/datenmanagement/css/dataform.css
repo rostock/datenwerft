@@ -102,3 +102,11 @@ ul:not([class]){
     -webkit-mask-image: url("../img/spinner-solid.svg");
     mask-image: url("../img/spinner-solid.svg");
 }
+
+/*
+ * Leaflet-Button zum adoptieren von Geometrien
+ */
+
+.adopt-geometry-control {
+  background-image: url("../img/adoptGeometry.svg");
+}

@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="30"
-   height="30"
-   viewBox="0 0 7.9374995 7.9374995"
+   width="20"
+   height="20"
+   viewBox="0 0 5.2916665 5.2916665"
    version="1.1"
    id="svg5"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
@@ -25,7 +25,7 @@
      showgrid="false"
      units="px"
      inkscape:zoom="21.92211"
-     inkscape:cx="16.011232"
+     inkscape:cx="15.098912"
      inkscape:cy="12.795301"
      inkscape:window-width="1920"
      inkscape:window-height="1005"
@@ -43,11 +43,11 @@
     <path
        id="rect1052-1"
        style="fill:#5b5b5b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
-       d="M 0.79086154,2.0074121 V 5.4469953 H 2.383529 A 1.9843705,1.9843743 0 0 1 4.2304447,3.6000796 V 2.0074121 Z" />
+       d="M 5.1550306e-7,0.95839126 V 3.7750199 H 1.2778697 A 1.5921501,1.6249775 0 0 1 2.7597336,2.2626053 V 0.95839126 Z" />
     <path
        id="rect1906"
        style="fill:#5b5b5b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-opacity:1"
-       d="M 5.6663177,0.83705387 V 1.7630957 H 4.7402761 v 0.79375 h 0.9260416 v 0.9260416 h 0.79375 V 2.5568457 h 0.9260416 v -0.79375 H 6.4600677 V 0.83705387 Z" />
+       d="M 3.9117995,5.1550306e-7 V 0.75832383 H 3.1687944 V 1.408315 H 3.9117995 V 2.1666381 H 4.548661 V 1.408315 H 5.291666 V 0.75832383 H 4.548661 V 5.1550306e-7 Z" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -57,7 +57,7 @@
     <path
        id="path1156-0"
        style="fill:#5b5b5b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
-       d="M 4.495028,3.8646629 V 5.7115786 H 2.6481124 A 1.7197911,1.7197912 0 0 0 4.3627364,7.2990785 1.7197911,1.7197912 0 0 0 6.0825279,5.5792869 1.7197911,1.7197912 0 0 0 4.495028,3.8646629 Z" />
+       d="M 2.9720207,2.479269 V 3.9916836 H 1.4901569 A 1.3798661,1.408314 0 0 0 2.8658772,5.291666 1.3798661,1.408314 0 0 0 4.2457437,3.8833517 1.3798661,1.408314 0 0 0 2.9720207,2.479269 Z" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -67,6 +67,6 @@
     <path
        id="rect1052-1-4"
        style="fill:#5b5b5b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
-       d="M 4.2304447,3.8646629 A 1.7197911,1.7197944 0 0 0 2.6481124,5.4469953 h 1.5823323 z" />
+       d="M 2.7597336,2.479269 A 1.3798661,1.4083166 0 0 0 1.4901569,3.7750199 h 1.2695767 z" />
   </g>
 </svg>
