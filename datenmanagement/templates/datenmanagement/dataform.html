@@ -390,10 +390,10 @@
 
         // copy a rectangle and customize its name, block, title and actions
         map.pm.Toolbar.createCustomControl({
-          name: 'RectangleCopy',
-          title: 'Display text on hover button',
+          name: 'adoptGemetry',
+          title: 'Adoptieren einer vorhandenen Geometrie',
           block: 'edit',
-          className: 'custom-control-icon',
+          className: 'adopt-geometry-control',
           toggle: false,
           afterClick: ()=>{
             alert('Store Shapes')
@@ -885,10 +885,12 @@
     });
 
 
+    /**
+     * Marker auf Adresse oder Straße aus Adressfeld setzen
+     *
+     * @param map - Leaflet Karte
+     */
     function getAddress(map) {
-      /*
-       * Marker auf Adresse oder Straße aus Adressfeld setzen
-       */
       let x = 0;
       let y = 0;
       if (map.pm.getGeomanLayers().length > 0){
@@ -920,10 +922,13 @@
     }
 
 
+    /**
+     * Übernimmt Adresse aus Koordinaten eines Layers
+     *
+     * @param type - Typ
+     * @param layer {layer} - Layer
+     */
     function setAddressOrStreet(type, layer) {
-      /*
-       * Übernimmt Adresse aus Koordinaten eines Layers
-       */
       let json = layer.toGeoJSON();
       let xArray = [];
       let yArray = [];
@@ -976,8 +981,11 @@
     }
 
     function adoptResult(json, type) {
-      /*
+      /**
        *
+       *
+       *  @param {} json -
+       *  @param {} type -
        */
       let erfolg = false;
       if (type === 'Straße') {
@@ -1012,11 +1020,12 @@
     }
 
 
+    /**
+     * Anzeigen der Ergebnisse der Adresssuche
+     *
+     * @param json - Ergebnisse als Json
+     */
     function showResults(json) {
-      /*
-       * Anzeigen der Ergebnisse der Adresssuche
-       */
-
       results.children().remove();  // alte Ergebnisse entfernen
 
       // JSON durchgehen und je Feature ein Resultat bauen
@@ -1101,7 +1110,7 @@
 
 
     function setAddressUuid() {
-      /*
+      /**
        * Adresse bzw. Straße auf Werte der entsprechenden Hidden-Input-Felder setzen
        */
       {% if address_type == 'Adresse' %}
@@ -1118,7 +1127,7 @@
 
     L.Control.Layers.include({
       getActiveOverlays: function () {
-        /*
+        /**
          * Liefert Liste der aktivierten Layer im Layer-Auswahl-Button
          */
         let activeLayers = {};
@@ -1135,10 +1144,14 @@
       }
     })
 
+
+    /**
+     * Nachladen zusätzlicher Datenthemen im aktuellen Sichtbereich
+     *
+     * @param {string} baseUrl - BasisUrl des Datenthemas
+     * @param {layer} layer - Layer des Datenthemas
+     */
     function loadExternalData(baseUrl, layer) {
-      /*
-       * Nachladen zusätzlicher Datenthemen im aktuellen Sichtbereich
-       */
       let mapPart = window.currMap.getBounds();
       let center = window.currMap.getCenter();
       let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.2; // Berechnen des Bounding-Circle
@@ -1203,10 +1216,11 @@
       );
     }
 
+
+    /**
+     * Koordinaten der gezeichneten Layer auf der Karten in Hidden-Inputfeld #id_geometry schreiben
+     */
     function setCoordinates() {
-      /*
-       * Koordinaten der gezeichneten Layer auf der Karten in Hidden-Inputfeld #id_geometry schreiben
-       */
       let jsonGeometrie;
       if (currMap.pm.getGeomanDrawLayers().length < 1){
         jsonGeometrie = {
@@ -1249,7 +1263,7 @@
 
     {% if gpx_input %}
       $('#id_gpx').change(function(e) {
-        /*
+        /**
          * Bei Auswahl von Datei im GPX-Upload Feld, wird Label mit Dateinamen überschrieben und die ausgewählte GPX zum
          * Server geschickt. Als Response wird der Inhalt der GPX als GeoJson erwartet mit den zusätzlichen Attributen
          * 'Startzeitpunkt' und Endzeitpunkt. Diese Attribute werden beim Empfangen in die dafür vorgesehenen Input-Felder
@@ -1400,6 +1414,35 @@
       });
 
     {% endif %}
+
+    /**
+     * Ausgabe aller Layer eines Typs.
+     *
+     * @param {string} type - Typ der zu suchenden Layer als String (Bsp.: "LineString").
+     * @param {boolean} [withCompatible=false] - Mit kompatiblen Layern (Bsp.: type="Point" → Rückgabe aller "Point"-
+     *                                           und "MultiPoint"-Layer)
+     *
+     * @returns {Array} Ein Array der Layer mit dem angegebenen Typ
+     */
+    function getLayersOfType(type, withCompatible=false) {
+
+      let result = []
+      if (withCompatible === true){
+        currMap.pm.getGeomanLayers().forEach((layer) => {
+          if (layer.toGeoJSON().type.indexOf(type) > -1){
+            result.push(layer);
+          }
+        });
+      } else {
+        currMap.pm.getGeomanLayers().forEach((layer) => {
+          if (layer.toGeoJSON().type === type){
+            result.push(layer);
+          }
+        });
+      }
+      return result;
+    }
+
 
 
     /*
