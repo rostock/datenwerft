@@ -1425,23 +1425,83 @@
      * @returns {Array} Ein Array der Layer mit dem angegebenen Typ
      */
     function getLayersOfType(type, withCompatible=false) {
-
       let result = []
       if (withCompatible === true){
         currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().type.indexOf(type) > -1){
+          if (layer.toGeoJSON().geometry.type.indexOf(type) > -1){
             result.push(layer);
           }
         });
       } else {
         currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().type === type){
+          if (layer.toGeoJSON().geometry.type === type){
             result.push(layer);
           }
         });
       }
       return result;
     }
+
+
+    /**
+     * @function
+     * @name getAttachingLayers
+     *
+     * Liefert für ein gegebendes Layer alle anknüpfenden Layer vom selben Typ.
+     * **Anknüpfend:**
+     * - Bei Polygonen: mind. 2 gleiche Punkte
+     * - Bei LineString: Anfang oder Endpunkt identisch
+     *
+     * @param {layer} layer - Layer für welches angeheftete Layer gefunden werden sollen.
+     * @returns {Array} Ein Array
+     */
+    function getAttachingLayers(layer) {
+      //TODO: erkennen von n gemeinsamen punkten
+      let results = [];
+      let coordsOfLayer = layer.toGeoJSON().geometry.coordinates;
+      getLayersOfType(layer.toGeoJSON().geometry.type).forEach((l) => {
+        for (let i = 0; i < coordsOfLayer.length-1; i++) {
+          if (results.indexOf(l) > -1) {
+            break;
+          } else {
+            let index = l.indexOf(coordsOfLayer[i]);
+            if (index > -1 && (l[index+1] === coordsOfLayer[i-1] || l[index+1] === coordsOfLayer[i+1])){
+              results.push(l);
+            }
+          }
+        }
+      });
+      return results;
+    }
+
+
+    /**
+     * @function
+     * @name setInteractive
+     *
+     * Interaktivität für den Layer oder die Layer einer LayerGruppe setzen.
+     *
+     * @param {boolean} interactive
+     */
+    L.Layer.prototype.setInteractive = function (interactive) {
+      if (this.getLayers) {
+        this.getLayers().forEach(layer => {
+          layer.setInteractive(interactive);
+        });
+        return;
+      }
+      if (!this._path) {
+        return;
+      }
+
+      this.options.interactive = interactive;
+
+      if (interactive) {
+        L.DomUtil.addClass(this._path, 'leaflet-interactive');
+      } else {
+        L.DomUtil.removeClass(this._path, 'leaflet-interactive');
+      }
+    };
 
 
 
