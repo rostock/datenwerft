@@ -1456,7 +1456,6 @@
      * @returns {Array} Ein Array
      */
     function getAttachingLayers(layer) {
-      //TODO: erkennen von n gemeinsamen punkten
       let results = [];
       let coordsOfLayer = layer.toGeoJSON().geometry.coordinates;
       getLayersOfType(layer.toGeoJSON().geometry.type).forEach((l) => {
