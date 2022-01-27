@@ -6718,6 +6718,30 @@ class Geh_Radwegereinigung(models.Model):
         blank=True,
         null=True
     )
+    breite = models.ForeignKey(
+        Wegebreiten_Strassenreinigungssatzung_HRO,
+        verbose_name='Breite (in m)',
+        on_delete=models.CASCADE,
+        db_column='breite',
+        to_field='uuid',
+        related_name='wegebreiten',
+        blank=True,
+        null=True
+    )
+    reinigungsflaeche = models.DecimalField(
+        'Reinigungsfläche (in m²)',
+        max_digits=7,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(
+                Decimal('0.01'),
+                'Die <strong><em>Reinigungsfläche</em></strong> muss mindestens 0,01 m² betragen.'),
+            MaxValueValidator(
+                Decimal('99999.99'),
+                'Die <strong><em>Reinigungsfläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
+        blank=True,
+        null=True
+    )
     winterdienst = models.BooleanField(
         'Winterdienst?',
         blank=True,
@@ -6732,31 +6756,21 @@ class Geh_Radwegereinigung(models.Model):
         blank=True,
         null=True
     )
-    laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
-    breite = models.ForeignKey(
-        Wegebreiten_Strassenreinigungssatzung_HRO,
-        verbose_name='Breite (in m)',
-        on_delete=models.CASCADE,
-        db_column='breite',
-        to_field='uuid',
-        related_name='wegebreiten',
-        blank=True,
-        null=True
-    )
-    flaeche = models.DecimalField(
-        'Fläche (in m²)',
+    winterdienstflaeche = models.DecimalField(
+        'Winterdienstfläche (in m²)',
         max_digits=7,
         decimal_places=2,
         validators=[
             MinValueValidator(
                 Decimal('0.01'),
-                'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'),
+                'Die <strong><em>Winterdienstfläche</em></strong> muss mindestens 0,01 m² betragen.'),
             MaxValueValidator(
                 Decimal('99999.99'),
-                'Die <strong><em>Fläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
+                'Die <strong><em>Winterdienstfläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
         blank=True,
         null=True
     )
+    laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
     geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
     class Meta:
@@ -6775,21 +6789,20 @@ class Geh_Radwegereinigung(models.Model):
         'wegeart': 'Wegeart',
         'wegetyp': 'Wegetyp',
         'reinigungsklasse': 'Reinigungsklasse',
-        'winterdienst': 'Winterdienst?',
         'laenge': 'Länge (in m)',
         'breite': 'Breite (in m)',
-        'flaeche': 'Fläche (in m²)'
+        'winterdienst': 'Winterdienst?'
       }
       list_fields_with_foreign_key = {
         'strasse': 'strasse',
         'inoffizielle_strasse': 'strasse',
-        'reinigungsklasse': 'code',
-        'reinigungsrhythmus': 'reinigungsrhythmus',
         'wegeart': 'art',
         'wegetyp': 'wegetyp',
+        'reinigungsklasse': 'code',
+        'reinigungsrhythmus': 'reinigungsrhythmus',
         'breite': 'wegebreite'
       }
-      list_fields_with_number = ['id', 'laenge', 'flaeche']
+      list_fields_with_number = ['id', 'laenge']
       readonly_fields = ['id', 'laenge']
       map_feature_tooltip_field = 'id'
       map_filter_fields = {
@@ -6802,10 +6815,8 @@ class Geh_Radwegereinigung(models.Model):
         'wegetyp': 'Wegetyp',
         'reinigungsklasse': 'Reinigungsklasse',
         'reinigungsrhythmus': 'Reinigungsrhythmus',
-        'winterdienst': 'Winterdienst?',
-        'raeumbreite': 'Räumbreite im Winterdienst (in m)',
         'breite': 'Breite (in m)',
-        'flaeche': 'Fläche (in m²)'
+        'winterdienst': 'Winterdienst?',
       }
       map_filter_fields_as_list = [
           'strasse',
@@ -6814,6 +6825,7 @@ class Geh_Radwegereinigung(models.Model):
           'wegetyp',
           'reinigungsklasse',
           'reinigungsrhythmus',
+          'breite',
           'winterdienst'
       ]
       additional_wms_layers = [
