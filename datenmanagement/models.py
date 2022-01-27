@@ -6718,6 +6718,7 @@ class Geh_Radwegereinigung(models.Model):
         blank=True,
         null=True
     )
+    laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
     breite = models.ForeignKey(
         Wegebreiten_Strassenreinigungssatzung_HRO,
         verbose_name='Breite (in m)',
@@ -6770,7 +6771,6 @@ class Geh_Radwegereinigung(models.Model):
         blank=True,
         null=True
     )
-    laenge = models.DecimalField('Länge (in m)', max_digits=6, decimal_places=2, default=0)
     geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
     class Meta:
