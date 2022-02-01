@@ -10318,6 +10318,99 @@ signals.post_save.connect(assign_permissions, sender=Strassenreinigung)
 signals.post_delete.connect(remove_permissions, sender=Strassenreinigung)
 
 
+# Thalasso-Kurwege
+
+class Thalasso_Kurwege(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    bezeichnung = models.CharField(
+        'Bezeichnung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
+    streckenbeschreibung = models.CharField(
+        'Streckenbeschreibung', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
+    barrierefrei = models.BooleanField(' barrierefrei?', default=False)
+    farbe = models.CharField('Farbe', max_length=7)
+    laenge = models.PositiveIntegerField('Länge (in m)', default=0)
+    geometrie = models.LineStringField('Geometrie', srid=25833)
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"thalasso_kurwege_hro'
+        verbose_name = 'Thalasso-Kurweg'
+        verbose_name_plural = 'Thalasso-Kurwege'
+        description = 'Thalasso-Kurwege in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'bezeichnung': 'Bezeichnung',
+            'streckenbeschreibung': 'Streckenbeschreibung',
+            'barrierefrei': 'barrierefrei?',
+            'farbe': 'Farbe',
+            'laenge': 'Länge (in m)'
+        }
+        list_fields_with_number = ['laenge']
+        readonly_fields = ['laenge']
+        map_feature_tooltip_field = 'bezeichnung'
+        map_filter_fields = {
+            'bezeichnung': 'Bezeichnung',
+            'streckenbeschreibung': 'Streckenbeschreibung',
+            'barrierefrei': 'barrierefrei?'}
+        geometry_type = 'LineString'
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Thalasso_Kurwege, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Thalasso_Kurwege, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Thalasso_Kurwege)
+
+signals.post_delete.connect(remove_permissions, sender=Thalasso_Kurwege)
+
+
 # Tierseuchenfunde
 
 class Tierseuchenfunde(models.Model):
@@ -10567,6 +10660,7 @@ class Tierseuchenzaeune(models.Model):
         db_column='zustand',
         to_field='uuid',
         related_name='zustaende+')
+    laenge = models.PositiveIntegerField('Länge (in m)', default=0)
     geometrie = models.MultiLineStringField('Geometrie', srid=25833)
 
     class Meta:
@@ -10578,11 +10672,14 @@ class Tierseuchenzaeune(models.Model):
         list_fields = {
             'aktiv': 'aktiv?',
             'tierseuche': 'Tierseuche',
+            'laenge': 'Länge (in m)',
             'zustand': 'Zustand'}
         list_fields_with_foreign_key = {
             'tierseuche': 'bezeichnung',
             'zustand': 'zustand'
         }
+        list_fields_with_number = ['laenge']
+        readonly_fields = ['laenge']
         map_feature_tooltip_field = 'zustand'
         map_filter_fields = {
             'tierseuche': 'Tierseuche',

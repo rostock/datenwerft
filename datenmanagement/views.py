@@ -45,6 +45,13 @@ def assign_widgets(field):
     """
     if field.name == 'geometrie':
         return field.formfield(widget=LeafletWidget())
+    elif field.__class__.__name__ == 'CharField' and field.name == 'farbe':
+        return field.formfield(widget=TextInput(attrs={
+            'type': 'color'
+        }))
+    elif field.__class__.__name__ == 'ChoiceArrayField':
+        return field.formfield(empty_value=None,
+                               widget=CheckboxSelectMultiple())
     elif field.__class__.__name__ == 'DateField':
         return field.formfield(widget=DatePicker(attrs={
             'input_toggle': False,
@@ -55,9 +62,6 @@ def assign_widgets(field):
             'input_toggle': False,
             'append': 'fas fa-clock'
         }))
-    elif field.__class__.__name__ == 'ChoiceArrayField':
-        return field.formfield(empty_value=None,
-                               widget=CheckboxSelectMultiple())
     else:
         return field.formfield()
 
@@ -642,6 +646,8 @@ class DataView(BaseDatatableView):
                 elif value is not None and \
                         isinstance(value, str) and value.startswith('http'):
                     data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
+                elif value is not None and re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE):
+                    data = '<div style="background-color:' + value + '">&zwnj;</div>'
                 elif value is not None:
                     data = escape(value)
                 item_data.append(data)
