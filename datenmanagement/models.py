@@ -10368,6 +10368,26 @@ class Thalasso_Kurwege(models.Model):
     )
     barrierefrei = models.BooleanField(' barrierefrei?', default=False)
     farbe = models.CharField('Farbe', max_length=7)
+    beschriftung = models.CharField(
+        'Beschriftung', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )
+        ]
+    )
     laenge = models.PositiveIntegerField('Länge (in m)', default=0)
     geometrie = models.LineStringField('Geometrie', srid=25833)
 
@@ -10383,6 +10403,7 @@ class Thalasso_Kurwege(models.Model):
             'streckenbeschreibung': 'Streckenbeschreibung',
             'barrierefrei': 'barrierefrei?',
             'farbe': 'Farbe',
+            'beschriftung': 'Beschriftung',
             'laenge': 'Länge (in m)'
         }
         list_fields_with_number = ['laenge']

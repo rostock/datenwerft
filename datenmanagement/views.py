@@ -646,7 +646,8 @@ class DataView(BaseDatatableView):
                 elif value is not None and \
                         isinstance(value, str) and value.startswith('http'):
                     data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
-                elif value is not None and re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE):
+                elif value is not None and \
+                        isinstance(value, str) and re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE):
                     data = '<div style="background-color:' + value + '">&zwnj;</div>'
                 elif value is not None:
                     data = escape(value)
