@@ -29,6 +29,9 @@
   <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.0/L.Control.Locate.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.27.0/moment-with-locales.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.0.1/tempusdominus-bootstrap-4.min.js' %}"></script>
+  <script type="module" src="{% static 'node_modules/martinez-polygon-clipping/dist/martinez.min.js' %}"></script>
+  <script type="module" src="{% static 'helpers/leafletHelpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'helpers/generics.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -279,10 +282,10 @@
       {% endif %}
 
       // Einige Konstanten und Variablen initialisieren und definieren
-      const wmsFormat = 'image/png';
-      const maxLayerZoom = 19;
-      const minLayerZoom = 13;
-      let themaUrl = {};
+      map._wmsFormat = 'image/png';
+      map._maxLayerZoom = 19;
+      map._minLayerZoom = 13;
+      map._themaUrl = {};
 
       // EPSG:25833 definieren
       proj4.defs([
@@ -387,20 +390,6 @@
           dragMode: false,          // Verschieben deaktivieren
           rotateMode: false,        // Geometrie rotieren
         });
-
-        // copy a rectangle and customize its name, block, title and actions
-        map.pm.Toolbar.createCustomControl({
-          name: 'adoptGemetry',
-          title: 'Adoptieren einer vorhandenen Geometrie',
-          block: 'edit',
-          className: 'adopt-geometry-control',
-          toggle: false,
-          afterClick: ()=>{
-            alert('Store Shapes')
-          }
-        });
-
-
       {% else %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
@@ -418,6 +407,37 @@
           removalMode: false,       // Entfernen von Layern deaktivieren
         });
       {% endif %}
+      {% if 'Polygon' in geometry_type %}
+        // adoptGeometry-Button bei Polygonen und MultiPolygonen hinzufügen
+        map.pm.Toolbar.createCustomControl({
+          name: 'adoptGeometry',
+          title: 'Adoptieren einer vorhandenen Geometrie',
+          block: 'edit',
+          className: 'adopt-geometry-control',
+          actions: [
+            // default 'finish' action
+            'finishMode',
+          ],
+          afterClick: () => {
+            // Polygone und MultiPolygone interaktiv machen
+            map.getLayersOfType(type='Polygon', withCompatible=true).forEach((layer) => {
+              layer.setInteractive(true);
+              layer.on('click', () => {
+                map.pm.getGeomanDrawLayers()[0].unite(layer);
+              });
+            });
+          },
+        });
+        map.on('pm:actionclick', (e) => {
+          console.log(e);
+          if (e.btnName == 'adoptGeometry' && e.text == 'beenden'){
+            map.pm.getGeomanLayers().forEach((layer) => {
+              console.log('test');
+              layer.setInteractive(false);
+            });
+          }
+        });
+      {% endif %}
 
       /*
        * Definition der Hintergrundkarten
@@ -425,7 +445,7 @@
 
       // Standart-Layer: ORKa.MV
       const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxLayerZoom,
+        maxZoom: map._maxLayerZoom,
         attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
       });
 
@@ -434,29 +454,29 @@
 
       // OpenStreetMap
       const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: maxLayerZoom,
+        maxZoom: map._maxLayerZoom,
         attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
       });
 
       // Liegenschaftskarte
       const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
         layers: 'hro.liegenschaftskarte',
-        format: wmsFormat,
-        maxZoom: maxLayerZoom,
+        format: map._wmsFormat,
+        maxZoom: map._maxLayerZoom,
         attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
       });
 
       // Luftbild
       const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-        maxZoom: maxLayerZoom,
+        maxZoom: map._maxLayerZoom,
         attribution: '© GeoBasis-DE/M-V'
       });
 
       // Kilometerquadrate ETRS89/UTM-33N
       const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
         layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-        format: wmsFormat,
-        maxZoom: maxLayerZoom,
+        format: map._wmsFormat,
+        maxZoom: map._maxLayerZoom,
         transparent: true
       });
 
@@ -481,8 +501,8 @@
         {% for additional_wms_layer in additional_wms_layers %}
           let overlayMap = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
             layers: '{{ additional_wms_layer.layers }}',
-            format: wmsFormat,
-            maxZoom: maxLayerZoom,
+            format: map._wmsFormat,
+            maxZoom: map._maxLayerZoom,
             transparent: true
           });
           overlayMaps['{{ additional_wms_layer.title }}'] = overlayMap;
@@ -497,27 +517,7 @@
        * Im Change View Geometrie auf Karte anzeigen
        */
       {% if geometry %}
-        let geojson = {
-          "type": "Feature",
-          "properties": {},
-          "geometry": JSON.parse($('#id_geometrie').val())
-          }
-        let changeGeom = new L.geoJSON(geojson, {
-          pointToLayer: function (feature, latlng) {
-            // here you would difference between marker and circle
-            return L.marker(latlng, {icon: redMarker});
-          },
-          templineStyle: {
-            color: 'red',             // Farbe während des zeichnens
-          },
-          color: 'red',
-          fillColor: 'red',
-        }).addTo(map);
-        map.fitBounds(changeGeom.getBounds());
-        changeGeom._changeGeom = true;
-        changeGeom.eachLayer((layer) => {
-          layer._drawnByGeoman = true;
-        });
+        map.loadGeometryFromField('#id_geometrie')
       {% endif %}
 
 
@@ -532,16 +532,16 @@
         // iteriere durch alle Datenthemen
         {% for key, value in model_list.items %}
           {% with datenthema_name_lower=key|lower %}
-            themaUrl = {...themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+            map._themaUrl = {...map._themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
             // GeoJson-Projektions-Layer initialisieren
             let {{ datenthema_name_lower }} = new L.Proj.geoJson();
             // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
             dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
             // Beim hinzufügen des Layers Daten laden
             {{ datenthema_name_lower }}.on('add', function () {
-              if (map.getZoom() > minLayerZoom) {
+              if (map.getZoom() > map._minLayerZoom) {
                 // Daten zum entsprechenden Layer hinzufügen
-                loadExternalData(
+                map.loadExternalData(
                   '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
                   this
                 );
@@ -563,69 +563,26 @@
 
 
         /*
-         * Laden der externen Datensätze, nach dem Bewegen der Karte
+         * Beim Bewegen der Karte updateMap() ausführen
          */
-        map.on('moveend', function (){
-          let list = dataLayerControl.getActiveOverlays();
-          if (map.getZoom() > minLayerZoom){
-            for (const key in list) {
-              loadExternalData(themaUrl[key], list[key]);
-            };
-            // 'Anheben' des Layers, welches bearbeitet wird
-            map.eachLayer((layer) => {
-              if (layer._drawnByGeoman === true){
-                if (layer instanceof L.Marker){
-                  layer.setZIndexOffset(1000);
-                } else {
-                  layer.bringToFront();
-                }
-              }
-            });
-          } else {
-            window.currMap.eachLayer((layer) => {
-              if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)) {
-                layer.clearLayers();
-              }
-            });
-          };
+        map.on('moveend', () => {
+          map.updateMap(dataLayerControl);
         });
-
-
-        /*
-         * Laden der externen Datensätze, nach dem Zoomen der Karte
-         */
-        map.on('zoomend', function (){
-          let list = dataLayerControl.getActiveOverlays();
-          if (map.getZoom() > minLayerZoom){
-            for (const key in list) {
-              loadExternalData(themaUrl[key], list[key]);
-            };
-            // 'Anheben' des Layers, welches bearbeitet wird
-            map.eachLayer((layer) => {
-              if (layer._drawnByGeoman === true){
-                if (layer instanceof L.Marker){
-                  layer.setZIndexOffset(1000);
-                } else {
-                  layer.bringToFront();
-                }
-              }
-            });
-          } else {
-            window.currMap.eachLayer((layer) => {
-              if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)){
-                layer.clearLayers();
-              }
-            });
-          };
-        });
+        map.on('zoomend', () => {
+          map.updateMap(dataLayerControl);
+        })
       {% endif %}
 
 
-      /*
-       * Beim Start des Modus 'Zeichnen' überprüfen, ob es bereits Geoman Layer gibt.
+      /**
+       * @function
+       *
+       * Beim Start des Modus 'Zeichnen' überprüfen, ob es bereits Geoman-Layer gibt.
        * Falls ja, lösche diese.
+       *
+       * @param e
        */
-      map.on('pm:drawstart', (e) => {
+      map.on('pm:drawstart', function(e) {
         {% if geometry_type == 'Point' or geometry_type == 'LineString' or geometry_type == 'Polygon' %}
           if (map.pm.getGeomanLayers().length > 0){
             map.pm.getGeomanLayers().forEach((item) => {
@@ -638,11 +595,13 @@
       });
 
 
-      /*
-       * Wenn Datenmodell Adressbezug vorsieht und dies ein Pflichangabe ist, wird
-       * beim Hinzufügen oder Editieren einer Geometrie die Addresse gesetzt.
-       */
       {% if address_type %}
+        /**
+         * Wenn Datenmodell Adressbezug vorsieht und dies ein Pflichangabe ist, wird
+         * beim Hinzufügen oder Editieren einer Geometrie die Addresse gesetzt.
+         *
+         * @param layer
+         */
         map.on('pm:create', function ({layer}) {
           {% if address_mandatory %}
             // Adressenbezug setzen für gesetze Geometrie
@@ -891,6 +850,9 @@
      * @param map - Leaflet Karte
      */
     function getAddress(map) {
+      // TODO: überprüfen ob Funktion zu L.Map.prototype hinzugefügt werden kann. Problematische Stellen:
+      //       * FEATURE_GEOMETRY
+      //       * DJANGO if Statement
       let x = 0;
       let y = 0;
       if (map.pm.getGeomanLayers().length > 0){
@@ -926,9 +888,10 @@
      * Übernimmt Adresse aus Koordinaten eines Layers
      *
      * @param type - Typ
-     * @param layer {layer} - Layer
+     * @param {layer} layer - Layer
      */
     function setAddressOrStreet(type, layer) {
+      // TODO: Überprüfen ob Fkt. zu L.Layer.prototype hinzugefügt werden kann.
       let json = layer.toGeoJSON();
       let xArray = [];
       let yArray = [];
@@ -980,13 +943,14 @@
       });
     }
 
+
+    /**
+     *
+     *
+     *  @param {JSON} json -
+     *  @param {string} type -
+     */
     function adoptResult(json, type) {
-      /**
-       *
-       *
-       *  @param {} json -
-       *  @param {} type -
-       */
       let erfolg = false;
       if (type === 'Straße') {
         jQuery.each(json.features, function(index, item) {
@@ -1125,99 +1089,14 @@
     }
 
 
-    L.Control.Layers.include({
-      getActiveOverlays: function () {
-        /**
-         * Liefert Liste der aktivierten Layer im Layer-Auswahl-Button
-         */
-        let activeLayers = {};
-        this._layers.forEach((layer) => {
-          if (layer.overlay && this._map.hasLayer(layer.layer)) {
-            window.currMap.eachLayer((lay) => {
-              if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){
-                activeLayers[layer.name] = lay;
-              }
-            });
-          }
-        });
-        return activeLayers;
-      }
-    })
+
+
 
 
     /**
-     * Nachladen zusätzlicher Datenthemen im aktuellen Sichtbereich
+     * @function
+     * @name setCoordinates
      *
-     * @param {string} baseUrl - BasisUrl des Datenthemas
-     * @param {layer} layer - Layer des Datenthemas
-     */
-    function loadExternalData(baseUrl, layer) {
-      let mapPart = window.currMap.getBounds();
-      let center = window.currMap.getCenter();
-      let rad = window.currMap.distance(center, mapPart['_northEast']) * 1.2; // Berechnen des Bounding-Circle
-      let protocol = window.location.protocol;
-      let host = window.location.host;
-      fetch(
-        String(protocol + '//' + host + baseUrl + '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad)
-      ).then(
-        (response) => response.json()
-      ).then(
-        (data) => {
-          // neue leere GeoJSON-FeatureCollection definieren
-          let geoJsonFeatureCollection = {
-            type: 'FeatureCollection',
-            features: []
-          };
-          let wkt = new Wkt.Wkt();
-          for (let i = 0; i < data.object_list.length; i++) {
-            let item = data.object_list[i];
-            wkt.read(item.substring(item.indexOf(';') + 1, item.length));
-            // neues leeres GeoJSON-Feature definieren
-            let geoJsonFeature = {
-              type: 'Feature',
-              geometry: null,
-              properties: {
-                'uuid': data.uuids[i],
-                'datenthema': data.model_name,
-              },
-              crs: {
-                type: 'name',
-                properties: {
-                  'name': 'urn:ogc:def:crs:EPSG::4326'
-                }
-              }
-            };
-            geoJsonFeature.geometry = wkt.toJson();
-            // Verhindern, dass Daten doppelt auf der Karte angezeigt werden
-            let exists = false;
-            for (let e of layer.toGeoJSON().features){
-              if (e.properties.uuid === geoJsonFeature.properties.uuid){
-                exists = true;
-              }
-            }
-            if (exists === false){
-              geoJsonFeatureCollection.features.push(geoJsonFeature);
-            }
-          }
-          layer.addData(geoJsonFeatureCollection);
-          layer.pm.setOptions({
-            draggable: false,
-            allowEditing: false,
-            allowRemoval: false,
-            allowCutting: false,
-            allowRotation: false
-          }); // Geoman Optionen setzen
-          layer._drawnByGeoman = false;
-        }
-      ).catch(
-        function(err) {
-          console.log('Fetch Error: ' + err);
-        }
-      );
-    }
-
-
-    /**
      * Koordinaten der gezeichneten Layer auf der Karten in Hidden-Inputfeld #id_geometry schreiben
      */
     function setCoordinates() {
@@ -1264,10 +1143,13 @@
     {% if gpx_input %}
       $('#id_gpx').change(function(e) {
         /**
+         * @function
          * Bei Auswahl von Datei im GPX-Upload Feld, wird Label mit Dateinamen überschrieben und die ausgewählte GPX zum
          * Server geschickt. Als Response wird der Inhalt der GPX als GeoJson erwartet mit den zusätzlichen Attributen
          * 'Startzeitpunkt' und Endzeitpunkt. Diese Attribute werden beim Empfangen in die dafür vorgesehenen Input-Felder
          * geschrieben und die Geometrie auf der Karte gezeichnet.
+         *
+         * @param e
          */
 
         $('#id_gpxLoading').modal('show');
@@ -1367,7 +1249,13 @@
       });
     {% endif %}
 
+
     {% if model_name == "Tierseuchennachweise" %}
+      /**
+       * @function
+       *
+       * Laden des ausgewählten Tierseuchen-Kontrollgebietes.
+       */
       $('#id_kontrollgebiet').change(function() {
         let element = $('#id_kontrollgebiet option:selected')[0];
         let url = "{% url 'datenmanagement:'|add:'Tierseuchenkontrollgebiete'|add:'geometry' %}";
@@ -1402,9 +1290,7 @@
               }
             };
             geoJsonFeature.geometry = wkt.toJson();
-            let gebiet = new L.geoJSON(geoJsonFeature).addTo(currMap);
-
-
+            new L.geoJSON(geoJsonFeature).addTo(currMap);
           }
         ).catch(
           (error) => {
@@ -1413,94 +1299,6 @@
         );
       });
     {% endif %}
-
-
-    /**
-     * Ausgabe aller Layer eines Typs.
-     *
-     * @param {string} type - Typ der zu suchenden Layer als String (Bsp.: "LineString").
-     * @param {boolean} [withCompatible=false] - Mit kompatiblen Layern (Bsp.: type="Point" → Rückgabe aller "Point"-
-     *                                           und "MultiPoint"-Layer)
-     *
-     * @returns {Array} Ein Array der Layer mit dem angegebenen Typ
-     */
-    function getLayersOfType(type, withCompatible=false) {
-      let result = []
-      if (withCompatible === true){
-        currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().geometry.type.indexOf(type) > -1){
-            result.push(layer);
-          }
-        });
-      } else {
-        currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().geometry.type === type){
-            result.push(layer);
-          }
-        });
-      }
-      return result;
-    }
-
-
-    /**
-     * @function
-     * @name getAttachingLayers
-     *
-     * Liefert für ein gegebendes Layer alle anknüpfenden Layer vom selben Typ.
-     * **Anknüpfend:**
-     * - Bei Polygonen: mind. 2 gleiche Punkte
-     * - Bei LineString: Anfang oder Endpunkt identisch
-     *
-     * @param {layer} layer - Layer für welches angeheftete Layer gefunden werden sollen.
-     * @returns {Array} Ein Array
-     */
-    function getAttachingLayers(layer) {
-      let results = [];
-      let coordsOfLayer = layer.toGeoJSON().geometry.coordinates;
-      getLayersOfType(layer.toGeoJSON().geometry.type).forEach((l) => {
-        for (let i = 0; i < coordsOfLayer.length-1; i++) {
-          if (results.indexOf(l) > -1) {
-            break;
-          } else {
-            let index = l.indexOf(coordsOfLayer[i]);
-            if (index > -1 && (l[index+1] === coordsOfLayer[i-1] || l[index+1] === coordsOfLayer[i+1])){
-              results.push(l);
-            }
-          }
-        }
-      });
-      return results;
-    }
-
-
-    /**
-     * @function
-     * @name setInteractive
-     *
-     * Interaktivität für den Layer oder die Layer einer LayerGruppe setzen.
-     *
-     * @param {boolean} interactive
-     */
-    L.Layer.prototype.setInteractive = function (interactive) {
-      if (this.getLayers) {
-        this.getLayers().forEach(layer => {
-          layer.setInteractive(interactive);
-        });
-        return;
-      }
-      if (!this._path) {
-        return;
-      }
-
-      this.options.interactive = interactive;
-
-      if (interactive) {
-        L.DomUtil.addClass(this._path, 'leaflet-interactive');
-      } else {
-        L.DomUtil.removeClass(this._path, 'leaflet-interactive');
-      }
-    };
 
 
 
