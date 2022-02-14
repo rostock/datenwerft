@@ -272,16 +272,11 @@ L.Layer.prototype.setInteractive = function (interactive) {
   }
 
   this.options.interactive = interactive;
-  console.log('this.options.interactive: ', this.options.interactive)
 
   if (interactive) {
-    //TODO: unteres funktioniert nicht
-    //L.DomUtil.addClass(this._path, 'leaflet-interactive');
     this._path.classList.add('leaflet-interactive');
   } else {
     this._path.classList.remove('leaflet-interactive');
-    //L.DomUtil.removeClass(this._path, 'leaflet-interactive');
-    //console.log(this._path);
   }
 };
 
@@ -326,10 +321,8 @@ L.Layer.prototype.interchangeLatLng = function () {
   let json = this.toGeoJSON();
   let polygon = false;
   let arr = json.geometry.coordinates;
-  console.log(json.geometry.type);
   if (json.geometry.type.indexOf('Polygon') > -1){
     polygon = true;
-    console.log(polygon);
   }
   this.toGeoJSON().geometry.coordinates = interchangeRekursiv(arr, polygon);
 }
