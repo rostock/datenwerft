@@ -8,6 +8,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 * [*Virtualenv*](https://virtualenv.pypa.io/) (für *Python* v3.x)
 * [*pip*](https://pip.pypa.io/) (für *Python* v3.x)
 * [*PostgreSQL*](https://www.postgresql.org/) mit den Erweiterungen [*PostGIS*](https://postgis.net/) und [*uuid-ossp*](https://www.postgresql.org/docs/current/uuid-ossp.html)
+* [*npm*](https://www.npmjs.com/)
 
 ## Installation
 
@@ -63,6 +64,11 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
         mkdir source/_static
         make html
 
+1.  JavaScript-Module via *npm* installieren:
+
+        cd /srv/www/htdocs/datenerfassung/datenerfassung/assets
+        npm install
+
 1.  statische Dateien initialisieren:
 
         cd /srv/www/htdocs/datenerfassung/datenerfassung
@@ -95,11 +101,8 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
           Require all granted
         </Directory>
 
-
 ## Entwicklung
-Der Python Quellcode ist nach der Style Konvetion [PEP8](https://www.python.org/dev/peps/pep-0008/) verfasst.
-Zur Entwicklung wird ein Tool wie [pycodestyle](https://pypi.org/project/pycodestyle/) zur Überprüfung des Codes 
-empfohlen.
 
-Die Dokumentation wird durch Docstrings mit [reStructuredText](https://docutils.sourceforge.io/rst.html) geschrieben und 
-mit [Sqhinx](https://www.sphinx-doc.org/en/master/index.html) gesetzt.
+Der Python-Quellcode ist nach der Stylekonvetion [*PEP8*](https://www.python.org/dev/peps/pep-0008/) verfasst. Für die Entwicklung wird ein Tool wie [*pycodestyle*](https://pypi.org/project/pycodestyle/) zur Überprüfung des Quellcodes gemäß *PEP8* empfohlen.
+
+Die Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben und mit [*Sqhinx*](https://www.sphinx-doc.org/en/master/) kompiliert.

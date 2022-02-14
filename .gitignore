@@ -6,13 +6,17 @@ __pycache__/
 db.sqlite3
 
 # Datenerfassung
-datenmanagement/migrations
 datenerfassung/secrets.py
 datenerfassung/static
 datenerfassung/uploads
+datenmanagement/migrations
 hilfe/build
 /static
 /uploads
+
+# Node.js
+assets/*package-lock*
+assets/node_modules/*
 
 # PyCharm
 .idea/
