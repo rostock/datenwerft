@@ -123,6 +123,11 @@ L.Map.prototype.loadGeometryFromField = function (fieldID) {
   changeGeom._changeGeom = true;
   changeGeom.eachLayer((layer) => {
     layer._drawnByGeoman = true;
+    if (layer instanceof L.Marker){
+      layer.setZIndexOffset(1000);
+    } else {
+      layer.bringToFront();
+    }
   });
   return this;
 }
@@ -194,6 +199,11 @@ L.Map.prototype.loadExternalData = function (baseUrl, layer) {
         allowRotation: false
       }); // Geoman Optionen setzen
       layer._drawnByGeoman = false;
+      if (layer instanceof L.Marker){
+        layer.setZIndexOffset(0);
+      } else {
+        layer.bringToBack();
+      }
     }
   ).catch(
     function(err) {
@@ -262,11 +272,16 @@ L.Layer.prototype.setInteractive = function (interactive) {
   }
 
   this.options.interactive = interactive;
+  console.log('this.options.interactive: ', this.options.interactive)
 
   if (interactive) {
-    L.DomUtil.addClass(this._path, 'leaflet-interactive');
+    //TODO: unteres funktioniert nicht
+    //L.DomUtil.addClass(this._path, 'leaflet-interactive');
+    this._path.classList.add('leaflet-interactive');
   } else {
-    L.DomUtil.removeClass(this._path, 'leaflet-interactive');
+    this._path.classList.remove('leaflet-interactive');
+    //L.DomUtil.removeClass(this._path, 'leaflet-interactive');
+    //console.log(this._path);
   }
 };
 

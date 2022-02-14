@@ -418,22 +418,31 @@
             // default 'finish' action
             'finishMode',
           ],
-          afterClick: () => {
-            // Polygone und MultiPolygone interaktiv machen
-            map.getLayersOfType(type='Polygon', withCompatible=true).forEach((layer) => {
+        });
+        map.on('pm:buttonclick', (e) => {
+          // Geometrien Interaktive setzen
+          if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === false) {
+            map.getLayersOfType(type = 'Polygon', withCompatible = true).forEach((layer) => {
               layer.setInteractive(true);
               layer.on('click', () => {
                 map.pm.getGeomanDrawLayers()[0].unite(layer);
               });
             });
-          },
+          }
+        });
+        map.on('pm:buttonclick', (e) => {
+          // Bearbeitung deaktivieren
+          if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === true){
+            map.pm.getGeomanLayers().forEach((lay) => {
+              lay.setInteractive(interactive=false);
+            });
+          }
         });
         map.on('pm:actionclick', (e) => {
-          console.log(e);
-          if (e.btnName == 'adoptGeometry' && e.text == 'beenden'){
-            map.pm.getGeomanLayers().forEach((layer) => {
-              console.log('test');
-              layer.setInteractive(false);
+          // Bearbeitung deaktivieren
+          if (e.btnName === 'adoptGeometry' && e.text === 'beenden'){
+            map.pm.getGeomanLayers().forEach((lay) => {
+              lay.setInteractive(interactive=false);
             });
           }
         });
