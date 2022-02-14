@@ -100,7 +100,7 @@ ul:not([class]){
  * Leaflet-Button für Datenlayer überschreiben
  */
 .leaflet-top.leaflet-right .leaflet-control-layers:nth-child(2) .leaflet-control-layers-toggle {
-    background-image: url("../img/datenlayer.svg");
+  background-image: url("../img/datenlayer.svg");
 }
 
 /*
@@ -114,4 +114,12 @@ ul:not([class]){
 .leaflet-control-locate a .leaflet-control-locate-spinner {
     -webkit-mask-image: url("../img/spinner-solid.svg");
     mask-image: url("../img/spinner-solid.svg");
+}
+
+/*
+ * Leaflet-Button zum adoptieren von Geometrien
+ */
+
+.adopt-geometry-control {
+  background-image: url("../img/adoptGeometry.svg");
 }

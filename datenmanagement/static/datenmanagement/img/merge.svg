@@ -2,12 +2,12 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="120"
-   height="120"
-   viewBox="0 0 120 120"
+   width="20"
+   height="20"
+   viewBox="0 0 20 20"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    sodipodi:docname="merge.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -24,7 +24,7 @@
      inkscape:document-units="px"
      showgrid="false"
      inkscape:zoom="6.4083333"
-     inkscape:cx="59.921977"
+     inkscape:cx="56.957087"
      inkscape:cy="39.713914"
      inkscape:window-width="1920"
      inkscape:window-height="1005"
@@ -40,7 +40,7 @@
      id="layer1">
     <path
        id="rect1214"
-       style="fill:#000000;stroke:#000020;stroke-width:33.3975;fill-opacity:1;stroke-opacity:1"
-       d="M 26.699219 26.699219 L 26.699219 53.300781 L 53.300781 53.300781 L 53.300781 26.699219 L 26.699219 26.699219 z M 66.699219 66.699219 L 66.699219 93.300781 L 93.300781 93.300781 L 93.300781 66.699219 L 66.699219 66.699219 z " />
+       style="fill:#5b5b5b;fill-opacity:1;stroke:#5b5b5b;stroke-width:6.67956;stroke-opacity:1"
+       d="M 3.339782,3.339782 V 8.6601444 H 8.6601442 V 3.339782 Z m 8.000074,8.000075 v 5.320363 h 5.320363 v -5.320363 z" />
   </g>
 </svg>
