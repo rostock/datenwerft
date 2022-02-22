@@ -32,7 +32,7 @@ function nDimensionalSearch(arr, obj, position=[]) {
   } else if (Array.isArray(arr)){
     for (let j = 0; j < arr.length; j++) {
       position.push(j)
-      nDimensionalSearch(arr[j], obj, position)
+      nDimensionalSearch(arr[j], obj, position);
       position.pop();
     }
   } else {

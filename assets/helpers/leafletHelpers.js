@@ -285,7 +285,7 @@ L.Layer.prototype.setInteractive = function (interactive) {
  * @function
  * @name unite
  *
- *
+ * Bildet die Vereinigung mit einem gegebenen Layer
  *
  * @param diffrentLayer
  * @returns {*}

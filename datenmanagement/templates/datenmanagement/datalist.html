@@ -59,18 +59,27 @@
       </table>
       <script type="text/javascript">
         $(document).ready(function(){
-          var table = $('#datasets').DataTable({
+          let table = $('#datasets').DataTable({
             ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
             buttons: [
-              'copyHtml5', 'excelHtml5', {
-                extend: 'pdfHtml5',
+              'copyHtml5',
+              { extend: 'excelHtml5',
+                exportOptions: {
+                  // erste und letzte 2 Spalten nicht exportieren
+                  columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
+                }},
+              { extend: 'pdfHtml5',
                 orientation: 'landscape',
                 pageSize: 'A4',
+                exportOptions: {
+
+                  columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
+                },
                 customize: function(doc) {
                   doc.defaultStyle.fontSize = 7;
                   doc.pageMargins = [20, 20, 20, 20];
                   doc.styles.tableHeader.fontSize = 7;
-                } 
+                }
               }
             ],
             colReorder: true,
