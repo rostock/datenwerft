@@ -892,9 +892,6 @@
      * @param map - Leaflet Karte
      */
     function getAddress(map) {
-      // TODO: überprüfen ob Funktion zu L.Map.prototype hinzugefügt werden kann. Problematische Stellen:
-      //       * FEATURE_GEOMETRY
-      //       * DJANGO if Statement
       let x = 0;
       let y = 0;
       if (map.pm.getGeomanLayers().length > 0){
@@ -933,7 +930,6 @@
      * @param {layer} layer - Layer
      */
     function setAddressOrStreet(type, layer) {
-      // TODO: Überprüfen ob Fkt. zu L.Layer.prototype hinzugefügt werden kann.
       let json = layer.toGeoJSON();
       let xArray = [];
       let yArray = [];
