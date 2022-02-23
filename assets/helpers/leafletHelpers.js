@@ -106,7 +106,7 @@ L.Map.prototype.loadGeometryFromField = function (fieldID) {
   let geojson = {
     "type": "Feature",
     "properties": {},
-    "geometry": JSON.parse($(fieldID).val())
+    "geometry": JSON.parse($(fieldID).val()),
     }
   let changeGeom = new L.geoJSON(geojson, {
     pointToLayer: function (feature, latlng) {
@@ -290,15 +290,15 @@ L.Layer.prototype.setInteractive = function (interactive) {
  * @param diffrentLayer
  * @returns {*}
  */
-L.Polygon.prototype.unite = function (diffrentLayer){
+L.Polygon.prototype.unite = function (diffrentLayer, type){
   let feature1 = this.toGeoJSON();
   let feature2 = diffrentLayer.toGeoJSON();
-  if (feature1.geometry.type.indexOf('Polygon') > 0){
+  if (type.indexOf('Polygon') > 0){
     // MultiPolygon
     let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates); // Vereinigung erzeugen
     result = interchangeRekursiv(result, true); // Lat, Lng tauschen
     this.setLatLngs(result);
-  } else if (feature1.geometry.type.indexOf('Polygon') === 0){
+  } else if (type.indexOf('Polygon') === 0){
     // Polygon
     let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates); // Vereinigung erzeugen
     result = interchangeRekursiv(result, true); // Lat, Lng tauschen

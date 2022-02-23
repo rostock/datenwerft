@@ -458,7 +458,12 @@
             map.getLayersOfType(type = 'Polygon', withCompatible = true).forEach((layer) => {
               layer.setInteractive(true);
               layer.on('click', () => {
-                map.pm.getGeomanDrawLayers()[0].unite(layer);
+                let j = JSON.parse($('#id_geometrie').val());
+                if (j.type.indexOf('MultiPolygon') > -1){
+                  map.pm.getGeomanDrawLayers()[0].unite(layer, 'MultiPolygon');
+                } else {
+                  map.pm.getGeomanDrawLayers()[0].unite(layer, 'Polygon');
+                }
               });
             });
           }
