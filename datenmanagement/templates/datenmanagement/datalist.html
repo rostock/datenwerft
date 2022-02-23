@@ -62,13 +62,20 @@
           let table = $('#datasets').DataTable({
             ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
             buttons: [
-              'copyHtml5',
-              { extend: 'excelHtml5',
+              {
+                extend: 'csvHtml5',
+                fieldSeparator: ';',
+                exportOptions: {
+                  columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
+                }
+              }, {
+                extend: 'excelHtml5',
                 exportOptions: {
                   // erste und letzte 2 Spalten nicht exportieren
                   columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
-                }},
-              { extend: 'pdfHtml5',
+                }
+              }, {
+                extend: 'pdfHtml5',
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
