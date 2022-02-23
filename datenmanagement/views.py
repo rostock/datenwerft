@@ -615,7 +615,7 @@ class DataView(BaseDatatableView):
                     datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
                     data = datetimestamp_str
                 elif value is not None and value and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
-                    data = '<i class="fas fa-exclamation-triangle text-danger" title="Konflikt(e) vorhanden!">!!!️</i>'
+                    data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
                 elif value is not None and column == 'foto':
                     try:
                         data = '<a href="' + value.url + '?' + str(
