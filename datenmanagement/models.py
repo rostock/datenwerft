@@ -10198,13 +10198,27 @@ class Strassenreinigung(models.Model):
         null=True
     )
     beschreibung = models.CharField(
-        'Beschreibung', max_length=255, blank=True, null=True, validators=[
+        'Beschreibung',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
     ausserhalb = models.BooleanField(' außerhalb geschlossener Ortslage?')
     reinigungsklasse = models.ForeignKey(
         Reinigungsklassen_Strassenreinigungssatzung_HRO,
@@ -10347,7 +10361,11 @@ class Thalasso_Kurwege(models.Model):
         ]
     )
     streckenbeschreibung = models.CharField(
-        'Streckenbeschreibung', max_length=255, blank=True, null=True, validators=[
+        'Streckenbeschreibung',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
                 regex=akut_regex,
                 message=akut_message
@@ -10476,7 +10494,9 @@ class Tierseuchenfunde(models.Model):
     def __str__(self):
         local_tz = pytz.timezone(settings.TIME_ZONE)
         zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
-        zeitpunkt = datetime.strptime(zeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        zeitpunkt = datetime.strptime(
+            zeitpunkt_str,
+            '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
         zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
         return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str
 
@@ -10571,9 +10591,15 @@ class Tierseuchenkontrollgebiete(models.Model):
         super(Tierseuchenkontrollgebiete, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(assign_permissions, sender=Tierseuchenkontrollgebiete)
+signals.post_save.connect(
+    assign_permissions,
+    sender=Tierseuchenkontrollgebiete
+)
 
-signals.post_delete.connect(remove_permissions, sender=Tierseuchenkontrollgebiete)
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Tierseuchenkontrollgebiete
+)
 
 
 # Tierseuchennachweise
@@ -10637,11 +10663,25 @@ class Tierseuchennachweise(models.Model):
 
     def __str__(self):
         local_tz = pytz.timezone(settings.TIME_ZONE)
-        startzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.startzeitpunkt))
-        startzeitpunkt = datetime.strptime(startzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        startzeitpunkt_str = re.sub(
+            r'([+-][0-9]{2})\:',
+            '\\1',
+            str(self.startzeitpunkt)
+        )
+        startzeitpunkt = datetime.strptime(
+            startzeitpunkt_str,
+            '%Y-%m-%d %H:%M:%S%z'
+        ).replace(tzinfo=pytz.utc).astimezone(local_tz)
         startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
-        endzeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.endzeitpunkt))
-        endzeitpunkt = datetime.strptime(endzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        endzeitpunkt_str = re.sub(
+            r'([+-][0-9]{2})\:',
+            '\\1',
+            str(self.endzeitpunkt)
+        )
+        endzeitpunkt = datetime.strptime(
+            endzeitpunkt_str,
+            '%Y-%m-%d %H:%M:%S%z'
+        ).replace(tzinfo=pytz.utc).astimezone(local_tz)
         endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
         return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' + str(self.art_kontrolle) + ']'
 
@@ -10744,11 +10784,21 @@ class Trinkwassernotbrunnen(models.Model):
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
             RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                            regex=gravis_regex, message=gravis_message)])
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
     eigentuemer = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
         verbose_name='Eigentümer',
@@ -11081,8 +11131,10 @@ class UVP_Vorpruefungen(models.Model):
         foreign_key_label = 'Vorhaben'
 
     def __str__(self):
-        return str(self.uvp_vorhaben) + ' mit Datum ' + datetime.strptime(str(self.datum),
-                                                                          '%Y-%m-%d').strftime('%d.%m.%Y') + ' [Art: ' + str(self.art) + ']'
+        return str(self.uvp_vorhaben) + ' mit Datum ' + datetime.strptime(
+            str(self.datum),
+            '%Y-%m-%d'
+        ).strftime('%d.%m.%Y') + ' [Art: ' + str(self.art) + ']'
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
