@@ -37,10 +37,16 @@
   {% if object_list %}
     <div class="spacer-small"></div>
     <div class="row">
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Achtung!</strong> Tabelle wird Server-seitig erzeugt, weshalb nur die <em>aktuell sichtbare</em> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th><i class="fas fa-check-square no-export"></i></th>
+            <th class="no-export"><i class="fas fa-check-square"></i></th>
             {% for label in list_fields_labels %}
               {% with schritt=forloop.counter|stringformat:'s' %}
                 {% with spalte='spalte_'|add:schritt %}
@@ -49,10 +55,10 @@
               {% endwith %}
             {% endfor %}
             {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
-              <th><i class="fas fa-eye no-export" title="Datensätze ansehen"></i> oder <i class="fas fa-edit" title="Datensätze bearbeiten"></i></th>
+              <th class="no-export"><i class="fas fa-eye" title="Datensätze ansehen"></i> oder <i class="fas fa-edit" title="Datensätze bearbeiten"></i></th>
             {% endif %}
             {% if user|user_has_model_delete_permission:model_name_lower %}
-              <th><i class="fas fa-trash no-export" title="Datensätze löschen"></i></th>
+              <th class="no-export"><i class="fas fa-trash" title="Datensätze löschen"></i></th>
             {% endif %}
           </tr>
         </thead>
@@ -66,14 +72,14 @@
                 extend: 'csvHtml5',
                 fieldSeparator: ';',
                 exportOptions: {
-                  columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
+                  columns: ':visible:not(.no-export)',
                 }
               }, {
                 extend: 'excelHtml5',
                 title: '',
                 exportOptions: {
                   // erste und letzte 2 Spalten nicht exportieren
-                  columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
+                  columns: ':visible:not(.no-export)',
                 }
               }, {
                 extend: 'pdfHtml5',
@@ -81,7 +87,7 @@
                 pageSize: 'A4',
                 exportOptions: {
 
-                  columns: ':visible:not(:first-child,:nth-last-child(-n + 2))',
+                  columns: ':visible:not(.no-export)',
                 },
                 customize: function(doc) {
                   doc.defaultStyle.fontSize = 7;

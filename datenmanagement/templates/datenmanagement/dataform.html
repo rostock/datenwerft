@@ -262,7 +262,7 @@
 
     // Bunte Marker für Leaflet konfigurieren
     let blueMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_blau.svg" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-blue.svg" %}',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
@@ -271,7 +271,7 @@
       });
 
       let greenMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_gruen.svg" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-green.svg" %}',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
@@ -280,7 +280,7 @@
       });
 
       let redMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-marker/marker_rot.svg" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
@@ -774,10 +774,9 @@
         event.stopPropagation();
       });
 
-      searchField.keyup(function() {
+      searchField.keyup(function(e) {
         if ($(this).val().length >= 3) {
           let searchText = searchField.val();
-          
           $.ajax({
             url: '{% url "datenmanagement:addresssearch" %}',
             dataType: 'json',
@@ -789,6 +788,9 @@
         } else {
           results.children().remove();
           results.fadeOut();
+        }
+        if (e.key == 'ArrowDown' && results.is(':visible')) {
+          console.log('ok');
         }
       });
 
