@@ -387,7 +387,7 @@
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
         });
-      {% elif 'LineString' in geometry_type and model_name != 'Tierseuchennachweise' %}
+      {% elif 'LineString' in geometry_type and model_name != 'Fallwildsuchen_Nachweise' %}
         // Leaflet-Geoman controls zur Map hinzufügen
         map.pm.addControls({
           position: 'topleft',
@@ -568,7 +568,7 @@
       {% endif %}
 
 
-      {% if model_name != 'Tierseuchennachweise' %}
+      {% if model_name != 'Fallwildsuchen_Nachweise' %}
         /*
          * Zusätzliche Datenthemen anbieten
          */
@@ -774,7 +774,7 @@
         event.stopPropagation();
       });
 
-      searchField.keyup(function(e) {
+      searchField.keyup(function() {
         if ($(this).val().length >= 3) {
           let searchText = searchField.val();
           $.ajax({
@@ -788,9 +788,6 @@
         } else {
           results.children().remove();
           results.fadeOut();
-        }
-        if (e.key == 'ArrowDown' && results.is(':visible')) {
-          console.log('ok');
         }
       });
 
@@ -1209,7 +1206,7 @@
 
         // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().properties.datenthema !== 'Tierseuchenkontrollgebiete'){
+          if (layer.toGeoJSON().properties.datenthema !== 'Fallwildsuchen_Kontrollgebiete'){
             layer.remove();
           }
         });
@@ -1295,15 +1292,15 @@
     {% endif %}
 
 
-    {% if model_name == "Tierseuchennachweise" %}
+    {% if model_name == "Fallwildsuchen_Nachweise" %}
       /**
        * @function
        *
-       * Laden des ausgewählten Tierseuchen-Kontrollgebietes.
+       * Laden des ausgewählten Kontrollgebietes im Rahmen einer Fallwildsuche
        */
       $('#id_kontrollgebiet').change(function() {
         let element = $('#id_kontrollgebiet option:selected')[0];
-        let url = "{% url 'datenmanagement:'|add:'Tierseuchenkontrollgebiete'|add:'geometry' %}";
+        let url = "{% url 'datenmanagement:'|add:'Fallwildsuchen_Kontrollgebiete'|add:'geometry' %}";
         currMap.pm.getGeomanLayers().forEach((layer) => {
           if (layer.toGeoJSON().properties.datenthema){
             layer.remove();

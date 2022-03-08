@@ -1091,7 +1091,7 @@ class DataChangeView(generic.UpdateView):
                     associated_model)
                 title = (
                     re.sub(
-                        '^.* ',
+                        '^[a-z]{3} ',
                         '',
                         associated_model_model._meta.object_title) +
                     ' zu ' +
@@ -1199,18 +1199,18 @@ class DataChangeView(generic.UpdateView):
         context['geometry_type'] = (
             self.model._meta.geometry_type if hasattr(
                 self.model._meta, 'geometry_type') else None)
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'SELECT st_asgeojson(st_transform(geometrie, 4326)) FROM ' +
-                self.model._meta.db_table.replace('"', '') +
-                ' WHERE UUID=%s;',
-                [self.kwargs['pk']]
-            )
-            result = cursor.fetchone()[0]
-            context['geometry'] = (
-                result if hasattr(
-                self.model._meta, 'geometry_type') else None)
-
+        if hasattr(self.model._meta, 'geometry_type'):
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT st_asgeojson(st_transform(geometrie, 4326)) FROM ' +
+                    self.model._meta.db_table.replace('"', '') +
+                    ' WHERE UUID=%s;',
+                    [self.kwargs['pk']]
+                )
+                result = cursor.fetchone()[0]
+                context['geometry'] = result
+        else:
+            context['geometry'] = None
         context['readonly_fields'] = (
             self.model._meta.readonly_fields if hasattr(
                 self.model._meta, 'readonly_fields') else None)
