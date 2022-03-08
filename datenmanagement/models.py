@@ -6791,6 +6791,7 @@ class Fallwildsuchen_Nachweise(models.Model):
         object_title = 'der Nachweis im Rahmen einer Fallwildsuche'
         foreign_key_label = 'Kontrollgebiet'
         gpx_input = True
+        as_overlay = True
 
     def __str__(self):
         local_tz = pytz.timezone(settings.TIME_ZONE)
@@ -6937,6 +6938,7 @@ class Kadaverfunde(models.Model):
             'art_auffinden'
         ]
         geometry_type = 'Point'
+        as_overlay = True
 
     def __str__(self):
         local_tz = pytz.timezone(settings.TIME_ZONE)
@@ -7010,6 +7012,7 @@ class Schutzzaeune_Tierseuchen(models.Model):
         map_filter_fields_as_list = [
             'tierseuche', 'zustand']
         geometry_type = 'MultiLineString'
+        as_overlay = True
 
     def __str__(self):
         return str(self.tierseuche) + ', ' + str(self.zustand)
