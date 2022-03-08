@@ -1000,6 +1000,67 @@ signals.post_delete.connect(remove_permissions, sender=Strassen)
 #
 
 
+# Altersklassen bei Kadaverfunden
+
+class Altersklassen_Kadaverfunde(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    bezeichnung = models.CharField(
+        'Bezeichnung',
+        max_length=255,
+        validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"altersklassen_kadaverfunde'
+        verbose_name = 'Altersklasse bei einem Kadaverfund'
+        verbose_name_plural = 'Altersklassen bei Kadaverfunden'
+        description = 'Altersklassen bei Kadaverfunden'
+        list_fields = {
+            'ordinalzahl': 'Ordinalzahl',
+            'bezeichnung': 'Bezeichnung'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['ordinalzahl']
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Altersklassen_Kadaverfunde, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Altersklassen_Kadaverfunde, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Altersklassen_Kadaverfunde)
+
+signals.post_delete.connect(remove_permissions, sender=Altersklassen_Kadaverfunde)
+
+
 # Angebote bei Mobilpunkten
 
 class Angebote_Mobilpunkte(models.Model):
@@ -2185,6 +2246,67 @@ signals.post_save.connect(assign_permissions,
 
 signals.post_delete.connect(remove_permissions,
                             sender=Genehmigungsbehoerden_UVP_Vorhaben)
+
+
+# Geschlechter bei Kadaverfunden
+
+class Geschlechter_Kadaverfunde(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    bezeichnung = models.CharField(
+        'Bezeichnung',
+        max_length=255,
+        validators=[
+            RegexValidator(
+                regex=akut_regex,
+                message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex,
+                message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex,
+                message=gravis_message
+            )])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"geschlechter_kadaverfunde'
+        verbose_name = 'Geschlecht bei einem Kadaverfund'
+        verbose_name_plural = 'Geschlechter bei Kadaverfunden'
+        description = 'Geschlechter bei Kadaverfunden'
+        list_fields = {
+            'ordinalzahl': 'Ordinalzahl',
+            'bezeichnung': 'Bezeichnung'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['ordinalzahl']
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Geschlechter_Kadaverfunde, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Geschlechter_Kadaverfunde, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Geschlechter_Kadaverfunde)
+
+signals.post_delete.connect(remove_permissions, sender=Geschlechter_Kadaverfunde)
 
 
 # Häfen
@@ -4075,6 +4197,74 @@ signals.post_save.connect(assign_permissions, sender=Zonen_Parkscheinautomaten)
 signals.post_delete.connect(
     remove_permissions,
     sender=Zonen_Parkscheinautomaten)
+
+
+# Zustände von Kadaverfunden
+
+class Zustaende_Kadaverfunde(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    zustand = models.CharField(
+        'Zustand', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message
+            ), RegexValidator(
+                regex=anfuehrungszeichen_regex,
+                message=anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message
+            ), RegexValidator(
+                regex=doppelleerzeichen_regex,
+                message=doppelleerzeichen_message
+            ), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"zustaende_kadaverfunde'
+        verbose_name = 'Zustand eines Kadaverfunds'
+        verbose_name_plural = 'Zustände von Kadaverfunden'
+        description = 'Zustände von Kadaverfunden'
+        list_fields = {
+            'ordinalzahl': 'Ordinalzahl',
+            'zustand': 'Zustand'
+        }
+        list_fields_with_number = ['ordinalzahl']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['ordinalzahl']
+
+    def __str__(self):
+        return str(self.zustand)
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Zustaende_Kadaverfunde,
+            self).save(
+            *args,
+            **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(
+            Zustaende_Kadaverfunde,
+            self).delete(
+            *args,
+            **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Zustaende_Kadaverfunde)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Zustaende_Kadaverfunde)
 
 
 # Zustände von Schutzzäunen gegen Tierseuchen
@@ -6648,6 +6838,7 @@ class Kadaverfunde(models.Model):
         default=uuid.uuid4,
         editable=False)
     aktiv = models.BooleanField(' aktiv?', default=True)
+    zeitpunkt = models.DateTimeField('Zeitpunkt')
     tierseuche = models.ForeignKey(
         Tierseuchen,
         verbose_name='Tierseuche',
@@ -6655,7 +6846,52 @@ class Kadaverfunde(models.Model):
         db_column='tierseuche',
         to_field='uuid',
         related_name='tierseuchen+')
-    zeitpunkt = models.DateTimeField('Zeitpunkt')
+    geschlecht = models.ForeignKey(
+        Geschlechter_Kadaverfunde,
+        verbose_name='Geschlecht',
+        on_delete=models.RESTRICT,
+        db_column='geschlecht',
+        to_field='uuid',
+        related_name='geschlechter+')
+    altersklasse = models.ForeignKey(
+        Altersklassen_Kadaverfunde,
+        verbose_name='Altersklasse',
+        on_delete=models.RESTRICT,
+        db_column='altersklasse',
+        to_field='uuid',
+        related_name='altersklassen+')
+    gewicht = PositiveSmallIntegerRangeField(
+        ' geschätztes Gewicht (in kg)', min_value=1, blank=True, null=True)
+    zustand = models.ForeignKey(
+        Zustaende_Kadaverfunde,
+        verbose_name='Zustand',
+        on_delete=models.RESTRICT,
+        db_column='zustand',
+        to_field='uuid',
+        related_name='zustaende+')
+    art_auffinden = models.ForeignKey(
+        Arten_Fallwildsuchen_Kontrollen,
+        verbose_name='Art des Auffindens',
+        on_delete=models.RESTRICT,
+        db_column='art_auffinden',
+        to_field='uuid',
+        related_name='arten_auffinden+')
+    witterung = models.CharField(
+        'Witterung vor Ort', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
+    bemerkungen = NullTextField(
+        'Bemerkungen', max_length=500, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                    regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                        regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                            regex=gravis_regex, message=gravis_message)])
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -6668,17 +6904,38 @@ class Kadaverfunde(models.Model):
         list_fields = {
             'aktiv': 'aktiv?',
             'tierseuche': 'Tierseuche',
-            'zeitpunkt': 'Zeitpunkt'}
+            'geschlecht': 'Geschlecht',
+            'altersklasse': 'Altersklasse',
+            'gewicht': 'geschätztes Gewicht (in kg)',
+            'zustand': 'Zustand',
+            'art_auffinden': 'Art des Auffindens',
+            'zeitpunkt': 'Zeitpunkt'
+        }
         list_fields_with_datetime = ['zeitpunkt']
+        list_fields_with_number = ['gewicht']
         list_fields_with_foreign_key = {
-            'tierseuche': 'bezeichnung'
+            'tierseuche': 'bezeichnung',
+            'geschlecht': 'bezeichnung',
+            'altersklasse': 'bezeichnung',
+            'zustand': 'zustand',
+            'art_auffinden': 'art'
         }
         map_feature_tooltip_field = 'tierseuche'
         map_filter_fields = {
             'tierseuche': 'Tierseuche',
-            'zeitpunkt': 'Zeitpunkt'}
+            'geschlecht': 'Geschlecht',
+            'altersklasse': 'Altersklasse',
+            'zustand': 'Zustand',
+            'art_auffinden': 'Art des Auffindens',
+            'zeitpunkt': 'Zeitpunkt'
+        }
         map_filter_fields_as_list = [
-            'tierseuche']
+            'tierseuche',
+            'geschlecht',
+            'altersklasse',
+            'zustand',
+            'art_auffinden'
+        ]
         geometry_type = 'Point'
 
     def __str__(self):
