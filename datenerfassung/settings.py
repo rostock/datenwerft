@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '4.6.1'
+DATENMANAGEMENT_VERSION = '4.7.0'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 

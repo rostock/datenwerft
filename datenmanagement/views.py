@@ -633,8 +633,11 @@ class DataView(BaseDatatableView):
                 elif value is not None and (
                         column == 'dokument' or column == 'pdf'):
                     try:
-                        data = '<a href="' + value.url + '?' + str(
-                            time.time()) + '" target="_blank" title="PDF öffnen…">PDF</a>'
+                        data = '<a href="' + value.url + '?' + str(time.time()) \
+                            + '" target="_blank" title="' + (('PDF' if column == 'pdf'
+                                else 'Dokument')) \
+                            + ' öffnen…">Link zum ' + (('PDF'
+                 if column == 'pdf' else 'Dokument')) + '</a>'
                     except ValueError:
                         pass
                 elif value is not None and value is True:
@@ -648,7 +651,10 @@ class DataView(BaseDatatableView):
                     data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
                 elif value is not None and \
                         isinstance(value, str) and re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE):
-                    data = '<div style="background-color:' + value + '">&zwnj;</div>'
+                            data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
+                                + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
+                                + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
+                                + '">&zwnj;</div>'
                 elif value is not None:
                     data = escape(value)
                 item_data.append(data)

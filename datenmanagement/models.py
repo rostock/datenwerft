@@ -2744,7 +2744,17 @@ signals.post_delete.connect(remove_permissions, sender=Personentitel)
 
 class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    raeumbreite = models.DecimalField('Räumbreite (in m)', max_digits=4, decimal_places=2)
+    raeumbreite = models.DecimalField(
+        'Räumbreite (in m)',
+        max_digits=4,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(
+                Decimal('0.01'),
+                'Die <strong><em>Räumbreite</em></strong> muss mindestens 0,01 m betragen.'),
+            MaxValueValidator(
+                Decimal('99.99'),
+                'Die <strong><em>Räumbreite</em></strong> darf höchstens 99,99 m betragen.')])
 
     class Meta:
         managed = False
@@ -3852,7 +3862,17 @@ signals.post_delete.connect(
 
 class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    wegebreite = models.DecimalField('Wegebreite (in m)', max_digits=4, decimal_places=2)
+    wegebreite = models.DecimalField(
+        'Wegebreite (in m)',
+        max_digits=4,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(
+                Decimal('0.01'),
+                'Die <strong><em>Wegebreite</em></strong> muss mindestens 0,01 m betragen.'),
+            MaxValueValidator(
+                Decimal('99.99'),
+                'Die <strong><em>Wegebreite</em></strong> darf höchstens 99,99 m betragen.')])
 
     class Meta:
         managed = False
@@ -6193,8 +6213,6 @@ class Denksteine(models.Model):
     website = models.CharField(
         'Website',
         max_length=255,
-        blank=True,
-        null=True,
         validators=[
             URLValidator(
                 message=url_message)])
@@ -8608,7 +8626,7 @@ class Hydranten(models.Model):
         as_overlay = True
 
     def __str__(self):
-        return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
+        return self.bezeichnung
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
@@ -11210,7 +11228,7 @@ class Trinkwassernotbrunnen(models.Model):
                 Decimal('0.01'),
                 'Die <strong><em>Bohrtiefe</em></strong> muss mindestens 0,01 m betragen.'),
             MaxValueValidator(
-                Decimal('9999.99'),
+                Decimal('99.99'),
                 'Die <strong><em>Bohrtiefe</em></strong> darf höchstens 99,99 m betragen.')])
     ausbautiefe = models.DecimalField(
         'Ausbautiefe (in m)',
@@ -11221,7 +11239,7 @@ class Trinkwassernotbrunnen(models.Model):
                 Decimal('0.01'),
                 'Die <strong><em>Ausbautiefe</em></strong> muss mindestens 0,01 m betragen.'),
             MaxValueValidator(
-                Decimal('9999.99'),
+                Decimal('99.99'),
                 'Die <strong><em>Ausbautiefe</em></strong> darf höchstens 99,99 m betragen.')])
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')

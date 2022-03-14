@@ -342,7 +342,7 @@
           deleteButton: 'vorhandene Kartenobjekte löschen',
           dragButton: 'vorhandene Kartenobjekte verschieben',
           drawLineButton: 'Linie zeichnen',
-          drawMarkerButton: 'Marker setzen',
+          drawMarkerButton: 'Marker (neu) setzen',
           editButton: 'vorhandene Kartenobjekte bearbeiten',
         },
         tooltips: {
@@ -383,9 +383,11 @@
           drawPolyline: false,      // Linie
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
+          dragMode: false,          // Verschieben deaktivieren
           editMode: false,          // Editieren des Punktes deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
+          removalMode: false,       // Entfernen von Layern deaktivieren
         });
       {% elif 'LineString' in geometry_type and model_name != 'Fallwildsuchen_Nachweise' %}
         // Leaflet-Geoman controls zur Map hinzufügen
@@ -444,7 +446,7 @@
         // adoptGeometry-Button bei Polygonen und MultiPolygonen hinzufügen
         map.pm.Toolbar.createCustomControl({
           name: 'adoptGeometry',
-          title: 'Adoptieren einer vorhandenen Geometrie',
+          title: 'vorhandene Geometrien adoptieren',
           block: 'edit',
           className: 'adopt-geometry-control',
           actions: [
