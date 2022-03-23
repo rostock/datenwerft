@@ -1490,6 +1490,28 @@ signals.post_save.connect(assign_permissions, sender=Arten_Fallwildsuchen_Kontro
 signals.post_delete.connect(remove_permissions, sender=Arten_Fallwildsuchen_Kontrollen)
 
 
+# Arten von Toiletten
+
+class Arten_Toiletten(Art):
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_toiletten'
+    verbose_name = 'Art einer Toilette'
+    verbose_name_plural = 'Arten von Toiletten'
+    description = 'Arten von Toiletten'
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Toiletten, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Arten_Toiletten, self).delete(*args, **kwargs)
+
+signals.post_save.connect(assign_permissions, sender=Arten_Toiletten)
+
+signals.post_delete.connect(remove_permissions, sender=Arten_Toiletten)
+
+
 # Arten von UVP-Vorprüfungen
 
 class Arten_UVP_Vorpruefungen(Art):
@@ -1518,7 +1540,7 @@ signals.post_delete.connect(remove_permissions, sender=Arten_UVP_Vorpruefungen)
 class Arten_Wege(Art):
   class Meta(Art.Meta):
     db_table = 'codelisten\".\"arten_wege'
-    verbose_name = 'Art eines Wege'
+    verbose_name = 'Art eines Weges'
     verbose_name_plural = 'Arten von Wegen'
     description = 'Arten von Wegen'
 
@@ -11167,6 +11189,93 @@ class Thalasso_Kurwege(models.Model):
 signals.post_save.connect(assign_permissions, sender=Thalasso_Kurwege)
 
 signals.post_delete.connect(remove_permissions, sender=Thalasso_Kurwege)
+
+
+# Toiletten
+
+class Toiletten(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    art = models.ForeignKey(
+        Arten_Toiletten,
+        verbose_name='Art',
+        on_delete=models.RESTRICT,
+        db_column='art',
+        to_field='uuid',
+        related_name='arten+')
+    bewirtschafter = models.ForeignKey(
+        Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+        verbose_name='Bewirtschafter',
+        on_delete=models.SET_NULL,
+        db_column='bewirtschafter',
+        to_field='uuid',
+        related_name='bewirtschafter+',
+        blank=True,
+        null=True)
+    behindertengerecht = models.BooleanField(' behindertengerecht?')
+    duschmoeglichkeit = models.BooleanField('Duschmöglichkeit vorhanden?')
+    wickelmoeglichkeit = models.BooleanField('Wickelmöglichkeit vorhanden?')
+    zeiten = models.CharField(
+        'Öffnungszeiten',
+        max_length=255,
+        blank=True,
+        null=True)
+    geometrie = models.PointField(
+        'Geometrie', srid=25833, default='POINT(0 0)')
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten\".\"toiletten_hro'
+        verbose_name = 'Toilette'
+        verbose_name_plural = 'Toiletten'
+        description = 'Toiletten in der Hanse- und Universitätsstadt Rostock'
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'art': 'Art',
+            'bewirtschafter': 'Bewirtschafter',
+            'behindertengerecht': 'behindertengerecht?',
+            'duschmoeglichkeit': 'Duschmöglichkeit vorhanden?',
+            'wickelmoeglichkeit': 'Wickelmöglichkeit?',
+            'zeiten': 'Öffnungszeiten'
+        }
+        list_fields_with_foreign_key = {
+            'art': 'art',
+            'bewirtschafter': 'bezeichnung'
+        }
+        map_feature_tooltip_field = 'art'
+        map_filter_fields = {
+            'art': 'Art',
+            'bewirtschafter': 'Bewirtschafter',
+            'behindertengerecht': 'behindertengerecht?',
+            'duschmoeglichkeit': 'Duschmöglichkeit vorhanden?',
+            'wickelmoeglichkeit': 'Wickelmöglichkeit?'
+        }
+        map_filter_fields_as_list = ['art', 'bewirtschafter']
+        geometry_type = 'Point'
+        as_overlay = True
+
+    def __str__(self):
+        return str(self.art) + ((' [Bewirtschafter: '
+                                + str(self.bewirtschafter) + ']'
+                                 if self.bewirtschafter else '')) \
+            + ((' mit Öffnungszeiten ' + self.zeiten + ']'
+                if self.zeiten else ''))
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Toiletten, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Toiletten, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(assign_permissions, sender=Toiletten)
+
+signals.post_delete.connect(remove_permissions, sender=Toiletten)
 
 
 # Trinkwassernotbrunnen
