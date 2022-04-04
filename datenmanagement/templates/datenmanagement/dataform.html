@@ -492,7 +492,7 @@
        * Definition der Hintergrundkarten
        */
 
-      // Standart-Layer: ORKa.MV
+      // Standard-Layer: ORKa.MV
       const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
         maxZoom: map._maxLayerZoom,
         attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
@@ -505,6 +505,14 @@
       const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: map._maxLayerZoom,
         attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
+      });
+
+      // basemap.de
+      const basemapde = L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde', {
+        layers: 'de_basemapde_web_raster_farbe',
+        format: map._wmsFormat,
+        maxZoom: map._maxLayerZoom,
+        attribution: '© GeoBasis-DE/BKG'
       });
 
       // Liegenschaftskarte
@@ -531,10 +539,11 @@
 
       // definierte Karten als Hintergrundkarten zusammenfassen
       const baseMaps = {
+        'basemap.de': basemapde,
         'Liegenschaftskarte': liegenschaftskarte,
         'Luftbild': luftbild,
-        'ORKa.MV': orkamv,
-        'OpenStreetMap': osm
+        'OpenStreetMap': osm,
+        'ORKa.MV': orkamv
       };
 
       // definierte Karten als Overlay-Karten zusammenfassen

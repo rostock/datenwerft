@@ -217,6 +217,14 @@
           attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
         });
 
+        // basemap.de definieren
+        const basemapde = L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde', {
+          layers: 'de_basemapde_web_raster_farbe',
+          format: wmsFormat,
+          maxZoom: maxZoom,
+          attribution: '© GeoBasis-DE/BKG'
+        });
+
         // Liegenschaftskarte definieren
         const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
           layers: 'hro.liegenschaftskarte',
@@ -241,10 +249,11 @@
 
         // definierte Karten als Hintergrundkarten zusammenfassen
         let baseMaps = {
+          'basemap.de': basemapde,
           'Liegenschaftskarte': liegenschaftskarte,
           'Luftbild': luftbild,
-          'ORKa.MV': orkamv,
-          'OpenStreetMap': osm
+          'OpenStreetMap': osm,
+          'ORKa.MV': orkamv
         };
 
         // definierte Karten als Overlay-Karten zusammenfassen
