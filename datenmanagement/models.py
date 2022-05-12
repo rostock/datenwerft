@@ -3003,9 +3003,9 @@ class RSAG_Fundamenttypen(models.Model):
         managed = False
         codelist = True
         db_table = 'codelisten\".\"fundamenttypen_rsag'
-        verbose_name = 'Fundamenttyp der Straßenbahnifrastruktur der RSAG'
-        verbose_name_plural = 'Fundamenttypen der Straßenbahnifrastruktur der RSAG'
-        description = 'Fundamenttypen der Straßenbahnifrastruktur der RSAG'
+        verbose_name = 'Fundamenttyp der Straßenbahninfrastruktur der RSAG'
+        verbose_name_plural = 'Fundamenttypen der Straßenbahninfrastruktur der RSAG'
+        description = 'Fundamenttypen der Straßenbahninfrastruktur der RSAG'
         list_fields = {
             'typ': 'Typ',
             'erlaeuterung': 'Erläuterung'
@@ -3064,9 +3064,9 @@ class RSAG_Mastkennzeichen(models.Model):
         managed = False
         codelist = True
         db_table = 'codelisten\".\"mastkennzeichen_rsag'
-        verbose_name = 'Mastkennzeichen der Straßenbahnifrastruktur der RSAG'
-        verbose_name_plural = 'Mastkennzeichen der Straßenbahnifrastruktur der RSAG'
-        description = 'Mastkennzeichen der Straßenbahnifrastruktur der RSAG, welche bestimmte Eigenschaften von Masten abbilden'
+        verbose_name = 'Mastkennzeichen der Straßenbahninfrastruktur der RSAG'
+        verbose_name_plural = 'Mastkennzeichen der Straßenbahninfrastruktur der RSAG'
+        description = 'Mastkennzeichen der Straßenbahninfrastruktur der RSAG, welche bestimmte Eigenschaften von Masten abbilden'
         list_fields = {
             'kennzeichen': 'Kennzeichen',
             'erlaeuterung': 'Erläuterung'
@@ -3125,9 +3125,9 @@ class RSAG_Masttypen(models.Model):
         managed = False
         codelist = True
         db_table = 'codelisten\".\"masttypen_rsag'
-        verbose_name = 'Masttyp der Straßenbahnifrastruktur der RSAG'
-        verbose_name_plural = 'Masttypen der Straßenbahnifrastruktur der RSAG'
-        description = 'Masttypen der Straßenbahnifrastruktur der RSAG'
+        verbose_name = 'Masttyp der Straßenbahninfrastruktur der RSAG'
+        verbose_name_plural = 'Masttypen der Straßenbahninfrastruktur der RSAG'
+        description = 'Masttypen der Straßenbahninfrastruktur der RSAG'
         list_fields = {
             'typ': 'Typ',
             'erlaeuterung': 'Erläuterung'
@@ -11002,8 +11002,14 @@ class RSAG_Masten(models.Model):
             )
         ],
         blank = True,
-        null = True
-    )
+        null = True)
+    dgm_hoehe = models.DecimalField(
+        'Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        editable=False)
     geometrie = models.PointField('Geometrie', srid=25833)
 
     class Meta:
@@ -11015,21 +11021,21 @@ class RSAG_Masten(models.Model):
         list_fields = {
             'aktiv': 'aktiv?',
             'mastnummer' : 'Mastnummer',
-            'moment_am_fundament': 'Moment am Fundament',
-            'spitzenzug_errechnet': 'Spitzenzug P am Fundament',
-            'spitzenzug_gewaehlt': 'Spitzenzug P am Fundament',
+            #'moment_am_fundament': 'Moment am Fundament',
+            #'spitzenzug_errechnet': 'Spitzenzug P am Fundament',
+            #'spitzenzug_gewaehlt': 'Spitzenzug P am Fundament',
             'gesamtlaenge': 'Gesamtlänge L',
-            'einsatztiefe': 'Einsatztiefe T',
-            'so_bis_fundament': 'Schienenoberkante bis Fundament e',
-            'boeschung': 'Böschungshöhe z',
-            'freie_laenge': 'Freie Länge H',
+            #'einsatztiefe': 'Einsatztiefe T',
+            #'so_bis_fundament': 'Schienenoberkante bis Fundament e',
+            #'boeschung': 'Böschungshöhe z',
+            #'freie_laenge': 'Freie Länge H',
             'masttyp': 'Masttyp',
-            'nennmass_ueber_so': 'Nennmaß über Schienenoberkante',
-            'mastgewicht': 'Mastgewicht',
+            #'nennmass_ueber_so': 'Nennmaß über Schienenoberkante',
+            #'mastgewicht': 'Mastgewicht',
             'fundamenttyp':'Fundamenttyp',
-            'fundamentlaenge': 'Länge des Fundaments t',
-            'fundamentdurchmesser': 'Durchmesser des Fundaments',
-            'nicht_tragfaehiger_boden': 'Tiefe des nicht tragfähigen Bodens',
+            #'fundamentlaenge': 'Länge des Fundaments t',
+            #'fundamentdurchmesser': 'Durchmesser des Fundaments',
+            #'nicht_tragfaehiger_boden': 'Tiefe des nicht tragfähigen Bodens',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
             'mastkennzeichen_2': 'Mastkennzeichen 2',
             'mastkennzeichen_3': 'Mastkennzeichen 3',
@@ -11037,32 +11043,32 @@ class RSAG_Masten(models.Model):
             'quelle': 'Quelle'
         }
         list_fields_with_number = [
-            'moment_am_fundament',
-            'spitzenzug_errechnet',
-            'spitzenzug_gewaehlt',
-            'gesamtlaenge',
-            'einsatztiefe',
-            'so_bis_fundament',
-            'boeschung',
-            'freie_laenge',
-            'nennmass_ueber_so',
-            'mastgewicht',
-            'fundamentlaenge'
+            #'moment_am_fundament',
+            #'spitzenzug_errechnet',
+            #'spitzenzug_gewaehlt',
+            'gesamtlaenge'
+            #,'einsatztiefe',
+            #'so_bis_fundament',
+            #'boeschung',
+            #'freie_laenge',
+            #'nennmass_ueber_so',
+            #'mastgewicht',
+            #'fundamentlaenge'
         ]
         list_fields_with_foreign_key = {
-            'masttyp': 'masttyp',
-            'fundamenttyp': 'fundamenttyp',
-            'mastkennzeichen_1': 'mastkennzeichen_1',
-            'mastkennzeichen_2': 'Mastkennzeichen 2',
-            'mastkennzeichen_3': 'Mastkennzeichen 3',
-            'mastkennzeichen_4': 'Mastkennzeichen 4'
+            'masttyp': 'typ',
+            'fundamenttyp': 'typ',
+            'mastkennzeichen_1': 'kennzeichen',
+            'mastkennzeichen_2': 'kennzeichen',
+            'mastkennzeichen_3': 'kennzeichen',
+            'mastkennzeichen_4': 'kennzeichen'
         }
         map_feature_tooltip_field = 'mastnummer'
         map_filter_fields = {
             'uuid': 'UUID',
-            'mastnummer' : 'Mastnummer',
-            'masttyp': 'Masttyp',
-            'fundamenttyp':'Fundamenttyp',
+            'mastnummer' : 'mastnummer',
+            'masttyp': 'masttyp',
+            'fundamenttyp':'fundamenttyp',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
             'mastkennzeichen_2': 'Mastkennzeichen 2',
             'mastkennzeichen_3': 'Mastkennzeichen 3',
@@ -11148,7 +11154,7 @@ class RSAG_Quertraeger(models.Model):
             'quelle': 'Quelle'
         }
         list_fields_with_foreign_key = {
-            'mast': 'zugehöriger Mast'
+            'mast': 'mastnummer'
         }
         map_feature_tooltip_field = 'uuid'
         map_filter_fields = {
@@ -11228,7 +11234,7 @@ class RSAG_Spanndraehte(models.Model):
             'quelle': 'Quelle'
         }
         list_fields_with_foreign_key = {
-            'mast': 'zugehöriger Mast'
+            'mast': 'mastnummer'
         }
         map_feature_tooltip_field = 'uuid'
         map_filter_fields = {
