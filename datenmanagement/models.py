@@ -2221,6 +2221,68 @@ signals.post_delete.connect(
     sender=Fotomotive_Haltestellenkataster)
 
 
+# Fundamenttypen für Masten innerhalb der Straßenbahninfrastruktur
+# der Rostocker Straßenbahn AG
+
+class Fundamenttypen_RSAG(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    typ = models.CharField(
+        'Typ', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    erlaeuterung = models.CharField(
+        'Erläuterung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"fundamenttypen_rsag'
+        verbose_name = 'Fundamenttypen für Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        verbose_name_plural = 'Fundamenttypen für Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        description = 'Fundamenttypen für Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        list_fields = {
+            'typ': 'Typ',
+            'erlaeuterung': 'Erläuterung'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['typ']
+
+    def __str__(self):
+        return self.typ
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Fundamenttypen_RSAG, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Fundamenttypen_RSAG, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Fundamenttypen_RSAG)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Fundamenttypen_RSAG)
+
+
 # Genehmigungsbehörden von UVP-Vorhaben
 
 class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
@@ -2575,6 +2637,68 @@ signals.post_save.connect(assign_permissions, sender=Linien)
 signals.post_delete.connect(remove_permissions, sender=Linien)
 
 
+# Mastkennzeichen innerhalb der Straßenbahninfrastruktur
+# der Rostocker Straßenbahn AG
+
+class Mastkennzeichen_RSAG(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    kennzeichen = models.CharField(
+        'Kennzeichen', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    erlaeuterung = models.CharField(
+        'Erläuterung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"mastkennzeichen_rsag'
+        verbose_name = 'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        verbose_name_plural = 'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        description = 'Mastkennzeichen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        list_fields = {
+            'kennzeichen': 'Kennzeichen',
+            'erlaeuterung': 'Erläuterung'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['kennzeichen']
+
+    def __str__(self):
+        return self.erlaeuterung+' ('+self.kennzeichen+')'
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Mastkennzeichen_RSAG, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Mastkennzeichen_RSAG, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Mastkennzeichen_RSAG)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Mastkennzeichen_RSAG)
+
+
 # Masttypen innerhalb eines Haltestellenkatasters
 
 class Masttypen_Haltestellenkataster(models.Model):
@@ -2624,6 +2748,68 @@ signals.post_save.connect(
 signals.post_delete.connect(
     remove_permissions,
     sender=Masttypen_Haltestellenkataster)
+
+
+# Masttypen innerhalb der Straßenbahninfrastruktur
+# der Rostocker Straßenbahn AG
+
+class Masttypen_RSAG(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    typ = models.CharField(
+        'Typ', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    erlaeuterung = models.CharField(
+        'Erläuterung', max_length=255, validators=[
+            RegexValidator(
+                regex=akut_regex, message=akut_message), RegexValidator(
+                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
+                regex=apostroph_regex, message=apostroph_message), RegexValidator(
+                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
+                regex=gravis_regex, message=gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"masttypen_rsag'
+        verbose_name = 'Masttyp innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        verbose_name_plural = 'Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        description = 'Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG'
+        list_fields = {
+            'typ': 'Typ',
+            'erlaeuterung': 'Erläuterung'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['typ']
+
+    def __str__(self):
+        return self.typ
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Masttypen_RSAG, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Masttypen_RSAG, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(
+    assign_permissions,
+    sender=Masttypen_RSAG)
+
+signals.post_delete.connect(
+    remove_permissions,
+    sender=Masttypen_RSAG)
 
 
 # Materialien von Denksteinen
@@ -2972,189 +3158,6 @@ signals.post_save.connect(
 signals.post_delete.connect(
     remove_permissions,
     sender=Reinigungsrhythmen_Strassenreinigungssatzung_HRO)
-
-# RSAG Codelisten
-# RSAG Fundamentypen
-
-class RSAG_Fundamenttypen(models.Model):
-    uuid = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False)
-    typ = models.CharField(
-        'Typ', max_length=255, validators=[
-            RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                regex=gravis_regex, message=gravis_message)])
-
-    erlaeuterung = models.CharField(
-        'Erläuterung', max_length=255, validators=[
-            RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                regex=gravis_regex, message=gravis_message)])
-
-    class Meta:
-        managed = False
-        codelist = True
-        db_table = 'codelisten\".\"fundamenttypen_rsag'
-        verbose_name = 'Fundamenttyp der Straßenbahninfrastruktur der RSAG'
-        verbose_name_plural = 'Fundamenttypen der Straßenbahninfrastruktur der RSAG'
-        description = 'Fundamenttypen der Straßenbahninfrastruktur der RSAG'
-        list_fields = {
-            'typ': 'Typ',
-            'erlaeuterung': 'Erläuterung'
-        }
-        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-        # Kindtabellen sortiert aufgelistet
-        ordering = ['typ']
-
-    def __str__(self):
-        return self.typ
-
-    def save(self, *args, **kwargs):
-        self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Fundamenttypen, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Fundamenttypen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-    assign_permissions,
-    sender=RSAG_Fundamenttypen)
-
-signals.post_delete.connect(
-    remove_permissions,
-    sender=RSAG_Fundamenttypen)
-
-
-# RSAG Mastkennzeichen
-
-class RSAG_Mastkennzeichen(models.Model):
-    uuid = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False)
-    kennzeichen = models.CharField(
-        'Kennzeichen', max_length=255, validators=[
-            RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                regex=gravis_regex, message=gravis_message)])
-
-    erlaeuterung = models.CharField(
-        'Erläuterung', max_length=255, validators=[
-            RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                regex=gravis_regex, message=gravis_message)])
-
-    class Meta:
-        managed = False
-        codelist = True
-        db_table = 'codelisten\".\"mastkennzeichen_rsag'
-        verbose_name = 'Mastkennzeichen der Straßenbahninfrastruktur der RSAG'
-        verbose_name_plural = 'Mastkennzeichen der Straßenbahninfrastruktur der RSAG'
-        description = 'Mastkennzeichen der Straßenbahninfrastruktur der RSAG, welche bestimmte Eigenschaften von Masten abbilden'
-        list_fields = {
-            'kennzeichen': 'Kennzeichen',
-            'erlaeuterung': 'Erläuterung'
-        }
-        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-        # Kindtabellen sortiert aufgelistet
-        ordering = ['kennzeichen']
-
-    def __str__(self):
-        return self.erlaeuterung+' ('+self.kennzeichen+')'
-
-    def save(self, *args, **kwargs):
-        self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Mastkennzeichen, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Mastkennzeichen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-    assign_permissions,
-    sender=RSAG_Mastkennzeichen)
-
-signals.post_delete.connect(
-    remove_permissions,
-    sender=RSAG_Mastkennzeichen)
-
-
-# RSAG Masttypen
-
-class RSAG_Masttypen(models.Model):
-    uuid = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False)
-    typ = models.CharField(
-        'Typ', max_length=255, validators=[
-            RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                regex=gravis_regex, message=gravis_message)])
-
-    erlaeuterung = models.CharField(
-        'Erläuterung', max_length=255, validators=[
-            RegexValidator(
-                regex=akut_regex, message=akut_message), RegexValidator(
-                regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(
-                regex=apostroph_regex, message=apostroph_message), RegexValidator(
-                regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
-                regex=gravis_regex, message=gravis_message)])
-
-    class Meta:
-        managed = False
-        codelist = True
-        db_table = 'codelisten\".\"masttypen_rsag'
-        verbose_name = 'Masttyp der Straßenbahninfrastruktur der RSAG'
-        verbose_name_plural = 'Masttypen der Straßenbahninfrastruktur der RSAG'
-        description = 'Masttypen der Straßenbahninfrastruktur der RSAG'
-        list_fields = {
-            'typ': 'Typ',
-            'erlaeuterung': 'Erläuterung'
-        }
-        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-        # Kindtabellen sortiert aufgelistet
-        ordering = ['typ']
-
-    def __str__(self):
-        return self.typ
-
-    def save(self, *args, **kwargs):
-        self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Masttypen, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Masttypen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-    assign_permissions,
-    sender=RSAG_Masttypen)
-
-signals.post_delete.connect(
-    remove_permissions,
-    sender=RSAG_Masttypen)
 
 
 # Schäden innerhalb eines Haltestellenkatasters
@@ -10639,8 +10642,9 @@ signals.post_save.connect(assign_permissions, sender=Rettungswachen)
 
 signals.post_delete.connect(remove_permissions, sender=Rettungswachen)
 
-# RSAG Datenthemen
-# Gleise der Straßenbahn der RSAG
+
+# RSAG-Gleise
+
 class RSAG_Gleise(models.Model):
     uuid = models.UUIDField(
         primary_key=True,
@@ -10674,9 +10678,9 @@ class RSAG_Gleise(models.Model):
     class Meta:
         managed = False
         db_table = 'fachdaten\".\"rsag_gleise_hro'
-        verbose_name = 'RSAG Gleis'
-        verbose_name_plural = 'RSAG Gleise'
-        description = 'Gleise der Straßenbahninfrastruktur der RSAG'
+        verbose_name = 'RSAG-Gleis'
+        verbose_name_plural = 'RSAG-Gleise'
+        description = 'Gleise innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'uuid': 'UUID',
             'aktiv': 'aktiv?',
@@ -10706,9 +10710,10 @@ signals.post_save.connect(assign_permissions, sender=RSAG_Gleise)
 
 signals.post_delete.connect(remove_permissions, sender=RSAG_Gleise)
 
-# Oberleitung der Straßenbahn der RSAG
 
-class RSAG_Leitung(models.Model):
+# RSAG-Oberleitungen
+
+class RSAG_Leitungen(models.Model):
     uuid = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -10719,14 +10724,17 @@ class RSAG_Leitung(models.Model):
     class Meta:
         managed = False
         db_table = 'fachdaten\".\"rsag_leitungen_hro'
-        verbose_name = 'RSAG Oberleitung'
-        verbose_name_plural = 'RSAG Leitungen'
-        description = 'Oberleitung der Straßenbahninfrastruktur der RSAG'
+        verbose_name = 'RSAG-Oberleitung'
+        verbose_name_plural = 'RSAG-Oberleitungen'
+        description = 'Oberleitungen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'uuid': 'UUID',
             'aktiv': 'aktiv?'
         }
         map_feature_tooltip_field = 'uuid'
+        map_filter_fields = {
+            'uuid': 'UUID'
+        }
         geometry_type = 'LineString'
         as_overlay = True
 
@@ -10735,18 +10743,19 @@ class RSAG_Leitung(models.Model):
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Leitung, self).save(*args, **kwargs)
+        super(RSAG_Leitungen, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
-        super(RSAG_Leitung, self).delete(*args, **kwargs)
+        super(RSAG_Leitungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(assign_permissions, sender=RSAG_Leitung)
+signals.post_save.connect(assign_permissions, sender=RSAG_Leitungen)
 
-signals.post_delete.connect(remove_permissions, sender=RSAG_Leitung)
+signals.post_delete.connect(remove_permissions, sender=RSAG_Leitungen)
 
-# Masten der Straßenbahn der RSAG
+
+# RSAG-Masten
 
 class RSAG_Masten(models.Model):
     uuid = models.UUIDField(
@@ -10871,12 +10880,12 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     masttyp = models.ForeignKey(
-        RSAG_Masttypen,
+        Masttypen_RSAG,
         verbose_name='Masttyp',
         on_delete=models.SET_NULL,
         db_column='masttyp',
         to_field='uuid',
-        related_name='masttyp+',
+        related_name='masttypen+',
         blank=True,
         null=True)
     nennmass_ueber_so = PositiveSmallIntegerRangeField(
@@ -10890,12 +10899,12 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     fundamenttyp = models.ForeignKey(
-        RSAG_Fundamenttypen,
+        Fundamenttypen_RSAG,
         verbose_name='Fundamenttyp',
         on_delete=models.SET_NULL,
         db_column='fundamenttyp',
         to_field='uuid',
-        related_name='fundamenttyp+',
+        related_name='fundamenttypen+',
         blank=True,
         null=True)
     fundamentlaenge = models.DecimalField(
@@ -10947,7 +10956,7 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     mastkennzeichen_1 = models.ForeignKey(
-        RSAG_Mastkennzeichen,
+        Mastkennzeichen_RSAG,
         verbose_name='Mastkennzeichen 1',
         on_delete=models.SET_NULL,
         db_column='mastkennzeichen_1',
@@ -10956,7 +10965,7 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     mastkennzeichen_2 = models.ForeignKey(
-        RSAG_Mastkennzeichen,
+        Mastkennzeichen_RSAG,
         verbose_name='Mastkennzeichen 2',
         on_delete=models.SET_NULL,
         db_column='mastkennzeichen_2',
@@ -10965,7 +10974,7 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     mastkennzeichen_3 = models.ForeignKey(
-        RSAG_Mastkennzeichen,
+        Mastkennzeichen_RSAG,
         verbose_name='Mastkennzeichen 3',
         on_delete=models.SET_NULL,
         db_column='mastkennzeichen_3',
@@ -10974,7 +10983,7 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     mastkennzeichen_4 = models.ForeignKey(
-        RSAG_Mastkennzeichen,
+        Mastkennzeichen_RSAG,
         verbose_name='Mastkennzeichen 4',
         on_delete=models.SET_NULL,
         db_column='mastkennzeichen_4',
@@ -11015,27 +11024,15 @@ class RSAG_Masten(models.Model):
     class Meta:
         managed = False
         db_table = 'fachdaten\".\"rsag_masten_hro'
-        verbose_name = 'RSAG Mast'
-        verbose_name_plural = 'RSAG Masten'
-        description = 'Masten der Straßenbahninfrastruktur der RSAG, die Spanndrähte und Querträger tragen'
+        verbose_name = 'RSAG-Mast'
+        verbose_name_plural = 'RSAG-Masten'
+        description = 'Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'aktiv': 'aktiv?',
-            'mastnummer' : 'Mastnummer',
-            #'moment_am_fundament': 'Moment am Fundament',
-            #'spitzenzug_errechnet': 'Spitzenzug P am Fundament',
-            #'spitzenzug_gewaehlt': 'Spitzenzug P am Fundament',
+            'mastnummer': 'Mastnummer',
             'gesamtlaenge': 'Gesamtlänge L',
-            #'einsatztiefe': 'Einsatztiefe T',
-            #'so_bis_fundament': 'Schienenoberkante bis Fundament e',
-            #'boeschung': 'Böschungshöhe z',
-            #'freie_laenge': 'Freie Länge H',
             'masttyp': 'Masttyp',
-            #'nennmass_ueber_so': 'Nennmaß über Schienenoberkante',
-            #'mastgewicht': 'Mastgewicht',
             'fundamenttyp':'Fundamenttyp',
-            #'fundamentlaenge': 'Länge des Fundaments t',
-            #'fundamentdurchmesser': 'Durchmesser des Fundaments',
-            #'nicht_tragfaehiger_boden': 'Tiefe des nicht tragfähigen Bodens',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
             'mastkennzeichen_2': 'Mastkennzeichen 2',
             'mastkennzeichen_3': 'Mastkennzeichen 3',
@@ -11043,17 +11040,7 @@ class RSAG_Masten(models.Model):
             'quelle': 'Quelle'
         }
         list_fields_with_number = [
-            #'moment_am_fundament',
-            #'spitzenzug_errechnet',
-            #'spitzenzug_gewaehlt',
             'gesamtlaenge'
-            #,'einsatztiefe',
-            #'so_bis_fundament',
-            #'boeschung',
-            #'freie_laenge',
-            #'nennmass_ueber_so',
-            #'mastgewicht',
-            #'fundamentlaenge'
         ]
         list_fields_with_foreign_key = {
             'masttyp': 'typ',
@@ -11066,7 +11053,7 @@ class RSAG_Masten(models.Model):
         map_feature_tooltip_field = 'mastnummer'
         map_filter_fields = {
             'uuid': 'UUID',
-            'mastnummer' : 'mastnummer',
+            'mastnummer': 'mastnummer',
             'masttyp': 'masttyp',
             'fundamenttyp':'fundamenttyp',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
@@ -11082,7 +11069,14 @@ class RSAG_Masten(models.Model):
             'mastkennzeichen_2',
             'mastkennzeichen_3',
             'mastkennzeichen_4'
-            ]
+        ]
+        associated_models = {
+            'RSAG_Quertraeger': 'mast',
+            'RSAG_Spanndraehte': 'mast'
+        }
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['mastnummer']
         geometry_type = 'Point'
         as_overlay = True
 
@@ -11102,7 +11096,8 @@ signals.post_save.connect(assign_permissions, sender=RSAG_Masten)
 
 signals.post_delete.connect(remove_permissions, sender=RSAG_Masten)
 
-# Querträger der Straßenbahn der RSAG
+
+# RSAG-Querträger
 
 class RSAG_Quertraeger(models.Model):
     uuid = models.UUIDField(
@@ -11112,7 +11107,7 @@ class RSAG_Quertraeger(models.Model):
     aktiv = models.BooleanField(' aktiv?', default=True)
     mast = models.ForeignKey(
         RSAG_Masten,
-        verbose_name='zugehöriger Mast',
+        verbose_name='Mast',
         on_delete=models.CASCADE,
         db_column='mast',
         to_field='uuid',
@@ -11144,23 +11139,28 @@ class RSAG_Quertraeger(models.Model):
     class Meta:
         managed = False
         db_table = 'fachdaten\".\"rsag_quertraeger_hro'
-        verbose_name = 'RSAG Querträger'
-        verbose_name_plural = 'RSAG Querträger'
-        description = 'Querträger der Straßenbahninfrastruktur der RSAG'
+        verbose_name = 'RSAG-Querträger'
+        verbose_name_plural = 'RSAG-Querträger'
+        description = 'Querträger innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'uuid': 'UUID',
             'aktiv': 'aktiv?',
-            'mast': 'zugehöriger Mast',
+            'mast': 'Mast',
             'quelle': 'Quelle'
         }
         list_fields_with_foreign_key = {
             'mast': 'mastnummer'
         }
+        fields_with_foreign_key_to_linkify = ['mast']
         map_feature_tooltip_field = 'uuid'
         map_filter_fields = {
             'uuid': 'UUID',
+            'mast': 'Mast',
             'quelle': 'Quelle'
         }
+        map_filter_fields_as_list = [
+            'mast'
+        ]
         geometry_type = 'LineString'
         as_overlay = True
 
@@ -11180,7 +11180,8 @@ signals.post_save.connect(assign_permissions, sender=RSAG_Quertraeger)
 
 signals.post_delete.connect(remove_permissions, sender=RSAG_Quertraeger)
 
-# Spanndrähte der Straßenbahn der RSAG
+
+# RSAG-Spanndrähte
 
 class RSAG_Spanndraehte(models.Model):
     uuid = models.UUIDField(
@@ -11190,7 +11191,7 @@ class RSAG_Spanndraehte(models.Model):
     aktiv = models.BooleanField(' aktiv?', default=True)
     mast = models.ForeignKey(
         RSAG_Masten,
-        verbose_name='zugehöriger Mast',
+        verbose_name='Mast',
         on_delete=models.SET_NULL,
         db_column='mast',
         to_field='uuid',
@@ -11224,23 +11225,28 @@ class RSAG_Spanndraehte(models.Model):
     class Meta:
         managed = False
         db_table = 'fachdaten\".\"rsag_spanndraehte_hro'
-        verbose_name = 'RSAG Spanndraht'
-        verbose_name_plural = 'RSAG Spanndrähte'
-        description = 'Spanndrähte der Straßenbahninfrastruktur der RSAG'
+        verbose_name = 'RSAG-Spanndraht'
+        verbose_name_plural = 'RSAG-Spanndrähte'
+        description = 'Spanndrähte innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'uuid': 'UUID',
             'aktiv': 'aktiv?',
-            'mast': 'zugehöriger Mast',
+            'mast': 'Mast',
             'quelle': 'Quelle'
         }
         list_fields_with_foreign_key = {
             'mast': 'mastnummer'
         }
+        fields_with_foreign_key_to_linkify = ['mast']
         map_feature_tooltip_field = 'uuid'
         map_filter_fields = {
             'uuid': 'UUID',
+            'mast': 'Mast',
             'quelle': 'Quelle'
         }
+        map_filter_fields_as_list = [
+            'mast'
+        ]
         geometry_type = 'LineString'
         as_overlay = True
 
@@ -11259,6 +11265,7 @@ class RSAG_Spanndraehte(models.Model):
 signals.post_save.connect(assign_permissions, sender=RSAG_Spanndraehte)
 
 signals.post_delete.connect(remove_permissions, sender=RSAG_Spanndraehte)
+
 
 # Schiffsliegeplätze
 
