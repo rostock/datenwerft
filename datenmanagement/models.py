@@ -10885,9 +10885,7 @@ class RSAG_Masten(models.Model):
         on_delete=models.SET_NULL,
         db_column='masttyp',
         to_field='uuid',
-        related_name='masttypen+',
-        blank=True,
-        null=True)
+        related_name='masttypen+')
     nennmass_ueber_so = PositiveSmallIntegerRangeField(
         'Nennmaß über Schienenoberkante (in mm)',
         min_value=1,
@@ -11053,9 +11051,9 @@ class RSAG_Masten(models.Model):
         map_feature_tooltip_field = 'mastnummer'
         map_filter_fields = {
             'uuid': 'UUID',
-            'mastnummer': 'mastnummer',
-            'masttyp': 'masttyp',
-            'fundamenttyp':'fundamenttyp',
+            'mastnummer': 'Mastnummer',
+            'masttyp': 'Masttyp',
+            'fundamenttyp':'Fundamenttyp',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
             'mastkennzeichen_2': 'Mastkennzeichen 2',
             'mastkennzeichen_3': 'Mastkennzeichen 3',
