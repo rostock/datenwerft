@@ -10882,7 +10882,7 @@ class RSAG_Masten(models.Model):
     masttyp = models.ForeignKey(
         Masttypen_RSAG,
         verbose_name='Masttyp',
-        on_delete=models.SET_NULL,
+        on_delete=models.RESTRICT,
         db_column='masttyp',
         to_field='uuid',
         related_name='masttypen+')
@@ -11106,7 +11106,7 @@ class RSAG_Quertraeger(models.Model):
     mast = models.ForeignKey(
         RSAG_Masten,
         verbose_name='Mast',
-        on_delete=models.CASCADE,
+        on_delete=models.RESTRICT,
         db_column='mast',
         to_field='uuid',
         related_name='mast+')
