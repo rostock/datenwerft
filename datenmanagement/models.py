@@ -9671,6 +9671,8 @@ class Meldedienst_punkthaft(models.Model):
         default=uuid.uuid4,
         editable=False)
     aktiv = models.BooleanField(' aktiv?', default=True)
+    deaktiviert = models.DateField(
+        'Zurückstellung', blank=True, null=True)
     adresse = models.ForeignKey(
         Adressen,
         verbose_name='Adresse',
@@ -9715,19 +9717,22 @@ class Meldedienst_punkthaft(models.Model):
         description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
         list_fields = {
             'aktiv': 'aktiv?',
+            'deaktiviert': 'Zurückstellung',
             'adresse': 'Adresse',
             'art': 'Art',
             'bearbeiter': 'Bearbeiter',
             'bemerkungen': 'Bemerkungen',
             'datum': 'Datum'
         }
-        list_fields_with_date = ['datum']
+        list_fields_with_date = ['deaktiviert', 'datum']
         list_fields_with_foreign_key = {
             'adresse': 'adresse',
             'art': 'art'
         }
+        readonly_fields = ['deaktiviert']
         map_feature_tooltip_field = 'art'
         map_filter_fields = {
+            'aktiv': 'aktiv?',
             'art': 'Art',
             'bearbeiter': 'Bearbeiter',
             'datum': 'Datum'
