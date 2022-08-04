@@ -1,12 +1,12 @@
 import json
 import os
-import pytz
 import re
 import requests
 import time
 import uuid
 
 from datetime import datetime, timezone
+from datenerfassung.secrets import FME_TOKEN, FME_URL
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
@@ -28,7 +28,7 @@ from jsonview.views import JsonView
 from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
-from datenerfassung.secrets import FME_TOKEN, FME_URL
+from zoneinfo import ZoneInfo
 
 
 #
@@ -609,9 +609,8 @@ class DataView(BaseDatatableView):
                     data = datetime.strptime(str(value), '%Y-%m-%d').strftime(
                         '%d.%m.%Y')
                 elif value is not None and self.columns_with_datetime is not None and column in self.columns_with_datetime:
-                    local_tz = pytz.timezone(settings.TIME_ZONE)
                     datetimestamp_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(value))
-                    datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+                    datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
                     datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
                     data = datetimestamp_str
                 elif value is not None and value and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:

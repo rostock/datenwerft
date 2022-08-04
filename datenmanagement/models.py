@@ -1,5 +1,4 @@
 import os
-import pytz
 import re
 import uuid
 from datenmanagement.storage import OverwriteStorage
@@ -18,6 +17,7 @@ from django.core.validators import EmailValidator, MaxValueValidator, \
 from django_currentuser.middleware import get_current_authenticated_user
 from guardian.shortcuts import assign_perm, remove_perm
 from PIL import Image, ExifTags
+from zoneinfo import ZoneInfo
 
 
 
@@ -7020,7 +7020,7 @@ class Fallwildsuchen_Nachweise(models.Model):
         as_overlay = True
 
     def __str__(self):
-        local_tz = pytz.timezone(settings.TIME_ZONE)
+        local_tz = ZoneInfo(settings.TIME_ZONE)
         startzeitpunkt_str = re.sub(
             r'([+-][0-9]{2})\:',
             '\\1',
@@ -7029,7 +7029,7 @@ class Fallwildsuchen_Nachweise(models.Model):
         startzeitpunkt = datetime.strptime(
             startzeitpunkt_str,
             '%Y-%m-%d %H:%M:%S%z'
-        ).replace(tzinfo=pytz.utc).astimezone(local_tz)
+        ).replace(tzinfo=timezone.utc).astimezone(local_tz)
         startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
         endzeitpunkt_str = re.sub(
             r'([+-][0-9]{2})\:',
@@ -7039,7 +7039,7 @@ class Fallwildsuchen_Nachweise(models.Model):
         endzeitpunkt = datetime.strptime(
             endzeitpunkt_str,
             '%Y-%m-%d %H:%M:%S%z'
-        ).replace(tzinfo=pytz.utc).astimezone(local_tz)
+        ).replace(tzinfo=timezone.utc).astimezone(local_tz)
         endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
         return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' + str(self.art_kontrolle) + ']'
 
@@ -7167,11 +7167,11 @@ class Kadaverfunde(models.Model):
         as_overlay = True
 
     def __str__(self):
-        local_tz = pytz.timezone(settings.TIME_ZONE)
+        local_tz = ZoneInfo(settings.TIME_ZONE)
         zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
         zeitpunkt = datetime.strptime(
             zeitpunkt_str,
-            '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=pytz.utc).astimezone(local_tz)
+            '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(local_tz)
         zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
         return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
 
