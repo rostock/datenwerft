@@ -9,7 +9,7 @@
 {% block style %}
   {{ block.super }}
   {% leaflet_css plugins="geoman" %}
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.76.0/L.Control.Locate.min.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-bootstrap-4.min.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
@@ -22,12 +22,12 @@
 {% block scripts %}
   {{ block.super }}
   {% leaflet_js plugins="geoman" %}
-  <script type="text/javascript" src="{% static 'proj4js-2.7.5/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4js-2.8.0/proj4.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket-1.3.8/wicket.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket-1.3.8/wicket-leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.0/L.Control.Locate.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'moment-2.29.1/moment-with-locales.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'moment-2.29.4/moment-with-locales.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-bootstrap-4.min.js' %}"></script>
   <script type="module" src="{% static 'node_modules/martinez-polygon-clipping/dist/martinez.min.js' %}"></script>
   <script type="module" src="{% static 'helpers/leafletHelpers.js' %}"></script>
@@ -383,6 +383,7 @@
           drawPolyline: false,      // Linie
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
+          drawText: false,          // Text
           dragMode: false,          // Verschieben deaktivieren
           editMode: false,          // Editieren des Punktes deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
@@ -398,6 +399,7 @@
           drawMarker: false,        // Marker
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
+          drawText: false,          // Text
           dragMode: false,          // Verschieben deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
@@ -410,6 +412,7 @@
           drawCircle: false,        // Kreis
           drawMarker: false,        // Marker
           drawPolyline: false,      // Linie
+          drawText: false,          // Text
           dragMode: false,          // Verschieben deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
           rotateMode: false,        // Geometrie rotieren
@@ -422,6 +425,7 @@
           drawCircle: false,        // Kreis
           drawMarker: false,        // Marker
           drawPolyline: false,      // Linie
+          drawText: false,          // Text
           dragMode: false,          // Verschieben deaktivieren
           rotateMode: false,        // Geometrie rotieren
         });
@@ -435,6 +439,7 @@
           drawPolyline: false,      // Linie
           drawRectangle: false,     // Rechteck
           drawPolygon: false,       // Polygon
+          drawText: false,          // Text
           dragMode: false,          // Verschieben deaktivieren
           editMode: false,          // Editieren des Punktes deaktivieren
           cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
