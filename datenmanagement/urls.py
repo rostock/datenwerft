@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from django.urls import reverse_lazy
 
-from .views import dataform_views, datalist_views, functions, \
-    helper_views, list_views
+from datenmanagement.views import dataform_views, datalist_views, \
+    functions, helper_views, list_views
 
 
 

@@ -1,23 +1,22 @@
 import os
 import re
 import uuid
-from datenmanagement.storage import OverwriteStorage
+
 from datetime import date, datetime, timezone
 from decimal import *
-from django import forms
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.db import connection
 from django.db.models import options, signals
-from django.core import exceptions
 from django.core.validators import EmailValidator, MaxValueValidator, \
     MinValueValidator, RegexValidator, URLValidator
 from django_currentuser.middleware import get_current_authenticated_user
 from guardian.shortcuts import assign_perm, remove_perm
 from PIL import Image, ExifTags
 from zoneinfo import ZoneInfo
+
+from . import fields, storage
 
 
 
@@ -237,144 +236,6 @@ def thumb_image(path, thumb_path):
         image.close()
     except (AttributeError, KeyError, IndexError):
         pass
-
-
-
-#
-# eigene Felder
-#
-
-# Quelle :https://gist.github.com/danni/f55c4ce19598b2b345ef
-
-class ChoiceArrayField(ArrayField):
-    def formfield(self, **kwargs):
-        defaults = {
-            'form_class': forms.TypedMultipleChoiceField,
-            'choices': self.base_field.choices,
-        }
-        defaults.update(kwargs)
-        return super(ArrayField, self).formfield(**defaults)
-
-    def to_python(self, value):
-        res = super().to_python(value)
-        if isinstance(res, list):
-            value = [self.base_field.to_python(val) for val in res]
-        else:
-            value = None
-        return value
-
-    def validate(self, value, model_instance):
-        if not self.editable:
-            return
-
-        if value is None or value in self.empty_values:
-            return None
-
-        if self.choices is not None and value not in self.empty_values:
-            if set(value).issubset(
-                    {option_key for option_key, _ in self.choices}):
-                return
-            raise exceptions.ValidationError(
-                self.error_messages['invalid_choice'],
-                code='invalid_choice',
-                params={
-                    'value': value
-                },
-            )
-
-        if value is None and not self.null:
-            raise exceptions.ValidationError(
-                self.error_messages['null'], code='null')
-
-        if not self.blank and value in self.empty_values:
-            raise exceptions.ValidationError(
-                self.error_messages['blank'], code='blank')
-
-
-class NullTextField(models.TextField):
-    def get_internal_type(self):
-        return 'TextField'
-
-    def to_python(self, value):
-        if value is None or value in self.empty_values:
-            return None
-        elif isinstance(value, str):
-            return value
-        return str(value)
-
-    def get_prep_value(self, value):
-        value = super(NullTextField, self).get_prep_value(value)
-        return self.to_python(value)
-
-    def formfield(self, **kwargs):
-        return super(NullTextField, self).formfield(**{
-            'max_length': self.max_length,
-            **({} if self.choices is not None else {'widget': forms.Textarea}),
-            **kwargs,
-        })
-
-
-class PositiveIntegerRangeField(models.PositiveIntegerField):
-    def __init__(
-            self,
-            verbose_name=None,
-            name=None,
-            min_value=None,
-            max_value=None,
-            **kwargs):
-        self.min_value, self.max_value = min_value, max_value
-        models.PositiveIntegerField.__init__(
-            self, verbose_name, name, **kwargs)
-
-    def formfield(self, **kwargs):
-        defaults = {'min_value': self.min_value, 'max_value': self.max_value}
-        defaults.update(kwargs)
-        return super(PositiveIntegerRangeField, self).formfield(**defaults)
-
-
-class PositiveIntegerMinField(models.PositiveIntegerField):
-    def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
-        self.min_value = min_value
-        models.PositiveIntegerField.__init__(
-            self, verbose_name, name, **kwargs)
-
-    def formfield(self, **kwargs):
-        defaults = {'min_value': self.min_value}
-        defaults.update(kwargs)
-        return super(PositiveIntegerMinField, self).formfield(**defaults)
-
-
-class PositiveSmallIntegerMinField(models.PositiveSmallIntegerField):
-    def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
-        self.min_value = min_value
-        models.PositiveSmallIntegerField.__init__(
-            self, verbose_name, name, **kwargs)
-
-    def formfield(self, **kwargs):
-        defaults = {'min_value': self.min_value}
-        defaults.update(kwargs)
-        return super(PositiveSmallIntegerMinField, self).formfield(**defaults)
-
-
-class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
-    def __init__(
-            self,
-            verbose_name=None,
-            name=None,
-            min_value=None,
-            max_value=None,
-            **kwargs):
-        self.min_value, self.max_value = min_value, max_value
-        models.PositiveSmallIntegerField.__init__(
-            self, verbose_name, name, **kwargs)
-
-    def formfield(self, **kwargs):
-        defaults = {'min_value': self.min_value, 'max_value': self.max_value}
-        defaults.update(kwargs)
-        return super(
-            PositiveSmallIntegerRangeField,
-            self).formfield(
-            **defaults)
 
 
 
@@ -1007,7 +868,7 @@ class Altersklassen_Kadaverfunde(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    ordinalzahl = fields.PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     bezeichnung = models.CharField(
         'Bezeichnung',
         max_length=255,
@@ -2339,7 +2200,7 @@ class Geschlechter_Kadaverfunde(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    ordinalzahl = fields.PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     bezeichnung = models.CharField(
         'Bezeichnung',
         max_length=255,
@@ -2415,7 +2276,7 @@ class Haefen(models.Model):
             RegexValidator(
                 regex=haefen_abkuerzung_regex,
                 message=haefen_abkuerzung_message)])
-    code = PositiveSmallIntegerRangeField(
+    code = fields.PositiveSmallIntegerRangeField(
         'Code', min_value=1, blank=True, null=True)
 
     class Meta:
@@ -2865,7 +2726,7 @@ class Ordnungen_Fliessgewaesser(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordnung = PositiveSmallIntegerMinField('Ordnung', min_value=1)
+    ordnung = fields.PositiveSmallIntegerMinField('Ordnung', min_value=1)
 
     class Meta:
         managed = False
@@ -3051,7 +2912,7 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    code = PositiveSmallIntegerRangeField('Code', min_value=1, max_value=7)
+    code = fields.PositiveSmallIntegerRangeField('Code', min_value=1, max_value=7)
 
     class Meta:
         managed = False
@@ -3105,7 +2966,7 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    ordinalzahl = fields.PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     reinigungsrhythmus = models.CharField(
         'Reinigungsrhythmus', max_length=255, validators=[
             RegexValidator(
@@ -4118,7 +3979,7 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    code = PositiveSmallIntegerRangeField('Code', min_value=1, max_value=7)
+    code = fields.PositiveSmallIntegerRangeField('Code', min_value=1, max_value=7)
 
     class Meta:
         managed = False
@@ -4172,7 +4033,7 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    ordinalzahl = fields.PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     reinigungsrhythmus = models.CharField(
         'Reinigungsrhythmus', max_length=255, validators=[
             RegexValidator(
@@ -4434,7 +4295,7 @@ class Zustaende_Kadaverfunde(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    ordinalzahl = fields.PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     zustand = models.CharField(
         'Zustand', max_length=255, validators=[
             RegexValidator(
@@ -4502,7 +4363,7 @@ class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    ordinalzahl = PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
+    ordinalzahl = fields.PositiveSmallIntegerRangeField('Ordinalzahl', min_value=1)
     zustand = models.CharField(
         'Zustand', max_length=255, validators=[
             RegexValidator(
@@ -4570,7 +4431,7 @@ class Zustandsbewertungen(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    zustandsbewertung = PositiveSmallIntegerMinField(
+    zustandsbewertung = fields.PositiveSmallIntegerMinField(
         'Zustandsbewertung', min_value=1)
 
     class Meta:
@@ -4628,7 +4489,7 @@ class Abfallbehaelter(models.Model):
         related_name='typen+',
         blank=True,
         null=True)
-    aufstellungsjahr = PositiveSmallIntegerRangeField(
+    aufstellungsjahr = fields.PositiveSmallIntegerRangeField(
         'Aufstellungsjahr', max_value=current_year(), blank=True, null=True)
     eigentuemer = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
@@ -4693,69 +4554,69 @@ class Abfallbehaelter(models.Model):
         null=True)
     haltestelle = models.BooleanField(
         'Lage an einer Haltestelle?', blank=True, null=True)
-    sommer_mo = PositiveSmallIntegerRangeField(
+    sommer_mo = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen montags im Sommer', min_value=1, blank=True, null=True)
-    sommer_di = PositiveSmallIntegerRangeField(
+    sommer_di = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen dienstags im Sommer',
         min_value=1,
         blank=True,
         null=True)
-    sommer_mi = PositiveSmallIntegerRangeField(
+    sommer_mi = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen mittwochs im Sommer',
         min_value=1,
         blank=True,
         null=True)
-    sommer_do = PositiveSmallIntegerRangeField(
+    sommer_do = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen donnerstags im Sommer',
         min_value=1,
         blank=True,
         null=True)
-    sommer_fr = PositiveSmallIntegerRangeField(
+    sommer_fr = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen freitags im Sommer',
         min_value=1,
         blank=True,
         null=True)
-    sommer_sa = PositiveSmallIntegerRangeField(
+    sommer_sa = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen samstags im Sommer',
         min_value=1,
         blank=True,
         null=True)
-    sommer_so = PositiveSmallIntegerRangeField(
+    sommer_so = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen sonntags im Sommer',
         min_value=1,
         blank=True,
         null=True)
-    winter_mo = PositiveSmallIntegerRangeField(
+    winter_mo = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen montags im Winter',
         min_value=1,
         blank=True,
         null=True)
-    winter_di = PositiveSmallIntegerRangeField(
+    winter_di = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen dienstags im Winter',
         min_value=1,
         blank=True,
         null=True)
-    winter_mi = PositiveSmallIntegerRangeField(
+    winter_mi = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen mittwochs im Winter',
         min_value=1,
         blank=True,
         null=True)
-    winter_do = PositiveSmallIntegerRangeField(
+    winter_do = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen donnerstags im Winter',
         min_value=1,
         blank=True,
         null=True)
-    winter_fr = PositiveSmallIntegerRangeField(
+    winter_fr = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen freitags im Winter',
         min_value=1,
         blank=True,
         null=True)
-    winter_sa = PositiveSmallIntegerRangeField(
+    winter_sa = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen samstags im Winter',
         min_value=1,
         blank=True,
         null=True)
-    winter_so = PositiveSmallIntegerRangeField(
+    winter_so = fields.PositiveSmallIntegerRangeField(
         'Anzahl Leerungen sonntags im Winter',
         min_value=1,
         blank=True,
@@ -4870,7 +4731,7 @@ class Angelverbotsbereiche(models.Model):
                 regex=gravis_regex,
                 message=gravis_message
             )])
-    beschreibung = NullTextField('Beschreibung', max_length=1000, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
+    beschreibung = fields.NullTextField('Beschreibung', max_length=1000, blank=True, null=True, validators=[RegexValidator(regex=akut_regex, message=akut_message), RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message), RegexValidator(regex=apostroph_regex, message=apostroph_message), RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(regex=gravis_regex, message=gravis_message)])
     geometrie = models.LineStringField('Geometrie', srid=25833)
 
     class Meta:
@@ -4969,7 +4830,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     datum = models.DateField('Datum', default=date.today)
     pdf = models.FileField(
         'PDF',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PDF_PATH_PREFIX_PRIVATE +
             'aufteilungsplaene_wohnungseigentumsgesetz'),
@@ -5150,13 +5011,13 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    verkehrliche_lagen = ChoiceArrayField(
+    verkehrliche_lagen = fields.ChoiceArrayField(
         models.CharField(
             ' verkehrliche Lage(n)',
             max_length=255,
             choices=()),
         verbose_name=' verkehrliche Lage(n)')
-    sparten = ChoiceArrayField(
+    sparten = fields.ChoiceArrayField(
         models.CharField(
             'Sparte(n)',
             max_length=255,
@@ -5284,7 +5145,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
         'Original-Dateiname', max_length=255, default='ohne')
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PRIVATE +
             'baustellen_fotodokumentation'),
@@ -5378,7 +5239,7 @@ class Baustellen_geplant(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    kurzbeschreibung = NullTextField(
+    kurzbeschreibung = fields.NullTextField(
         'Kurzbeschreibung', max_length=500, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -5394,13 +5255,13 @@ class Baustellen_geplant(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    verkehrliche_lagen = ChoiceArrayField(
+    verkehrliche_lagen = fields.ChoiceArrayField(
         models.CharField(
             ' verkehrliche Lage(n)',
             max_length=255,
             choices=()),
         verbose_name=' verkehrliche Lage(n)')
-    sparten = ChoiceArrayField(
+    sparten = fields.ChoiceArrayField(
         models.CharField(
             'Sparte(n)',
             max_length=255,
@@ -5546,7 +5407,7 @@ class Baustellen_geplant_Dokumente(models.Model):
                             regex=gravis_regex, message=gravis_message)])
     dokument = models.FileField(
         'Dokument',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PDF_PATH_PREFIX_PUBLIC +
             'baustellen_geplant'),
@@ -5694,7 +5555,7 @@ class Behinderteneinrichtungen(models.Model):
         db_column='traeger',
         to_field='uuid',
         related_name='traeger+')
-    plaetze = PositiveSmallIntegerMinField(
+    plaetze = fields.PositiveSmallIntegerMinField(
         'Plätze', min_value=1, blank=True, null=True)
     telefon_festnetz = models.CharField(
         'Telefon (Festnetz)',
@@ -5812,7 +5673,7 @@ class Bildungstraeger(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    schlagwoerter = ChoiceArrayField(
+    schlagwoerter = fields.ChoiceArrayField(
         models.CharField(
             'Schlagwörter',
             max_length=255,
@@ -5938,9 +5799,9 @@ class Carsharing_Stationen(models.Model):
         db_column='anbieter',
         to_field='uuid',
         related_name='anbieter+')
-    anzahl_fahrzeuge = PositiveSmallIntegerMinField(
+    anzahl_fahrzeuge = fields.PositiveSmallIntegerMinField(
         'Anzahl der Fahrzeuge', min_value=1, blank=True, null=True)
-    bemerkungen = NullTextField(
+    bemerkungen = fields.NullTextField(
         'Bemerkungen', max_length=500, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -6077,9 +5938,9 @@ class Containerstellplaetze(models.Model):
         related_name='bewirtschafter_glas+',
         blank=True,
         null=True)
-    anzahl_glas = PositiveSmallIntegerMinField(
+    anzahl_glas = fields.PositiveSmallIntegerMinField(
         'Anzahl Glas normal', min_value=1, blank=True, null=True)
-    anzahl_glas_unterflur = PositiveSmallIntegerMinField(
+    anzahl_glas_unterflur = fields.PositiveSmallIntegerMinField(
         'Anzahl Glas unterflur', min_value=1, blank=True, null=True)
     bewirtschafter_papier = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
@@ -6090,9 +5951,9 @@ class Containerstellplaetze(models.Model):
         related_name='bewirtschafter_papier+',
         blank=True,
         null=True)
-    anzahl_papier = PositiveSmallIntegerMinField(
+    anzahl_papier = fields.PositiveSmallIntegerMinField(
         'Anzahl Papier normal', min_value=1, blank=True, null=True)
-    anzahl_papier_unterflur = PositiveSmallIntegerMinField(
+    anzahl_papier_unterflur = fields.PositiveSmallIntegerMinField(
         'Anzahl Papier unterflur', min_value=1, blank=True, null=True)
     bewirtschafter_altkleider = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
@@ -6103,9 +5964,9 @@ class Containerstellplaetze(models.Model):
         related_name='bewirtschafter_altkleider+',
         blank=True,
         null=True)
-    anzahl_altkleider = PositiveSmallIntegerMinField(
+    anzahl_altkleider = fields.PositiveSmallIntegerMinField(
         'Anzahl Altkleider', min_value=1, blank=True, null=True)
-    inbetriebnahmejahr = PositiveSmallIntegerRangeField(
+    inbetriebnahmejahr = fields.PositiveSmallIntegerRangeField(
         'Inbetriebnahmejahr', max_value=current_year(), blank=True, null=True)
     inventarnummer = models.CharField(
         'Inventarnummer Stellplatz',
@@ -6210,7 +6071,7 @@ class Containerstellplaetze(models.Model):
                             regex=gravis_regex, message=gravis_message)])
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PRIVATE +
             'containerstellplaetze'),
@@ -6389,9 +6250,9 @@ class Denksteine(models.Model):
                             regex=gravis_regex, message=gravis_message), RegexValidator(
                                 regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(
                                     regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-    geburtsjahr = PositiveSmallIntegerRangeField(
+    geburtsjahr = fields.PositiveSmallIntegerRangeField(
         'Geburtsjahr', min_value=1850, max_value=1945)
-    sterbejahr = PositiveSmallIntegerRangeField(
+    sterbejahr = fields.PositiveSmallIntegerRangeField(
         'Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
     text_auf_dem_stein = models.CharField(
         'Text auf dem Stein', max_length=255, validators=[
@@ -6416,7 +6277,7 @@ class Denksteine(models.Model):
         db_column='material',
         to_field='uuid',
         related_name='materialien+')
-    erstes_verlegejahr = PositiveSmallIntegerRangeField(
+    erstes_verlegejahr = fields.PositiveSmallIntegerRangeField(
         ' erstes Verlegejahr', min_value=2002, max_value=current_year())
     website = models.CharField(
         'Website',
@@ -6513,9 +6374,9 @@ class Durchlaesse_Durchlaesse(models.Model):
         related_name='materialien+',
         blank=True,
         null=True)
-    baujahr = PositiveSmallIntegerRangeField(
+    baujahr = fields.PositiveSmallIntegerRangeField(
         'Baujahr', max_value=current_year(), blank=True, null=True)
-    nennweite = PositiveSmallIntegerMinField(
+    nennweite = fields.PositiveSmallIntegerMinField(
         'Nennweite (in mm)', min_value=100, blank=True, null=True)
     laenge = models.DecimalField(
         'Länge (in m)',
@@ -6530,7 +6391,7 @@ class Durchlaesse_Durchlaesse(models.Model):
                 'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.')],
         blank=True,
         null=True)
-    nebenanlagen = NullTextField(
+    nebenanlagen = fields.NullTextField(
         'Nebenanlagen', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -6538,7 +6399,7 @@ class Durchlaesse_Durchlaesse(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    zubehoer = NullTextField(
+    zubehoer = fields.NullTextField(
         'Zubehör', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -6574,7 +6435,7 @@ class Durchlaesse_Durchlaesse(models.Model):
         blank=True,
         null=True)
     kontrolle = models.DateField('Kontrolle', blank=True, null=True)
-    bemerkungen = NullTextField(
+    bemerkungen = fields.NullTextField(
         'Bemerkungen', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -6678,7 +6539,7 @@ class Durchlaesse_Fotos(models.Model):
         default=date.today,
         blank=True,
         null=True)
-    bemerkungen = NullTextField(
+    bemerkungen = fields.NullTextField(
         'Bemerkungen', max_length=255, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -6690,7 +6551,7 @@ class Durchlaesse_Fotos(models.Model):
         'Original-Dateiname', max_length=255, default='ohne')
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PUBLIC +
             'durchlaesse'),
@@ -7087,7 +6948,7 @@ class Kadaverfunde(models.Model):
         db_column='altersklasse',
         to_field='uuid',
         related_name='altersklassen+')
-    gewicht = PositiveSmallIntegerRangeField(
+    gewicht = fields.PositiveSmallIntegerRangeField(
         ' geschätztes Gewicht (in kg)', min_value=1, blank=True, null=True)
     zustand = models.ForeignKey(
         Zustaende_Kadaverfunde,
@@ -7111,7 +6972,7 @@ class Kadaverfunde(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    bemerkungen = NullTextField(
+    bemerkungen = fields.NullTextField(
         'Bemerkungen', max_length=500, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -7289,7 +7150,7 @@ class Feldsportanlagen(models.Model):
         related_name='traeger+')
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PUBLIC +
             'feldsportanlagen'),
@@ -7504,7 +7365,7 @@ class Fliessgewaesser(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    nennweite = PositiveSmallIntegerMinField(
+    nennweite = fields.PositiveSmallIntegerMinField(
         'Nennweite (in mm)', min_value=100, blank=True, null=True)
     laenge = models.PositiveIntegerField('Länge (in m)', default=0)
     laenge_in_hro = models.PositiveIntegerField(
@@ -7817,7 +7678,7 @@ class Geraetespielanlagen(models.Model):
                             regex=gravis_regex, message=gravis_message)])
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PUBLIC +
             'geraetespielanlagen'),
@@ -7917,7 +7778,7 @@ class Gutachterfotos(models.Model):
     aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PRIVATE +
             'gutachterfotos'),
@@ -8007,7 +7868,7 @@ class Hospize(models.Model):
         db_column='traeger',
         to_field='uuid',
         related_name='traeger+')
-    plaetze = PositiveSmallIntegerMinField(
+    plaetze = fields.PositiveSmallIntegerMinField(
         'Plätze', min_value=1, blank=True, null=True)
     telefon_festnetz = models.CharField(
         'Telefon (Festnetz)',
@@ -8156,7 +8017,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    hst_linien = ChoiceArrayField(
+    hst_linien = fields.ChoiceArrayField(
         models.CharField(
             ' bedienende Linie(n)',
             max_length=4,
@@ -8176,23 +8037,23 @@ class Haltestellenkataster_Haltestellen(models.Model):
         ' nur Ausstieg?', blank=True, null=True)
     hst_nur_einstieg = models.BooleanField(
         ' nur Einstieg?', blank=True, null=True)
-    hst_verkehrsmittelklassen = ChoiceArrayField(
+    hst_verkehrsmittelklassen = fields.ChoiceArrayField(
         models.CharField(
             'Verkehrsmittelklasse(n)',
             max_length=255,
             choices=()),
         verbose_name='Verkehrsmittelklasse(n)')
-    hst_abfahrten = PositiveSmallIntegerMinField(
+    hst_abfahrten = fields.PositiveSmallIntegerMinField(
         ' durchschnittliche tägliche Zahl an Abfahrten',
         min_value=1,
         blank=True,
         null=True)
-    hst_fahrgastzahl_einstieg = PositiveSmallIntegerMinField(
+    hst_fahrgastzahl_einstieg = fields.PositiveSmallIntegerMinField(
         ' durchschnittliche tägliche Fahrgastzahl (Einstieg)',
         min_value=1,
         blank=True,
         null=True)
-    hst_fahrgastzahl_ausstieg = PositiveSmallIntegerMinField(
+    hst_fahrgastzahl_ausstieg = fields.PositiveSmallIntegerMinField(
         ' durchschnittliche tägliche Fahrgastzahl (Ausstieg)',
         min_value=1,
         blank=True,
@@ -8285,7 +8146,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
         related_name='tl_auffindestreifen_ausfuehrungen+',
         blank=True,
         null=True)
-    tl_auffindestreifen_breite = PositiveIntegerMinField(
+    tl_auffindestreifen_breite = fields.PositiveIntegerMinField(
         'Taktiles Leitsystem: Breite des Auffindestreifens (in cm)',
         min_value=1,
         blank=True,
@@ -8301,7 +8162,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
         related_name='tl_einstiegsfeld_ausfuehrungen+',
         blank=True,
         null=True)
-    tl_einstiegsfeld_breite = PositiveIntegerMinField(
+    tl_einstiegsfeld_breite = fields.PositiveIntegerMinField(
         'Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)',
         min_value=1,
         blank=True,
@@ -8317,7 +8178,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
         related_name='tl_leitstreifen_ausfuehrungen+',
         blank=True,
         null=True)
-    tl_leitstreifen_laenge = PositiveIntegerMinField(
+    tl_leitstreifen_laenge = fields.PositiveIntegerMinField(
         'Taktiles Leitsystem: Länge des Leitstreifens (in cm)',
         min_value=1,
         blank=True,
@@ -8441,7 +8302,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    bemerkungen = NullTextField(
+    bemerkungen = fields.NullTextField(
         'Bemerkungen', max_length=500, blank=True, null=True, validators=[
             RegexValidator(
                 regex=akut_regex, message=akut_message), RegexValidator(
@@ -8530,7 +8391,7 @@ class Haltestellenkataster_Fotos(models.Model):
         'Original-Dateiname', max_length=255, default='ohne')
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PRIVATE +
             'haltestellenkataster'),
@@ -8609,7 +8470,7 @@ class Hundetoiletten(models.Model):
         db_column='art',
         to_field='uuid',
         related_name='arten+')
-    aufstellungsjahr = PositiveSmallIntegerRangeField(
+    aufstellungsjahr = fields.PositiveSmallIntegerRangeField(
         'Aufstellungsjahr', max_value=current_year(), blank=True, null=True)
     bewirtschafter = models.ForeignKey(
         Bewirtschafter_Betreiber_Traeger_Eigentuemer,
@@ -8887,7 +8748,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
                             regex=gravis_regex, message=gravis_message), RegexValidator(
                                 regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message), RegexValidator(
                                     regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)])
-    plaetze = PositiveSmallIntegerMinField(
+    plaetze = fields.PositiveSmallIntegerMinField(
         'Plätze', min_value=1, blank=True, null=True)
     zeiten = models.CharField(
         'Betreuungszeiten',
@@ -9126,7 +8987,7 @@ class Kunst_im_oeffentlichen_Raum(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    entstehungsjahr = PositiveSmallIntegerRangeField(
+    entstehungsjahr = fields.PositiveSmallIntegerRangeField(
         'Entstehungsjahr', max_value=current_year(), blank=True, null=True)
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')
@@ -9220,7 +9081,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
         db_column='betriebsart',
         to_field='uuid',
         related_name='betriebsarten+')
-    anzahl_ladepunkte = PositiveSmallIntegerMinField(
+    anzahl_ladepunkte = fields.PositiveSmallIntegerMinField(
         'Anzahl an Ladepunkten', min_value=1, blank=True, null=True)
     arten_ladepunkte = models.CharField(
         'Arten der Ladepunkte', max_length=255, blank=True, null=True, validators=[
@@ -9230,7 +9091,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    ladekarten = ChoiceArrayField(
+    ladekarten = fields.ChoiceArrayField(
         models.CharField(
             'Ladekarten',
             max_length=255,
@@ -9363,7 +9224,7 @@ class Meilensteinplan_Ziele(models.Model):
             RegexValidator(
                 regex=gravis_regex,
                 message=gravis_message)])
-    start = PositiveSmallIntegerRangeField(
+    start = fields.PositiveSmallIntegerRangeField(
         'Start',
         min_value=(
             current_year() - 10),
@@ -9371,7 +9232,7 @@ class Meilensteinplan_Ziele(models.Model):
             current_year() + 20),
         blank=True,
         null=True)
-    ende = PositiveSmallIntegerRangeField(
+    ende = fields.PositiveSmallIntegerRangeField(
         'Ende', min_value=current_year(), max_value=(
             current_year() + 20), blank=True, null=True)
     website = models.CharField(
@@ -9436,7 +9297,7 @@ class Meilensteinplan_Meilensteine(models.Model):
         db_column='meilensteinplan_ziel',
         to_field='uuid',
         related_name='meilensteinplan_ziel+')
-    laufende_nummer = PositiveSmallIntegerMinField(
+    laufende_nummer = fields.PositiveSmallIntegerMinField(
         ' laufende Nummer', min_value=1)
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
@@ -9496,7 +9357,7 @@ class Meilensteinplan_Meilensteine(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    start = PositiveSmallIntegerRangeField(
+    start = fields.PositiveSmallIntegerRangeField(
         'Start',
         min_value=(
             current_year() - 10),
@@ -9504,7 +9365,7 @@ class Meilensteinplan_Meilensteine(models.Model):
             current_year() + 20),
         blank=True,
         null=True)
-    ende = PositiveSmallIntegerRangeField(
+    ende = fields.PositiveSmallIntegerRangeField(
         'Ende', min_value=current_year(), max_value=(
             current_year() + 20), blank=True, null=True)
     bearbeitungsstand = models.CharField(
@@ -9776,7 +9637,7 @@ class Mobilpunkte(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    angebote = ChoiceArrayField(
+    angebote = fields.ChoiceArrayField(
         models.CharField(
             'Angebote',
             max_length=255,
@@ -9869,11 +9730,11 @@ class Parkmoeglichkeiten(models.Model):
         related_name='betreiber+',
         blank=True,
         null=True)
-    stellplaetze_pkw = PositiveSmallIntegerMinField(
+    stellplaetze_pkw = fields.PositiveSmallIntegerMinField(
         'Pkw-Stellplätze', min_value=1, blank=True, null=True)
-    stellplaetze_wohnmobil = PositiveSmallIntegerMinField(
+    stellplaetze_wohnmobil = fields.PositiveSmallIntegerMinField(
         'Wohnmobilstellplätze', min_value=1, blank=True, null=True)
-    stellplaetze_bus = PositiveSmallIntegerMinField(
+    stellplaetze_bus = fields.PositiveSmallIntegerMinField(
         'Busstellplätze', min_value=1, blank=True, null=True)
     gebuehren_halbe_stunde = models.DecimalField(
         'Gebühren pro ½ h (in €)',
@@ -10002,7 +9863,7 @@ class Parkscheinautomaten_Tarife(models.Model):
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
     zeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
-    normaltarif_parkdauer_min = PositiveSmallIntegerMinField(
+    normaltarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
         'Mindestparkdauer Normaltarif', min_value=1)
     normaltarif_parkdauer_min_einheit = models.ForeignKey(
         Zeiteinheiten,
@@ -10011,7 +9872,7 @@ class Parkscheinautomaten_Tarife(models.Model):
         db_column='normaltarif_parkdauer_min_einheit',
         to_field='uuid',
         related_name='normaltarif_parkdauer_min_einheiten+')
-    normaltarif_parkdauer_max = PositiveSmallIntegerMinField(
+    normaltarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
         'Maximalparkdauer Normaltarif', min_value=1)
     normaltarif_parkdauer_max_einheit = models.ForeignKey(
         Zeiteinheiten,
@@ -10048,7 +9909,7 @@ class Parkscheinautomaten_Tarife(models.Model):
         null=True)
     normaltarif_gebuehrenschritte = models.CharField(
         'Gebührenschritte Normaltarif', max_length=255, blank=True, null=True)
-    veranstaltungstarif_parkdauer_min = PositiveSmallIntegerMinField(
+    veranstaltungstarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
         'Mindestparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
     veranstaltungstarif_parkdauer_min_einheit = models.ForeignKey(
         Zeiteinheiten,
@@ -10059,7 +9920,7 @@ class Parkscheinautomaten_Tarife(models.Model):
         related_name='veranstaltungstarif_parkdauer_min_einheiten+',
         blank=True,
         null=True)
-    veranstaltungstarif_parkdauer_max = PositiveSmallIntegerMinField(
+    veranstaltungstarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
         'Maximalparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
     veranstaltungstarif_parkdauer_max_einheit = models.ForeignKey(
         Zeiteinheiten,
@@ -10171,7 +10032,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         db_column='zone',
         to_field='uuid',
         related_name='zonen+')
-    handyparkzone = PositiveIntegerRangeField(
+    handyparkzone = fields.PositiveIntegerRangeField(
         'Handyparkzone', min_value=100000, max_value=999999)
     bewohnerparkgebiet = models.CharField(
         'Bewohnerparkgebiet',
@@ -10197,11 +10058,11 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         db_column='e_anschluss',
         to_field='uuid',
         related_name='e_anschluesse+')
-    stellplaetze_pkw = PositiveSmallIntegerMinField(
+    stellplaetze_pkw = fields.PositiveSmallIntegerMinField(
         'Pkw-Stellplätze', min_value=1, blank=True, null=True)
-    stellplaetze_bus = PositiveSmallIntegerMinField(
+    stellplaetze_bus = fields.PositiveSmallIntegerMinField(
         'Bus-Stellplätze', min_value=1, blank=True, null=True)
-    haendlerkartennummer = PositiveIntegerRangeField(
+    haendlerkartennummer = fields.PositiveIntegerRangeField(
         'Händlerkartennummer',
         min_value=1000000000,
         max_value=9999999999,
@@ -10308,7 +10169,7 @@ class Pflegeeinrichtungen(models.Model):
                     regex=apostroph_regex, message=apostroph_message), RegexValidator(
                         regex=doppelleerzeichen_regex, message=doppelleerzeichen_message), RegexValidator(
                             regex=gravis_regex, message=gravis_message)])
-    plaetze = PositiveSmallIntegerMinField(
+    plaetze = fields.PositiveSmallIntegerMinField(
         'Plätze', min_value=1, blank=True, null=True)
     telefon_festnetz = models.CharField(
         'Telefon (Festnetz)',
@@ -10455,8 +10316,8 @@ class Poller(models.Model):
         related_name='typen+',
         blank=True,
         null=True)
-    anzahl = PositiveSmallIntegerMinField('Anzahl', min_value=1)
-    schliessungen = ChoiceArrayField(
+    anzahl = fields.PositiveSmallIntegerMinField('Anzahl', min_value=1)
+    schliessungen = fields.ChoiceArrayField(
         models.CharField(
             'Schließungen',
             max_length=255,
@@ -10788,7 +10649,7 @@ class RSAG_Masten(models.Model):
             )
         ]
     )
-    moment_am_fundament = PositiveSmallIntegerRangeField(
+    moment_am_fundament = fields.PositiveSmallIntegerRangeField(
         'Moment am Fundament (in kNm)',
         min_value=1,
         blank=True,
@@ -10891,12 +10752,12 @@ class RSAG_Masten(models.Model):
         db_column='masttyp',
         to_field='uuid',
         related_name='masttypen+')
-    nennmass_ueber_so = PositiveSmallIntegerRangeField(
+    nennmass_ueber_so = fields.PositiveSmallIntegerRangeField(
         'Nennmaß über Schienenoberkante (in mm)',
         min_value=1,
         blank=True,
         null=True)
-    mastgewicht = PositiveSmallIntegerRangeField(
+    mastgewicht = fields.PositiveSmallIntegerRangeField(
         'Mastgewicht (in kg)',
         min_value=1,
         blank=True,
@@ -11517,7 +11378,7 @@ class Sporthallen(models.Model):
         null=True)
     foto = models.ImageField(
         'Foto',
-        storage=OverwriteStorage(),
+        storage=storage.OverwriteStorage(),
         upload_to=path_and_rename(
             settings.PHOTO_PATH_PREFIX_PUBLIC +
             'sporthallen'),
@@ -12514,7 +12375,7 @@ class Vereine(models.Model):
             )
         ]
     )
-    vereinsregister_id = PositiveSmallIntegerMinField(
+    vereinsregister_id = fields.PositiveSmallIntegerMinField(
         'ID im Vereinsregister',
         min_value=1,
         unique=True,
@@ -12523,7 +12384,7 @@ class Vereine(models.Model):
     )
     vereinsregister_datum = models.DateField(
         'Datum des Eintrags im Vereinsregister', blank=True, null=True)
-    schlagwoerter = ChoiceArrayField(
+    schlagwoerter = fields.ChoiceArrayField(
         models.CharField(
             'Schlagwörter',
             max_length=255,
@@ -12650,7 +12511,7 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
             )
         ]
     )
-    berechtigungen = ChoiceArrayField(
+    berechtigungen = fields.ChoiceArrayField(
         models.CharField(
             'verkaufte Berechtigung(en)',
             max_length=255,

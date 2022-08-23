@@ -77,43 +77,12 @@ def get_type_of_field(field_name, model_name):
 
 
 @register.filter
-def get_type_of_geometry_field(field):
-  if field.field.__class__ == forms.PointField:
-    return 1
-  elif field.field.__class__ == forms.LineStringField:
-    return 2
-  elif field.field.__class__ == forms.MultiLineStringField:
-    return 3
-  elif field.field.__class__ == forms.PolygonField:
-    return 4
-  elif field.field.__class__ == forms.MultiPolygonField:
-    return 5
-  else:
-    return ["None"]
-
-
-@register.filter
 def get_value_of_field(value, field):
   return_value = getattr(value, field)
   if isinstance(return_value, list):
     return ', '.join(return_value)
   else:
     return return_value
-
-
-@register.filter
-def get_values(value):
-  valuelist = []
-  fieldlist = value.__class__._meta.list_fields
-  if fieldlist:
-    for field in fieldlist:
-      item = getattr(value, field)
-      if (isinstance(item, list)):
-        item = ', '.join(sorted(item))
-      valuelist.append(item)
-    return valuelist
-  else:
-    return ["None"]
 
 
 @register.filter
@@ -144,14 +113,6 @@ def get_and_concat_values_of_map_feature_tooltip_fields(value):
     return ["None"]
   else:
     return tooltip_value
-
-
-@register.simple_tag
-def get_version_date():
-  if os.path.isdir(os.path.join(settings.BASE_DIR, '.git')):
-    return time.strftime('%d.%m.%Y', time.gmtime(os.path.getmtime(os.path.join(settings.BASE_DIR, '.git'))))
-  else:
-    return '?'
 
 
 @register.filter
@@ -190,22 +151,6 @@ def is_field_hours_related_field(field):
 def is_field_nullable(field_name, model_name):
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   return model._meta.get_field(field_name).null
-
-
-@register.filter
-def is_user_in_group_by_user_name(user_name, group_name):
-  user_mail = re.sub('^.*\(', '', user_name)
-  user_mail = re.sub('\)$', '', user_mail)
-  users = User.objects.filter(groups__name = group_name)
-  for user in users:
-    if user.email.lower() == user_mail:
-      return True
-  return False
-
-
-@register.filter
-def is_user_in_group_by_user_object(user, group_name):
-  return user.groups.filter(name = group_name).exists()
 
 
 @register.filter
