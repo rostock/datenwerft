@@ -1,9 +1,11 @@
 import re
-from .views import functions, views
+
 from django.apps import apps
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
+
+from .views import functions, generics, views
 
 
 
@@ -19,20 +21,20 @@ urlpatterns = [
         name='index'),
     # OWSProxyView
     url(regex=r'owsproxy',
-        view=login_required(views.OWSProxyView.as_view()),
+        view=login_required(generics.OWSProxyView.as_view()),
         name='owsproxy'),
     # AddressSearchView
     url(regex=r'addresssearch$',
-        view=login_required(views.AddressSearchView.as_view()),
+        view=login_required(generics.AddressSearchView.as_view()),
         name='addresssearch'),
     # ReverseSearchView
     url(regex=r'reversesearch$',
-        view=login_required(views.ReverseSearchView.as_view()),
+        view=login_required(generics.ReverseSearchView.as_view()),
         name='reversesearch'),
-    # GPX => GeoJson
+    # GPXtoGeoJSON
     url(
         regex=r'gpxtogeojson/$',
-        view=login_required()(views.GPXtoGeoJson.as_view()),
+        view=login_required()(generics.GPXtoGeoJSON.as_view()),
         name='gpxtogeojson'),
 ]
 

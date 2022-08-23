@@ -1,35 +1,15 @@
-#import json
 import os
 import re
-#import requests
-#import time
-#import uuid
-#from datetime import datetime, timezone
-#from datenerfassung.secrets import FME_TOKEN, FME_URL
+
 from django.apps import apps
-#from django.conf import settings
-#from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
-#from django.db import connection
-#from django.db.models import Q
 from django.forms import CheckboxSelectMultiple, TextInput
-#from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
- #   UUIDField, ValidationError, TextInput
-#from django.forms.models import modelform_factory
 from django.http import HttpResponse
-#from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-#from django.urls import reverse
-#from django.utils.html import escape
-#from django.views import generic
-#from django.views.decorators.csrf import csrf_exempt
-#from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
-#from jsonview.views import JsonView
 from leaflet.forms.widgets import LeafletWidget
-#from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
-#from zoneinfo import ZoneInfo
+
 
 
 def assign_widgets(field):

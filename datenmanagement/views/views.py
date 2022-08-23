@@ -1,195 +1,30 @@
 import json
-import os
 import re
-import requests
 import time
 import uuid
-from . import functions
+
 from datetime import datetime, timezone
-from datenerfassung.secrets import FME_TOKEN, FME_URL
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.db.models import Q
-from django.forms import CheckboxSelectMultiple, ChoiceField, ModelForm, \
-    UUIDField, ValidationError, TextInput
+from django.forms import ChoiceField, ModelForm, TextInput, \
+    UUIDField, ValidationError
 from django.forms.models import modelform_factory
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.html import escape
 from django.views import generic
-from django.views.decorators.csrf import csrf_exempt
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
 from jsonview.views import JsonView
-from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
-from tempus_dominus.widgets import DatePicker, DateTimePicker
 from zoneinfo import ZoneInfo
 
+from . import fields, functions
 
-#
-# eigene Felder
-#
-
-class AddressUUIDField(UUIDField):
-    """
-    Verstecktes Input-Feld bei der Adresssuche
-
-    Verwendung in Klasse DataForm
-    """
-
-    def to_python(self, value):
-        """
-
-        :param value: UUID
-        :return: Adresse
-        """
-        if value in self.empty_values:
-            return None
-        adressen = apps.get_app_config('datenmanagement').get_model('Adressen')
-        return adressen.objects.get(pk=value)
-
-
-class StreetUUIDField(UUIDField):
-    """
-    Verwendung in Klasse DataForm.
-    """
-
-    def to_python(self, value):
-        """
-
-        :param value: UUID
-        :return: Straße
-        """
-        if value in self.empty_values:
-            return None
-        strassen = apps.get_app_config('datenmanagement').get_model('Strassen')
-        return strassen.objects.get(pk=value)
-
-
-#
-# eigene Views
-#
-
-class OWSProxyView(generic.View):
-    """
-    Dient dazu, dass keine API Keys nach Außen weitergeleitet werden.
-    """
-    http_method_names = ['get', ]
-
-    def dispatch(self, request, *args, **kwargs):
-        self.destination_url = settings.OWS_BASE + re.sub(
-            pattern='^.*owsproxy',
-            repl='',
-            string=str(request.get_full_path)
-        )
-        return super(OWSProxyView, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        response = requests.get(self.destination_url, timeout=60)
-        return HttpResponse(response,
-                            content_type=response.headers['content-type'])
-
-
-class AddressSearchView(generic.View):
-    """
-    Bekommt Proxy Vorgeschaltet
-    """
-    http_method_names = ['get', ]
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.addresssearch_type = 'search'
-        self.addresssearch_class = 'address_hro'
-        self.addresssearch_query = request.GET.get('query', '')
-        self.addresssearch_out_epsg = '4326'
-        self.addresssearch_shape = 'bbox'
-        self.addresssearch_limit = '5'
-        return super(
-            AddressSearchView,
-            self).dispatch(
-            request,
-            *
-            args,
-            **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        response = requests.get(
-            settings.ADDRESS_SEARCH_URL + 'key=' + settings.ADDRESS_SEARCH_KEY
-            + '&type=' + self.addresssearch_type + '&class='
-            + self.addresssearch_class + '&query=' + self.addresssearch_query
-            + '&out_epsg=' + self.addresssearch_out_epsg + '&shape='
-            + self.addresssearch_shape + '&limit=' + self.addresssearch_limit,
-            timeout=3
-        )
-        return HttpResponse(response, content_type='application/json')
-
-
-class ReverseSearchView(generic.View):
-    """
-    Reverse Search: Sucht nach Objekten in einer bestimmten Umgebung von
-    gegebenen Koordinaten.
-    """
-    http_method_names = ['get', ]
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.reversesearch_type = 'reverse'
-        self.reversesearch_class = 'address'
-        self.reversesearch_x = request.GET.get('x', '')
-        self.reversesearch_y = request.GET.get('y', '')
-        self.reversesearch_in_epsg = '4326'
-        self.reversesearch_radius = '200'
-        return super(
-            ReverseSearchView,
-            self).dispatch(
-            request,
-            *
-            args,
-            **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        """
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        response = requests.get(
-            url=settings.ADDRESS_SEARCH_URL + 'key=' +
-            settings.ADDRESS_SEARCH_KEY + '&type=' +
-            self.reversesearch_type + '&class=' +
-            self.reversesearch_class + '&query=' +
-            self.reversesearch_x + ',' +
-            self.reversesearch_y + '&in_epsg=' +
-            self.reversesearch_in_epsg + '&radius=' +
-            self.reversesearch_radius,
-            timeout=3)
-        return HttpResponse(response, content_type='application/json')
 
 
 class DataForm(ModelForm):
@@ -1300,52 +1135,3 @@ class GeometryView(JsonView):
                 context['model_name'] = self.model.__name__
 
         return context
-
-
-class GPXtoGeoJson(generic.View):
-    """
-    Weiterleiten einer GPX Datei an FME und zurückgeben des generierten GeoJsons
-    """
-    http_method_names = ['post', ]
-
-    @csrf_exempt
-    def dispatch(self, request, *args, **kwargs):
-        """
-        ``dispatch()`` wird von ``GPXtoGeoJson.as_view()`` in ``urls.py``
-        aufgerufen. ``dispatch()`` leitet auf ``post()`` weiter, da ein
-        **POST** Request ausgeführt wurde.
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        return super(GPXtoGeoJson, self).dispatch(request, *args, **kwargs)
-
-    @csrf_exempt
-    def post(self, request, *args, **kwargs):
-        """
-        Automatisch von ``dispatch()`` aufgerufen.
-        :param request:
-        :param args:
-        :param kwargs:
-        :return: GeoJson des übergebenen GPX oder FME Fehler
-        """
-        # Name 'gpx' Kommt aus dem Inputfeld im Template
-        gpxFile = request.FILES['gpx']
-        x = requests.post(
-            url=FME_URL,
-            headers={
-                "Authorization": FME_TOKEN,
-                "Content-Type": "application/gpx+xml",
-                "Accept": "application/geo+json",
-            },
-            data=gpxFile,
-        )
-        if (x.status_code != 200):
-            response = {
-                "StatusCode": str(x.status_code),
-                "FMELog": str(x.text)
-            }
-            return JsonResponse(data=response.json())
-        else:
-            return JsonResponse(data=x.json())
