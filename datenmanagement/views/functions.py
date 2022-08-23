@@ -14,10 +14,10 @@ from tempus_dominus.widgets import DatePicker, DateTimePicker
 
 def assign_widgets(field):
     """
-    Liefert zu field passendes Formularwidget.
+    liefert passendes Formularelement oder Widget zu field
 
-    :param field:
-    :return: Widget für Formular
+    :param field: Feld
+    :return: Formularelement oder Widget
     """
     if field.name == 'geometrie':
         return field.formfield(widget=LeafletWidget())
@@ -44,11 +44,11 @@ def assign_widgets(field):
 
 def delete_object_immediately(request, pk):
     """
-    Löschen eines Datensatzes aus der DB. Bei fehlenden Berechtigungen wird eine
-    PermissionDenied() Exception geworfen.
+    löscht ein Objekt aus der Datenbank; wirft eine
+    entsprechende Exception bei fehlenden Berechtigungen
 
-    :param request: WSGI Request
-    :param pk: Primärschlüssel des zu löschenden Objekts
+    :param request: WSGI-Request
+    :param pk: Primärschlüssel des zu löschenden Datenbankobjekts
     :return: HTTP 204 No Content
     """
     model_name = re.sub(
@@ -72,7 +72,7 @@ def delete_object_immediately(request, pk):
 
 def get_thumb_url(url):
     """
-    Gibt für gegebene Bild-URL, die dazugehörige Thumbnail-URL zurück.
+    gibt für url die zugehörige Thumbnail-URL zurück
 
     :param url: URL eines Bildes
     :return: URL des zugehörigen Thumbnails

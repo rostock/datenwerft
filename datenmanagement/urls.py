@@ -5,7 +5,7 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
 
-from .views import functions, generics, views
+from .views import functions, generic_views, list_views, views
 
 
 
@@ -17,24 +17,24 @@ app_name = 'datenmanagement'
 urlpatterns = [
     # IndexView
     url(regex=r'^$',
-        view=views.IndexView.as_view(),
+        view=list_views.IndexView.as_view(),
         name='index'),
     # OWSProxyView
     url(regex=r'owsproxy',
-        view=login_required(generics.OWSProxyView.as_view()),
+        view=login_required(generic_views.OWSProxyView.as_view()),
         name='owsproxy'),
     # AddressSearchView
     url(regex=r'addresssearch$',
-        view=login_required(generics.AddressSearchView.as_view()),
+        view=login_required(generic_views.AddressSearchView.as_view()),
         name='addresssearch'),
     # ReverseSearchView
     url(regex=r'reversesearch$',
-        view=login_required(generics.ReverseSearchView.as_view()),
+        view=login_required(generic_views.ReverseSearchView.as_view()),
         name='reversesearch'),
     # GPXtoGeoJSON
     url(
         regex=r'gpxtogeojson/$',
-        view=login_required()(generics.GPXtoGeoJSON.as_view()),
+        view=login_required()(generic_views.GPXtoGeoJSON.as_view()),
         name='gpxtogeojson'),
 ]
 
@@ -53,7 +53,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(views.StartView.as_view(
+        )(list_views.StartView.as_view(
             model=model,
             template_name='datenmanagement/start.html'
         )),
@@ -157,6 +157,6 @@ for model in app_models:
 
     urlpatterns.append(url(
         regex=regex + r'geometry/',
-        view=login_required(views.GeometryView.as_view(model=model)),
+        view=login_required(generic_views.GeometryView.as_view(model=model)),
         name=model_name + 'geometry'
     ))

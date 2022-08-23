@@ -3,9 +3,11 @@ import requests
 
 from datenerfassung.secrets import FME_TOKEN, FME_URL
 from django.conf import settings
+from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+from jsonview.views import JsonView
 
 
 
@@ -131,9 +133,85 @@ class ReverseSearchView(generic.View):
         return HttpResponse(response, content_type='application/json')
 
 
+class GeometryView(JsonView):
+    """
+    Abfrage von Geometrien bestimmter Modelle;
+    zur Filterung können folgende Angaben gemacht werden:
+    * lat, lng, (rad): Koordinaten eines Punktes (EPSG:4326) und Radius
+    * pk: Primärschlüssel eines Datenbankobjekts
+    """
+    model = None
+
+    def __init__(self, model):
+        self.model = model
+        super(GeometryView, self).__init__()
+
+    def get_context_data(self, **kwargs):
+        context = super(GeometryView, self).get_context_data(**kwargs)
+        # Filtern nach angegebenen Kriterien
+        if self.request.GET.get('pk'):
+            # Bei Angaben von 'pk'
+            pk = self.request.GET.get('pk')
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
+                    self.model._meta.db_table.replace('"', '') +
+                    ' WHERE uuid = %s;',
+                    [pk]
+                )
+                uuid, geom = cursor.fetchone() # Tupel
+                context['uuid'] = uuid
+                context['geometry'] = geom
+                context['model_name'] = self.model.__name__
+
+
+        elif self.request.GET.get('lat') and self.request.GET.get('lng'):
+            # Bei Angabe von Koordinaten (rad standardmäßig 0)
+            lat = float(self.request.GET.get('lat'))
+            lng = float(self.request.GET.get('lng'))
+            if self.request.GET.get('rad'):
+                rad = float(self.request.GET.get('rad'))
+            else:
+                rad = 0
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
+                    self.model._meta.db_table.replace('"', '') +
+                    ' WHERE st_contains(st_buffer(st_transform(st_setsrid(st_makepoint(%s, %s),4326)::geometry,25833),%s),geometrie);',
+                    [lng, lat, rad]
+                )
+                row = cursor.fetchall()
+                uuids = []
+                geom = []
+                for i in range(len(row)):
+                    uuids.append(row[i][0])
+                    geom.append(str(row[i][1]))
+                context['uuids'] = uuids
+                context['object_list'] = geom
+                context['model_name'] = self.model.__name__
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
+                    self.model._meta.db_table.replace('"', '') + ';',
+                    []
+                )
+                row = cursor.fetchall()
+                uuids = []
+                geom = []
+                for i in range(len(row)):
+                    uuids.append(row[i][0])
+                    geom.append(str(row[i][1]))
+                context['uuids'] = uuids
+                context['object_list'] = geom
+                context['model_name'] = self.model.__name__
+
+        return context
+
+
 class GPXtoGeoJSON(generic.View):
     """
-    Weiterleiten einer GPX-Datei an FME Server und zurückgeben des generierten GeoJSON
+    Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
     """
     http_method_names = ['post', ]
 

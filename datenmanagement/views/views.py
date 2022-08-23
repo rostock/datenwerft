@@ -10,8 +10,8 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.db.models import Q
-from django.forms import ChoiceField, ModelForm, TextInput, \
-    UUIDField, ValidationError
+from django.forms import ChoiceField, ModelForm, \
+    TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse
 from django.urls import reverse
@@ -19,7 +19,6 @@ from django.utils.html import escape
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
-from jsonview.views import JsonView
 from operator import attrgetter
 from zoneinfo import ZoneInfo
 
@@ -105,7 +104,7 @@ class DataForm(ModelForm):
             # Adressfelder in eigenen Feldtypen umwandeln
             elif field.name == 'adresse' or field.name == 'strasse':
                 if field.name == 'adresse':
-                    self.fields[field.name] = AddressUUIDField(
+                    self.fields[field.name] = fields.AddressUUIDField(
                         label=field.verbose_name,
                         widget=TextInput(attrs={
                             'autocomplete': 'off',
@@ -114,7 +113,7 @@ class DataForm(ModelForm):
                         required=self.address_mandatory
                     )
                 elif field.name == 'strasse':
-                    self.fields[field.name] = StreetUUIDField(
+                    self.fields[field.name] = fields.StreetUUIDField(
                         label=field.verbose_name,
                         widget=TextInput(attrs={
                             'autocomplete': 'off',
@@ -225,49 +224,6 @@ class DataForm(ModelForm):
         if 'EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data):
             raise ValidationError(error_text)
         return data
-
-
-class IndexView(generic.ListView):
-    """
-    Liste der Datenthemen, die zur Verfügung stehen
-    """
-    template_name = 'datenmanagement/index.html'
-
-    def get_queryset(self):
-        model_list = []
-        app_models = apps.get_app_config('datenmanagement').get_models()
-        for model in app_models:
-            model_list.append(model)
-        return model_list
-
-
-class StartView(generic.ListView):
-    """
-    Nach Auswahl der Kategorie werden Möglichkeiten ausgegeben:
-    * Datensatz anlegen
-    * Tabelle auf Listen
-    * In Karte anzeigen
-    """
-
-    def __init__(self, model=None, template_name=None):
-        self.model = model
-        self.template_name = template_name
-        super(StartView, self).__init__()
-
-    def get_context_data(self, **kwargs):
-        context = super(StartView, self).get_context_data(**kwargs)
-        context['model_name'] = self.model.__name__
-        context['model_name_lower'] = self.model.__name__.lower()
-        context[
-            'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-        context['model_description'] = self.model._meta.description
-        context['geometry_type'] = (
-            self.model._meta.geometry_type if hasattr(
-                self.model._meta, 'geometry_type') else None)
-        context['additional_wms_layers'] = (
-            self.model._meta.additional_wms_layers if hasattr(
-                self.model._meta, 'additional_wms_layers') else None)
-        return context
 
 
 class DataView(BaseDatatableView):
@@ -1059,79 +1015,3 @@ class DataDeleteView(generic.DeleteView):
         if not userobjperm_delete:
             raise PermissionDenied()
         return obj
-
-
-class GeometryView(JsonView):
-    """
-    Dient zum Abfragen von Geometrien bestimmter Models.
-    Zur Filterung können folgende Angaben gemacht werden:
-    * lat, lng, (rad): Objekte im Umkreis eines Punktes (EPSG 4326)
-    * pk: Primärer Schlüssel eines Objektes
-    """
-    model = None
-
-    def __init__(self, model):
-        self.model = model
-        super(GeometryView, self).__init__()
-
-    def get_context_data(self, **kwargs):
-        context = super(GeometryView, self).get_context_data(**kwargs)
-        # Filtern nach angegebenen Kriterien
-        if self.request.GET.get('pk'):
-            # Bei Angaben von 'pk'
-            pk = self.request.GET.get('pk')
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
-                    self.model._meta.db_table.replace('"', '') +
-                    ' WHERE uuid = %s;',
-                    [pk]
-                )
-                uuid, geom = cursor.fetchone() # Tupel
-                context['uuid'] = uuid
-                context['geometry'] = geom
-                context['model_name'] = self.model.__name__
-
-
-        elif self.request.GET.get('lat') and self.request.GET.get('lng'):
-            # Bei Angabe von Koordinaten (rad standardmäßig 0)
-            lat = float(self.request.GET.get('lat'))
-            lng = float(self.request.GET.get('lng'))
-            if self.request.GET.get('rad'):
-                rad = float(self.request.GET.get('rad'))
-            else:
-                rad = 0
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
-                    self.model._meta.db_table.replace('"', '') +
-                    ' WHERE st_contains(st_buffer(st_transform(st_setsrid(st_makepoint(%s, %s),4326)::geometry,25833),%s),geometrie);',
-                    [lng, lat, rad]
-                )
-                row = cursor.fetchall()
-                uuids = []
-                geom = []
-                for i in range(len(row)):
-                    uuids.append(row[i][0])
-                    geom.append(str(row[i][1]))
-                context['uuids'] = uuids
-                context['object_list'] = geom
-                context['model_name'] = self.model.__name__
-        else:
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
-                    self.model._meta.db_table.replace('"', '') + ';',
-                    []
-                )
-                row = cursor.fetchall()
-                uuids = []
-                geom = []
-                for i in range(len(row)):
-                    uuids.append(row[i][0])
-                    geom.append(str(row[i][1]))
-                context['uuids'] = uuids
-                context['object_list'] = geom
-                context['model_name'] = self.model.__name__
-
-        return context
