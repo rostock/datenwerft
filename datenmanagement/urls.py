@@ -2,10 +2,12 @@ import re
 
 from django.apps import apps
 from django.conf.urls import url
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, \
+    user_passes_test
 from django.urls import reverse_lazy
 
-from .views import functions, generic_views, list_views, views
+from .views import dataform_views, datalist_views, functions, \
+    helper_views, list_views
 
 
 
@@ -21,20 +23,20 @@ urlpatterns = [
         name='index'),
     # OWSProxyView
     url(regex=r'owsproxy',
-        view=login_required(generic_views.OWSProxyView.as_view()),
+        view=login_required(helper_views.OWSProxyView.as_view()),
         name='owsproxy'),
     # AddressSearchView
     url(regex=r'addresssearch$',
-        view=login_required(generic_views.AddressSearchView.as_view()),
+        view=login_required(helper_views.AddressSearchView.as_view()),
         name='addresssearch'),
     # ReverseSearchView
     url(regex=r'reversesearch$',
-        view=login_required(generic_views.ReverseSearchView.as_view()),
+        view=login_required(helper_views.ReverseSearchView.as_view()),
         name='reversesearch'),
     # GPXtoGeoJSON
     url(
         regex=r'gpxtogeojson/$',
-        view=login_required()(generic_views.GPXtoGeoJSON.as_view()),
+        view=login_required()(helper_views.GPXtoGeoJSON.as_view()),
         name='gpxtogeojson'),
 ]
 
@@ -67,7 +69,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(views.DataView.as_view(
+        )(datalist_views.DataView.as_view(
             model=model
         )),
         name=model_name + 'data'
@@ -81,7 +83,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(views.DataListView.as_view(
+        )(datalist_views.DataListView.as_view(
             model=model,
             template_name='datenmanagement/datalist.html'
         )),
@@ -96,7 +98,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(views.DataMapView.as_view(
+        )(datalist_views.DataMapView.as_view(
             model=model,
             template_name='datenmanagement/datamap.html'
         )),
@@ -109,7 +111,7 @@ for model in app_models:
         regex=regex + r'add/$',
         view=permission_required(
             'datenmanagement.add_' + model_name_lower
-        )(views.DataAddView.as_view(
+        )(dataform_views.DataAddView.as_view(
             model=model,
             template_name='datenmanagement/dataform.html',
             success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
@@ -125,7 +127,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(views.DataChangeView.as_view(
+        )(dataform_views.DataChangeView.as_view(
             model=model,
             template_name='datenmanagement/dataform.html',
             success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
@@ -138,7 +140,7 @@ for model in app_models:
         regex=regex + r'delete/(?P<pk>.*)/$',
         view=permission_required(
             'datenmanagement.delete_' + model_name_lower
-        )(views.DataDeleteView.as_view(
+        )(dataform_views.DataDeleteView.as_view(
             model=model,
             template_name='datenmanagement/datadelete.html',
             success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
@@ -157,6 +159,6 @@ for model in app_models:
 
     urlpatterns.append(url(
         regex=regex + r'geometry/',
-        view=login_required(generic_views.GeometryView.as_view(model=model)),
+        view=login_required(helper_views.GeometryView.as_view(model=model)),
         name=model_name + 'geometry'
     ))
