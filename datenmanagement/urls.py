@@ -1,9 +1,9 @@
 import re
+from .views import functions, views
 from django.apps import apps
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse_lazy
-from . import views
 
 
 
@@ -149,7 +149,7 @@ for model in app_models:
         regex=regex + r'deleteimmediately/(?P<pk>.*)/$',
         view=permission_required(
             'datenmanagement.delete_' + model_name_lower
-        )(views.delete_object_immediately),
+        )(functions.delete_object_immediately),
         name=model_name + 'deleteimmediately'
     ))
 

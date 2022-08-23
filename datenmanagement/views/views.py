@@ -4,7 +4,7 @@ import re
 import requests
 import time
 import uuid
-
+from . import functions
 from datetime import datetime, timezone
 from datenerfassung.secrets import FME_TOKEN, FME_URL
 from django.apps import apps
@@ -29,95 +29,6 @@ from leaflet.forms.widgets import LeafletWidget
 from operator import attrgetter
 from tempus_dominus.widgets import DatePicker, DateTimePicker
 from zoneinfo import ZoneInfo
-
-
-#
-# eigene Funktionen
-#
-
-
-def assign_widgets(field):
-    """
-    Liefert zu field passendes Formularwidget.
-
-    :param field:
-    :return: Widget für Formular
-    """
-    if field.name == 'geometrie':
-        return field.formfield(widget=LeafletWidget())
-    elif field.__class__.__name__ == 'CharField' and field.name == 'farbe':
-        return field.formfield(widget=TextInput(attrs={
-            'type': 'color'
-        }))
-    elif field.__class__.__name__ == 'ChoiceArrayField':
-        return field.formfield(empty_value=None,
-                               widget=CheckboxSelectMultiple())
-    elif field.__class__.__name__ == 'DateField':
-        return field.formfield(widget=DatePicker(attrs={
-            'input_toggle': False,
-            'append': 'fas fa-calendar'
-        }))
-    elif field.__class__.__name__ == 'DateTimeField':
-        return field.formfield(widget=DateTimePicker(attrs={
-            'input_toggle': False,
-            'append': 'fas fa-clock'
-        }))
-    else:
-        return field.formfield()
-
-
-def delete_object_immediately(request, pk):
-    """
-    Löschen eines Datensatzes aus der DB. Bei fehlenden Berechtigungen wird eine
-    PermissionDenied() Exception geworfen.
-
-    :param request: WSGI Request
-    :param pk: Primärschlüssel des zu löschenden Objekts
-    :return: HTTP 204 No Content
-    """
-    model_name = re.sub(
-        pattern='^.*\\/',
-        repl='',
-        string=re.sub(
-            pattern='\\/deleteimmediately.*$',
-            repl='',
-            string=request.path_info
-        )
-    )
-    model = apps.get_app_config('datenmanagement').get_model(model_name)
-    obj = get_object_or_404(model, pk=pk)
-    if ObjectPermissionChecker(request.user).has_perm(
-            'delete_' + model_name.lower(), obj):
-        obj.delete()
-    else:
-        raise PermissionDenied()
-    return HttpResponse(status=204)
-
-
-def get_thumb_url(url):
-    """
-    Gibt für gegebene Bild-URL, die dazugehörige Thumbnail-URL zurück.
-
-    :param url: URL eines Bildes
-    :return: URL des zugehörigen Thumbnails
-    """
-    head, tail = os.path.split(url)
-    return head + '/thumbs/' + tail
-
-
-def is_valid_uuid(value):
-    """
-    Prüft ob UUID valide ist
-
-    :param value: zuprüfende UUID
-    :return: True/False
-    """
-    try:
-        # liefert UUID, falls sie existiert, sonst ValueError
-        uuid.UUID(str(value))
-        return True
-    except ValueError:
-        return False
 
 
 #
@@ -620,7 +531,7 @@ class DataView(BaseDatatableView):
                         data = '<a href="' + value.url + '?' + str(
                             time.time()) + '" target="_blank" title="große Ansicht öffnen…">'
                         if self.thumbs is not None and self.thumbs:
-                            data += '<img src="' + get_thumb_url(
+                            data += '<img src="' + functions.get_thumb_url(
                                 value.url) + '?' + str(
                                 time.time()) + '" alt="Vorschau" />'
                         else:
@@ -877,7 +788,7 @@ class DataAddView(generic.CreateView):
         self.success_url = success_url
         self.form_class = modelform_factory(self.model, form=DataForm,
                                             fields='__all__',
-                                            formfield_callback=assign_widgets)
+                                            formfield_callback=functions.assign_widgets)
         super(DataAddView, self).__init__()
 
     def get_form_kwargs(self):
@@ -1137,7 +1048,7 @@ class DataChangeView(generic.UpdateView):
                         try:
                             preview_img_url = foto.url + '?' + str(time.time())
                             if thumbs is not None and thumbs:
-                                preview_thumb_url = get_thumb_url(
+                                preview_thumb_url = functions.get_thumb_url(
                                     foto.url) + '?' + str(time.time())
                             else:
                                 preview_thumb_url = ''
@@ -1165,7 +1076,7 @@ class DataChangeView(generic.UpdateView):
         self.success_url = success_url
         self.form_class = modelform_factory(self.model, form=DataForm,
                                             fields='__all__',
-                                            formfield_callback=assign_widgets)
+                                            formfield_callback=functions.assign_widgets)
         super(DataChangeView, self).__init__()
 
     def get_context_data(self, **kwargs):
