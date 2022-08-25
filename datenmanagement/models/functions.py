@@ -9,14 +9,9 @@ from django.contrib.auth.models import Group, User
 from django.contrib.gis.db import models
 from django.db import connection
 from django.db.models import options, signals
-from django.core.validators import EmailValidator, MaxValueValidator, \
-    MinValueValidator, RegexValidator, URLValidator
-from django_currentuser.middleware import get_current_authenticated_user
 from guardian.shortcuts import assign_perm, remove_perm
 from PIL import Image, ExifTags
 from zoneinfo import ZoneInfo
-
-from . import fields, storage
 
 
 
