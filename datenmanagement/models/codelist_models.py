@@ -268,7 +268,7 @@ class Adressen(models.Model):
     class Meta:
         managed = False
         codelist = True
-        db_table = 'basisdaten\".\"adressenliste_datenerfassung'
+        db_table = 'basisdaten\".\"adressenliste_datenwerft'
         verbose_name = 'Adresse'
         verbose_name_plural = 'Adressen'
         description = 'Adressen in Mecklenburg-Vorpommern'
@@ -311,7 +311,7 @@ class Strassen(models.Model):
     class Meta:
         managed = False
         codelist = True
-        db_table = 'basisdaten\".\"strassenliste_datenerfassung'
+        db_table = 'basisdaten\".\"strassenliste_datenwerft'
         verbose_name = 'Straße'
         verbose_name_plural = 'Straßen'
         description = 'Straßen in Mecklenburg-Vorpommern'
@@ -1852,7 +1852,7 @@ class Inoffizielle_Strassen(models.Model):
     class Meta:
         managed = False
         codelist = True
-        db_table = 'basisdaten\".\"inoffizielle_strassenliste_datenerfassung_hro'
+        db_table = 'basisdaten\".\"inoffizielle_strassenliste_datenwerft_hro'
         verbose_name = 'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
         verbose_name_plural = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
         description = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'

@@ -1,4 +1,4 @@
-"""datenerfassung URL Configuration
+"""datenwerft URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
   https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -207,9 +207,9 @@ for model in app_models:
 
 # Routen der URLs zu Views
 urlpatterns = [
-    # '' -> Redirect auf 'datenerfassung/datenmanagement'
+    # '' -> Redirect auf 'datenwerft/datenmanagement'
     url(regex=r'^$',
-        view=RedirectView.as_view(url='/datenerfassung/datenmanagement')),
+        view=RedirectView.as_view(url='/datenwerft/datenmanagement')),
     # 'admin/' -> Django Adminpanel
     url(regex=r'^admin/',
         view=admin.site.urls),

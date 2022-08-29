@@ -1,4 +1,4 @@
-# Datenerfassung documentation build configuration file, created by
+# Datenwerft.HRO documentation build configuration file, created by
 # sphinx-quickstart on Thu Jan 18 14:14:00 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Datenerfassung'
+project = u'Datenwerft.HRO'
 copyright = u'Hanse- und Universitätsstadt Rostock'
 author = u'Hanse- und Universitätsstadt Rostock'
 
@@ -107,9 +107,9 @@ html_sidebars = {
     ]
 }
 
-html_title = u'Hilfe für die Datenerfassung'
+html_title = u'Hilfe für Datenwerft.HRO'
 
-html_short_title = u'Datenerfassung'
+html_short_title = u'Datenwerft.HRO'
 
 html_show_copyright = False
 
@@ -117,7 +117,7 @@ html_show_copyright = False
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'datenerfassung'
+htmlhelp_basename = 'datenwerft'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -144,7 +144,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'datenerfassung.tex', u'Datenerfassung',
+    (master_doc, 'datenwerft.tex', u'Datenwerft.HRO',
      u'Hanse- und Universitätsstadt Rostock', 'manual'),
 ]
 
@@ -154,7 +154,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'datenerfassung', u'Datenerfassung',
+    (master_doc, 'datenwerft', u'Datenwerft.HRO',
      [author], 1)
 ]
 
@@ -165,8 +165,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'datenerfassung', u'Datenerfassung',
-     author, 'datenerfassung', u'Hilfe für die Datenerfassung',
+    (master_doc, 'datenwerft', u'Datenwerft.HRO',
+     author, 'datenwerft', u'Hilfe für die Datenwerft.HRO',
      'Miscellaneous'),
 ]
 

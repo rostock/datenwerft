@@ -1,4 +1,4 @@
-# Datenerfassung
+# *Datenwerft.HRO*
 
 Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://www.djangoproject.com/) aufsetzt
 
@@ -14,39 +14,39 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 1.  neue virtuelle *Python*-Umgebung erstellen via *Virtualenv*, zum Beispiel:
 
-        virtualenv /srv/www/htdocs/datenerfassung/virtualenv
+        virtualenv /srv/www/htdocs/datenwerft/virtualenv
 
 1.  Projekt klonen:
 
-        git clone https://github.com/rostock/datenerfassung /srv/www/htdocs/datenerfassung/datenerfassung
+        git clone https://github.com/rostock/datenwerft /srv/www/htdocs/datenwerft/datenwerft
 
 1.  virtuelle *Python*-Umgebung aktivieren:
 
-        source /srv/www/htdocs/datenerfassung/virtualenv/bin/activate
+        source /srv/www/htdocs/datenwerft/virtualenv/bin/activate
 
 1.  benötigte *Python*-Module (unter anderem *Django*) installieren via *pip*:
 
-        pip install -r /srv/www/htdocs/datenerfassung/datenerfassung/requirements.txt
+        pip install -r /srv/www/htdocs/datenwerft/datenwerft/requirements.txt
 
 ## Konfiguration
 
-1.  Konfigurationsdatei `/srv/www/htdocs/datenerfassung/datenerfassung/settings.py` entsprechend anpassen
+1.  Konfigurationsdatei `/srv/www/htdocs/datenwerft/datenwerft/settings.py` entsprechend anpassen
 1.  weitere Konfigurationsdatei erstellen auf Basis der entsprechenden Vorlage:
 
-        cp /srv/www/htdocs/datenerfassung/datenerfassung/secrets.template /srv/www/htdocs/datenerfassung/datenerfassung/secrets.py
+        cp /srv/www/htdocs/datenwerft/datenwerft/secrets.template /srv/www/htdocs/datenwerft/datenwerft/secrets.py
 
-1.  weitere Konfigurationsdatei `/srv/www/htdocs/datenerfassung/datenerfassung/settings.py` entsprechend anpassen
+1.  weitere Konfigurationsdatei `/srv/www/htdocs/datenwerft/datenwerft/settings.py` entsprechend anpassen
 
 ## Initialisierung
 
 1.  in *PostgreSQL*-Datenbank (mit den Erweiterungen *PostGIS* und *uuid-ossp*) Schema `django` für die Anwendungsadministration und Schema `daten` für die Datenbasis anlegen
 1.  virtuelle *Python*-Umgebung aktivieren:
 
-        source /srv/www/htdocs/datenerfassung/virtualenv/bin/activate
+        source /srv/www/htdocs/datenwerft/virtualenv/bin/activate
 
 1.  Anwendungsadministration initialisieren:
 
-        cd /srv/www/htdocs/datenerfassung/datenerfassung
+        cd /srv/www/htdocs/datenwerft/datenwerft
         python manage.py migrate
 
 1.  Administrator initialisieren:
@@ -55,23 +55,23 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 1.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des genutzten HTTP-Servers anpassen – siehe unten):
 
-        mkdir /srv/www/htdocs/datenerfassung/datenerfassung/uploads
-        chown -R wwwrun:www /srv/www/htdocs/datenerfassung/datenerfassung/uploads
+        mkdir /srv/www/htdocs/datenwerft/datenwerft/uploads
+        chown -R wwwrun:www /srv/www/htdocs/datenwerft/datenwerft/uploads
 
 1.  Webseiten für Hilfe bauen:
 
-        cd /srv/www/htdocs/datenerfassung/datenerfassung/hilfe
+        cd /srv/www/htdocs/datenwerft/datenwerft/hilfe
         mkdir source/_static
         make html
 
 1.  JavaScript-Module via *npm* installieren:
 
-        cd /srv/www/htdocs/datenerfassung/datenerfassung/assets
+        cd /srv/www/htdocs/datenwerft/datenwerft/assets
         npm install
 
 1.  statische Dateien initialisieren:
 
-        cd /srv/www/htdocs/datenerfassung/datenerfassung
+        cd /srv/www/htdocs/datenwerft/datenwerft
         python manage.py collectstatic -c
 
 ## Deployment (am Beispiel des [*Apache HTTP Servers*](https://httpd.apache.org/))
@@ -80,23 +80,23 @@ Wenn das Deployment mittels *Apache HTTP Server* realisiert werden soll, **muss*
 
 Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle *Python*-Umgebung einen *Python*-Interpreter der Version 3.6):
 
-        Alias               /datenerfassung/static /srv/www/htdocs/datenerfassung/datenerfassung/static
-        Alias               /datenerfassung/uploads /srv/www/htdocs/datenerfassung/datenerfassung/uploads
-        WSGIDaemonProcess   datenerfassung processes=2 threads=128 python-path=/srv/www/htdocs/datenerfassung/datenerfassung:/srv/www/htdocs/datenerfassung/virtualenv/lib/python3.6/site-packages
-        WSGIProcessGroup    datenerfassung
-        WSGIScriptAlias     /datenerfassung /srv/www/htdocs/datenerfassung/datenerfassung/datenerfassung/wsgi.py process-group=datenerfassung
+        Alias               /datenwerft/static /srv/www/htdocs/datenwerft/datenwerft/static
+        Alias               /datenwerft/uploads /srv/www/htdocs/datenwerft/datenwerft/uploads
+        WSGIDaemonProcess   datenwerft processes=2 threads=128 python-path=/srv/www/htdocs/datenwerft/datenwerft:/srv/www/htdocs/datenwerft/virtualenv/lib/python3.6/site-packages
+        WSGIProcessGroup    datenwerft
+        WSGIScriptAlias     /datenwerft /srv/www/htdocs/datenwerft/datenwerft/datenwerft/wsgi.py process-group=datenwerft
 
-        <Directory /srv/www/htdocs/datenerfassung/datenerfassung/datenerfassung>
+        <Directory /srv/www/htdocs/datenwerft/datenwerft/datenwerft>
           <Files wsgi.py>
               Order deny,allow
               Require all granted
           </Files>
         </Directory>
-        <Directory /srv/www/htdocs/datenerfassung/datenerfassung/static>
+        <Directory /srv/www/htdocs/datenwerft/datenwerft/static>
           Order deny,allow
           Require all granted
         </Directory>
-        <Directory /srv/www/htdocs/datenerfassung/datenerfassung/uploads>
+        <Directory /srv/www/htdocs/datenwerft/datenwerft/uploads>
           Order deny,allow
           Require all granted
         </Directory>

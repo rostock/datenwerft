@@ -1,7 +1,7 @@
 import re
 import requests
 
-from datenerfassung.secrets import FME_TOKEN, FME_URL
+from datenwerft.secrets import FME_TOKEN, FME_URL
 from django.conf import settings
 from django.db import connection
 from django.http import HttpResponse, JsonResponse

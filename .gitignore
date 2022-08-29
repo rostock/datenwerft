@@ -5,10 +5,10 @@ __pycache__/
 # Django
 db.sqlite3
 
-# Datenerfassung
-datenerfassung/secrets.py
-datenerfassung/static
-datenerfassung/uploads
+# Datenwerft.HRO
+datenwerft/secrets.py
+datenwerft/static
+datenwerft/uploads
 datenmanagement/migrations
 hilfe/build
 /static
