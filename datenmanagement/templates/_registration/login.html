@@ -28,7 +28,7 @@
     {% endif %}
     <div class="spacer-small"></div>
   {% endif %}
-  <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
+  <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">
     {% csrf_token %}
     <div class="form-label-group">
       <label class="required" for="id_username">Benutzername</label>
