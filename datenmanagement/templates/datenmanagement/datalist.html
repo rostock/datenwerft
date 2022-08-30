@@ -150,19 +150,19 @@
         $('body').on('change', '.action-checkbox', function(e) {
           var actionCheckboxes = $('.action-checkbox').filter(':checked');
           if (actionCheckboxes.length === 1)
-            $('#action-count').text('1 Datensatz ausgwählt');
+            $('#action-count').text('1 Datensatz ausgewählt');
           else if (actionCheckboxes.length === 0)
-            $('#action-count').text('kein Datensatz ausgwählt');
+            $('#action-count').text('kein Datensatz ausgewählt');
           else
-            $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgwählt');
+            $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
         });
       </script>
     </div>
     {% if user|user_has_model_add_permission:model_name_lower %}
-      <div class="d-grid mt-5">
+      <div class="d-grid mt-4">
         <span id="action-count">kein Datensatz ausgwählt</span>
       </div>
-      <div class="d-grid mt-2 mb-2">
+      <div class="d-grid mt-2 mb-3">
         <div class="input-group">
           <select class="form-select" id="action-select" name="action">
             <option selected>Aktion wählen…</option>
