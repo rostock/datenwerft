@@ -10,13 +10,6 @@
   height:100%;
 }
 
-#searchtext,
-.filter-checkbox-fieldset,
-.filter-checkbox-fieldset label,
-.filter-checkbox-label {
-  width:100%;
-}
-
 #searchtext {
   border-bottom-left-radius:0;
   border-bottom-right-radius:0;
@@ -34,16 +27,12 @@
   border-bottom-color:#000 !important;
 }
 
-.filter-checkbox-fieldset {
-  margin-top:.5rem;
+.filter-checkbox-fieldset input {
+  margin-right:.5rem;
 }
 
 .filter-checkbox-fieldset label {
-  font-weight:normal;
-}
-
-.filter-checkbox-fieldset input {
-  margin-right:.5rem;
+  width:100%;
 }
 
 .leaflet-container {
@@ -67,20 +56,16 @@
 .results {
   display:none;
   width:100%;
-  float:left;
-  text-align:left;
-  z-index:1;
   border-left:1px solid #ced4da;
   border-right:1px solid #ced4da;
   border-bottom:1px solid #ced4da;
   border-bottom-left-radius:.375rem;
   border-bottom-right-radius:.375rem;
-  font-size:1rem;
 }
 
 .result-element {
   padding-left:.75rem;
-  line-height:150%;
+  line-height:2rem;
   cursor:pointer;
 }
 
@@ -91,16 +76,13 @@
 .result-element .text-muted {
   float:right;
   padding-right:.75rem;
-  color:#aaa;
 }
 
-.result-element:hover .text-muted {
-  color:#000;
-}
 
 /*
  * Leaflet-Buttons für Location überschreiben
  */
+
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {
     -webkit-mask-image: url("../img/location-arrow-solid.svg");
     mask-image: url("../img/location-arrow-solid.svg");

@@ -4,16 +4,11 @@
 
 {% block title %}Datenmanagement | {% endblock %}
 
-{% block style %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/index.css' %}" />
-{% endblock %}
-
 {% block content %}
   {% if user.is_authenticated %}
     {% if object_list and user|user_has_model_permissions %}
       <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
-      <div class="list-group">
+      <div class="list-group mt-3 mb-3">
         {% for model in object_list %}
           {% with model_name=model|get_class_name %}
             {% if user|user_has_model_permission:model %}
@@ -27,7 +22,7 @@
           {% endwith %}
         {% endfor %}
       </div>
-      <div class="list-group">
+      <div class="list-group mt-3 mb-3">
         {% for model in object_list %}
           {% with model_name=model|get_class_name %}
             {% if user|user_has_model_permission:model %}
@@ -42,10 +37,10 @@
         {% endfor %}
       </div>
     {% else %}
-      <h2 class="centered">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
+      <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
     {% endif %}
   {% else %}
-      <h2 class="centered">
+      <h2 class="text-center">
         Willkommen bei <em><strong>Datenwerft.HRO,</strong></em><br/>
         der Web-Anwendung zur Datenerfassung<br/>
         der Hanse- und Universitätsstadt Rostock!

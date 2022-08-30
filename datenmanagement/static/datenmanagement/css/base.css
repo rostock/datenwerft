@@ -12,10 +12,6 @@ a:hover {
   margin-left:.5rem;
 }
 
-.centered {
-  text-align:center;
-}
-
 .container-fluid:not(nav > .container-fluid) {
   width:90%;
 }
