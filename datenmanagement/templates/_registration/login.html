@@ -3,41 +3,44 @@
 
 {% block title %}Anmeldung | {% endblock %}
 
-{% block style %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/login.css' %}" />
-{% endblock %}
-
 {% block content %}
-  {% if form.errors %}
-    {% for field in form %}
-      {% if field.errors %}
-        {% for error in field.errors %}
-          <div class="alert alert-danger" role="alert">
-            Fehler bei der Eingabe
+  <div class="d-grid col-4 mx-auto">
+    {% if form.errors %}
+      {% for field in form %}
+        {% if field.errors %}
+          {% for error in field.errors %}
+            <div class="alert alert-danger mb-4" role="alert">
+              Fehler bei der Eingabe
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger mb-4" role="alert">
+            Benutzername und/oder Passwort ungültig!<br/>
+            Hinweis: Beide Felder berücksichtigen die Groß-/Kleinschreibung.
           </div>
         {% endfor %}
       {% endif %}
-    {% endfor %}
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">
-          Benutzername und/oder Passwort ungültig (Hinweis: Beide Felder berücksichtigen die Groß-/Kleinschreibung)!
-        </div>
-      {% endfor %}
     {% endif %}
-    <div class="spacer-small"></div>
-  {% endif %}
-  <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">
-    {% csrf_token %}
-    <div class="form-label-group">
-      <label class="required" for="id_username">Benutzername</label>
-      {{ login_form.username }}
-    </div>
-    <div class="form-label-group">
-      <label class="required" for="id_password">Passwort</label>
-      {{ login_form.password }}
-    </div>
-    <input class="btn btn-lg btn-success btn-block" type="submit" value="anmelden" />
-  </form>
+    {% if next %}
+      <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={{ next }}">
+    {% else %}
+      <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
+    {% endif %}
+      {% csrf_token %}
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" name="username" autofocus="" autocapitalize="none" autocomplete="username" id="id_username" placeholder="Benutzername" required>
+        <label for="id_username">Benutzername</label>
+      </div>
+      <div class="form-floating mb-4">
+        <input type="password" class="form-control" name="password" autocomplete="current-password" id="id_password" placeholder="Passwort" required>
+        <label for="id_password">Passwort</label>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-lg btn-success" type="submit"><i class="fas fa-right-to-bracket"></i> anmelden</button>
+      </div>
+    </form>
+  </div>
 {% endblock %}

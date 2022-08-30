@@ -184,15 +184,13 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Keine Zuordnung einer {{ address_type }} möglich</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               Objekt zu weit von nächster {{ address_type }} entfernt!
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-dismiss="modal">schließen</button>
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">schließen</button>
             </div>
           </div>
         </div>
@@ -1287,9 +1285,7 @@
         ).catch(
           (error) => {
             $('#id_gpxLoading-header').append(
-              '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-                '<span aria-hidden="true">&times;</span>' +
-              '</button>'
+              '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
             );
             $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
             $('#id_gpxLoading-body').text(
@@ -1298,7 +1294,7 @@
             );
             $('#id_gpxLoading-body').after(
               '<div class="modal-footer">' +
-                '<button type="button" class="btn btn-primary" data-dismiss="modal">schließen</button>' +
+                '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">schließen</button>' +
               '</div>'
             );
             console.log(error);

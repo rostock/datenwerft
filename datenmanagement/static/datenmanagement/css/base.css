@@ -7,6 +7,7 @@ a:hover {
   text-decoration:none;
 }
 
+/* dataform */
 .btn-in-a-row {
   margin-left:.5rem;
 }
@@ -15,7 +16,7 @@ a:hover {
   text-align:center;
 }
 
-.container-fluid {
+.container-fluid:not(nav > .container-fluid) {
   width:90%;
 }
 
@@ -23,16 +24,14 @@ a:hover {
   font-weight:bold;
 }
 
+/* xxxxxxx */
 .row {
   margin-bottom:1rem;
   padding-left:15px;
   padding-right:15px;
 }
 
-.spacer {
-  height:2rem;
-}
-
+/* dataform + datamap */
 .spacer-small {
   height:1rem;
 }

@@ -45,11 +45,13 @@
       <h2 class="centered">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
     {% endif %}
   {% else %}
-      <h2 class="centered">Willkommen<br/>
-        bei <em><strong>Datenwerft.HRO,</strong></em><br/>
+      <h2 class="centered">
+        Willkommen bei <em><strong>Datenwerft.HRO,</strong></em><br/>
         der Web-Anwendung zur Datenerfassung<br/>
         der Hanse- und Universitätsstadt Rostock!
       </h2>
-      <a class="btn btn-lg btn-primary btn-block" role="button" href="{% url 'login' %}">Anmeldung</a>
+      <div class="d-grid col-3 mt-4 mx-auto">
+        <a class="btn btn-lg btn-primary" role="button" href="{% url 'login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
+      </div>
   {% endif %}
 {% endblock %}

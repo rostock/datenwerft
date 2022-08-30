@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '5.0.1'
+DATENMANAGEMENT_VERSION = '5.1.0'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -51,6 +51,8 @@ THIRD_PARTY_APPS = [
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
+
+LOGIN_URL = '/datenwerft/accounts/login'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

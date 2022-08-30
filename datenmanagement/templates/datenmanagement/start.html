@@ -4,26 +4,20 @@
 
 {% block title %}Möglichkeiten | {% endblock %}
 
-{% block style %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/start.css' %}" />
-{% endblock %}
-
 {% block content %}
   <h2>{{ model_verbose_name_plural }}</h2>
   <h4><small>{{ model_description }}</small></h4>
-  <div class="spacer-small"></div>
-  <h4><em>Was möchten Sie tun?</em></h4>
-  <div class="row">
+  <h4 class="mt-3"><em>Was möchten Sie tun?</em></h4>
+  <div class="d-grid mt-3 gap-2 mx-auto">
     {% if user|user_has_model_add_permission:model_name_lower %}
-      <a class="btn btn-lg btn-primary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}">neuen Datensatz anlegen</a>
+      <a class="btn btn-lg btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if user|user_has_model_change_permission:model_name_lower or user|user_has_model_delete_permission:model_name_lower or user|user_has_model_view_permission:model_name_lower %}
-      <a class="btn btn-lg btn-secondary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}">Datensätze in Tabelle auflisten</a>
+      <a class="btn btn-lg btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> Datensätze in Tabelle auflisten</a>
       {% if geometry_type %}
-        <a class="btn btn-lg btn-secondary btn-block" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}">Datensätze auf Karte anzeigen</a>
+        <a class="btn btn-lg btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}"><i class="fas fa-map"></i> Datensätze auf Karte anzeigen</a>
       {% endif %}
     {% endif %}
-    <a class="btn btn-lg btn-warning btn-block" role="button" href="{% url 'datenmanagement:index' %}">zurück</a>
+    <a class="btn btn-lg btn-warning" role="button" href="{% url 'datenmanagement:index' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
 {% endblock %}

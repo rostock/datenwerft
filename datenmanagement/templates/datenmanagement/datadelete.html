@@ -16,10 +16,11 @@
         <strong><em>{{ object }}</em></strong> des Datenthemas <strong>{{object|get_class_verbose_name_plural}}</strong> wirklich löschen?
       </small>
     </h5>
-    <div class="spacer-small"></div>
-    <input class="btn btn-danger" type="submit" value="löschen" />
-    {% with model_name=object|get_class_name %}
-      <a class="btn btn-warning" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
-    {% endwith %}
+    <div class="d-grid mt-4 gap-2 d-md-block">
+      <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i> löschen</button>
+      {% with model_name=object|get_class_name %}
+        <a class="btn btn-warning" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-hand"></i> abbrechen</a>
+      {% endwith %}
+    </div>
 	</form>
 {% endblock %}
