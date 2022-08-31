@@ -19,11 +19,6 @@ ul:not([class]){
   height:100%;
 }
 
-#id_gpxLabel.custom-file-label::after {
-  content:"Datei auswählen";
-  cursor:pointer;
-}
-
 .bootstrap-datetimepicker-widget a {
   color:#000 !important;
 }

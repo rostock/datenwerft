@@ -6,36 +6,41 @@
 
 {% block content %}
   {% if user.is_authenticated %}
-    {% if object_list and user|user_has_model_permissions %}
+    {% if codelist_models or complex_models or simple_models %}
       <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
-      <div class="list-group mt-3 mb-3">
-        {% for model in object_list %}
-          {% with model_name=model|get_class_name %}
-            {% if user|user_has_model_permission:model %}
-              {% if model|is_class_codelist %}
-                <a class="list-group-item list-group-item-action list-group-item-secondary" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
-                  <h4>{{ model|get_class_verbose_name_plural }}</h4>
-                  <h5><small>{{ model|get_class_description }}</small></h5>
-                </a>
-              {% endif %}
-            {% endif %}
-          {% endwith %}
-        {% endfor %}
-      </div>
-      <div class="list-group mt-3 mb-3">
-        {% for model in object_list %}
-          {% with model_name=model|get_class_name %}
-            {% if user|user_has_model_permission:model %}
-              {% if not model|is_class_codelist %}
-                <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"> 
-                  <h4>{{ model|get_class_verbose_name_plural }}</h4>
-                  <h5><small>{{ model|get_class_description }}</small></h5>
-                </a>
-              {% endif %}
-            {% endif %}
-          {% endwith %}
-        {% endfor %}
-      </div>
+      {% if codelist_models %}
+        <h3 class="mt-3">Codelisten</h3>
+        <div class="list-group mb-3">
+          {% for model in codelist_models_list %}
+            <a class="list-group-item list-group-item-action list-group-item-secondary" href="{% url 'datenmanagement:'|add:model.name|add:'start' %}"> 
+              <h4>{{ model.verbose_name_plural }}</h4>
+              <h5><small>{{ model.description }}</small></h5>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if complex_models %}
+        <h3 class="mt-3">Komplexe Datenthemen</h3>
+        <div class="list-group mb-3">
+          {% for model in complex_models_list %}
+            <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model.name|add:'start' %}"> 
+              <h4>{{ model.verbose_name_plural }}</h4>
+              <h5><small>{{ model.description }}</small></h5>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if simple_models %}
+        <h3 class="mt-3">Einfache Datenthemen</h3>
+        <div class="list-group mb-3">
+          {% for model in simple_models_list %}
+            <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model.name|add:'start' %}"> 
+              <h4>{{ model.verbose_name_plural }}</h4>
+              <h5><small>{{ model.description }}</small></h5>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
     {% else %}
       <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
     {% endif %}

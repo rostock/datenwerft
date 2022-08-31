@@ -69,18 +69,20 @@
       {% else %}
         (noch) keine assoziierten Datensätze vorhanden
       {% endif %}
-      <hr/>
-      {% for associated_new_entry in associated_new %}
-        <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
-          <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
-        </p>
-      {% endfor %}
+      {% if user|user_has_object_change_permission:object %}
+        <hr/>
+        {% for associated_new_entry in associated_new %}
+          <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
+            <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
+          </p>
+        {% endfor %}
+      {% endif %}
     </div>
     <div class="mb-4"></div>
   {% endif %}
 	<form class="form" role="form" method="post" enctype="multipart/form-data" action="">
   {% csrf_token %}
-    <div id="custom-form">
+    <div {% if geometry_type %}id="custom-form"{% endif %}>
       <table class="table table-striped">
         {% for field in form %}
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
@@ -89,7 +91,7 @@
                 {% if field|is_field_hours_related_field %}
                   {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-question-circle"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
-                  {% if object and user|user_has_object_change_permission:object %} %}
+                  {% if object and user|user_has_object_change_permission:object %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
                       {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
@@ -117,8 +119,7 @@
             </td>
             <td>
               <div class="custom-file">
-                  <input type="file" accept=".gpx" id="id_gpx" class="custom-file" name="gpx">
-                  <label for="id_gpx" id="id_gpxLabel" class="custom-file-label">*.gpx</label>
+                <input class="form-control" type="file" id="id_gpx" name="gpx" accept=".gpx">
               </div>
             </td>
           </tr>
@@ -152,14 +153,14 @@
         <div class="mt-3 mb-5">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
-              {{ form.adresse.label_tag }}
+              <label for="id_adresse" class="form-label">Adresse</label>
               <div class="form-floating">
                 {{ form.adresse }}
                 <label for="id_adresse">Adresse eingeben…</label>
               </div>
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
-              {{ form.strasse.label_tag }}
+              <label for="id_strasse" class="form-label">Straße</label>
               <div class="form-floating">
                 {{ form.strasse }}
                 <label for="id_strasse">Straße eingeben…</label>
@@ -168,7 +169,7 @@
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-              <label for="id_address_search">Adressensuche</label>
+              <label for="id_address_search" class="form-label">Adressensuche</label>
               <div class="form-floating">
                 <input id="id_address_search" type="text" class="form-control" name="address_search" autocapitalize="none" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
                 <label for="id_address_search">Adresse, Straße oder Gemeindeteil eingeben…</label>
@@ -180,7 +181,7 @@
       </div>
     {% endif %}
     <div id="buttons">
-      <div class="d-grid mb-3 gap-2 d-md-block">
+      <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           <button class="btn btn-success" type="submit" onclick="setAddressUuid();"><i class="fas fa-floppy-disk"></i> speichern</button>
         {% endif %}
@@ -709,6 +710,12 @@
       $('td > input:not([type="checkbox"]), td > textarea').each(function () {
           $(this).addClass('form-control');
       });
+      $('td input[type="checkbox"]').each(function () {
+          $(this).addClass('form-check-input');
+      });
+      $('td > input[type="color"]').each(function () {
+          $(this).addClass('form-control-color');
+      });
       $('td > select').each(function () {
           $(this).addClass('form-select');
       });
@@ -740,6 +747,9 @@
 
       // alle Felder deaktivieren, falls Benutzer kein Änderungsrecht am Datensatz hat
       {% if not user|user_has_object_change_permission:object %}
+        $('button[data-toggle="datetimepicker"]').each(function () {
+            $(this).prop('disabled', true);
+        });
         $('input').each(function () {
             $(this).prop('disabled', true);
         });
@@ -1219,9 +1229,6 @@
         let fileName = file.name;
         let formData = new FormData();
         formData.append('gpx', file);
-
-        // Überschreiben des Labels vom Input mit Dateinamen
-        $('#id_gpxLabel').text(fileName);
 
         // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {

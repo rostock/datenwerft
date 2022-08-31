@@ -85,6 +85,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten_strassenbezug\".\"baustellen_fotodokumentation_baustellen_hro'
         verbose_name = 'Baustelle der Baustellen-Fotodokumentation'
         verbose_name_plural = 'Baustellen der Baustellen-Fotodokumentation'
@@ -186,6 +187,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"baustellen_fotodokumentation_fotos_hro'
         verbose_name = 'Foto der Baustellen-Fotodokumentation'
         verbose_name_plural = 'Fotos der Baustellen-Fotodokumentation'
@@ -343,6 +345,7 @@ class Baustellen_geplant(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten_strassenbezug\".\"baustellen_geplant'
         verbose_name = 'Baustelle (geplant)'
         verbose_name_plural = 'Baustellen (geplant)'
@@ -453,6 +456,7 @@ class Baustellen_geplant_Dokumente(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"baustellen_geplant_dokumente'
         verbose_name = 'Dokument der Baustelle (geplant)'
         verbose_name_plural = 'Dokumente der Baustellen (geplant)'
@@ -524,6 +528,7 @@ class Baustellen_geplant_Links(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"baustellen_geplant_links'
         verbose_name = 'Link der Baustelle (geplant)'
         verbose_name_plural = 'Links der Baustellen (geplant)'
@@ -689,6 +694,7 @@ class Durchlaesse_Durchlaesse(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"durchlaesse_durchlaesse_hro'
         verbose_name = 'Durchlass'
         verbose_name_plural = 'Durchlässe'
@@ -784,6 +790,7 @@ class Durchlaesse_Fotos(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"durchlaesse_fotos_hro'
         verbose_name = 'Foto des Durchlasses'
         verbose_name_plural = 'Fotos der Durchlässe'
@@ -873,6 +880,7 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"fallwildsuchen_kontrollgebiete_hro'
         verbose_name = 'Kontrollgebiet im Rahmen einer Fallwildsuche'
         verbose_name_plural = 'Kontrollgebiete im Rahmen von Fallwildsuchen'
@@ -950,6 +958,7 @@ class Fallwildsuchen_Nachweise(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"fallwildsuchen_nachweise_hro'
         verbose_name = 'Nachweis im Rahmen einer Fallwildsuche'
         verbose_name_plural = 'Nachweise im Rahmen von Fallwildsuchen'
@@ -1389,6 +1398,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"haltestellenkataster_haltestellen_hro'
         verbose_name = 'Haltestelle des Haltestellenkatasters'
         verbose_name_plural = 'Haltestellen des Haltestellenkatasters'
@@ -1473,6 +1483,7 @@ class Haltestellenkataster_Fotos(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"haltestellenkataster_fotos_hro'
         verbose_name = 'Foto des Haltestellenkatasters'
         verbose_name_plural = 'Fotos des Haltestellenkatasters'
@@ -1590,6 +1601,7 @@ class Meilensteinplan_Ziele(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"meilensteinplan_ziele_hro'
         verbose_name = 'Ziel des Meilensteinplans'
         verbose_name_plural = 'Ziele des Meilensteinplans'
@@ -1744,6 +1756,7 @@ class Meilensteinplan_Meilensteine(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"meilensteinplan_meilensteine_hro'
         verbose_name = 'Meilenstein des Meilensteinplans'
         verbose_name_plural = 'Meilensteine des Meilensteinplans'
@@ -1911,6 +1924,7 @@ class Parkscheinautomaten_Tarife(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"parkscheinautomaten_tarife_hro'
         verbose_name = 'Tarif der Parkscheinautomaten'
         verbose_name_plural = 'Tarife der Parkscheinautomaten'
@@ -2022,6 +2036,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"parkscheinautomaten_parkscheinautomaten_hro'
         verbose_name = 'Parkscheinautomat'
         verbose_name_plural = 'Parkscheinautomaten'
@@ -2115,6 +2130,7 @@ class RSAG_Gleise(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"rsag_gleise_hro'
         verbose_name = 'RSAG-Gleis'
         verbose_name_plural = 'RSAG-Gleise'
@@ -2415,6 +2431,7 @@ class RSAG_Masten(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"rsag_masten_hro'
         verbose_name = 'RSAG-Mast'
         verbose_name_plural = 'RSAG-Masten'
@@ -2501,6 +2518,7 @@ class RSAG_Leitungen(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"rsag_leitungen_hro'
         verbose_name = 'RSAG-Oberleitung'
         verbose_name_plural = 'RSAG-Oberleitungen'
@@ -2574,6 +2592,7 @@ class RSAG_Quertraeger(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"rsag_quertraeger_hro'
         verbose_name = 'RSAG-Querträger'
         verbose_name_plural = 'RSAG-Querträger'
@@ -2660,6 +2679,7 @@ class RSAG_Spanndraehte(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"rsag_spanndraehte_hro'
         verbose_name = 'RSAG-Spanndraht'
         verbose_name_plural = 'RSAG-Spanndrähte'
@@ -2806,6 +2826,7 @@ class UVP_Vorhaben(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"uvp_vorhaben_hro'
         verbose_name = 'UVP-Vorhaben'
         verbose_name_plural = 'UVP-Vorhaben'
@@ -2926,6 +2947,7 @@ class UVP_Vorpruefungen(models.Model):
 
     class Meta:
         managed = False
+        complex = True
         db_table = 'fachdaten\".\"uvp_vorpruefungen_hro'
         verbose_name = 'UVP-Vorprüfung'
         verbose_name_plural = 'UVP-Vorprüfungen'

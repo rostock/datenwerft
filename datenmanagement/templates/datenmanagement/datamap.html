@@ -68,7 +68,7 @@
           {% if map_deadlinefilter_fields %}
             <div id="filter-deadline">
               <div class="d-grid mt-2 mb-3">
-                <label class="mb-2">Stichtag</label>
+                <label class="form-label">Stichtag</label>
                 <div class="input-group">
                   <input id="filter-input-deadline" type="text" name="deadline" data-target="#filter-input-deadline" class="form-control filter-input datetimepicker-input" data-type="date" data-nullable data-intervalside="both">
                   <button class="btn btn-outline-secondary" data-target="#filter-input-deadline" data-toggle="datetimepicker">
@@ -87,7 +87,7 @@
                 {% if not forloop.counter|divisibleby:2 %}
                   {% with naechster_index=forloop.counter0|add:1 %}
                   <div class="d-grid mt-2 mb-3">
-                    <label class="mb-2">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                    <label class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
@@ -103,7 +103,7 @@
                     </div>
                   </div>
                   <div class="d-grid mt-2 mb-3">
-                    <label class="mb-2">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
+                    <label class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
@@ -127,7 +127,7 @@
             <div id="filter-normal">
               {% for map_filter_field in map_filter_fields %}
                 <div class="d-grid mt-2 mb-3">
-                  <label class="mb-2{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                  <label class="form-label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if 'Date' in map_filter_field|get_type_of_field:model_name %}
                     <div class="input-group">
                       <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetimepicker-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
@@ -141,7 +141,7 @@
                   {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
                     {% if map_filter_boolean_fields_as_checkbox %}
                       <div class="filter-input">
-                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-check-input" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
                       </div>
                     {% else %}
                       <div class="input-group">
@@ -189,7 +189,7 @@
           </div>
         </div>
       {% endif %}
-      <div id="map-control" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
+      <div {% if map_filters_enabled %}id="map-control"{% endif %} class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
         <h5>Kartenausschnitt</h5>
         <div class="d-grid mt-2 gap-2 d-md-block">
           <button id="map-extent-filter" class="btn btn-success" type="submit"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
@@ -568,7 +568,7 @@
         });
 
         // über alle Boolean-Filterfelder gehen...
-        $('.filter-input input[type=checkbox]').each(function() {
+        $('.filter-input input[type="checkbox"]').each(function() {
           // Feld als Objekt mit Name und Typ erstellen
           var filterField = new Object();
           filterField.name = $(this).attr('name');
@@ -789,6 +789,7 @@
                 var $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
                 $label.append($('<input>', {
                   id: 'checkbox-' + i + '-' + j,
+                  class: 'form-check-input',
                   type: 'checkbox',
                   value: checkboxFilterLists[i].value[j]
                 }));
@@ -837,7 +838,7 @@
           });
 
           // über alle Boolean-Filter gehen...
-          $('.filter-input input[type=checkbox]').each(function() {
+          $('.filter-input input[type="checkbox"]').each(function() {
             // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
             var filterAttribute = new Object();
             filterAttribute.name = $(this).attr('name');
@@ -1016,7 +1017,7 @@
             }
           });
 
-          $('.filter-input input[type=checkbox]').each(function() {
+          $('.filter-input input[type="checkbox"]').each(function() {
             // falls initialer Wert vorhanden...
             if ($(this).data('initial')) {
               // Filter auf initialen Wert setzen

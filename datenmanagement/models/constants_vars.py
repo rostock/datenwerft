@@ -12,6 +12,10 @@ options.DEFAULT_NAMES += (
     # Boolean;
     # Handelt es sich um eine Codeliste, die dann für normale Benutzer in der
     # Liste der verfügbaren Datenthemen nicht auftaucht (True)?
+    'complex',
+    # optional;
+    # Boolean;
+    # Handelt es sich um ein komplexes Datenmodell (True)?
     'description',
     # Pflicht;
     # Text;

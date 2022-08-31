@@ -22,11 +22,6 @@ def customize_error_message(value):
 
 
 @register.filter
-def get_class_description(value):
-  return value.__class__._meta.description
-
-
-@register.filter
 def get_class_foreign_key_label(value):
   if hasattr(value.__class__._meta, 'foreign_key_label'):
     return value.__class__._meta.foreign_key_label
@@ -116,14 +111,6 @@ def get_and_concat_values_of_map_feature_tooltip_fields(value):
 
 
 @register.filter
-def is_class_codelist(value):
-  if hasattr(value.__class__._meta, 'codelist'):
-    return value.__class__._meta.codelist
-  else:
-    return None
-
-
-@register.filter
 def is_field_address_related_field(field):
   if field.name == 'adresse' or field.name == 'strasse':
     return True
@@ -151,15 +138,6 @@ def is_field_hours_related_field(field):
 def is_field_nullable(field_name, model_name):
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   return model._meta.get_field(field_name).null
-
-
-@register.filter
-def user_has_model_permissions(user):
-  models = apps.get_app_config('datenmanagement').get_models()
-  for model in models:
-    if user.has_perm('datenmanagement.add_' + model.__name__.lower()) or user.has_perm('datenmanagement.change_' + model.__name__.lower()) or user.has_perm('datenmanagement.delete_' + model.__name__.lower()) or user.has_perm('datenmanagement.view_' + model.__name__.lower()):
-      return True
-  return False
 
 
 @register.filter
