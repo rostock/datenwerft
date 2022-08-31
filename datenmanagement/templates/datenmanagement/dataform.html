@@ -29,6 +29,7 @@
   <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.29.4/moment-with-locales.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-bootstrap-4.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-de.js' %}"></script>
   <script type="module" src="{% static 'node_modules/martinez-polygon-clipping/dist/martinez.min.js' %}"></script>
   <script type="module" src="{% static 'helpers/leafletHelpers.js' %}"></script>
   <script type="text/javascript" src="{% static 'helpers/generics.js' %}"></script>
@@ -62,7 +63,7 @@
       {% if object and associated_objects %}
         <ul>
           {% for associated_object in associated_objects %}
-            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-external-link-alt"></i></a></li>{% if associated_object.preview_img_url %} <a href="{{ associated_object.preview_img_url }}" target="_blank" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px" /></a>{% endif %}
+            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>{% if associated_object.preview_img_url %} <a href="{{ associated_object.preview_img_url }}" target="_blank" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px" /></a>{% endif %}
           {% endfor %}
         </ul>
       {% else %}
@@ -90,11 +91,11 @@
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                   {% if object and user|user_has_object_change_permission:object %} %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
-                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-external-link-alt" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% else %}
                     {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
-                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-external-link-alt" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
                 {% else %}
@@ -230,40 +231,18 @@
   <script type="text/javascript">
     // Date-/Time-/Date-Time-Picker
     $('.datetimepicker-input').datetimepicker();
-    $('.datetimepicker-input').datetimepicker('icons', {
-      date: 'far fa-calendar',
-      time: 'far fa-clock',
-      today: 'far fa-calendar-check'
-    });
-    $('.datetimepicker-input').datetimepicker('buttons', {
-      showClose: true,
-      showToday: true
-    });
-    $('.datetimepicker-input').datetimepicker('tooltips', {
-      today: 'heute/jetzt',
-      clear: 'zurücksetzen',
-      close: 'schließen',
-      selectMonth: 'Monat auswählen',
-      prevMonth: 'vorheriger Monat',
-      nextMonth: 'nächster Monat',
-      selectYear: 'Jahr auswählen',
-      prevYear: 'vorheriges Jahr',
-      nextYear: 'nächstes Jahr',
-      selectDecade: 'Dekade auswählen',
-      prevDecade: 'vorherige Dekade',
-      nextDecade: 'nächste Dekade',
-      prevCentury: 'vorheriges Jahrhundert',
-      nextCentury: 'nächstes Jahrhundert',
-      selectTime: 'Zeitpunkt auswählen',
-      incrementHour: 'eine Stunde mehr',
-      pickHour: 'Stunde auswählen',
-      decrementHour:'eine Stunde weniger',
-      incrementMinute: 'eine Minute mehr',
-      pickMinute: 'Minute auswählen',
-      decrementMinute:'eine Minute weniger',
-      incrementSecond: 'eine Sekunde mehr',
-      pickSecond: 'Sekunde auswählen',
-      decrementSecond:'eine Sekunde weniger'
+    $('.datetimepicker-input').datetimepicker('icons', tempusdominusIcons);
+    $('.datetimepicker-input').datetimepicker('buttons', tempusdominusButtons);
+    $('.datetimepicker-input').datetimepicker('tooltips', tempusdominusTooltips);
+    $('.input-group-append').each(function () {
+        var that = $(this);
+        var datetimepickerButton = $('<button></button>');
+        datetimepickerButton.addClass('btn btn-outline-secondary');
+        datetimepickerButton.attr('type', 'button');
+        datetimepickerButton.attr('data-target', that.data('target'));
+        datetimepickerButton.attr('data-toggle', that.data('toggle'));
+        $(this).attr('data-target').includes('zeit') ? datetimepickerButton.html('<i class="fas fa-clock"></i>') : datetimepickerButton.html('<i class="fas fa-calendar"></i>');
+        $(this).replaceWith(datetimepickerButton);
     });
 
     // globale Variablen
@@ -726,6 +705,17 @@
         {% endif %}
       {% endif %}
 
+      // alle Felder an Bootstrap 5 anpassen
+      $('td > input:not([type="checkbox"]), td > textarea').each(function () {
+          $(this).addClass('form-control');
+      });
+      $('td > select').each(function () {
+          $(this).addClass('form-select');
+      });
+      $('td > textarea').each(function () {
+          $(this).addClass('form-control');
+      });
+
 
       // Read-only-Felder behandeln
       {% if readonly_fields %}
@@ -762,7 +752,6 @@
       {% endif %}
 
       // Multi-Datei-Feld behandeln
-
       let fotoField = $('input#id_foto');
       if (fotoField.length) {
         fotoField.attr('accept', 'image/*');

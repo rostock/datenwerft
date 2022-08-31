@@ -59,7 +59,7 @@
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if object_list %}
-	  <div id="map-side-container">
+	  <div id="map-side-container" class="mb-3">
       {% leaflet_map "map" callback="window.map_init_basic" %}
       {% if map_filters_enabled %}
         <div id="filter" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
@@ -486,8 +486,6 @@
 
       // Adressensuche und Filter
       $(document).ready(function() {
-        // globale Einstellungen für Date-/Time-/Date-Time-Picker
-
         // Variable für Bounding Box der aktuellen Filtermenge anlegen
         let currentFilterExtent = [];
 
