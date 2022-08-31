@@ -54,7 +54,7 @@
         </div>
       {% endfor %}
     {% endif %}
-    <div class="spacer-small"></div>
+    <div class="mb-4"></div>
   {% endif %}
   {% if associated_new %}
     <div class="alert alert-primary" role="alert">
@@ -71,15 +71,15 @@
       <hr/>
       {% for associated_new_entry in associated_new %}
         <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
-          <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank">{{ associated_new_entry.title }} anlegen <small><i class="fas fa-external-link-alt"></i></small></a>
+          <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
         </p>
       {% endfor %}
     </div>
-    <div class="spacer-small"></div>
+    <div class="mb-4"></div>
   {% endif %}
 	<form class="form" role="form" method="post" enctype="multipart/form-data" action="">
   {% csrf_token %}
-    <div {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}class="row"{% endif %} id="custom-form">
+    <div id="custom-form">
       <table class="table table-striped">
         {% for field in form %}
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
@@ -134,57 +134,68 @@
         {% leaflet_map "id_geometrie-map" callback="id_geometrie_map_callback" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
-            <div class="spacer-small"></div>
-            {% if geometry_type == 'Point' %}
-              <input disabled id="addressToMap" class="btn btn-success" type="button" value="Marker setzen"/>
-            {% endif %}
-            {% if not address_mandatory %}
-              {% if address_type == 'Adresse' %}
-                <input disabled id="mapToAddress" class="btn btn-success{% if geometry_type == 'Point' %} btn-in-a-row{% endif %}" type="button" value="Adresse übernehmen"/>
-              {% elif address_type == 'Straße' %}
-                <input disabled id="mapToStreet" class="btn btn-success{% if geometry_type == 'Point' %} btn-in-a-row{% endif %}" type="button" value="Straße übernehmen"/>
+            <div class="d-grid mt-3 gap-2 d-md-block">
+              {% if geometry_type == 'Point' %}
+                <button disabled id="addressToMap" class="btn btn-success" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
               {% endif %}
-            {% endif %}
+              {% if not address_mandatory %}
+                {% if address_type == 'Adresse' %}
+                  <button disabled id="mapToAddress" class="btn btn-success" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
+                {% elif address_type == 'Straße' %}
+                  <button disabled id="mapToStreet" class="btn btn-success" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
+                {% endif %}
+              {% endif %}
+            </div>
           {% endif %}
         {% endif %}
-        <div id="address-search-container">
+        <div class="mt-3 mb-5">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
               {{ form.adresse.label_tag }}
-              {{ form.adresse }}
+              <div class="form-floating">
+                {{ form.adresse }}
+                <label for="id_adresse">Adresse eingeben…</label>
+              </div>
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
               {{ form.strasse.label_tag }}
-              {{ form.strasse }}
+              <div class="form-floating">
+                {{ form.strasse }}
+                <label for="id_strasse">Straße eingeben…</label>
+              </div>
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
               <label for="id_address_search">Adressensuche</label>
-              <input id="id_address_search" type="text" name="address_search" maxlength="255" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+              <div class="form-floating">
+                <input id="id_address_search" type="text" class="form-control" name="address_search" autocapitalize="none" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+                <label for="id_address_search">Adresse, Straße oder Gemeindeteil eingeben…</label>
+              </div>
             {% endif %}
           {% endif %}
           <div id="results-container" class="results"></div>
-        </div>
+        </div>        
       </div>
     {% endif %}
     <div id="buttons">
-      {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-        <input class="btn btn-success" value="speichern" type="submit" onclick="setAddressUuid();"/>
-      {% endif %}
-      {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
-        <a class="btn btn-danger btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}">löschen</a>
-      {% endif %}
-      <a class="btn btn-warning btn-in-a-row" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}">abbrechen</a>
-      <div class="spacer-small"></div>
+      <div class="d-grid mb-3 gap-2 d-md-block">
+        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+          <button class="btn btn-success" type="submit" onclick="setAddressUuid();"><i class="fas fa-floppy-disk"></i> speichern</button>
+        {% endif %}
+        {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
+          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><i class="fas fa-trash"></i> löschen</a>
+        {% endif %}
+        <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-hand"></i> abbrechen</a>
+      </div>
     </div>
     {% if address_type %}
-      <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal" class="modal fade" role="dialog" tabindex="-1">
-        <div class="modal-dialog" role="document">
+      <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal" class="modal fade" tabindex="-1" aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Keine Zuordnung einer {{ address_type }} möglich</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              <h5 id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-label" class="modal-title">Keine Zuordnung einer {{ address_type }} möglich</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               Objekt zu weit von nächster {{ address_type }} entfernt!
@@ -197,8 +208,8 @@
       </div>
     {% endif %}
     {% if gpx_input %}
-      <div id="id_gpxLoading" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+      <div id="id_gpxLoading" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header" id="id_gpxLoading-header">
               <h5 class="modal-title" id="id_gpxLoading-title">Auswerten der GPX-Datei</h5>
@@ -1020,8 +1031,10 @@
             return false;
           }
         });
-        if (erfolg === false)
-          $('#maptostreet-error-modal').modal(); 
+        if (erfolg === false) {
+          var modal = new bootstrap.Modal($('#maptostreet-error-modal'));
+          modal.show();
+        }
       } else if (type === 'Adresse') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Adresse') {
@@ -1034,8 +1047,10 @@
             return false;
           }
         });
-        if (erfolg === false)
-          $('#maptoaddress-error-modal').modal();
+        if (erfolg === false) {
+          var modal = new bootstrap.Modal($('#maptoaddress-error-modal'));
+          modal.show();
+        }
       }
     }
 
@@ -1208,7 +1223,8 @@
          * @param e
          */
 
-        $('#id_gpxLoading').modal('show');
+        var modal = new bootstrap.Modal($('#id_gpxLoading'));
+        modal.show();
 
         let file = e.target.files[0];
         let fileName = file.name;
@@ -1280,7 +1296,7 @@
               // Layer zur Karte hinzufügen
               track.addTo(currMap);
             }
-            $('#id_gpxLoading').modal('hide');
+            modal.hide();
           }
         ).catch(
           (error) => {

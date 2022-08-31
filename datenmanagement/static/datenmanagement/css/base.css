@@ -3,13 +3,9 @@ html {
   min-height:100%;
 }
 
+a,
 a:hover {
   text-decoration:none;
-}
-
-/* dataform */
-.btn-in-a-row {
-  margin-left:.5rem;
 }
 
 .container-fluid:not(nav > .container-fluid) {
@@ -18,16 +14,4 @@ a:hover {
 
 .required {
   font-weight:bold;
-}
-
-/* dataform */
-.row {
-  margin-bottom:1rem;
-  padding-left:15px;
-  padding-right:15px;
-}
-
-/* dataform */
-.spacer-small {
-  height:1rem;
 }

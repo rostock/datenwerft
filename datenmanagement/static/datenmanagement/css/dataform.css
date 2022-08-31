@@ -20,9 +20,11 @@ ul:not([class]){
   margin-bottom:0;
 }
 
-#address-search-container {
-  margin-top:1rem;
-  margin-bottom:8rem;
+#id_adresse,
+#id_address_search,
+#id_strasse {
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
 }
 
 #id_geometrie-map {
@@ -62,17 +64,16 @@ ul:not([class]){
 .results {
   display:none;
   width:100%;
-  float:left;
-  text-align:left;
-  z-index:1;
-  border-left:1px solid #aaa;
-  border-right:1px solid #aaa;
-  border-bottom:1px solid #aaa;
-  font-size:1rem;
+  border-left:1px solid #ced4da;
+  border-right:1px solid #ced4da;
+  border-bottom:1px solid #ced4da;
+  border-bottom-left-radius:.375rem;
+  border-bottom-right-radius:.375rem;
 }
 
 .result-element {
-  line-height:150%;
+  padding-left:.75rem;
+  line-height:2rem;
   cursor:pointer;
 }
 
@@ -82,12 +83,7 @@ ul:not([class]){
 
 .result-element .text-muted {
   float:right;
-  padding-right:.5rem;
-  color:#aaa;
-}
-
-.result-element:hover .text-muted {
-  color:#000;
+  padding-right:.75rem;
 }
 
 .timepicker td,
@@ -96,9 +92,11 @@ ul:not([class]){
   padding:0 !important;
 }
 
+
 /*
  * Leaflet-Button für Datenlayer überschreiben
  */
+ 
 .leaflet-top.leaflet-right .leaflet-control-layers:nth-child(2) .leaflet-control-layers-toggle {
   background-image: url("../img/datalayer.svg");
 }
@@ -106,6 +104,7 @@ ul:not([class]){
 /*
  * Leaflet-Buttons für Location überschreiben
  */
+ 
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {
     -webkit-mask-image: url("../img/location-arrow-solid.svg");
     mask-image: url("../img/location-arrow-solid.svg");
@@ -117,7 +116,7 @@ ul:not([class]){
 }
 
 /*
- * Leaflet-Button zum adoptieren von Geometrien
+ * Leaflet-Button zum Adoptieren von Geometrien definieren
  */
 
 .adopt-geometry-control {

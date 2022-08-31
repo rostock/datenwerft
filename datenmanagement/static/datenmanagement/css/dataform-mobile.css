@@ -2,6 +2,12 @@
   margin-top:12rem;
 }
 
+#custom-form {
+  margin-bottom:1rem;
+  padding-left:15px;
+  padding-right:15px;
+}
+
 #map-adresssearch-container-form {
   height:600px;
 }

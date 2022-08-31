@@ -99,6 +99,8 @@ class DataForm(ModelForm):
                     self.fields[field.name] = fields.AddressUUIDField(
                         label=field.verbose_name,
                         widget=TextInput(attrs={
+                            'class': 'form-control',
+                            'autocapitalize': 'none',
                             'autocomplete': 'off',
                             'placeholder': 'Adresse eingeben…'
                         }),
@@ -108,6 +110,8 @@ class DataForm(ModelForm):
                     self.fields[field.name] = fields.StreetUUIDField(
                         label=field.verbose_name,
                         widget=TextInput(attrs={
+                            'class': 'form-control',
+                            'autocapitalize': 'none',
                             'autocomplete': 'off',
                             'placeholder': 'Straße eingeben…'
                         }),
