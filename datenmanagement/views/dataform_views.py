@@ -95,26 +95,24 @@ class DataForm(ModelForm):
                         self.fields[field.name] = choice_field
             # Adressfelder in eigenen Feldtypen umwandeln
             elif field.name == 'adresse' or field.name == 'strasse':
+                attrs = {
+                    'class': 'form-control',
+                    'autocapitalize': 'off',
+                    'autocomplete': 'off',
+                    'placeholder': ''
+                }
                 if field.name == 'adresse':
+                    attrs['placeholder']='Adresse eingeben…'
                     self.fields[field.name] = fields.AddressUUIDField(
                         label=field.verbose_name,
-                        widget=TextInput(attrs={
-                            'class': 'form-control',
-                            'autocapitalize': 'none',
-                            'autocomplete': 'off',
-                            'placeholder': 'Adresse eingeben…'
-                        }),
+                        widget=TextInput(attrs=attrs),
                         required=self.address_mandatory
                     )
                 elif field.name == 'strasse':
+                    attrs['placeholder']='Straße eingeben…'
                     self.fields[field.name] = fields.StreetUUIDField(
                         label=field.verbose_name,
-                        widget=TextInput(attrs={
-                            'class': 'form-control',
-                            'autocapitalize': 'none',
-                            'autocomplete': 'off',
-                            'placeholder': 'Straße eingeben…'
-                        }),
+                        widget=TextInput(attrs=attrs),
                         required=self.address_mandatory
                     )
             # bestimmte Modelle für bestimmte Felder zur Befüllung

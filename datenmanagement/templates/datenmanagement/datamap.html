@@ -199,7 +199,7 @@
       <div id="address-search" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
         <h5>Adressensuche</h5>
         <div class="form-floating">
-          <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="none" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+          <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
           <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
         </div>
         <div id="results-container" class="results"></div>

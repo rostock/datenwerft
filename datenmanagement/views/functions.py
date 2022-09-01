@@ -14,16 +14,24 @@ from tempus_dominus.widgets import DatePicker, DateTimePicker
 
 def assign_widgets(field):
     """
-    liefert passendes Formularelement oder Widget zu field
+    liefert passendes Formularelement (Widget) zu field
 
     :param field: Feld
-    :return: Formularelement oder Widget
+    :return: Formularelement (Widget)
     """
-    if field.name == 'geometrie':
+    form_field = field.formfield()
+    if form_field.widget.__class__.__name__ == 'Select':
+        form_field.widget.attrs['class'] = 'form-select'
+        return form_field
+    elif form_field.widget.__class__.__name__ == 'Textarea':
+        form_field.widget.attrs['class'] = 'form-control'
+        return form_field
+    elif field.name == 'geometrie':
         return field.formfield(widget=LeafletWidget())
     elif field.__class__.__name__ == 'CharField' and field.name == 'farbe':
         return field.formfield(widget=TextInput(attrs={
-            'type': 'color'
+            'type': 'color',
+            'class': 'form-control-color'
         }))
     elif field.__class__.__name__ == 'ChoiceArrayField':
         return field.formfield(empty_value=None,
@@ -39,7 +47,12 @@ def assign_widgets(field):
             'append': 'fas fa-clock'
         }))
     else:
-        return field.formfield()
+        if hasattr(form_field.widget, 'input_type'):
+            if form_field.widget.input_type == 'checkbox':
+                form_field.widget.attrs['class'] = 'form-check-input'
+            else:
+                form_field.widget.attrs['class'] = 'form-control'
+        return form_field
 
 
 def delete_object_immediately(request, pk):
