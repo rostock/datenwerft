@@ -13,7 +13,6 @@
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.5.3/MarkerCluster.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.5.3/MarkerCluster.Default.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-bootstrap-4.min.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap-mobile.css' %}" />
@@ -33,8 +32,6 @@
   <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'moment-2.29.4/moment-with-locales.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-bootstrap-4.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'tempusdominus-bootstrap-4-5.39.0/tempusdominus-de.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -70,10 +67,7 @@
               <div class="d-grid mt-2 mb-3">
                 <label class="form-label">Stichtag</label>
                 <div class="input-group">
-                  <input id="filter-input-deadline" type="text" name="deadline" data-target="#filter-input-deadline" class="form-control filter-input datetimepicker-input" data-type="date" data-nullable data-intervalside="both">
-                  <button class="btn btn-outline-secondary" data-target="#filter-input-deadline" data-toggle="datetimepicker">
-                    <i class="fas fa-calendar"></i>
-                  </button>
+                  <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both">
                   <button class="input-reset btn btn-outline-secondary">
                     <i class="fas fa-trash" title="Filterfeld leeren"></i>
                   </button>
@@ -90,10 +84,7 @@
                     <label class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
-                        <button class="btn btn-outline-secondary" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
-                          <i class="fas fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i>
-                        </button>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
@@ -106,10 +97,7 @@
                     <label class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetimepicker-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
-                        <button class="btn btn-outline-secondary" data-target="#filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" data-toggle="datetimepicker">
-                          <i class="fas fa-{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i>
-                        </button>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
@@ -130,10 +118,7 @@
                   <label class="form-label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if 'Date' in map_filter_field|get_type_of_field:model_name %}
                     <div class="input-group">
-                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetimepicker-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
-                      <button class="btn btn-outline-secondary" data-target="#filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" data-toggle="datetimepicker">
-                        <i class="fas fa-{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}clock{% else %}calendar{% endif %}"></i>
-                      </button>
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                       <button class="input-reset btn btn-outline-secondary">
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
@@ -697,7 +682,7 @@
         {% endif %}
 
         // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
-        $('.datetimepicker-input').each(function() {
+        $('.datetime-input').each(function() {
           // Variable für initiales Datum bzw. initiales Datum mit Zeit
           var initialDateTime = '';
 
@@ -720,33 +705,9 @@
           // falls Variable für initiales Datum bzw. initiales Datum mit Zeit gefüllt ist...
           if (initialDateTime !== '') {
             // initiales Datum bzw. initiales Datum mit Zeit auf entsprechenden Wert setzen
-            var dummyDate = '';
-            var dummyTime = '';
-            if (initialDateTime.length === 10) {
-              dummyDate = initialDateTime.split('-');
-            } else {
-              dummyDate = initialDateTime.slice(0, 10).split('-');
-              dummyTime = initialDateTime.slice(11).split(':');
-            }
-            $(this).datetimepicker({
-              buttons: tempusdominusButtons,
-              icons: tempusdominusIcons,
-              tooltips: tempusdominusTooltips,
-              locale: 'de',
-              format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss',
-              date: (initialDateTime.length === 10) ? (new Date(dummyDate[0], dummyDate[1] - 1, dummyDate[2])) : (new Date(dummyDate[0], dummyDate[1] - 1, dummyDate[2], dummyTime[0], dummyTime[1], dummyTime[2]))
-            });
-            // zusätzlich data-Attribut hinzufügen mit initialem Datum bzw. initialem Datum mit Zeit (benötigt beim Zurücksetzen der Filter)
+            $(this).val(initialDateTime);
+            // data-Attribut hinzufügen mit initialem Datum bzw. initialem Datum mit Zeit (benötigt beim Zurücksetzen der Filter)
             $(this).attr('data-initial', initialDateTime);
-          // ansonsten ohne initiales Datum bzw. initiales Datum mit Zeit
-          } else {
-            $(this).datetimepicker({
-              buttons: tempusdominusButtons,
-              icons: tempusdominusIcons,
-              tooltips: tempusdominusTooltips,
-              locale: 'de',
-              format: ($(this).data('type') === 'date') ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm:ss'
-            });
           }
         });
 
@@ -821,17 +782,6 @@
               filterAttribute.type = $(this).data('type');
               filterAttribute.intervalside = $(this).data('intervalside');
               filterAttribute.value = $(this).val();
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-              if (filterAttribute.type == 'date') {
-                var dummyDate = filterAttribute.value.split('.');
-                filterAttribute.value = new Date(dummyDate[2], dummyDate[1] - 1, dummyDate[0]);
-              }
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Filter mit Datum und Zeit handelt!
-              else if (filterAttribute.type == 'datetime') {
-                var dummyDate = filterAttribute.value.slice(0, 10).split('.');
-                var dummyTime = filterAttribute.value.slice(11).split(':');
-                filterAttribute.value = new Date(dummyDate[2], dummyDate[1] - 1, dummyDate[0], dummyTime[0], dummyTime[1], dummyTime[2]);
-              }
               // Filterobjekt zur Liste für Filterobjekte hinzufügen
               filterAttributesList.push(filterAttribute);
             }
@@ -997,24 +947,12 @@
 
           $('.filter-input').each(function() {
             // falls initialer Wert vorhanden...
-            if ($(this).data('initial')) {
+            if ($(this).data('initial'))
               // Filter auf initialen Wert setzen
-              var initialValue = $(this).data('initial');
-              if ($(this).data('type') === 'date') {
-                var dummyDate = initialValue.split('-');
-                $(this).val(dummyDate[2] + '.' + dummyDate[1] + '.' + dummyDate[0]);
-              } else if ($(this).data('type') === 'datetime') {
-                var dummyDate = initialValue.slice(0, 10).split('-');
-                var dummyTime = initialValue.slice(11);
-                $(this).val(dummyDate[2] + '.' + dummyDate[1] + '.' + dummyDate[0] + ' ' + dummyTime);
-              } else {
-                $(this).val($(this).data('initial'));
-              }
-            }
+              $(this).val($(this).data('initial'));
             // ansonsten Filter auf leeren Wert setzen
-            else {
+            else
               $(this).val('');
-            }
           });
 
           $('.filter-input input[type="checkbox"]').each(function() {

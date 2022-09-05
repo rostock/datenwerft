@@ -4,10 +4,10 @@ django-currentuser
 django-datatables-view
 django-guardian
 django-leaflet
-django-tempus-dominus
 django-user-agents
 django-jsonview
 djangorestframework
+piccolo-theme
 Pillow
 psycopg2
 PyYAML

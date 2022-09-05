@@ -19,18 +19,6 @@ ul:not([class]){
   height:100%;
 }
 
-.bootstrap-datetimepicker-widget a {
-  color:#000 !important;
-}
-
-.bootstrap-datetimepicker-widget table td.active {
-  background-color:#000 !important;
-}
-
-.bootstrap-datetimepicker-widget table td.today:before {
-  border-bottom-color:#000 !important;
-}
-
 .label-with-margin {
   margin-left:.3rem;
 }

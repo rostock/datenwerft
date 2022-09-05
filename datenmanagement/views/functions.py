@@ -8,7 +8,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from guardian.core import ObjectPermissionChecker
 from leaflet.forms.widgets import LeafletWidget
-from tempus_dominus.widgets import DatePicker, DateTimePicker
 
 
 
@@ -37,14 +36,21 @@ def assign_widgets(field):
         return field.formfield(empty_value=None,
                                widget=CheckboxSelectMultiple())
     elif field.__class__.__name__ == 'DateField':
-        return field.formfield(widget=DatePicker(attrs={
-            'input_toggle': False,
-            'append': 'fas fa-calendar'
+        return field.formfield(widget=TextInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
         }))
     elif field.__class__.__name__ == 'DateTimeField':
-        return field.formfield(widget=DateTimePicker(attrs={
-            'input_toggle': False,
-            'append': 'fas fa-clock'
+        return field.formfield(widget=TextInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control',
+            'step': '1'
+        }))
+    elif field.__class__.__name__ == 'TimeField':
+        return field.formfield(widget=TextInput(attrs={
+            'type': 'time',
+            'class': 'form-control',
+            'step': '1'
         }))
     else:
         if hasattr(form_field.widget, 'input_type'):
