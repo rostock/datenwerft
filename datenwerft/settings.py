@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '5.1.1'
+DATENMANAGEMENT_VERSION = '5.1.2'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -46,7 +46,6 @@ THIRD_PARTY_APPS = [
     'leaflet',
     'requests',
     'rest_framework',
-    'tempus_dominus',
     'jsonview',
 ]
 
@@ -122,13 +121,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
 }
-
-
-# Tempus Dominus
-
-TEMPUS_DOMINUS_LOCALIZE = True
-
-TEMPUS_DOMINUS_INCLUDE_ASSETS = False
 
 
 # Internationalization

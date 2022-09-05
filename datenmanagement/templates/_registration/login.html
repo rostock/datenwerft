@@ -4,7 +4,7 @@
 {% block title %}Anmeldung | {% endblock %}
 
 {% block content %}
-  <div class="d-grid col-4 mx-auto">
+  <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}4{% endif %} mx-auto">
     {% if form.errors %}
       {% for field in form %}
         {% if field.errors %}

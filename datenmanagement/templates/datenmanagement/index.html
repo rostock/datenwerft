@@ -50,7 +50,7 @@
         der Web-Anwendung zur Datenerfassung<br/>
         der Hanse- und Universitätsstadt Rostock!
       </h2>
-      <div class="d-grid col-3 mt-4 mx-auto">
+      <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}3{% endif %} mt-4 mx-auto">
         <a class="btn btn-lg btn-primary" role="button" href="{% url 'login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
       </div>
   {% endif %}

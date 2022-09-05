@@ -59,7 +59,7 @@
 	  <div id="map-side-container" class="mb-3">
       {% leaflet_map "map" callback="window.map_init_basic" %}
       {% if map_filters_enabled %}
-        <div id="filter" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
+        <div id="filter"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
           <h5>Filter für Kartenobjekte</h5>
           <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv</strong> (wie „UND“)</div>
           {% if map_deadlinefilter_fields %}
@@ -174,14 +174,14 @@
           </div>
         </div>
       {% endif %}
-      <div {% if map_filters_enabled %}id="map-control"{% endif %} class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
+      <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
         <h5>Kartenausschnitt</h5>
         <div class="d-grid mt-2 gap-2 d-md-block">
           <button id="map-extent-filter" class="btn btn-success" type="submit"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
           <button id="map-extent-initial" class="btn btn-warning" type="submit"><i class="fas fa-map"></i> gesamt</button>
         </div>
       </div>
-      <div id="address-search" class="{% if request.user_agent.is_mobile or request.user_agent.is_tablet %}col-6{% else %}side{% endif %}">
+      <div id="address-search"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
         <h5>Adressensuche</h5>
         <div class="form-floating">
           <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
@@ -270,7 +270,7 @@
 
         {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
           // bei mobilen Geräten: Standortbestimmung hinzufügen
-          let locationControl = L.control.locate({
+          L.control.locate({
             drawCircle: false,
             drawMarker: false,
             flyTo: true,
@@ -281,8 +281,7 @@
             strings: {
               title: 'Standortbestimmung'
             }
-          });
-          locationControl.addTo(map);
+          }).addTo(map);
       {% endif %}
 
         // EPSG:25833 definieren

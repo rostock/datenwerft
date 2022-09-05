@@ -1,13 +1,10 @@
 #address-search,
 #map-control {
   margin-top:1rem;
-  padding-left:0;
 }
 
 #filter {
-  float:right;
   margin-top:1rem;
-  padding-right:0;
 }
 
 #map {
