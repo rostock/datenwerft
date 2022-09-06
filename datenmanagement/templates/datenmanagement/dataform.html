@@ -703,8 +703,6 @@
               let label = inputField.parent().closest('tr').find('label');
               label.wrapInner('<em></em>');
               inputField.hide();
-              if ($('div*[data-target="#id_{{ field }}"]'))
-                $('div*[data-target="#id_{{ field }}"]').hide();
             }
            {% else %}
             inputField.closest('tr').hide();
