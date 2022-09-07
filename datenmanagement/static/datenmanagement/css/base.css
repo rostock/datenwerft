@@ -16,6 +16,16 @@ a:hover {
   width:90%;
 }
 
+.main-logo {
+  height:80px;
+}
+
+.navbar-logo {
+  height:30px;
+  margin-bottom:.25rem;
+  margin-right:.25rem;
+}
+
 .required {
   font-weight:bold;
 }

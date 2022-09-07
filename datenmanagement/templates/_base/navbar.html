@@ -5,7 +5,10 @@
 {% block navbar %}
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href={% url 'datenmanagement:index' %}>Datenwerft.HRO <small class="text-muted">v{{ datenmanagement_version }}</small></a>
+      <a class="navbar-brand" href={% url 'datenmanagement:index' %}>
+        <img class="navbar-logo" src="{% static 'datenmanagement/img/logo.svg' %}" alt="Logo">
+        Datenwerft.HRO <small class="text-muted">v{{ datenmanagement_version }}</small>
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
