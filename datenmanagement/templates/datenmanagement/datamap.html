@@ -20,10 +20,10 @@
 {% block scripts %}
   {{ block.super }}
   {% leaflet_js plugins="locatecontrol,markercluster" %}
-  <script type="text/javascript" src="{% static 'proj4/dist/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4/proj4.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket/wicket.js' %}"></script>
   <script type="text/javascript" src="{% static 'wicket/wicket-leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'proj4leaflet/src/proj4leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
 {% endblock %}
 
 {% block content %}

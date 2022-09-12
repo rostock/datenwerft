@@ -3,9 +3,9 @@ django-auth-ldap
 django-currentuser
 django-datatables-view
 django-guardian
+django-jsonview
 django-leaflet
 django-user-agents
-django-jsonview
 djangorestframework
 piccolo-theme
 Pillow
