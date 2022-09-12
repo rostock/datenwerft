@@ -66,7 +66,6 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 1.  JavaScript-Module via *npm* installieren:
 
-        cd /srv/www/htdocs/datenwerft/datenwerft/assets
         npm install
 
 1.  statische Dateien initialisieren:
