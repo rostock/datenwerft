@@ -8,8 +8,7 @@
 
 {% block style %}
   {{ block.super }}
-  {% leaflet_css plugins="geoman" %}
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.css' %}"/>
+  {% leaflet_css plugins="geoman,locatecontrol" %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform-mobile.css' %}" />
@@ -20,15 +19,14 @@
 
 {% block scripts %}
   {{ block.super }}
-  {% leaflet_js plugins="geoman" %}
-  <script type="text/javascript" src="{% static 'proj4js-2.8.0/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.8/wicket.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.8/wicket-leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.js' %}"></script>
-  <script type="module" src="{% static 'node_modules/martinez-polygon-clipping/dist/martinez.min.js' %}"></script>
-  <script type="module" src="{% static 'helpers/leafletHelpers.js' %}"></script>
-  <script type="text/javascript" src="{% static 'helpers/generics.js' %}"></script>
+  {% leaflet_js plugins="geoman,locatecontrol" %}
+  <script type="text/javascript" src="{% static 'proj4/dist/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket/wicket.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket/wicket-leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4leaflet/src/proj4leaflet.js' %}"></script>
+  <script type="module" src="{% static 'martinez-polygon-clipping/dist/martinez.min.js' %}"></script>
+  <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/generics.js' %}"></script>
 {% endblock %}
 
 {% block content %}

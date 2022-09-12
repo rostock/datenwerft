@@ -7,12 +7,12 @@
 
 {% block style %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.12.1/datatables.min.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}"/>
 {% endblock %}
 
 {% block scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'datatables-1.12.1/datatables.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datatables/datatables.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -116,7 +116,7 @@
             dom: '<Bfr<t>ilp>',
             fixedHeader: true,
             language: {
-              url: '{% static 'datatables-1.12.1/datatables.german.lang' %}'
+              url: '{% static 'datatables/datatables.german.lang' %}'
             },
             lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
             order: [[ 1, 'asc' ]],

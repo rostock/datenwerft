@@ -15,8 +15,8 @@ hilfe/build
 /uploads
 
 # Node.js
-assets/*package-lock*
-assets/node_modules/*
+*package-lock*
+node_modules
 
 # PyCharm
 .idea/

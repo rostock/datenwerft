@@ -1,5 +1,3 @@
-//import * as martinez from '../node_modules/martinez-polygon-clipping/dist/martinez.min.js'
-
 /*
  * Erweiterungen von bestehenden Klassen
  */

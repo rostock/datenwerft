@@ -8,11 +8,7 @@
 
 {% block style %}
   {{ block.super }}
-  {% leaflet_css %}
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet.label-0.2.2/leaflet.label.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.5.3/MarkerCluster.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet.markercluster-1.5.3/MarkerCluster.Default.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.css' %}"/>
+  {% leaflet_css plugins="locatecontrol,markercluster" %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap-mobile.css' %}" />
@@ -23,15 +19,11 @@
 
 {% block scripts %}
   {{ block.super }}
-  {% leaflet_js %}
-  <script type="text/javascript" src="{% static 'proj4js-2.8.0/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.8/wicket.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket-1.3.8/wicket-leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet.label-0.2.2/leaflet.label.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet.markercluster-1.5.3/leaflet.markercluster.js' %}"></script>
-  <script type="text/javascript" src="{% static 'leaflet-locatecontrol-0.76.1/L.Control.Locate.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'proj4leaflet-1.0.2/proj4leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'moment-2.29.4/moment-with-locales.min.js' %}"></script>
+  {% leaflet_js plugins="locatecontrol,markercluster" %}
+  <script type="text/javascript" src="{% static 'proj4/dist/proj4.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket/wicket.js' %}"></script>
+  <script type="text/javascript" src="{% static 'wicket/wicket-leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'proj4leaflet/src/proj4leaflet.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -413,7 +405,7 @@
           }
           // falls Geometrie nicht punkthaft ist...
           {% if geometry_type != 'Point' %}
-            layer.bindLabel(feature.properties[featureTooltipField]);
+            layer.bindTooltip(feature.properties[featureTooltipField]);
           {% endif %}
         }
 
@@ -424,7 +416,11 @@
           icon.options.shadowSize = [0, 0];
           geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
             pointToLayer: function (feature, latlng) {
-              return L.marker(latlng, { icon : icon }).bindLabel(feature.properties[featureTooltipField]);
+              var marker = new L.marker(latlng, {
+                  icon: icon
+              });
+              marker.bindTooltip(feature.properties[featureTooltipField]);
+              return marker;
             },
             onEachFeature: onEachFeature
           });
@@ -589,14 +585,14 @@
                   {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
                     // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMin.length; i++) {
-                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'day').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day'))) {
+                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || new Date(intervalFilterMin[i].value) > new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'))) {
                         intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
                         break;
                       }
                     }
                     // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMax.length; i++) {
-                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'), 'day').isAfter(new Date(intervalFilterMax[i].value), 'day'))) {
+                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}') > new Date(intervalFilterMax[i].value))) {
                         intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
                         break;
                       }
@@ -605,14 +601,14 @@
                   {% elif map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}
                     // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMin.length; i++) {
-                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || moment(new Date(intervalFilterMin[i].value), 'second').isAfter(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}'), 'second'))) {
+                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || new Date(intervalFilterMin[i].value).valueOf() > new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}').valueOf())) {
                         intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
                         break;
                       }
                     }
                     // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
                     for (var i = 0; i < intervalFilterMax.length; i++) {
-                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || moment(new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}'), 'second').isAfter(new Date(intervalFilterMax[i].value), 'second'))) {
+                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}').valueOf() > new Date(intervalFilterMax[i].value).valueOf())) {
                         intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
                         break;
                       }
@@ -831,19 +827,19 @@
                   // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und unpassende GeoJSON-Features ausblenden
                   if (filterAttributesList[i].name === 'deadline') {
                     // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
-                    if (!(moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties['deadline_0']), 'day')) || !(moment(new Date(layer.feature.properties['deadline_1']), 'day').isAfter(new Date(filterAttributesList[i].value), 'day'))) {
+                    if (!(new Date(filterAttributesList[i].value) > new Date(layer.feature.properties['deadline_0'])) || !(new Date(layer.feature.properties['deadline_1']) > new Date(filterAttributesList[i].value))) {
                       layer.getElement().style.display = 'none';
                     }
                   // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
                   } else if (filterAttributesList[i].intervalside === 'left') {
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                      if (moment(new Date(filterAttributesList[i].value), 'day').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day')) {
+                      if (new Date(filterAttributesList[i].value) > new Date(layer.feature.properties[filterAttributesList[i].name])) {
                         layer.getElement().style.display = 'none';
                       }
                     } else if (filterAttributesList[i].type === 'datetime') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                      if (moment(new Date(filterAttributesList[i].value), 'second').isAfter(new Date(layer.feature.properties[filterAttributesList[i].name]), 'second')) {
+                      if (new Date(filterAttributesList[i].value).valueOf() > new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf()) {
                         layer.getElement().style.display = 'none';
                       }
                     } else {
@@ -855,12 +851,12 @@
                   } else if (filterAttributesList[i].intervalside === 'right') {
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                      if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').isAfter(new Date(filterAttributesList[i].value), 'day')) {
+                      if (new Date(layer.feature.properties[filterAttributesList[i].name]) > new Date(filterAttributesList[i].value)) {
                         layer.getElement().style.display = 'none';
                       }
                     } else if (filterAttributesList[i].type === 'datetime') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                      if (moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'second').isAfter(new Date(filterAttributesList[i].value), 'second')) {
+                      if (new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf() > new Date(filterAttributesList[i].value).valueOf()) {
                         layer.getElement().style.display = 'none';
                       }
                     } else {
@@ -889,12 +885,12 @@
                   } else if (filterAttributesList[i].type != 'checkbox-set') {
                     if (filterAttributesList[i].type === 'date') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                      if (moment(new Date(filterAttributesList[i].value), 'day').format('YYYY-MM-DD') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'day').format('YYYY-MM-DD')) {
+                      if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf()) {
                         layer.getElement().style.display = 'none';
                       }
                     } else if (filterAttributesList[i].type === 'datetime') {
                       // auf passende Formatierung achten, wenn es sich beim Filter um einen Filter mit Datum und Zeit handelt!
-                      if (moment(new Date(filterAttributesList[i].value), 'second').format('YYYY-MM-DD HH:mm:ss') != moment(new Date(layer.feature.properties[filterAttributesList[i].name]), 'second').format('YYYY-MM-DD HH:mm:ss')) {
+                      if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf()) {
                         layer.getElement().style.display = 'none';
                       }
                     } else if (filterAttributesList[i].type === 'list') {

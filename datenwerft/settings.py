@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-DATENMANAGEMENT_VERSION = '5.2.1'
+DATENMANAGEMENT_VERSION = '5.3.0'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -99,8 +99,18 @@ LEAFLET_CONFIG = {
             'auto_include': True
         },
         'geoman': {
-            'css': ['leaflet-geoman-2.13.0/leaflet-geoman.css'],
-            'js': ['leaflet-geoman-2.13.0/leaflet-geoman.min.js'],
+            'css': '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css',
+            'js': '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.min.js',
+            'auto_include': True
+        },
+        'locatecontrol': {
+            'css': 'leaflet.locatecontrol/dist/L.Control.Locate.min.css',
+            'js': 'leaflet.locatecontrol/dist/L.Control.Locate.min.js',
+            'auto_include': True
+        },
+        'markercluster': {
+            'css': ['leaflet.markercluster/dist/MarkerCluster.css', 'leaflet.markercluster/dist/MarkerCluster.Default.css'],
+            'js': 'leaflet.markercluster/dist/leaflet.markercluster.js',
             'auto_include': True
         }
     }

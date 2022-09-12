@@ -9,7 +9,7 @@ django-jsonview
 djangorestframework
 piccolo-theme
 Pillow
-psycopg2
+psycopg2-binary
 PyYAML
 requests
 Sphinx
