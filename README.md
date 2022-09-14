@@ -104,4 +104,8 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
 
 Der Python-Quellcode ist nach der Stylekonvetion [*PEP8*](https://www.python.org/dev/peps/pep-0008/) verfasst. Für die Entwicklung wird ein Tool wie [*pycodestyle*](https://pypi.org/project/pycodestyle/) zur Überprüfung des Quellcodes gemäß *PEP8* empfohlen.
 
-Die Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben und mit [*Sqhinx*](https://www.sphinx-doc.org/en/master/) kompiliert.
+Die Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben.
+
+Nützliche Tools für eine Entwicklungsumgebung, wie etwa *pycodestyle,* können zusätzlich via *pip* installiert werden:
+
+        pip install -r /srv/www/htdocs/datenwerft/datenwerft/requirements-dev.txt

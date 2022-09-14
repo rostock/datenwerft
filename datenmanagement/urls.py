@@ -10,7 +10,6 @@ from datenmanagement.views import dataform_views, datalist_views, \
     functions, helper_views, list_views
 
 
-
 def permission_required(*perms):
     return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
@@ -38,7 +37,8 @@ urlpatterns = [
         view=login_required(helper_views.ReverseSearchView.as_view()),
         name='reversesearch'),
     # GPXtoGeoJSON
-    # Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
+    # Übergabe einer GPX-Datei an FME Server
+    # und Rückgabe des generierten GeoJSON
     url(
         regex=r'gpxtogeojson/$',
         view=login_required()(helper_views.GPXtoGeoJSON.as_view()),

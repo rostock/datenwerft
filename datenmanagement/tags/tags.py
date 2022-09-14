@@ -15,186 +15,201 @@ register = template.Library()
 
 @register.filter
 def customize_error_message(value):
-  if 'existiert bereits' in value:
-    return value[:-1]
-  else:
-    return 'Fehler bei der Eingabe'
+    if 'existiert bereits' in value:
+        return value[:-1]
+    else:
+        return 'Fehler bei der Eingabe'
 
 
 @register.filter
 def get_class_foreign_key_label(value):
-  if hasattr(value.__class__._meta, 'foreign_key_label'):
-    return value.__class__._meta.foreign_key_label
-  else:
-    return None
+    if hasattr(value.__class__._meta, 'foreign_key_label'):
+        return value.__class__._meta.foreign_key_label
+    else:
+        return None
 
 
 @register.filter
 def get_class_name(value):
-  return value.__class__.__name__
+    return value.__class__.__name__
 
 
 @register.filter
 def get_class_object_title(value):
-  if hasattr(value.__class__._meta, 'object_title'):
-    return value.__class__._meta.object_title
-  else:
-    return None
+    if hasattr(value.__class__._meta, 'object_title'):
+        return value.__class__._meta.object_title
+    else:
+        return None
 
 
 @register.filter
 def get_class_verbose_name_plural(value):
-  return value.__class__._meta.verbose_name_plural
+    return value.__class__._meta.verbose_name_plural
 
 
 @register.filter
 def get_foreign_key_field_class_name(field_name, model_name):
-  model = apps.get_app_config('datenmanagement').get_model(model_name)
-  return model._meta.get_field(field_name).remote_field.model.__name__
+    model = apps.get_app_config('datenmanagement').get_model(model_name)
+    return model._meta.get_field(field_name).remote_field.model.__name__
 
 
 @register.filter
 def get_list_item_by_index(list, i):
-  return list[i]
+    return list[i]
 
 
 @register.filter
 def get_thumb_url(value):
-  head, tail = os.path.split(value)
-  return head + '/thumbs/' + tail
+    head, tail = os.path.split(value)
+    return head + '/thumbs/' + tail
 
 
 @register.filter
 def get_type_of_field(field_name, model_name):
-  model = apps.get_app_config('datenmanagement').get_model(model_name)
-  type_of_field = re.sub('\'>$', '', re.sub('^.*\.', '', str(model._meta.get_field(field_name).__class__)))
-  return type_of_field
+    model = apps.get_app_config('datenmanagement').get_model(model_name)
+    type_of_field = re.sub(
+        r'\'>$', '', re.sub(
+            r'^.*\.', '', str(model._meta.get_field(field_name).__class__)))
+    return type_of_field
 
 
 @register.filter
 def get_value_of_field(value, field):
-  return_value = getattr(value, field)
-  if isinstance(return_value, list):
-    return ', '.join(return_value)
-  else:
-    return return_value
+    return_value = getattr(value, field)
+    if isinstance(return_value, list):
+        return ', '.join(return_value)
+    else:
+        return return_value
 
 
 @register.filter
 def get_value_of_map_feature_tooltip_field(value, is_date=False):
-  field = value.__class__._meta.map_feature_tooltip_field
-  if field:
-    field_value = getattr(value, field)
-    if is_date:
-      return field_value.strftime('%d.%m.%Y')
+    field = value.__class__._meta.map_feature_tooltip_field
+    if field:
+        field_value = getattr(value, field)
+        if is_date:
+            return field_value.strftime('%d.%m.%Y')
+        else:
+            return field_value
     else:
-      return field_value
-  else:
-    return ["None"]
+        return ["None"]
 
 
 @register.filter
 def get_and_concat_values_of_map_feature_tooltip_fields(value):
-  tooltip_value = ''
-  index = 0
-  for field in value.__class__._meta.map_feature_tooltip_fields:
-    field_value = ''
-    if field:
-      field_value = str(getattr(value, field))
-    tooltip_value = (tooltip_value + ' ' + field_value if index > 0 else field_value)
-    index += 1
-  tooltip_value = tooltip_value.strip()
-  if not tooltip_value:
-    return ["None"]
-  else:
-    return tooltip_value
+    tooltip_value = ''
+    index = 0
+    for field in value.__class__._meta.map_feature_tooltip_fields:
+        field_value = ''
+        if field:
+            field_value = str(getattr(value, field))
+        tooltip_value = (
+            tooltip_value + ' ' + field_value if index > 0 else field_value
+        )
+        index += 1
+    tooltip_value = tooltip_value.strip()
+    if not tooltip_value:
+        return ["None"]
+    else:
+        return tooltip_value
 
 
 @register.filter
 def is_field_address_related_field(field):
-  if field.name == 'adresse' or field.name == 'strasse':
-    return True
-  else:
-    return False
+    if field.name == 'adresse' or field.name == 'strasse':
+        return True
+    else:
+        return False
 
 
 @register.filter
 def is_field_geometry_field(field):
-  if field.field.__class__ == forms.PointField or field.field.__class__ == forms.LineStringField or field.field.__class__ == forms.MultiLineStringField or field.field.__class__ == forms.PolygonField or field.field.__class__ == forms.MultiPolygonField:
-    return True
-  else:
-    return False
+    if (field.field.__class__ == forms.PointField or
+       field.field.__class__ == forms.LineStringField or
+       field.field.__class__ == forms.MultiLineStringField or
+       field.field.__class__ == forms.PolygonField or
+       field.field.__class__ == forms.MultiPolygonField):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def is_field_hours_related_field(field):
-  if field.name.endswith('zeiten'):
-    return True
-  else:
-    return False
+    if field.name.endswith('zeiten'):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def is_field_nullable(field_name, model_name):
-  model = apps.get_app_config('datenmanagement').get_model(model_name)
-  return model._meta.get_field(field_name).null
+    model = apps.get_app_config('datenmanagement').get_model(model_name)
+    return model._meta.get_field(field_name).null
 
 
 @register.filter
 def user_has_model_permission(user, obj):
-  permission_add = user.has_perm('datenmanagement.add_' + obj.__class__.__name__.lower())
-  permission_change = user.has_perm('datenmanagement.change_' + obj.__class__.__name__.lower())
-  permission_delete = user.has_perm('datenmanagement.delete_' + obj.__class__.__name__.lower())
-  permission_view = user.has_perm('datenmanagement.view_' + obj.__class__.__name__.lower())
-  if permission_change or permission_add or permission_delete or permission_view:
-    return True
-  else:
-    return False
+    permission_add = user.has_perm(
+        'datenmanagement.add_' + obj.__class__.__name__.lower())
+    permission_change = user.has_perm(
+        'datenmanagement.change_' + obj.__class__.__name__.lower())
+    permission_delete = user.has_perm(
+        'datenmanagement.delete_' + obj.__class__.__name__.lower())
+    permission_view = user.has_perm(
+        'datenmanagement.view_' + obj.__class__.__name__.lower())
+    if (permission_change or permission_add or
+       permission_delete or permission_view):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def user_has_model_add_permission(user, model_name_lower):
-  if user.has_perm('datenmanagement.add_' + model_name_lower):
-    return True
-  else:
-    return False
+    if user.has_perm('datenmanagement.add_' + model_name_lower):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def user_has_model_change_permission(user, model_name_lower):
-  if user.has_perm('datenmanagement.change_' + model_name_lower):
-    return True
-  else:
-    return False
+    if user.has_perm('datenmanagement.change_' + model_name_lower):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def user_has_model_delete_permission(user, model_name_lower):
-  if user.has_perm('datenmanagement.delete_' + model_name_lower):
-    return True
-  else:
-    return False
+    if user.has_perm('datenmanagement.delete_' + model_name_lower):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def user_has_model_view_permission(user, model_name_lower):
-  if user.has_perm('datenmanagement.view_' + model_name_lower):
-    return True
-  else:
-    return False
+    if user.has_perm('datenmanagement.view_' + model_name_lower):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def user_has_object_change_permission(user, obj):
-  if ObjectPermissionChecker(user).has_perm('change_' + obj.__class__.__name__.lower(), obj):
-    return True
-  else:
-    return False
+    if ObjectPermissionChecker(user).has_perm(
+          'change_' + obj.__class__.__name__.lower(), obj):
+        return True
+    else:
+        return False
 
 
 @register.filter
 def user_has_object_delete_permission(user, obj):
-  if ObjectPermissionChecker(user).has_perm('delete_' + obj.__class__.__name__.lower(), obj):
-    return True
-  else:
-    return False
+    if ObjectPermissionChecker(user).has_perm(
+            'delete_' + obj.__class__.__name__.lower(), obj):
+        return True
+    else:
+        return False

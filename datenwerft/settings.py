@@ -95,7 +95,10 @@ LEAFLET_CONFIG = {
             'auto_include': True
         },
         'markercluster': {
-            'css': ['leaflet-markercluster/MarkerCluster.css', 'leaflet-markercluster/MarkerCluster.Default.css'],
+            'css': [
+                'leaflet-markercluster/MarkerCluster.css',
+                'leaflet-markercluster/MarkerCluster.Default.css'
+            ],
             'js': 'leaflet-markercluster/leaflet.markercluster.js',
             'auto_include': True
         }
@@ -125,14 +128,35 @@ STATICFILES_DIRS = (
   os.path.join(BASE_DIR, 'vendor/'),
   ('bootstrap', os.path.join(BASE_DIR, 'node_modules/bootstrap/dist/css')),
   ('bootstrap', os.path.join(BASE_DIR, 'node_modules/bootstrap/dist/js')),
-  ('fontawesome', os.path.join(BASE_DIR, 'node_modules/@fortawesome/fontawesome-free/css')),
-  ('fontawesome', os.path.join(BASE_DIR, 'node_modules/@fortawesome/fontawesome-free/js')),
-  ('webfonts', os.path.join(BASE_DIR, 'node_modules/@fortawesome/fontawesome-free/webfonts')),
+  ('fontawesome', os.path.join(
+      BASE_DIR,
+      'node_modules/@fortawesome/fontawesome-free/css'
+  )),
+  ('fontawesome', os.path.join(
+      BASE_DIR,
+      'node_modules/@fortawesome/fontawesome-free/js'
+  )),
+  ('webfonts', os.path.join(
+      BASE_DIR,
+      'node_modules/@fortawesome/fontawesome-free/webfonts'
+  )),
   ('jquery', os.path.join(BASE_DIR, 'node_modules/jquery/dist')),
-  ('leaflet-geoman', os.path.join(BASE_DIR, 'node_modules/@geoman-io/leaflet-geoman-free/dist')),
-  ('leaflet-locatecontrol', os.path.join(BASE_DIR, 'node_modules/leaflet.locatecontrol/dist')),
-  ('leaflet-markercluster', os.path.join(BASE_DIR, 'node_modules/leaflet.markercluster/dist')),
-  ('martinez-polygon-clipping', os.path.join(BASE_DIR, 'node_modules/martinez-polygon-clipping/dist')),
+  ('leaflet-geoman', os.path.join(
+      BASE_DIR,
+      'node_modules/@geoman-io/leaflet-geoman-free/dist'
+  )),
+  ('leaflet-locatecontrol', os.path.join(
+      BASE_DIR,
+      'node_modules/leaflet.locatecontrol/dist'
+  )),
+  ('leaflet-markercluster', os.path.join(
+      BASE_DIR,
+      'node_modules/leaflet.markercluster/dist'
+  )),
+  ('martinez-polygon-clipping', os.path.join(
+      BASE_DIR,
+      'node_modules/martinez-polygon-clipping/dist'
+  )),
   ('popperjs', os.path.join(BASE_DIR, 'node_modules/@popperjs/core/dist/umd')),
   ('proj4', os.path.join(BASE_DIR, 'node_modules/proj4/dist')),
   ('proj4leaflet', os.path.join(BASE_DIR, 'node_modules/proj4leaflet/src')),

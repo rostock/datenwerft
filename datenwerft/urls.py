@@ -178,11 +178,6 @@ class GroupObjectPermissionViewSet(viewsets.ModelViewSet):
     serializer_class = GroupObjectPermissionSerializer
 
 
-# "REST framework adds support for automatic URL routing to Django, and provides
-# you with a simple, quick and consistent way of wiring your view logic to a
-# set of URLs."
-# https://www.django-rest-framework.org/api-guide/routers/
-
 # Dient zum Routen der Anfragen Abhängig von beispielsweise Nutzergruppen und
 # Berechtigungen
 router = routers.DefaultRouter()
