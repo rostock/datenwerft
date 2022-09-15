@@ -14,17 +14,16 @@ from PIL import Image, ExifTags
 from zoneinfo import ZoneInfo
 
 
-
 def assign_permissions(sender, instance, created, **kwargs):
     model_name = instance.__class__.__name__.lower()
     user = getattr(instance, 'current_authenticated_user', None)
     if created:
         assign_perm('datenmanagement.change_' + model_name, user, instance)
         assign_perm('datenmanagement.delete_' + model_name, user, instance)
-        if hasattr(
-                instance.__class__._meta,
-                'admin_group') and Group.objects.filter(
-            name=instance.__class__._meta.admin_group).exists():
+        if (hasattr(instance.__class__._meta, 'admin_group') and
+           Group.objects.filter(
+              name=instance.__class__._meta.admin_group
+           ).exists()):
             group = Group.objects.filter(
                 name=instance.__class__._meta.admin_group)
             assign_perm(
@@ -68,7 +67,7 @@ def assign_permissions(sender, instance, created, **kwargs):
 def current_year():
     """
     liefert aktuelles Jahr
-  
+
     :return: current year
     :rtype: int
     """
@@ -162,9 +161,8 @@ def photo_post_processing(sender, instance, **kwargs):
         ext = filename.split('.')[-1]
         filename_without_ext = os.path.splitext(filename)[0]
         for file in os.listdir(os.path.dirname(path)):
-            if os.path.splitext(
-                    file)[0] == filename_without_ext and file.split('.')[
-                -1] != ext:
+            if (os.path.splitext(file)[0] == filename_without_ext and
+               file.split('.')[-1] != ext):
                 os.remove(os.path.dirname(path) + '/' + file)
         if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
             thumb_path = os.path.dirname(path) + '/thumbs'
@@ -177,9 +175,8 @@ def photo_post_processing(sender, instance, **kwargs):
             ext = filename.split('.')[-1]
             filename_without_ext = os.path.splitext(filename)[0]
             for file in os.listdir(os.path.dirname(thumb_path)):
-                if os.path.splitext(
-                        file)[0] == filename_without_ext and file.split('.')[
-                    -1] != ext:
+                if (os.path.splitext(file)[0] == filename_without_ext and
+                   file.split('.')[-1] != ext):
                     os.remove(os.path.dirname(thumb_path) + '/' + file)
 
 

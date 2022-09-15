@@ -1,7 +1,6 @@
 from django.db.models import options
 
 
-
 #
 # Datenmodelloptionen bzw. Meta-Attribute für Datenmodelle
 #
@@ -20,6 +19,11 @@ options.DEFAULT_NAMES += (
     # Pflicht;
     # Text;
     # Beschreibung bzw. Langtitel des Datenthemas
+    'catalog_link_fields',
+    # optional;
+    # Dictionary;
+    # Namen der Felder (als Keys), die im Formular mit einem entsprechenden
+    # Katalog verlinkt werden sollen, mit ihren Links (als Values)
     'choices_models_for_choices_fields',
     # optional;
     # Dictionary;
@@ -36,7 +40,8 @@ options.DEFAULT_NAMES += (
     # Liste;
     # Liste mit den Namen der Felder aus list_fields, deren Werte von einem
     # numerischen Datentyp sind und die daher entsprechend behandelt werden
-    # müssen, damit die Sortierung in der Tabelle der Listenansicht funktioniert
+    # müssen, damit die Sortierung in der Tabelle
+    # der Listenansicht funktioniert
     'list_fields_with_date',
     # optional;
     # Liste;
@@ -158,8 +163,9 @@ options.DEFAULT_NAMES += (
     'group_with_users_for_choice_field',
     # optional;
     # Text;
-    # Name der Gruppe von Benutzern, die für das Feld Ansprechpartner/Bearbeiter
-    # in einer entsprechenden Auswahlliste genutzt werden sollen
+    # Name der Gruppe von Benutzern, die für das Feld
+    # Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste
+    # genutzt werden sollen
     'admin_group',
     # optional;
     # Text;
@@ -172,15 +178,19 @@ options.DEFAULT_NAMES += (
     # jeweiligen Kartenansichten optional mit angeboten werden sollen
     'as_overlay',
     # optional;
-    #
+    # Boolean;
     # Zusätzliche Overlay Layer
-    'gpx_input'
+    'gpx_input',
     # optional;
     # Boolean;
-    # Gibt an ob ein GPX Uploadfeld angezeigt werden soll
+    # Gibt an, ob ein GPX-Upload-Feld im Formular angezeigt werden soll.
+    'postcode_assigner'
+    # optional;
+    # Text;
+    # Name des Feldes, das im Formular mit einer Funktion zur
+    # automatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
 
 )
-
 
 
 #
@@ -190,108 +200,139 @@ options.DEFAULT_NAMES += (
 # allgemein
 
 akut_regex = r'^(?!.*´).*$'
-akut_message = 'Der Text darf keine Akute (´) enthalten. Stattdessen muss der ' \
-               'typographisch korrekte Apostroph (’) verwendet werden. '
+akut_message = 'Der Text darf keine Akute (´) enthalten. Stattdessen muss ' \
+               'der typographisch korrekte Apostroph (’) verwendet werden.'
 anfuehrungszeichen_regex = r'^(?!.*\").*$'
 anfuehrungszeichen_message = 'Der Text darf keine doppelten ' \
                              'Schreibmaschinensatz-Anführungszeichen (") ' \
                              'enthalten. Stattdessen müssen die ' \
-                             'typographisch korrekten Anführungszeichen („“) ' \
-                             'verwendet werden. '
+                             'typographisch korrekten Anführungszeichen ' \
+                             '(„“) verwendet werden.'
 ansprechpartner_regex = r'^(?!.*\(.*[A-Z]+.*\)).*'
 ansprechpartner_message = 'Die E-Mail-Adresse des ' \
                           '<strong><em>Ansprechpartners</em></strong> darf ' \
-                          'keine Großbuchstaben enthalten. '
+                          'keine Großbuchstaben enthalten.'
 apostroph_regex = r'^(?!.*\').*$'
 apostroph_message = 'Der Text darf keine einfachen ' \
                     'Schreibmaschinensatz-Anführungszeichen (\') enthalten. ' \
                     'Stattdessen muss der typographisch korrekte Apostroph' \
-                    '(’) verwendet werden. '
+                    '(’) verwendet werden.'
 bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
 bindestrich_leerzeichen_message = 'Im Text darf nach einen Bindestrich kein ' \
-                                  'Leerzeichen stehen. '
+                                  'Leerzeichen stehen.'
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen ' \
-                            'und/oder Zeilenumbrüche enthalten. '
+                            'und/oder Zeilenumbrüche enthalten.'
 email_message = 'Die <strong><em>E-Mail-Adresse</em></strong> muss ' \
                 'syntaktisch korrekt sein und daher folgendes Format ' \
-                'aufweisen: abc-123.098_zyx@xyz-567.def.abc '
+                'aufweisen: abc-123.098_zyx@xyz-567.def.abc'
 gravis_regex = r'^(?!.*`).*$'
-gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen muss ' \
-                 'der typographisch korrekte Apostroph (’) verwendet werden. '
+gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen ' \
+                 'muss der typographisch korrekte Apostroph (’) ' \
+                 'verwendet werden.'
+hausnummer_zusatz_regex = r'^[a-z]$'
+hausnummer_zusatz_message = 'Der <strong><em>Hausnummernzusatz</em>' \
+                            '</strong>muss aus genau einem ' \
+                            'Kleinbuchstaben bestehen.'
 inventarnummer_regex = r'^[0-9]{8}$'
 inventarnummer_message = 'Die <strong><em>Inventarnummer</em></strong> muss ' \
-                         'aus genau acht Ziffern bestehen. '
+                         'aus genau acht Ziffern bestehen.'
 leerzeichen_bindestrich_regex = r'^(?!.* -).*$'
 leerzeichen_bindestrich_message = 'Im Text darf vor einem Bindestrich kein ' \
-                                  'Leerzeichen stehen. '
+                                  'Leerzeichen stehen.'
+postleitzahl_regex = r'^[0-9]{5}$'
+postleitzahl_message = 'Die <strong><em>Postleitzahl</em></strong> ' \
+                       'muss aus genau fünf Ziffern bestehen.'
 rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = 'Die Schreibweise von ' \
-                    '<strong><em>Rufnummern</em></strong> muss der Empfehlung' \
-                    ' E.123 der Internationalen Fernmeldeunion entsprechen ' \
-                    'und daher folgendes Format aufweisen: +49 381 3816256 '
+                    '<strong><em>Rufnummern</em></strong> muss der ' \
+                    'Empfehlung E.123 der Internationalen Fernmeldeunion ' \
+                    'entsprechen und daher folgendes Format aufweisen: ' \
+                    '+49 381 3816256'
 url_message = 'Die Adresse der <strong><em>Website</em></strong> muss ' \
-              'syntaktisch korrekt sein und daher folgendes Format aufweisen:' \
-              ' http[s]://abc-123.098_zyx.xyz-567/def/abc '
+              'syntaktisch korrekt sein und daher folgendes Format ' \
+              'aufweisen: http[s]://abc-123.098_zyx.xyz-567/def/abc'
 
 
 # speziell
 
-containerstellplaetze_id_regex = r'^[0-9]{2}-[0-9]{2}$'
-containerstellplaetze_id_message = 'Die <strong><em>ID</em></strong> muss aus' \
-                                   'genau zwei Ziffern, gefolgt von genau ' \
-                                   'einem Bindestrich, und abermals genau ' \
-                                   'zwei Ziffern bestehen. '
-denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
-denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
-                            'einer Ziffer beginnen und mit einer Ziffer oder ' \
-                            'einem Kleinbuchstaben enden. '
-durchlaesse_durchlaesse_aktenzeichen_regex = r'^[A-Z-]{2,}\.[0-9]{1,2}-[0-9]{1,2}(-[0-9]{1,2})?$'
-durchlaesse_durchlaesse_aktenzeichen_message = 'Das <strong><em>Aktenzeichen' \
-                                               '</em></strong> muss aus ' \
-                                               'mindestens zwei ' \
-                                               'Großbuchstaben und/oder ' \
-                                               'Bindestrichen, gefolgt von ' \
-                                               'genau einem Punkt, einer oder' \
-                                               ' zwei Ziffern, ' \
-                                               'gefolgt von genau einem ' \
-                                               'Bindestrich, und abermals ' \
-                                               'einer oder zwei Ziffern ' \
-                                               'bestehen. Darauf können ' \
-                                               'optional nochmals genau ein ' \
-                                               'Bindestrich sowie ' \
-                                               'abermals eine oder zwei ' \
-                                               'Ziffern folgen. '
-fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_regex = r'^[A-C]$'
-fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_message = 'Der <strong><em>Code</em></strong> muss entweder <em>A, B</em> oder <em>C</em> lauten.'
-haefen_abkuerzung_regex = r'^[A-Z-]{3,5}$'
-haefen_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss aus' \
-                            'drei, vier oder fünf Großbuchstaben und/oder ' \
-                            'Bindestrichen bestehen. '
-haltestellenkataster_haltestellen_hst_hafas_id_regex = r'^[0-9]{8}$'
-haltestellenkataster_haltestellen_hst_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus genau acht Ziffern bestehen.'
-hydranten_bezeichnung_regex = r'^HSA .*$'
-hydranten_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> ' \
-                                'muss mit der Großbuchstabenfolge ' \
-                                '<em>HSA</em> beginnen, gefolgt von genau ' \
-                                'einem Leerzeichen. Die übrigen Zeichen ' \
-                                'können beliebig gewählt werden. '
-linien_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
-linien_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
-                       'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
-                       'dem optional weitere Ziffern und/oder Großbuchstaben ' \
-                       'folgen können. '
-parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
-parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em></strong> muss aus genau einem Großbuchstaben sowie genau einer Ziffer bestehen.'
-parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
-parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> muss aus genau zwei Ziffern, gefolgt von genau einem Unterstrich, und abermals genau fünf Ziffern bestehen.'
-poller_nummer_regex = r'^[A-Z][0-9]{0,2}$'
-poller_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus genau ' \
-                        'einem Großbuchstaben bestehen, der um eine oder zwei' \
-                        ' Ziffer(n) ergänzt werden kann. '
-trinkwassernotbrunnen_nummer_regex = r'^13003000-[0-9]{3}$'
-trinkwassernotbrunnen_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus <em>13003000-,</em> gefolgt von genau drei Ziffern, bestehen.'
-uvp_vorhaben_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
-uvp_vorhaben_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer des Bauamtes</em></strong> muss aus genau fünf Ziffern, gefolgt von genau einem Bindestrich und genau zwei Ziffern bestehen.'
-zonen_parkscheinautomaten_zone_regex = r'^[A-Z]$'
-zonen_parkscheinautomaten_zone_message = 'Die <strong><em>Zone</em></strong> muss aus genau einem Großbuchstaben bestehen.'
+cont_id_regex = r'^[0-9]{2}-[0-9]{2}$'
+cont_id_message = 'Die <strong><em>ID</em></strong> muss ' \
+                  'aus genau zwei Ziffern, gefolgt von ' \
+                  'genau einem Bindestrich, und abermals ' \
+                  'genau zwei Ziffern bestehen.'
+denk_nummer_regex = r'^[0-9]+[a-z]*$'
+denk_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
+                      'einer Ziffer beginnen und mit einer Ziffer ' \
+                      'oder einem Kleinbuchstaben enden.'
+dl_aktenzeichen_regex = r'^[A-Z-]{2,}\.[0-9]{1,2}-[0-9]{1,2}(-[0-9]{1,2})?$'
+dl_aktenzeichen_message = 'Das <strong><em>Aktenzeichen' \
+                          '</em></strong> muss aus ' \
+                          'mindestens zwei ' \
+                          'Großbuchstaben und/oder ' \
+                          'Bindestrichen, gefolgt von ' \
+                          'genau einem Punkt, einer ' \
+                          'oder zwei Ziffern, ' \
+                          'gefolgt von genau einem ' \
+                          'Bindestrich, und abermals ' \
+                          'einer oder zwei Ziffern ' \
+                          'bestehen. Darauf können ' \
+                          'optional nochmals genau ein ' \
+                          'Bindestrich sowie ' \
+                          'abermals eine oder zwei ' \
+                          'Ziffern folgen.'
+fw_sr_code_regex = r'^[A-C]$'
+fw_sr_code_message = 'Der <strong><em>Code</em>' \
+                     '</strong> muss entweder ' \
+                     '<em>A, B</em> oder <em>C' \
+                     '</em> lauten.'
+haef_abkuerzung_regex = r'^[A-Z-]{3,5}$'
+haef_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss ' \
+                          'aus drei, vier oder fünf Großbuchstaben ' \
+                          'und/oder Bindestrichen bestehen.'
+hnr_antragsnummer_regex = r'^[0-9]{2}H[0-9]{3}$'
+hnr_antragsnummer_message = 'Die <strong><em>Antragsnummer</em></strong> ' \
+                            'muss aus genau zwei Ziffern, gefolgt vom ' \
+                            'Großbuchstaben H, und abermals genau drei ' \
+                            'Ziffern bestehen.'
+hst_hst_hafas_id_regex = r'^[0-9]{8}$'
+hst_hst_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus ' \
+                           'genau acht Ziffern bestehen.'
+hyd_bezeichnung_regex = r'^HSA .*$'
+hyd_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> ' \
+                          'muss mit der Großbuchstabenfolge ' \
+                          '<em>HSA</em> beginnen, gefolgt von genau ' \
+                          'einem Leerzeichen. Die übrigen Zeichen ' \
+                          'können beliebig gewählt werden.'
+lin_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
+lin_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
+                    'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
+                    'dem optional weitere Ziffern und/oder ' \
+                    'Großbuchstaben folgen können.'
+psa_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
+psa_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em>' \
+                                  '</strong> muss aus genau einem ' \
+                                  'Großbuchstaben sowie genau einer Ziffer ' \
+                                  'bestehen.'
+psa_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
+psa_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> ' \
+                            'muss aus genau zwei Ziffern, gefolgt von genau ' \
+                            'einem Unterstrich, und abermals genau fünf ' \
+                            'Ziffern bestehen.'
+poll_nummer_regex = r'^[A-Z][0-9]{0,2}$'
+poll_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
+                      'genau einem Großbuchstaben bestehen, der um eine ' \
+                      'oder zwei Ziffer(n) ergänzt werden kann.'
+twnb_nummer_regex = r'^13003000-[0-9]{3}$'
+twnb_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
+                      '<em>13003000-,</em> gefolgt von genau drei ' \
+                      'Ziffern, bestehen.'
+uvp_vh_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
+uvp_vh_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer ' \
+                                         'des Bauamtes</em></strong> muss ' \
+                                         'aus genau fünf Ziffern, gefolgt ' \
+                                         'von genau einem Bindestrich und ' \
+                                         'genau zwei Ziffern bestehen.'
+zon_psa_zone_regex = r'^[A-Z]$'
+zon_psa_zone_message = 'Die <strong><em>Zone</em></strong> ' \
+                       'muss aus genau einem Großbuchstaben bestehen.'

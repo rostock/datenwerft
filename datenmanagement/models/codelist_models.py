@@ -10,7 +10,6 @@ from django_currentuser.middleware import get_current_authenticated_user
 from . import constants_vars, fields, functions
 
 
-
 #
 # abstrakte Datenmodelle für Codelisten
 #
@@ -253,7 +252,6 @@ class Typ(models.Model):
         return self.typ
 
 
-
 #
 # Adressen
 #
@@ -296,7 +294,6 @@ signals.post_save.connect(functions.assign_permissions, sender=Adressen)
 signals.post_delete.connect(functions.remove_permissions, sender=Adressen)
 
 
-
 #
 # Straßen
 #
@@ -337,7 +334,6 @@ class Strassen(models.Model):
 signals.post_save.connect(functions.assign_permissions, sender=Strassen)
 
 signals.post_delete.connect(functions.remove_permissions, sender=Strassen)
-
 
 
 #
@@ -837,19 +833,20 @@ signals.post_delete.connect(functions.remove_permissions, sender=Arten_Poller)
 # Arten von Toiletten
 
 class Arten_Toiletten(Art):
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_toiletten'
-    verbose_name = 'Art einer Toilette'
-    verbose_name_plural = 'Arten von Toiletten'
-    description = 'Arten von Toiletten'
+    class Meta(Art.Meta):
+        db_table = 'codelisten\".\"arten_toiletten'
+        verbose_name = 'Art einer Toilette'
+        verbose_name_plural = 'Arten von Toiletten'
+        description = 'Arten von Toiletten'
 
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Arten_Toiletten, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Arten_Toiletten, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Arten_Toiletten, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Arten_Toiletten, self).delete(*args, **kwargs)
+
 
 signals.post_save.connect(functions.assign_permissions, sender=Arten_Toiletten)
 
@@ -882,19 +879,20 @@ signals.post_delete.connect(functions.remove_permissions, sender=Arten_UVP_Vorpr
 # Arten von Wegen
 
 class Arten_Wege(Art):
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_wege'
-    verbose_name = 'Art eines Weges'
-    verbose_name_plural = 'Arten von Wegen'
-    description = 'Arten von Wegen'
+    class Meta(Art.Meta):
+        db_table = 'codelisten\".\"arten_wege'
+        verbose_name = 'Art eines Weges'
+        verbose_name_plural = 'Arten von Wegen'
+        description = 'Arten von Wegen'
 
-  def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Arten_Wege, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Arten_Wege, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
-    super(Arten_Wege, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Arten_Wege, self).delete(*args, **kwargs)
+
 
 signals.post_save.connect(functions.assign_permissions, sender=Arten_Wege)
 
@@ -1468,8 +1466,8 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(models.Model):
         max_length=1,
         validators=[
             RegexValidator(
-                regex=constants_vars.fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_regex,
-                message=constants_vars.fahrbahnwinterdienst_strassenreinigungssatzung_hro_code_message)])
+                regex=constants_vars.fw_sr_code_regex,
+                message=constants_vars.fw_sr_code_message)])
 
     class Meta:
         managed = False
@@ -1627,6 +1625,108 @@ signals.post_delete.connect(
     sender=Fundamenttypen_RSAG)
 
 
+# Gebäudebauweisen
+
+class Gebaeudebauweisen(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    code = fields.PositiveSmallIntegerRangeField(
+        'Code', min_value=1, blank=True, null=True)
+    bezeichnung = models.CharField(
+        'Bezeichnung', max_length=255, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
+                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
+                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
+                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"gebaeudebauweisen'
+        verbose_name = 'Gebäudebauweise'
+        verbose_name_plural = 'Gebäudebauweisen'
+        description = 'Gebäudebauweisen'
+        list_fields = {
+            'bezeichnung': 'Bezeichnung',
+            'code': 'Code'
+        }
+        list_fields_with_number = ['code']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['bezeichnung']
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Gebaeudebauweisen, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Gebaeudebauweisen, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(functions.assign_permissions, sender=Gebaeudebauweisen)
+
+signals.post_delete.connect(functions.remove_permissions, sender=Gebaeudebauweisen)
+
+
+# Gebäudefunktionen
+
+class Gebaeudefunktionen(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    code = fields.PositiveSmallIntegerRangeField(
+        'Code', min_value=1, blank=True, null=True)
+    bezeichnung = models.CharField(
+        'Bezeichnung', max_length=255, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
+                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
+                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
+                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+
+    class Meta:
+        managed = False
+        codelist = True
+        db_table = 'codelisten\".\"gebaeudefunktionen'
+        verbose_name = 'Gebäudefunktion'
+        verbose_name_plural = 'Gebäudefunktionen'
+        description = 'Gebäudefunktionen'
+        list_fields = {
+            'bezeichnung': 'Bezeichnung',
+            'code': 'Code'
+        }
+        list_fields_with_number = ['code']
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['bezeichnung']
+
+    def __str__(self):
+        return self.bezeichnung
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Gebaeudefunktionen, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Gebaeudefunktionen, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(functions.assign_permissions, sender=Gebaeudefunktionen)
+
+signals.post_delete.connect(functions.remove_permissions, sender=Gebaeudefunktionen)
+
+
 # Genehmigungsbehörden von UVP-Vorhaben
 
 class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
@@ -1757,8 +1857,8 @@ class Haefen(models.Model):
         max_length=5,
         validators=[
             RegexValidator(
-                regex=constants_vars.haefen_abkuerzung_regex,
-                message=constants_vars.haefen_abkuerzung_message)])
+                regex=constants_vars.haef_abkuerzung_regex,
+                message=constants_vars.haef_abkuerzung_message)])
     code = fields.PositiveSmallIntegerRangeField(
         'Code', min_value=1, blank=True, null=True)
 
@@ -1859,7 +1959,9 @@ class Inoffizielle_Strassen(models.Model):
         list_fields = {
           'strasse': 'Straße'
         }
-        ordering = ['strasse'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['strasse']
 
     def __str__(self):
         return self.strasse
@@ -1871,6 +1973,7 @@ class Inoffizielle_Strassen(models.Model):
     def delete(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
         super(Inoffizielle_Strassen, self).delete(*args, **kwargs)
+
 
 signals.post_save.connect(functions.assign_permissions, sender=Inoffizielle_Strassen)
 
@@ -1947,8 +2050,8 @@ class Linien(models.Model):
         max_length=4,
         validators=[
             RegexValidator(
-                regex=constants_vars.linien_linie_regex,
-                message=constants_vars.linien_linie_message)])
+                regex=constants_vars.lin_linie_regex,
+                message=constants_vars.lin_linie_message)])
 
     class Meta:
         managed = False
@@ -2318,7 +2421,9 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
         list_fields = {
             'raeumbreite': 'Räumbreite'
         }
-        ordering = ['raeumbreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['raeumbreite']
 
     def __str__(self):
         return str(self.raeumbreite)
@@ -2330,6 +2435,7 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
     def delete(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
         super(Raeumbreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+
 
 signals.post_save.connect(functions.assign_permissions, sender=Raeumbreiten_Strassenreinigungssatzung_HRO)
 
@@ -2939,7 +3045,6 @@ class Typen_Abfallbehaelter(Typ):
         verbose_name_plural = 'Typen von Abfallbehältern'
         description = 'Typen von Abfallbehältern'
 
-
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
         super(Typen_Abfallbehaelter, self).save(*args, **kwargs)
@@ -3436,7 +3541,9 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
         list_fields = {
             'wegebreite': 'Wegebreite'
         }
-        ordering = ['wegebreite'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['wegebreite']
 
     def __str__(self):
         return str(self.wegebreite)
@@ -3448,6 +3555,7 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
     def delete(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
         super(Wegebreiten_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+
 
 signals.post_save.connect(functions.assign_permissions, sender=Wegebreiten_Strassenreinigungssatzung_HRO)
 
@@ -3594,7 +3702,9 @@ class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
         list_fields = {
             'wegetyp': 'Wegetyp'
         }
-        ordering = ['wegetyp'] # wichtig, denn nur so werden Drop-down-Einträge in Formularen von Kindtabellen sortiert aufgelistet
+        # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+        # Kindtabellen sortiert aufgelistet
+        ordering = ['wegetyp']
 
     def __str__(self):
         return str(self.wegetyp)
@@ -3606,6 +3716,7 @@ class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
     def delete(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
         super(Wegetypen_Strassenreinigungssatzung_HRO, self).delete(*args, **kwargs)
+
 
 signals.post_save.connect(functions.assign_permissions, sender=Wegetypen_Strassenreinigungssatzung_HRO)
 
@@ -3742,8 +3853,8 @@ class Zonen_Parkscheinautomaten(models.Model):
         max_length=1,
         validators=[
             RegexValidator(
-                regex=constants_vars.zonen_parkscheinautomaten_zone_regex,
-                message=constants_vars.zonen_parkscheinautomaten_zone_message)])
+                regex=constants_vars.zon_psa_zone_regex,
+                message=constants_vars.zon_psa_zone_message)])
 
     class Meta:
         managed = False

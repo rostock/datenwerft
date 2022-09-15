@@ -593,8 +593,8 @@ class Durchlaesse_Durchlaesse(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex=constants_vars.durchlaesse_durchlaesse_aktenzeichen_regex,
-                message=constants_vars.durchlaesse_durchlaesse_aktenzeichen_message)])
+                regex=constants_vars.dl_aktenzeichen_regex,
+                message=constants_vars.dl_aktenzeichen_message)])
     material = models.ForeignKey(
         codelist_models.Materialien_Durchlaesse,
         verbose_name='Material',
@@ -1061,8 +1061,8 @@ class Haltestellenkataster_Haltestellen(models.Model):
         null=True,
         validators=[
             RegexValidator(
-                regex=constants_vars.haltestellenkataster_haltestellen_hst_hafas_id_regex,
-                message=constants_vars.haltestellenkataster_haltestellen_hst_hafas_id_message)])
+                regex=constants_vars.hst_hst_hafas_id_regex,
+                message=constants_vars.hst_hst_hafas_id_message)])
     hst_bus_bahnsteigbezeichnung = models.CharField(
         'Bus-/Bahnsteigbezeichnung',
         max_length=255,
@@ -1738,15 +1738,15 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         null=True,
         validators=[
             RegexValidator(
-                regex=constants_vars.parkscheinautomaten_bewohnerparkgebiet_regex,
-                message=constants_vars.parkscheinautomaten_bewohnerparkgebiet_message)])
+                regex=constants_vars.psa_bewohnerparkgebiet_regex,
+                message=constants_vars.psa_bewohnerparkgebiet_message)])
     geraetenummer = models.CharField(
         'Gerätenummer',
         max_length=8,
         validators=[
             RegexValidator(
-                regex=constants_vars.parkscheinautomaten_geraetenummer_regex,
-                message=constants_vars.parkscheinautomaten_geraetenummer_message)])
+                regex=constants_vars.psa_geraetenummer_regex,
+                message=constants_vars.psa_geraetenummer_message)])
     inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
     e_anschluss = models.ForeignKey(
         codelist_models.E_Anschluesse_Parkscheinautomaten,
@@ -2515,8 +2515,8 @@ class UVP_Vorhaben(models.Model):
         null=True,
         validators=[
             RegexValidator(
-                regex=constants_vars.uvp_vorhaben_registriernummer_bauamt_regex,
-                message=constants_vars.uvp_vorhaben_registriernummer_bauamt_message
+                regex=constants_vars.uvp_vh_registriernummer_bauamt_regex,
+                message=constants_vars.uvp_vh_registriernummer_bauamt_message
             )
         ]
     )

@@ -19,6 +19,10 @@ ul:not([class]){
   height:100%;
 }
 
+#postcode_assigner.enabled {
+  cursor:pointer;
+}
+
 .label-with-margin {
   margin-left:.3rem;
 }
@@ -52,7 +56,7 @@ ul:not([class]){
   background-color:#ddd;
 }
 
-.result-element .text-muted {
+.result-element .text-black-50 {
   float:right;
   padding-right:.75rem;
 }

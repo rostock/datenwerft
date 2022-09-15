@@ -10,7 +10,6 @@ from guardian.core import ObjectPermissionChecker
 from leaflet.forms.widgets import LeafletWidget
 
 
-
 def assign_widgets(field):
     """
     liefert passendes Formularelement (Widget) zu field

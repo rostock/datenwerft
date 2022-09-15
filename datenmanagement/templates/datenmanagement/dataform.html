@@ -82,8 +82,10 @@
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
             <tr>
               <td>
-                {% if field|is_field_hours_related_field %}
-                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-question-circle"></i> Hilfe</a>)</small>
+                {% if field.name in catalog_link_fields_names %}
+                  {{ field.label_tag }} <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
+                {% elif field|is_field_hours_related_field %}
+                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                   {% if object and user|user_has_object_change_permission:object %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
@@ -94,6 +96,8 @@
                       {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
+                {% elif postcode_assigner and field.name == postcode_assigner %}
+                  {{ field.label_tag }} <span><i id="postcode_assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
                 {% else %}
                   {{ field.label_tag }}
                 {% endif %}
@@ -213,7 +217,26 @@
             <div class="modal-body" id="id_gpxLoading-body">
               Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.
               <div class="text-center">
-                <div class="spinner-border m-4" role="status">
+                <div class="spinner-border m-4 text-primary" role="status">
+                  <span class="sr-only">laden…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    {% if postcode_assigner %}
+      <div id="id_postcodeAssigning" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header" id="id_postcodeAssigning-header">
+              <h5 class="modal-title" id="id_postcodeAssigning-title">Zuweisung einer Postleitzahl</h5>
+            </div>
+            <div class="modal-body" id="id_postcodeAssigning-body">
+              Die automatische Zuweisung einer Postleitzahl läuft gerade. Dies kann einen Moment dauern.
+              <div class="text-center">
+                <div class="spinner-border m-4 text-primary" role="status">
                   <span class="sr-only">laden…</span>
                 </div>
               </div>
@@ -626,8 +649,10 @@
 
       {% if address_type %}
         /**
-         * Wenn Datenmodell Adressbezug vorsieht und dies ein Pflichangabe ist, wird
-         * beim Hinzufügen oder Editieren einer Geometrie die Addresse gesetzt.
+         * Wenn Datenmodell Adressbezug vorsieht und dies ein Pflichangabe ist,
+         * wird beim Hinzufügen oder Editieren einer Geometrie die Addresse
+         * oder die Straße gesetzt und es wird die Postleitzahl-Auto-Zuweisung
+         * aktiviert.
          *
          * @param layer
          */
@@ -646,6 +671,9 @@
                 setAddressOrStreet('{{ address_type }}', e.layer);
               });
             {% endif %}
+            $('#postcode_assigner').removeClass('text-black-50');
+            $('#postcode_assigner').addClass('text-success enabled');
+            $('#postcode_assigner').attr('title', 'Postleitzahl automatisch zuweisen');
           {% else %}
             $('#addressToMap').prop('disabled', false);
             $('#mapToAddress').prop('disabled', false);
@@ -697,14 +725,19 @@
             if (!inputField.val()) {
               inputField.closest('tr').hide();
             } else {
-              inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + inputField.val() + '</em></span>');
+              let wert = inputField.val();
+              if (inputField.attr('type') == 'date') {
+                let datum = new Date(inputField.val());
+                wert = datum.toLocaleDateString('de-DE', options = {day: '2-digit', month: '2-digit', year: 'numeric'});
+              }
+              inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + wert + '</em></span>');
               let label = inputField.parent().closest('tr').find('label');
               label.wrapInner('<em></em>');
               inputField.hide();
             }
-           {% else %}
+          {% else %}
             inputField.closest('tr').hide();
-           {% endif %}
+          {% endif %}
         {% endfor %}
       {% endif %}
 
@@ -1049,7 +1082,7 @@
             let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + item.properties.uuid + '"><strong>' + titel + '</strong>';
             if (item.properties.gemeindeteil_abkuerzung)
               result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
-            result += '<small class="text-muted"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
+            result += '<small class="text-black-50"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
             results.append(result);
           {% endif %}
         }
@@ -1249,6 +1282,25 @@
             console.log(error);
           }
         );
+      });
+    {% endif %}
+
+    {% if postcode_assigner %}
+      $('#postcode_assigner').parent('span').click(function(e) {
+        /**
+         * @function
+         * Beim Klick auf das Icon für die automatische Zuweisung
+         * einer Postleitzahl wird der Server entsprechend angefragt.
+         * Als Antwort des Servers wird ein GeoJSON erwartet
+         * mit einem Attribut mit der Postleitzahl. Der Wert
+         * dieses Attributes wird nach dem erfolgreichen Empfangen 
+         * der Antwort des Servers in das dafür vorgesehene
+         * Input-Feld geschrieben.
+         *
+         * @param e
+         */
+        var modal = new bootstrap.Modal($('#id_postcodeAssigning'));
+        modal.show();
       });
     {% endif %}
 

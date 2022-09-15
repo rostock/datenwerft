@@ -283,9 +283,10 @@ class DataAddView(generic.CreateView):
 
     def get_context_data(self, **kwargs):
         """
+        Liefert Dictionary mit Context-Daten des Views
 
         :param kwargs:
-        :return:
+        :return: Context als Dict
         """
         context = super(DataAddView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
@@ -295,6 +296,12 @@ class DataAddView(generic.CreateView):
         context[
             'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
         context['model_description'] = self.model._meta.description
+        context['catalog_link_fields'] = (
+            self.model._meta.catalog_link_fields if hasattr(
+                self.model._meta, 'catalog_link_fields') else None)
+        context['catalog_link_fields_names'] = (
+            list(self.model._meta.catalog_link_fields.keys()) if hasattr(
+                self.model._meta, 'catalog_link_fields') else None)
         context['fields_with_foreign_key_to_linkify'] = (
             self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
                 self.model._meta,
@@ -337,9 +344,16 @@ class DataAddView(generic.CreateView):
             if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay == True:
                 model_list[model.__name__] = model._meta.verbose_name_plural
         context['model_list'] = model_list
-        # GPX Input Feld
-        if hasattr(self.model._meta, 'gpx_input'):
-            context['gpx_input'] = self.model._meta.gpx_input,
+        # GPX-Upload-Feld
+        context['gpx_input'] = (
+            self.model._meta.gpx_input if hasattr(
+                self.model._meta,
+                'gpx_input') else None)
+        # Postleitzahl-Auto-Zuweisung
+        context['postcode_assigner'] = (
+            self.model._meta.postcode_assigner if hasattr(
+                self.model._meta,
+                'postcode_assigner') else None)
         return context
 
     def get_initial(self):
@@ -537,6 +551,12 @@ class DataChangeView(generic.UpdateView):
         context[
             'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
         context['model_description'] = self.model._meta.description
+        context['catalog_link_fields'] = (
+            list(self.model._meta.catalog_link_fields.items()) if hasattr(
+                self.model._meta, 'catalog_link_fields') else None)
+        context['catalog_link_fields_names'] = (
+            list(self.model._meta.catalog_link_fields.values()) if hasattr(
+                self.model._meta, 'catalog_link_fields') else None)
         context['associated_objects'] = (
             self.associated_objects if self.associated_objects else None)
         context['associated_new'] = (
@@ -601,9 +621,16 @@ class DataChangeView(generic.UpdateView):
                        'as_overlay') and model._meta.as_overlay == True:
                 model_list[model.__name__] = model._meta.verbose_name
         context['model_list'] = model_list
-        #GPX Input Feld
-        if hasattr(self.model._meta, 'gpx_input'):
-            context['gpx_input'] = self.model._meta.gpx_input,
+        # GPX-Upload-Feld
+        context['gpx_input'] = (
+            self.model._meta.gpx_input if hasattr(
+                self.model._meta,
+                'gpx_input') else None)
+        # Postleitzahl-Auto-Zuweisung
+        context['postcode_assigner'] = (
+            self.model._meta.postcode_assigner if hasattr(
+                self.model._meta,
+                'postcode_assigner') else None)
         return context
 
     def get_initial(self):

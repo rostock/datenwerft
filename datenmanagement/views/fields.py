@@ -2,7 +2,6 @@ from django.apps import apps
 from django.forms import UUIDField
 
 
-
 class AddressUUIDField(UUIDField):
     """
     verstecktes Input-Feld für die Adressensuche

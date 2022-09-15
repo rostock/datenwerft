@@ -8,6 +8,7 @@
 {% block style %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datalist.css' %}" />
 {% endblock %}
 
 {% block scripts %}
@@ -108,7 +109,7 @@
             }],
             createdRow: function(row, data, dataIndex) {
               if ($(row).find('td:nth-child(2)').text() === 'nein') {
-                $(row).addClass('text-muted');
+                $(row).addClass('text-black-50');
               } else if ($(row).find('.text-danger').length) {
                 $(row).addClass('text-danger');
               }

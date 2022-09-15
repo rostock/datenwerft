@@ -369,7 +369,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     datum_abgeschlossenheitserklaerung = models.DateField(
         'Datum der Abgeschlossenheitserklärung', blank=True, null=True)
     bearbeiter = models.CharField(
-        'Bearbeiter', max_length=255, blank=True, null=True, validators=[
+        'Bearbeiter', max_length=255, validators=[
             RegexValidator(
                 regex=constants_vars.akut_regex, message=constants_vars.akut_message
             ), RegexValidator(
@@ -941,8 +941,8 @@ class Containerstellplaetze(models.Model):
         null=True,
         validators=[
             RegexValidator(
-                regex=constants_vars.containerstellplaetze_id_regex,
-                message=constants_vars.containerstellplaetze_id_message)])
+                regex=constants_vars.cont_id_regex,
+                message=constants_vars.cont_id_message)])
     privat = models.BooleanField(' privat?')
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
@@ -1251,8 +1251,8 @@ class Denksteine(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex=constants_vars.denksteine_nummer_regex,
-                message=constants_vars.denksteine_nummer_message)])
+                regex=constants_vars.denk_nummer_regex,
+                message=constants_vars.denk_nummer_message)])
     titel = models.ForeignKey(
         codelist_models.Personentitel,
         verbose_name='Titel',
@@ -2142,7 +2142,7 @@ class Gutachterfotos(models.Model):
         blank=True,
         null=True)
     bearbeiter = models.CharField(
-        'Bearbeiter', max_length=255, blank=True, null=True, validators=[
+        'Bearbeiter', max_length=255, validators=[
             RegexValidator(
                 regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
                 regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
@@ -2217,6 +2217,213 @@ signals.post_save.connect(functions.assign_permissions, sender=Gutachterfotos)
 signals.post_delete.connect(functions.delete_photo, sender=Gutachterfotos)
 
 signals.post_delete.connect(functions.remove_permissions, sender=Gutachterfotos)
+
+
+# Hausnummern
+
+class Hausnummern(models.Model):
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False)
+    aktiv = models.BooleanField(' aktiv?', default=True)
+    strasse = models.ForeignKey(
+        codelist_models.Strassen,
+        verbose_name='Straße',
+        on_delete=models.SET_NULL,
+        db_column='strasse',
+        to_field='uuid',
+        related_name='strassen+',
+        blank=True,
+        null=True
+    )
+    deaktiviert = models.DateField(
+        'Datum der Löschung', blank=True, null=True)
+    loeschung_details = models.CharField(
+        'Details zur Löschung', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message
+            ), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+            ), RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message
+            ), RegexValidator(
+                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+    vorherige_adresse = models.CharField(
+        ' vorherige Adresse', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message
+            ), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+            ), RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message
+            ), RegexValidator(
+                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+    vorherige_antragsnummer = models.CharField(
+        ' vorherige Antragsnummer',
+        max_length=6,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=constants_vars.hnr_antragsnummer_regex,
+                message=constants_vars.hnr_antragsnummer_message)])
+    hausnummer = fields.PositiveSmallIntegerRangeField(
+        'Hausnummer', min_value=1, max_value=999)
+    hausnummer_zusatz = models.CharField(
+        'Hausnummernzusatz',
+        max_length=1,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=constants_vars.hausnummer_zusatz_regex,
+                message=constants_vars.hausnummer_zusatz_message)])
+    postleitzahl = models.CharField(
+        'Postleitzahl',
+        max_length=5,
+        validators=[
+            RegexValidator(
+                regex=constants_vars.postleitzahl_regex,
+                message=constants_vars.postleitzahl_message)])
+    vergabe_datum = models.DateField(
+        'Datum der Vergabe', default=date.today)
+    antragsnummer = models.CharField(
+        'Antragsnummer',
+        max_length=6,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=constants_vars.hnr_antragsnummer_regex,
+                message=constants_vars.hnr_antragsnummer_message)])
+    gebaeude_bauweise = models.ForeignKey(
+        codelist_models.Gebaeudebauweisen,
+        verbose_name='Bauweise des Gebäudes',
+        on_delete=models.RESTRICT,
+        db_column='gebaeude_bauweise',
+        to_field='uuid',
+        related_name='gebaeude_bauweisen+')
+    gebaeude_funktion = models.ForeignKey(
+        codelist_models.Gebaeudefunktionen,
+        verbose_name='Funktion des Gebäudes',
+        on_delete=models.RESTRICT,
+        db_column='gebaeude_funktion',
+        to_field='uuid',
+        related_name='gebaeude_funktionen+')
+    bearbeiter = models.CharField(
+        'Bearbeiter', max_length=255, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message
+            ), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+            ), RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message
+            ), RegexValidator(
+                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+    bemerkungen = models.CharField(
+        'Bemerkungen', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message
+            ), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+            ), RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message
+            ), RegexValidator(
+                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+    geometrie = models.PointField(
+        'Geometrie', srid=25833, default='POINT(0 0)')
+
+    class Meta:
+        managed = False
+        db_table = 'fachdaten_strassenbezug\".\"hausnummern_hro'
+        verbose_name = 'Hausnummer'
+        verbose_name_plural = 'Hausnummern'
+        description = 'Hausnummern der Hanse- und Universitätsstadt Rostock'
+        catalog_link_fields = {
+            'gebaeude_bauweise': 'https://geo.sv.rostock.de/alkis-ok/31001/baw/',
+            'gebaeude_funktion': 'https://geo.sv.rostock.de/alkis-ok/31001/gfk/'
+        }
+        list_fields = {
+            'aktiv': 'aktiv?',
+            'deaktiviert': 'Datum der Löschung',
+            'strasse': 'Straße',
+            'hausnummer': 'Hausnummer',
+            'hausnummer_zusatz': 'Hausnummernzusatz',
+            'postleitzahl': 'Postleitzahl',
+            'vergabe_datum': 'Datum der Vergabe',
+            'antragsnummer': 'Antragsnummer',
+            'gebaeude_bauweise': 'Bauweise des Gebäudes',
+            'gebaeude_funktion': 'Funktion des Gebäudes'
+        }
+        list_fields_with_foreign_key = {
+            'strasse': 'strasse'
+        }
+        list_fields_with_date = [
+            'deaktiviert',
+            'vergabe_datum'
+        ]
+        list_fields_with_number = ['hausnummer']
+        map_feature_tooltip_fields = [
+            'strasse',
+            'hausnummer',
+            'hausnummer_zusatz'
+        ]
+        map_filter_fields = {
+            'aktiv': 'aktiv?',
+            'deaktiviert': 'Datum der Löschung',
+            'strasse': 'Straße',
+            'hausnummer': 'Hausnummer',
+            'hausnummer_zusatz': 'Hausnummernzusatz',
+            'postleitzahl': 'Postleitzahl',
+            'vergabe_datum': 'Datum der Vergabe',
+            'antragsnummer': 'Antragsnummer',
+            'gebaeude_bauweise': 'Bauweise des Gebäudes',
+            'gebaeude_funktion': 'Funktion des Gebäudes'
+        }
+        map_filter_fields_as_list = [
+            'strasse',
+            'gebaeude_bauweise',
+            'gebaeude_funktion'
+        ]
+        address_type = 'Straße'
+        address_mandatory = True
+        geometry_type = 'Point'
+        postcode_assigner = 'postleitzahl'
+
+    def __str__(self):
+        return str(self.strasse) + ' ' + str(self.hausnummer) + \
+            (self.hausnummer_zusatz if self.hausnummer_zusatz else '') + \
+            ' [Postleitzahl: ' + self.postleitzahl + ']'
+
+    def save(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Hausnummern, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.current_authenticated_user = get_current_authenticated_user()
+        super(Hausnummern, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(functions.assign_permissions, sender=Hausnummern)
+
+signals.post_delete.connect(functions.remove_permissions, sender=Hausnummern)
 
 
 # Hospize
@@ -2465,8 +2672,8 @@ class Hydranten(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex=constants_vars.hydranten_bezeichnung_regex,
-                message=constants_vars.hydranten_bezeichnung_message)])
+                regex=constants_vars.hyd_bezeichnung_regex,
+                message=constants_vars.hyd_bezeichnung_message)])
     eigentuemer = models.ForeignKey(
         codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
         verbose_name='Eigentümer',
@@ -3217,7 +3424,7 @@ class Meldedienst_flaechenhaft(models.Model):
         to_field='uuid',
         related_name='arten+')
     bearbeiter = models.CharField(
-        'Bearbeiter', max_length=255, blank=True, null=True, validators=[
+        'Bearbeiter', max_length=255, validators=[
             RegexValidator(
                 regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
                 regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
@@ -3308,7 +3515,7 @@ class Meldedienst_punkthaft(models.Model):
         to_field='uuid',
         related_name='arten+')
     bearbeiter = models.CharField(
-        'Bearbeiter', max_length=255, blank=True, null=True, validators=[
+        'Bearbeiter', max_length=255, validators=[
             RegexValidator(
                 regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
                 regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
@@ -3359,6 +3566,7 @@ class Meldedienst_punkthaft(models.Model):
         address_type = 'Adresse'
         address_mandatory = False
         geometry_type = 'Point'
+        as_overlay = True
 
     def __str__(self):
         return str(self.art) + ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime(
@@ -3750,8 +3958,8 @@ class Poller(models.Model):
         null=True,
         validators=[
             RegexValidator(
-                regex=constants_vars.poller_nummer_regex,
-                message=constants_vars.poller_nummer_message)])
+                regex=constants_vars.poll_nummer_regex,
+                message=constants_vars.poll_nummer_message)])
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
             RegexValidator(
@@ -4885,8 +5093,8 @@ class Trinkwassernotbrunnen(models.Model):
         max_length=12,
         validators=[
             RegexValidator(
-                regex=constants_vars.trinkwassernotbrunnen_nummer_regex,
-                message=constants_vars.trinkwassernotbrunnen_nummer_message)])
+                regex=constants_vars.twnb_nummer_regex,
+                message=constants_vars.twnb_nummer_message)])
     bezeichnung = models.CharField(
         'Bezeichnung', max_length=255, validators=[
             RegexValidator(

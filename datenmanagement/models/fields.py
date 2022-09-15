@@ -4,7 +4,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.core import exceptions
 
 
-
 # Quelle :https://gist.github.com/danni/f55c4ce19598b2b345ef
 
 class ChoiceArrayField(ArrayField):

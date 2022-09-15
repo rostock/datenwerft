@@ -48,6 +48,11 @@ def get_class_verbose_name_plural(value):
 
 
 @register.filter
+def get_dict_value_by_key(dict, key):
+    return dict.get(key)
+
+
+@register.filter
 def get_foreign_key_field_class_name(field_name, model_name):
     model = apps.get_app_config('datenmanagement').get_model(model_name)
     return model._meta.get_field(field_name).remote_field.model.__name__
@@ -97,16 +102,21 @@ def get_value_of_map_feature_tooltip_field(value, is_date=False):
 
 @register.filter
 def get_and_concat_values_of_map_feature_tooltip_fields(value):
+    previous_value = ''
     tooltip_value = ''
     index = 0
     for field in value.__class__._meta.map_feature_tooltip_fields:
         field_value = ''
-        if field:
+        if field and getattr(value, field) is not None:
             field_value = str(getattr(value, field))
         tooltip_value = (
-            tooltip_value + ' ' + field_value if index > 0 else field_value
+            tooltip_value + (
+                '' if (re.match(r'^[a-z]$', field_value) and
+                       re.match(r'^[0-9]+$', previous_value)) else ' '
+            ) + field_value if index > 0 else field_value
         )
         index += 1
+        previous_value = field_value
     tooltip_value = tooltip_value.strip()
     if not tooltip_value:
         return ["None"]
