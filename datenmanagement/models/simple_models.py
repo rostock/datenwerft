@@ -2725,17 +2725,35 @@ class Hausnummern(models.Model):
     gebaeude_bauweise = models.ForeignKey(
         codelist_models.Gebaeudebauweisen,
         verbose_name='Bauweise des Gebäudes',
-        on_delete=models.RESTRICT,
+        on_delete=models.SET_NULL,
         db_column='gebaeude_bauweise',
         to_field='uuid',
-        related_name='gebaeude_bauweisen+')
+        related_name='gebaeude_bauweisen+',
+        blank=True,
+        null=True)
     gebaeude_funktion = models.ForeignKey(
         codelist_models.Gebaeudefunktionen,
         verbose_name='Funktion des Gebäudes',
-        on_delete=models.RESTRICT,
+        on_delete=models.SET_NULL,
         db_column='gebaeude_funktion',
         to_field='uuid',
-        related_name='gebaeude_funktionen+')
+        related_name='gebaeude_funktionen+',
+        blank=True,
+        null=True)
+    hinweise_gebaeude = models.CharField(
+        ' weitere Hinweise zum Gebäude', max_length=255, blank=True, null=True, validators=[
+            RegexValidator(
+                regex=constants_vars.akut_regex, message=constants_vars.akut_message
+            ), RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message
+            ), RegexValidator(
+                regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+            ), RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message
+            ), RegexValidator(
+                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
     bearbeiter = models.CharField(
         'Bearbeiter', max_length=255, validators=[
             RegexValidator(

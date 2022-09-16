@@ -20,6 +20,10 @@ a:hover {
   height:80px;
 }
 
+.modal-footer {
+  justify-content:center !important;
+}
+
 .navbar-logo {
   height:30px;
   margin-bottom:.25rem;

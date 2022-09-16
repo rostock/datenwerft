@@ -558,10 +558,10 @@ class DataChangeView(generic.UpdateView):
             'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
         context['model_description'] = self.model._meta.description
         context['catalog_link_fields'] = (
-            list(self.model._meta.catalog_link_fields.items()) if hasattr(
+            self.model._meta.catalog_link_fields if hasattr(
                 self.model._meta, 'catalog_link_fields') else None)
         context['catalog_link_fields_names'] = (
-            list(self.model._meta.catalog_link_fields.values()) if hasattr(
+            list(self.model._meta.catalog_link_fields.keys()) if hasattr(
                 self.model._meta, 'catalog_link_fields') else None)
         context['associated_objects'] = (
             self.associated_objects if self.associated_objects else None)

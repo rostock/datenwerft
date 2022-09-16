@@ -200,7 +200,7 @@
               Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an die nächste {{ address_type }} heran.
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
           </div>
         </div>
@@ -230,15 +230,13 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header" id="id_postcodeAssigning-header">
-              <h5 class="modal-title" id="id_postcodeAssigning-title">Zuweisung einer Postleitzahl</h5>
+              <h5 class="modal-title" id="id_postcodeAssigning-title">Fehler bei Zuweisung einer Postleitzahl</h5>
             </div>
             <div class="modal-body" id="id_postcodeAssigning-body">
-              Die automatische Zuweisung einer Postleitzahl läuft gerade. Dies kann einen Moment dauern.
-              <div class="text-center">
-                <div class="spinner-border m-4 text-primary" role="status">
-                  <span class="sr-only">laden…</span>
-                </div>
-              </div>
+              Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
             </div>
           </div>
         </div>
@@ -1278,7 +1276,7 @@
             );
             $('#id_gpxLoading-body').after(
               '<div class="modal-footer">' +
-                '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>' +
+                '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
               '</div>'
             );
             console.log(error);
@@ -1301,7 +1299,6 @@
          *
          * @param e
          */
-        modalToggler($('#id_postcodeAssigning'));
 
         let json = currMap.pm.getGeomanLayers()[0].toGeoJSON();
         let ort = getCenter(json);
@@ -1324,34 +1321,13 @@
           }
         ).then(
           (data) => {
-            if (data.features[0].properties.postleitzahl && typeof data.features[0].properties.postleitzahl == 'string') {
+            if (data.features[0].properties.postleitzahl && typeof data.features[0].properties.postleitzahl == 'string')
               $('#postcode_assigner').parent().parent().next().find('input').val(data.features[0].properties.postleitzahl);
-              $('#id_postcodeAssigning-title').text('Zuweisung einer Postleitzahl');
-              $('#id_postcodeAssigning-body').html(
-                'Die automatische Zuweisung einer Postleitzahl läuft gerade. Dies kann einen Moment dauern.' +
-                '<div class="text-center">' +
-                  '<div class="spinner-border m-4 text-primary" role="status">' +
-                    '<span class="sr-only">laden…</span>' +
-                  '</div>' +
-                '</div>'
-              );
-              $('#id_postcodeAssigning-body').next().remove();
-            }
-            modalToggler($('#id_postcodeAssigning'));
           }
         ).catch(
           (error) => {
-            $('#id_postcodeAssigning-title').text('Fehler bei Kommunikation mit Server');
-            $('#id_postcodeAssigning-body').text(
-              'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. ' +
-              'Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
-            );
-            $('#id_postcodeAssigning-body').after(
-              '<div class="modal-footer">' +
-                '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>' +
-              '</div>'
-            );
             console.log(error);
+            modalToggler($('#id_postcodeAssigning'));
           }
         );
       });
