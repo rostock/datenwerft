@@ -15,7 +15,6 @@ from zoneinfo import ZoneInfo
 from . import functions
 
 
-
 class DataView(BaseDatatableView):
     """
     bereitet Datenbankobjekte für Tabellenansicht auf
@@ -79,7 +78,8 @@ class DataView(BaseDatatableView):
                     foreign_model = value._meta.label
                     foreign_model_primary_key = value._meta.pk.name
                     foreign_model_title = self.columns.get(column)
-                    foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
+                    foreign_model_attribute_for_text = self.columns_with_foreign_key.get(
+                        column)
                     data = '<a href="' + reverse(
                         'datenmanagement:' + foreign_model.replace(
                             value._meta.app_label + '.',
@@ -101,9 +101,16 @@ class DataView(BaseDatatableView):
                     data = datetime.strptime(str(value), '%Y-%m-%d').strftime(
                         '%d.%m.%Y')
                 elif value is not None and self.columns_with_datetime is not None and column in self.columns_with_datetime:
-                    datetimestamp_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(value))
-                    datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
-                    datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+                    datetimestamp_str = re.sub(
+                        r'([+-][0-9]{2})\:', '\\1', str(value))
+                    datetimestamp = datetime.strptime(
+                        datetimestamp_str,
+                        '%Y-%m-%d %H:%M:%S%z').replace(
+                        tzinfo=timezone.utc).astimezone(
+                        ZoneInfo(
+                            settings.TIME_ZONE))
+                    datetimestamp_str = datetimestamp.strftime(
+                        '%d.%m.%Y, %H:%M:%S Uhr')
                     data = datetimestamp_str
                 elif value is not None and value and self.column_as_highlight_flag is not None and column == self.column_as_highlight_flag:
                     data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
@@ -124,11 +131,10 @@ class DataView(BaseDatatableView):
                 elif value is not None and (
                         column == 'dokument' or column == 'pdf'):
                     try:
-                        data = '<a href="' + value.url + '?' + str(time.time()) \
-                            + '" target="_blank" title="' + (('PDF' if column == 'pdf'
-                                else 'Dokument')) \
-                            + ' öffnen…">Link zum ' + (('PDF'
-                 if column == 'pdf' else 'Dokument')) + '</a>'
+                        data = '<a href="' + value.url + '?' + str(
+                            time.time()) + '" target="_blank" title="' + (
+                            ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
+                            ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
                     except ValueError:
                         pass
                 elif value is not None and value is True:
@@ -142,10 +148,10 @@ class DataView(BaseDatatableView):
                     data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
                 elif value is not None and \
                         isinstance(value, str) and re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE):
-                            data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
-                                + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
-                                + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
-                                + '">&zwnj;</div>'
+                    data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
+                        + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
+                        + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
+                        + '">&zwnj;</div>'
                 elif value is not None:
                     data = escape(value)
                 item_data.append(data)

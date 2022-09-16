@@ -10,7 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 from jsonview.views import JsonView
 
 
-
 class OWSProxyView(generic.View):
     """
     Proxy für OGC Web Services (OWS)
@@ -99,11 +98,10 @@ class ReverseSearchView(generic.View):
         :return:
         """
         self.reversesearch_type = 'reverse'
-        self.reversesearch_class = 'address'
+        self.reversesearch_class = request.GET.get('search_class', '')
         self.reversesearch_x = request.GET.get('x', '')
         self.reversesearch_y = request.GET.get('y', '')
         self.reversesearch_in_epsg = '4326'
-        self.reversesearch_radius = '200'
         return super(
             ReverseSearchView,
             self).dispatch(
@@ -128,7 +126,7 @@ class ReverseSearchView(generic.View):
             self.reversesearch_x + ',' +
             self.reversesearch_y + '&in_epsg=' +
             self.reversesearch_in_epsg + '&radius=' +
-            self.reversesearch_radius,
+            str(settings.REVERSE_SEARCH_RADIUS),
             timeout=3)
         return HttpResponse(response, content_type='application/json')
 
@@ -155,15 +153,15 @@ class GeometryView(JsonView):
             with connection.cursor() as cursor:
                 cursor.execute(
                     'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
-                    self.model._meta.db_table.replace('"', '') +
+                    self.model._meta.db_table.replace(
+                        '"',
+                        '') +
                     ' WHERE uuid = %s;',
-                    [pk]
-                )
-                uuid, geom = cursor.fetchone() # Tupel
+                    [pk])
+                uuid, geom = cursor.fetchone()  # Tupel
                 context['uuid'] = uuid
                 context['geometry'] = geom
                 context['model_name'] = self.model.__name__
-
 
         elif self.request.GET.get('lat') and self.request.GET.get('lng'):
             # Bei Angabe von Koordinaten (rad standardmäßig 0)
@@ -193,9 +191,11 @@ class GeometryView(JsonView):
             with connection.cursor() as cursor:
                 cursor.execute(
                     'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
-                    self.model._meta.db_table.replace('"', '') + ';',
-                    []
-                )
+                    self.model._meta.db_table.replace(
+                        '"',
+                        '') +
+                    ';',
+                    [])
                 row = cursor.fetchall()
                 uuids = []
                 geom = []

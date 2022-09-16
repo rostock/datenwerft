@@ -14,7 +14,6 @@ from zoneinfo import ZoneInfo
 from . import codelist_models, constants_vars, fields, functions, storage
 
 
-
 #
 # Baustellen-Fotodokumentation
 #
@@ -37,13 +36,24 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
         blank=True,
         null=True)
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     verkehrliche_lagen = fields.ChoiceArrayField(
         models.CharField(
             ' verkehrliche Lage(n)',
@@ -64,22 +74,48 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
         to_field='uuid',
         related_name='auftraggeber+')
     ansprechpartner = models.CharField(
-        'Ansprechpartner', max_length=255, validators=[
+        'Ansprechpartner',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.ansprechpartner_regex, message=constants_vars.ansprechpartner_message), RegexValidator(
-                        regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                            regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.ansprechpartner_regex,
+                message=constants_vars.ansprechpartner_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     bemerkungen = models.CharField(
-        'Bemerkungen', max_length=255, blank=True, null=True, validators=[
+        'Bemerkungen',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -241,7 +277,6 @@ signals.post_delete.connect(functions.remove_permissions,
                             sender=Baustellen_Fotodokumentation_Fotos)
 
 
-
 #
 # Baustellen (geplant)
 #
@@ -264,37 +299,87 @@ class Baustellen_geplant(models.Model):
         blank=True,
         null=True)
     projektbezeichnung = models.CharField(
-        'Projektbezeichnung', max_length=255, blank=True, null=True, validators=[
+        'Projektbezeichnung',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     kurzbeschreibung = fields.NullTextField(
-        'Kurzbeschreibung', max_length=500, blank=True, null=True, validators=[
+        'Kurzbeschreibung',
+        max_length=500,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     lagebeschreibung = models.CharField(
-        'Lagebeschreibung', max_length=255, blank=True, null=True, validators=[
+        'Lagebeschreibung',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     verkehrliche_lagen = fields.ChoiceArrayField(
         models.CharField(
             ' verkehrliche Lage(n)',
@@ -317,14 +402,27 @@ class Baustellen_geplant(models.Model):
         to_field='uuid',
         related_name='auftraggeber+')
     ansprechpartner = models.CharField(
-        'Ansprechpartner', max_length=255, validators=[
+        'Ansprechpartner',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.ansprechpartner_regex, message=constants_vars.ansprechpartner_message), RegexValidator(
-                        regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                            regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                                regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.ansprechpartner_regex,
+                message=constants_vars.ansprechpartner_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     status = models.ForeignKey(
         codelist_models.Status_Baustellen_geplant,
         verbose_name='Status',
@@ -418,9 +516,13 @@ class Baustellen_geplant(models.Model):
         super(Baustellen_geplant, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Baustellen_geplant)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=Baustellen_geplant)
 
-signals.post_delete.connect(functions.remove_permissions, sender=Baustellen_geplant)
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=Baustellen_geplant)
 
 
 # Dokumente
@@ -439,13 +541,24 @@ class Baustellen_geplant_Dokumente(models.Model):
         to_field='uuid',
         related_name='baustellen_geplant+')
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     dokument = models.FileField(
         'Dokument',
         storage=storage.OverwriteStorage(),
@@ -491,7 +604,9 @@ signals.post_save.connect(
     functions.assign_permissions,
     sender=Baustellen_geplant_Dokumente)
 
-signals.post_delete.connect(functions.delete_pdf, sender=Baustellen_geplant_Dokumente)
+signals.post_delete.connect(
+    functions.delete_pdf,
+    sender=Baustellen_geplant_Dokumente)
 
 signals.post_delete.connect(
     functions.remove_permissions,
@@ -514,13 +629,24 @@ class Baustellen_geplant_Links(models.Model):
         to_field='uuid',
         related_name='baustellen_geplant+')
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     link = models.CharField(
         'Link', max_length=255, validators=[
             URLValidator(
@@ -559,12 +685,13 @@ class Baustellen_geplant_Links(models.Model):
         super(Baustellen_geplant_Links, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Baustellen_geplant_Links)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=Baustellen_geplant_Links)
 
 signals.post_delete.connect(
     functions.remove_permissions,
     sender=Baustellen_geplant_Links)
-
 
 
 #
@@ -622,21 +749,47 @@ class Durchlaesse_Durchlaesse(models.Model):
         blank=True,
         null=True)
     nebenanlagen = fields.NullTextField(
-        'Nebenanlagen', max_length=255, blank=True, null=True, validators=[
+        'Nebenanlagen',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     zubehoer = fields.NullTextField(
-        'Zubehör', max_length=255, blank=True, null=True, validators=[
+        'Zubehör',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     zustand_durchlass = models.ForeignKey(
         codelist_models.Zustandsbewertungen,
         verbose_name='Zustand des Durchlasses',
@@ -666,29 +819,64 @@ class Durchlaesse_Durchlaesse(models.Model):
         null=True)
     kontrolle = models.DateField('Kontrolle', blank=True, null=True)
     bemerkungen = fields.NullTextField(
-        'Bemerkungen', max_length=255, blank=True, null=True, validators=[
+        'Bemerkungen',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     zustaendigkeit = models.CharField(
-        'Zuständigkeit', max_length=255, validators=[
+        'Zuständigkeit',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     bearbeiter = models.CharField(
-        'Bearbeiter', max_length=255, validators=[
+        'Bearbeiter',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -745,9 +933,13 @@ class Durchlaesse_Durchlaesse(models.Model):
         super(Durchlaesse_Durchlaesse, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Durchlaesse_Durchlaesse)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=Durchlaesse_Durchlaesse)
 
-signals.post_delete.connect(functions.remove_permissions, sender=Durchlaesse_Durchlaesse)
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=Durchlaesse_Durchlaesse)
 
 
 # Fotos
@@ -771,13 +963,26 @@ class Durchlaesse_Fotos(models.Model):
         blank=True,
         null=True)
     bemerkungen = fields.NullTextField(
-        'Bemerkungen', max_length=255, blank=True, null=True, validators=[
+        'Bemerkungen',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     dateiname_original = models.CharField(
         'Original-Dateiname', max_length=255, default='ohne')
     foto = models.ImageField(
@@ -827,14 +1032,19 @@ class Durchlaesse_Fotos(models.Model):
         super(Durchlaesse_Fotos, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.photo_post_processing, sender=Durchlaesse_Fotos)
+signals.post_save.connect(
+    functions.photo_post_processing,
+    sender=Durchlaesse_Fotos)
 
-signals.post_save.connect(functions.assign_permissions, sender=Durchlaesse_Fotos)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=Durchlaesse_Fotos)
 
 signals.post_delete.connect(functions.delete_photo, sender=Durchlaesse_Fotos)
 
-signals.post_delete.connect(functions.remove_permissions, sender=Durchlaesse_Fotos)
-
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=Durchlaesse_Fotos)
 
 
 #
@@ -1013,7 +1223,8 @@ class Fallwildsuchen_Nachweise(models.Model):
             '%Y-%m-%d %H:%M:%S%z'
         ).replace(tzinfo=timezone.utc).astimezone(local_tz)
         endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-        return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' + str(self.art_kontrolle) + ']'
+        return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + \
+            ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' + str(self.art_kontrolle) + ']'
 
     def save(self, *args, **kwargs):
         self.current_authenticated_user = get_current_authenticated_user()
@@ -1024,10 +1235,13 @@ class Fallwildsuchen_Nachweise(models.Model):
         super(Fallwildsuchen_Nachweise, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Fallwildsuchen_Nachweise)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=Fallwildsuchen_Nachweise)
 
-signals.post_delete.connect(functions.remove_permissions, sender=Fallwildsuchen_Nachweise)
-
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=Fallwildsuchen_Nachweise)
 
 
 #
@@ -1047,13 +1261,24 @@ class Haltestellenkataster_Haltestellen(models.Model):
     id = models.PositiveIntegerField('ID', default=functions.sequence_id(
         'fachdaten.haltestellenkataster_haltestellen_hro_id_seq'))
     hst_bezeichnung = models.CharField(
-        'Haltestellenbezeichnung', max_length=255, validators=[
+        'Haltestellenbezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     hst_hafas_id = models.CharField(
         'HAFAS-ID',
         max_length=8,
@@ -1085,21 +1310,47 @@ class Haltestellenkataster_Haltestellen(models.Model):
                 regex=constants_vars.gravis_regex,
                 message=constants_vars.gravis_message)])
     hst_richtung = models.CharField(
-        'Richtungsinformation', max_length=255, blank=True, null=True, validators=[
+        'Richtungsinformation',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     hst_kategorie = models.CharField(
-        'Haltestellenkategorie', max_length=255, blank=True, null=True, validators=[
+        'Haltestellenkategorie',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     hst_linien = fields.ChoiceArrayField(
         models.CharField(
             ' bedienende Linie(n)',
@@ -1378,21 +1629,47 @@ class Haltestellenkataster_Haltestellen(models.Model):
     bfe_medizinische_versorgungseinrichtung = models.BooleanField(
         'Medizinische Versorgungseinrichtung in Umgebung vorhanden?', blank=True, null=True)
     bearbeiter = models.CharField(
-        'Bearbeiter', max_length=255, blank=True, null=True, validators=[
+        'Bearbeiter',
+        max_length=255,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     bemerkungen = fields.NullTextField(
-        'Bemerkungen', max_length=500, blank=True, null=True, validators=[
+        'Bemerkungen',
+        max_length=500,
+        blank=True,
+        null=True,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     geometrie = models.PointField(
         'Geometrie', srid=25833, default='POINT(0 0)')
 
@@ -1530,12 +1807,13 @@ signals.post_save.connect(
     functions.assign_permissions,
     sender=Haltestellenkataster_Fotos)
 
-signals.post_delete.connect(functions.delete_photo, sender=Haltestellenkataster_Fotos)
+signals.post_delete.connect(
+    functions.delete_photo,
+    sender=Haltestellenkataster_Fotos)
 
 signals.post_delete.connect(
     functions.remove_permissions,
     sender=Haltestellenkataster_Fotos)
-
 
 
 #
@@ -1551,13 +1829,24 @@ class Parkscheinautomaten_Tarife(models.Model):
         editable=False)
     aktiv = models.BooleanField(' aktiv?', default=True)
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     zeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
     normaltarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
         'Mindestparkdauer Normaltarif', min_value=1)
@@ -1715,13 +2004,24 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         related_name='parkscheinautomaten_tarife+')
     nummer = models.PositiveSmallIntegerField('Nummer')
     bezeichnung = models.CharField(
-        'Bezeichnung', max_length=255, validators=[
+        'Bezeichnung',
+        max_length=255,
+        validators=[
             RegexValidator(
-                regex=constants_vars.akut_regex, message=constants_vars.akut_message), RegexValidator(
-                regex=constants_vars.anfuehrungszeichen_regex, message=constants_vars.anfuehrungszeichen_message), RegexValidator(
-                    regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message), RegexValidator(
-                        regex=constants_vars.doppelleerzeichen_regex, message=constants_vars.doppelleerzeichen_message), RegexValidator(
-                            regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+                regex=constants_vars.akut_regex,
+                message=constants_vars.akut_message),
+            RegexValidator(
+                regex=constants_vars.anfuehrungszeichen_regex,
+                message=constants_vars.anfuehrungszeichen_message),
+            RegexValidator(
+                regex=constants_vars.apostroph_regex,
+                message=constants_vars.apostroph_message),
+            RegexValidator(
+                regex=constants_vars.doppelleerzeichen_regex,
+                message=constants_vars.doppelleerzeichen_message),
+            RegexValidator(
+                regex=constants_vars.gravis_regex,
+                message=constants_vars.gravis_message)])
     zone = models.ForeignKey(
         codelist_models.Zonen_Parkscheinautomaten,
         verbose_name='Zone',
@@ -1827,7 +2127,6 @@ signals.post_delete.connect(functions.remove_permissions,
                             sender=Parkscheinautomaten_Parkscheinautomaten)
 
 
-
 #
 # RSAG
 #
@@ -1910,7 +2209,7 @@ class RSAG_Masten(models.Model):
         editable=False)
     aktiv = models.BooleanField(' aktiv?', default=True)
     mastnummer = models.CharField(
-        'Mastnummer',max_length=255,validators=[
+        'Mastnummer', max_length=255, validators=[
             RegexValidator(
                 regex=constants_vars.akut_regex,
                 message=constants_vars.akut_message
@@ -2065,7 +2364,7 @@ class RSAG_Masten(models.Model):
         blank=True,
         null=True)
     fundamentdurchmesser = models.CharField(
-        'Durchmesser des Fundaments',max_length=255,validators=[
+        'Durchmesser des Fundaments', max_length=255, validators=[
             RegexValidator(
                 regex=constants_vars.akut_regex,
                 message=constants_vars.akut_message
@@ -2154,8 +2453,8 @@ class RSAG_Masten(models.Model):
                 message=constants_vars.gravis_message
             )
         ],
-        blank = True,
-        null = True)
+        blank=True,
+        null=True)
     dgm_hoehe = models.DecimalField(
         'Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
         max_digits=5,
@@ -2177,7 +2476,7 @@ class RSAG_Masten(models.Model):
             'mastnummer': 'Mastnummer',
             'gesamtlaenge': 'Gesamtlänge L',
             'masttyp': 'Masttyp',
-            'fundamenttyp':'Fundamenttyp',
+            'fundamenttyp': 'Fundamenttyp',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
             'mastkennzeichen_2': 'Mastkennzeichen 2',
             'mastkennzeichen_3': 'Mastkennzeichen 3',
@@ -2200,7 +2499,7 @@ class RSAG_Masten(models.Model):
             'uuid': 'UUID',
             'mastnummer': 'Mastnummer',
             'masttyp': 'Masttyp',
-            'fundamenttyp':'Fundamenttyp',
+            'fundamenttyp': 'Fundamenttyp',
             'mastkennzeichen_1': 'Mastkennzeichen 1',
             'mastkennzeichen_2': 'Mastkennzeichen 2',
             'mastkennzeichen_3': 'Mastkennzeichen 3',
@@ -2284,7 +2583,9 @@ class RSAG_Leitungen(models.Model):
 
 signals.post_save.connect(functions.assign_permissions, sender=RSAG_Leitungen)
 
-signals.post_delete.connect(functions.remove_permissions, sender=RSAG_Leitungen)
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=RSAG_Leitungen)
 
 
 # Querträger
@@ -2367,9 +2668,13 @@ class RSAG_Quertraeger(models.Model):
         super(RSAG_Quertraeger, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=RSAG_Quertraeger)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=RSAG_Quertraeger)
 
-signals.post_delete.connect(functions.remove_permissions, sender=RSAG_Quertraeger)
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=RSAG_Quertraeger)
 
 
 # Spanndrähte
@@ -2454,10 +2759,13 @@ class RSAG_Spanndraehte(models.Model):
         super(RSAG_Spanndraehte, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=RSAG_Spanndraehte)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=RSAG_Spanndraehte)
 
-signals.post_delete.connect(functions.remove_permissions, sender=RSAG_Spanndraehte)
-
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=RSAG_Spanndraehte)
 
 
 #
@@ -2721,6 +3029,10 @@ class UVP_Vorpruefungen(models.Model):
         super(UVP_Vorpruefungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=UVP_Vorpruefungen)
+signals.post_save.connect(
+    functions.assign_permissions,
+    sender=UVP_Vorpruefungen)
 
-signals.post_delete.connect(functions.remove_permissions, sender=UVP_Vorpruefungen)
+signals.post_delete.connect(
+    functions.remove_permissions,
+    sender=UVP_Vorpruefungen)

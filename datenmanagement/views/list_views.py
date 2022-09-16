@@ -2,7 +2,6 @@ from django.apps import apps
 from django.views import generic
 
 
-
 class IndexView(generic.ListView):
     """
     Liste der Datenthemen, die zur Verfügung stehen
@@ -21,21 +20,27 @@ class IndexView(generic.ListView):
         simple_models_list = []
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
-            if (self.request.user.has_perm('datenmanagement.add_' + model.__name__.lower()) or
-                    self.request.user.has_perm('datenmanagement.change_' + model.__name__.lower()) or
-                    self.request.user.has_perm('datenmanagement.delete_' + model.__name__.lower()) or
-                    self.request.user.has_perm('datenmanagement.view_' + model.__name__.lower())):
+            if (
+                self.request.user.has_perm(
+                    'datenmanagement.add_' +
+                    model.__name__.lower()) or self.request.user.has_perm(
+                    'datenmanagement.change_' +
+                    model.__name__.lower()) or self.request.user.has_perm(
+                    'datenmanagement.delete_' +
+                    model.__name__.lower()) or self.request.user.has_perm(
+                    'datenmanagement.view_' +
+                    model.__name__.lower())):
                 list_model = {
                     'name': model.__name__,
                     'verbose_name_plural': model._meta.verbose_name_plural,
                     'description': model._meta.description
                 }
                 if (hasattr(model._meta, 'codelist') and
-                        model._meta.codelist == True):
+                        model._meta.codelist is True):
                     codelist_models = True
                     codelist_models_list.append(list_model)
                 elif (hasattr(model._meta, 'complex') and
-                        model._meta.complex == True):
+                        model._meta.complex is True):
                     complex_models = True
                     complex_models_list.append(list_model)
                 else:

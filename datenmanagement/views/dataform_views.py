@@ -17,7 +17,6 @@ from operator import attrgetter
 from . import fields, functions
 
 
-
 class DataForm(ModelForm):
     required_css_class = 'required'
 
@@ -102,14 +101,14 @@ class DataForm(ModelForm):
                     'placeholder': ''
                 }
                 if field.name == 'adresse':
-                    attrs['placeholder']='Adresse eingeben…'
+                    attrs['placeholder'] = 'Adresse eingeben…'
                     self.fields[field.name] = fields.AddressUUIDField(
                         label=field.verbose_name,
                         widget=TextInput(attrs=attrs),
                         required=self.address_mandatory
                     )
                 elif field.name == 'strasse':
-                    attrs['placeholder']='Straße eingeben…'
+                    attrs['placeholder'] = 'Straße eingeben…'
                     self.fields[field.name] = fields.StreetUUIDField(
                         label=field.verbose_name,
                         widget=TextInput(attrs=attrs),
@@ -146,7 +145,6 @@ class DataForm(ModelForm):
             field.error_messages = {'required': required_message,
                                     'invalid_image': invalid_image_message,
                                     'unique': unique_message}
-
 
     # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
     # Namen foto existiert.
@@ -229,9 +227,11 @@ class DataAddView(generic.CreateView):
         self.model = model
         self.template_name = template_name
         self.success_url = success_url
-        self.form_class = modelform_factory(self.model, form=DataForm,
-                                            fields='__all__',
-                                            formfield_callback=functions.assign_widgets)
+        self.form_class = modelform_factory(
+            self.model,
+            form=DataForm,
+            fields='__all__',
+            formfield_callback=functions.assign_widgets)
         super(DataAddView, self).__init__()
 
     def get_form_kwargs(self):
@@ -290,6 +290,7 @@ class DataAddView(generic.CreateView):
         """
         context = super(DataAddView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+        context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
         context['model_name'] = self.model.__name__
         context['model_name_lower'] = self.model.__name__.lower()
         context['model_verbose_name'] = self.model._meta.verbose_name
@@ -341,7 +342,9 @@ class DataAddView(generic.CreateView):
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
             # Aussortieren der Datensätze ohne Geometrie
-            if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay == True:
+            if hasattr(
+                    model._meta,
+                    'as_overlay') and model._meta.as_overlay is True:
                 model_list[model.__name__] = model._meta.verbose_name_plural
         context['model_list'] = model_list
         # GPX-Upload-Feld
@@ -371,8 +374,8 @@ class DataAddView(generic.CreateView):
                 ansprechpartner = (
                     self.request.user.first_name + ' '
                     + self.request.user.last_name if (
-                            self.request.user.first_name and
-                            self.request.user.last_name
+                        self.request.user.first_name and
+                        self.request.user.last_name
                     ) else self.request.user.username
                 ) + ' (' + self.request.user.email.lower() + ')'
             if field.name == 'bearbeiter':
@@ -531,9 +534,11 @@ class DataChangeView(generic.UpdateView):
         self.model = model
         self.template_name = template_name
         self.success_url = success_url
-        self.form_class = modelform_factory(self.model, form=DataForm,
-                                            fields='__all__',
-                                            formfield_callback=functions.assign_widgets)
+        self.form_class = modelform_factory(
+            self.model,
+            form=DataForm,
+            fields='__all__',
+            formfield_callback=functions.assign_widgets)
         super(DataChangeView, self).__init__()
 
     def get_context_data(self, **kwargs):
@@ -545,6 +550,7 @@ class DataChangeView(generic.UpdateView):
         """
         context = super(DataChangeView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+        context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
         context['model_name'] = self.model.__name__
         context['model_name_lower'] = self.model.__name__.lower()
         context['model_verbose_name'] = self.model._meta.verbose_name
@@ -618,7 +624,7 @@ class DataChangeView(generic.UpdateView):
         for model in app_models:
             # Aussortieren der Datensätze ohne Geometrie
             if hasattr(model._meta,
-                       'as_overlay') and model._meta.as_overlay == True:
+                       'as_overlay') and model._meta.as_overlay is True:
                 model_list[model.__name__] = model._meta.verbose_name
         context['model_list'] = model_list
         # GPX-Upload-Feld

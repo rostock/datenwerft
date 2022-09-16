@@ -193,22 +193,21 @@
       <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal" class="modal fade" tabindex="-1" aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-label" class="modal-title">Keine Zuordnung einer {{ address_type }} möglich</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header" id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-header">
+              <h5 class="modal-title">Keine automatische Zuordnung einer {{ address_type }} möglich!</h5>
             </div>
             <div class="modal-body">
-              Objekt zu weit von nächster {{ address_type }} entfernt!
+              Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an die nächste {{ address_type }} heran.
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">schließen</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
             </div>
           </div>
         </div>
       </div>
     {% endif %}
     {% if gpx_input %}
-      <div id="id_gpxLoading" class="modal fade" tabindex="-1">
+      <div id="id_gpxLoading" class="modal fade" tabindex="-1" aria-labelledby="id_gpxLoading-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header" id="id_gpxLoading-header">
@@ -227,7 +226,7 @@
       </div>
     {% endif %}
     {% if postcode_assigner %}
-      <div id="id_postcodeAssigning" class="modal fade" tabindex="-1">
+      <div id="id_postcodeAssigning" class="modal fade" tabindex="-1" aria-labelledby="id_postcodeAssigning-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header" id="id_postcodeAssigning-header">
@@ -891,7 +890,7 @@
         return this.nodeType == 3
       }).remove();
       $('td').find('a').parent().find('input[type="file"]').before('ändern in: ');
-      $('<br />').insertBefore($('input[type="checkbox"][name$="-clear"]'));
+      $('<br>').insertBefore($('input[type="checkbox"][name$="-clear"]'));
       $('label[for$="-clear_id"]').addClass('label-with-margin');
       $('label[for$="-clear_id"]').text('löschen');
 
@@ -945,13 +944,11 @@
 
 
     /**
-     * Übernimmt Adresse aus Koordinaten eines Layers
+     * Liefert das Zentrum eines GeoJSON-Features zurück
      *
-     * @param type - Typ
-     * @param {layer} layer - Layer
+     * @param {JSON} json - GeoJSON
      */
-    function setAddressOrStreet(type, layer) {
-      let json = layer.toGeoJSON();
+    function getCenter(json) {
       let xArray = [];
       let yArray = [];
       let ort = [];
@@ -987,10 +984,24 @@
         ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
       {% endif %}
 
+      return ort;
+    }
+
+
+    /**
+     * Übernimmt Adresse aus Koordinaten eines Layers
+     *
+     * @param type - Typ
+     * @param {layer} layer - Layer
+     */
+    function setAddressOrStreet(type, layer) {
+      let json = layer.toGeoJSON();
+      let ort = getCenter(json);
       $.ajax({
         url: '{% url "datenmanagement:reversesearch" %}',
         dataType: 'json',
         data: {
+          search_class: 'address',
           x: ort[0],
           y: ort[1],
         },
@@ -1023,10 +1034,8 @@
             return false;
           }
         });
-        if (erfolg === false) {
-          var modal = new bootstrap.Modal($('#maptostreet-error-modal'));
-          modal.show();
-        }
+        if (erfolg === false)
+          modalToggler($('#maptostreet-error-modal'));
       } else if (type === 'Adresse') {
         jQuery.each(json.features, function(index, item) {
           if (item.properties.objektgruppe === 'Adresse') {
@@ -1039,10 +1048,8 @@
             return false;
           }
         });
-        if (erfolg === false) {
-          var modal = new bootstrap.Modal($('#maptoaddress-error-modal'));
-          modal.show();
-        }
+        if (erfolg === false)
+          modalToggler($('#maptoaddress-error-modal'));
       }
     }
 
@@ -1148,12 +1155,12 @@
           $('#id_strasse').val($('#id_strasse_uuid').val());
       {% endif %}
       setCoordinates();
-
     }
 
 
-
-
+    function modalToggler(modal) {
+      modal.modal('toggle')
+    }
 
 
     /**
@@ -1214,9 +1221,7 @@
          *
          * @param e
          */
-
-        var modal = new bootstrap.Modal($('#id_gpxLoading'));
-        modal.show();
+        modalToggler($('#id_gpxLoading'));
 
         let file = e.target.files[0];
         let fileName = file.name;
@@ -1262,13 +1267,10 @@
               // Layer zur Karte hinzufügen
               track.addTo(currMap);
             }
-            modal.hide();
+            modalToggler($('#id_gpxLoading'));
           }
         ).catch(
           (error) => {
-            $('#id_gpxLoading-header').append(
-              '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
-            );
             $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
             $('#id_gpxLoading-body').text(
               'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. ' +
@@ -1276,7 +1278,7 @@
             );
             $('#id_gpxLoading-body').after(
               '<div class="modal-footer">' +
-                '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">schließen</button>' +
+                '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>' +
               '</div>'
             );
             console.log(error);
@@ -1299,8 +1301,59 @@
          *
          * @param e
          */
-        var modal = new bootstrap.Modal($('#id_postcodeAssigning'));
-        modal.show();
+        modalToggler($('#id_postcodeAssigning'));
+
+        let json = currMap.pm.getGeomanLayers()[0].toGeoJSON();
+        let ort = getCenter(json);
+
+        // Anfragen des Servers und Warten auf Antwort
+        let params = {
+          search_class: 'postcode_areas',
+          x: ort[0],
+          y: ort[1]
+        };
+        let query = Object.keys(params)
+                    .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+                    .join('&');
+        let url = '{% url "datenmanagement:reversesearch" %}' + '?' + query;
+        fetch(
+          url
+        ).then(
+          (response) => {
+            return response.json();
+          }
+        ).then(
+          (data) => {
+            if (data.features[0].properties.postleitzahl && typeof data.features[0].properties.postleitzahl == 'string') {
+              $('#postcode_assigner').parent().parent().next().find('input').val(data.features[0].properties.postleitzahl);
+              $('#id_postcodeAssigning-title').text('Zuweisung einer Postleitzahl');
+              $('#id_postcodeAssigning-body').html(
+                'Die automatische Zuweisung einer Postleitzahl läuft gerade. Dies kann einen Moment dauern.' +
+                '<div class="text-center">' +
+                  '<div class="spinner-border m-4 text-primary" role="status">' +
+                    '<span class="sr-only">laden…</span>' +
+                  '</div>' +
+                '</div>'
+              );
+              $('#id_postcodeAssigning-body').next().remove();
+            }
+            modalToggler($('#id_postcodeAssigning'));
+          }
+        ).catch(
+          (error) => {
+            $('#id_postcodeAssigning-title').text('Fehler bei Kommunikation mit Server');
+            $('#id_postcodeAssigning-body').text(
+              'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. ' +
+              'Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
+            );
+            $('#id_postcodeAssigning-body').after(
+              '<div class="modal-footer">' +
+                '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>' +
+              '</div>'
+            );
+            console.log(error);
+          }
+        );
       });
     {% endif %}
 
