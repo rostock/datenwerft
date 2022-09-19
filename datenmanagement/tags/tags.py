@@ -88,43 +88,6 @@ def get_value_of_field(value, field):
 
 
 @register.filter
-def get_value_of_map_feature_tooltip_field(value, is_date=False):
-    field = value.__class__._meta.map_feature_tooltip_field
-    if field:
-        field_value = getattr(value, field)
-        if is_date:
-            return field_value.strftime('%d.%m.%Y')
-        else:
-            return field_value
-    else:
-        return ["None"]
-
-
-@register.filter
-def get_and_concat_values_of_map_feature_tooltip_fields(value):
-    previous_value = ''
-    tooltip_value = ''
-    index = 0
-    for field in value.__class__._meta.map_feature_tooltip_fields:
-        field_value = ''
-        if field and getattr(value, field) is not None:
-            field_value = str(getattr(value, field))
-        tooltip_value = (
-            tooltip_value + (
-                '' if (re.match(r'^[a-z]$', field_value) and
-                       re.match(r'^[0-9]+$', previous_value)) else ' '
-            ) + field_value if index > 0 else field_value
-        )
-        index += 1
-        previous_value = field_value
-    tooltip_value = tooltip_value.strip()
-    if not tooltip_value:
-        return ["None"]
-    else:
-        return tooltip_value
-
-
-@register.filter
 def is_field_address_related_field(field):
     if field.name == 'adresse' or field.name == 'strasse':
         return True

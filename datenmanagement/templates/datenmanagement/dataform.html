@@ -96,7 +96,7 @@
                       {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
-                {% elif postcode_assigner and field.name == postcode_assigner %}
+                {% elif postcode_assigner and field.name == postcode_assigner and user|user_has_object_change_permission:object %}
                   {{ field.label_tag }} <span><i id="postcode_assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
                 {% else %}
                   {{ field.label_tag }}

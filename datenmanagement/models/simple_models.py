@@ -2807,7 +2807,9 @@ class Hausnummern(models.Model):
             'gebaeude_funktion': 'Funktion des Gebäudes'
         }
         list_fields_with_foreign_key = {
-            'strasse': 'strasse'
+            'strasse': 'strasse',
+            'gebaeude_bauweise': 'bezeichnung',
+            'gebaeude_funktion': 'bezeichnung'
         }
         list_fields_with_date = [
             'deaktiviert',

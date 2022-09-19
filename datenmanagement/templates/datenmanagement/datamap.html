@@ -21,8 +21,6 @@
   {{ block.super }}
   {% leaflet_js plugins="locatecontrol,markercluster" %}
   <script type="text/javascript" src="{% static 'proj4/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket/wicket.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket/wicket-leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
 {% endblock %}
 
@@ -184,6 +182,9 @@
     </div>
     <script type="text/javascript">
       function map_init_basic(map, options) {
+        // Rendering der Features auf der Karte etwas beschleunigen
+        map.preferCanvas = true;
+
         // Karte auch in anderen JavaScript-Funktionen verfügbar machen
         window.currMap = map;
 
@@ -284,115 +285,8 @@
           ],
         ]);
 
-        // neue leere GeoJSON-FeatureCollection definieren
-        var geoJsonFeatureCollection = {
-          type: 'FeatureCollection',
-          features: []
-        };
-
-        // neue leere Variable definieren, in der später der Name des Feldes für den Feature-Tooltip abgelegt wird
-        var featureTooltipField = '';
-
-        // neue Variable definieren, in der die Namen der Intervallfilter-Felder abgelegt werden
-        {% if map_rangefilter_fields_json %}
-          var intervalFilterFields = {{ map_rangefilter_fields_json|safe }};
-        {% endif %}
-
-        // neue Variable definieren, in der die Namen der Filter-Felder abgelegt werden
-        {% if map_filter_fields_json %}
-          var filterFields = {{ map_filter_fields_json|safe }};
-        {% endif %}
-
-        // über alle Objekte gehen...
-        {% for object in object_list %}
-          // neues leeres GeoJSON-Feature definieren
-          var geoJsonFeature = {
-            type: 'Feature',
-            geometry: null,
-            properties: [],
-            crs: {
-              type: 'name',
-              properties: {
-                'name': 'urn:ogc:def:crs:EPSG::25833'
-              }
-            }
-          };
-          // Geometrie (liegt in WKT vor) in GeoJSON umwandeln
-          var wkt = new Wkt.Wkt();
-          var string = '{{ object.geometrie }}';
-          wkt.read(string.substring(string.indexOf(';') + 1, string.length));
-          var geoJsonGeometry = wkt.toJson();
-          // Geometrie zu GeoJSON-Feature hinzufügen
-          geoJsonFeature.geometry = geoJsonGeometry;
-          // Name des Feldes für den Feature-Tooltip in Variable ablegen
-          featureTooltipField = 'tooltip';
-          // Properties zu GeoJSON-Feature hinzufügen
-          geoJsonFeature.properties.uuid = '{{ object.uuid }}';
-          {% if map_feature_tooltip_field %}
-            {% if 'Date' in map_feature_tooltip_field|get_type_of_field:model_name %}
-              geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field:True }}';
-            {% else %}
-              geoJsonFeature.properties[featureTooltipField] = '{{ object|get_value_of_map_feature_tooltip_field }}';
-            {% endif %}
-          {% elif map_feature_tooltip_fields %}
-            geoJsonFeature.properties[featureTooltipField] = '{{ object|get_and_concat_values_of_map_feature_tooltip_fields }}';
-          {% endif %}
-          {% if highlight_flag %}
-            geoJsonFeature.properties['highlight_flag'] = '{{ object|get_value_of_field:highlight_flag|safe }}';
-          {% endif %}
-          // für alle Stichtagsfilterfelder...
-          {% if map_deadlinefilter_fields %}
-            {% for map_deadlinefilter_field in map_deadlinefilter_fields %}
-              // Property zu GeoJSON-Feature hinzufügen mit Namen des Stichtagsfilterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
-              {% with current_field=map_deadlinefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                geoJsonFeature.properties['deadline_{{ forloop.counter0 }}'] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-              {% endwith %}
-            {% endfor %}
-          {% endif %}
-          // für alle Intervallfilterfelder...
-          {% if map_rangefilter_fields %}
-            {% for map_rangefilter_field in map_rangefilter_fields %}
-              // Property zu GeoJSON-Feature hinzufügen mit Namen des Intervallfilterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
-              {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                {% elif map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}
-                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Feld mit Datum und Zeit handelt!
-                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
-                {% else %}
-                  geoJsonFeature.properties[intervalFilterFields[{{ forloop.counter0 }}]] = {{ object|get_value_of_field:current_field|safe }};
-                {% endif %}
-              {% endwith %}
-            {% endfor %}
-          {% endif %}
-          // für alle übrigen Filterfelder...
-          {% if map_filter_fields %}
-            {% for map_filter_field in map_filter_fields %}
-              // Property zu GeoJSON-Feature hinzufügen mit Namen des Filterfeldes und entsprechendem Wert des passenden Feldes aus dem Objekt
-              {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
-                {% if map_filter_field|get_type_of_field:model_name == 'DateField' %}
-                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                {% elif map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}
-                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Feld mit Datum und Zeit handelt!
-                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
-                {% else %}
-                  geoJsonFeature.properties[filterFields[{{ forloop.counter0 }}]] = '{{ object|get_value_of_field:current_field|safe }}';
-                {% endif %}
-              {% endwith %}
-            {% endfor %}
-          {% endif %}
-          // Informationen über Berechtigungen des Nutzers setzen
-          {% get_obj_perms user for object as "objperms" %}
-          {% if 'change_'|add:model_name_lower in objperms %}
-            geoJsonFeature.properties.user_may_change = 'ok';
-          {% elif user|user_has_model_view_permission:model_name_lower %}
-            geoJsonFeature.properties.user_may_view = 'ok';
-          {% endif %}
-          // GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
-          geoJsonFeatureCollection.features.push(geoJsonFeature);
-        {% endfor %}
+        // GeoJSON-FeatureCollection definieren
+        var geoJsonFeatureCollection = {{ map_features|safe }};
 
         // jedes Feature mit Link versehen
         function onEachFeature(feature, layer) {
@@ -405,7 +299,7 @@
           }
           // falls Geometrie nicht punkthaft ist...
           {% if geometry_type != 'Point' %}
-            layer.bindTooltip(feature.properties[featureTooltipField]);
+            layer.bindTooltip(feature.properties['tooltip']);
           {% endif %}
         }
 
@@ -416,10 +310,10 @@
           icon.options.shadowSize = [0, 0];
           geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
             pointToLayer: function (feature, latlng) {
-              var marker = new L.marker(latlng, {
-                  icon: icon
+              var marker = new L.circleMarker(latlng, {
+                  radius: 5
               });
-              marker.bindTooltip(feature.properties[featureTooltipField]);
+              marker.bindTooltip(feature.properties['tooltip']);
               return marker;
             },
             onEachFeature: onEachFeature
@@ -1030,7 +924,7 @@
 
       // GeoJSON-Feature highlighten
       function highlightMapFeature(layer) {
-        if (layer.feature.properties['highlight_flag'] === 'True') {
+        if (layer.feature.properties['highlight_flag']) {
           layer.setStyle({
             color :'red',
             fillColor :'red'

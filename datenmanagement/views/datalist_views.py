@@ -2,8 +2,9 @@ import json
 import re
 import time
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from django.conf import settings
+from django.core.serializers import serialize
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import escape
@@ -299,6 +300,61 @@ class DataMapView(generic.ListView):
         :param kwargs:
         :return:
         """
+        map_features = None
+        if self.model.objects.count() > 0:
+            map_features = {
+                'type': 'FeatureCollection',
+                'features': []
+            }
+            for object in self.model.objects.all():
+                object_serialized = json.loads(
+                                        serialize('geojson',
+                                                  [object],
+                                                  srid=25833))
+                tooltip = ''
+                if hasattr(self.model._meta, 'map_feature_tooltip_field'):
+                    data = getattr(object, self.model._meta.map_feature_tooltip_field)
+                    if isinstance(data, date):
+                        data = data.strftime('%d.%m.%Y')
+                    elif isinstance(data, datetime):
+                        data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+                    tooltip = str(data)
+                elif hasattr(self.model._meta, 'map_feature_tooltip_fields'):
+                    previous_value = ''
+                    tooltip_value = ''
+                    index = 0
+                    for field in self.model._meta.map_feature_tooltip_fields:
+                        field_value = ''
+                        if field and getattr(object, field) is not None:
+                            field_value = str(getattr(object, field))
+                        tooltip_value = (
+                            tooltip_value + (
+                                '' if (re.match(r'^[a-z]$', field_value) and
+                                       re.match(r'^[0-9]+$', previous_value)) else ' '
+                            ) + field_value if index > 0 else field_value
+                        )
+                        index += 1
+                        previous_value = field_value
+                    tooltip = tooltip_value.strip()
+                else:
+                    tooltip = str(object.uuid)
+                feature = {
+                    'type': 'Feature',
+                    'geometry': object_serialized['features'][0]['geometry'],
+                    'properties': {
+                        'uuid': str(object.uuid),
+                        'tooltip': tooltip
+                    },
+                    'crs': {
+                        'type': 'name',
+                        'properties': {
+                          'name': 'urn:ogc:def:crs:EPSG::25833'
+                        }
+                    }
+                }
+                if hasattr(self.model._meta, 'highlight_flag'):
+                    feature['properties']['highlight_flag'] = getattr(object, self.model._meta.highlight_flag)
+                map_features['features'].append(feature)
         context = super(DataMapView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
         context['model_name'] = self.model.__name__
@@ -310,12 +366,6 @@ class DataMapView(generic.ListView):
         context['highlight_flag'] = (
             self.model._meta.highlight_flag if hasattr(
                 self.model._meta, 'highlight_flag') else None)
-        context['map_feature_tooltip_field'] = (
-            self.model._meta.map_feature_tooltip_field if hasattr(
-                self.model._meta, 'map_feature_tooltip_field') else None)
-        context['map_feature_tooltip_fields'] = (
-            self.model._meta.map_feature_tooltip_fields if hasattr(
-                self.model._meta, 'map_feature_tooltip_fields') else None)
         context['map_filters_enabled'] = (
             True if hasattr(self.model._meta, 'map_filter_fields') or hasattr(
                 self.model._meta, 'map_rangefilter_fields') else None)
@@ -361,4 +411,5 @@ class DataMapView(generic.ListView):
         context['geometry_type'] = (
             self.model._meta.geometry_type if hasattr(
                 self.model._meta, 'geometry_type') else None)
+        context['map_features'] = json.dumps(map_features)
         return context
