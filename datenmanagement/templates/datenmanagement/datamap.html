@@ -281,16 +281,14 @@
         // jedes Feature mit Link versehen
         function onEachFeature(feature, layer) {
           // falls Nutzer die notwendige Berechtigung hat...
-          // !!!!! statt String-Vergleich Boolean wie bei highlight-Flags !!!!!
-          if (feature.properties.user_may_change == 'ok' || feature.properties.user_may_view == 'ok') {
+          if (feature.properties.link) {
             layer.on('click', function (e) {
               // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
-              // !!!!! _blank-Target !!!!!
-              window.document.location = window.document.location + '../change/' + feature.properties.uuid;
+              window.open(feature.properties.link, '_blank').focus();
             });
           }
           // falls Feature inaktiv ist...
-          if (!feature.properties['aktiv']) {
+          if (!feature.properties.aktiv) {
             // Feature entsprechend darstellen
             layer.setStyle({
               color: '#999',
@@ -298,7 +296,7 @@
             });
           }
           // falls Feature-Highlighting vorgesehen ist...
-          if (feature.properties['highlight_flag']) {
+          if (feature.properties.highlight_flag) {
             // Feature highlighten
             layer.setStyle({
               color: '#ff0000',
@@ -307,7 +305,7 @@
           }
           // falls Geometrie nicht punkthaft ist...
           {% if geometry_type != 'Point' %}
-            layer.bindTooltip(feature.properties['tooltip']);
+            layer.bindTooltip(feature.properties.tooltip);
           {% endif %}
         }
 
@@ -319,7 +317,7 @@
               var marker = new L.circleMarker(latlng, {
                 radius: 5
               });
-              marker.bindTooltip(feature.properties['tooltip']);
+              marker.bindTooltip(feature.properties.tooltip);
               return marker;
             },
             onEachFeature: onEachFeature
@@ -344,16 +342,13 @@
           map.addLayer(geoJsonLayer);
         {% endif %}
 
-        // GeoJSON-Layer nochmal durchgehen
-        currMap.eachLayer(function(layer) {
-          if (layer.feature) {
-            // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
-            {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
-              // Wert des aktuellen Features in diesem Feld prüfen und Feature (wieder) ausblenden, sofern es den bestimmten Wert aufweist
+        // bei Bedarf GeoJSON-Layer nochmal durchgehen und entsprechende Features ausblenden
+        {% if map_filter_hide_initial %}
+          currMap.eachLayer(function(layer) {
+            if (layer.feature)
               hideMapFeature(layer);
-            {% endif %}
-          }
-        });
+          });
+        {% endif %}
 
         // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
         window.objectsExtent = geoJsonLayer.getBounds();
@@ -919,7 +914,7 @@
 
       // GeoJSON-Feature ausblenden
       function hideMapFeature(layer) {
-        if (layer.feature.properties['{{ map_filter_field_hide_initial }}'] === '{{ map_filter_value_hide_initial }}')
+        if (!layer.feature.properties.initial)
           layer.getElement().style.display = 'none';
       }
 
@@ -928,8 +923,8 @@
         currMap.eachLayer(function(layer) {
           if (layer.feature) {
             layer.getElement().style.display = '';
-            // falls Feature initial nicht auf der Karte erscheinen sollen, da es einen bestimmten Wert in einem bestimmten Feld aufweist...
-            {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
+            // GeoJSON-Feature ggf. ausblenden
+            {% if map_filter_hide_initial %}
               hideMapFeature(layer);
             {% endif %}
           }

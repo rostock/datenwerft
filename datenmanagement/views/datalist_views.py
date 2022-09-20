@@ -290,6 +290,8 @@ class DataMapView(generic.ListView):
 
     def __init__(self, model=None, template_name=None):
         self.model = model
+        self.model_name = self.model.__name__
+        self.model_name_lower = self.model.__name__.lower()
         self.template_name = template_name
         super(DataMapView, self).__init__()
 
@@ -312,12 +314,13 @@ class DataMapView(generic.ListView):
             for object in self.model.objects.all():
                 # Objekt als GeoJSON serializieren
                 object_serialized = json.loads(
-                                        serialize('geojson',
-                                                  [object]))
+                    serialize('geojson',
+                              [object]))
                 # Tooltip erzeugen
                 tooltip = ''
                 if hasattr(self.model._meta, 'map_feature_tooltip_field'):
-                    data = getattr(object, self.model._meta.map_feature_tooltip_field)
+                    data = getattr(
+                        object, self.model._meta.map_feature_tooltip_field)
                     if isinstance(data, date):
                         data = data.strftime('%d.%m.%Y')
                     elif isinstance(data, datetime):
@@ -358,13 +361,43 @@ class DataMapView(generic.ListView):
                     'crs': {
                         'type': 'name',
                         'properties': {
-                          'name': 'urn:ogc:def:crs:EPSG::25833'
+                            'name': 'urn:ogc:def:crs:EPSG::25833'
                         }
                     }
                 }
+                # optional Link setzen
+                checker = ObjectPermissionChecker(self.request.user)
+                if (
+                    checker.has_perm(
+                        'change_' +
+                        self.model_name_lower,
+                        object) or checker.has_perm(
+                        'delete_' +
+                        self.model_name_lower,
+                        object) or self.request.user.has_perm(
+                        'datenmanagement.view_' +
+                        self.model_name_lower)):
+                    feature['properties']['link'] = (
+                        reverse(
+                            'datenmanagement:' +
+                            self.model_name +
+                            'change',
+                            args=[object.uuid]))
+                # optional Flag zum initialen Erscheinen setzen
+                if hasattr(self.model._meta, 'map_filter_hide_initial'):
+                    if str(
+                        getattr(
+                            object, list(
+                                self.model._meta.map_filter_hide_initial.keys())[0])) == str(
+                        list(
+                            self.model._meta.map_filter_hide_initial.values())[0]):
+                        feature['properties']['initial'] = False
+                    else:
+                        feature['properties']['initial'] = True
                 # optional Flag zum Highlighten setzen
                 if hasattr(self.model._meta, 'highlight_flag'):
-                    feature['properties']['highlight_flag'] = getattr(object, self.model._meta.highlight_flag)
+                    feature['properties']['highlight_flag'] = getattr(
+                        object, self.model._meta.highlight_flag)
                 # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
                 map_features['features'].append(feature)
         context = super(DataMapView, self).get_context_data(**kwargs)
@@ -403,14 +436,9 @@ class DataMapView(generic.ListView):
             self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(
                 self.model._meta,
                 'map_filter_boolean_fields_as_checkbox') else None)
-        context['map_filter_field_hide_initial'] = (next(
-            iter(self.model._meta.map_filter_hide_initial.keys())) if hasattr(
-            self.model._meta, 'map_filter_hide_initial') and len(
-            self.model._meta.map_filter_hide_initial) == 1 else None)
-        context['map_filter_value_hide_initial'] = (next(
-            iter(self.model._meta.map_filter_hide_initial.values())) if hasattr(
-            self.model._meta, 'map_filter_hide_initial') and len(
-            self.model._meta.map_filter_hide_initial) == 1 else None)
+        context['map_filter_hide_initial'] = (
+            True if hasattr(
+                self.model._meta, 'map_filter_hide_initial') else False)
         context['additional_wms_layers'] = (
             self.model._meta.additional_wms_layers if hasattr(
                 self.model._meta, 'additional_wms_layers') else None)
