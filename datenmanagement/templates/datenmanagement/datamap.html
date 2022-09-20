@@ -20,8 +20,6 @@
 {% block scripts %}
   {{ block.super }}
   {% leaflet_js plugins="locatecontrol,markercluster" %}
-  <script type="text/javascript" src="{% static 'proj4/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -275,15 +273,7 @@
               title: 'Standortbestimmung'
             }
           }).addTo(map);
-      {% endif %}
-
-        // EPSG:25833 definieren
-        proj4.defs([
-          [
-            'EPSG:25833',
-            '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
-          ],
-        ]);
+        {% endif %}
 
         // GeoJSON-FeatureCollection definieren
         var geoJsonFeatureCollection = {{ map_features|safe }};
@@ -291,10 +281,28 @@
         // jedes Feature mit Link versehen
         function onEachFeature(feature, layer) {
           // falls Nutzer die notwendige Berechtigung hat...
+          // !!!!! statt String-Vergleich Boolean wie bei highlight-Flags !!!!!
           if (feature.properties.user_may_change == 'ok' || feature.properties.user_may_view == 'ok') {
             layer.on('click', function (e) {
               // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
+              // !!!!! _blank-Target !!!!!
               window.document.location = window.document.location + '../change/' + feature.properties.uuid;
+            });
+          }
+          // falls Feature inaktiv ist...
+          if (!feature.properties['aktiv']) {
+            // Feature entsprechend darstellen
+            layer.setStyle({
+              color: '#999',
+              fillColor: '#999'
+            });
+          }
+          // falls Feature-Highlighting vorgesehen ist...
+          if (feature.properties['highlight_flag']) {
+            // Feature highlighten
+            layer.setStyle({
+              color: '#ff0000',
+              fillColor: '#ff0000'
             });
           }
           // falls Geometrie nicht punkthaft ist...
@@ -306,12 +314,10 @@
         // falls Geometrie punkthaft ist...
         {% if geometry_type == 'Point' %}
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-          var icon = new L.Icon.Default();
-          icon.options.shadowSize = [0, 0];
-          geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+          geoJsonLayer = new L.geoJson(geoJsonFeatureCollection, {
             pointToLayer: function (feature, latlng) {
               var marker = new L.circleMarker(latlng, {
-                  radius: 5
+                radius: 5
               });
               marker.bindTooltip(feature.properties['tooltip']);
               return marker;
@@ -332,7 +338,7 @@
         // ansonsten...
         {% else %}
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-          geoJsonLayer = new L.Proj.geoJson(geoJsonFeatureCollection, {
+          geoJsonLayer = new L.geoJson(geoJsonFeatureCollection, {
             onEachFeature: onEachFeature
           });
           map.addLayer(geoJsonLayer);
@@ -345,11 +351,6 @@
             {% if map_filter_field_hide_initial and map_filter_value_hide_initial %}
               // Wert des aktuellen Features in diesem Feld prüfen und Feature (wieder) ausblenden, sofern es den bestimmten Wert aufweist
               hideMapFeature(layer);
-            {% endif %}
-            // falls Feature-Highlighting vorgesehen ist...
-            {% if highlight_flag %}
-              // Wert des aktuellen Features in diesem Feld prüfen und Feature highlighten, sofern es gehighlightet werden soll
-              highlightMapFeature(layer);
             {% endif %}
           }
         });
@@ -920,16 +921,6 @@
       function hideMapFeature(layer) {
         if (layer.feature.properties['{{ map_filter_field_hide_initial }}'] === '{{ map_filter_value_hide_initial }}')
           layer.getElement().style.display = 'none';
-      }
-
-      // GeoJSON-Feature highlighten
-      function highlightMapFeature(layer) {
-        if (layer.feature.properties['highlight_flag']) {
-          layer.setStyle({
-            color :'red',
-            fillColor :'red'
-          });
-        }
       }
 
       // alle GeoJSON-Features (wieder) anzeigen

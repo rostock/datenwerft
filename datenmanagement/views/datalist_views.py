@@ -301,16 +301,20 @@ class DataMapView(generic.ListView):
         :return:
         """
         map_features = None
+        # falls Objekte vorhanden sind...
         if self.model.objects.count() > 0:
+            # GeoJSON-FeatureCollection definieren
             map_features = {
                 'type': 'FeatureCollection',
                 'features': []
             }
+            # über alle Objekte gehen...
             for object in self.model.objects.all():
+                # Objekt als GeoJSON serializieren
                 object_serialized = json.loads(
                                         serialize('geojson',
-                                                  [object],
-                                                  srid=25833))
+                                                  [object]))
+                # Tooltip erzeugen
                 tooltip = ''
                 if hasattr(self.model._meta, 'map_feature_tooltip_field'):
                     data = getattr(object, self.model._meta.map_feature_tooltip_field)
@@ -328,6 +332,8 @@ class DataMapView(generic.ListView):
                         if field and getattr(object, field) is not None:
                             field_value = str(getattr(object, field))
                         tooltip_value = (
+                            # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
+                            # aber nicht zwischen Hausnummer und Hausnummernzusatz
                             tooltip_value + (
                                 '' if (re.match(r'^[a-z]$', field_value) and
                                        re.match(r'^[0-9]+$', previous_value)) else ' '
@@ -338,11 +344,15 @@ class DataMapView(generic.ListView):
                     tooltip = tooltip_value.strip()
                 else:
                     tooltip = str(object.uuid)
+                # GeoJSON-Feature definieren:
+                # * Geometrie aus serialisiertem GeoJSON holen
+                # * Eigenschaften aus den zuvor befüllten Variablen holen
                 feature = {
                     'type': 'Feature',
                     'geometry': object_serialized['features'][0]['geometry'],
                     'properties': {
                         'uuid': str(object.uuid),
+                        'aktiv': object.aktiv,
                         'tooltip': tooltip
                     },
                     'crs': {
@@ -352,8 +362,10 @@ class DataMapView(generic.ListView):
                         }
                     }
                 }
+                # optional Flag zum Highlighten setzen
                 if hasattr(self.model._meta, 'highlight_flag'):
                     feature['properties']['highlight_flag'] = getattr(object, self.model._meta.highlight_flag)
+                # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
                 map_features['features'].append(feature)
         context = super(DataMapView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
@@ -372,9 +384,6 @@ class DataMapView(generic.ListView):
         context['map_rangefilter_fields'] = (
             list(self.model._meta.map_rangefilter_fields.keys()) if hasattr(
                 self.model._meta, 'map_rangefilter_fields') else None)
-        context['map_rangefilter_fields_json'] = (json.dumps(
-            list(self.model._meta.map_rangefilter_fields.keys())) if hasattr(
-            self.model._meta, 'map_rangefilter_fields') else None)
         context['map_rangefilter_fields_labels'] = (
             list(self.model._meta.map_rangefilter_fields.values()) if hasattr(
                 self.model._meta, 'map_rangefilter_fields') else None)
@@ -384,9 +393,6 @@ class DataMapView(generic.ListView):
         context['map_filter_fields'] = (
             list(self.model._meta.map_filter_fields.keys()) if hasattr(
                 self.model._meta, 'map_filter_fields') else None)
-        context['map_filter_fields_json'] = (json.dumps(
-            list(self.model._meta.map_filter_fields.keys())) if hasattr(
-            self.model._meta, 'map_filter_fields') else None)
         context['map_filter_fields_labels'] = (
             list(self.model._meta.map_filter_fields.values()) if hasattr(
                 self.model._meta, 'map_filter_fields') else None)

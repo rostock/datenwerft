@@ -247,33 +247,15 @@
     // globale Variablen
     let FEATURE_GEOMETRY = []; // wird in showResults() befüllt
 
-    // Bunte Marker für Leaflet konfigurieren
-    let blueMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-blue.svg" %}',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
-
-      let greenMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-green.svg" %}',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
-
-      let redMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
+    // Marker für Leaflet konfigurieren
+    let redMarker = new L.Icon({
+      iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
 
     function id_geometrie_map_callback(map, options) {
       // Karte auch in anderen JavaScript-Funktionen verfügbar machen
