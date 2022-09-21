@@ -286,6 +286,8 @@ class DataListView(generic.ListView):
 class DataMapView(JsonView):
     """
     Abfrage aller Datenbankobjekte eines Datensatzes für die Karte
+    * limit: auf n Datenbankobjekte limitieren (entspricht SQL-LIMIT)
+    * offset: alle weiteren Datenbankobjekte ab dem n-ten Datenbankobjekt (entspricht SQL-OFFSET)
     """
     model = None
 
@@ -296,7 +298,11 @@ class DataMapView(JsonView):
         super(DataMapView, self).__init__()
 
     def get_context_data(self, **kwargs):
-        map_features = None
+        map_features, limit, offset = None, None, None
+        if self.request.GET.get('limit'):
+            limit = int(self.request.GET.get('limit'))
+        if self.request.GET.get('offset'):
+            offset = int(self.request.GET.get('offset'))
         # falls Objekte vorhanden sind...
         if self.model.objects.count() > 0:
             # GeoJSON-FeatureCollection definieren
@@ -304,8 +310,14 @@ class DataMapView(JsonView):
                 'type': 'FeatureCollection',
                 'features': []
             }
+            if limit is not None and offset is not None:
+              objects = self.model.objects.all()[offset:(offset + limit)]
+            elif limit is not None:
+              objects = self.model.objects.all()[:limit]
+            else:
+              objects = self.model.objects.all()
             # über alle Objekte gehen...
-            for object in self.model.objects.all():
+            for object in objects:
                 # Objekt als GeoJSON serializieren
                 object_serialized = json.loads(
                     serialize('geojson',
@@ -500,4 +512,8 @@ class DataMapListView(generic.ListView):
         context['geometry_type'] = (
             self.model._meta.geometry_type if hasattr(
                 self.model._meta, 'geometry_type') else None)
+        context['heavy_load'] = (
+            self.model._meta.heavy_load if hasattr(
+                self.model._meta, 'heavy_load') else None)
+        context['objects_count'] = self.model.objects.count()
         return context

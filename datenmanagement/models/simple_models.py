@@ -2842,6 +2842,7 @@ class Hausnummern(models.Model):
         address_mandatory = True
         geometry_type = 'Point'
         postcode_assigner = 'postleitzahl'
+        heavy_load = True
 
     def __str__(self):
         return str(self.strasse) + ' ' + str(self.hausnummer) + \

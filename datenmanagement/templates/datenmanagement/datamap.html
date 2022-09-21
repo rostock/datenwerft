@@ -327,8 +327,19 @@
         }
 
         // Funktion für das Laden der GeoJSON-FeatureCollection definieren
-        async function fetchGeoJsonFeatureCollection(url) {
+        async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
           try {
+            let url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}';
+            if (heavyLoad) {
+              const params = {
+                limit: limit,
+                offset: offset
+              };
+              const query = Object.keys(params)
+                          .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+                          .join('&');
+              url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}' + '?' + query;
+            }
             const response = await fetch(url, {
               cache: 'force-cache'
             });
@@ -344,25 +355,47 @@
           // Clustering aktivieren
           var markers = L.markerClusterGroup();
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zum Cluster hinzufügen
-          fetchGeoJsonFeatureCollection('{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}')
-          .then(data => {
-            L.Proj.geoJson(data, {
-              pointToLayer: function (feature, latlng) {
-                var marker = new L.circleMarker(latlng, {
-                  radius: 5
-                });
-                marker.bindTooltip(feature.properties.tooltip);
-                return marker;
-              },
-              onEachFeature: onEachFeature
-            }).addTo(markers);
-          });
+          {% if heavy_load %}
+            const border = 2000;
+            const limit = 1000;
+            let offset = 0;
+            while (offset < border) {
+              fetchGeoJsonFeatureCollection(true, limit, offset)
+              .then(data => {
+                L.Proj.geoJson(data, {
+                  pointToLayer: function (feature, latlng) {
+                    var marker = new L.circleMarker(latlng, {
+                      radius: 5
+                    });
+                    marker.bindTooltip(feature.properties.tooltip);
+                    return marker;
+                  },
+                  onEachFeature: onEachFeature
+                }).addTo(markers);
+              });
+              offset += limit;
+            }
+          {% else %}
+            fetchGeoJsonFeatureCollection()
+            .then(data => {
+              L.Proj.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                  var marker = new L.circleMarker(latlng, {
+                    radius: 5
+                  });
+                  marker.bindTooltip(feature.properties.tooltip);
+                  return marker;
+                },
+                onEachFeature: onEachFeature
+              }).addTo(markers);
+            });
+          {% endif %}
           markers.id = 'cluster';
           map.addLayer(markers);
         // ansonsten...
         {% else %}
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
-          fetchGeoJsonFeatureCollection('{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}')
+          fetchGeoJsonFeatureCollection()
           .then(data => {
             L.Proj.geoJson(data, {
               onEachFeature: onEachFeature

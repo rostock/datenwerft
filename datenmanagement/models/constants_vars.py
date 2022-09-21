@@ -184,11 +184,15 @@ options.DEFAULT_NAMES += (
     # optional;
     # Boolean;
     # Gibt an, ob ein GPX-Upload-Feld im Formular angezeigt werden soll.
-    'postcode_assigner'
+    'postcode_assigner',
     # optional;
     # Text;
     # Name des Feldes, das im Formular mit einer Funktion zur
     # automatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
+    'heavy_load'
+    # optional;
+    # Boolean;
+    # Hohe Datenlast zu erwarten?
 
 )
 
