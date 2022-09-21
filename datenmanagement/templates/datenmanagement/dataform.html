@@ -1261,7 +1261,7 @@
                 '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
               '</div>'
             );
-            console.log(error);
+            console.error(error);
           }
         );
       });
@@ -1308,7 +1308,7 @@
           }
         ).catch(
           (error) => {
-            console.log(error);
+            console.error(error);
             modalToggler($('#id_postcodeAssigning'));
           }
         );
@@ -1360,7 +1360,7 @@
           }
         ).catch(
           (error) => {
-            console.log(error);
+            console.error(error);
           }
         );
       });

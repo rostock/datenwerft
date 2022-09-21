@@ -11,6 +11,7 @@ from django.utils.html import escape
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.core import ObjectPermissionChecker
+from jsonview.views import JsonView
 from zoneinfo import ZoneInfo
 
 from . import functions
@@ -282,26 +283,19 @@ class DataListView(generic.ListView):
         return context
 
 
-class DataMapView(generic.ListView):
+class DataMapView(JsonView):
     """
-    zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an;
-    außerdem werden, falls definiert, entsprechende Filtermöglichkeiten geladen
+    Abfrage aller Datenbankobjekte eines Datensatzes für die Karte
     """
+    model = None
 
-    def __init__(self, model=None, template_name=None):
+    def __init__(self, model):
         self.model = model
         self.model_name = self.model.__name__
         self.model_name_lower = self.model.__name__.lower()
-        self.template_name = template_name
         super(DataMapView, self).__init__()
 
     def get_context_data(self, **kwargs):
-        """
-        Liefert Dictionary mit Context des DataMapView.
-
-        :param kwargs:
-        :return:
-        """
         map_features = None
         # falls Objekte vorhanden sind...
         if self.model.objects.count() > 0:
@@ -315,7 +309,8 @@ class DataMapView(generic.ListView):
                 # Objekt als GeoJSON serializieren
                 object_serialized = json.loads(
                     serialize('geojson',
-                              [object]))
+                              [object],
+                              srid=25833))
                 # Tooltip erzeugen
                 tooltip = ''
                 if hasattr(self.model._meta, 'map_feature_tooltip_field'):
@@ -355,7 +350,6 @@ class DataMapView(generic.ListView):
                     'geometry': object_serialized['features'][0]['geometry'],
                     'properties': {
                         'uuid': str(object.uuid),
-                        'aktiv': object.aktiv,
                         'tooltip': tooltip
                     },
                     'crs': {
@@ -365,7 +359,11 @@ class DataMapView(generic.ListView):
                         }
                     }
                 }
-                # optional Link setzen
+                # optional: Objekt als inaktiv kennzeichnen
+                if object.aktiv is False:
+                    feature['properties']['inaktiv'] = True
+                # optional: Link auf Objekt als Eigenschaft setzen,
+                # falls entsprechende Berechtigungen auf Objekt bestehen
                 checker = ObjectPermissionChecker(self.request.user)
                 if (
                     checker.has_perm(
@@ -383,7 +381,8 @@ class DataMapView(generic.ListView):
                             self.model_name +
                             'change',
                             args=[object.uuid]))
-                # optional Flag zum initialen Erscheinen setzen
+                # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
+                # falls entsprechende Klausel in der Modelldefinition existiert
                 if hasattr(self.model._meta, 'map_filter_hide_initial'):
                     if str(
                         getattr(
@@ -391,16 +390,72 @@ class DataMapView(generic.ListView):
                                 self.model._meta.map_filter_hide_initial.keys())[0])) == str(
                         list(
                             self.model._meta.map_filter_hide_initial.values())[0]):
-                        feature['properties']['initial'] = False
-                    else:
-                        feature['properties']['initial'] = True
-                # optional Flag zum Highlighten setzen
+                        feature['properties']['hide_initial'] = True
+                # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
+                # falls entsprechende Klausel in der Modelldefinition existiert
                 if hasattr(self.model._meta, 'highlight_flag'):
-                    feature['properties']['highlight_flag'] = getattr(
+                    data = getattr(
                         object, self.model._meta.highlight_flag)
+                    if data:
+                        feature['properties']['highlight'] = data
+                # optional: Stichtagsfilter als Eigenschaften setzen,
+                # falls entsprechende Klausel in der Modelldefinition existiert
+                if hasattr(self.model._meta, 'map_deadlinefilter_fields'):
+                    for index, field in enumerate(
+                            self.model._meta.map_deadlinefilter_fields):
+                        data = getattr(object, field)
+                        if isinstance(data, date):
+                            data = data.strftime('%Y-%m-%d')
+                        elif isinstance(data, datetime):
+                            data = data.strftime('%Y-%m-%d %H:%M:%S')
+                        feature['properties']['deadline_' +
+                                              str(index)] = str(data)
+                # optional: Intervallfilter als Eigenschaften setzen,
+                # falls entsprechende Klausel in der Modelldefinition existiert
+                if hasattr(self.model._meta, 'map_rangefilter_fields'):
+                    for field in self.model._meta.map_rangefilter_fields.keys():
+                        data = getattr(object, field)
+                        if isinstance(data, date):
+                            data = data.strftime('%Y-%m-%d')
+                        elif isinstance(data, datetime):
+                            data = data.strftime('%Y-%m-%d %H:%M:%S')
+                        feature['properties'][field] = str(data)
+                # optional: sonstige Filter als Eigenschaften setzen,
+                # falls entsprechende Klausel in der Modelldefinition existiert
+                if hasattr(self.model._meta, 'map_filter_fields'):
+                    for field in self.model._meta.map_filter_fields.keys():
+                        data = getattr(object, field)
+                        if isinstance(data, date):
+                            data = data.strftime('%Y-%m-%d')
+                        elif isinstance(data, datetime):
+                            data = data.strftime('%Y-%m-%d %H:%M:%S')
+                        feature['properties'][field] = str(data)
                 # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
                 map_features['features'].append(feature)
-        context = super(DataMapView, self).get_context_data(**kwargs)
+        return map_features
+
+
+class DataMapListView(generic.ListView):
+    """
+    zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an;
+    außerdem werden, falls definiert, entsprechende Filtermöglichkeiten geladen
+    """
+
+    def __init__(self, model=None, template_name=None):
+        self.model = model
+        self.model_name = self.model.__name__
+        self.model_name_lower = self.model.__name__.lower()
+        self.template_name = template_name
+        super(DataMapListView, self).__init__()
+
+    def get_context_data(self, **kwargs):
+        """
+        Liefert Dictionary mit Context des DataMapListView.
+
+        :param kwargs:
+        :return:
+        """
+        context = super(DataMapListView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
         context['model_name'] = self.model.__name__
         context['model_name_lower'] = self.model.__name__.lower()
@@ -445,5 +500,4 @@ class DataMapView(generic.ListView):
         context['geometry_type'] = (
             self.model._meta.geometry_type if hasattr(
                 self.model._meta, 'geometry_type') else None)
-        context['map_features'] = json.dumps(map_features)
         return context

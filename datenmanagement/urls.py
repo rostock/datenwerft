@@ -72,11 +72,7 @@ for model in app_models:
     # bereitet Datenbankobjekte für Tabellenansicht auf
     urlpatterns.append(url(
         regex=regex + r'data/$',
-        view=permission_required(
-            'datenmanagement.change_' + model_name_lower,
-            'datenmanagement.delete_' + model_name_lower,
-            'datenmanagement.view_' + model_name_lower
-        )(datalist_views.DataView.as_view(
+        view=login_required(datalist_views.DataView.as_view(
             model=model
         )),
         name=model_name + 'data'
@@ -98,6 +94,16 @@ for model in app_models:
     ))
 
     # DataMapView
+    # bereitet Datenbankobjekte für Tabellenansicht auf
+    urlpatterns.append(url(
+        regex=regex + r'mapdata/$',
+        view=login_required(datalist_views.DataMapView.as_view(
+            model=model
+        )),
+        name=model_name + 'mapdata'
+    ))
+
+    # DataMapListView
     # zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an
     urlpatterns.append(url(
         regex=regex + r'map/$',
@@ -105,7 +111,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(datalist_views.DataMapView.as_view(
+        )(datalist_views.DataMapListView.as_view(
             model=model,
             template_name='datenmanagement/datamap.html'
         )),
