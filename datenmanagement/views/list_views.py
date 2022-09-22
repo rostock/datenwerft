@@ -9,6 +9,11 @@ class IndexView(generic.ListView):
     template_name = 'datenmanagement/index.html'
 
     def get_queryset(self):
+        """
+        Funktion für Standard-Rückgabewert überschreiben,
+        damit diese nichts zurückgibt
+        statt stumpf die Gesamtmenge aller Objekte des Datenmodells
+        """
         return
 
     def get_context_data(self, **kwargs):

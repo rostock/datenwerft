@@ -264,6 +264,14 @@ class DataListView(generic.ListView):
         self.template_name = template_name
         super(DataListView, self).__init__()
 
+    def get_queryset(self):
+        """
+        Funktion für Standard-Rückgabewert überschreiben,
+        damit diese nichts zurückgibt
+        statt stumpf die Gesamtmenge aller Objekte des Datenmodells
+        """
+        return
+
     def get_context_data(self, **kwargs):
         context = super(DataListView, self).get_context_data(**kwargs)
         context['model_name'] = self.model.__name__
@@ -272,6 +280,7 @@ class DataListView(generic.ListView):
         context[
             'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
         context['model_description'] = self.model._meta.description
+        context['objects_count'] = self.model.objects.count()
         context['list_fields_labels'] = list(
             self.model._meta.list_fields.values())
         context['geometry_type'] = (
@@ -303,147 +312,145 @@ class DataMapView(JsonView):
             limit = int(self.request.GET.get('limit'))
         if self.request.GET.get('offset'):
             offset = int(self.request.GET.get('offset'))
-        # falls Objekte vorhanden sind...
-        if self.model.objects.count() > 0:
-            # GeoJSON-FeatureCollection definieren
-            map_features = {
-                'type': 'FeatureCollection',
-                'features': []
-            }
-            if limit is not None and offset is not None:
-              objects = self.model.objects.all()[offset:(offset + limit)]
-            elif limit is not None:
-              objects = self.model.objects.all()[:limit]
+        # GeoJSON-FeatureCollection definieren
+        map_features = {
+            'type': 'FeatureCollection',
+            'features': []
+        }
+        if limit is not None and offset is not None:
+            objects = self.model.objects.all()[offset:(offset + limit)]
+        elif limit is not None:
+            objects = self.model.objects.all()[:limit]
+        else:
+            objects = self.model.objects.all()
+        # über alle Objekte gehen...
+        for object in objects:
+            # Objekt als GeoJSON serializieren
+            object_serialized = json.loads(
+                serialize('geojson',
+                          [object],
+                          srid=25833))
+            # Tooltip erzeugen
+            tooltip = ''
+            if hasattr(self.model._meta, 'map_feature_tooltip_field'):
+                data = getattr(
+                    object, self.model._meta.map_feature_tooltip_field)
+                if isinstance(data, date):
+                    data = data.strftime('%d.%m.%Y')
+                elif isinstance(data, datetime):
+                    data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+                tooltip = str(data)
+            elif hasattr(self.model._meta, 'map_feature_tooltip_fields'):
+                previous_value = ''
+                tooltip_value = ''
+                index = 0
+                for field in self.model._meta.map_feature_tooltip_fields:
+                    field_value = ''
+                    if field and getattr(object, field) is not None:
+                        field_value = str(getattr(object, field))
+                    tooltip_value = (
+                        # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
+                        # aber nicht zwischen Hausnummer und Hausnummernzusatz
+                        tooltip_value + (
+                            '' if (re.match(r'^[a-z]$', field_value) and
+                                   re.match(r'^[0-9]+$', previous_value)) else ' '
+                        ) + field_value if index > 0 else field_value
+                    )
+                    index += 1
+                    previous_value = field_value
+                tooltip = tooltip_value.strip()
             else:
-              objects = self.model.objects.all()
-            # über alle Objekte gehen...
-            for object in objects:
-                # Objekt als GeoJSON serializieren
-                object_serialized = json.loads(
-                    serialize('geojson',
-                              [object],
-                              srid=25833))
-                # Tooltip erzeugen
-                tooltip = ''
-                if hasattr(self.model._meta, 'map_feature_tooltip_field'):
-                    data = getattr(
-                        object, self.model._meta.map_feature_tooltip_field)
-                    if isinstance(data, date):
-                        data = data.strftime('%d.%m.%Y')
-                    elif isinstance(data, datetime):
-                        data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-                    tooltip = str(data)
-                elif hasattr(self.model._meta, 'map_feature_tooltip_fields'):
-                    previous_value = ''
-                    tooltip_value = ''
-                    index = 0
-                    for field in self.model._meta.map_feature_tooltip_fields:
-                        field_value = ''
-                        if field and getattr(object, field) is not None:
-                            field_value = str(getattr(object, field))
-                        tooltip_value = (
-                            # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
-                            # aber nicht zwischen Hausnummer und Hausnummernzusatz
-                            tooltip_value + (
-                                '' if (re.match(r'^[a-z]$', field_value) and
-                                       re.match(r'^[0-9]+$', previous_value)) else ' '
-                            ) + field_value if index > 0 else field_value
-                        )
-                        index += 1
-                        previous_value = field_value
-                    tooltip = tooltip_value.strip()
-                else:
-                    tooltip = str(object.uuid)
-                # GeoJSON-Feature definieren:
-                # * Geometrie aus serialisiertem GeoJSON holen
-                # * Eigenschaften aus den zuvor befüllten Variablen holen
-                feature = {
-                    'type': 'Feature',
-                    'geometry': object_serialized['features'][0]['geometry'],
+                tooltip = str(object.uuid)
+            # GeoJSON-Feature definieren:
+            # * Geometrie aus serialisiertem GeoJSON holen
+            # * Eigenschaften aus den zuvor befüllten Variablen holen
+            feature = {
+                'type': 'Feature',
+                'geometry': object_serialized['features'][0]['geometry'],
+                'properties': {
+                    'uuid': str(object.uuid),
+                    'tooltip': tooltip
+                },
+                'crs': {
+                    'type': 'name',
                     'properties': {
-                        'uuid': str(object.uuid),
-                        'tooltip': tooltip
-                    },
-                    'crs': {
-                        'type': 'name',
-                        'properties': {
-                            'name': 'urn:ogc:def:crs:EPSG::25833'
-                        }
+                        'name': 'urn:ogc:def:crs:EPSG::25833'
                     }
                 }
-                # optional: Objekt als inaktiv kennzeichnen
-                if object.aktiv is False:
-                    feature['properties']['inaktiv'] = True
-                # optional: Link auf Objekt als Eigenschaft setzen,
-                # falls entsprechende Berechtigungen auf Objekt bestehen
-                checker = ObjectPermissionChecker(self.request.user)
-                if (
-                    checker.has_perm(
-                        'change_' +
-                        self.model_name_lower,
-                        object) or checker.has_perm(
-                        'delete_' +
-                        self.model_name_lower,
-                        object) or self.request.user.has_perm(
-                        'datenmanagement.view_' +
-                        self.model_name_lower)):
-                    feature['properties']['link'] = (
-                        reverse(
-                            'datenmanagement:' +
-                            self.model_name +
-                            'change',
-                            args=[object.uuid]))
-                # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
-                # falls entsprechende Klausel in der Modelldefinition existiert
-                if hasattr(self.model._meta, 'map_filter_hide_initial'):
-                    if str(
-                        getattr(
-                            object, list(
-                                self.model._meta.map_filter_hide_initial.keys())[0])) == str(
-                        list(
-                            self.model._meta.map_filter_hide_initial.values())[0]):
-                        feature['properties']['hide_initial'] = True
-                # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
-                # falls entsprechende Klausel in der Modelldefinition existiert
-                if hasattr(self.model._meta, 'highlight_flag'):
-                    data = getattr(
-                        object, self.model._meta.highlight_flag)
-                    if data:
-                        feature['properties']['highlight'] = data
-                # optional: Stichtagsfilter als Eigenschaften setzen,
-                # falls entsprechende Klausel in der Modelldefinition existiert
-                if hasattr(self.model._meta, 'map_deadlinefilter_fields'):
-                    for index, field in enumerate(
-                            self.model._meta.map_deadlinefilter_fields):
-                        data = getattr(object, field)
-                        if isinstance(data, date):
-                            data = data.strftime('%Y-%m-%d')
-                        elif isinstance(data, datetime):
-                            data = data.strftime('%Y-%m-%d %H:%M:%S')
-                        feature['properties']['deadline_' +
-                                              str(index)] = str(data)
-                # optional: Intervallfilter als Eigenschaften setzen,
-                # falls entsprechende Klausel in der Modelldefinition existiert
-                if hasattr(self.model._meta, 'map_rangefilter_fields'):
-                    for field in self.model._meta.map_rangefilter_fields.keys():
-                        data = getattr(object, field)
-                        if isinstance(data, date):
-                            data = data.strftime('%Y-%m-%d')
-                        elif isinstance(data, datetime):
-                            data = data.strftime('%Y-%m-%d %H:%M:%S')
-                        feature['properties'][field] = str(data)
-                # optional: sonstige Filter als Eigenschaften setzen,
-                # falls entsprechende Klausel in der Modelldefinition existiert
-                if hasattr(self.model._meta, 'map_filter_fields'):
-                    for field in self.model._meta.map_filter_fields.keys():
-                        data = getattr(object, field)
-                        if isinstance(data, date):
-                            data = data.strftime('%Y-%m-%d')
-                        elif isinstance(data, datetime):
-                            data = data.strftime('%Y-%m-%d %H:%M:%S')
-                        feature['properties'][field] = str(data)
-                # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
-                map_features['features'].append(feature)
+            }
+            # optional: Objekt als inaktiv kennzeichnen
+            if object.aktiv is False:
+                feature['properties']['inaktiv'] = True
+            # optional: Link auf Objekt als Eigenschaft setzen,
+            # falls entsprechende Berechtigungen auf Objekt bestehen
+            checker = ObjectPermissionChecker(self.request.user)
+            if (
+                checker.has_perm(
+                    'change_' +
+                    self.model_name_lower,
+                    object) or checker.has_perm(
+                    'delete_' +
+                    self.model_name_lower,
+                    object) or self.request.user.has_perm(
+                    'datenmanagement.view_' +
+                    self.model_name_lower)):
+                feature['properties']['link'] = (
+                    reverse(
+                        'datenmanagement:' +
+                        self.model_name +
+                        'change',
+                        args=[object.uuid]))
+            # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
+            # falls entsprechende Klausel in der Modelldefinition existiert
+            if hasattr(self.model._meta, 'map_filter_hide_initial'):
+                if str(
+                    getattr(
+                        object, list(
+                            self.model._meta.map_filter_hide_initial.keys())[0])) == str(
+                    list(
+                        self.model._meta.map_filter_hide_initial.values())[0]):
+                    feature['properties']['hide_initial'] = True
+            # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
+            # falls entsprechende Klausel in der Modelldefinition existiert
+            if hasattr(self.model._meta, 'highlight_flag'):
+                data = getattr(
+                    object, self.model._meta.highlight_flag)
+                if data:
+                    feature['properties']['highlight'] = data
+            # optional: Stichtagsfilter als Eigenschaften setzen,
+            # falls entsprechende Klausel in der Modelldefinition existiert
+            if hasattr(self.model._meta, 'map_deadlinefilter_fields'):
+                for index, field in enumerate(
+                        self.model._meta.map_deadlinefilter_fields):
+                    data = getattr(object, field)
+                    if isinstance(data, date):
+                        data = data.strftime('%Y-%m-%d')
+                    elif isinstance(data, datetime):
+                        data = data.strftime('%Y-%m-%d %H:%M:%S')
+                    feature['properties']['deadline_' +
+                                          str(index)] = str(data)
+            # optional: Intervallfilter als Eigenschaften setzen,
+            # falls entsprechende Klausel in der Modelldefinition existiert
+            if hasattr(self.model._meta, 'map_rangefilter_fields'):
+                for field in self.model._meta.map_rangefilter_fields.keys():
+                    data = getattr(object, field)
+                    if isinstance(data, date):
+                        data = data.strftime('%Y-%m-%d')
+                    elif isinstance(data, datetime):
+                        data = data.strftime('%Y-%m-%d %H:%M:%S')
+                    feature['properties'][field] = str(data)
+            # optional: sonstige Filter als Eigenschaften setzen,
+            # falls entsprechende Klausel in der Modelldefinition existiert
+            if hasattr(self.model._meta, 'map_filter_fields'):
+                for field in self.model._meta.map_filter_fields.keys():
+                    data = getattr(object, field)
+                    if isinstance(data, date):
+                        data = data.strftime('%Y-%m-%d')
+                    elif isinstance(data, datetime):
+                        data = data.strftime('%Y-%m-%d %H:%M:%S')
+                    feature['properties'][field] = str(data)
+            # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
+            map_features['features'].append(feature)
         return map_features
 
 
@@ -459,6 +466,14 @@ class DataMapListView(generic.ListView):
         self.model_name_lower = self.model.__name__.lower()
         self.template_name = template_name
         super(DataMapListView, self).__init__()
+
+    def get_queryset(self):
+        """
+        Funktion für Standard-Rückgabewert überschreiben,
+        damit diese nichts zurückgibt
+        statt stumpf die Gesamtmenge aller Objekte des Datenmodells
+        """
+        return
 
     def get_context_data(self, **kwargs):
         """
@@ -512,8 +527,8 @@ class DataMapListView(generic.ListView):
         context['geometry_type'] = (
             self.model._meta.geometry_type if hasattr(
                 self.model._meta, 'geometry_type') else None)
-        context['heavy_load'] = (
-            self.model._meta.heavy_load if hasattr(
-                self.model._meta, 'heavy_load') else None)
+        context['heavy_load_limit'] = (
+            self.model._meta.heavy_load_limit if hasattr(
+                self.model._meta, 'heavy_load_limit') else None)
         context['objects_count'] = self.model.objects.count()
         return context

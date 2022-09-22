@@ -29,7 +29,7 @@
   <h4><small>{{ model_description }}</small></h4>
   <h4 class="mt-3">
     <em>
-      {% if object_list %}
+      {% if objects_count > 0 %}
         Karte aller Datensätze
       {% else %}
         Keine Datensätze vorhanden!
@@ -40,12 +40,12 @@
     {% if user|user_has_model_add_permission:model_name_lower %}
       <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
-    {% if object_list %}
+    {% if objects_count > 0 %}
       <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> Datensätze in Tabelle auflisten</a>
     {% endif %}
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
-  {% if object_list %}
+  {% if objects_count > 0 %}
 	  <div id="map-side-container" class="mb-3">
       {% leaflet_map "map" callback="window.map_init_basic" %}
       {% if map_filters_enabled %}
@@ -180,6 +180,25 @@
         <div id="results-container" class="results"></div>
       </div>
     </div>
+    {% if heavy_load_limit %}
+      <div id="id_mapDataLoading" class="modal fade" tabindex="-1" aria-labelledby="id_mapDataLoading-label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header" id="id_mapDataLoading-header">
+              <h5 class="modal-title" id="id_mapDataLoading-title">Laden der Kartendaten</h5>
+            </div>
+            <div class="modal-body" id="id_mapDataLoading-body">
+              Die Kartendaten werden (nach-)geladen. Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.
+              <div class="text-center">
+                <div class="spinner-border m-4 text-primary" role="status">
+                  <span class="sr-only">laden…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
     <script type="text/javascript">
       function map_init_basic(map, options) {
         // Rendering der Features auf der Karte etwas beschleunigen
@@ -285,7 +304,7 @@
           ],
         ]);
 
-        // Funktion mit Aktionen und Eigenschaften für jedes GeoJSON-Feature definieren
+        // Funktion mit Aktionen und Eigenschaften für jedes Feature definieren
         function onEachFeature(feature, layer) {
           // falls Nutzer die notwendige Berechtigung hat...
           if (feature.properties.link) {
@@ -312,12 +331,13 @@
               });
             }
           {% endif %}
-          // falls Feature-Ausblendung vorgesehen ist...
+          // Feature ausblenden, falls es von initialer Feature-Ausblendung betroffen ist
           {% if map_filter_hide_initial %}
             if (typeof feature.properties.hide_initial !== 'undefined' && feature.properties.hide_initial)
-              // Feature ausblenden
               layer.setStyle({
-                opacity: 0.1
+                fill: false,
+                stroke: false,
+                opacity: 0
               });
           {% endif %}
           // falls Geometrie nicht punkthaft ist...
@@ -326,7 +346,7 @@
           {% endif %}
         }
 
-        // Funktion für das Laden der GeoJSON-FeatureCollection definieren
+        // Funktion für das Laden der FeatureCollection definieren
         async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
           try {
             let url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}';
@@ -350,15 +370,25 @@
           }
         };
 
+        /**
+         * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
+         *
+         * @param {modal} modal - Bootstrap-Modal
+         */
+        function modalToggler(modal) {
+          modal.modal('toggle')
+        }
+
         // falls Geometrie punkthaft ist...
         {% if geometry_type == 'Point' %}
           // Clustering aktivieren
           var markers = L.markerClusterGroup();
-          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zum Cluster hinzufügen
-          {% if heavy_load %}
-            const border = 2000;
-            const limit = 1000;
+          // neuen GeoJSON-Layer definieren, mit FeatureCollection befüllen und zum Cluster hinzufügen
+          {% if heavy_load_limit %}
+            const border = {{ objects_count }};
+            const limit = {{ heavy_load_limit }};
             let offset = 0;
+            modalToggler($('#id_mapDataLoading'));
             while (offset < border) {
               fetchGeoJsonFeatureCollection(true, limit, offset)
               .then(data => {
@@ -372,7 +402,14 @@
                   },
                   onEachFeature: onEachFeature
                 }).addTo(markers);
-              });
+                  modalToggler($('#id_mapDataLoading'));
+              })
+              .catch(
+                (error) => {
+                  console.error(error);
+                  modalToggler($('#id_mapDataLoading'));
+                }
+              );
               offset += limit;
             }
           {% else %}
@@ -388,19 +425,29 @@
                 },
                 onEachFeature: onEachFeature
               }).addTo(markers);
-            });
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
           {% endif %}
           markers.id = 'cluster';
           map.addLayer(markers);
         // ansonsten...
         {% else %}
-          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection befüllen und zur Karte hinzufügen
+          // neuen GeoJSON-Layer definieren, mit FeatureCollection befüllen und zur Karte hinzufügen
           fetchGeoJsonFeatureCollection()
           .then(data => {
             L.Proj.geoJson(data, {
               onEachFeature: onEachFeature
             }).addTo(map);
-          });
+          })
+          .catch(
+            (error) => {
+              console.error(error);
+            }
+          );
         {% endif %}
 
         // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
@@ -764,16 +811,23 @@
               filterAttributesList.push(filterAttribute);
           });
 
-          // Kartenfilterfunktion
+
+          /**
+           * filtert Layer (= Features) auf der Karte
+           *
+           * @param {layer} layer - Layer (= Feature)
+           * @param {boolean} isSubLayer - Layer (= Feature) ist Bestandteil einer Layergruppe (= eines Clusters)?
+           * @param {layer} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
+           */
           function mapFilter(layer, isSubLayer, clusterLayer = layer) {
             var stillVisible = true;
             for (var i = 0; i < filterAttributesList.length; i++) {
-              // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+              // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
               if (filterAttributesList[i].name === 'deadline') {
                 // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
                 if (!(new Date(filterAttributesList[i].value) > new Date(layer.feature.properties['deadline_0'])) || !(new Date(layer.feature.properties['deadline_1']) > new Date(filterAttributesList[i].value)))
                   stillVisible = false;
-              // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+              // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
               } else if (filterAttributesList[i].intervalside === 'left') {
                 if (filterAttributesList[i].type === 'date') {
                   // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
@@ -787,7 +841,7 @@
                   if (layer.feature.properties[filterAttributesList[i].name] < filterAttributesList[i].value)
                     stillVisible = false;
                 }
-              // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+              // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
               } else if (filterAttributesList[i].intervalside === 'right') {
                 if (filterAttributesList[i].type === 'date') {
                   // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
@@ -801,7 +855,7 @@
                   if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value) 
                     stillVisible = false;
                 }
-              // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und unpassende GeoJSON-Features ausblenden, falls einzelne Checkboxen additiv wirken sollen
+              // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken, falls einzelne Checkboxen additiv wirken sollen
               } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
                 if (filterAttributesList[i].filtertype === 'additive') {
                   for (var j = 0; j < filterAttributesList[i].value.length; j++) {
@@ -817,7 +871,7 @@
                     }
                   }
                 }
-              // ansonsten einen Vergleich durchführen und unpassende GeoJSON-Features ausblenden
+              // ansonsten einen Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
               } else if (filterAttributesList[i].type != 'checkbox-set') {
                 if (filterAttributesList[i].type === 'date') {
                   // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
@@ -836,8 +890,9 @@
                 }                    
               }
             }
-            // falls GeoJSON-Feature weiterhin sichtbar: Variable für Bounding Box der aktuellen Filtermenge aktualisieren
+            // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
             if (stillVisible) {
+              // Variable für Bounding Box der aktuellen Filtermenge aktualisieren
               var north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
               var east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
               var south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
@@ -859,8 +914,21 @@
                 if (currentFilterExtent[1][1] < west)
                   currentFilterExtent[1][1] = west;
               }
-            // ansonsten: GeoJSON-Feature ausblenden
+              // Layer (= Feature) einblenden, falls es von initialer Feature-Ausblendung betroffen ist
+              {% if map_filter_hide_initial %}
+                if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
+                  layer.setStyle({
+                    color: '#3388ff',
+                    fill: true,
+                    fillColor: '#3388ff',
+                    stroke: true,
+                    opacity: 1
+                  });
+                }
+              {% endif %}
+            // ansonsten:
             } else {
+              // Layer (= Feature) tatsächlich ausblenden
               if (isSubLayer) {
                 window.removedLayers.push(layer);
                 clusterLayer.removeLayer(layer);
@@ -868,6 +936,7 @@
                 layer.getElement().style.display = 'none';
             }
           }
+
 
           // über alle Filterobjekte gehen...
           if (filterAttributesList.length > 0) {
@@ -975,11 +1044,21 @@
         {% endif %}
       });
 
-      // alle GeoJSON-Features (wieder) anzeigen
+      // alle Features (wieder) anzeigen
       function showAllMapFeatures() {
         currMap.eachLayer(function(layer) {
           if (layer.feature) {
             layer.getElement().style.display = '';
+            // Layer (= Feature) ausblenden, falls es von initialer Feature-Ausblendung betroffen ist
+            {% if map_filter_hide_initial %}
+              if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
+                layer.setStyle({
+                  fill: false,
+                  stroke: false,
+                  opacity: 0
+                });
+              }
+            {% endif %}
           } else if (layer.id === 'cluster') {
             layer.addLayers(window.removedLayers);
             layer.refreshClusters();

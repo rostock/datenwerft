@@ -189,10 +189,11 @@ options.DEFAULT_NAMES += (
     # Text;
     # Name des Feldes, das im Formular mit einer Funktion zur
     # automatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
-    'heavy_load'
+    'heavy_load_limit'
     # optional;
-    # Boolean;
-    # Hohe Datenlast zu erwarten?
+    # Zahl;
+    # Limit für einzelne Datenladeschritte in Kartenübersicht,
+    # falls sehr große Datenmenge zu erwarten ist.
 
 )
 
