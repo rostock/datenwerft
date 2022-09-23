@@ -536,11 +536,16 @@ class DataMapListView(generic.ListView):
                     # NOT-NULL-Filter konstruieren
                     field_name_isnull = field_name + '__isnull'
                     # sortierte Liste aller eindeutigen Werte des Feldes erhalten
-                    distinct_value_list = list(self.model.objects.exclude(**{field_name_isnull: True}).order_by(field_name).values_list(field_name, flat=True).distinct())
+                    values_list = list(self.model.objects.exclude(**{field_name_isnull: True}).order_by(field_name).values_list(field_name, flat=True).distinct())
                     # Werte vereinzeln und sortierte Liste
                     # aller eindeutigen Einzelwerte erhalten und
                     # in vorbereitetes Dictionary einfügen
-                    checkbox_filter_lists[field_name] = list([item for sublist in distinct_value_list for item in sublist])
+                    value_list = list([item for sublist in values_list for item in sublist])
+                    distinct_value_list = []
+                    for value_list_item in value_list:
+                        if value_list_item not in distinct_value_list:
+                            distinct_value_list.append(value_list_item)
+                    checkbox_filter_lists[field_name] = distinct_value_list
         context = super(DataMapListView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
         context['model_name'] = self.model.__name__
