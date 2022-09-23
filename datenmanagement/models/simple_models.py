@@ -228,6 +228,7 @@ class Abfallbehaelter(models.Model):
         map_filter_fields_as_list = ['typ', 'eigentuemer', 'bewirtschafter']
         geometry_type = 'Point'
         as_overlay = True
+        heavy_load_limit = 500
 
     def __str__(self):
         return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
@@ -2110,6 +2111,7 @@ class Fliessgewaesser(models.Model):
         map_filter_fields_as_list = ['art', 'ordnung']
         geometry_type = 'LineString'
         as_overlay = True
+        heavy_load_limit = 500
 
     def __str__(self):
         return self.nummer + \
@@ -2609,6 +2611,7 @@ class Gutachterfotos(models.Model):
         address_mandatory = False
         geometry_type = 'Point'
         thumbs = True
+        heavy_load_limit = 2500
 
     def __str__(self):
         return 'Gutachterfoto mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
@@ -2842,7 +2845,7 @@ class Hausnummern(models.Model):
         address_mandatory = True
         geometry_type = 'Point'
         postcode_assigner = 'postleitzahl'
-        heavy_load_limit = 2000
+        heavy_load_limit = 3000
 
     def __str__(self):
         return str(self.strasse) + ' ' + str(self.hausnummer) + \
@@ -4237,6 +4240,7 @@ class Meldedienst_punkthaft(models.Model):
         address_mandatory = False
         geometry_type = 'Point'
         as_overlay = True
+        heavy_load_limit = 600
 
     def __str__(self):
         return str(self.art) + ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime(

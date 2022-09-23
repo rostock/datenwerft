@@ -482,6 +482,65 @@ class DataMapListView(generic.ListView):
         :param kwargs:
         :return:
         """
+        # Variablen für Filterfelder vorbereiten,
+        # die als Intervallfelder fungieren sollen,
+        # und zwar eine Variable mit dem Minimal-
+        # und eine Variable mit dem Maximalwert
+        interval_filter_min = None
+        interval_filter_max = None
+        if hasattr(self.model._meta, 'map_rangefilter_fields'):
+            # Feld für Minimalwerte definieren
+            field_name = list(self.model._meta.map_rangefilter_fields.keys())[0]
+            # NOT-NULL-Filter konstruieren
+            field_name_isnull = field_name + '__isnull'
+            # Minimalwert erhalten und
+            # in vorbereitete Variable einfügen
+            interval_filter_min = self.model.objects.exclude(**{field_name_isnull: True}).order_by(field_name).values_list(field_name, flat=True).first()
+            if isinstance(interval_filter_min, date):
+                interval_filter_min = interval_filter_min.strftime('%Y-%m-%d')
+            elif isinstance(interval_filter_min, datetime):
+                interval_filter_min = interval_filter_min.strftime('%Y-%m-%d %H:%M:%S')
+            # Feld für Maximalwerte definieren
+            field_name = list(self.model._meta.map_rangefilter_fields.keys())[1]
+            # NOT-NULL-Filter konstruieren
+            field_name_isnull = field_name + '__isnull'
+            # Maximalwert erhalten und
+            # in vorbereitete Variable einfügen
+            interval_filter_max = self.model.objects.exclude(**{field_name_isnull: True}).order_by(field_name).values_list(field_name, flat=True).last()
+            if isinstance(interval_filter_max, date):
+                interval_filter_max = interval_filter_max.strftime('%Y-%m-%d')
+            elif isinstance(interval_filter_max, datetime):
+                interval_filter_max = interval_filter_max.strftime('%Y-%m-%d %H:%M:%S')
+        # Dictionary für Filterfelder vorbereiten,
+        # die als Auswahlfeld fungieren sollen
+        list_filter_lists = {}
+        if hasattr(self.model._meta, 'map_filter_fields_as_list'):
+            # alle entsprechend definierten Felder durchgehen
+            for field_name in self.model._meta.map_filter_fields_as_list:
+                # passendes Feld im Zielmodell identifizieren
+                foreign_field_name = self.model._meta.get_field(field_name).remote_field.model._meta.ordering[0]
+                # NOT-NULL-Filter konstruieren
+                field_name_isnull = field_name + '__isnull'
+                # sortierte Liste aller eindeutigen Werte
+                # des passenden Feldes aus Zielmodell erhalten und
+                # in vorbereitetes Dictionary einfügen
+                list_filter_lists[field_name] = list(self.model.objects.exclude(**{field_name_isnull: True}).order_by(field_name + '__' + foreign_field_name).values_list(field_name + '__' + foreign_field_name, flat=True).distinct())
+        # Dictionary für Filterfelder vorbereiten,
+        # die als Checkboxen-Set fungieren sollen
+        checkbox_filter_lists = {}
+        if hasattr(self.model._meta, 'map_filter_fields'):
+            # alle entsprechend definierten Felder durchgehen
+            for field_name in self.model._meta.map_filter_fields:
+                # falls es sich um ein ChoiceArrayField handelt...
+                if self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField':
+                    # NOT-NULL-Filter konstruieren
+                    field_name_isnull = field_name + '__isnull'
+                    # sortierte Liste aller eindeutigen Werte des Feldes erhalten
+                    distinct_value_list = list(self.model.objects.exclude(**{field_name_isnull: True}).order_by(field_name).values_list(field_name, flat=True).distinct())
+                    # Werte vereinzeln und sortierte Liste
+                    # aller eindeutigen Einzelwerte erhalten und
+                    # in vorbereitetes Dictionary einfügen
+                    checkbox_filter_lists[field_name] = list([item for sublist in distinct_value_list for item in sublist])
         context = super(DataMapListView, self).get_context_data(**kwargs)
         context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
         context['model_name'] = self.model.__name__
@@ -502,6 +561,8 @@ class DataMapListView(generic.ListView):
         context['map_rangefilter_fields_labels'] = (
             list(self.model._meta.map_rangefilter_fields.values()) if hasattr(
                 self.model._meta, 'map_rangefilter_fields') else None)
+        context['interval_filter_min'] = interval_filter_min
+        context['interval_filter_max'] = interval_filter_max
         context['map_deadlinefilter_fields'] = (
             self.model._meta.map_deadlinefilter_fields if hasattr(
                 self.model._meta, 'map_deadlinefilter_fields') else None)
@@ -511,9 +572,11 @@ class DataMapListView(generic.ListView):
         context['map_filter_fields_labels'] = (
             list(self.model._meta.map_filter_fields.values()) if hasattr(
                 self.model._meta, 'map_filter_fields') else None)
+        context['checkbox_filter_lists'] = json.dumps(checkbox_filter_lists)
         context['map_filter_fields_as_list'] = (
             self.model._meta.map_filter_fields_as_list if hasattr(
                 self.model._meta, 'map_filter_fields_as_list') else None)
+        context['list_filter_lists'] = json.dumps(list_filter_lists)
         context['map_filter_boolean_fields_as_checkbox'] = (
             self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(
                 self.model._meta,

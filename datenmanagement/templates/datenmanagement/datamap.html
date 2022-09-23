@@ -193,6 +193,9 @@
                 <div class="spinner-border m-4 text-primary" role="status">
                   <span class="sr-only">laden…</span>
                 </div>
+                <div class="m-4">
+                  <span id="id_mapDataLoading-count"></span> von <span id="id_mapDataLoading-border"></span> Datensätzen geladen
+                </div>
               </div>
             </div>
           </div>
@@ -346,73 +349,91 @@
           {% endif %}
         }
 
-        // Funktion für das Laden der FeatureCollection definieren
-        async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
-          try {
-            let url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}';
-            if (heavyLoad) {
-              const params = {
-                limit: limit,
-                offset: offset
-              };
-              const query = Object.keys(params)
-                          .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
-                          .join('&');
-              url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}' + '?' + query;
-            }
-            const response = await fetch(url, {
-              cache: 'force-cache'
-            });
-            const data = await response.json();
-            return data;
-          } catch (error) {
-            console.error(error);
-          }
-        };
+        // falls große Datenmenge zu erwarten ist...
+        {% if heavy_load_limit %}
+          // Konstanten und Variablen für die Anzahl der (bereits geholten) GeoJSON-Feature definieren
+          const border = {{ objects_count }};
+          let count = 0;
+          // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON-FeatureCollection für die Karte eingeblendet wird
+          $('#id_mapDataLoading-count').text(count);
+          $('#id_mapDataLoading-border').text(border);
+        {% endif %}
 
         /**
          * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
          *
-         * @param {modal} modal - Bootstrap-Modal
+         * @param {Object} modal - Bootstrap-Modal
          */
         function modalToggler(modal) {
           modal.modal('toggle')
         }
 
+        /**
+         * holt die GeoJSON-FeatureCollection für die Karte
+         *
+         * @param {boolean} heavyLoad - große Datenmenge zu erwarten?
+         * @param {number} [limit=0] - Limit für aktuellen Ladeschritt
+         * @param {number} [offset=0] - Offset für aktuellen Ladeschritt (= Vielfaches des Limits für aktuellen Ladeschritt)
+         */
+        async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
+          try {
+            let url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}';
+            if (heavyLoad) {
+              url += '?limit=' + limit + '&offset=' + offset;
+            }
+            modalToggler($('#id_mapDataLoading'));
+            const response = await fetch(url, {
+              method: 'GET' //,cache: 'force-cache'
+            });
+            const data = await response.json();
+            if (heavyLoad) {
+              count += data.features.length;
+              $('#id_mapDataLoading-count').text(count);
+              if (count == border) {
+                modalToggler($('#id_mapDataLoading'));
+              }
+            } else
+              modalToggler($('#id_mapDataLoading'));
+            return data;
+          } catch (error) {
+            console.error(error);
+          }
+        }
+
         // falls Geometrie punkthaft ist...
         {% if geometry_type == 'Point' %}
-          // Clustering aktivieren
+          // Cluster aktivieren
           var markers = L.markerClusterGroup();
-          // neuen GeoJSON-Layer definieren, mit FeatureCollection befüllen und zum Cluster hinzufügen
+          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection für die Karte befüllen und zur Karte hinzufügen
+          // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
-            const border = {{ objects_count }};
+            // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
             const limit = {{ heavy_load_limit }};
-            let offset = 0;
-            modalToggler($('#id_mapDataLoading'));
-            while (offset < border) {
-              fetchGeoJsonFeatureCollection(true, limit, offset)
-              .then(data => {
-                L.Proj.geoJson(data, {
-                  pointToLayer: function (feature, latlng) {
-                    var marker = new L.circleMarker(latlng, {
-                      radius: 5
-                    });
-                    marker.bindTooltip(feature.properties.tooltip);
-                    return marker;
-                  },
-                  onEachFeature: onEachFeature
-                }).addTo(markers);
-                  modalToggler($('#id_mapDataLoading'));
-              })
-              .catch(
-                (error) => {
-                  console.error(error);
-                  modalToggler($('#id_mapDataLoading'));
-                }
-              );
-              offset += limit;
+            let promises = [];
+            for (let offset = 0; offset < border; offset += limit) {
+              promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
             }
+            Promise.all(promises)
+            .then(data => {
+              L.Proj.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                  var marker = new L.circleMarker(latlng, {
+                    radius: 5
+                  });
+                  marker.bindTooltip(feature.properties.tooltip);
+                  return marker;
+                },
+                onEachFeature: onEachFeature
+              }).addTo(markers);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+          // ansonsten...
           {% else %}
+            // GeoJSON-FeatureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
               L.Proj.geoJson(data, {
@@ -436,18 +457,41 @@
           map.addLayer(markers);
         // ansonsten...
         {% else %}
-          // neuen GeoJSON-Layer definieren, mit FeatureCollection befüllen und zur Karte hinzufügen
-          fetchGeoJsonFeatureCollection()
-          .then(data => {
-            L.Proj.geoJson(data, {
-              onEachFeature: onEachFeature
-            }).addTo(map);
-          })
-          .catch(
-            (error) => {
-              console.error(error);
+          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection für die Karte befüllen und zur Karte hinzufügen
+          // falls große Datenmenge zu erwarten ist...
+          {% if heavy_load_limit %}
+            // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
+            const limit = {{ heavy_load_limit }};
+            let promises = [];
+            for (let offset = 0; offset < border; offset += limit) {
+              promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
             }
-          );
+            Promise.all(promises)
+            .then(data => {
+              L.Proj.geoJson(data, {
+                onEachFeature: onEachFeature
+              }).addTo(map);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+          // ansonsten...
+          {% else %}
+            // GeoJSON-FeatureCollection für die Karte in einem Ladeschritt holen
+            fetchGeoJsonFeatureCollection()
+            .then(data => {
+              L.Proj.geoJson(data, {
+                onEachFeature: onEachFeature
+              }).addTo(map);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+          {% endif %}
         {% endif %}
 
         // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
@@ -468,11 +512,13 @@
         // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
         let intervalFilterMax = [];
 
-        // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
+        // Variablen für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
         let listFilterLists = [];
+        let listFilterListsValues = {{ list_filter_lists|safe }};
 
-        // Variable für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
+        // Variablen für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
         let checkboxFilterLists = [];
+        let checkboxFilterListsValues = {{ checkbox_filter_lists|safe }};
 
         // Adressensuche initialisieren
 
@@ -521,21 +567,23 @@
           var filterField = new Object();
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
-          filterField.value = '';
           // falls es sich um ein Intervallfilterfeld handelt...
           if ($(this).data('intervalside') === 'left' || $(this).data('intervalside') === 'right') {
             // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
-            if ($(this).data('intervalside') === 'left')
+            if ($(this).data('intervalside') === 'left') {
               // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              filterField.value = '{{ interval_filter_min }}';
               intervalFilterMin.push(filterField);
             // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
-            else if ($(this).data('intervalside') === 'right')
+            } else if ($(this).data('intervalside') === 'right') {
               // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              filterField.value = '{{ interval_filter_max }}';
               intervalFilterMax.push(filterField);
+            }
           // falls es sich um ein Listenfeld handelt...
-          } else if ($(this).data('type') === 'list') {
+          } else if ($(this).data('type') === 'list' && $(this).attr('name') in listFilterListsValues) {
             // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
-            filterField.value = [];
+            filterField.value = listFilterListsValues[filterField.name];
             listFilterLists.push(filterField);
           }
         });
@@ -551,7 +599,8 @@
           } else {
             filterField.value = 'False';
           }
-          listFilterLists.push(filterField);
+          if ($(this).attr('name') in listFilterListsValues)
+            listFilterLists.push(filterField);
         });
 
         // über alle Checkbox-Filterfelder gehen...
@@ -560,114 +609,10 @@
           var filterField = new Object();
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
-          filterField.value = [];
+          filterField.value = checkboxFilterListsValues[filterField.name];
           // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Checkboxen-Set dargestellt werden sollen
           checkboxFilterLists.push(filterField);
         });
-
-        // falls Filter vorhanden...
-        {% if map_filters_enabled %}
-          // über alle Objekte gehen...
-          {% for object in object_list %}
-            // falls Intervallfilter vorhanden...
-            {% if map_rangefilter_fields %}
-              // für alle Intervallfilterfelder...
-              {% for map_rangefilter_field in map_rangefilter_fields %}
-                {% with current_field=map_rangefilter_fields|get_list_item_by_index:forloop.counter0 %}
-                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Datumsfeld handelt!
-                  {% if map_rangefilter_field|get_type_of_field:model_name == 'DateField' %}
-                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
-                    for (var i = 0; i < intervalFilterMin.length; i++) {
-                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || new Date(intervalFilterMin[i].value) > new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}'))) {
-                        intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                        break;
-                      }
-                    }
-                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
-                    for (var i = 0; i < intervalFilterMax.length; i++) {
-                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d" }}') > new Date(intervalFilterMax[i].value))) {
-                        intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d" }}';
-                        break;
-                      }
-                    }
-                  // auf passende Formatierung achten, wenn es sich beim Feld um ein Feld mit Datum und Zeit handelt!
-                  {% elif map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}
-                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser früher ist als der bisher dort stehende
-                    for (var i = 0; i < intervalFilterMin.length; i++) {
-                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || new Date(intervalFilterMin[i].value).valueOf() > new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}').valueOf())) {
-                        intervalFilterMin[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
-                        break;
-                      }
-                    }
-                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser später ist als der bisher dort stehende
-                    for (var i = 0; i < intervalFilterMax.length; i++) {
-                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || new Date('{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}').valueOf() > new Date(intervalFilterMax[i].value).valueOf())) {
-                        intervalFilterMax[i].value = '{{ object|get_value_of_field:current_field|date:"Y-m-d H:i:s" }}';
-                        break;
-                      }
-                    }
-                  {% else %}
-                    // falls Feld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser niedriger/kleiner ist als der bisher dort stehende
-                    for (var i = 0; i < intervalFilterMin.length; i++) {
-                      if (intervalFilterMin[i].name === '{{ current_field }}' && (intervalFilterMin[i].value === '' || intervalFilterMin[i].value > {{ object|get_value_of_field:current_field|safe }})) {
-                        intervalFilterMin[i].value = {{ object|get_value_of_field:current_field|safe }};
-                        break;
-                      }
-                    }
-                    // falls Feld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Wert dort auf entsprechenden Wert des passenden Feldes aus dem Objekt setzen, falls dieser höher/größer ist als der bisher dort stehende
-                    for (var i = 0; i < intervalFilterMax.length; i++) {
-                      if (intervalFilterMax[i].name === '{{ current_field }}' && (intervalFilterMax[i].value === '' || intervalFilterMax[i].value < {{ object|get_value_of_field:current_field|safe }})) {
-                        intervalFilterMax[i].value = {{ object|get_value_of_field:current_field|safe }};
-                        break;
-                      }
-                    }
-                  {% endif %}
-                {% endwith %}
-              {% endfor %}
-            {% endif %}
-            // falls Listenfilter vorhanden...
-            {% if map_filter_fields_as_list %}
-              // für alle Listenfilter...
-              {% for map_listfilter_field in map_filter_fields_as_list %}
-                {% with current_field=map_filter_fields_as_list|get_list_item_by_index:forloop.counter0 %}
-                  // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
-                  {% if object|get_value_of_field:current_field %}
-                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Auswahlfeld dargestellt werden sollen: Werteliste um entsprechenden Wert des passenden Feldes aus dem Objekt ergänzen, falls dieser noch nicht in der Werteliste steht
-                    for (var i = 0; i < listFilterLists.length; i++) {
-                      if (listFilterLists[i].name === '{{ current_field }}' && listFilterLists[i].value.indexOf('{{ object|get_value_of_field:current_field|safe }}') === -1) {
-                          listFilterLists[i].value.push('{{ object|get_value_of_field:current_field|safe }}');
-                        break;
-                      }
-                    }
-                  {% endif %}
-                {% endwith %}
-              {% endfor %}
-            {% endif %}
-            // falls normale Filter vorhanden...
-            {% if map_filter_fields %}
-              // für alle Listenfilter...
-              {% for map_filter_field in map_filter_fields %}
-                {% with current_field=map_filter_fields|get_list_item_by_index:forloop.counter0 %}
-                  // falls Wert des passenden Feldes aus dem Objekt gesetzt ist...
-                  {% if object|get_value_of_field:current_field %}
-                    // falls Feld in Variable für Wertelisten für entsprechende Filterfelder auftritt, die als Checkboxen-Set dargestellt werden sollen: Werteliste um entsprechende(n) Wert(e) des passenden Feldes aus dem Objekt ergänzen, falls diese(r) noch nicht in der Werteliste steht/stehen
-                    for (var i = 0; i < checkboxFilterLists.length; i++) {
-                      if (checkboxFilterLists[i].name === '{{ current_field }}') {
-                        var dummyString = '{{ object|get_value_of_field:current_field|safe }}';
-                        var dummyArray = dummyString.split(', ');
-                        for (var j = 0; j < dummyArray.length; j++) {
-                          if (checkboxFilterLists[i].value.indexOf(dummyArray[j]) === -1) {
-                            checkboxFilterLists[i].value.push(dummyArray[j]);
-                          }
-                        }
-                      }
-                    }
-                  {% endif %}
-                {% endwith %}
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        {% endif %}
 
         // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
         $('.datetime-input').each(function() {
@@ -704,10 +649,6 @@
           // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
           for (var i = 0; i < listFilterLists.length; i++) {
             if (listFilterLists[i].name === $(this).attr('name')) {
-              // Werteliste Case-insensitiv (!) sortieren
-              listFilterLists[i].value.sort(function (a, b) {
-                return a.toLowerCase().localeCompare(b.toLowerCase());
-              });
               if (typeof $(this).data('boolean') == 'undefined') {
                 for (var j = 0; j < listFilterLists[i].value.length; j++) {
                   // Werteliste als Optionen im Listenfeld abbilden
@@ -729,10 +670,6 @@
           // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
           for (var i = 0; i < checkboxFilterLists.length; i++) {
             if (checkboxFilterLists[i].name === $(this).attr('name')) {
-              // Werteliste Case-insensitiv (!) sortieren
-              checkboxFilterLists[i].value.sort(function (a, b) {
-                return a.toLowerCase().localeCompare(b.toLowerCase());
-              });
               for (var j = 0; j < checkboxFilterLists[i].value.length; j++) {
                 // Werteliste als Checkboxen im Set abbilden
                 var $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
@@ -815,9 +752,9 @@
           /**
            * filtert Layer (= Features) auf der Karte
            *
-           * @param {layer} layer - Layer (= Feature)
+           * @param {Object} layer - Layer (= Feature)
            * @param {boolean} isSubLayer - Layer (= Feature) ist Bestandteil einer Layergruppe (= eines Clusters)?
-           * @param {layer} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
+           * @param {Object} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
            */
           function mapFilter(layer, isSubLayer, clusterLayer = layer) {
             var stillVisible = true;

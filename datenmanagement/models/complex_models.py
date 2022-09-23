@@ -2182,6 +2182,7 @@ class RSAG_Gleise(models.Model):
         }
         geometry_type = 'LineString'
         as_overlay = True
+        heavy_load_limit = 800
 
     def __str__(self):
         return self.uuid

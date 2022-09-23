@@ -64,7 +64,7 @@
         </thead>
       </table>
       <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function() {
           let table = $('#datasets').DataTable({
             ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
             buttons: [
@@ -78,7 +78,7 @@
                 extend: 'excelHtml5',
                 title: '',
                 exportOptions: {
-                  // erste und letzte 2 Spalten nicht exportieren
+                  // erste und letzte zwei Spalten nicht exportieren
                   columns: ':visible:not(.no-export)',
                 }
               }, {
