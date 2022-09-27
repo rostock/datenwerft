@@ -201,44 +201,38 @@ class DataView(BaseDatatableView):
         search = self.request.GET.get('search[value]', None)
         if search:
             qs_params = None
-            for column in self.columns:
-                if self.columns_with_foreign_key:
-                    column_with_foreign_key = self.columns_with_foreign_key.get(
-                        column)
-                    if column_with_foreign_key is not None:
-                        column = column + str('__') + column_with_foreign_key
-                kwargs = {
-                    '{0}__{1}'.format(column, 'icontains'): search
-                }
-                q = Q(**kwargs)
-                lower_search = search.lower()
-                m = re.search('^[0-9]{2}\\.[0-9]{4}$', lower_search)
-                n = re.search('^[0-9]{2}\\.[0-9]{2}$', lower_search)
-                if m:
-                    kwargs = {
-                        '{0}__{1}'.format(column, 'icontains'): re.sub(
-                            '^[0-9]{2}\\.', '', m.group(0)) + '-' + re.sub(
-                            '\\.[0-9]{4}$', '', m.group(0))
-                    }
-                    q = q | Q(**kwargs)
-                elif n:
-                    kwargs = {
-                        '{0}__{1}'.format(column, 'icontains'): re.sub(
-                            '^[0-9]{2}\\.', '', n.group(0)) + '-' + re.sub(
-                            '\\.[0-9]{2}$', '', n.group(0))
-                    }
-                    q = q | Q(**kwargs)
-                elif lower_search == 'ja':
-                    kwargs = {
-                        '{0}__{1}'.format(column, 'icontains'): 'true'
-                    }
-                    q = q | Q(**kwargs)
-                elif lower_search == 'nein' or lower_search == 'nei':
-                    kwargs = {
-                        '{0}__{1}'.format(column, 'icontains'): 'false'
-                    }
-                    q = q | Q(**kwargs)
-                qs_params = qs_params | q if qs_params else q
+            for search_element in search.lower().split():
+                qs_params_inner = None
+                for column in self.columns:
+                    if self.columns_with_foreign_key:
+                        column_with_foreign_key = self.columns_with_foreign_key.get(
+                            column)
+                        if column_with_foreign_key is not None:
+                            column = column + str('__') + column_with_foreign_key
+                    l = re.search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
+                    m = re.search('^[0-9]{2}\\.[0-9]{4}$', search_element)
+                    n = re.search('^[0-9]{2}\\.[0-9]{2}$', search_element)
+                    o = re.search(' ', search_element)
+                    if l or m or n:
+                        search_element_splitted = search_element.split('.')
+                        kwargs = {
+                            '{0}__{1}'.format(column, 'icontains'): (search_element_splitted[2] + '-' if l else '') + search_element_splitted[1] + '-' + search_element_splitted[0]
+                        }
+                    elif search_element == 'ja':
+                        kwargs = {
+                            '{0}__{1}'.format(column, 'icontains'): 'true'
+                        }
+                    elif search_element == 'nein' or search_element == 'nei':
+                        kwargs = {
+                            '{0}__{1}'.format(column, 'icontains'): 'false'
+                        }
+                    else:
+                      kwargs = {
+                          '{0}__{1}'.format(column, 'icontains'): search_element
+                      }
+                    q = Q(**kwargs)
+                    qs_params_inner = qs_params_inner | q if qs_params_inner else q
+                qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
             qs = qs.filter(qs_params)
         return qs
 

@@ -2611,7 +2611,7 @@ class Gutachterfotos(models.Model):
         address_mandatory = False
         geometry_type = 'Point'
         thumbs = True
-        heavy_load_limit = 2500
+        heavy_load_limit = 800
 
     def __str__(self):
         return 'Gutachterfoto mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
@@ -2845,7 +2845,7 @@ class Hausnummern(models.Model):
         address_mandatory = True
         geometry_type = 'Point'
         postcode_assigner = 'postleitzahl'
-        heavy_load_limit = 3000
+        heavy_load_limit = 800
 
     def __str__(self):
         return str(self.strasse) + ' ' + str(self.hausnummer) + \

@@ -383,7 +383,8 @@
             }
             modalToggler($('#id_mapDataLoading'));
             const response = await fetch(url, {
-              method: 'GET' //,cache: 'force-cache'
+              method: 'GET' /*,
+              cache: 'force-cache'*/
             });
             const data = await response.json();
             if (heavyLoad) {

@@ -12,6 +12,12 @@ a:hover {
   text-decoration:none;
 }
 
+span.nav-link:focus,
+span.nav-link:hover {
+  color:var(--bs-nav-link-color);
+  cursor:default;
+}
+
 .container-fluid:not(nav > .container-fluid) {
   width:90%;
 }
