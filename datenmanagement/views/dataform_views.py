@@ -341,12 +341,11 @@ class DataAddView(generic.CreateView):
         model_list = {}
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
-            # Aussortieren der Datensätze ohne Geometrie
             if hasattr(
                     model._meta,
                     'as_overlay') and model._meta.as_overlay is True:
                 model_list[model.__name__] = model._meta.verbose_name_plural
-        context['model_list'] = model_list
+        context['model_list'] = dict(sorted(model_list.items()))
         # GPX-Upload-Feld
         context['gpx_input'] = (
             self.model._meta.gpx_input if hasattr(
@@ -618,15 +617,14 @@ class DataChangeView(generic.UpdateView):
         context['additional_wms_layers'] = (
             self.model._meta.additional_wms_layers if hasattr(
                 self.model._meta, 'additional_wms_layers') else None)
-        # Hinzufügen anderer Datensätze
+        # Liste aller Datensätze für die Overlay-Daten-Liste
         model_list = {}
         app_models = apps.get_app_config('datenmanagement').get_models()
         for model in app_models:
-            # Aussortieren der Datensätze ohne Geometrie
             if hasattr(model._meta,
                        'as_overlay') and model._meta.as_overlay is True:
                 model_list[model.__name__] = model._meta.verbose_name
-        context['model_list'] = model_list
+        context['model_list'] = dict(sorted(model_list.items()))
         # GPX-Upload-Feld
         context['gpx_input'] = (
             self.model._meta.gpx_input if hasattr(
