@@ -1,23 +1,8 @@
-"""datenwerft URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-  https://docs.djangoproject.com/en/2.2/topics/http/urls/
-Examples:
-Function views
-  1. Add an import:  from my_app import views
-  2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-  1. Add an import:  from other_app.views import Home
-  2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-  1. Import the include() function: from django.urls import include, path
-  2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.apps import apps
-from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth.models import User, Permission, Group, ContentType
 from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import include, re_path
 from django.views.generic import RedirectView
 from guardian.models import UserObjectPermission, GroupObjectPermission
 from rest_framework import routers, serializers, viewsets
@@ -203,30 +188,30 @@ for model in app_models:
 # Routen der URLs zu Views
 urlpatterns = [
     # '' -> Redirect auf 'datenwerft/datenmanagement'
-    url(regex=r'^$',
+    re_path(route=r'^$',
         view=RedirectView.as_view(url='/datenwerft/datenmanagement')),
     # 'admin/' -> Django Adminpanel
-    url(regex=r'^admin/',
+    re_path(route=r'^admin/',
         view=admin.site.urls),
     # Einloggen: 'accounts/login'
     # mit Redirect für angemeldete Nutzer
-    url(regex=r'^accounts/login/$',
+    re_path(route=r'^accounts/login/$',
         view=LoginView.as_view(
             template_name='_registration/login.html',
             redirect_authenticated_user=True
         ),
         name='login'),
     # Ausloggen: 'accounts/logout/'
-    url(regex=r'^accounts/logout/$',
+    re_path(route=r'^accounts/logout/$',
         view=LogoutView.as_view(template_name='_registration/logout.html'),
         name='logout'),
     # Routen von Api URLs
-    url(regex=r'^api/',
+    re_path(route=r'^api/',
         view=include(router.urls)),
     # Routen der Api Authentifizierung
-    url(regex=r'^api-auth/',
+    re_path(route=r'^api-auth/',
         view=include('rest_framework.urls')),
     # 'datenmanagement' -> Datenmanagement App
-    url(regex=r'^datenmanagement/',
+    re_path(route=r'^datenmanagement/',
         view=include('datenmanagement.urls')),
 ]
