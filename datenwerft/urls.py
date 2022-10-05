@@ -190,8 +190,9 @@ for model in app_models:
 # Routen der URLs zu Views
 urlpatterns = [
     # '' -> Redirect auf 'datenwerft/datenmanagement'
-    re_path(route=r'^$',
-        view=RedirectView.as_view(url='/datenwerft/datenmanagement')),
+    # '' -> Redirect auf '/datenmanagement' falls in PyCharm gearbeitet wird
+    re_path(route=r'^(\/?)$',
+        view=RedirectView.as_view(url='/datenmanagement')),
     # 'admin/' -> Django Adminpanel
     re_path(route=r'^admin/',
         view=admin.site.urls),
