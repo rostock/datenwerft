@@ -90,8 +90,8 @@ LEAFLET_CONFIG = {
             'auto_include': True
         },
         'locatecontrol': {
-            'css': 'leaflet-locatecontrolL.Control.Locate.min.css',
-            'js': 'leaflet-locatecontrolL.Control.Locate.min.js',
+            'css': 'leaflet-locatecontrol/L.Control.Locate.min.css',
+            'js': 'leaflet-locatecontrol/L.Control.Locate.min.js',
             'auto_include': True
         },
         'markercluster': {

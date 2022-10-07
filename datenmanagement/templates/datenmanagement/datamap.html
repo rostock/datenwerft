@@ -55,7 +55,7 @@
           {% if map_deadlinefilter_fields %}
             <div id="filter-deadline">
               <div class="d-grid mt-2 mb-3">
-                <label class="form-label">Stichtag</label>
+                <label for="filter-input-deadline" class="form-label">Stichtag</label>
                 <div class="input-group">
                   <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both">
                   <button class="input-reset btn btn-outline-secondary">
@@ -71,7 +71,7 @@
                 {% if not forloop.counter|divisibleby:2 %}
                   {% with naechster_index=forloop.counter0|add:1 %}
                   <div class="d-grid mt-2 mb-3">
-                    <label class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                    <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
@@ -84,7 +84,7 @@
                     </div>
                   </div>
                   <div class="d-grid mt-2 mb-3">
-                    <label class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
+                    <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
                         <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
@@ -105,7 +105,7 @@
             <div id="filter-normal">
               {% for map_filter_field in map_filter_fields %}
                 <div class="d-grid mt-2 mb-3">
-                  <label class="form-label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                  <label for="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if 'Date' in map_filter_field|get_type_of_field:model_name %}
                     <div class="input-group">
                       <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
@@ -203,7 +203,12 @@
       </div>
     {% endif %}
     <script type="text/javascript">
-      function map_init_basic(map, options) {
+      /**
+       * behandelt als Callback-Funktion die übergebene Karte
+       *
+       * @param {Object} map - Karte
+       */
+      function map_init_basic(map) {
         // Rendering der Features auf der Karte etwas beschleunigen
         map.preferCanvas = true;
 
@@ -224,7 +229,7 @@
         // ORKa.MV definieren
         const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
           maxZoom: maxZoom,
-          attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="http://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="http://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (<a href="http://opendatacommons.org/licenses/odbl" target="_blank">ODbL</a>) und LkKfS-MV'
+          attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank">ODbL</a>) und LkKfS-MV'
         });
 
         // ORKa.MV standardmäßig zur Karte hinzufügen
@@ -267,7 +272,7 @@
         });
 
         // definierte Karten als Hintergrundkarten zusammenfassen
-        let baseMaps = {
+        const baseMaps = {
           'basemap.de': basemapde,
           'Liegenschaftskarte': liegenschaftskarte,
           'Luftbild': luftbild,
@@ -276,7 +281,7 @@
         };
 
         // definierte Karten als Overlay-Karten zusammenfassen
-        let overlayMaps = {
+        const overlayMaps = {
           'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
         };
 
@@ -307,11 +312,16 @@
           ],
         ]);
 
-        // Funktion mit Aktionen und Eigenschaften für jedes Feature definieren
+        /**
+         * definiert Aktionen und Eigenschaften für jeden Feature-Layer auf der Karte
+         *
+         * @param {Object} feature - Feature
+         * @param {Object} layer - Feature-Layer
+         */
         function onEachFeature(feature, layer) {
           // falls Nutzer die notwendige Berechtigung hat...
           if (feature.properties.link) {
-            layer.on('click', function (e) {
+            layer.on('click', function () {
               // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
               window.open(feature.properties.link, '_blank').focus();
             });
@@ -353,6 +363,8 @@
         {% if heavy_load_limit %}
           // Konstanten und Variablen für die Anzahl der (bereits geholten) GeoJSON-Feature definieren
           const border = {{ objects_count }};
+          const limit = {{ heavy_load_limit }};
+          let promises = [];
           let count = 0;
           // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON-FeatureCollection für die Karte eingeblendet wird
           $('#id_mapDataLoading-count').text(count);
@@ -383,14 +395,13 @@
             }
             modalToggler($('#id_mapDataLoading'));
             const response = await fetch(url, {
-              method: 'GET' /*,
-              cache: 'force-cache'*/
+              method: 'GET'
             });
             const data = await response.json();
             if (heavyLoad) {
               count += data.features.length;
               $('#id_mapDataLoading-count').text(count);
-              if (count == border) {
+              if (count === border) {
                 modalToggler($('#id_mapDataLoading'));
               }
             } else
@@ -404,13 +415,11 @@
         // falls Geometrie punkthaft ist...
         {% if geometry_type == 'Point' %}
           // Cluster aktivieren
-          var markers = L.markerClusterGroup();
+          let markers = L.markerClusterGroup();
           // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection für die Karte befüllen und zur Karte hinzufügen
           // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
             // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
-            const limit = {{ heavy_load_limit }};
-            let promises = [];
             for (let offset = 0; offset < border; offset += limit) {
               promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
             }
@@ -418,7 +427,7 @@
             .then(data => {
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
-                  var marker = new L.circleMarker(latlng, {
+                  let marker = new L.circleMarker(latlng, {
                     radius: 5
                   });
                   marker.bindTooltip(feature.properties.tooltip);
@@ -439,7 +448,7 @@
             .then(data => {
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
-                  var marker = new L.circleMarker(latlng, {
+                  let marker = new L.circleMarker(latlng, {
                     radius: 5
                   });
                   marker.bindTooltip(feature.properties.tooltip);
@@ -462,8 +471,6 @@
           // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
             // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
-            const limit = {{ heavy_load_limit }};
-            let promises = [];
             for (let offset = 0; offset < border; offset += limit) {
               promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
             }
@@ -495,7 +502,7 @@
           {% endif %}
         {% endif %}
 
-        // gemeinsame Bounding Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
+        // gemeinsame Bounding-Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
         window.objectsExtent = map.getBounds();
 
         // globale Variable für gelöschte Cluster-Features auch in anderen JavaScript-Funktionen verfügbar machen
@@ -504,7 +511,7 @@
 
       // Adressensuche und Filter
       $(document).ready(function() {
-        // Variable für Bounding Box der aktuellen Filtermenge anlegen
+        // Variable für Bounding-Box der aktuellen Filtermenge anlegen
         let currentFilterExtent = [];
 
         // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
@@ -522,9 +529,8 @@
         let checkboxFilterListsValues = {{ checkbox_filter_lists|safe }};
 
         // Adressensuche initialisieren
-
-        results = $('div.results');
-        searchField = $('#searchtext');
+        let results = $('div.results');
+        let searchField = $('#searchtext');
 
         // bei Klick auf Stelle außerhalb der Adressensuche die Resultate der Adressensuche leeren
         results.click(function(event) {
@@ -539,15 +545,13 @@
         searchField.keyup(function() {
           if ($(this).val().length >= 3) {
             let searchText = searchField.val();
-            
-            $.ajax({
-              url: '{% url "datenmanagement:addresssearch" %}',
-              dataType: 'json',
-              data: {
-                query: searchText
-              },
-              success: showResults
-            });
+            let url = '{% url "datenmanagement:addresssearch" %}';
+            fetch(url + '?query=' + searchText, {
+              method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => showResults(data))
+            .catch(error => console.log(error))
           } else {
             results.children().remove();
             results.fadeOut();
@@ -565,7 +569,7 @@
         // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
         $('.filter-input').each(function() {
           // Feld als Objekt mit Name und Typ erstellen
-          var filterField = new Object();
+          let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
           // falls es sich um ein Intervallfilterfeld handelt...
@@ -592,7 +596,7 @@
         // über alle Boolean-Filterfelder gehen...
         $('.filter-input input[type="checkbox"]').each(function() {
           // Feld als Objekt mit Name und Typ erstellen
-          var filterField = new Object();
+          let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
           if ($(this).is(':checked')) {
@@ -607,7 +611,7 @@
         // über alle Checkbox-Filterfelder gehen...
         $('.filter-checkbox-fieldset').each(function() {
           // Feld als Objekt mit Name, Typ und Wert erstellen
-          var filterField = new Object();
+          let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
           filterField.value = checkboxFilterListsValues[filterField.name];
@@ -618,10 +622,10 @@
         // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
         $('.datetime-input').each(function() {
           // Variable für initiales Datum bzw. initiales Datum mit Zeit
-          var initialDateTime = '';
+          let initialDateTime = '';
 
           // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
-          for (var i = 0; i < intervalFilterMin.length; i++) {
+          for (let i = 0; i < intervalFilterMin.length; i++) {
             if (intervalFilterMin[i].name === $(this).attr('name')) {
               initialDateTime = intervalFilterMin[i].value;
               break;
@@ -629,9 +633,9 @@
           }
 
           // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
-          for (var i = 0; i < intervalFilterMax.length; i++) {
-            if (intervalFilterMax[i].name === $(this).attr('name')) {
-              initialDateTime = intervalFilterMax[i].value;
+          for (let j = 0; j < intervalFilterMax.length; j++) {
+            if (intervalFilterMax[j].name === $(this).attr('name')) {
+              initialDateTime = intervalFilterMax[j].value;
               break;
             }
           }
@@ -648,10 +652,10 @@
         // Listenfelder initialisieren
         $("select[data-type='list']").each(function() {
           // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
-          for (var i = 0; i < listFilterLists.length; i++) {
+          for (let i = 0; i < listFilterLists.length; i++) {
             if (listFilterLists[i].name === $(this).attr('name')) {
               if (typeof $(this).data('boolean') == 'undefined') {
-                for (var j = 0; j < listFilterLists[i].value.length; j++) {
+                for (let j = 0; j < listFilterLists[i].value.length; j++) {
                   // Werteliste als Optionen im Listenfeld abbilden
                   $(this).append($('<option>', {
                     value: listFilterLists[i].value[j],
@@ -669,11 +673,11 @@
         // Checkboxen-Sets initialisieren
         $('.filter-checkbox-fieldset').each(function() {
           // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
-          for (var i = 0; i < checkboxFilterLists.length; i++) {
+          for (let i = 0; i < checkboxFilterLists.length; i++) {
             if (checkboxFilterLists[i].name === $(this).attr('name')) {
-              for (var j = 0; j < checkboxFilterLists[i].value.length; j++) {
+              for (let j = 0; j < checkboxFilterLists[i].value.length; j++) {
                 // Werteliste als Checkboxen im Set abbilden
-                var $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
+                let $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
                 $label.append($('<input>', {
                   id: 'checkbox-' + i + '-' + j,
                   class: 'form-check-input',
@@ -693,17 +697,17 @@
           // Hinweise auf additive Wirkung der Filter anzeigen
           $('#filter-alert').show();
 
-          // Variable für Bounding Box der aktuellen Filtermenge leeren
+          // Variable für Bounding-Box der aktuellen Filtermenge leeren
           currentFilterExtent = [];
 
           // Liste für Filterobjekte
-          var filterAttributesList = [];
+          let filterAttributesList = [];
 
           // über alle Filter (außer Boolean-Filter und Checkboxen-Sets) gehen...
           $('.filter-input').each(function() {
             if ($(this).val()) {
               // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
-              var filterAttribute = new Object();
+              let filterAttribute = {};
               filterAttribute.name = $(this).attr('name');
               filterAttribute.type = $(this).data('type');
               filterAttribute.intervalside = $(this).data('intervalside');
@@ -716,7 +720,7 @@
           // über alle Boolean-Filter gehen...
           $('.filter-input input[type="checkbox"]').each(function() {
             // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
-            var filterAttribute = new Object();
+            let filterAttribute = {};
             filterAttribute.name = $(this).attr('name');
             filterAttribute.type = $(this).data('type');
             filterAttribute.intervalside = $(this).data('intervalside');
@@ -732,9 +736,9 @@
           // über alle Checkboxen-Sets gehen...
           $('.filter-checkbox-fieldset').each(function() {
             // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
-            var checkedObjectsAtAll = false;
-            var filterAttribute = new Object();
-            var name = $(this).attr('name');
+            let checkedObjectsAtAll = false;
+            let filterAttribute = {};
+            let name = $(this).attr('name');
             filterAttribute.name = name;
             filterAttribute.type = $(this).data('type');
             filterAttribute.filtertype = $('select[id^=filtertype-' + name + ']').children('option:selected').val();
@@ -758,8 +762,8 @@
            * @param {Object} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
            */
           function mapFilter(layer, isSubLayer, clusterLayer = layer) {
-            var stillVisible = true;
-            for (var i = 0; i < filterAttributesList.length; i++) {
+            let stillVisible = true;
+            for (let i = 0; i < filterAttributesList.length; i++) {
               // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
               if (filterAttributesList[i].name === 'deadline') {
                 // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
@@ -776,7 +780,7 @@
                   if (new Date(filterAttributesList[i].value).valueOf() > new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
                     stillVisible = false;
                 } else {
-                  if (layer.feature.properties[filterAttributesList[i].name] < filterAttributesList[i].value)
+                  if (filterAttributesList[i].value > layer.feature.properties[filterAttributesList[i].name])
                     stillVisible = false;
                 }
               // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
@@ -796,21 +800,21 @@
               // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken, falls einzelne Checkboxen additiv wirken sollen
               } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
                 if (filterAttributesList[i].filtertype === 'additive') {
-                  for (var j = 0; j < filterAttributesList[i].value.length; j++) {
-                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) == -1)
+                  for (let j = 0; j < filterAttributesList[i].value.length; j++) {
+                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) === -1)
                       stillVisible = false;
                   }
                 } else {
                   stillVisible = false;
-                  for (var j = 0; j < filterAttributesList[i].value.length; j++) {
-                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) != -1) {
+                  for (let k = 0; k < filterAttributesList[i].value.length; k++) {
+                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[k].toLowerCase()) !== -1) {
                       stillVisible = true;
                       break;
                     }
                   }
                 }
               // ansonsten einen Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-              } else if (filterAttributesList[i].type != 'checkbox-set') {
+              } else if (filterAttributesList[i].type !== 'checkbox-set') {
                 if (filterAttributesList[i].type === 'date') {
                   // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
                   if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
@@ -820,21 +824,21 @@
                   if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
                     stillVisible = false;
                 } else if (filterAttributesList[i].type === 'list') {
-                  if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() != filterAttributesList[i].value.toLowerCase())
+                  if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() !== filterAttributesList[i].value.toLowerCase())
                     stillVisible = false;
                 } else {
-                  if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) == -1)
+                  if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) === -1)
                     stillVisible = false;
                 }                    
               }
             }
             // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
             if (stillVisible) {
-              // Variable für Bounding Box der aktuellen Filtermenge aktualisieren
-              var north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
-              var east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
-              var south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
-              var west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
+              // Variable für Bounding-Box der aktuellen Filtermenge aktualisieren
+              let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
+              let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
+              let south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
+              let west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
               if (currentFilterExtent.length === 0) {
                 currentFilterExtent[0] = [];
                 currentFilterExtent[0][0] = north;
@@ -883,7 +887,7 @@
               if (layer.feature) {
                 mapFilter(layer, false);
               } else if (layer.id === 'cluster') {
-                clusterLayer = layer;
+                let clusterLayer = layer;
                 layer.eachLayer(function(subLayer) {
                   mapFilter(subLayer, true, clusterLayer);
                 });
@@ -895,7 +899,7 @@
           }
         });
 
-        // bei Klick auf entsprechenden Button alle Filter sowie Bounding Box der aktuellen Filtermenge zurücksetzen
+        // bei Klick auf entsprechenden Button alle Filter sowie Bounding-Box der aktuellen Filtermenge zurücksetzen
         $('#filter-reset').on('click', function() {
           // Hinweise auf additive Wirkung der Filter (wieder) verbergen
           $('#filter-alert').hide();
@@ -914,7 +918,7 @@
             // falls initialer Wert vorhanden...
             if ($(this).data('initial')) {
               // Filter auf initialen Wert setzen
-              var initialValue = $(this).data('initial');
+              let initialValue = $(this).data('initial');
               if (initialValue.toLowerCase() === 'false') {
                 $(this).prop('checked', false);
               } else {
@@ -949,20 +953,17 @@
         // bei Klick auf Button zum Setzen des initialen Kartenausschnitts
         $('#map-extent-initial').on('click', function() {
           // initiales Zoomlevel aus Leaflet-Konfiguration aus settings.py auslesen
-          var default_zoom = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!\, \&#39).)*/).toString();
-          default_zoom = default_zoom.match(/ [0-9]+/).toString();
-          default_zoom = default_zoom.trim();
+          let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
+          defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
           // initiales Kartenzentrum aus Leaflet-Konfiguration aus settings.py auslesen
-          var default_center = '{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!\, \&#39).)*/).toString();
-          default_center_x = default_center.match(/ [0-9]+\.[0-9]+/).toString();
-          default_center_x = default_center_x.trim();
-          default_center_y = default_center.match(/[0-9]+\.[0-9]+/).toString();
-          default_center_y = default_center_y.trim();
-          // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
-          setMapExtentByXYAndZoomLevel(default_center_x, default_center_y, default_zoom);
+          let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
+          let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
+          let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
+          // Kartenausschnitt mittels Kartenzentrum und Zoom-Level setzen
+          setMapExtentByXYAndZoomLevel(defaultCenterX, defaultCenterY, defaultZoom);
         });
 
-        // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding Box der aktuellen Filtermenge (bzw. auf Bounding Box aller Objekte, falls kein Filter aktiv)
+        // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding-Box der aktuellen Filtermenge (bzw. auf Bounding-Box aller Objekte, falls kein Filter aktiv)
         $('#map-extent-filter').on('click', function() {
           if (currentFilterExtent.length > 0)
             setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
@@ -972,7 +973,7 @@
 
         // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
         {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
-          var height = $('#map-side-container').position().top;
+          let height = $('#map-side-container').position().top;
           $('.side').each(function() {
             height += $(this).height();
           });
@@ -982,7 +983,9 @@
         {% endif %}
       });
 
-      // alle Features (wieder) anzeigen
+      /**
+       * zeigt alle Layers (= Features) auf der Karte (wieder) an
+       */
       function showAllMapFeatures() {
         currMap.eachLayer(function(layer) {
           if (layer.feature) {
@@ -1005,23 +1008,44 @@
         window.removedLayers = [];
       }
 
-      // Kartenausschnitt setzen (via Kartenzentrum und Zoomlevel)
+      /**
+       * setzt den Kartenausschnitt mittels Kartenzentrum und Zoom-Level
+       *
+       * @param {string} x - x-Koordinate des Kartenzentrums
+       * @param {number} y - y-Koordinate des Kartenzentrums
+       * @param {number} zoomLevel - Zoom-Level
+       */
       function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
         currMap.panTo([y, x]);
         currMap.setZoom(zoomLevel);
       }
 
-      // Kartenausschnitt setzen (via Bounding Box)
+      /**
+       * setzt den Kartenausschnitt mittels Bounding-Box
+       *
+       * @param {number} min_x - minimale x-Koordinate
+       * @param {number} min_y - minimale y-Koordinate
+       * @param {number} max_x - maximale x-Koordinate
+       * @param {number} max_y - maximale y-Koordinate
+       */
       function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
         currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
       }
 
-      // Kartenausschnitt setzen (via Leaflet-Bounds)
+      /**
+       * setzt den Kartenausschnitt mittels Leaflet-Bounding-Box-Objekt
+       *
+       * @param {Object} leafletBounds - Leaflet-Bounding-Box-Objekt
+       */
       function setMapExtentByLeafletBounds(leafletBounds) {
         currMap.fitBounds(leafletBounds);
       }
 
-      // Resultate der Adressensuche
+      /**
+       * zeigt und behandelt die Resultate der Adressensuche
+       *
+       * @param {Object} json - Resultate der Adressensuche
+       */
       function showResults(json) {
 
         // Resultate leeren
@@ -1031,15 +1055,15 @@
         jQuery.each(json.features, function(index, item) {
           // falls Feature nicht historisch ist:
           if (!item.properties.historisch) {
-            var titel = '';
-            if (item.properties._title_.indexOf(', ') != -1)
+            let titel;
+            if (item.properties._title_.indexOf(', ') !== -1)
               titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
             else
               titel = item.properties._title_;
-            var result = '<div class="result-element" data-feature="' + index + '"><strong>' + titel + '</strong>';
+            let result = '<div class="result-element" data-feature="' + index + '"><strong>' + titel + '</strong>';
             if (item.properties.gemeindeteil_abkuerzung)
               result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
-            result += '<small class="text-black-50"><em>' + item.properties.objektgruppe.replace(/ HRO/, ''); + '</em></small></div>';
+            result += '<small class="text-black-50"><em>' + item.properties.objektgruppe.replace(/ HRO/, '') + '</em></small></div>';
             results.append(result);
           }
         });
@@ -1049,7 +1073,7 @@
 
         // bei Klick auf Resultat Karte auf dieses zoomen
         results.children().on('click', function() {
-          var featureGeometry = json.features[$(this).data('feature')].geometry;
+          let featureGeometry = json.features[$(this).data('feature')].geometry;
           if (featureGeometry.type === 'Point') {
             currMap.fitBounds([
               [

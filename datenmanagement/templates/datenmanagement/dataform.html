@@ -252,7 +252,7 @@
     // Marker für Leaflet konfigurieren
     let redMarker = new L.Icon({
       iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -569,7 +569,7 @@
             // GeoJson-Projektions-Layer initialisieren
             let {{ datenthema_name_lower }} = new L.Proj.geoJson();
             // leeres GeoJson-Projektions-Layer zur Layercontrol hinzufügen
-            dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
+            dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
             // Beim hinzufügen des Layers Daten laden
             {{ datenthema_name_lower }}.on('add', function () {
               if (map.getZoom() > map._minLayerZoom) {
@@ -775,14 +775,13 @@
       searchField.keyup(function() {
         if ($(this).val().length >= 3) {
           let searchText = searchField.val();
-          $.ajax({
-            url: '{% url "datenmanagement:addresssearch" %}',
-            dataType: 'json',
-            data: {
-              query: searchText
-            },
-            success: showResults
-          });
+          let url = '{% url "datenmanagement:addresssearch" %}';
+          fetch(url + '?query=' + searchText, {
+            method: 'GET'
+          })
+          .then(response => response.json())
+          .then(data => showResults(data))
+          .catch(error => console.log(error))
         } else {
           results.children().remove();
           results.fadeOut();
@@ -979,20 +978,17 @@
     function setAddressOrStreet(type, layer) {
       let json = layer.toGeoJSON();
       let ort = getCenter(json);
-      $.ajax({
-        url: '{% url "datenmanagement:reversesearch" %}',
-        dataType: 'json',
-        data: {
-          search_class: 'address',
-          x: ort[0],
-          y: ort[1],
-        },
-        success: function(data) {
-          if (ort[0] != 0 && ort[1] != 0) {
-            adoptResult(data, type);
-          }
+      let url = '{% url "datenmanagement:reversesearch" %}';
+      fetch(url + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
+        method: 'GET'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (ort[0] != 0 && ort[1] != 0) {
+          adoptResult(data, type)
         }
-      });
+      })
+      .catch(error => console.log(error))
     }
 
 
