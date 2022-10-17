@@ -25,9 +25,9 @@
       {% endif %}
     {% endif %}
     {% if next %}
-      <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={{ next }}">
+      <form class="form-signin" role="form" method="post" action="{% url 'login' %}?next={{ next }}">
     {% else %}
-      <form class="form-signin" role="login_form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
+      <form class="form-signin" role="form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
     {% endif %}
       {% csrf_token %}
       <div class="form-floating mb-3">

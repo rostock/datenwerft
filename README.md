@@ -16,59 +16,61 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
         virtualenv /srv/www/htdocs/datenwerft/virtualenv
 
-1.  Projekt klonen:
+2.  Projekt klonen:
 
         git clone https://github.com/rostock/datenwerft /srv/www/htdocs/datenwerft/datenwerft
 
-1.  virtuelle *Python*-Umgebung aktivieren:
+3.  virtuelle *Python*-Umgebung aktivieren:
 
         source /srv/www/htdocs/datenwerft/virtualenv/bin/activate
 
-1.  benötigte *Python*-Module (unter anderem *Django*) installieren via *pip*:
+4.  benötigte *Python*-Module (unter anderem *Django*) installieren via *pip*:
 
         pip install -r /srv/www/htdocs/datenwerft/datenwerft/requirements.txt
 
 ## Konfiguration
 
 1.  Konfigurationsdatei `/srv/www/htdocs/datenwerft/datenwerft/settings.py` entsprechend anpassen
-1.  weitere Konfigurationsdatei erstellen auf Basis der entsprechenden Vorlage:
+2.  weitere Konfigurationsdatei erstellen auf Basis der entsprechenden Vorlage:
 
         cp /srv/www/htdocs/datenwerft/datenwerft/secrets.template /srv/www/htdocs/datenwerft/datenwerft/secrets.py
 
-1.  weitere Konfigurationsdatei `/srv/www/htdocs/datenwerft/datenwerft/settings.py` entsprechend anpassen
+3.  weitere Konfigurationsdatei `/srv/www/htdocs/datenwerft/datenwerft/settings.py` 
+    entsprechend anpassen
 
 ## Initialisierung
 
 1.  in *PostgreSQL*-Datenbank (mit den Erweiterungen *PostGIS* und *uuid-ossp*) Schema `django` für die Anwendungsadministration und Schema `daten` für die Datenbasis anlegen
-1.  virtuelle *Python*-Umgebung aktivieren:
+2.  virtuelle *Python*-Umgebung aktivieren:
 
         source /srv/www/htdocs/datenwerft/virtualenv/bin/activate
 
-1.  Anwendungsadministration initialisieren:
+3.  Anwendungsadministration initialisieren:
 
         cd /srv/www/htdocs/datenwerft/datenwerft
         python manage.py migrate
 
-1.  Administrator initialisieren:
+4.  Administrator initialisieren:
 
         python manage.py createsuperuser
 
-1.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des genutzten HTTP-Servers anpassen – siehe unten):
+5.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des 
+    genutzten HTTP-Servers anpassen – siehe unten):
 
         mkdir /srv/www/htdocs/datenwerft/datenwerft/uploads
         chown -R wwwrun:www /srv/www/htdocs/datenwerft/datenwerft/uploads
 
-1.  Webseiten für Hilfe bauen:
+6.  Webseiten für Hilfe bauen:
 
         cd /srv/www/htdocs/datenwerft/datenwerft/hilfe
         mkdir source/_static
         make html
 
-1.  JavaScript-Module via *npm* installieren:
+7.  JavaScript-Module via *npm* installieren:
 
         npm install
 
-1.  statische Dateien initialisieren:
+8.  statische Dateien initialisieren:
 
         cd /srv/www/htdocs/datenwerft/datenwerft
         python manage.py collectstatic -c
@@ -104,9 +106,9 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
 
 ## Entwicklung
 
-Der Python-Quellcode ist nach der Stylekonvetion [*PEP8*](https://www.python.org/dev/peps/pep-0008/) verfasst. Für die Entwicklung wird ein Tool wie [*pycodestyle*](https://pypi.org/project/pycodestyle/) zur Überprüfung des Quellcodes gemäß *PEP8* empfohlen.
+Der Python-Code orientiert sich an der Python-Styling-Konvention [*PEP8*](https://pep8.org/). Es empfiehlt sich ein Tool wie [*pycodestyle*](https://pypi.org/project/pycodestyle/) zur Überprüfung des Codes zu nutzen. Mit Hilfe von zum Beispiel [*autopep8*](https://pypi.org/project/autopep8/ können Python-Dateien auch im Nachhinein noch automatisch korrigiert werden, können dadurch allerdings auch unleserlich werden.
 
-Die Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben.
+Die Python-Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben.
 
 Nützliche Tools für eine Entwicklungsumgebung, wie etwa *pycodestyle,* können zusätzlich via *pip* installiert werden:
 

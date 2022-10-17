@@ -60,5 +60,6 @@ Wie kann ich in den aktuellen Kartenausschnitt anpassen?
 
 Unter der Überschrift *Kartenausschnitt* rechts neben der Karte finden Sie mehrere Buttons:
 
-* Wenn Sie auf den Button *alle Objekte* klicken, zoomt und zentriert die Karte auf die Gesamtausdehnung aller Kartensymbole und damit aller Datensätze.
-* Wenn Sie auf den Button *initial* klicken, zoomt und zentriert die Karte (wieder) auf den initialen Kartenausschnitt – also (wieder) auf den Kartenausschnitt, den die Karte zeigt, wenn Sie die Seite öffnen.
+* Wenn Sie auf den Button *alle Objekte* klicken, zoomt und zentriert die Karte auf die Gesamtausdehnung aller Kartensymbole und damit aller Datensätze. Sofern **Filter** zur Verfügung stehen, steht statt des Buttons *alle Objekte* der Button *aktuelle Filtermenge* zur Verfügung. Klicken Sie ihn an, zoomt und zentriert die Karte auf die Gesamtausdehnung der Kartensymbole und damit der Datensätze gemäß der **aktuellen Filtersituation.**
+
+* Wenn Sie auf den Button *gesamt* klicken, zoomt und zentriert die Karte (wieder) auf den initialen Kartenausschnitt – also (wieder) auf den Kartenausschnitt, den die Karte zeigt, wenn Sie die Seite öffnen.

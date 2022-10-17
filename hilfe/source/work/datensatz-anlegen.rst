@@ -68,7 +68,7 @@ Vorab eininge einfache und komplexere Beispiele:
 * ``Ostersonntag-03 Okt: 10:00-13:00`` → von Ostersonntag bis zum 3. Oktober geöffnet täglich von 10:00 bis 13:00 Uhr (eher bei Laufzeiten, zum Beispiel von Brunnen, relevant)
 * ``Mo-Fr 11:30,12:00,15:00,17:30; Sa 11:00`` → geöffnet von Montag bis Freitag, jeweils um 11:30, 12:00, 15:00 und 17:30 Uhr, sowie Samstag, um 11:00 Uhr (eher bei Leerungszeiten, zum Beispiel von Postbriefkästen, relevant)
 * ``Mo-Do 08:00-11:30,13:00-17:00; Fr nach Vereinbarung; Sa 08:00-12:00`` → geöffnet von Montag bis Donnerstag, jeweils von 8:00 bis 11:30 Uhr und von 13:00 bis 17:00 Uhr, Freitag, nach Vereinbarung, sowie Samstag, von 8:00 bis 12:00 Uhr
-* ``Mai-Sep: So[2],So[3] 10:00-15:00`` → von Mai bis September geöffnet jeden 1. und 3. Sonntag im Monat, jeweils von 10:00 bis 15:00 Uhr 
+* ``Mai-Sep: So[2],So[3] 10:00-15:00`` → von Mai bis September geöffnet jeden 1. und 3. Sonntag im Monat, jeweils von 10:00 bis 15:00 Uhr
 * ``nach Vereinbarung`` → geöffnet nach Vereinbarung
 
 Elemente
@@ -105,12 +105,12 @@ Zusätzliche Regeln
     * aufeinanderfolgende Stunden getrennt durch „-“ (Beispiel: ``08:30-20:00``)
     * aufeinanderfolgende Wochentage getrennt durch „-“ (Beispiel: ``Mo-Do``)
     * aufeinanderfolgende Tage im Monat getrennt durch „-“ (Beispiele: ``20-24 Dez``, ``24 Dez-06 Jan``)
-    
+
 * Lücken in den Bereichen, also mehrere einzelne Bereiche angeben:
 
     * einzelne Stundenbereiche getrennt durch „,“ (Beispiel: ``08:30-14:00,16:30-20:00``)
     * einzelne Tage getrennt durch „,“ (Beispiel: ``Mo,Di,Do``)
-    
+
 * verschiedene Stunden an verschiedenen Tagen werden getrennt durch „;“ (Beispiel: ``Mo 10:00-12:00,12:30-15:00; Di-Fr 08:00-12:00,12:30-15:00; Sa 08:00-12:00``)
 * Ausnahmen zu einem Bereich von Tagen: erst der Bereich, dann die Ausnahme (Beispiel: ``Mo-Sa 10:00-20:00; Di 10:00-14:00``)
 * Falls sich die Ausnahme am Rand des Bereiches befindet (erster oder letzter Tag), dann sollte man nicht die Ausnahmeregelung benutzten, sondern es direkt richtig angeben (Beispiel: ``Mo-Fr 10:00-20:00; Sa 10:00-14:00``)
@@ -138,7 +138,7 @@ Wozu dient die Karte?
 
 Jeder Datensatz **muss** :ref:`verortet <datensatz_anlegen_verorten>`, also auf der Karte markiert werden. In der Regel geschieht dies über einen Marker, der auf einem bestimmten Punkt liegt. Falls ein Datenthema hingegen aus linien- oder flächenhaft repräsentierten Datensätzen besteht, geschieht dies nicht über einen Marker, sondern über eine Linie oder eine Fläche, die die Geometrie des Datensatzes darstellt (zum Beispiel würde in einem Datenthema *Fließgewässer* ein Datensatz stets den Verlauf des Fließgewässers durch eine Linie darstellen; in einem Datenthema *Gebäude* würde ein Datensatz stets den Umriss des Gebäudes durch eine Fläche darstellen).
 
-Bei manchen Datenthemen ist es sogar so, dass deren Datensätze durch **mehrteilige** Punkte, Linien oder Flächen repräsentiert werden, also durch sogenannte *Multi*-Punkte, -Linien oder -Flächen
+Bei manchen Datenthemen ist es sogar so, dass deren Datensätze durch **mehrteilige** Punkte, Linien oder Flächen repräsentiert werden, also durch sogenannte *Multi*-Punkte, -Linien oder -Flächen.
 
 
 .. _datensatz_anlegen_karte_navigieren:
