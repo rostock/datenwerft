@@ -294,12 +294,12 @@ L.Polygon.prototype.unite = function (diffrentLayer, type){
   if (type.indexOf('Polygon') > 0){
     // MultiPolygon
     let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates); // Vereinigung erzeugen
-    result = interchangeRekursiv(result, true); // Lat, Lng tauschen
+    result = interchangeRecursive(result, true); // Lat, Lng tauschen
     this.setLatLngs(result);
   } else if (type.indexOf('Polygon') === 0){
     // Polygon
     let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates); // Vereinigung erzeugen
-    result = interchangeRekursiv(result, true); // Lat, Lng tauschen
+    result = interchangeRecursive(result, true); // Lat, Lng tauschen
     if (result.length === 1){
       this.setLatLngs(result[0]);
     }
@@ -322,6 +322,6 @@ L.Layer.prototype.interchangeLatLng = function () {
   if (json.geometry.type.indexOf('Polygon') > -1){
     polygon = true;
   }
-  this.toGeoJSON().geometry.coordinates = interchangeRekursiv(arr, polygon);
+  this.toGeoJSON().geometry.coordinates = interchangeRecursive(arr, polygon);
 }
 

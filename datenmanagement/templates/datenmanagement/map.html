@@ -204,6 +204,9 @@
     {% endif %}
     <script type="text/javascript">
       /**
+       * @function
+       * @name mapCallbackFunction
+       *
        * behandelt als Callback-Funktion die übergebene Karte
        *
        * @param {Object} map - Karte
@@ -313,6 +316,9 @@
         ]);
 
         /**
+         * @function
+         * @name setMapFeaturePropertiesAndActions
+         *
          * definiert Aktionen und Eigenschaften für jeden Feature-Layer auf der Karte
          *
          * @param {Object} feature - Feature
@@ -374,6 +380,9 @@
         {% endif %}
 
         /**
+         * @function
+         * @name toggleModal
+         *
          * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
          *
          * @param {Object} modal - Bootstrap-Modal
@@ -383,6 +392,9 @@
         }
 
         /**
+         * @function
+         * @name fetchGeoJsonFeatureCollection
+         *
          * holt die GeoJSON-FeatureCollection für die Karte
          *
          * @param {boolean} heavyLoad - große Datenmenge zu erwarten?
@@ -516,6 +528,8 @@
       }
 
       /**
+       * @function
+       *
        * Hauptfunktion
        */
       $(document).ready(function() {
@@ -770,6 +784,9 @@
           });
 
           /**
+           * @function
+           * @name filterMapFeatures
+           *
            * filtert Layer (= Features) auf der Karte
            *
            * @param {Object} layer - Layer (= Feature)
@@ -809,7 +826,7 @@
                   if (new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf() > new Date(filterAttributesList[i].value).valueOf())
                     stillVisible = false;
                 } else {
-                  if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value) 
+                  if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value)
                     stillVisible = false;
                 }
               // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken, falls einzelne Checkboxen additiv wirken sollen
@@ -844,7 +861,7 @@
                 } else {
                   if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) === -1)
                     stillVisible = false;
-                }                    
+                }
               }
             }
             // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
@@ -1011,6 +1028,9 @@
       });
 
       /**
+       * @function
+       * @name showAllMapFeatures
+       *
        * zeigt alle Layers (= Features) auf der Karte (wieder) an
        */
       function showAllMapFeatures() {
@@ -1036,6 +1056,9 @@
       }
 
       /**
+       * @function
+       * @name setMapExtentByXYAndZoomLevel
+       *
        * setzt den Kartenausschnitt mittels Kartenzentrum und Zoom-Level
        *
        * @param {number} x - x-Koordinate des Kartenzentrums
@@ -1048,6 +1071,9 @@
       }
 
       /**
+       * @function
+       * @name setMapExtentByBoundingBox
+       *
        * setzt den Kartenausschnitt mittels Bounding-Box
        *
        * @param {number} min_x - minimale x-Koordinate
@@ -1060,6 +1086,9 @@
       }
 
       /**
+       * @function
+       * @name setMapExtentByLeafletBounds
+       *
        * setzt den Kartenausschnitt mittels Leaflet-Bounding-Box-Objekt
        *
        * @param {Object} leafletBounds - Leaflet-Bounding-Box-Objekt
@@ -1069,6 +1098,9 @@
       }
 
       /**
+       * @function
+       * @name showAddressSearchResults
+       *
        * zeigt und behandelt die Resultate der Adressensuche
        *
        * @param {Object} json - Resultate der Adressensuche
