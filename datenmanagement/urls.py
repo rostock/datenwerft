@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from django.urls import re_path, reverse_lazy
 
-from datenmanagement.views import dataform_views, datalist_views, \
-    functions, helper_views, list_views
+from datenmanagement.views import form_views, functions, \
+    helper_views, index_start_views, list_map_views
 
 
 def permission_required(*perms):
@@ -18,7 +18,7 @@ urlpatterns = [
     # IndexView
     # Liste der Datenthemen, die zur Verfügung stehen
     re_path(route=r'^$',
-        view=list_views.IndexView.as_view(),
+        view=index_start_views.IndexView.as_view(),
         name='index'),
     # OWSProxyView
     # Proxy für OGC Web Services (OWS)
@@ -60,7 +60,7 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(list_views.StartView.as_view(
+        )(index_start_views.StartView.as_view(
             model=model,
             template_name='datenmanagement/start.html'
         )),
@@ -71,7 +71,7 @@ for model in app_models:
     # bereitet Datenbankobjekte für Tabellenansicht auf
     urlpatterns.append(re_path(
         route=regex + r'data/$',
-        view=login_required(datalist_views.DataView.as_view(
+        view=login_required(list_map_views.DataView.as_view(
             model=model
         )),
         name=model_name + 'data'
@@ -85,9 +85,9 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(datalist_views.DataListView.as_view(
+        )(list_map_views.DataListView.as_view(
             model=model,
-            template_name='datenmanagement/datalist.html'
+            template_name='datenmanagement/list.html'
         )),
         name=model_name + 'list'
     ))
@@ -96,7 +96,7 @@ for model in app_models:
     # bereitet Datenbankobjekte für Tabellenansicht auf
     urlpatterns.append(re_path(
         route=regex + r'mapdata/$',
-        view=login_required(datalist_views.DataMapView.as_view(
+        view=login_required(list_map_views.DataMapView.as_view(
             model=model
         )),
         name=model_name + 'mapdata'
@@ -110,9 +110,9 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(datalist_views.DataMapListView.as_view(
+        )(list_map_views.DataMapListView.as_view(
             model=model,
-            template_name='datenmanagement/datamap.html'
+            template_name='datenmanagement/map.html'
         )),
         name=model_name + 'map'
     ))
@@ -123,9 +123,9 @@ for model in app_models:
         route=regex + r'add/$',
         view=permission_required(
             'datenmanagement.add_' + model_name_lower
-        )(dataform_views.DataAddView.as_view(
+        )(form_views.DataAddView.as_view(
             model=model,
-            template_name='datenmanagement/dataform.html',
+            template_name='datenmanagement/form.html',
             success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
         )),
         name=model_name + 'add'
@@ -139,9 +139,9 @@ for model in app_models:
             'datenmanagement.change_' + model_name_lower,
             'datenmanagement.delete_' + model_name_lower,
             'datenmanagement.view_' + model_name_lower
-        )(dataform_views.DataChangeView.as_view(
+        )(form_views.DataChangeView.as_view(
             model=model,
-            template_name='datenmanagement/dataform.html',
+            template_name='datenmanagement/form.html',
             success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
         )),
         name=model_name + 'change'
@@ -153,9 +153,9 @@ for model in app_models:
         route=regex + r'delete/(?P<pk>.*)/$',
         view=permission_required(
             'datenmanagement.delete_' + model_name_lower
-        )(dataform_views.DataDeleteView.as_view(
+        )(form_views.DataDeleteView.as_view(
             model=model,
-            template_name='datenmanagement/datadelete.html',
+            template_name='datenmanagement/delete.html',
             success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
         )),
         name=model_name + 'delete'

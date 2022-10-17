@@ -46,8 +46,8 @@
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
-	  <div id="map-side-container" class="mb-3">
-      {% leaflet_map "map" callback="window.map_init_basic" %}
+      <div id="map-side-container" class="mb-3">
+      {% leaflet_map "map" callback="window.mapCallbackFunction" %}
       {% if map_filters_enabled %}
         <div id="filter"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
           <h5>Filter für Kartenobjekte</h5>
@@ -208,11 +208,11 @@
        *
        * @param {Object} map - Karte
        */
-      function map_init_basic(map) {
-        // Rendering der Features auf der Karte etwas beschleunigen
+      function mapCallbackFunction(map) {
+        // Rendering der Feature-Layer auf der Karte etwas beschleunigen
         map.preferCanvas = true;
 
-        // Karte auch in anderen JavaScript-Funktionen verfügbar machen
+        // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.currMap = map;
 
         // Standard-Zoom-Kontrollelemente entfernen und durch solche mit eigenen Tooltips ersetzen
@@ -222,7 +222,7 @@
           zoomOutTitle:'herauszoomen'
         }).addTo(map);
 
-        // Konstanten definieren
+        // allgemeine Konstanten für die Karte definieren
         const wmsFormat = 'image/png';
         const maxZoom = 19;
 
@@ -263,15 +263,7 @@
           attribution: '© GeoBasis-DE/M-V'
         });
 
-        // Kilometerquadrate ETRS89/UTM-33N definieren
-        const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-          layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-          format: wmsFormat,
-          maxZoom: maxZoom,
-          transparent: true
-        });
-
-        // definierte Karten als Hintergrundkarten zusammenfassen
+        // zuvor definierte Karten als Hintergrundkarten zusammenfassen
         const baseMaps = {
           'basemap.de': basemapde,
           'Liegenschaftskarte': liegenschaftskarte,
@@ -280,7 +272,15 @@
           'ORKa.MV': orkamv
         };
 
-        // definierte Karten als Overlay-Karten zusammenfassen
+        // Kilometerquadrate ETRS89/UTM-33N definieren
+        const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
+          layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
+          format: wmsFormat,
+          maxZoom: maxZoom,
+          transparent: true
+        });
+
+        // zuvor definierte Karten als Overlay-Karten zusammenfassen
         const overlayMaps = {
           'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
         };
@@ -288,8 +288,8 @@
         // Umschalter für Hintergrundkarten zur Karte hinzufügen
         L.control.layers(baseMaps,overlayMaps).addTo(map);
 
+        // bei mobilen Geräten: Standortbestimmung hinzufügen
         {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-          // bei mobilen Geräten: Standortbestimmung hinzufügen
           L.control.locate({
             drawCircle: false,
             drawMarker: false,
@@ -304,7 +304,7 @@
           }).addTo(map);
         {% endif %}
 
-        // EPSG:25833 definieren
+        // Kartenprojektion EPSG:25833 definieren
         proj4.defs([
           [
             'EPSG:25833',
@@ -318,17 +318,17 @@
          * @param {Object} feature - Feature
          * @param {Object} layer - Feature-Layer
          */
-        function onEachFeature(feature, layer) {
-          // falls Nutzer die notwendige Berechtigung hat...
+        function setMapFeaturePropertiesAndActions(feature, layer) {
+          // falls Feature einen Link auf dessen Bearbeitungsseite aufweist...
           if (feature.properties.link) {
             layer.on('click', function () {
-              // jedem Feature einen Link auf dessen Bearbeitungsseite mitgeben
+              // Feature den Link auf dessen Bearbeitungsseite mitgeben
               window.open(feature.properties.link, '_blank').focus();
             });
           }
           // falls Feature inaktiv ist...
           if (typeof feature.properties.inaktiv !== 'undefined' && feature.properties.inaktiv) {
-            // Feature entsprechend darstellen
+            // Feature vom Standard abweichend darstellen
             layer.setStyle({
               color: '#999',
               fillColor: '#999'
@@ -344,9 +344,10 @@
               });
             }
           {% endif %}
-          // Feature ausblenden, falls es von initialer Feature-Ausblendung betroffen ist
+          // falls Feature von initialer Feature-Ausblendung betroffen ist...
           {% if map_filter_hide_initial %}
             if (typeof feature.properties.hide_initial !== 'undefined' && feature.properties.hide_initial)
+              // Feature ausblenden
               layer.setStyle({
                 fill: false,
                 stroke: false,
@@ -355,13 +356,14 @@
           {% endif %}
           // falls Geometrie nicht punkthaft ist...
           {% if geometry_type != 'Point' %}
+            // Tooltip setzen (wird ansonsten weiter unten beim Laden der GeoJSON-FeatureCollection gesetzt)
             layer.bindTooltip(feature.properties.tooltip);
           {% endif %}
         }
 
         // falls große Datenmenge zu erwarten ist...
         {% if heavy_load_limit %}
-          // Konstanten und Variablen für die Anzahl der (bereits geholten) GeoJSON-Feature definieren
+          // Konstanten und Variablen für die Anzahl der (bereits geholten) Features der GeoJSON-FeatureCollection definieren
           const border = {{ objects_count }};
           const limit = {{ heavy_load_limit }};
           let promises = [];
@@ -376,8 +378,8 @@
          *
          * @param {Object} modal - Bootstrap-Modal
          */
-        function modalToggler(modal) {
-          modal.modal('toggle')
+        function toggleModal(modal) {
+          modal.modal('toggle');
         }
 
         /**
@@ -390,10 +392,11 @@
         async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
           try {
             let url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}';
+            // Parameter für aktuellen Ladeschritt setzen, falls große Datenmenge zu erwarten ist
             if (heavyLoad) {
               url += '?limit=' + limit + '&offset=' + offset;
             }
-            modalToggler($('#id_mapDataLoading'));
+            toggleModal($('#id_mapDataLoading'));
             const response = await fetch(url, {
               method: 'GET'
             });
@@ -402,10 +405,10 @@
               count += data.features.length;
               $('#id_mapDataLoading-count').text(count);
               if (count === border) {
-                modalToggler($('#id_mapDataLoading'));
+                toggleModal($('#id_mapDataLoading'));
               }
             } else
-              modalToggler($('#id_mapDataLoading'));
+              toggleModal($('#id_mapDataLoading'));
             return data;
           } catch (error) {
             console.error(error);
@@ -416,7 +419,6 @@
         {% if geometry_type == 'Point' %}
           // Cluster aktivieren
           let markers = L.markerClusterGroup();
-          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection für die Karte befüllen und zur Karte hinzufügen
           // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
             // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
@@ -425,6 +427,7 @@
             }
             Promise.all(promises)
             .then(data => {
+              // jedes Feature der GeoJSON-FeatureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                   let marker = new L.circleMarker(latlng, {
@@ -433,7 +436,7 @@
                   marker.bindTooltip(feature.properties.tooltip);
                   return marker;
                 },
-                onEachFeature: onEachFeature
+                onEachFeature: setMapFeaturePropertiesAndActions
               }).addTo(markers);
             })
             .catch(
@@ -446,6 +449,7 @@
             // GeoJSON-FeatureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
+              // jedes Feature der GeoJSON-FeatureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                   let marker = new L.circleMarker(latlng, {
@@ -454,7 +458,7 @@
                   marker.bindTooltip(feature.properties.tooltip);
                   return marker;
                 },
-                onEachFeature: onEachFeature
+                onEachFeature: setMapFeaturePropertiesAndActions
               }).addTo(markers);
             })
             .catch(
@@ -463,11 +467,11 @@
               }
             );
           {% endif %}
+          // Cluster mit eindeutiger ID versehen und zur Karte hinzufügen
           markers.id = 'cluster';
           map.addLayer(markers);
         // ansonsten...
         {% else %}
-          // neuen GeoJSON-Layer definieren, mit GeoJSON-FeatureCollection für die Karte befüllen und zur Karte hinzufügen
           // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
             // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
@@ -476,8 +480,9 @@
             }
             Promise.all(promises)
             .then(data => {
+              // für jedes Feature der GeoJSON-FeatureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
               L.Proj.geoJson(data, {
-                onEachFeature: onEachFeature
+                onEachFeature: setMapFeaturePropertiesAndActions
               }).addTo(map);
             })
             .catch(
@@ -490,8 +495,9 @@
             // GeoJSON-FeatureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
+              // für jedes Feature der GeoJSON-FeatureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
               L.Proj.geoJson(data, {
-                onEachFeature: onEachFeature
+                onEachFeature: setMapFeaturePropertiesAndActions
               }).addTo(map);
             })
             .catch(
@@ -502,29 +508,27 @@
           {% endif %}
         {% endif %}
 
-        // gemeinsame Bounding-Box aller Objekte auch in anderen JavaScript-Funktionen verfügbar machen
+        // gemeinsame Bounding-Box aller Objekte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.objectsExtent = map.getBounds();
 
-        // globale Variable für gelöschte Cluster-Features auch in anderen JavaScript-Funktionen verfügbar machen
+        // globale Variable für gelöschte Cluster-Features auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.removedLayers = [];
       }
 
-      // Adressensuche und Filter
+      /**
+       * Hauptfunktion
+       */
       $(document).ready(function() {
-        // Variable für Bounding-Box der aktuellen Filtermenge anlegen
+        // Variablen definieren für:
+        // Bounding-Box der aktuellen Filtermenge
+        // minimale und maximale Werte von entsprechenden Intervallfilterfeldern
+        // Wertelisten für entsprechende Filterfelder, die als Auswahlfeld dargestellt werden sollen
+        // Wertelisten für entsprechende Filterfelder, die als Checkboxen-Set dargestellt werden sollen
         let currentFilterExtent = [];
-
-        // Variable für minimale Werte von entsprechenden Intervallfilterfeldern anlegen
         let intervalFilterMin = [];
-
-        // Variable für maximale Werte von entsprechenden Intervallfilterfeldern anlegen
         let intervalFilterMax = [];
-
-        // Variablen für Wertelisten für entsprechende Filterfelder anlegen, die als Auswahlfeld dargestellt werden sollen
         let listFilterLists = [];
         let listFilterListsValues = {{ list_filter_lists|safe }};
-
-        // Variablen für Wertelisten für entsprechende Filterfelder anlegen, die als Checkboxen-Set dargestellt werden sollen
         let checkboxFilterLists = [];
         let checkboxFilterListsValues = {{ checkbox_filter_lists|safe }};
 
@@ -532,16 +536,17 @@
         let results = $('div.results');
         let searchField = $('#searchtext');
 
-        // bei Klick auf Stelle außerhalb der Adressensuche die Resultate der Adressensuche leeren
+        // bei Klick auf Stelle außerhalb der Adressensuche...
         results.click(function(event) {
           $('html').one('click',function() {
+            // Resultate der Adressensuche leeren
             results.children().remove();
             results.fadeOut();
           });
           event.stopPropagation();
         });
 
-        // bei Eingabe in entsprechendes Eingabefeld Adressensuche durchführen
+        // ab dem dritten eingegebenen Zeichen in entsprechendem Eingabefeld Adressensuche durchführen
         searchField.keyup(function() {
           if ($(this).val().length >= 3) {
             let searchText = searchField.val();
@@ -550,7 +555,7 @@
               method: 'GET'
             })
             .then(response => response.json())
-            .then(data => showResults(data))
+            .then(data => showAddressSearchResults(data))
             .catch(error => console.log(error))
           } else {
             results.children().remove();
@@ -564,8 +569,6 @@
           $('#results-container').hide();
         });
 
-        // Filter initialisieren
-
         // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
         $('.filter-input').each(function() {
           // Feld als Objekt mit Name und Typ erstellen
@@ -576,19 +579,22 @@
           if ($(this).data('intervalside') === 'left' || $(this).data('intervalside') === 'right') {
             // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
             if ($(this).data('intervalside') === 'left') {
-              // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              // Wert des Feldobjekts entsprechend setzen
               filterField.value = '{{ interval_filter_min }}';
+              // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
               intervalFilterMin.push(filterField);
             // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
             } else if ($(this).data('intervalside') === 'right') {
-              // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              // Wert des Feldobjekts entsprechend setzen
               filterField.value = '{{ interval_filter_max }}';
+              // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
               intervalFilterMax.push(filterField);
             }
           // falls es sich um ein Listenfeld handelt...
           } else if ($(this).data('type') === 'list' && $(this).attr('name') in listFilterListsValues) {
-            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
+            // Wert des Feldobjekts entsprechend setzen
             filterField.value = listFilterListsValues[filterField.name];
+            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
             listFilterLists.push(filterField);
           }
         });
@@ -599,12 +605,15 @@
           let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
+          // Wert des Feldobjekts als Boolean setzen
           if ($(this).is(':checked')) {
             filterField.value = 'True';
           } else {
             filterField.value = 'False';
           }
+          // falls es sich um ein Listenfeld handelt...
           if ($(this).attr('name') in listFilterListsValues)
+            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
             listFilterLists.push(filterField);
         });
 
@@ -614,6 +623,7 @@
           let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
+          // Wert des Feldobjekts entsprechend setzen
           filterField.value = checkboxFilterListsValues[filterField.name];
           // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Checkboxen-Set dargestellt werden sollen
           checkboxFilterLists.push(filterField);
@@ -621,10 +631,11 @@
 
         // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
         $('.datetime-input').each(function() {
-          // Variable für initiales Datum bzw. initiales Datum mit Zeit
+          // Variable für initiales Datum bzw. initiales Datum mit Zeit definieren
           let initialDateTime = '';
 
-          // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
+          // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt:
+          // Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
           for (let i = 0; i < intervalFilterMin.length; i++) {
             if (intervalFilterMin[i].name === $(this).attr('name')) {
               initialDateTime = intervalFilterMin[i].value;
@@ -632,7 +643,8 @@
             }
           }
 
-          // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt: Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
+          // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt:
+          // Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
           for (let j = 0; j < intervalFilterMax.length; j++) {
             if (intervalFilterMax[j].name === $(this).attr('name')) {
               initialDateTime = intervalFilterMax[j].value;
@@ -640,11 +652,11 @@
             }
           }
 
-          // falls Variable für initiales Datum bzw. initiales Datum mit Zeit gefüllt ist...
+          // falls Variable für initiales Datum bzw. initiales Datum mit Zeit gesetzt ist...
           if (initialDateTime !== '') {
             // initiales Datum bzw. initiales Datum mit Zeit auf entsprechenden Wert setzen
             $(this).val(initialDateTime);
-            // data-Attribut hinzufügen mit initialem Datum bzw. initialem Datum mit Zeit (benötigt beim Zurücksetzen der Filter)
+            // Data-Attribut hinzufügen mit initialem Datum bzw. initialem Datum mit Zeit (benötigt beim Zurücksetzen der Filter)
             $(this).attr('data-initial', initialDateTime);
           }
         });
@@ -654,9 +666,10 @@
           // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
           for (let i = 0; i < listFilterLists.length; i++) {
             if (listFilterLists[i].name === $(this).attr('name')) {
+              // falls Listenfeld nicht schon als Ja-Nein-Listenfeld vordefiniert ist...
               if (typeof $(this).data('boolean') == 'undefined') {
+                // Werteliste als Optionen im Listenfeld abbilden
                 for (let j = 0; j < listFilterLists[i].value.length; j++) {
-                  // Werteliste als Optionen im Listenfeld abbilden
                   $(this).append($('<option>', {
                     value: listFilterLists[i].value[j],
                     text: listFilterLists[i].value[j]
@@ -675,8 +688,8 @@
           // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
           for (let i = 0; i < checkboxFilterLists.length; i++) {
             if (checkboxFilterLists[i].name === $(this).attr('name')) {
+              // Werteliste als Checkboxen im Set abbilden
               for (let j = 0; j < checkboxFilterLists[i].value.length; j++) {
-                // Werteliste als Checkboxen im Set abbilden
                 let $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
                 $label.append($('<input>', {
                   id: 'checkbox-' + i + '-' + j,
@@ -692,7 +705,7 @@
           }
         });
 
-        // bei Klick auf entsprechenden Button alle Filter anwenden
+        // bei Klick auf Button zum Anwenden der Filter...
         $('#filter-apply').on('click', function() {
           // Hinweise auf additive Wirkung der Filter anzeigen
           $('#filter-alert').show();
@@ -700,7 +713,7 @@
           // Variable für Bounding-Box der aktuellen Filtermenge leeren
           currentFilterExtent = [];
 
-          // Liste für Filterobjekte
+          // Variable für Liste für Filterobjekte definieren
           let filterAttributesList = [];
 
           // über alle Filter (außer Boolean-Filter und Checkboxen-Sets) gehen...
@@ -724,6 +737,7 @@
             filterAttribute.name = $(this).attr('name');
             filterAttribute.type = $(this).data('type');
             filterAttribute.intervalside = $(this).data('intervalside');
+            // Wert des Filterobjekts als Boolean setzen
             if ($(this).is(':checked')) {
               filterAttribute.value = 'True';
             } else {
@@ -735,8 +749,8 @@
 
           // über alle Checkboxen-Sets gehen...
           $('.filter-checkbox-fieldset').each(function() {
-            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
             let checkedObjectsAtAll = false;
+            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
             let filterAttribute = {};
             let name = $(this).attr('name');
             filterAttribute.name = name;
@@ -749,10 +763,11 @@
               checkedObjectsAtAll = true;
               filterAttribute.value.push($(this).val());
             });
+            // falls mindestens eine Checkbox im Checkboxen-Set aktiv ist...
             if (checkedObjectsAtAll)
+              // Filterobjekt zur Liste für Filterobjekte hinzufügen
               filterAttributesList.push(filterAttribute);
           });
-
 
           /**
            * filtert Layer (= Features) auf der Karte
@@ -761,7 +776,7 @@
            * @param {boolean} isSubLayer - Layer (= Feature) ist Bestandteil einer Layergruppe (= eines Clusters)?
            * @param {Object} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
            */
-          function mapFilter(layer, isSubLayer, clusterLayer = layer) {
+          function filterMapFeatures(layer, isSubLayer, clusterLayer = layer) {
             let stillVisible = true;
             for (let i = 0; i < filterAttributesList.length; i++) {
               // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
@@ -879,17 +894,16 @@
             }
           }
 
-
           // über alle Filterobjekte gehen...
           if (filterAttributesList.length > 0) {
             showAllMapFeatures();
             window.currMap.eachLayer(function(layer) {
               if (layer.feature) {
-                mapFilter(layer, false);
+                filterMapFeatures(layer, false);
               } else if (layer.id === 'cluster') {
                 let clusterLayer = layer;
                 layer.eachLayer(function(subLayer) {
-                  mapFilter(subLayer, true, clusterLayer);
+                  filterMapFeatures(subLayer, true, clusterLayer);
                 });
                 layer.refreshClusters();
               }
@@ -899,75 +913,88 @@
           }
         });
 
-        // bei Klick auf entsprechenden Button alle Filter sowie Bounding-Box der aktuellen Filtermenge zurücksetzen
+        // bei Klick auf Button zum Zurücksetzen der Filter...
         $('#filter-reset').on('click', function() {
           // Hinweise auf additive Wirkung der Filter (wieder) verbergen
           $('#filter-alert').hide();
 
+          // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
           $('.filter-input').each(function() {
             // falls initialer Wert vorhanden...
             if ($(this).data('initial'))
-              // Filter auf initialen Wert setzen
+              // Filterfeld auf initialen Wert setzen
               $(this).val($(this).data('initial'));
-            // ansonsten Filter auf leeren Wert setzen
+            // ansonsten Filterfeld auf leeren Wert setzen
             else
               $(this).val('');
           });
 
+          // über alle Boolean-Filterfelder gehen...
           $('.filter-input input[type="checkbox"]').each(function() {
             // falls initialer Wert vorhanden...
             if ($(this).data('initial')) {
-              // Filter auf initialen Wert setzen
+              // Filterfeld auf initialen Wert setzen
               let initialValue = $(this).data('initial');
+              // Boolean korrekt behandeln
               if (initialValue.toLowerCase() === 'false') {
                 $(this).prop('checked', false);
               } else {
                 $(this).prop('checked', true);
               }
             }
-            // ansonsten Filter auf leeren Wert setzen
+            // ansonsten Filterfeld auf leeren Wert setzen
             else {
               $(this).prop('checked', false);
             }
           });
 
+          // über alle Checkbox-Filterfelder gehen...
           $('.filter-checkbox-fieldset').each(function() {
+            // alle aktivierten Checkboxen deaktivieren
             $(this).find('input:checked').each(function() {
               $(this).prop('checked', false);
             });
           });
-          
+          // Wirkmodus aller Checkbox-Filter wieder auf Standard setzen, also additiv (wie „UND“)
           $('.filtertype').each(function() {
             $(this)[0].selectedIndex = 0;
           });
 
-          showAllMapFeatures();
+          // Bounding-Box der aktuellen Filtermenge zurücksetzen
           currentFilterExtent = [];
+
+          // alle Layers (= Features) auf der Karte wieder anzeigen
+          showAllMapFeatures();
         });
 
-        // bei Klick auf entsprechendes Kreuzchen Inhalt des betreffenden Filters leeren
+        // bei Klick auf Kreuzchen in einem Filterfeld...
         $('.input-reset').on('click', function() {
+          // betreffendes Filterfeld leeren
           $(this).prev().is('button') ? $(this).prev().prev().val('') : $(this).prev().val('');
         });
 
-        // bei Klick auf Button zum Setzen des initialen Kartenausschnitts
+        // bei Klick auf Button zum Setzen des initialen Kartenausschnitts...
         $('#map-extent-initial').on('click', function() {
-          // initiales Zoomlevel aus Leaflet-Konfiguration aus settings.py auslesen
+          // initiales Zoomlevel aus Leaflet-Konfiguration auslesen
           let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
           defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
-          // initiales Kartenzentrum aus Leaflet-Konfiguration aus settings.py auslesen
+          // initiales Kartenzentrum aus Leaflet-Konfiguration auslesen
           let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
           let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
           let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
           // Kartenausschnitt mittels Kartenzentrum und Zoom-Level setzen
-          setMapExtentByXYAndZoomLevel(defaultCenterX, defaultCenterY, defaultZoom);
+          setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
         });
 
-        // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding-Box der aktuellen Filtermenge (bzw. auf Bounding-Box aller Objekte, falls kein Filter aktiv)
+        // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding-Box der aktuellen Filtermenge...
         $('#map-extent-filter').on('click', function() {
+          // falls Filter aktiv...
           if (currentFilterExtent.length > 0)
+            // Kartenausschnitt auf Bounding-Box der aktuellen Filtermenge setzen
             setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
+          // ansonsten...
           else
+            // Kartenausschnitt auf Bounding-Box aller Objekte setzen
             setMapExtentByLeafletBounds(objectsExtent);
         });
 
@@ -1011,7 +1038,7 @@
       /**
        * setzt den Kartenausschnitt mittels Kartenzentrum und Zoom-Level
        *
-       * @param {string} x - x-Koordinate des Kartenzentrums
+       * @param {number} x - x-Koordinate des Kartenzentrums
        * @param {number} y - y-Koordinate des Kartenzentrums
        * @param {number} zoomLevel - Zoom-Level
        */
@@ -1046,14 +1073,13 @@
        *
        * @param {Object} json - Resultate der Adressensuche
        */
-      function showResults(json) {
-
+      function showAddressSearchResults(json) {
         // Resultate leeren
         results.children().remove();
 
-        // JSON durchgehen und je Feature ein Resultat bauen
+        // JSON durchgehen...
         jQuery.each(json.features, function(index, item) {
-          // falls Feature nicht historisch ist:
+          // je JSON-Feature ein Resultat bauen, falls JSON-Feature nicht als "historisch" markiert ist
           if (!item.properties.historisch) {
             let titel;
             if (item.properties._title_.indexOf(', ') !== -1)
@@ -1071,8 +1097,9 @@
         // Resultate einblenden
         results.fadeIn();
 
-        // bei Klick auf Resultat Karte auf dieses zoomen
+        // bei Klick auf ein Resultat...
         results.children().on('click', function() {
+          // Karte auf Resultat zoomen
           let featureGeometry = json.features[$(this).data('feature')].geometry;
           if (featureGeometry.type === 'Point') {
             currMap.fitBounds([
