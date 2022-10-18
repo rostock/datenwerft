@@ -106,6 +106,8 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
 
 ## Entwicklung
 
+### Grundsätzliches
+
 Der Python-Code orientiert sich an der Python-Styling-Konvention [*PEP8*](https://pep8.org/). Es empfiehlt sich ein Tool wie [*pycodestyle*](https://pypi.org/project/pycodestyle/) zur Überprüfung des Codes zu nutzen. Mit Hilfe von zum Beispiel [*autopep8*](https://pypi.org/project/autopep8/) können Python-Dateien auch im Nachhinein noch automatisch korrigiert werden, können dadurch allerdings auch unleserlich werden.
 
 Die Python-Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben.
@@ -113,3 +115,14 @@ Die Python-Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki
 Nützliche Tools für eine Entwicklungsumgebung, wie etwa *pycodestyle,* können zusätzlich via *pip* installiert werden:
 
         pip install -r /srv/www/htdocs/datenwerft/datenwerft/requirements-dev.txt
+
+### *PEP8*-Durchsetzung
+
+Die Vorgaben von *PEP8* finden mit zwei Ausnahmen vollständig Anwendung:
+
+1.  Zeilenlänge wird von 79 auf 99 erhöht
+2.  Anzahl der Leerzeichen bei der Einrückung wird von 4 auf 2 reduziert (beinhaltet die 
+    Einrückung und ergibt zudem eine Umbrucheinrückung von 4 statt 8)
+
+Die entsprechende Konfigurationsdatei `setup.cfg` für *pycodestyle* ist bereits im 
+Wurzelverzeichnis des Projekts angelegt.
