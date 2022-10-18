@@ -2,16 +2,12 @@ import os
 import re
 import uuid
 
-from datetime import date, datetime, timezone
-from decimal import *
+from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.contrib.gis.db import models
 from django.db import connection
-from django.db.models import options, signals
 from guardian.shortcuts import assign_perm, remove_perm
 from PIL import Image, ExifTags
-from zoneinfo import ZoneInfo
 
 
 def assign_permissions(sender, instance, created, **kwargs):
@@ -74,6 +70,16 @@ def current_year():
   return int(date.today().year)
 
 
+def delete_duplicate_photos_with_other_suffixes(path):
+  filename = os.path.basename(path)
+  ext = filename.split('.')[-1]
+  filename_without_ext = os.path.splitext(filename)[0]
+  for file in os.listdir(os.path.dirname(path)):
+    if (os.path.splitext(file)[0] == filename_without_ext and
+        file.split('.')[-1] != ext):
+      os.remove(os.path.dirname(path) + '/' + file)
+
+
 def delete_pdf(sender, instance, **kwargs):
   if hasattr(instance, 'pdf') and instance.pdf:
     instance.pdf.delete(False)
@@ -84,13 +90,7 @@ def delete_pdf(sender, instance, **kwargs):
 def delete_photo(sender, instance, **kwargs):
   if hasattr(instance, 'foto') and instance.foto:
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
-      if settings.MEDIA_ROOT and settings.MEDIA_URL:
-        path = settings.MEDIA_ROOT + '/' + \
-               instance.foto.url[len(settings.MEDIA_URL):]
-      else:
-        BASE_DIR = os.path.dirname(
-          os.path.dirname(os.path.abspath(__file__)))
-        path = BASE_DIR + instance.foto.url
+      path = get_path(instance.foto.url)
       thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
       try:
         os.remove(thumb)
@@ -102,14 +102,7 @@ def delete_photo(sender, instance, **kwargs):
 def delete_photo_after_emptied(sender, instance, created, **kwargs):
   if not instance.foto and not created:
     pre_save_instance = instance._pre_save_instance
-    if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + \
-             pre_save_instance.foto.url[len(settings.MEDIA_URL):]
-    else:
-      BASE_DIR = os.path.dirname(
-        os.path.dirname(
-          os.path.abspath(__file__)))
-      path = BASE_DIR + pre_save_instance.foto.url
+    path = get_path(pre_save_instance.foto.url)
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
       thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
       try:
@@ -120,6 +113,17 @@ def delete_photo_after_emptied(sender, instance, created, **kwargs):
       os.remove(path)
     except OSError:
       pass
+
+
+def get_path(url):
+  if settings.MEDIA_ROOT and settings.MEDIA_URL:
+    path = settings.MEDIA_ROOT + '/' + \
+           url[len(settings.MEDIA_URL):]
+  else:
+    base_dir = os.path.dirname(
+      os.path.dirname(os.path.abspath(__file__)))
+    path = base_dir + url
+  return path
 
 
 def get_pre_save_instance(sender, instance, **kwargs):
@@ -149,21 +153,14 @@ def photo_post_processing(sender, instance, **kwargs):
       path = settings.MEDIA_ROOT + '/' + \
              instance.foto.url[len(settings.MEDIA_URL):]
     else:
-      BASE_DIR = os.path.dirname(
+      base_dir = os.path.dirname(
         os.path.dirname(
           os.path.abspath(__file__)))
-      path = BASE_DIR + instance.foto.url
+      path = base_dir + instance.foto.url
     rotate_image(path)
-    # falls Foto(s) mit derselben UUID, aber unterschiedlichem Suffix,
-    # vorhanden: diese(s) löschen (und natürlich auch die entsprechenden
-    # Thumbnails)!
-    filename = os.path.basename(path)
-    ext = filename.split('.')[-1]
-    filename_without_ext = os.path.splitext(filename)[0]
-    for file in os.listdir(os.path.dirname(path)):
-      if (os.path.splitext(file)[0] == filename_without_ext and
-          file.split('.')[-1] != ext):
-        os.remove(os.path.dirname(path) + '/' + file)
+    # falls Foto(s) mit derselben UUID, aber unterschiedlichem Dateityp (also Suffix), vorhanden:
+    # diese(s) löschen und natürlich auch das/die entsprechende(n) Thumbnail(s)
+    delete_duplicate_photos_with_other_suffixes(path)
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
       thumb_path = os.path.dirname(path) + '/thumbs'
       if not os.path.exists(thumb_path):
@@ -171,18 +168,11 @@ def photo_post_processing(sender, instance, **kwargs):
       thumb_path = os.path.dirname(
         path) + '/thumbs/' + os.path.basename(path)
       thumb_image(path, thumb_path)
-      filename = os.path.basename(thumb_path)
-      ext = filename.split('.')[-1]
-      filename_without_ext = os.path.splitext(filename)[0]
-      for file in os.listdir(os.path.dirname(thumb_path)):
-        if (os.path.splitext(file)[0] == filename_without_ext and
-            file.split('.')[-1] != ext):
-          os.remove(os.path.dirname(thumb_path) + '/' + file)
+      delete_duplicate_photos_with_other_suffixes(thumb_path)
 
 
 def remove_permissions(sender, instance, **kwargs):
   model_name = instance.__class__.__name__.lower()
-  user = getattr(instance, 'current_authenticated_user', None)
   for user in User.objects.all():
     remove_perm('datenmanagement.change_' + model_name, user, instance)
     remove_perm('datenmanagement.delete_' + model_name, user, instance)
@@ -194,6 +184,7 @@ def remove_permissions(sender, instance, **kwargs):
 def rotate_image(path):
   try:
     image = Image.open(path)
+    orientation = None
     for orientation in list(ExifTags.TAGS.keys()):
       if ExifTags.TAGS[orientation] == 'Orientation':
         break

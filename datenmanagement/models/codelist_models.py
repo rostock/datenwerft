@@ -1,7 +1,6 @@
 import uuid
 
 from decimal import *
-from django.conf import settings
 from django.contrib.gis.db import models
 from django.db.models import signals
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator

@@ -1218,7 +1218,7 @@ class Fallwildsuchen_Nachweise(models.Model):
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
     startzeitpunkt_str = re.sub(
-      r'([+-][0-9]{2})\:',
+      r'([+-][0-9]{2}):',
       '\\1',
       str(self.startzeitpunkt)
     )
@@ -1228,7 +1228,7 @@ class Fallwildsuchen_Nachweise(models.Model):
     ).replace(tzinfo=timezone.utc).astimezone(local_tz)
     startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
     endzeitpunkt_str = re.sub(
-      r'([+-][0-9]{2})\:',
+      r'([+-][0-9]{2}):',
       '\\1',
       str(self.endzeitpunkt)
     )

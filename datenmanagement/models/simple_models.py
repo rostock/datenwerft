@@ -3430,7 +3430,7 @@ class Kadaverfunde(models.Model):
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
-    zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
+    zeitpunkt_str = re.sub(r'([+-][0-9]{2}):', '\\1', str(self.zeitpunkt))
     zeitpunkt = datetime.strptime(
       zeitpunkt_str,
       '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(local_tz)
@@ -6042,7 +6042,7 @@ class Trinkwassernotbrunnen(models.Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.id + ' [Art: ' + str(self.art) + ']'
+    return self.nummer
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()
