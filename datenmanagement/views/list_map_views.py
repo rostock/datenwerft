@@ -223,14 +223,14 @@ class DataView(BaseDatatableView):
                 column)
             if column_with_foreign_key is not None:
               column = column + str('__') + column_with_foreign_key
-          l = re.search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
-          m = re.search('^[0-9]{2}\\.[0-9]{4}$', search_element)
-          n = re.search('^[0-9]{2}\\.[0-9]{2}$', search_element)
-          if l or m or n:
+          case_a = re.search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
+          case_b = re.search('^[0-9]{2}\\.[0-9]{4}$', search_element)
+          case_c = re.search('^[0-9]{2}\\.[0-9]{2}$', search_element)
+          if case_a or case_b or case_c:
             search_element_splitted = search_element.split('.')
             kwargs = {
                 '{0}__{1}'.format(column, 'icontains'): (search_element_splitted[
-                    2] + '-' if l else '') +
+                    2] + '-' if case_a else '') +
                 search_element_splitted[1] + '-' +
                 search_element_splitted[0]
             }
