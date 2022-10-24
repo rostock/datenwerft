@@ -26,7 +26,7 @@
   <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
   <script type="module" src="{% static 'martinez-polygon-clipping/martinez.min.js' %}"></script>
   <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/generics.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -103,7 +103,7 @@
                 {% else %}
                   {{ field.label_tag }}
                 {% endif %}
-              </td> 
+              </td>
               {% autoescape off %}
                 <td>
                   {{ field }}
@@ -177,7 +177,7 @@
             {% endif %}
           {% endif %}
           <div id="results-container" class="results"></div>
-        </div>        
+        </div>
       </div>
     {% endif %}
     <div id="buttons">
@@ -917,8 +917,8 @@
             y = FEATURE_GEOMETRY.coordinates[0][0][1] + ((FEATURE_GEOMETRY.coordinates[0][2][1] - FEATURE_GEOMETRY.coordinates[0][0][1]) / 2);
           }
           let layer = new L.Marker([y, x],{icon: redMarker,});
-          layer._drawnByGeoman = true; 
-          layer.addTo(window.currMap); 
+          layer._drawnByGeoman = true;
+          layer.addTo(window.currMap);
         {% endif %}
       }
     }
@@ -1273,7 +1273,7 @@
          * einer Postleitzahl wird der Server entsprechend angefragt.
          * Als Antwort des Servers wird ein GeoJSON erwartet
          * mit einem Attribut mit der Postleitzahl. Der Wert
-         * dieses Attributes wird nach dem erfolgreichen Empfangen 
+         * dieses Attributes wird nach dem erfolgreichen Empfangen
          * der Antwort des Servers in das dafür vorgesehene
          * Input-Feld geschrieben.
          *

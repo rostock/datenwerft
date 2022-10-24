@@ -64,6 +64,11 @@
         </thead>
       </table>
       <script type="text/javascript">
+        /**
+         * @function
+         *
+         * Hauptfunktion
+         */
         $(document).ready(function() {
           let table = $('#datasets').DataTable({
             ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
@@ -72,13 +77,14 @@
                 extend: 'csvHtml5',
                 fieldSeparator: ';',
                 exportOptions: {
+                  // entsprechend markierte Spalten nicht exportieren
                   columns: ':visible:not(.no-export)',
                 }
               }, {
                 extend: 'excelHtml5',
                 title: '',
                 exportOptions: {
-                  // erste und letzte zwei Spalten nicht exportieren
+                  // entsprechend markierte Spalten nicht exportieren
                   columns: ':visible:not(.no-export)',
                 }
               }, {
@@ -86,7 +92,7 @@
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
-
+                  // entsprechend markierte Spalten nicht exportieren
                   columns: ':visible:not(.no-export)',
                 },
                 customize: function(doc) {
@@ -108,8 +114,10 @@
               'targets': -1
             }],
             createdRow: function(row, data, dataIndex) {
+              // inaktive Zeilen (= Datensätze) mit schwächerer Textfarbe versehen
               if ($(row).find('td:nth-child(2)').text() === 'nein') {
                 $(row).addClass('text-black-50');
+              // entsprechend markierte Zeilen (= Datensätze) mit besonderer Textfarbe hervorheben
               } else if ($(row).find('.text-danger').length) {
                 $(row).addClass('text-danger');
               }
@@ -131,14 +139,19 @@
             serverSide: true,
             stateSave: true
           });
-        
+
+          // bei Klick auf Button zum Ausführen der gewählten Aktion...
           $('#action-button').click(function() {
+            // falls gewählte Aktion das Löschen ausgewählter Datensätze ist...
             if ($('#action-select').val() === 'delete-selected') {
-              var actionCheckboxes = $('.action-checkbox').filter(':checked');
+              let actionCheckboxes = $('.action-checkbox').filter(':checked');
               if (actionCheckboxes.length > 0) {
+                // alle ausgewählten Zeilen (= Datensätze) durchgehen...
                 actionCheckboxes.each(function() {
+                  // Zeile (= Datensatz) löschen
                   jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
                 });
+                // kurz warten und Tabelle neuladen, damit gelöschte Zeilen (= Datensätze) verschwinden
                 setTimeout(function() {
                   table.ajax.reload();
                   $('#action-count').text('kein Datensatz');
@@ -148,8 +161,10 @@
           });
         });
 
-        $('body').on('change', '.action-checkbox', function(e) {
-          var actionCheckboxes = $('.action-checkbox').filter(':checked');
+        // sobald eine Zeile (= Datensatz) an- oder abgewählt wurde...
+        $('body').on('change', '.action-checkbox', function() {
+          let actionCheckboxes = $('.action-checkbox').filter(':checked');
+          // Hinweistexte entsprechend anpassen
           if (actionCheckboxes.length === 1)
             $('#action-count').text('1 Datensatz ausgewählt');
           else if (actionCheckboxes.length === 0)
@@ -159,7 +174,7 @@
         });
       </script>
     </div>
-    {% if user|user_has_model_add_permission:model_name_lower %}
+    {% if user|user_has_model_delete_permission:model_name_lower %}
       <div class="d-grid mt-4">
         <span id="action-count">kein Datensatz ausgwählt</span>
       </div>
