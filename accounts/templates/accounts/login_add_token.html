@@ -1,0 +1,37 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}Anmeldung | {% endblock %}
+
+{% block content %}
+  <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}4{% endif %} mx-auto">
+    {% if form.errors %}
+      {% for field in form %}
+        {% if field.errors %}
+          {% for error in field.errors %}
+            <div class="alert alert-danger mb-4" role="alert">
+              Fehler bei der Eingabe
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger mb-4" role="alert">
+              {{ error }}<br/>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+      <form class="form-signin" role="form" method="post">
+      {% csrf_token %}
+      <div class="form-floating mb-3">
+        <input id="id_email_token" type="text" required class="form-control" name="email_token" placeholder="Login Code">
+        <label for="id_email_token">Login Code</label>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-lg btn-success" type="submit"><i class="fas fa-right-to-bracket"></i> anmelden</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

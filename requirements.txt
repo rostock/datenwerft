@@ -1,4 +1,4 @@
-Django>=4.1.0
+Django==3.2.16
 django-auth-ldap
 django-currentuser
 django-datatables-view

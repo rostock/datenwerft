@@ -1,4 +1,4 @@
-{% extends "_base/navbar.html" %}
+{% extends "navbar.html" %}
 {% load static %}
 
 {% block title %}Anmeldung | {% endblock %}
@@ -24,11 +24,11 @@
         {% endfor %}
       {% endif %}
     {% endif %}
-    {% if next %}
+{#    {% if next %}#}
       <form class="form-signin" role="form" method="post" action="{% url 'login' %}?next={{ next }}">
-    {% else %}
-      <form class="form-signin" role="form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">
-    {% endif %}
+{#    {% else %}#}
+{#      <form class="form-signin" role="form" method="post" action="{% url 'login' %}?next={% url 'datenmanagement:index' %}">#}
+{#    {% endif %}#}
       {% csrf_token %}
       <div class="form-floating mb-3">
         <input id="id_username" type="text" class="form-control" name="username" autocapitalize="off" autocomplete="username" placeholder="Benutzername">

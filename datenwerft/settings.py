@@ -22,10 +22,6 @@ DJANGO_APPS = [
     'django.contrib.gis',
 ]
 
-LOCAL_APPS = [
-    'datenmanagement',
-]
-
 THIRD_PARTY_APPS = [
     'django_user_agents',
     'guardian',
@@ -35,7 +31,12 @@ THIRD_PARTY_APPS = [
     'jsonview',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS
+LOCAL_APPS = [
+    'datenmanagement',
+    'accounts'
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 LOGIN_URL = '/datenwerft/accounts/login'
 

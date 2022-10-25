@@ -4,10 +4,23 @@ from django.apps import apps
 from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from django.urls import re_path, reverse_lazy
+from rest_framework import routers
 
 from datenmanagement.views import form_views, functions, \
-    helper_views, index_start_views, list_map_views
+    helper_views, index_start_views, list_map_views, api
 
+
+router = routers.DefaultRouter()
+app_models = apps.get_app_config('datenmanagement').get_models()
+for model in app_models:
+    model_name = model.__name__.lower()
+    router.register(
+        model_name,
+        api.DatenmanagementViewSet.create_custom(model=model),
+        basename=model_name
+    )
+
+api_urlpatterns = router.urls
 
 def permission_required(*perms):
     return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
