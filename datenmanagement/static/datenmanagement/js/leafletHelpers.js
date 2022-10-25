@@ -183,7 +183,7 @@ L.Map.prototype.loadExternalData = function(baseUrl, layer) {
           geoJsonFeatureCollection.features.push(geoJsonFeature);
       }
       layer.addData(geoJsonFeatureCollection);
-      // Geoman-Optionen setzen
+      // Leaflet-Geoman-Optionen setzen
       layer.pm.setOptions({
         draggable: false,
         allowEditing: false,

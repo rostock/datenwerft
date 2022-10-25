@@ -284,21 +284,9 @@ class DataListView(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(DataListView, self).get_context_data(**kwargs)
-    context['model_name'] = self.model.__name__
-    context['model_name_lower'] = self.model.__name__.lower()
-    context['model_verbose_name'] = self.model._meta.verbose_name
-    context[
-        'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model._meta.description
-    context['objects_count'] = self.model.objects.count()
-    context['list_fields_labels'] = list(
-        self.model._meta.list_fields.values())
-    context['geometry_type'] = (
-        self.model._meta.geometry_type if hasattr(
-            self.model._meta, 'geometry_type') else None)
-    context['thumbs'] = (
-        self.model._meta.thumbs if hasattr(self.model._meta,
-                                           'thumbs') else None)
+    context = functions.set_model_related_context_elements(context, self.model, True)
+    context['list_fields_labels'] = list(self.model._meta.list_fields.values())
+    context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     return context
 
 
@@ -553,12 +541,8 @@ class DataMapListView(generic.ListView):
               distinct_value_list.append(value_list_item)
           checkbox_filter_lists[field_name] = distinct_value_list
     context = super(DataMapListView, self).get_context_data(**kwargs)
+    context = functions.set_model_related_context_elements(context, self.model, True)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['model_name'] = self.model.__name__
-    context['model_name_lower'] = self.model.__name__.lower()
-    context['model_verbose_name'] = self.model._meta.verbose_name
-    context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model._meta.description
     context['highlight_flag'] = (
         self.model._meta.highlight_flag if hasattr(
             self.model._meta, 'highlight_flag') else None)
@@ -597,11 +581,7 @@ class DataMapListView(generic.ListView):
     context['additional_wms_layers'] = (
         self.model._meta.additional_wms_layers if hasattr(
             self.model._meta, 'additional_wms_layers') else None)
-    context['geometry_type'] = (
-        self.model._meta.geometry_type if hasattr(
-            self.model._meta, 'geometry_type') else None)
     context['heavy_load_limit'] = (
         self.model._meta.heavy_load_limit if hasattr(
             self.model._meta, 'heavy_load_limit') else None)
-    context['objects_count'] = self.model.objects.count()
     return context

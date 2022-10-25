@@ -2,7 +2,6 @@ import re
 import time
 
 from django.apps import apps
-from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.db import connection
@@ -242,21 +241,7 @@ class DataAddView(generic.CreateView):
     :return: Dictionary mit Formularattributen
     """
     kwargs = super(DataAddView, self).get_form_kwargs()
-    self.fields_with_foreign_key_to_linkify = (
-        self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
-            self.model._meta,
-            'fields_with_foreign_key_to_linkify') else None)
-    self.choices_models_for_choices_fields = (
-        self.model._meta.choices_models_for_choices_fields if hasattr(
-            self.model._meta,
-            'choices_models_for_choices_fields') else None)
-    self.group_with_users_for_choice_field = (
-        self.model._meta.group_with_users_for_choice_field if hasattr(
-            self.model._meta,
-            'group_with_users_for_choice_field') else None)
-    self.admin_group = (
-        self.model._meta.admin_group if hasattr(self.model._meta,
-                                                'admin_group') else None)
+    self = functions.set_form_attributes(self)
     self.multi_foto_field = (
         self.model._meta.multi_foto_field if hasattr(
             self.model._meta,
@@ -290,73 +275,11 @@ class DataAddView(generic.CreateView):
     :return: Context als Dict
     """
     context = super(DataAddView, self).get_context_data(**kwargs)
-    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
-    context['model_name'] = self.model.__name__
-    context['model_name_lower'] = self.model.__name__.lower()
-    context['model_verbose_name'] = self.model._meta.verbose_name
-    context[
-        'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model._meta.description
-    context['catalog_link_fields'] = (
-        self.model._meta.catalog_link_fields if hasattr(
-            self.model._meta, 'catalog_link_fields') else None)
-    context['catalog_link_fields_names'] = (
-        list(self.model._meta.catalog_link_fields.keys()) if hasattr(
-            self.model._meta, 'catalog_link_fields') else None)
-    context['fields_with_foreign_key_to_linkify'] = (
-        self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
-            self.model._meta,
-            'fields_with_foreign_key_to_linkify') else None)
-    context['choices_models_for_choices_fields'] = (
-        self.model._meta.choices_models_for_choices_fields if hasattr(
-            self.model._meta,
-            'choices_models_for_choices_fields') else None)
-    context['address_type'] = (
-        self.model._meta.address_type if hasattr(self.model._meta,
-                                                 'address_type') else None)
-    context['address_mandatory'] = (
-        self.model._meta.address_mandatory if hasattr(
-            self.model._meta, 'address_mandatory') else None)
-    context['geometry_type'] = (
-        self.model._meta.geometry_type if hasattr(
-            self.model._meta, 'geometry_type') else None)
-    context['readonly_fields'] = (
-        self.model._meta.readonly_fields if hasattr(
-            self.model._meta, 'readonly_fields') else None)
+    context = functions.set_model_related_context_elements(context, self.model)
+    context = functions.set_form_context_elements(context, self.model)
     context['multi_foto_field'] = (
         self.model._meta.multi_foto_field if hasattr(
             self.model._meta, 'multi_foto_field') else None)
-    context['group_with_users_for_choice_field'] = (
-        self.model._meta.group_with_users_for_choice_field if hasattr(
-            self.model._meta,
-            'group_with_users_for_choice_field') else None)
-    context['admin_group'] = (
-        self.model._meta.admin_group if hasattr(self.model._meta,
-                                                'admin_group') else None)
-    # Zusätzliche Kartenlayer, wie z.B. Fahrradkarte
-    context['additional_wms_layers'] = (
-        self.model._meta.additional_wms_layers if hasattr(
-            self.model._meta, 'additional_wms_layers') else None)
-    # Liste aller Datensätze für die Overlay-Daten-Liste
-    model_list = {}
-    app_models = apps.get_app_config('datenmanagement').get_models()
-    for model in app_models:
-      if hasattr(
-              model._meta,
-              'as_overlay') and model._meta.as_overlay is True:
-        model_list[model.__name__] = model._meta.verbose_name_plural
-    context['model_list'] = dict(sorted(model_list.items()))
-    # GPX-Upload-Feld
-    context['gpx_input'] = (
-        self.model._meta.gpx_input if hasattr(
-            self.model._meta,
-            'gpx_input') else None)
-    # Postleitzahl-Auto-Zuweisung
-    context['postcode_assigner'] = (
-        self.model._meta.postcode_assigner if hasattr(
-            self.model._meta,
-            'postcode_assigner') else None)
     return context
 
   def get_initial(self):
@@ -420,27 +343,13 @@ class DataChangeView(generic.UpdateView):
     :return:
     """
     kwargs = super(DataChangeView, self).get_form_kwargs()
+    self = functions.set_form_attributes(self)
     self.associated_objects = None
     self.associated_new = None
     self.associated_models = (
         self.model._meta.associated_models if hasattr(
             self.model._meta,
             'associated_models') else None)
-    self.fields_with_foreign_key_to_linkify = (
-        self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
-            self.model._meta,
-            'fields_with_foreign_key_to_linkify') else None)
-    self.choices_models_for_choices_fields = (
-        self.model._meta.choices_models_for_choices_fields if hasattr(
-            self.model._meta,
-            'choices_models_for_choices_fields') else None)
-    self.group_with_users_for_choice_field = (
-        self.model._meta.group_with_users_for_choice_field if hasattr(
-            self.model._meta,
-            'group_with_users_for_choice_field') else None)
-    self.admin_group = (
-        self.model._meta.admin_group if hasattr(self.model._meta,
-                                                'admin_group') else None)
     self.file = (
         self.request.FILES if self.request.method == 'POST' else None)
     kwargs['associated_objects'] = self.associated_objects
@@ -551,41 +460,12 @@ class DataChangeView(generic.UpdateView):
     :return: Context als Dict
     """
     context = super(DataChangeView, self).get_context_data(**kwargs)
-    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
-    context['model_name'] = self.model.__name__
-    context['model_name_lower'] = self.model.__name__.lower()
-    context['model_verbose_name'] = self.model._meta.verbose_name
-    context[
-        'model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model._meta.description
-    context['catalog_link_fields'] = (
-        self.model._meta.catalog_link_fields if hasattr(
-            self.model._meta, 'catalog_link_fields') else None)
-    context['catalog_link_fields_names'] = (
-        list(self.model._meta.catalog_link_fields.keys()) if hasattr(
-            self.model._meta, 'catalog_link_fields') else None)
+    context = functions.set_model_related_context_elements(context, self.model)
+    context = functions.set_form_context_elements(context, self.model)
     context['associated_objects'] = (
         self.associated_objects if self.associated_objects else None)
     context['associated_new'] = (
         self.associated_new if self.associated_new else None)
-    context['fields_with_foreign_key_to_linkify'] = (
-        self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
-            self.model._meta,
-            'fields_with_foreign_key_to_linkify') else None)
-    context['choices_models_for_choices_fields'] = (
-        self.model._meta.choices_models_for_choices_fields if hasattr(
-            self.model._meta,
-            'choices_models_for_choices_fields') else None)
-    context['address_type'] = (
-        self.model._meta.address_type if hasattr(self.model._meta,
-                                                 'address_type') else None)
-    context['address_mandatory'] = (
-        self.model._meta.address_mandatory if hasattr(
-            self.model._meta, 'address_mandatory') else None)
-    context['geometry_type'] = (
-        self.model._meta.geometry_type if hasattr(
-            self.model._meta, 'geometry_type') else None)
     if hasattr(self.model._meta, 'geometry_type'):
       with connection.cursor() as cursor:
         cursor.execute(
@@ -598,16 +478,6 @@ class DataChangeView(generic.UpdateView):
         context['geometry'] = result
     else:
       context['geometry'] = None
-    context['readonly_fields'] = (
-        self.model._meta.readonly_fields if hasattr(
-            self.model._meta, 'readonly_fields') else None)
-    context['group_with_users_for_choice_field'] = (
-        self.model._meta.group_with_users_for_choice_field if hasattr(
-            self.model._meta,
-            'group_with_users_for_choice_field') else None)
-    context['admin_group'] = (
-        self.model._meta.admin_group if hasattr(self.model._meta,
-                                                'admin_group') else None)
     context['current_address'] = (
         self.object.adresse.pk if hasattr(
             self.model._meta,
@@ -618,27 +488,6 @@ class DataChangeView(generic.UpdateView):
             self.model._meta,
             'address_type'
         ) and self.model._meta.address_type == 'Straße' and self.object.strasse else None)
-    context['additional_wms_layers'] = (
-        self.model._meta.additional_wms_layers if hasattr(
-            self.model._meta, 'additional_wms_layers') else None)
-    # Liste aller Datensätze für die Overlay-Daten-Liste
-    model_list = {}
-    app_models = apps.get_app_config('datenmanagement').get_models()
-    for model in app_models:
-      if hasattr(model._meta,
-                 'as_overlay') and model._meta.as_overlay is True:
-        model_list[model.__name__] = model._meta.verbose_name
-    context['model_list'] = dict(sorted(model_list.items()))
-    # GPX-Upload-Feld
-    context['gpx_input'] = (
-        self.model._meta.gpx_input if hasattr(
-            self.model._meta,
-            'gpx_input') else None)
-    # Postleitzahl-Auto-Zuweisung
-    context['postcode_assigner'] = (
-        self.model._meta.postcode_assigner if hasattr(
-            self.model._meta,
-            'postcode_assigner') else None)
     return context
 
   def get_initial(self):

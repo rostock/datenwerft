@@ -6,7 +6,7 @@
  *
  * @param {Array} arr - Array, in dem das Umkehren der Reihenfolge durchgeführt wird
  * @param {boolean} [polygon=false] - handelt es sich um ein Polygon?
- * @return {Array} - Array mit umgekehrter Reihenfolge von x- und y-Koordinaten
+ * @returns {Array} - Array mit umgekehrter Reihenfolge von x- und y-Koordinaten
  */
 function interchangeRecursive(arr, polygon = false) {
   // eindimensionales Array
@@ -28,4 +28,16 @@ function interchangeRecursive(arr, polygon = false) {
     }
     return arr;
   }
+}
+
+/**
+ * @function
+ * @name toggleModal
+ *
+ * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
+ *
+ * @param {Object} modal - Bootstrap-Modal
+ */
+function toggleModal(modal) {
+  modal.modal('toggle');
 }

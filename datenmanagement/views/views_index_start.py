@@ -17,12 +17,12 @@ class IndexView(generic.ListView):
     return
 
   def get_context_data(self, **kwargs):
-    codelist_models = False
-    codelist_models_list = []
-    complex_models = False
-    complex_models_list = []
-    simple_models = False
-    simple_models_list = []
+    models_codelist = False
+    models_codelist_list = []
+    models_complex = False
+    models_complex_list = []
+    models_simple = False
+    models_simple_list = []
     app_models = apps.get_app_config('datenmanagement').get_models()
     for model in app_models:
       if (
@@ -41,21 +41,21 @@ class IndexView(generic.ListView):
             'description': model._meta.description
         }
         if hasattr(model._meta, 'codelist') and model._meta.codelist is True:
-          codelist_models = True
-          codelist_models_list.append(list_model)
+          models_codelist = True
+          models_codelist_list.append(list_model)
         elif hasattr(model._meta, 'complex') and model._meta.complex is True:
-          complex_models = True
-          complex_models_list.append(list_model)
+          models_complex = True
+          models_complex_list.append(list_model)
         else:
-          simple_models = True
-          simple_models_list.append(list_model)
+          models_simple = True
+          models_simple_list.append(list_model)
     context = super(IndexView, self).get_context_data(**kwargs)
-    context['codelist_models'] = codelist_models
-    context['codelist_models_list'] = codelist_models_list
-    context['complex_models'] = complex_models
-    context['complex_models_list'] = complex_models_list
-    context['simple_models'] = simple_models
-    context['simple_models_list'] = simple_models_list
+    context['models_codelist'] = models_codelist
+    context['models_codelist_list'] = models_codelist_list
+    context['models_complex'] = models_complex
+    context['models_complex_list'] = models_complex_list
+    context['models_simple'] = models_simple
+    context['models_simple_list'] = models_simple_list
     return context
 
 

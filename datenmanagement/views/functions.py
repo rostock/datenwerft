@@ -3,6 +3,7 @@ import re
 
 from datetime import date, datetime
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.forms import CheckboxSelectMultiple, TextInput
 from django.http import HttpResponse
@@ -13,7 +14,7 @@ from leaflet.forms.widgets import LeafletWidget
 
 def assign_widgets(field):
   """
-  liefert passendes Formularelement (Widget) zu field
+  liefert passendes Formularelement (Widget) zu übergebenem Feld
 
   :param field: Feld
   :return: Formularelement (Widget)
@@ -63,12 +64,12 @@ def assign_widgets(field):
 
 def delete_object_immediately(request, pk):
   """
-  löscht ein Objekt aus der Datenbank; wirft eine
-  entsprechende Exception bei fehlenden Berechtigungen
+  löscht das Datenobjekt mit dem übergebenen Primärschlüssel aus der Datenbank;
+  wirft eine entsprechende Exception bei fehlenden Berechtigungen
 
   :param request: WSGI-Request
   :param pk: Primärschlüssel des zu löschenden Datenbankobjekts
-  :return: HTTP 204 No Content
+  :return: HTTP-Code 204 (No Content)
   """
   model_name = re.sub(
     pattern='^.*\\/',
@@ -91,7 +92,7 @@ def delete_object_immediately(request, pk):
 
 def get_data(curr_object, field):
   """
-  gibt für Datenobjekt die Daten eines bestimmten Feldes zurück
+  gibt für übergebenes Datenobjekt die Daten des übergebenen Feldes zurück
 
   :param curr_object: Datenobjekt
   :param field: Feld
@@ -107,10 +108,105 @@ def get_data(curr_object, field):
 
 def get_thumb_url(url):
   """
-  gibt für url die zugehörige Thumbnail-URL zurück
+  gibt für übergebene URL eines Bildes die zugehörige Thumbnail-URL zurück
 
   :param url: URL eines Bildes
   :return: URL des zugehörigen Thumbnails
   """
   head, tail = os.path.split(url)
   return head + '/thumbs/' + tail
+
+
+def set_form_attributes(form):
+  """
+  setzt Attribute im übergebenen Forumular und gibt dieses Forumular anschließend wieder zurück
+
+  :param form: Forumular
+  :return: Forumular
+  """
+  form.fields_with_foreign_key_to_linkify = (
+      form.model._meta.fields_with_foreign_key_to_linkify if hasattr(
+          form.model._meta, 'fields_with_foreign_key_to_linkify') else None)
+  form.choices_models_for_choices_fields = (
+      form.model._meta.choices_models_for_choices_fields if hasattr(
+          form.model._meta, 'choices_models_for_choices_fields') else None)
+  form.group_with_users_for_choice_field = (
+      form.model._meta.group_with_users_for_choice_field if hasattr(
+          form.model._meta, 'group_with_users_for_choice_field') else None)
+  form.admin_group = (
+      form.model._meta.admin_group if hasattr(form.model._meta, 'admin_group') else None)
+  return form
+
+
+def set_form_context_elements(context, model):
+  """
+  setzt auf das Formular für das übergebene Datenmodell bezogene Elemente im übergebenen Kontext
+  und gibt diesen Kontext anschließend wieder zurück
+
+  :param context: Kontext
+  :param model: Datenmodell
+  :return: Kontext
+  """
+  context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+  context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
+  context['catalog_link_fields'] = (
+      model._meta.catalog_link_fields if hasattr(model._meta, 'catalog_link_fields') else None)
+  context['catalog_link_fields_names'] = (
+      list(model._meta.catalog_link_fields.keys()) if hasattr(
+          model._meta, 'catalog_link_fields') else None)
+  context['fields_with_foreign_key_to_linkify'] = (
+      model._meta.fields_with_foreign_key_to_linkify if hasattr(
+          model._meta, 'fields_with_foreign_key_to_linkify') else None)
+  context['choices_models_for_choices_fields'] = (
+      model._meta.choices_models_for_choices_fields if hasattr(
+          model._meta, 'choices_models_for_choices_fields') else None)
+  context['address_type'] = (
+      model._meta.address_type if hasattr(model._meta, 'address_type') else None)
+  context['address_mandatory'] = (
+      model._meta.address_mandatory if hasattr(model._meta, 'address_mandatory') else None)
+  context['readonly_fields'] = (
+      model._meta.readonly_fields if hasattr(model._meta, 'readonly_fields') else None)
+  context['group_with_users_for_choice_field'] = (
+      model._meta.group_with_users_for_choice_field if hasattr(
+          model._meta, 'group_with_users_for_choice_field') else None)
+  context['admin_group'] = (
+      model._meta.admin_group if hasattr(model._meta, 'admin_group') else None)
+  # zusätzliche Karten
+  context['additional_wms_layers'] = (
+      model._meta.additional_wms_layers if hasattr(model._meta, 'additional_wms_layers') else None)
+  # Liste aller Datensätze für die Overlay-Daten-Liste
+  model_list = {}
+  app_models = apps.get_app_config('datenmanagement').get_models()
+  for model in app_models:
+    if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay is True:
+      model_list[model.__name__] = model._meta.verbose_name_plural
+  context['model_list'] = dict(sorted(model_list.items()))
+  # GPX-Upload-Feld
+  context['gpx_input'] = (
+      model._meta.gpx_input if hasattr(model._meta, 'gpx_input') else None)
+  # Postleitzahl-Auto-Zuweisung
+  context['postcode_assigner'] = (
+      model._meta.postcode_assigner if hasattr(model._meta, 'postcode_assigner') else None)
+  return context
+
+
+def set_model_related_context_elements(context, model, objects_count=False):
+  """
+  setzt allgemeine, auf das übergebene Datenmodell bezogene Elemente im übergebenen Kontext
+  und gibt diesen Kontext anschließend wieder zurück
+
+  :param context: Kontext
+  :param model: Datenmodell
+  :param objects_count: Objektanzahl als Kontextelement?
+  :return: Kontext
+  """
+  context['model_name'] = model.__name__
+  context['model_name_lower'] = model.__name__.lower()
+  context['model_verbose_name'] = model._meta.verbose_name
+  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
+  context['model_description'] = model._meta.description
+  context['geometry_type'] = (
+      model._meta.geometry_type if hasattr(model._meta, 'geometry_type') else None)
+  if objects_count:
+    context['objects_count'] = model.objects.count()
+  return context

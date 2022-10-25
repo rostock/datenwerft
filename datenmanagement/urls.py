@@ -4,8 +4,8 @@ from django.apps import apps
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import re_path, reverse_lazy
 
-from datenmanagement.views import form_views, functions, helper_views, \
-  index_start_views, list_map_views
+from datenmanagement.views import functions, views_form, views_helpers, \
+  views_index_start, views_list_map
 
 
 def permission_required(*perms):
@@ -17,29 +17,29 @@ urlpatterns = [
   # IndexView
   # Liste der Datenthemen, die zur Verfügung stehen
   re_path(route=r'^$',
-          view=index_start_views.IndexView.as_view(),
+          view=views_index_start.IndexView.as_view(),
           name='index'),
   # OWSProxyView
   # Proxy für OGC Web Services (OWS)
   re_path(route=r'owsproxy',
-          view=login_required(helper_views.OWSProxyView.as_view()),
+          view=login_required(views_helpers.OWSProxyView.as_view()),
           name='owsproxy'),
   # AddressSearchView
   # Adressen-/Straßensuche
   re_path(route=r'addresssearch$',
-          view=login_required(helper_views.AddressSearchView.as_view()),
+          view=login_required(views_helpers.AddressSearchView.as_view()),
           name='addresssearch'),
   # ReverseSearchView
   # Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
   re_path(route=r'reversesearch$',
-          view=login_required(helper_views.ReverseSearchView.as_view()),
+          view=login_required(views_helpers.ReverseSearchView.as_view()),
           name='reversesearch'),
   # GPXtoGeoJSON
   # Übergabe einer GPX-Datei an FME Server
   # und Rückgabe des generierten GeoJSON
   re_path(
     route=r'gpxtogeojson/$',
-    view=login_required()(helper_views.GPXtoGeoJSON.as_view()),
+    view=login_required()(views_helpers.GPXtoGeoJSON.as_view()),
     name='gpxtogeojson'),
 ]
 
@@ -59,7 +59,7 @@ for model in app_models:
       'datenmanagement.change_' + model_name_lower,
       'datenmanagement.delete_' + model_name_lower,
       'datenmanagement.view_' + model_name_lower
-    )(index_start_views.StartView.as_view(
+    )(views_index_start.StartView.as_view(
       model=model,
       template_name='datenmanagement/start.html'
     )),
@@ -70,7 +70,7 @@ for model in app_models:
   # bereitet Datenbankobjekte für Tabellenansicht auf
   urlpatterns.append(re_path(
     route=regex + r'data/$',
-    view=login_required(list_map_views.DataView.as_view(
+    view=login_required(views_list_map.DataView.as_view(
       model=model
     )),
     name=model_name + 'data'
@@ -84,7 +84,7 @@ for model in app_models:
       'datenmanagement.change_' + model_name_lower,
       'datenmanagement.delete_' + model_name_lower,
       'datenmanagement.view_' + model_name_lower
-    )(list_map_views.DataListView.as_view(
+    )(views_list_map.DataListView.as_view(
       model=model,
       template_name='datenmanagement/list.html'
     )),
@@ -95,7 +95,7 @@ for model in app_models:
   # bereitet Datenbankobjekte für Tabellenansicht auf
   urlpatterns.append(re_path(
     route=regex + r'mapdata/$',
-    view=login_required(list_map_views.DataMapView.as_view(
+    view=login_required(views_list_map.DataMapView.as_view(
       model=model
     )),
     name=model_name + 'mapdata'
@@ -109,7 +109,7 @@ for model in app_models:
       'datenmanagement.change_' + model_name_lower,
       'datenmanagement.delete_' + model_name_lower,
       'datenmanagement.view_' + model_name_lower
-    )(list_map_views.DataMapListView.as_view(
+    )(views_list_map.DataMapListView.as_view(
       model=model,
       template_name='datenmanagement/map.html'
     )),
@@ -122,7 +122,7 @@ for model in app_models:
     route=regex + r'add/$',
     view=permission_required(
       'datenmanagement.add_' + model_name_lower
-    )(form_views.DataAddView.as_view(
+    )(views_form.DataAddView.as_view(
       model=model,
       template_name='datenmanagement/form.html',
       success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
@@ -138,7 +138,7 @@ for model in app_models:
       'datenmanagement.change_' + model_name_lower,
       'datenmanagement.delete_' + model_name_lower,
       'datenmanagement.view_' + model_name_lower
-    )(form_views.DataChangeView.as_view(
+    )(views_form.DataChangeView.as_view(
       model=model,
       template_name='datenmanagement/form.html',
       success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
@@ -152,7 +152,7 @@ for model in app_models:
     route=regex + r'delete/(?P<pk>.*)/$',
     view=permission_required(
       'datenmanagement.delete_' + model_name_lower
-    )(form_views.DataDeleteView.as_view(
+    )(views_form.DataDeleteView.as_view(
       model=model,
       template_name='datenmanagement/delete.html',
       success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
@@ -173,6 +173,6 @@ for model in app_models:
   # Abfrage von Geometrien bestimmter Modelle
   urlpatterns.append(re_path(
     route=regex + r'geometry/',
-    view=login_required(helper_views.GeometryView.as_view(model=model)),
+    view=login_required(views_helpers.GeometryView.as_view(model=model)),
     name=model_name + 'geometry'
   ))
