@@ -2,10 +2,10 @@
  * @function
  * @name configureLeafletGeoman
  *
- * konfiguriert Leaflet-Geoman
+ * konfiguriert Leaflet-Geoman in der übergebenen Karte
  *
  * @param {Object} map - Karte
- * @param {String} [geometryType=''] - Geometrietyp des Datenthemas
+ * @param {String} [geometryType=''] - Geometrietyp des aktuellen Datenthemas im Formular
  */
 function configureLeafletGeoman(map, geometryType = '') {
   // eigene Übersetzungen definieren
@@ -37,14 +37,7 @@ function configureLeafletGeoman(map, geometryType = '') {
   map.pm.setLang('customDe', customTranslation, 'de');
 
   // Optionen für das Zeichnen von Objekten setzen
-  map.pm.setPathOptions({
-    color: 'red', // Linienfarbe für gezeichnete Objekte
-    fillColor: 'red', // Füllfarbe für gezeichnete Objekte
-    requireSnapToFinish: true, // Zeichnen von Polygonen endet mit bestehendem Punkt
-    templineStyle: {
-      color: 'red' // Linienfarbe während des Zeichnens
-    }
-  });
+  map.pm.setPathOptions(map._pathOptions);
 
   // globale Optionen setzen
   map.pm.setGlobalOptions({
@@ -144,10 +137,22 @@ function configureLeafletGeoman(map, geometryType = '') {
           layer.setInteractive(true);
           layer.on('click', () => {
             let j = JSON.parse($('#id_geometrie').val());
-            if (j.type.indexOf('MultiPolygon') > -1)
-              map.pm.getGeomanDrawLayers()[0].unite(layer, 'MultiPolygon');
-            else
-              map.pm.getGeomanDrawLayers()[0].unite(layer, 'Polygon');
+            let type = (j.type.indexOf('MultiPolygon') > -1) ? 'MultiPolygon' : 'Polygon';
+            // falls bislang noch keine Geometrie vorliegt...
+            if (map.pm.getGeomanDrawLayers().length < 1) {
+              // Layer aus adoptierter Geometrie erzeugen
+              let geometryToAdopt = new L.geoJSON(layer.toGeoJSON(), {
+                color: 'red'
+              });
+              // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
+              geometryToAdopt._changeGeom = true;
+              geometryToAdopt.eachLayer((layer) => {
+                layer._drawnByGeoman = true;
+              });
+              // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
+              geometryToAdopt.addTo(map);
+            }
+            map.pm.getGeomanDrawLayers()[0].unite(layer, type);
           });
         });
       }
@@ -292,13 +297,13 @@ function enableMapLocate(map) {
  * @function
  * @name getAddressSearchResult
  *
- * erstellt ein Resultat aus der Adressensuche
+ * erstellt ein HTML-Resultat aus einem Resultat der Adressensuche
  *
  * @param {string} index - Index des Resultats aus der Adressensuche
  * @param {string} uuid - UUID des Resultats aus der Adressensuche
  * @param {string} titel - Titel des Resultats aus der Adressensuche
  * @param {string} gemeindeteil_abkuerzung - Abkürzung des Gemeindeteils aus dem Resultat aus der Adressensuche
- * @returns {string} - Resultat aus der Adressensuche
+ * @returns {string} - HTML-Resultat
  */
 function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
   let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + uuid + '"><strong>' + titel + '</strong>';
@@ -313,10 +318,10 @@ function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
  *
  * initialisiert die Adressensuche
  *
- * @param {Object} searchField - Suchfeld
+ * @param {Object} searchField - Sucheingabefeld der Adressensuche
  * @param {string} url - URL der Adressensuche
- * @param {string} [addressType=''] - Typ des Adressenbezugs (Adresse oder Straße)
- * @param {Object} [addressUuidField=null] - Feld mit UUID der referenzierten Adresse/Straße
+ * @param {string} [addressType=''] - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
+ * @param {Object} [addressUuidField=null] - Feld mit UUID der referenzierten Adresse oder Straße
  */
 function initializeAddressSearch(searchField, url, addressType = '', addressUuidField = null) {
   // bei Klick auf Stelle außerhalb der Adressensuche...
@@ -363,10 +368,21 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  * @param {Object} map - Karte
  */
 function setMapConstants(map) {
+  // allgemeine Konstanten
   map._wmsFormat = 'image/png';
   map._maxLayerZoom = 19;
   map._minLayerZoom = 13;
   map._themaUrl = {};
+
+  // Optionen für das Zeichnen von Objekten
+  map._pathOptions = {
+    color: 'red', // Linienfarbe für gezeichnete Objekte
+    fillColor: 'red', // Füllfarbe für gezeichnete Objekte
+    requireSnapToFinish: true, // Zeichnen von Polygonen endet mit bestehendem Punkt
+    templineStyle: {
+      color: 'red' // Linienfarbe während des Zeichnens
+    }
+  };
 }
 
 /**
@@ -417,10 +433,10 @@ function setMapExtentByLeafletBounds(leafletBounds) {
  *
  * zeigt und behandelt die Resultate der Adressensuche
  *
- * @param {Object} json - Resultate der Adressensuche
- * @param {string} addressType - Typ des Adressenbezugs (Adresse oder Straße)
- * @param {Object} searchField - Suchfeld
- * @param {Object} addressUuidField - Feld mit UUID der referenzierten Adresse/Straße
+ * @param {JSON} json - Resultate der Adressensuche
+ * @param {string} addressType - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
+ * @param {Object} searchField - Sucheingabefeld der Adressensuche
+ * @param {Object} addressUuidField - Feld mit UUID der referenzierten Adresse oder Straße
  */
 function showAddressSearchResults(json, addressType, searchField, addressUuidField) {
   // Resultate leeren
@@ -467,7 +483,7 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
     // falls Datenmodell Adressenbezug vorsieht...
     if (addressType !== '') {
       // Text des Resultats in Suchfeld übernehmen
-      // und UUID als Data-Attribut in Feld mit UUID der referenzierten Adresse/Straße übernehmen
+      // und UUID als Data-Attribut in Feld mit UUID der referenzierten Adresse oder Straße übernehmen
       let text = $(this).children('strong').text();
       if ($(this).children('small'))
         text += ' ' + $(this).children('small').text();

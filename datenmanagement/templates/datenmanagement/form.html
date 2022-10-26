@@ -185,7 +185,7 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-          <button class="btn btn-success" type="submit" onclick="setAddressUuid();"><i class="fas fa-floppy-disk"></i> speichern</button>
+          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
           <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><i class="fas fa-trash"></i> löschen</a>
@@ -376,7 +376,7 @@
         {% endif %}
       });
 
-      // falls Datenmodell Adressbezug vorsieht...
+      // falls Datenmodell Adressen-/Straßenbezug vorsieht...
       {% if address_type %}
         /**
          * @function
@@ -392,7 +392,7 @@
             // Adressen-/Straßenbezug für gesetze Geometrie setzen
             setAddressOrStreet('{{ address_type }}', layer);
             // bei Bewegungs-Event Adressen-/Straßenbezug neu setzen
-            {% if geometry_type == "Point" %}
+            {% if geometry_type == 'Point' %}
               layer.on('pm:dragend', (e) => {
                 setAddressOrStreet('{{ address_type }}', e.layer);
               });
@@ -405,7 +405,6 @@
             $('#postcode_assigner').addClass('text-success enabled');
             $('#postcode_assigner').attr('title', 'Postleitzahl automatisch zuweisen');
           {% else %}
-            $('#addressToMap').prop('disabled', false);
             $('#mapToAddress').prop('disabled', false);
             $('#mapToStreet').prop('disabled', false);
           {% endif %}
@@ -507,24 +506,27 @@
       // Adressensuche initialisieren
       // dabei Resultate der Adressensuche auch in anderen Scopes bzw. außerhalb der Hauptfunktion verfügbar machen
       window.results = $('div.results');
-      let searchField = $('#id_address_search');
-      let addressType, addressUuidField;
       {% if address_type %}
-        addressType = '{{ address_type }}';
-        {% if address_type == 'Adresse' %}
-          searchField = $('#id_adresse');
-          addressUuidField = $('#id_adresse_uuid');
-        {% elif address_type == 'Straße' %}
-          searchField = $('#id_strasse');
-          addressUuidField = $('#id_strasse_uuid');
-        {% endif %}
+        window.addressType = '{{ address_type }}';
+      {% else %}
+        window.addressType = '';
       {% endif %}
+      if (window.addressType === 'Adresse') {
+        window.searchField = $('#id_adresse');
+        window.addressUuidField = $('#id_adresse_uuid');
+      } else if (window.addressType === 'Straße') {
+        window.searchField = $('#id_strasse');
+        window.addressUuidField = $('#id_strasse_uuid');
+      } else {
+        window.searchField = $('#id_address_search');
+        window.addressUuidField = null;
+      }
       initializeAddressSearch(searchField, '{% url "datenmanagement:addresssearch" %}', addressType, addressUuidField);
 
       // bei Klick auf Button „Marker setzen“...
       $('#addressToMap').on('click', function() {
-        // Marker auf Adresse oder Straße aus Adressensuche setzen
-        getAddress(window.currMap);
+        // Marker in der Karte auf Adresse oder Straße aus Adressensuche setzen
+        setMarkerToAddressOrStreet(window.currMap);
         $('#mapToAddress').prop('disabled', false);
         $('#mapToStreet').prop('disabled', false);
       });
@@ -532,22 +534,23 @@
       // bei Klick auf Button „Adresse übernehmen“...
       $('#mapToAddress').on('click', function() {
         // aktuelle Adresse der Geometrie in der Karte übernehmen
-        setAddressOrStreet('{{ address_type }}', window.currMap.pm.getGeomanLayers()[0]);
+        setAddressOrStreet(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
       // bei Klick auf Button „Straße übernehmen“...
       $('#mapToStreet').on('click', function() {
         // aktuelle Straße der Geometrie in der Karte übernehmen
-        setAddressOrStreet('{{ address_type }}', window.currMap.pm.getGeomanLayers()[0]);
+        setAddressOrStreet(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
       // verhindern, dass HTML5-/jQuery-Fehlermeldungen bei Pflichtfeldern die Django-Fehlermeldungen überdecken
       $('[required]').removeAttr('required');
 
-      // bei Desktop: vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
-      {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+      // bei Desktop und bei vorhandener Karte:
+      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
+      {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
         let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
         $('#buttons').offset({
           top: top
@@ -601,241 +604,164 @@
     });
 
     /**
-     * Marker auf Adresse oder Straße aus Adressfeld setzen
+     * @function
+     * @name setMarkerToAddressOrStreet
      *
-     * @param map - Leaflet Karte
+     * @param {Object} map - Karte
+     *
+     * setzt Marker in der Karte auf Adresse oder Straße aus Adressensuche
      */
-    function getAddress(map) {
-      let x = 0;
-      let y = 0;
+    function setMarkerToAddressOrStreet(map) {
       if (map.pm.getGeomanLayers().length > 0) {
         let layer = map.pm.getGeomanLayers()[0];
         if (layer._drawnByGeoman && layer._latlng) {
-          if (featureGeometry.type === 'Point') {
-            x = featureGeometry.coordinates[0];
-            y = featureGeometry.coordinates[1];
-          } else {
-            x = featureGeometry.coordinates[0][1][0] + ((featureGeometry.coordinates[0][0][0] - featureGeometry.coordinates[0][1][0]) / 2);
-            y = featureGeometry.coordinates[0][0][1] + ((featureGeometry.coordinates[0][2][1] - featureGeometry.coordinates[0][0][1]) / 2);
-          }
-          layer.setLatLng([y, x]);
+          let latLng = getFeatureGeometryLatLng(featureGeometry);
+          if (latLng[0] !== 0 && latLng[1] !== 0)
+            layer.setLatLng(latLng);
         }
       } else {
-        {% if geometry_type == "Point" %}
-          if (featureGeometry.type === 'Point') {
-            x = featureGeometry.coordinates[0];
-            y = featureGeometry.coordinates[1];
-          } else {
-            x = featureGeometry.coordinates[0][1][0] + ((featureGeometry.coordinates[0][0][0] - featureGeometry.coordinates[0][1][0]) / 2);
-            y = featureGeometry.coordinates[0][0][1] + ((featureGeometry.coordinates[0][2][1] - featureGeometry.coordinates[0][0][1]) / 2);
-          }
-          let layer = new L.Marker([y, x],{icon: redMarker,});
+        {% if geometry_type == 'Point' %}
+          let layer = new L.Marker(getFeatureGeometryLatLng(featureGeometry), {
+            icon: redMarker
+          });
           layer._drawnByGeoman = true;
           layer.addTo(window.currMap);
         {% endif %}
       }
     }
 
-
     /**
-     * Liefert das Zentrum eines GeoJSON-Features zurück
+     * @function
+     * @name setAddressOrStreet
      *
-     * @param {JSON} json - GeoJSON
+     * @param addressType - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
+     * @param {Object} layer - Layer
+     *
+     * übernimmt aktuelle Adresse oder Straße der Geometrie in der Karte
      */
-    function getCenter(json) {
-      let xArray = [];
-      let yArray = [];
-      let ort = [];
+    function setAddressOrStreet(addressType, layer) {
+      let geoJson = layer.toGeoJSON();
+      let geometryType;
       {% if 'point' in geometry_type|lower %}
-        ort = json.geometry.coordinates;
+        geometryType = 'Point';
       {% elif 'line' in geometry_type|lower %}
-        Array.min = function( array ) {
-          return Math.min.apply( Math, array );
-        };
-        Array.max = function( array ) {
-          return Math.max.apply( Math, array );
-        };
-        $.each(json.geometry.coordinates, function(index) {
-          xArray.push(json.geometry.coordinates[index][0]);
-          yArray.push(json.geometry.coordinates[index][1]);
-        });
-        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+        geometryType = 'LineString';
       {% elif 'polygon' in geometry_type|lower %}
-        Array.min = function( array ) {
-          return Math.min.apply( Math, array );
-        };
-        Array.max = function( array ) {
-          return Math.max.apply( Math, array );
-        };
-        $.each(json.geometry.coordinates, function(index_outer) {
-          $.each(json.geometry.coordinates[index_outer], function(index_inner) {
-            xArray.push(json.geometry.coordinates[index_outer][index_inner][0]);
-            yArray.push(json.geometry.coordinates[index_outer][index_inner][1]);
-          });
-        });
-        ort[0] = Array.min(xArray) + ((Array.max(xArray) - Array.min(xArray)) / 2);
-        ort[1] = Array.min(yArray) + ((Array.max(yArray) - Array.min(yArray)) / 2);
+        geometryType = 'Polygon';
       {% endif %}
-
-      return ort;
-    }
-
-
-    /**
-     * Übernimmt Adresse aus Koordinaten eines Layers
-     *
-     * @param type - Typ
-     * @param {layer} layer - Layer
-     */
-    function setAddressOrStreet(type, layer) {
-      let json = layer.toGeoJSON();
-      let ort = getCenter(json);
+      let ort = getFeatureCenter(geoJson, geometryType);
       let url = '{% url "datenmanagement:reversesearch" %}';
       fetch(url + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
         method: 'GET'
       })
       .then(response => response.json())
       .then(data => {
-        if (ort[0] !== 0 && ort[1] !== 0) {
-          adoptResult(data, type)
-        }
+        if (ort[0] !== 0 && ort[1] !== 0)
+          adoptReverseSearchResult(data, addressType);
       })
       .catch(error => console.log(error))
     }
 
-
     /**
+     * @function
+     * @name adoptReverseSearchResult
      *
+     * @param {JSON} geoJson - Resultate der Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
+     * @param {string} addressType - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
      *
-     *  @param {JSON} json -
-     *  @param {string} type -
+     * adaptiert die Resultate der Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
      */
-    function adoptResult(json, type) {
+    function adoptReverseSearchResult(geoJson, addressType) {
       let erfolg = false;
-      if (type === 'Straße') {
-        jQuery.each(json.features, function(index, item) {
-          if (item.properties.objektgruppe === 'Straße') {
-            let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-            if (item.properties.gemeindeteil_abkuerzung)
-              text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
-            $('#id_strasse').val(text);
-            $('#id_strasse_uuid').val(item.properties.uuid);
-            erfolg = true;
-            return false;
-          }
-        });
-        if (erfolg === false)
-          modalToggler($('#maptostreet-error-modal'));
-      } else if (type === 'Adresse') {
-        jQuery.each(json.features, function(index, item) {
-          if (item.properties.objektgruppe === 'Adresse') {
-            let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-            if (item.properties.gemeindeteil_abkuerzung)
-              text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
-            $('#id_adresse').val(text);
-            $('#id_adresse_uuid').val(item.properties.uuid);
-            erfolg = true;
-            return false;
-          }
-        });
-        if (erfolg === false)
-          modalToggler($('#maptoaddress-error-modal'));
+      jQuery.each(geoJson.features, function(index, item) {
+        if (item.properties.objektgruppe === addressType) {
+          let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
+          if (item.properties.gemeindeteil_abkuerzung)
+            text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
+          searchField.val(text);
+          if (addressUuidField)
+            addressUuidField.val(item.properties.uuid);
+          erfolg = true;
+          return false;
+        }
+      });
+      if (erfolg === false) {
+        if (addressType === 'Adresse')
+          toggleModal($('#maptoaddress-error-modal'));
+        else if (addressType === 'Straße')
+          toggleModal($('#maptostreet-error-modal'));
       }
-    }
-
-    function setAddressUuid() {
-      /**
-       * Adresse bzw. Straße auf Werte der entsprechenden Hidden-Input-Felder setzen
-       */
-      {% if address_type == 'Adresse' %}
-        if ($.trim($('#id_adresse').val()).length)
-          $('#id_adresse').val($('#id_adresse_uuid').val());
-      {% elif address_type == 'Straße' %}
-        if ($.trim($('#id_strasse').val()).length)
-          $('#id_strasse').val($('#id_strasse_uuid').val());
-      {% endif %}
-      setCoordinates();
-    }
-
-    function modalToggler(modal) {
-      modal.modal('toggle')
     }
 
     /**
      * @function
-     * @name setCoordinates
+     * @name setFinalGeometry
      *
-     * Koordinaten der gezeichneten Layer auf der Karten in Hidden-Inputfeld #id_geometry schreiben
+     * übernimmt erstellte Geometrie(n) aus der Karte final in Feld #id_geometry
      */
-    function setCoordinates() {
-      let jsonGeometrie;
-      if (currMap.pm.getGeomanDrawLayers().length < 1) {
-        let coordinates;
-        {% if geometry_type == "Point" %}
-          coordinates = [0, 0];
-        {% elif geometry_type == "Polygon" %}
-          coordinates = [[]];
-        {% else %}
-          coordinates = [];
-        {% endif %}
-        jsonGeometrie = {
-          'type': '{{ geometry_type }}',
-          'coordinates': coordinates
-          };
-        $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
-      } else {
-        {% if geometry_type == 'MultiPolygon' or geometry_type == 'MultiPoint' or geometry_type == 'MultiLineString' %}
-          let coords = [];
-          let temp;
-
-          currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
-            temp = layer.toGeoJSON().geometry;
-            // Geoman malt mit Polygonen. Daher überprüfen ob Layer Polygon oder Multipolygon ist.
-            if (temp.type.search('Multi') > -1) {
-              for (let i = 0; i < temp.coordinates.length; i++) {
-                coords.push(temp.coordinates[i]);
-              }
-            } else {
-              coords.push(temp.coordinates);
-            }
-          });
+    function setFinalGeometry() {
+      {% if geometry_type %}
+        let jsonGeometrie;
+        if (currMap.pm.getGeomanDrawLayers().length < 1) {
+          let coordinates;
+          {% if geometry_type == 'Point' %}
+            coordinates = [0, 0];
+          {% elif geometry_type == 'Polygon' %}
+            coordinates = [[]];
+          {% else %}
+            coordinates = [];
+          {% endif %}
           jsonGeometrie = {
             'type': '{{ geometry_type }}',
-            'coordinates': coords,
+            'coordinates': coordinates
           };
-        {% else %}
-          jsonGeometrie = currMap.pm.getGeomanDrawLayers()[0].toGeoJSON().geometry;
-        {% endif %}
+        } else {
+          {% if geometry_type == 'MultiPolygon' or geometry_type == 'MultiPoint' or geometry_type == 'MultiLineString' %}
+            let coordinates = [];
+            let temp;
+            currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
+              temp = layer.toGeoJSON().geometry;
+              if (temp.type.search('Multi') > -1) {
+                for (let i = 0; i < temp.coordinates.length; i++) {
+                  coordinates.push(temp.coordinates[i]);
+                }
+              } else {
+                coordinates.push(temp.coordinates);
+              }
+            });
+            jsonGeometrie = {
+              'type': '{{ geometry_type }}',
+              'coordinates': coordinates,
+            };
+          {% else %}
+            jsonGeometrie = currMap.pm.getGeomanDrawLayers()[0].toGeoJSON().geometry;
+          {% endif %}
+        }
         $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
-      }
+        // setzt Adressen- oder Straßenreferenz aus Feld mit UUID der referenzierten Adresse oder Straße
+        if (addressUuidField && $.trim(searchField.val()).length)
+          searchField.val(addressUuidField.val());
+      {% endif %}
     }
 
     {% if gpx_input %}
+      // bei Auswahl einer Datei im GPX-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben
+      // und die ausgewählte GPX-Datei zum Server geschickt; als Antwort des Servers wird der Inhalt der GPX-Datei
+      // als GeoJSON mit den zusätzlichen Attributen mit Start- und Endzeitpunkt erwartet;
+      // diese Attribute werden nach dem erfolgreichen Empfangen der Antwort des Servers in die dafür vorgesehenen Input-Felder geschrieben
+      // und die Geometrie auf die Karte gezeichnet
       $('#id_gpx').change(function(e) {
-        /**
-         * @function
-         * Bei Auswahl von Datei im GPX-Upload Feld, wird Label mit Dateinamen überschrieben und die ausgewählte GPX zum
-         * Server geschickt. Als Response wird der Inhalt der GPX als GeoJson erwartet mit den zusätzlichen Attributen
-         * 'Startzeitpunkt' und Endzeitpunkt. Diese Attribute werden beim Empfangen in die dafür vorgesehenen Input-Felder
-         * geschrieben und die Geometrie auf der Karte gezeichnet.
-         *
-         * @param e
-         */
-        modalToggler($('#id_gpxLoading'));
-
+        toggleModal($('#id_gpxLoading'));
         let file = e.target.files[0];
         let formData = new FormData();
         formData.append('gpx', file);
-
-        // Geoman-Layer von Karte entfernen (falls vorher schon eine Datei hochgeladen wurde)
+        // Leaflet-Geoman-Layer von Karte entfernen (falls zuvor schon eine GPX-Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {
           if (layer.toGeoJSON().properties.datenthema !== 'Fallwildsuchen_Kontrollgebiete') {
             layer.remove();
           }
         });
-
-        // Upload der GPX-Datei und Warten auf Response
+        // Upload der GPX-Datei und Warten auf Antwort des Servers
         fetch(
           '{% url "datenmanagement:gpxtogeojson" %}', {
             method: 'POST',
@@ -847,34 +773,35 @@
           }
         ).then(
           (data) => {
-            // Wenn data StatusCode enthält (Fehler bei der Kommunikation mit FME) => Ausgabe des Fehlers
+            // falls Fehler bei der Kommunikation mit FME auftrat...
             if (data.StatusCode) {
+              // Ausgabe der Fehlermeldung
               console.log('Fehler bei Kommunikation mit FME');
               console.log(data);
+            // ansonsten...
             } else {
-              // Start- und Endzeitpunkt aus JSON auslesen und in Input-Felder schreiben
+              // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben
               $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
               $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
               // Layer erzeugen
               let track = new L.geoJSON(data, {
-                color: 'red',
+                color: 'red'
               });
-              // Layer und alle Sublayer zu Geoman Draw Layer hinzufügen
+              // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
               track._changeGeom = true;
               track.eachLayer((layer) => {
                 layer._drawnByGeoman = true;
               });
-              // Layer zur Karte hinzufügen
+              // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
               track.addTo(currMap);
             }
-            modalToggler($('#id_gpxLoading'));
+            toggleModal($('#id_gpxLoading'));
           }
         ).catch(
           (error) => {
             $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
             $('#id_gpxLoading-body').text(
-              'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. ' +
-              'Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
+              'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
             );
             $('#id_gpxLoading-body').after(
               '<div class="modal-footer">' +
@@ -888,32 +815,28 @@
     {% endif %}
 
     {% if postcode_assigner %}
+      // beim Klick auf das Icon für die automatische Zuweisung einer Postleitzahl wird der Server entsprechend angefragt;
+      // als Antwort des Servers wird ein GeoJSON mit einem Attribut mit der Postleitzahl erwartet;
+      // dieses Attribute wird nach dem erfolgreichen Empfangen der Antwort des Servers in das dafür vorgesehene Input-Feld geschrieben
+      // und die Geometrie auf die Karte gezeichnet
       $('#postcode_assigner').parent('span').click(function() {
-        /**
-         * @function
-         * Beim Klick auf das Icon für die automatische Zuweisung
-         * einer Postleitzahl wird der Server entsprechend angefragt.
-         * Als Antwort des Servers wird ein GeoJSON erwartet
-         * mit einem Attribut mit der Postleitzahl. Der Wert
-         * dieses Attributes wird nach dem erfolgreichen Empfangen
-         * der Antwort des Servers in das dafür vorgesehene
-         * Input-Feld geschrieben.
-         *
-         * @param e
-         */
-
-        let json = currMap.pm.getGeomanLayers()[0].toGeoJSON();
-        let ort = getCenter(json);
-
-        // Anfragen des Servers und Warten auf Antwort
+        let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
+        let geometryType;
+        {% if 'point' in geometry_type|lower %}
+          geometryType = 'Point';
+        {% elif 'line' in geometry_type|lower %}
+          geometryType = 'LineString';
+        {% elif 'polygon' in geometry_type|lower %}
+          geometryType = 'Polygon';
+        {% endif %}
+        let ort = getFeatureCenter(geoJson, geometryType);
+        // Anfragen des Servers und Warten auf Antwort des Servers
         let params = {
           search_class: 'postcode_areas',
           x: ort[0],
           y: ort[1]
         };
-        let query = Object.keys(params)
-                    .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
-                    .join('&');
+        let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
         let url = '{% url "datenmanagement:reversesearch" %}' + '?' + query;
         fetch(
           url
@@ -929,18 +852,15 @@
         ).catch(
           (error) => {
             console.error(error);
-            modalToggler($('#id_postcodeAssigning'));
+            toggleModal($('#id_postcodeAssigning'));
           }
         );
       });
     {% endif %}
 
-    {% if model_name == "Fallwildsuchen_Nachweise" %}
-      /**
-       * @function
-       *
-       * Laden des ausgewählten Kontrollgebietes im Rahmen einer Fallwildsuche
-       */
+    {% if model_name == 'Fallwildsuchen_Nachweise' %}
+      // bei Zuweisung eines bzw. Änderung des Kontrollgebietes im Rahmen einer Fallwildsuche
+      // wird dessen Geometrie auf die Karte gezeichnet
       $('#id_kontrollgebiet').change(function() {
         let element = $('#id_kontrollgebiet option:selected')[0];
         let url = "{% url 'datenmanagement:'|add:'Fallwildsuchen_Kontrollgebiete'|add:'geometry' %}";

@@ -896,7 +896,8 @@
           });
           $('#map-side-container').height(height);
           $('#map').height(height);
-          currMap.invalidateSize();
+          if (typeof currMap !== 'undefined')
+            currMap.invalidateSize();
         {% endif %}
       });
 
