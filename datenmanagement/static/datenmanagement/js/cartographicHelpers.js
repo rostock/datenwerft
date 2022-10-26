@@ -183,9 +183,10 @@ function configureLeafletGeoman(map, geometryType = '') {
  * konfiguriert die übergebene Karte
  *
  * @param {Object} map - Karte
+ * @param {Object} owsProxyUrl - URL des OWS-Proxies
  * @param {Object} [additionalWmsLayers={}] - zusätzliche Karten
  */
-function configureMap(map, additionalWmsLayers = {}) {
+function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   // Rendering der Feature-Layer auf der Karte etwas beschleunigen
   map.preferCanvas = true;
 
@@ -220,7 +221,7 @@ function configureMap(map, additionalWmsLayers = {}) {
   });
 
   // Liegenschaftskarte definieren
-  const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
+  const liegenschaftskarte = L.tileLayer.wms(owsProxyUrl + '/liegenschaftskarte/wms', {
     layers: 'hro.liegenschaftskarte',
     format: map._wmsFormat,
     maxZoom: map._maxLayerZoom,
@@ -228,7 +229,7 @@ function configureMap(map, additionalWmsLayers = {}) {
   });
 
   // Luftbild definieren
-  const luftbild = L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+  const luftbild = L.tileLayer(owsProxyUrl + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/M-V'
   });

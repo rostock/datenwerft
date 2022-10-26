@@ -218,7 +218,7 @@
         setMapConstants(map);
 
         // Karte konfigurieren
-        configureMap(map);
+        configureMap(map, '{% url "datenmanagement:owsproxy" %}');
 
         // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.currMap = map;

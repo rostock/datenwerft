@@ -274,7 +274,7 @@
       {% endif %}
 
       // Karte konfigurieren
-      configureMap(map, additionalWmsLayers);
+      configureMap(map, '{% url "datenmanagement:owsproxy" %}', additionalWmsLayers);
 
       // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
       window.currMap = map;
