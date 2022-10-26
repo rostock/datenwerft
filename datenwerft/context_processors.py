@@ -3,14 +3,32 @@ from django.urls import reverse, NoReverseMatch
 
 
 def address_search_key(request):
+  """
+  holt den API-Key für die Adressen-/Straßensuche aus den Einstellungen
+
+  :param request: Anfrage
+  :return: API-Key für die Adressen-/Straßensuche
+  """
   return {'address_search_key': settings.ADDRESS_SEARCH_KEY}
 
 
 def datenmanagement_version(request):
+  """
+  holt die Versionsnummer der Anwendung aus den Einstellungen
+
+  :param request: Anfrage
+  :return: Versionsnummer der Anwendung
+  """
   return {'datenmanagement_version': settings.DATENMANAGEMENT_VERSION}
 
 
 def include_login_form(request):
+  """
+  setzt das Login-Formular
+
+  :param request: Anfrage
+  :return: Login-Formular
+  """
   from django.contrib.auth.forms import AuthenticationForm
   form = AuthenticationForm()
   loginredirect = request.get_full_path()

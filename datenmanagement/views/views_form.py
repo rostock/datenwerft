@@ -16,6 +16,13 @@ from . import fields, functions
 
 
 class DataForm(ModelForm):
+  """
+  definiert Basisformular
+
+  :param *args
+  :param **kwargs
+  """
+
   required_css_class = 'required'
 
   def __init__(self, *args, **kwargs):
@@ -144,12 +151,12 @@ class DataForm(ModelForm):
                               'invalid_image': invalid_image_message,
                               'unique': unique_message}
 
-  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
-  # Namen foto existiert.
   def clean_foto(self):
     """
+    bereinigt Feld mit Foto
+    (Hinweis: Methode wird durch Django ignoriert, falls ein solches Feld nicht existiert)
 
-    :return:
+    :return: bereinigtes Feld mit Foto
     """
     if self.multi_foto_field and self.multi_foto_field:
       # alle weiteren Operationen nur durchführen, wenn auch wirklich
@@ -185,12 +192,12 @@ class DataForm(ModelForm):
     # wird.
     return self.cleaned_data['foto']
 
-  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
-  # Namen dateiname_original existiert.
   def clean_dateiname_original(self):
     """
+    bereinigt Feld mit Original-Dateiname
+    (Hinweis: Methode wird durch Django ignoriert, falls ein solches Feld nicht existiert)
 
-    :return:
+    :return: bereinigtes Feld mit Original-Dateiname
     """
     data = self.cleaned_data['dateiname_original']
     if self.multi_foto_field and self.multi_foto_field:
@@ -202,12 +209,12 @@ class DataForm(ModelForm):
         data = self.file.getlist('foto')[0].name
     return data
 
-  # Hinweis: Diese Methode wird durch Django ignoriert, falls kein Feld mit
-  # Namen geometrie existiert.
   def clean_geometrie(self):
     """
+    bereinigt Feld mit Geometrie
+    (Hinweis: Methode wird durch Django ignoriert, falls ein solches Feld nicht existiert)
 
-    :return:
+    :return: bereinigtes Feld mit Geometrie
     """
     data = self.cleaned_data['geometrie']
     error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche ' \
@@ -221,6 +228,10 @@ class DataForm(ModelForm):
 class DataAddView(generic.CreateView):
   """
   erstellt ein neues Datenbankobjekt eines Datensatzes
+
+  :param model: Datenmodell
+  :param template_name: Name des Templates
+  :param success_url: Success-URL
   """
 
   def __init__(self, model=None, template_name=None, success_url=None):
@@ -236,9 +247,9 @@ class DataAddView(generic.CreateView):
 
   def get_form_kwargs(self):
     """
-    Liefert **kwargs als Dictionary für ein Formular.
+    liefert **kwargs als Dictionary mit Formularattributen
 
-    :return: Dictionary mit Formularattributen
+    :return: **kwargs als Dictionary mit Formularattributen
     """
     kwargs = super(DataAddView, self).get_form_kwargs()
     self = functions.set_form_attributes(self)
@@ -269,10 +280,10 @@ class DataAddView(generic.CreateView):
 
   def get_context_data(self, **kwargs):
     """
-    Liefert Dictionary mit Context-Daten des Views
+    liefert Dictionary mit Kontextelementen des Views
 
     :param kwargs:
-    :return: Context als Dict
+    :return: Dictionary mit Kontextelementen des Views
     """
     context = super(DataAddView, self).get_context_data(**kwargs)
     context = functions.set_model_related_context_elements(context, self.model)
@@ -284,7 +295,7 @@ class DataAddView(generic.CreateView):
 
   def get_initial(self):
     """
-    Liefert
+    initialisiert View
 
     :return:
     """
@@ -324,10 +335,10 @@ class DataAddView(generic.CreateView):
 
   def form_valid(self, form):
     """
-    Sendet ein HTTPResponse, wenn Formular valide ist
+    sendet eine HTTP-Response, wenn Formular valide ist
 
-    :param form: Formular, welches geprüftwerden soll
-    :return: Success URL als HTTPResponse, falls valide
+    :param form: Formular, das geprüft werden soll
+    :return: Success-URL als HTTP-Response, falls Formular valide
     """
     return super(DataAddView, self).form_valid(form)
 
@@ -335,12 +346,17 @@ class DataAddView(generic.CreateView):
 class DataChangeView(generic.UpdateView):
   """
   ändert ein vorhandenes Datenbankobjekt eines Datensatzes
+
+  :param model: Datenmodell
+  :param template_name: Name des Templates
+  :param success_url: Success-URL
   """
 
   def get_form_kwargs(self):
     """
+    liefert **kwargs als Dictionary mit Formularattributen
 
-    :return:
+    :return: **kwargs als Dictionary mit Formularattributen
     """
     kwargs = super(DataChangeView, self).get_form_kwargs()
     self = functions.set_form_attributes(self)
@@ -454,10 +470,10 @@ class DataChangeView(generic.UpdateView):
 
   def get_context_data(self, **kwargs):
     """
-    Liefert Dictionary mit Context-Daten des Views
+    liefert Dictionary mit Kontextelementen des Views
 
     :param kwargs:
-    :return: Context als Dict
+    :return: Dictionary mit Kontextelementen des Views
     """
     context = super(DataChangeView, self).get_context_data(**kwargs)
     context = functions.set_model_related_context_elements(context, self.model)
@@ -492,10 +508,10 @@ class DataChangeView(generic.UpdateView):
 
   def get_initial(self):
     """
-    Liefert entweder Adresse oder Straße des Objektes, falls eines der
-    beiden existiert. Falls nicht, wird ein leeres Dictionary zurückgegeben.
+    initialisiert View; liefert entweder Dictionary mit Adresse oder Straße des Objektes zurück,
+    falls edresse oder Straße existiert; falls nicht, wird leeres Dictionary zurückgeliefert
 
-    :return: Leeres Dict oder Dict mit Adresse oder Straße.
+    :return: Dictionary mit Adresse oder Straße oder Dictionary oder
     """
     if hasattr(self.model._meta, 'address_type'):
       if self.model._meta.address_type == 'Adresse' and self.object.adresse:
@@ -508,14 +524,22 @@ class DataChangeView(generic.UpdateView):
       return {}
 
   def form_valid(self, form):
+    """
+    sendet eine HTTP-Response, wenn Formular valide ist
+
+    :param form: Formular, das geprüft werden soll
+    :return: Success-URL als HTTP-Response, falls Formular valide
+    """
     return super(DataChangeView, self).form_valid(form)
 
   def get_object(self, *args, **kwargs):
     """
+    liefert Objekt zurück, das geändert werden soll;
+    bei fehlenden Rechten wird PermissionDenied()-Exeption geworfen
 
     :param args:
     :param kwargs:
-    :return:
+    :return: Objekt, das geändert werden soll
     """
     obj = super(DataChangeView, self).get_object(*args, **kwargs)
     userobjperm_change = ObjectPermissionChecker(
@@ -535,12 +559,12 @@ class DataDeleteView(generic.DeleteView):
 
   def get_object(self, *args, **kwargs):
     """
-    Gibt Objekt zurück, welches gelöscht werden soll. Bei fehlenden Rechten
-    wird PermissionDenied() Exeption geworfen.
+    liefert Objekt zurück, das gelöscht werden soll;
+    bei fehlenden Rechten wird PermissionDenied()-Exeption geworfen
 
     :param args:
     :param kwargs:
-    :return: zu löschendes Objekt
+    :return: Objekt, das gelöscht werden soll
     """
     obj = super(DataDeleteView, self).get_object(*args, **kwargs)
     userobjperm_delete = ObjectPermissionChecker(

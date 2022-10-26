@@ -20,6 +20,8 @@ from . import functions
 class DataView(BaseDatatableView):
   """
   bereitet Datenbankobjekte für Tabellenansicht auf
+
+  :param model: Datenmodell
   """
 
   def __init__(self, model=None):
@@ -54,11 +56,11 @@ class DataView(BaseDatatableView):
 
   def prepare_results(self, qs):
     """
-    Checkt Datensatz auf Datentypen und erstellt daraus eine
-    Liste mit angepasstem Inhalt (Bsp: True -> ja)
+    prüft Datensatz auf Datentypen und erstellt daraus ein JSON mit angepasstem Inhalt
+    (Beispiel: True -> ja)
 
-    :param qs: QuerySet
-    :return: Json
+    :param qs: Datensatz
+    :return: Datensatz als JSON
     """
     json_data = []
     for item in qs:
@@ -208,9 +210,10 @@ class DataView(BaseDatatableView):
 
   def filter_queryset(self, qs):
     """
+    filtert Datensatz
 
-    :param qs:
-    :return:
+    :param qs: Datensatz
+    :return: gefilterter Datensatz
     """
     search = self.request.GET.get('search[value]', None)
     if search:
@@ -253,6 +256,12 @@ class DataView(BaseDatatableView):
     return qs
 
   def ordering(self, qs):
+    """
+    sortiert Datensatz
+
+    :param qs: Datensatz
+    :return: sortierter Datensatz
+    """
     order_column = self.request.GET.get('order[0][column]', None)
     order_dir = self.request.GET.get('order[0][dir]', None)
     columns = list(self.columns.keys())
@@ -267,6 +276,10 @@ class DataView(BaseDatatableView):
 class DataListView(generic.ListView):
   """
   listet alle Datenbankobjekte eines Datensatzes in einer Tabelle auf
+
+  :param model: Datenmodell
+  :param template_name: Name des Templates
+  :param success_url: Success-URL
   """
 
   def __init__(self, model=None, template_name=None, success_url=None):
@@ -276,13 +289,18 @@ class DataListView(generic.ListView):
 
   def get_queryset(self):
     """
-    Funktion für Standard-Rückgabewert überschreiben,
-    damit diese nichts zurückgibt
-    statt stumpf die Gesamtmenge aller Objekte des Datenmodells
+    überschreibt Funktion für Standard-Rückgabewert,
+    damit diese nichts zurückgibt statt stumpf die Gesamtmenge aller Objekte des Datenmodells
     """
     return
 
   def get_context_data(self, **kwargs):
+    """
+    liefert Dictionary mit Kontextelementen des Views
+
+    :param kwargs:
+    :return: Dictionary mit Kontextelementen des Views
+    """
     context = super(DataListView, self).get_context_data(**kwargs)
     context = functions.set_model_related_context_elements(context, self.model, True)
     context['list_fields_labels'] = list(self.model._meta.list_fields.values())
@@ -295,6 +313,8 @@ class DataMapView(JsonView):
   Abfrage aller Datenbankobjekte eines Datensatzes für die Karte
   * limit: auf n Datenbankobjekte limitieren (entspricht SQL-LIMIT)
   * offset: alle weiteren Datenbankobjekte ab dem n-ten Datenbankobjekt (entspricht SQL-OFFSET)
+
+  :param model: Datenmodell
   """
   model = None
 
@@ -305,6 +325,12 @@ class DataMapView(JsonView):
     super(DataMapView, self).__init__()
 
   def get_context_data(self, **kwargs):
+    """
+    liefert Dictionary mit Kontextelementen des Views
+
+    :param kwargs:
+    :return: Dictionary mit Kontextelementen des Views
+    """
     map_features, limit, offset = None, None, None
     if self.request.GET.get('limit'):
       limit = int(self.request.GET.get('limit'))
@@ -445,6 +471,9 @@ class DataMapListView(generic.ListView):
   """
   zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an;
   außerdem werden, falls definiert, entsprechende Filtermöglichkeiten geladen
+
+  :param model: Datenmodell
+  :param template_name: Name des Templates
   """
 
   def __init__(self, model=None, template_name=None):
@@ -456,18 +485,17 @@ class DataMapListView(generic.ListView):
 
   def get_queryset(self):
     """
-    Funktion für Standard-Rückgabewert überschreiben,
-    damit diese nichts zurückgibt
-    statt stumpf die Gesamtmenge aller Objekte des Datenmodells
+    überschreibt Funktion für Standard-Rückgabewert,
+    damit diese nichts zurückgibt statt stumpf die Gesamtmenge aller Objekte des Datenmodells
     """
     return
 
   def get_context_data(self, **kwargs):
     """
-    Liefert Dictionary mit Context des DataMapListView.
+    liefert Dictionary mit Kontextelementen des Views
 
     :param kwargs:
-    :return:
+    :return: Dictionary mit Kontextelementen des Views
     """
     # Variablen für Filterfelder vorbereiten,
     # die als Intervallfelder fungieren sollen,

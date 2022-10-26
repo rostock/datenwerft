@@ -15,11 +15,18 @@ class OWSProxyView(generic.View):
   """
   Proxy für OGC Web Services (OWS)
 
-  auch interne OWS können nach außen bereitgestellt werden
+  mit diesem können auch interne OWS nach außen bereitgestellt werden
   """
   http_method_names = ['get', ]
 
   def dispatch(self, request, *args, **kwargs):
+    """
+
+    :param request:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     self.destination_url = settings.OWS_BASE + re.sub(
         pattern='^.*owsproxy',
         repl='',
@@ -28,6 +35,13 @@ class OWSProxyView(generic.View):
     return super(OWSProxyView, self).dispatch(request, *args, **kwargs)
 
   def get(self, request, *args, **kwargs):
+    """
+
+    :param request:
+    :param args:
+    :param kwargs:
+    :return:
+    """
     response = requests.get(self.destination_url, timeout=60)
     return HttpResponse(response,
                         content_type=response.headers['content-type'])
@@ -134,10 +148,13 @@ class ReverseSearchView(generic.View):
 
 class GeometryView(JsonView):
   """
-  Abfrage von Geometrien bestimmter Modelle;
+  Abfrage von Geometrien bestimmter Modelle
+
   zur Filterung können folgende Angaben gemacht werden:
   * lat, lng, (rad): Koordinaten eines Punktes (EPSG:4326) und Radius
   * pk: Primärschlüssel eines Datenbankobjekts
+
+  :param model: Datenmodell
   """
   model = None
 
@@ -146,6 +163,12 @@ class GeometryView(JsonView):
     super(GeometryView, self).__init__()
 
   def get_context_data(self, **kwargs):
+    """
+    liefert Dictionary mit Kontextelementen des Views
+
+    :param kwargs:
+    :return: Dictionary mit Kontextelementen des Views
+    """
     context = super(GeometryView, self).get_context_data(**kwargs)
     # Filtern nach angegebenen Kriterien
     if self.request.GET.get('pk'):
@@ -219,9 +242,8 @@ class GPXtoGeoJSON(generic.View):
   @csrf_exempt
   def dispatch(self, request, *args, **kwargs):
     """
-    ``dispatch()`` wird von ``GPXtoGeoJSON.as_view()`` in ``urls.py``
-    aufgerufen. ``dispatch()`` leitet auf ``post()`` weiter, da ein
-    **POST** Request ausgeführt wurde.
+    ``dispatch()`` wird von ``GPXtoGeoJSON.as_view()`` in ``urls.py`` aufgerufen;
+    ``dispatch()`` leitet auf ``post()`` weiter, da ein **POST**-Request ausgeführt wurde
     :param request:
     :param args:
     :param kwargs:
@@ -232,7 +254,8 @@ class GPXtoGeoJSON(generic.View):
   @csrf_exempt
   def post(self, request, *args, **kwargs):
     """
-    Automatisch von ``dispatch()`` aufgerufen.
+    ``post()`` wird automatisch von ``dispatch()`` aufgerufen
+
     :param request:
     :param args:
     :param kwargs:

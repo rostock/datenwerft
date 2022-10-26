@@ -116,6 +116,13 @@ class GroupObjectPermissionSerializer(serializers.HyperlinkedModelSerializer):
 class DatenmanagementViewSet(viewsets.ModelViewSet):
   @classmethod
   def create_custom(cls, **kwargs):
+    """
+    erstellt Viewset für aktuelles Datenmodell
+
+    :param cls
+    :param **kwargs
+    :return: Viewset für aktuelles Datenmodell
+    """
     class CustomViewSet(cls):
       model = kwargs["model"]
       queryset = kwargs["model"].objects.all()
@@ -123,6 +130,11 @@ class DatenmanagementViewSet(viewsets.ModelViewSet):
     return CustomViewSet
 
   def get_serializer_class(self):
+    """
+    gibt Serializer-Klasse für aktuelles Datenmodell zurück
+
+    :return: Serializer-Klasse für aktuelles Datenmodell
+    """
     if self.serializer_class is not None:
       return self.serializer_class
 
@@ -166,8 +178,7 @@ class GroupObjectPermissionViewSet(viewsets.ModelViewSet):
   serializer_class = GroupObjectPermissionSerializer
 
 
-# Dient zum Routen der Anfragen Abhängig von beispielsweise Nutzergruppen und
-# Berechtigungen
+# dient zum Routen der Anfragen abhängig von beispielsweise Nutzergruppen und Berechtigungen
 router = routers.DefaultRouter()
 router.register(prefix=r'user', viewset=UserViewSet)
 router.register(prefix=r'group', viewset=GroupViewSet)
@@ -187,33 +198,32 @@ for model in app_models:
     basename=modelname
   )
 
-# Routen der URLs zu Views
+# Routen der URLs zu den Views
 urlpatterns = [
-  # '' oder '/' -> Redirect auf 'datenmanagement'
+  # '' oder '/' -> Redirect auf 'datenmanagement' und damit auf die Datenmanagement-Anwendung
   re_path(route=r'^(/?)$',
           view=RedirectView.as_view(url='datenmanagement')),
-  # 'admin/' -> Django Adminpanel
+  # 'admin/' -> Django-Administration
   re_path(route=r'^admin/',
           view=admin.site.urls),
-  # Einloggen: 'accounts/login'
-  # mit Redirect für angemeldete Nutzer
+  # 'accounts/login/' -> Login (mit Redirect für angemeldete Nutzer)
   re_path(route=r'^accounts/login/$',
           view=LoginView.as_view(
             template_name='_registration/login.html',
             redirect_authenticated_user=True
           ),
           name='login'),
-  # Ausloggen: 'accounts/logout/'
+  # 'accounts/logout/' -> Logout
   re_path(route=r'^accounts/logout/$',
           view=LogoutView.as_view(template_name='_registration/logout.html'),
           name='logout'),
-  # Routen von Api URLs
+  # Routen der API-URLs
   re_path(route=r'^api/',
           view=include(router.urls)),
-  # Routen der Api Authentifizierung
+  # Routen der API-Authentifizierung
   re_path(route=r'^api-auth/',
           view=include('rest_framework.urls')),
-  # 'datenmanagement' -> Datenmanagement App
+  # 'datenmanagement' -> Datenmanagement-Anwendung
   re_path(route=r'^datenmanagement/',
           view=include('datenmanagement.urls')),
 ]

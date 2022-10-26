@@ -9,48 +9,53 @@ from datenmanagement.views import functions, views_form, views_helpers, \
 
 
 def permission_required(*perms):
+  """
+  prüft Berechtigung(en)
+
+  :param perms: Berechtigung(en)
+  :return: Prüfung der Berechtigung(en)
+  """
   return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
 
 app_name = 'datenmanagement'
 urlpatterns = [
-  # IndexView
+  # IndexView:
   # Liste der Datenthemen, die zur Verfügung stehen
   re_path(route=r'^$',
           view=views_index_start.IndexView.as_view(),
           name='index'),
-  # OWSProxyView
+  # OWSProxyView:
   # Proxy für OGC Web Services (OWS)
   re_path(route=r'owsproxy',
           view=login_required(views_helpers.OWSProxyView.as_view()),
           name='owsproxy'),
-  # AddressSearchView
+  # AddressSearchView:
   # Adressen-/Straßensuche
   re_path(route=r'addresssearch$',
           view=login_required(views_helpers.AddressSearchView.as_view()),
           name='addresssearch'),
-  # ReverseSearchView
+  # ReverseSearchView:
   # Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
   re_path(route=r'reversesearch$',
           view=login_required(views_helpers.ReverseSearchView.as_view()),
           name='reversesearch'),
-  # GPXtoGeoJSON
-  # Übergabe einer GPX-Datei an FME Server
-  # und Rückgabe des generierten GeoJSON
+  # GPXtoGeoJSON:
+  # Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
   re_path(
     route=r'gpxtogeojson/$',
     view=login_required()(views_helpers.GPXtoGeoJSON.as_view()),
     name='gpxtogeojson'),
 ]
 
-# Erzeuge Views für jedes Datenmodell
+# erzeuge Views für jedes Datenmodell
 app_models = apps.get_app_config(app_name).get_models()
 for model in app_models:
   model_name = model.__name__
   model_name_lower = model_name.lower()
   regex = r'^' + re.escape(model_name) + r'/'
 
-  # StartView
+  # StartView:
   # Startansicht eines Datenthemas
   urlpatterns.append(re_path(
     route=regex + r'$',
@@ -66,7 +71,7 @@ for model in app_models:
     name=model_name + 'start'
   ))
 
-  # DataView
+  # DataView:
   # bereitet Datenbankobjekte für Tabellenansicht auf
   urlpatterns.append(re_path(
     route=regex + r'data/$',
@@ -76,7 +81,7 @@ for model in app_models:
     name=model_name + 'data'
   ))
 
-  # DataListView
+  # DataListView:
   # listet alle Datenbankobjekte eines Datensatzes in einer Tabelle auf
   urlpatterns.append(re_path(
     route=regex + r'list/$',
@@ -91,7 +96,7 @@ for model in app_models:
     name=model_name + 'list'
   ))
 
-  # DataMapView
+  # DataMapView:
   # bereitet Datenbankobjekte für Tabellenansicht auf
   urlpatterns.append(re_path(
     route=regex + r'mapdata/$',
@@ -101,7 +106,7 @@ for model in app_models:
     name=model_name + 'mapdata'
   ))
 
-  # DataMapListView
+  # DataMapListView:
   # zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an
   urlpatterns.append(re_path(
     route=regex + r'map/$',
@@ -116,7 +121,7 @@ for model in app_models:
     name=model_name + 'map'
   ))
 
-  # DataAddView
+  # DataAddView:
   # erstellt ein neues Datenbankobjekt eines Datensatzes
   urlpatterns.append(re_path(
     route=regex + r'add/$',
@@ -130,7 +135,7 @@ for model in app_models:
     name=model_name + 'add'
   ))
 
-  # DataChangeView
+  # DataChangeView:
   # ändert ein vorhandenes Datenbankobjekt eines Datensatzes
   urlpatterns.append(re_path(
     route=regex + r'change/(?P<pk>.*)/$',
@@ -146,7 +151,7 @@ for model in app_models:
     name=model_name + 'change'
   ))
 
-  # DataDeleteView
+  # DataDeleteView:
   # löscht ein vorhandenes Datenbankobjekt eines Datensatzes
   urlpatterns.append(re_path(
     route=regex + r'delete/(?P<pk>.*)/$',
@@ -160,7 +165,7 @@ for model in app_models:
     name=model_name + 'delete'
   ))
 
-  # löscht ein Objekt aus der Datenbank
+  # löscht ein Objekt direkt aus der Datenbank
   urlpatterns.append(re_path(
     route=regex + r'deleteimmediately/(?P<pk>.*)/$',
     view=permission_required(
@@ -169,7 +174,7 @@ for model in app_models:
     name=model_name + 'deleteimmediately'
   ))
 
-  # GeometryView
+  # GeometryView:
   # Abfrage von Geometrien bestimmter Modelle
   urlpatterns.append(re_path(
     route=regex + r'geometry/',

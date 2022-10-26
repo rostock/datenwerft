@@ -6,17 +6,23 @@ class IndexView(generic.ListView):
   """
   Liste der Datenthemen, die zur Verfügung stehen
   """
+
   template_name = 'datenmanagement/index.html'
 
   def get_queryset(self):
     """
-    Funktion für Standard-Rückgabewert überschreiben,
-    damit diese nichts zurückgibt
-    statt stumpf die Gesamtmenge aller Objekte des Datenmodells
+    überschreibt Funktion für Standard-Rückgabewert,
+    damit diese nichts zurückgibt statt stumpf die Gesamtmenge aller Objekte des Datenmodells
     """
     return
 
   def get_context_data(self, **kwargs):
+    """
+    liefert Dictionary mit Kontextelementen des Views
+
+    :param kwargs:
+    :return: Dictionary mit Kontextelementen des Views
+    """
     models_codelist = False
     models_codelist_list = []
     models_complex = False
@@ -61,10 +67,15 @@ class IndexView(generic.ListView):
 
 class StartView(generic.ListView):
   """
-  Startansicht eines Datenthemas mit folgenden Möglichkeiten:
+  Startansicht eines Datenthemas
+
+  folgende Möglichkeiten:
   * neuen Datensatz anlegen
   * Datensätze in Tabelle auflisten
   * Datensätze auf Karte anzeigen
+
+  :param model: Datenmodell
+  :param template_name: Name des Templates
   """
 
   def __init__(self, model=None, template_name=None):
@@ -73,6 +84,12 @@ class StartView(generic.ListView):
     super(StartView, self).__init__()
 
   def get_context_data(self, **kwargs):
+    """
+    liefert Dictionary mit Kontextelementen des Views
+
+    :param kwargs:
+    :return: Dictionary mit Kontextelementen des Views
+    """
     context = super(StartView, self).get_context_data(**kwargs)
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()

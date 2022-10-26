@@ -17,7 +17,7 @@ def assign_widgets(field):
   liefert passendes Formularelement (Widget) zu übergebenem Feld
 
   :param field: Feld
-  :return: Formularelement (Widget)
+  :return: Formularelement (Widget) zu übergebenem Feld
   """
   form_field = field.formfield()
   if form_field.widget.__class__.__name__ == 'Select':
@@ -92,11 +92,11 @@ def delete_object_immediately(request, pk):
 
 def get_data(curr_object, field):
   """
-  gibt für übergebenes Datenobjekt die Daten des übergebenen Feldes zurück
+  gibt die Daten des übergebenen Feldes für das übergebene Datenobjekt zurück
 
   :param curr_object: Datenobjekt
   :param field: Feld
-  :return: Daten
+  :return: Daten des übergebenen Feldes für das übergebene Datenobjekt
   """
   data = getattr(curr_object, field)
   if isinstance(data, date):
@@ -108,10 +108,10 @@ def get_data(curr_object, field):
 
 def get_thumb_url(url):
   """
-  gibt für übergebene URL eines Bildes die zugehörige Thumbnail-URL zurück
+  gibt die zugehörige Thumbnail-URL für die übergebene URL eines Fotos zurück
 
-  :param url: URL eines Bildes
-  :return: URL des zugehörigen Thumbnails
+  :param url: URL eines Fotos
+  :return: zugehörige Thumbnail-URL für die übergebene URL eines Fotos
   """
   head, tail = os.path.split(url)
   return head + '/thumbs/' + tail
@@ -122,7 +122,7 @@ def set_form_attributes(form):
   setzt Attribute im übergebenen Forumular und gibt dieses Forumular anschließend wieder zurück
 
   :param form: Forumular
-  :return: Forumular
+  :return: Forumular mit gesetzten Attributen
   """
   form.fields_with_foreign_key_to_linkify = (
       form.model._meta.fields_with_foreign_key_to_linkify if hasattr(
@@ -145,7 +145,8 @@ def set_form_context_elements(context, model):
 
   :param context: Kontext
   :param model: Datenmodell
-  :return: Kontext
+  :return: Kontext mit gesetzten,
+  auf das Formular für das übergebene Datenmodell bezogenen Elementen
   """
   context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
   context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
@@ -198,7 +199,7 @@ def set_model_related_context_elements(context, model, objects_count=False):
   :param context: Kontext
   :param model: Datenmodell
   :param objects_count: Objektanzahl als Kontextelement?
-  :return: Kontext
+  :return: Kontext mit gesetzten allgemeinen, auf das übergebene Datenmodell bezogenen Elementen
   """
   context['model_name'] = model.__name__
   context['model_name_lower'] = model.__name__.lower()
