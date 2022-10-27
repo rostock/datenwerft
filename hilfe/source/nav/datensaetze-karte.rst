@@ -1,4 +1,4 @@
-.. index:: Adresse, Adressensuche, Datensätze-Karte, Hintergrundkarte, Karte, Kartenausschnitt, Kartenhintergrund, Kartennavigation, Kartensuche, Kilometerquadrate, Maßstab, Straße, Zoom
+.. index:: Adresse, Adressensuche, Datensätze-Karte, Gemeindeteil, Hintergrundkarte, Karte, Kartenausschnitt, Kartenhintergrund, Kartennavigation, Kartensuche, Kilometerquadrate, Maßstab, Straße, Zoom
 
 Datensätze-Karte
 ================
@@ -46,7 +46,7 @@ Den Kartenhintergrund können Sie wechseln, indem Sie auf den Button rechts oben
 Wie kann ich einen bestimmten Ort in der Karte finden?
 ------------------------------------------------------
 
-Einen bestimmten Ort in der Karte können Sie finden, indem Sie die *Adressensuche* rechts neben (auf den Anlege- und Bearbeitungsseiten der Datensätze unterhalb) der Karte nutzen. Fangen Sie einfach an, einen Suchbegriff in das Eingabefeld einzutragen: Nach dem dritten Zeichen springt die Suche an und es wird eine Resultateliste angezeigt, die aus Adressen, Straßen und/oder Gemeindeteilen besteht (auf den Anlege- und Bearbeitungsseiten der Datensätze nur Adressen bzw. nur Straßen, falls der betreffende Datensatz eine Referenz zu einer Adresse bzw. Straße vorsieht; ansonsten auch hier Adressen, Straßen und/oder Gemeindeteile). Wenn Sie dann auf das gewünschte Resultat klicken, springt die Karte automatisch an diesen Ort.
+Einen bestimmten Ort in der Karte können Sie finden, indem Sie die *Adressensuche* rechts neben (auf den Anlege- und Bearbeitungsseiten der Datensätze unterhalb) der Karte nutzen. Fangen Sie einfach an, einen Suchbegriff in das Eingabefeld einzutragen: Nach dem dritten Zeichen springt die Suche an und es wird eine Resultateliste angezeigt, die aus Adressen, Straßen und/oder Gemeindeteilen besteht. Wenn Sie dann auf das gewünschte Resultat klicken, springt die Karte automatisch an diesen Ort.
 
 **Tipp:** In der Regel genügen der Suche bereits sehr kurze Eingaben, um das gewünschte Resultat zu finden (zum Beispiel findet bereits ``helsi 2`` die gewünschte *Helsinkier Str. 2*).
 

@@ -94,6 +94,14 @@ Wie funktioniert das Attribut *Straße*?
 Das können Sie :ref:`hier <datensatz_anlegen_strasse>` nachlesen, natürlich im Bewusstsein der Tatsache, dass es sich um einen bereits bestehenden Datensatz handelt, nicht um einen neuen.
 
 
+.. _datensatz_bearbeiten_gemeindeteil:
+
+Wie funktioniert das Attribut *Gemeindeteil*?
+---------------------------------------------
+
+Das können Sie :ref:`hier <datensatz_anlegen_gemeindeteil>` nachlesen, natürlich im Bewusstsein der Tatsache, dass es sich um einen bereits bestehenden Datensatz handelt, nicht um einen neuen.
+
+
 .. _datensatz_bearbeiten_speichern:
 
 Wie kann ich die Änderungen speichern?
