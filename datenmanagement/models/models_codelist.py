@@ -336,6 +336,48 @@ signals.post_delete.connect(functions.remove_permissions, sender=Strassen)
 
 
 #
+# Gemeindeteile
+#
+
+class Gemeindeteile(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  gemeindeteil = models.CharField('Gemeindeteil', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'basisdaten\".\"gemeindeteilliste_datenwerft'
+    verbose_name = 'Gemeindeteil'
+    verbose_name_plural = 'Gemeindeteile'
+    description = 'Gemeindeteile in Mecklenburg-Vorpommern'
+    list_fields = {
+      'gemeindeteil': 'Gemeindeteil'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = ['gemeindeteil']
+
+  def __str__(self):
+    return self.gemeindeteil
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Gemeindeteile, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Gemeindeteile, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(functions.assign_permissions, sender=Gemeindeteile)
+
+signals.post_delete.connect(functions.remove_permissions, sender=Gemeindeteile)
+
+
+#
 # Codelisten
 #
 

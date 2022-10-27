@@ -4,10 +4,10 @@ from django.urls import reverse, NoReverseMatch
 
 def address_search_key(request):
   """
-  holt den API-Key für die Adressen-/Straßensuche aus den Einstellungen
+  holt den API-Key für die Adressensuche aus den Einstellungen
 
   :param request: Anfrage
-  :return: API-Key für die Adressen-/Straßensuche
+  :return: API-Key für die Adressensuche
   """
   return {'address_search_key': settings.ADDRESS_SEARCH_KEY}
 

@@ -31,7 +31,7 @@ urlpatterns = [
           view=login_required(views_helpers.OWSProxyView.as_view()),
           name='owsproxy'),
   # AddressSearchView:
-  # Adressen-/Straßensuche
+  # Adressensuche
   re_path(route=r'addresssearch$',
           view=login_required(views_helpers.AddressSearchView.as_view()),
           name='addresssearch'),
