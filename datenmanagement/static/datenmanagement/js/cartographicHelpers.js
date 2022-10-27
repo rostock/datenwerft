@@ -321,8 +321,8 @@ function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
  *
  * @param {Object} searchField - Sucheingabefeld der Adressensuche
  * @param {string} url - URL der Adressensuche
- * @param {string} [addressType=''] - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
- * @param {Object} [addressUuidField=null] - Feld mit UUID der referenzierten Adresse oder Straße
+ * @param {string} [addressType=''] - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
+ * @param {Object} [addressUuidField=null] - Feld mit UUID der/des referenzierten Adresse, Straße oder Gemeindeteils
  */
 function initializeAddressSearch(searchField, url, addressType = '', addressUuidField = null) {
   // bei Klick auf Stelle außerhalb der Adressensuche...
@@ -435,9 +435,9 @@ function setMapExtentByLeafletBounds(leafletBounds) {
  * zeigt und behandelt die Resultate der Adressensuche
  *
  * @param {JSON} json - Resultate der Adressensuche
- * @param {string} addressType - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
+ * @param {string} addressType - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
  * @param {Object} searchField - Sucheingabefeld der Adressensuche
- * @param {Object} addressUuidField - Feld mit UUID der referenzierten Adresse oder Straße
+ * @param {Object} addressUuidField - Feld mit UUID der/des referenzierten Adresse, Straße oder Gemeindeteils
  */
 function showAddressSearchResults(json, addressType, searchField, addressUuidField) {
   // Resultate leeren
@@ -484,7 +484,7 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
     // falls Datenmodell Adressenbezug vorsieht...
     if (addressType !== '') {
       // Text des Resultats in Suchfeld übernehmen
-      // und UUID als Data-Attribut in Feld mit UUID der referenzierten Adresse oder Straße übernehmen
+      // und UUID als Data-Attribut in Feld mit UUID der/des referenzierten Adresse, Straße oder Gemeindeteils übernehmen
       let text = $(this).children('strong').text();
       if ($(this).children('small'))
         text += ' ' + $(this).children('small').text();

@@ -98,26 +98,37 @@ class DataForm(ModelForm):
           if field.name == 'bearbeiter':
             self.fields[field.name] = choice_field
       # Adressfelder in eigenen Feldtypen umwandeln
-      elif field.name == 'adresse' or field.name == 'strasse':
+      elif (field.name == 'adresse' or
+            field.name == 'strasse' or
+            field.name == 'gemeindeteil'):
         attrs = {
             'class': 'form-control',
             'autocapitalize': 'off',
             'autocomplete': 'off',
             'placeholder': ''
         }
+        label = field.verbose_name
+        required = self.address_mandatory
         if field.name == 'adresse':
           attrs['placeholder'] = 'Adresse eingeben…'
           self.fields[field.name] = fields.AddressUUIDField(
-              label=field.verbose_name,
+              label=label,
               widget=TextInput(attrs=attrs),
-              required=self.address_mandatory
+              required=required
           )
         elif field.name == 'strasse':
           attrs['placeholder'] = 'Straße eingeben…'
           self.fields[field.name] = fields.StreetUUIDField(
-              label=field.verbose_name,
+              label=label,
               widget=TextInput(attrs=attrs),
-              required=self.address_mandatory
+              required=required
+          )
+        else:
+          attrs['placeholder'] = 'Gemeindeteil eingeben…'
+          self.fields[field.name] = fields.QuarterUUIDField(
+              label=label,
+              widget=TextInput(attrs=attrs),
+              required=required
           )
       # bestimmte Modelle für bestimmte Felder zur Befüllung
       # entsprechender Auswahllisten heranziehen
@@ -504,20 +515,28 @@ class DataChangeView(generic.UpdateView):
             self.model._meta,
             'address_type'
         ) and self.model._meta.address_type == 'Straße' and self.object.strasse else None)
+    context['current_quarter'] = (
+        self.object.gemeindeteil.pk if hasattr(
+            self.model._meta,
+            'address_type'
+        ) and self.model._meta.address_type == 'Gemeindeteil' and self.object.gemeindeteil else None)
     return context
 
   def get_initial(self):
     """
-    initialisiert View; liefert entweder Dictionary mit Adresse oder Straße des Objektes zurück,
-    falls edresse oder Straße existiert; falls nicht, wird leeres Dictionary zurückgeliefert
+    initialisiert View; liefert entweder Dictionary mit Adresse, Straße oder Gemeindeteil
+    des Objektes zurück, falls Adresse, Straße oder Gemeindeteil existiert;
+    falls nicht, wird leeres Dictionary zurückgeliefert
 
-    :return: Dictionary mit Adresse oder Straße oder Dictionary oder
+    :return: Dictionary mit Adresse, Straße oder Gemeindeteil oder leeres Dictionary
     """
     if hasattr(self.model._meta, 'address_type'):
       if self.model._meta.address_type == 'Adresse' and self.object.adresse:
         return {'adresse': self.object.adresse}
       elif self.model._meta.address_type == 'Straße' and self.object.strasse:
         return {'strasse': self.object.strasse}
+      elif self.model._meta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
+        return {'gemeindeteil': self.object.gemeindeteil}
       else:
         return {}
     else:

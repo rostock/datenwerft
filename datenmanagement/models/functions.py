@@ -1,4 +1,3 @@
-import os
 import re
 import uuid
 
@@ -7,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.db import connection
 from guardian.shortcuts import assign_perm, remove_perm
+from pathlib import Path, PurePath
 from PIL import Image, ExifTags
 
 
@@ -84,13 +84,13 @@ def delete_duplicate_photos_with_other_suffixes(path):
 
   :param path: Pfad
   """
-  filename = os.path.basename(path)
-  ext = filename.split('.')[-1]
-  filename_without_ext = os.path.splitext(filename)[0]
-  for file in os.listdir(os.path.dirname(path)):
-    if (os.path.splitext(file)[0] == filename_without_ext and
-        file.split('.')[-1] != ext):
-      os.remove(os.path.dirname(path) + '/' + file)
+  filename = PurePath(path).name
+  pathname = Path(PurePath(path).parent)
+  filename_ext = PurePath(filename).suffix
+  filename_without_ext = PurePath(filename).stem
+  for file in pathname.iterdir():
+    if PurePath(file).stem == filename_without_ext and PurePath(file).suffix != filename_ext:
+      (pathname / file).unlink()
 
 
 def delete_pdf(sender, instance, **kwargs):
@@ -118,11 +118,13 @@ def delete_photo(sender, instance, **kwargs):
   if hasattr(instance, 'foto') and instance.foto:
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
       path = get_path(instance.foto.url)
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
       try:
-        os.remove(thumb)
+        delete_duplicate_photos_with_other_suffixes(thumb)
+        thumb.unlink()
       except OSError:
         pass
+    delete_duplicate_photos_with_other_suffixes(path)
     instance.foto.delete(False)
 
 
@@ -140,31 +142,30 @@ def delete_photo_after_emptied(sender, instance, created, **kwargs):
     pre_save_instance = instance._pre_save_instance
     path = get_path(pre_save_instance.foto.url)
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
-      thumb = os.path.dirname(path) + '/thumbs/' + os.path.basename(path)
+      thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
       try:
-        os.remove(thumb)
+        delete_duplicate_photos_with_other_suffixes(thumb)
+        thumb.unlink()
       except OSError:
         pass
     try:
-      os.remove(path)
+      delete_duplicate_photos_with_other_suffixes(path)
+      path.unlink()
     except OSError:
       pass
 
 
 def get_path(url):
   """
-  löscht Pfad zur übergebenenen URL zurück
+  gibt Pfad zur übergebenenen URL zurück
 
   :param url: URL
   :return: Pfad zur übergebenenen URL
   """
   if settings.MEDIA_ROOT and settings.MEDIA_URL:
-    path = settings.MEDIA_ROOT + '/' + \
-           url[len(settings.MEDIA_URL):]
+    path = Path(settings.MEDIA_ROOT) / url[len(settings.MEDIA_URL):]
   else:
-    base_dir = os.path.dirname(
-      os.path.dirname(os.path.abspath(__file__)))
-    path = base_dir + url
+    path = Path(settings.BASE_DIR) / url
   return path
 
 
@@ -205,7 +206,7 @@ def path_and_rename(path):
       filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
     else:
       filename = '{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
-    return os.path.join(path, filename)
+    return Path(path) / filename
 
   return wrapper
 
@@ -220,23 +221,18 @@ def photo_post_processing(sender, instance, **kwargs):
   """
   if instance.foto:
     if settings.MEDIA_ROOT and settings.MEDIA_URL:
-      path = settings.MEDIA_ROOT + '/' + \
-             instance.foto.url[len(settings.MEDIA_URL):]
+      path = Path(settings.MEDIA_ROOT) / instance.foto.url[len(settings.MEDIA_URL):]
     else:
-      base_dir = os.path.dirname(
-        os.path.dirname(
-          os.path.abspath(__file__)))
-      path = base_dir + instance.foto.url
+      path = Path(settings.BASE_DIR) / instance.foto.url
     rotate_image(path)
     # falls Foto(s) mit derselben UUID, aber unterschiedlichem Dateityp (also Suffix), vorhanden:
     # diese(s) löschen und natürlich auch das/die entsprechende(n) Thumbnail(s)
     delete_duplicate_photos_with_other_suffixes(path)
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
-      thumb_path = os.path.dirname(path) + '/thumbs'
-      if not os.path.exists(thumb_path):
-        os.mkdir(thumb_path)
-      thumb_path = os.path.dirname(
-        path) + '/thumbs/' + os.path.basename(path)
+      thumb_path = Path(PurePath(path).parent / 'thumbs')
+      if not thumb_path.exists():
+        Path.mkdir(thumb_path)
+      thumb_path = thumb_path / PurePath(path).name
       thumb_image(path, thumb_path)
       delete_duplicate_photos_with_other_suffixes(thumb_path)
 

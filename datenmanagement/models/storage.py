@@ -1,16 +1,14 @@
-import os
-
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from pathlib import Path
 
 
 class OverwriteStorage(FileSystemStorage):
 
   def get_available_name(self, name, max_length=None):
-    # if the filename already exists, remove it as if it was a true file system
     if self.exists(name):
       if settings.MEDIA_ROOT:
-        os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        (Path(settings.MEDIA_ROOT) / name).unlink()
       else:
-        os.remove(name)
+        Path(name).unlink()
     return name

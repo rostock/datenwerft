@@ -147,6 +147,8 @@
                   <button disabled id="mapToAddress" class="btn btn-success" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
                 {% elif address_type == 'Straße' %}
                   <button disabled id="mapToStreet" class="btn btn-success" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
+                {% elif address_type == 'Gemeindeteil' %}
+                  <button disabled id="mapToQuarter" class="btn btn-success" type="button"><i class="fas fa-circle-o"></i> Gemeindeteil übernehmen</button>
                 {% endif %}
               {% endif %}
             </div>
@@ -155,19 +157,26 @@
         <div class="mt-3">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
-              <label for="id_adresse" class="form-label{% if address_mandatory %} required{% endif %}">Adresse</label>
+              <label for="id_adresse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.adresse }}
-                <label for="id_adresse">Adresse eingeben…</label>
+                <label for="id_adresse">{{ address_type }} eingeben…</label>
               </div>
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
-              <label for="id_strasse" class="form-label{% if address_mandatory %} required{% endif %}">Straße</label>
+              <label for="id_strasse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.strasse }}
-                <label for="id_strasse">Straße eingeben…</label>
+                <label for="id_strasse">{{ address_type }} eingeben…</label>
               </div>
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
+            {% elif address_type == 'Gemeindeteil' %}
+              <label for="id_gemeindeteil" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
+              <div class="form-floating">
+                {{ form.gemeindeteil }}
+                <label for="id_gemeindeteil">{{ address_type }} eingeben…</label>
+              </div>
+              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_quarter %}{{ current_quarter }}{% endif %}">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
@@ -194,14 +203,14 @@
       </div>
     </div>
     {% if address_type %}
-      <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal" class="modal fade" tabindex="-1" aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-label" aria-hidden="true">
+      <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal" class="modal fade" tabindex="-1" aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header" id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% endif %}-error-modal-header">
-              <h5 class="modal-title">Keine automatische Zuordnung einer {{ address_type }} möglich!</h5>
+            <div class="modal-header" id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-header">
+              <h5 class="modal-title">Keine automatische Zuordnung {% if address_type == 'Gemeindeteil' %}eines{% else %}einer{% endif %} {{ address_type }} möglich!</h5>
             </div>
             <div class="modal-body">
-              Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an die nächste {{ address_type }} heran.
+              Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an {% if address_type == 'Gemeindeteil' %}den nächsten{% else %}die nächste{% endif %} {{ address_type }} heran.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -376,12 +385,12 @@
         {% endif %}
       });
 
-      // falls Datenmodell Adressen-/Straßenbezug vorsieht...
+      // falls Datenmodell Adressenbezug vorsieht...
       {% if address_type %}
         /**
          * @function
          *
-         * setzt, falls der Adressen-/Straßenbezug verpflichtend ist,
+         * setzt, falls der Adressenbezug verpflichtend ist,
          * beim Hinzufügen oder Editieren einer Geometrie die Adresse oder die Straße
          * und aktiviert die Postleitzahl-Auto-Zuweisung
          *
@@ -389,16 +398,16 @@
          */
         map.on('pm:create', function({layer}) {
           {% if address_mandatory %}
-            // Adressen-/Straßenbezug für gesetze Geometrie setzen
-            setAddressOrStreet('{{ address_type }}', layer);
-            // bei Bewegungs-Event Adressen-/Straßenbezug neu setzen
+            // Adressenbezug für gesetze Geometrie setzen
+            setAddressReference('{{ address_type }}', layer);
+            // bei Bewegungs-Event Adressenbezug neu setzen
             {% if geometry_type == 'Point' %}
               layer.on('pm:dragend', (e) => {
-                setAddressOrStreet('{{ address_type }}', e.layer);
+                setAddressReference('{{ address_type }}', e.layer);
               });
             {% else %}
               layer.on('pm:update', (e) => {
-                setAddressOrStreet('{{ address_type }}', e.layer);
+                setAddressReference('{{ address_type }}', e.layer);
               });
             {% endif %}
             $('#postcode_assigner').removeClass('text-black-50');
@@ -407,6 +416,7 @@
           {% else %}
             $('#mapToAddress').prop('disabled', false);
             $('#mapToStreet').prop('disabled', false);
+            $('#mapToQuarter').prop('disabled', false);
           {% endif %}
         });
       {% endif %}
@@ -517,6 +527,9 @@
       } else if (window.addressType === 'Straße') {
         window.searchField = $('#id_strasse');
         window.addressUuidField = $('#id_strasse_uuid');
+      } else if (window.addressType === 'Gemeindeteil') {
+        window.searchField = $('#id_gemeindeteil');
+        window.addressUuidField = $('#id_gemeindeteil_uuid');
       } else {
         window.searchField = $('#id_address_search');
         window.addressUuidField = null;
@@ -529,19 +542,27 @@
         setMarkerToAddressOrStreet(window.currMap);
         $('#mapToAddress').prop('disabled', false);
         $('#mapToStreet').prop('disabled', false);
+        $('#mapToQuarter').prop('disabled', false);
       });
 
       // bei Klick auf Button „Adresse übernehmen“...
       $('#mapToAddress').on('click', function() {
         // aktuelle Adresse der Geometrie in der Karte übernehmen
-        setAddressOrStreet(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+        setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
       // bei Klick auf Button „Straße übernehmen“...
       $('#mapToStreet').on('click', function() {
         // aktuelle Straße der Geometrie in der Karte übernehmen
-        setAddressOrStreet(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+        setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+        $('#addressToMap').prop('disabled', false);
+      });
+
+      // bei Klick auf Button „Gemeindeteil übernehmen“...
+      $('#mapToQuarter').on('click', function() {
+        // aktuellen Gemeindeteil der Geometrie in der Karte übernehmen
+        setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
@@ -632,14 +653,14 @@
 
     /**
      * @function
-     * @name setAddressOrStreet
+     * @name setAddressReference
      *
-     * @param addressType - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
+     * @param addressType - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
      * @param {Object} layer - Layer
      *
-     * übernimmt aktuelle Adresse oder Straße der Geometrie in der Karte
+     * übernimmt aktuellen Adressenbezug der Geometrie in der Karte
      */
-    function setAddressOrStreet(addressType, layer) {
+    function setAddressReference(addressType, layer) {
       let geoJson = layer.toGeoJSON();
       let geometryType;
       {% if 'point' in geometry_type|lower %}
@@ -667,7 +688,7 @@
      * @name adoptReverseSearchResult
      *
      * @param {JSON} geoJson - Resultate der Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
-     * @param {string} addressType - Typ des Adressen- oder Straßenbezugs (Adresse oder Straße)
+     * @param {string} addressType - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
      *
      * adaptiert die Resultate der Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
      */
@@ -738,7 +759,8 @@
           {% endif %}
         }
         $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
-        // setzt Adressen- oder Straßenreferenz aus Feld mit UUID der referenzierten Adresse oder Straße
+        // setzt Referenz aus Feld mit UUID der referenzierten Adresse,
+        // der referenzierten Straße oder des referenzierten Gemeindeteils
         if (addressUuidField && $.trim(searchField.val()).length)
           searchField.val(addressUuidField.val());
       {% endif %}

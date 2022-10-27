@@ -158,12 +158,14 @@ def get_value_of_field(value, field):
 @register.filter
 def is_field_address_related_field(field):
   """
-  prüft, ob das übergebene Feld einen Adressen-/Straßenbezug aufweist
+  prüft, ob das übergebene Feld einen Adressenbezug aufweist
 
   :param field: Feld
-  :return: weist übergebenes Feld einen Adressen-/Straßenbezug auf?
+  :return: weist übergebenes Feld einen Adressenbezug auf?
   """
-  if field.name == 'adresse' or field.name == 'strasse':
+  if (field.name == 'adresse' or
+      field.name == 'strasse' or
+      field.name == 'gemeindeteil'):
     return True
   else:
     return False

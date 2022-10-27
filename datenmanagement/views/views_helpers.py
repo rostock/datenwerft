@@ -49,7 +49,7 @@ class OWSProxyView(generic.View):
 
 class AddressSearchView(generic.View):
   """
-  Adressen-/Straßensuche
+  Adressensuche
 
   API-Key bleibt nach außen verborgen
   """
