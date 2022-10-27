@@ -1,4 +1,4 @@
-{% extends "_base/navbar.html" %}
+{% extends "navbar.html" %}
 {% load static %}
 {% load datenmanagement_tags %}
 
@@ -57,7 +57,7 @@
         </h2>
       </div>
       <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}3{% endif %} mt-4 mx-auto">
-        <a class="btn btn-lg btn-primary" role="button" href="{% url 'login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
+        <a class="btn btn-lg btn-primary" role="button" href="{{ LOGIN_URL }}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
       </div>
   {% endif %}
 {% endblock %}

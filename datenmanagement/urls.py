@@ -3,9 +3,22 @@ import re
 from django.apps import apps
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import re_path, reverse_lazy
+from rest_framework import routers
 
 from datenmanagement.views import functions, views_form, views_helpers, \
-  views_index_start, views_list_map
+  views_index_start, views_list_map, api
+
+
+router = routers.DefaultRouter()
+app_models = apps.get_app_config('datenmanagement').get_models()
+for model in app_models:
+    model_name = model.__name__.lower()
+    router.register(
+        model_name,
+        api.DatenmanagementViewSet.create_custom(model=model),
+        basename=model_name
+    )
+api_urlpatterns = router.urls
 
 
 def permission_required(*perms):
