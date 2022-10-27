@@ -8,7 +8,7 @@ class OverwriteStorage(FileSystemStorage):
   def get_available_name(self, name, max_length=None):
     if self.exists(name):
       if settings.MEDIA_ROOT:
-        Path.unlink(Path(settings.MEDIA_ROOT) / name)
+        (Path(settings.MEDIA_ROOT) / name).unlink()
       else:
-        Path.unlink(Path(name))
+        Path(name).unlink()
     return name

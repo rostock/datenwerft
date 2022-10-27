@@ -172,6 +172,12 @@ def set_form_context_elements(context, model):
           model._meta, 'group_with_users_for_choice_field') else None)
   context['admin_group'] = (
       model._meta.admin_group if hasattr(model._meta, 'admin_group') else None)
+  # GPX-Upload-Feld
+  context['gpx_input'] = (
+      model._meta.gpx_input if hasattr(model._meta, 'gpx_input') else None)
+  # Postleitzahl-Auto-Zuweisung
+  context['postcode_assigner'] = (
+      model._meta.postcode_assigner if hasattr(model._meta, 'postcode_assigner') else None)
   # zusätzliche Karten
   context['additional_wms_layers'] = (
       model._meta.additional_wms_layers if hasattr(model._meta, 'additional_wms_layers') else None)
@@ -182,12 +188,6 @@ def set_form_context_elements(context, model):
     if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay is True:
       model_list[model.__name__] = model._meta.verbose_name_plural
   context['model_list'] = dict(sorted(model_list.items()))
-  # GPX-Upload-Feld
-  context['gpx_input'] = (
-      model._meta.gpx_input if hasattr(model._meta, 'gpx_input') else None)
-  # Postleitzahl-Auto-Zuweisung
-  context['postcode_assigner'] = (
-      model._meta.postcode_assigner if hasattr(model._meta, 'postcode_assigner') else None)
   return context
 
 

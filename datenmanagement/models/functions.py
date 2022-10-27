@@ -1,4 +1,3 @@
-import os
 import re
 import uuid
 
@@ -85,13 +84,13 @@ def delete_duplicate_photos_with_other_suffixes(path):
 
   :param path: Pfad
   """
-  filename = os.path.basename(path)
-  ext = filename.split('.')[-1]
-  filename_without_ext = os.path.splitext(filename)[0]
-  for file in os.listdir(os.path.dirname(path)):
-    if (os.path.splitext(file)[0] == filename_without_ext and
-        file.split('.')[-1] != ext):
-      os.remove(os.path.dirname(path) + '/' + file)
+  filename = PurePath(path).name
+  pathname = Path(PurePath(path).parent)
+  filename_ext = PurePath(filename).suffix
+  filename_without_ext = PurePath(filename).stem
+  for file in pathname.iterdir():
+    if PurePath(file).stem == filename_without_ext and PurePath(file).suffix != filename_ext:
+      (pathname / file).unlink()
 
 
 def delete_pdf(sender, instance, **kwargs):
@@ -121,9 +120,11 @@ def delete_photo(sender, instance, **kwargs):
       path = get_path(instance.foto.url)
       thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
       try:
+        delete_duplicate_photos_with_other_suffixes(thumb)
         thumb.unlink()
       except OSError:
         pass
+    delete_duplicate_photos_with_other_suffixes(path)
     instance.foto.delete(False)
 
 
@@ -143,10 +144,12 @@ def delete_photo_after_emptied(sender, instance, created, **kwargs):
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
       thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
       try:
+        delete_duplicate_photos_with_other_suffixes(thumb)
         thumb.unlink()
       except OSError:
         pass
     try:
+      delete_duplicate_photos_with_other_suffixes(path)
       path.unlink()
     except OSError:
       pass
