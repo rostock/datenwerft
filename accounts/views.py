@@ -15,7 +15,7 @@ from accounts import serializers
 from accounts.forms import ExternalAuthenticationForm
 from .emails import send_login_code
 from .models import UserAuthToken
-from .utils import get_client_ip
+from .utils import get_client_ip, ip_in_array
 
 
 class PermissionViewSet(viewsets.ModelViewSet):
@@ -62,7 +62,7 @@ class PreLoginView(LoginView):
     """Security check complete. Log the user in."""
     user = form.get_user()
     user_ip = get_client_ip(self.request)
-    if user_ip in settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES:
+    if ip_in_array(user_ip, settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES):
       # user is internal
       login(self.request, user)
       return HttpResponseRedirect(self.get_success_url())
@@ -107,7 +107,7 @@ class ExternalLoginView(LoginView):
       raise Http404()
     else:
       user_ip = get_client_ip(self.request)
-      if user_ip in settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES:
+      if ip_in_array(user_ip, settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES):
         # user is internal
         # the token is not needed
         request.session.pop('_token')

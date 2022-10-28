@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django_auth_ldap.backend import LDAPBackend, _LDAPConfig, _LDAPUser
 
-from .utils import get_client_ip
+from .utils import get_client_ip, ip_in_array
 
 logger = _LDAPConfig.get_logger()
 
@@ -22,7 +22,7 @@ class DatenwerkAuthBackend(LDAPBackend):
     if password or self.settings.PERMIT_EMPTY_PASSWORD:
       ldap_user = _LDAPUser(self, username=username.strip(), request=request)
       user_ip = get_client_ip(request)
-      if user_ip not in settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES:
+      if not ip_in_array(user_ip, settings.AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES):
         user = self.external_authenticate(ldap_user, password)
       else:
         user = self.authenticate_ldap_user(ldap_user, password)
