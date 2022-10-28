@@ -8,7 +8,6 @@ from django.contrib.gis.db import models
 from django.db.models import signals
 from django.core.validators import EmailValidator, MaxValueValidator, \
   MinValueValidator, RegexValidator, URLValidator
-from django_currentuser.middleware import get_current_authenticated_user
 from zoneinfo import ZoneInfo
 
 from . import models_codelist, constants_vars, fields, functions, storage
@@ -234,11 +233,9 @@ class Abfallbehaelter(models.Model):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Abfallbehaelter, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Abfallbehaelter, self).delete(*args, **kwargs)
 
 
@@ -325,11 +322,9 @@ class Angelverbotsbereiche(models.Model):
            (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Angelverbotsbereiche, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Angelverbotsbereiche, self).delete(*args, **kwargs)
 
 
@@ -446,7 +441,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Aufteilungsplaene_Wohnungseigentumsgesetz,
       self).save(
@@ -454,7 +448,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Aufteilungsplaene_Wohnungseigentumsgesetz,
       self).delete(
@@ -574,11 +567,9 @@ class Baudenkmale(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baudenkmale, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baudenkmale, self).delete(*args, **kwargs)
 
 
@@ -700,11 +691,9 @@ class Behinderteneinrichtungen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Behinderteneinrichtungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Behinderteneinrichtungen, self).delete(*args, **kwargs)
 
 
@@ -853,11 +842,9 @@ class Bildungstraeger(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Bildungstraeger, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Bildungstraeger, self).delete(*args, **kwargs)
 
 
@@ -1004,11 +991,9 @@ class Carsharing_Stationen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Anbieter: ' + str(self.anbieter) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Carsharing_Stationen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Carsharing_Stationen, self).delete(*args, **kwargs)
 
 
@@ -1303,11 +1288,9 @@ class Containerstellplaetze(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Containerstellplaetze, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Containerstellplaetze, self).delete(*args, **kwargs)
 
 
@@ -1408,11 +1391,9 @@ class Denkmalbereiche(models.Model):
            ' [Beschreibung: ' + str(self.beschreibung) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denkmalbereiche, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denkmalbereiche, self).delete(*args, **kwargs)
 
 
@@ -1611,11 +1592,9 @@ class Denksteine(models.Model):
              ' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denksteine, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denksteine, self).delete(*args, **kwargs)
 
 
@@ -1762,11 +1741,9 @@ class FairTrade(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(FairTrade, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(FairTrade, self).delete(*args, **kwargs)
 
 
@@ -1859,11 +1836,9 @@ class Feldsportanlagen(models.Model):
     return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feldsportanlagen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feldsportanlagen, self).delete(*args, **kwargs)
 
 
@@ -2001,11 +1976,9 @@ class Feuerwachen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feuerwachen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feuerwachen, self).delete(*args, **kwargs)
 
 
@@ -2124,11 +2097,9 @@ class Fliessgewaesser(models.Model):
              ', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fliessgewaesser, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fliessgewaesser, self).delete(*args, **kwargs)
 
 
@@ -2384,11 +2355,9 @@ class Geh_Radwegereinigung(models.Model):
                self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geh_Radwegereinigung, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geh_Radwegereinigung, self).delete(*args, **kwargs)
 
 
@@ -2498,11 +2467,9 @@ class Geraetespielanlagen(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geraetespielanlagen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geraetespielanlagen, self).delete(*args, **kwargs)
 
 
@@ -2633,11 +2600,9 @@ class Gutachterfotos(models.Model):
       '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Gutachterfotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Gutachterfotos, self).delete(*args, **kwargs)
 
 
@@ -2868,11 +2833,9 @@ class Hausnummern(models.Model):
            ' [Postleitzahl: ' + self.postleitzahl + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hausnummern, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hausnummern, self).delete(*args, **kwargs)
 
 
@@ -2994,11 +2957,9 @@ class Hospize(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hospize, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hospize, self).delete(*args, **kwargs)
 
 
@@ -3136,11 +3097,9 @@ class Hundetoiletten(models.Model):
     return self.id + ' [Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hundetoiletten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hundetoiletten, self).delete(*args, **kwargs)
 
 
@@ -3280,11 +3239,9 @@ class Hydranten(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hydranten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hydranten, self).delete(*args, **kwargs)
 
 
@@ -3438,11 +3395,9 @@ class Kadaverfunde(models.Model):
     return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kadaverfunde, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kadaverfunde, self).delete(*args, **kwargs)
 
 
@@ -3596,11 +3551,9 @@ class Kindertagespflegeeinrichtungen(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kindertagespflegeeinrichtungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kindertagespflegeeinrichtungen, self).delete(*args, **kwargs)
 
 
@@ -3724,11 +3677,9 @@ class Kinder_Jugendbetreuung(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kinder_Jugendbetreuung, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kinder_Jugendbetreuung, self).delete(*args, **kwargs)
 
 
@@ -3836,11 +3787,9 @@ class Kunst_im_oeffentlichen_Raum(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kunst_im_oeffentlichen_Raum, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kunst_im_oeffentlichen_Raum, self).delete(*args, **kwargs)
 
 
@@ -4030,11 +3979,9 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Ladestationen_Elektrofahrzeuge, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
 
 
@@ -4136,11 +4083,9 @@ class Meldedienst_flaechenhaft(models.Model):
       str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_flaechenhaft, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
 
 
@@ -4263,11 +4208,9 @@ class Meldedienst_punkthaft(models.Model):
       '%d.%m.%Y') + (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_punkthaft, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_punkthaft, self).delete(*args, **kwargs)
 
 
@@ -4346,11 +4289,9 @@ class Mobilpunkte(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Mobilpunkte, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Mobilpunkte, self).delete(*args, **kwargs)
 
 
@@ -4527,11 +4468,9 @@ class Parkmoeglichkeiten(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkmoeglichkeiten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkmoeglichkeiten, self).delete(*args, **kwargs)
 
 
@@ -4678,11 +4617,9 @@ class Pflegeeinrichtungen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Pflegeeinrichtungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Pflegeeinrichtungen, self).delete(*args, **kwargs)
 
 
@@ -4848,11 +4785,9 @@ class Poller(models.Model):
            self.bezeichnung + ' [Status: ' + str(self.status) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Poller, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Poller, self).delete(*args, **kwargs)
 
 
@@ -4972,11 +4907,9 @@ class Rettungswachen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Rettungswachen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Rettungswachen, self).delete(*args, **kwargs)
 
 
@@ -5195,11 +5128,9 @@ class Schiffsliegeplaetze(models.Model):
            self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schiffsliegeplaetze, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schiffsliegeplaetze, self).delete(*args, **kwargs)
 
 
@@ -5267,11 +5198,9 @@ class Schutzzaeune_Tierseuchen(models.Model):
     return str(self.tierseuche) + ', ' + str(self.zustand)
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schutzzaeune_Tierseuchen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schutzzaeune_Tierseuchen, self).delete(*args, **kwargs)
 
 
@@ -5392,11 +5321,9 @@ class Sporthallen(models.Model):
            'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Sporthallen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Sporthallen, self).delete(*args, **kwargs)
 
 
@@ -5535,11 +5462,9 @@ class Stadtteil_Begegnungszentren(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Stadtteil_Begegnungszentren, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Stadtteil_Begegnungszentren, self).delete(*args, **kwargs)
 
 
@@ -5708,11 +5633,9 @@ class Strassenreinigung(models.Model):
         + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Strassenreinigung, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Strassenreinigung, self).delete(*args, **kwargs)
 
 
@@ -5830,11 +5753,9 @@ class Thalasso_Kurwege(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Thalasso_Kurwege, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Thalasso_Kurwege, self).delete(*args, **kwargs)
 
 
@@ -5921,11 +5842,9 @@ class Toiletten(models.Model):
                if self.zeiten else ''))
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Toiletten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Toiletten, self).delete(*args, **kwargs)
 
 
@@ -6045,11 +5964,9 @@ class Trinkwassernotbrunnen(models.Model):
     return self.nummer
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Trinkwassernotbrunnen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Trinkwassernotbrunnen, self).delete(*args, **kwargs)
 
 
@@ -6185,11 +6102,9 @@ class Vereine(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Vereine, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Vereine, self).delete(*args, **kwargs)
 
 
@@ -6321,11 +6236,9 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Verkaufstellen_Angelberechtigungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Verkaufstellen_Angelberechtigungen, self).delete(*args, **kwargs)
 
 

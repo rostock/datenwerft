@@ -351,6 +351,7 @@ class DataAddView(generic.CreateView):
     :param form: Formular, das geprüft werden soll
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
+    form.instance.user = self.request.user
     return super(DataAddView, self).form_valid(form)
 
 
@@ -549,6 +550,7 @@ class DataChangeView(generic.UpdateView):
     :param form: Formular, das geprüft werden soll
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
+    form.instance.user = self.request.user
     return super(DataChangeView, self).form_valid(form)
 
   def get_object(self, *args, **kwargs):

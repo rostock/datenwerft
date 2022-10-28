@@ -46,7 +46,6 @@ MIDDLEWARE = [
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'django.middleware.gzip.GZipMiddleware',
   'django_user_agents.middleware.UserAgentMiddleware',
-  'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'datenwerft.urls'
