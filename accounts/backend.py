@@ -7,7 +7,7 @@ from .utils import get_client_ip, ip_in_array
 logger = _LDAPConfig.get_logger()
 
 
-class DatenwerkAuthBackend(LDAPBackend):
+class DatenwerftAuthBackend(LDAPBackend):
   default_settings = {
     "LOGIN_COUNTER_KEY": "CUSTOM_LDAP_LOGIN_ATTEMPT_COUNT",
     "LOGIN_ATTEMPT_LIMIT": 3,

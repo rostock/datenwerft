@@ -13,7 +13,7 @@ def send_login_code(user):
     code = user.userauthtoken.email_token
   except UserAuthToken.DoesNotExist:
     email_body = {
-      'content': _("Ein Fehler ist aufgetreten. Bitte führen Sie den Anmeldevorgang erneut aus."),
+      'content': _("Fehler aufgetreten: Bitte führen Sie den Anmeldevorgang erneut aus."),
       'code': None,
       'user': user
     }
