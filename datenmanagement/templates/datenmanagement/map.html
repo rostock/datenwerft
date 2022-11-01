@@ -9,11 +9,11 @@
 {% block style %}
   {{ block.super }}
   {% leaflet_css plugins="locatecontrol,markercluster" %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap-mobile.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-mobile.css' %}" />
   {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/datamap-desktop.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-desktop.css' %}" />
   {% endif %}
 {% endblock %}
 

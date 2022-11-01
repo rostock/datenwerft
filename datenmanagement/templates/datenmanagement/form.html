@@ -9,11 +9,11 @@
 {% block style %}
   {{ block.super }}
   {% leaflet_css plugins="geoman,locatecontrol" %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}" />
   {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform-mobile.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}" />
   {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/dataform-desktop.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}" />
   {% endif %}
 {% endblock %}
 
@@ -99,7 +99,7 @@
                   {% endif %}
                 {% elif postcode_assigner and field.name == postcode_assigner %}
                   {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-                    {{ field.label_tag }} <span><i id="postcode_assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
+                    {{ field.label_tag }} <span><i id="postcode-assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
                   {% endif %}
                 {% else %}
                   {{ field.label_tag }}
@@ -135,7 +135,7 @@
         {% else %}
           <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [] }</textarea>
         {% endif %}
-        {% leaflet_map "id_geometrie-map" callback="window.mapCallbackFunction" %}
+        {% leaflet_map "id-geometrie-map" callback="window.mapCallbackFunction" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
@@ -180,10 +180,10 @@
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
-              <label for="id_address_search" class="form-label">Adressensuche</label>
+              <label for="address-search" class="form-label">Adressensuche</label>
               <div class="form-floating">
-                <input id="id_address_search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
-                <label for="id_address_search">Adresse, Straße oder Gemeindeteil eingeben…</label>
+                <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+                <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
               </div>
             {% endif %}
           {% endif %}
@@ -410,9 +410,9 @@
                 setAddressReference('{{ address_type }}', e.layer);
               });
             {% endif %}
-            $('#postcode_assigner').removeClass('text-black-50');
-            $('#postcode_assigner').addClass('text-success enabled');
-            $('#postcode_assigner').attr('title', 'Postleitzahl automatisch zuweisen');
+            $('#postcode-assigner').removeClass('text-black-50');
+            $('#postcode-assigner').addClass('text-success enabled');
+            $('#postcode-assigner').attr('title', 'Postleitzahl automatisch zuweisen');
           {% else %}
             $('#mapToAddress').prop('disabled', false);
             $('#mapToStreet').prop('disabled', false);
@@ -531,7 +531,7 @@
         window.searchField = $('#id_gemeindeteil');
         window.addressUuidField = $('#id_gemeindeteil_uuid');
       } else {
-        window.searchField = $('#id_address_search');
+        window.searchField = $('#address-search');
         window.addressUuidField = null;
       }
       initializeAddressSearch(searchField, '{% url "datenmanagement:addresssearch" %}', addressType, addressUuidField);
@@ -841,7 +841,7 @@
       // als Antwort des Servers wird ein GeoJSON mit einem Attribut mit der Postleitzahl erwartet;
       // dieses Attribute wird nach dem erfolgreichen Empfangen der Antwort des Servers in das dafür vorgesehene Input-Feld geschrieben
       // und die Geometrie auf die Karte gezeichnet
-      $('#postcode_assigner').parent('span').click(function() {
+      $('#postcode-assigner').parent('span').click(function() {
         let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
         let geometryType;
         {% if 'point' in geometry_type|lower %}
@@ -869,7 +869,7 @@
         ).then(
           (data) => {
             if (data.features[0].properties.postleitzahl && typeof data.features[0].properties.postleitzahl == 'string')
-              $('#postcode_assigner').parent().parent().next().find('input').val(data.features[0].properties.postleitzahl);
+              $('#postcode-assigner').parent().parent().next().find('input').val(data.features[0].properties.postleitzahl);
           }
         ).catch(
           (error) => {

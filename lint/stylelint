@@ -1,0 +1,5 @@
+#! /usr/bin/env bash
+
+echo "Checking Stylelint rules..."
+yarn -s
+node_modules/.bin/stylelint "accounts/**/*.css" "datenmanagement/**/*.css"

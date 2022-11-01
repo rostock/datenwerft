@@ -135,6 +135,11 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 
 ## Linting
 
+-  CSS mittels [*Stylelint*](https://stylelint.io/):
+
+        cd /usr/local/datenwerft/datenwerft
+        lint/stylelint
+
 ## Tests
 
 ## CI/CD

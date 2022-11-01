@@ -1,0 +1,14 @@
+#buttons {
+  position: absolute;
+}
+
+#custom-form {
+  width: 49%;
+  float: left;
+}
+
+#map-adresssearch-container-form {
+  height: 600px;
+  width: 49%;
+  float: right;
+}
