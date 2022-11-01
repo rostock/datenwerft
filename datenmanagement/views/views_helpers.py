@@ -198,8 +198,8 @@ class GeometryView(JsonView):
         cursor.execute(
             'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
             self.model._meta.db_table.replace('"', '') +
-            ' WHERE st_contains(st_buffer(st_transform(st_setsrid(' +
-            'st_makepoint(%s, %s),4326)::geometry,25833),%s),geometrie);',
+            ' WHERE st_buffer(st_transform(st_setsrid(' +
+            'st_makepoint(%s, %s),4326)::geometry,25833),%s) && geometrie;',
             [lng, lat, rad]
         )
         row = cursor.fetchall()

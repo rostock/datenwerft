@@ -349,7 +349,7 @@ class Gemeindeteile(models.Model):
   class Meta:
     managed = False
     codelist = True
-    db_table = 'basisdaten\".\"gemeindeteilliste_datenwerft'
+    db_table = 'basisdaten\".\"gemeindeteile_datenwerft_hro'
     verbose_name = 'Gemeindeteil'
     verbose_name_plural = 'Gemeindeteile'
     description = 'Gemeindeteile in Mecklenburg-Vorpommern'
@@ -359,6 +359,7 @@ class Gemeindeteile(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['gemeindeteil']
+    as_overlay = True
 
   def __str__(self):
     return self.gemeindeteil

@@ -2363,9 +2363,19 @@ class Geh_Radwegereinigung(models.Model):
     ]
     additional_wms_layers = [
       {
+        'title': 'Reinigungsreviere',
+        'url': 'https://geo.sv.rostock.de/geodienste/reinigungsreviere/wms',
+        'layers': 'hro.reinigungsreviere.reinigungsreviere'
+      }, {
         'title': 'Geh- und Radwegereinigung',
         'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
-        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'}]
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+      }, {
+        'title': 'Straßenreinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.strassenreinigung'
+      }
+    ]
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiLineString'
@@ -4861,6 +4871,119 @@ signals.post_save.connect(functions.assign_permissions, sender=Poller)
 signals.post_delete.connect(functions.remove_permissions, sender=Poller)
 
 
+# Reinigungsreviere
+
+class Reinigungsreviere(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False
+  )
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  gemeindeteil = models.ForeignKey(
+    models_codelist.Gemeindeteile,
+    verbose_name='Gemeindeteil',
+    on_delete=models.SET_NULL,
+    db_column='gemeindeteil',
+    to_field='uuid',
+    related_name='gemeindeteile+',
+    blank=True,
+    null=True
+  )
+  nummer = fields.PositiveSmallIntegerMinField(
+    'Nummer',
+    min_value=1,
+    unique=True,
+    blank=True,
+    null=True
+  )
+  bezeichnung = models.CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.akut_regex,
+        message=constants_vars.akut_message),
+      RegexValidator(
+        regex=constants_vars.anfuehrungszeichen_regex,
+        message=constants_vars.anfuehrungszeichen_message),
+      RegexValidator(
+        regex=constants_vars.apostroph_regex,
+        message=constants_vars.apostroph_message),
+      RegexValidator(
+        regex=constants_vars.doppelleerzeichen_regex,
+        message=constants_vars.doppelleerzeichen_message),
+      RegexValidator(
+        regex=constants_vars.gravis_regex,
+        message=constants_vars.gravis_message)])
+  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_gemeindeteilbezug\".\"reinigungsreviere_hro'
+    verbose_name = 'Reinigungsreviere'
+    verbose_name_plural = 'Reinigungsreviere'
+    description = 'Reinigungsreviere der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'gemeindeteil': 'Gemeindeteil',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung'
+    }
+    list_fields_with_foreign_key = {
+      'gemeindeteil': 'gemeindeteil'
+    }
+    list_fields_with_number = ['nummer']
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'gemeindeteil': 'Gemeindeteil',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung'
+    }
+    map_filter_fields_as_list = [
+      'gemeindeteil'
+    ]
+    additional_wms_layers = [
+      {
+        'title': 'Reinigungsreviere',
+        'url': 'https://geo.sv.rostock.de/geodienste/reinigungsreviere/wms',
+        'layers': 'hro.reinigungsreviere.reinigungsreviere'
+      }, {
+        'title': 'Geh- und Radwegereinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+      }, {
+        'title': 'Straßenreinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.strassenreinigung'
+      }
+    ]
+    address_type = 'Gemeindeteil'
+    address_mandatory = False
+    geometry_type = 'MultiPolygon'
+    as_overlay = True
+
+  def __str__(self):
+    return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
+
+  def save(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Reinigungsreviere, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    self.current_authenticated_user = get_current_authenticated_user()
+    super(Reinigungsreviere, self).delete(*args, **kwargs)
+
+
+signals.post_save.connect(
+  functions.assign_permissions,
+  sender=Reinigungsreviere)
+
+signals.post_delete.connect(
+  functions.remove_permissions,
+  sender=Reinigungsreviere)
+
+
 # Rettungswachen
 
 class Rettungswachen(models.Model):
@@ -5688,9 +5811,21 @@ class Strassenreinigung(models.Model):
       'reinigungsrhythmus',
       'fahrbahnwinterdienst'
     ]
-    additional_wms_layers = [{'title': 'Straßenreinigung',
-                              'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
-                              'layers': 'hro.strassenreinigung.strassenreinigung'}]
+    additional_wms_layers = [
+      {
+        'title': 'Reinigungsreviere',
+        'url': 'https://geo.sv.rostock.de/geodienste/reinigungsreviere/wms',
+        'layers': 'hro.reinigungsreviere.reinigungsreviere'
+      }, {
+        'title': 'Geh- und Radwegereinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+      }, {
+        'title': 'Straßenreinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.strassenreinigung'
+      }
+    ]
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiLineString'
@@ -5698,14 +5833,14 @@ class Strassenreinigung(models.Model):
 
   def __str__(self):
     return str(self.id) + (', ' + str(self.beschreibung) if self.beschreibung else '') + (
-        ', außerhalb geschlossener Ortslage' if self.ausserhalb else '') + (
-        ', Reinigungsklasse '
-        + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (
-        ', Fahrbahnwinterdienst '
-        + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (
-        ' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (
-        ' [inoffizielle Straße: '
-        + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+      ', außerhalb geschlossener Ortslage' if self.ausserhalb else '') + (
+             ', Reinigungsklasse '
+             + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (
+             ', Fahrbahnwinterdienst '
+             + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (
+             ' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (
+             ' [inoffizielle Straße: '
+             + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
     self.current_authenticated_user = get_current_authenticated_user()

@@ -372,7 +372,7 @@ function setMapConstants(map) {
   // allgemeine Konstanten
   map._wmsFormat = 'image/png';
   map._maxLayerZoom = 19;
-  map._minLayerZoom = 13;
+  map._minLayerZoom = 12;
   map._themaUrl = {};
 
   // Optionen für das Zeichnen von Objekten
