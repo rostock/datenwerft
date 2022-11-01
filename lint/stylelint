@@ -1,5 +1,8 @@
-#! /usr/bin/env bash
+#!/usr/bin/env sh
 
 echo "Checking Stylelint rules..."
-yarn -s
-node_modules/.bin/stylelint "accounts/**/*.css" "datenmanagement/**/*.css"
+if [[ $# -gt 0 ]]; then
+  node_modules/.bin/stylelint $@
+else
+  node_modules/.bin/stylelint "accounts/**/*.css" "datenmanagement/**/*.css"
+fi
