@@ -135,10 +135,15 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 
 ## Linting
 
--  CSS mittels [*Stylelint*](https://stylelint.io/):
+-  CSS-Prüfungen mittels [*Stylelint*](https://stylelint.io/):
 
         cd /usr/local/datenwerft/datenwerft
-        lint/stylelint
+        sh linting/stylelint
+
+-  alle vorgenannten Prüfungen nacheinander:
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/lint
 
 ## Tests
 
@@ -147,8 +152,9 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 1.  neuen Branch erstellen – Name des Branches:
     - bei Features: `features/APPNAME_foobar` (Beispiel: `features/datenmanagement_fotos-bearbeiten`)
     - bei Bugfixes: `bugfixes/APPNAME_foobar` (Beispiel: `features/accounts_emails`)
-2.  Änderungen committen und Commit(s) pushen
-3.  Pull-Request erstellen
-4.  Review anfordern und durchführen lassen
-5.  ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
-6.  Pull-Request in Branch `master` mit der Option *Squash and merge your commits* mergen
+2.  Änderungen linten und testen (siehe oben)
+3.  Änderungen committen und Commit(s) pushen
+4.  Pull-Request erstellen
+5.  Review anfordern und durchführen lassen
+6.  ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
+7.  Pull-Request in Branch `master` mit der Option *Squash and merge your commits* mergen
