@@ -28,8 +28,8 @@ urlpatterns = [
           view=include('rest_framework.urls')),
 
   # Routen der Datenmanagement-Anwendung
-  re_path(route=r'^datenmanagement/',
-          view=include('datenmanagement.urls'))
+  # re_path(route=r'^datenmanagement/',
+  #         view=include('datenmanagement.urls'))
 ]
 
 if settings.DEBUG:

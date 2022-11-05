@@ -78,7 +78,7 @@ class PreLoginView(LoginView):
             # url_token is only to show a dynamic url.
             # The crucial token is the session token
             return HttpResponseRedirect(reverse(
-                'external_login',
+                'accounts:external_login',
                 kwargs={'url_token': user_auth.url_token})
             )
 
@@ -98,7 +98,7 @@ class ExternalLoginView(LoginView):
         url_token = kwargs.get('url_token')
         if not session_token or not url_token:
             # something wrong, restart login process
-            return HttpResponseRedirect(reverse('login'))
+            return HttpResponseRedirect(reverse('account:login'))
         try:
             UserAuthToken.objects.get(session_token=session_token, url_token=url_token)
         except UserAuthToken.DoesNotExist:
@@ -111,5 +111,5 @@ class ExternalLoginView(LoginView):
                 # user is internal
                 # the token is not needed
                 request.session.pop('_token')
-                return HttpResponseRedirect(reverse('login'))
+                return HttpResponseRedirect(reverse('accounts:login'))
         return super().dispatch(request, *args, **kwargs)
