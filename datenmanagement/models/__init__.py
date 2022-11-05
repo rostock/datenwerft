@@ -1,3 +1,3 @@
-from .codelist_models import *
-from .complex_models import *
-from .simple_models import *
+from .models_codelist import *
+from .models_complex import *
+from .models_simple import *

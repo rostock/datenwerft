@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-{#{% load datenmanagement_tags %}#}
 
 {% block navbar %}
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
@@ -35,12 +34,13 @@
         </ul>
         <form class="form-inline mt-2 mt-md-0" role="form">
           {% if user.is_authenticated %}
-            <a class="btn btn-danger" role="button" href="{% url 'logout' %}"><i class="fas fa-right-from-bracket"></i> abmelden</a>
+            <a class="btn btn-danger" role="button" href="{% url 'accounts:logout' %}"><i class="fas fa-right-from-bracket"></i> abmelden</a>
           {% else %}
-            <a class="btn btn-primary" role="button" href="{% url 'login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
+            <a class="btn btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
           {% endif %}
         </form>
       </div>
     </div>
   </nav>
 {% endblock %}
+

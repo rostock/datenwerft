@@ -8,10 +8,9 @@ from django.contrib.gis.db import models
 from django.db.models import signals
 from django.core.validators import EmailValidator, MaxValueValidator, \
   MinValueValidator, RegexValidator, URLValidator
-from django_currentuser.middleware import get_current_authenticated_user
 from zoneinfo import ZoneInfo
 
-from . import codelist_models, constants_vars, fields, functions, storage
+from . import models_codelist, constants_vars, fields, functions, storage
 
 
 # Abfallbehälter
@@ -26,7 +25,7 @@ class Abfallbehaelter(models.Model):
     'Außerbetriebstellung', blank=True, null=True)
   id = models.CharField('ID', max_length=8, default='00000000')
   typ = models.ForeignKey(
-    codelist_models.Typen_Abfallbehaelter,
+    models_codelist.Typen_Abfallbehaelter,
     verbose_name='Typ',
     on_delete=models.SET_NULL,
     db_column='typ',
@@ -37,14 +36,14 @@ class Abfallbehaelter(models.Model):
   aufstellungsjahr = fields.PositiveSmallIntegerRangeField(
     'Aufstellungsjahr', max_value=functions.current_year(), blank=True, null=True)
   eigentuemer = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=models.RESTRICT,
     db_column='eigentuemer',
     to_field='uuid',
     related_name='eigentuemer+')
   bewirtschafter = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=models.RESTRICT,
     db_column='bewirtschafter',
@@ -234,11 +233,9 @@ class Abfallbehaelter(models.Model):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Abfallbehaelter, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Abfallbehaelter, self).delete(*args, **kwargs)
 
 
@@ -325,11 +322,9 @@ class Angelverbotsbereiche(models.Model):
            (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Angelverbotsbereiche, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Angelverbotsbereiche, self).delete(*args, **kwargs)
 
 
@@ -350,7 +345,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -446,7 +441,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Aufteilungsplaene_Wohnungseigentumsgesetz,
       self).save(
@@ -454,7 +448,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Aufteilungsplaene_Wohnungseigentumsgesetz,
       self).delete(
@@ -483,7 +476,7 @@ class Baudenkmale(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -492,7 +485,7 @@ class Baudenkmale(models.Model):
     blank=True,
     null=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Baudenkmale,
+    models_codelist.Arten_Baudenkmale,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -574,11 +567,9 @@ class Baudenkmale(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baudenkmale, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baudenkmale, self).delete(*args, **kwargs)
 
 
@@ -596,7 +587,7 @@ class Behinderteneinrichtungen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -624,7 +615,7 @@ class Behinderteneinrichtungen(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -700,11 +691,9 @@ class Behinderteneinrichtungen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Behinderteneinrichtungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Behinderteneinrichtungen, self).delete(*args, **kwargs)
 
 
@@ -726,7 +715,7 @@ class Bildungstraeger(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -853,11 +842,9 @@ class Bildungstraeger(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Bildungstraeger, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Bildungstraeger, self).delete(*args, **kwargs)
 
 
@@ -877,7 +864,7 @@ class Carsharing_Stationen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -905,7 +892,7 @@ class Carsharing_Stationen(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   anbieter = models.ForeignKey(
-    codelist_models.Anbieter_Carsharing,
+    models_codelist.Anbieter_Carsharing,
     verbose_name='Anbieter',
     on_delete=models.RESTRICT,
     db_column='anbieter',
@@ -1004,11 +991,9 @@ class Carsharing_Stationen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Anbieter: ' + str(self.anbieter) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Carsharing_Stationen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Carsharing_Stationen, self).delete(*args, **kwargs)
 
 
@@ -1061,7 +1046,7 @@ class Containerstellplaetze(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   bewirtschafter_grundundboden = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Grund und Boden',
     on_delete=models.SET_NULL,
     db_column='bewirtschafter_grundundboden',
@@ -1070,7 +1055,7 @@ class Containerstellplaetze(models.Model):
     blank=True,
     null=True)
   bewirtschafter_glas = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Glas',
     on_delete=models.SET_NULL,
     db_column='bewirtschafter_glas',
@@ -1083,7 +1068,7 @@ class Containerstellplaetze(models.Model):
   anzahl_glas_unterflur = fields.PositiveSmallIntegerMinField(
     'Anzahl Glas unterflur', min_value=1, blank=True, null=True)
   bewirtschafter_papier = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Papier',
     on_delete=models.SET_NULL,
     db_column='bewirtschafter_papier',
@@ -1096,7 +1081,7 @@ class Containerstellplaetze(models.Model):
   anzahl_papier_unterflur = fields.PositiveSmallIntegerMinField(
     'Anzahl Papier unterflur', min_value=1, blank=True, null=True)
   bewirtschafter_altkleider = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Altkleider',
     on_delete=models.SET_NULL,
     db_column='bewirtschafter_altkleider',
@@ -1303,11 +1288,9 @@ class Containerstellplaetze(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Containerstellplaetze, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Containerstellplaetze, self).delete(*args, **kwargs)
 
 
@@ -1408,11 +1391,9 @@ class Denkmalbereiche(models.Model):
            ' [Beschreibung: ' + str(self.beschreibung) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denkmalbereiche, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denkmalbereiche, self).delete(*args, **kwargs)
 
 
@@ -1432,7 +1413,7 @@ class Denksteine(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -1448,7 +1429,7 @@ class Denksteine(models.Model):
         regex=constants_vars.denk_nummer_regex,
         message=constants_vars.denk_nummer_message)])
   titel = models.ForeignKey(
-    codelist_models.Personentitel,
+    models_codelist.Personentitel,
     verbose_name='Titel',
     on_delete=models.SET_NULL,
     db_column='titel',
@@ -1551,7 +1532,7 @@ class Denksteine(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   material = models.ForeignKey(
-    codelist_models.Materialien_Denksteine,
+    models_codelist.Materialien_Denksteine,
     verbose_name='Material',
     on_delete=models.RESTRICT,
     db_column='material',
@@ -1611,11 +1592,9 @@ class Denksteine(models.Model):
              ' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denksteine, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Denksteine, self).delete(*args, **kwargs)
 
 
@@ -1633,7 +1612,7 @@ class FairTrade(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -1642,7 +1621,7 @@ class FairTrade(models.Model):
     blank=True,
     null=True)
   art = models.ForeignKey(
-    codelist_models.Arten_FairTrade,
+    models_codelist.Arten_FairTrade,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -1762,11 +1741,9 @@ class FairTrade(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(FairTrade, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(FairTrade, self).delete(*args, **kwargs)
 
 
@@ -1784,7 +1761,7 @@ class Feldsportanlagen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Feldsportanlagen,
+    models_codelist.Arten_Feldsportanlagen,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -1810,7 +1787,7 @@ class Feldsportanlagen(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -1859,11 +1836,9 @@ class Feldsportanlagen(models.Model):
     return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feldsportanlagen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feldsportanlagen, self).delete(*args, **kwargs)
 
 
@@ -1899,7 +1874,7 @@ class Feuerwachen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -1908,7 +1883,7 @@ class Feuerwachen(models.Model):
     blank=True,
     null=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Feuerwachen,
+    models_codelist.Arten_Feuerwachen,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -2001,11 +1976,9 @@ class Feuerwachen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feuerwachen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Feuerwachen, self).delete(*args, **kwargs)
 
 
@@ -2042,14 +2015,14 @@ class Fliessgewaesser(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   art = models.ForeignKey(
-    codelist_models.Arten_Fliessgewaesser,
+    models_codelist.Arten_Fliessgewaesser,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
     to_field='uuid',
     related_name='arten+')
   ordnung = models.ForeignKey(
-    codelist_models.Ordnungen_Fliessgewaesser,
+    models_codelist.Ordnungen_Fliessgewaesser,
     verbose_name='Ordnung',
     on_delete=models.SET_NULL,
     db_column='ordnung',
@@ -2124,11 +2097,9 @@ class Fliessgewaesser(models.Model):
              ', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fliessgewaesser, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fliessgewaesser, self).delete(*args, **kwargs)
 
 
@@ -2150,7 +2121,7 @@ class Geh_Radwegereinigung(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   id = models.CharField('ID', max_length=14, default='0000000000-000')
   strasse = models.ForeignKey(
-    codelist_models.Strassen,
+    models_codelist.Strassen,
     verbose_name='Straße',
     on_delete=models.SET_NULL,
     db_column='strasse',
@@ -2160,7 +2131,7 @@ class Geh_Radwegereinigung(models.Model):
     null=True
   )
   inoffizielle_strasse = models.ForeignKey(
-    codelist_models.Inoffizielle_Strassen,
+    models_codelist.Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
     on_delete=models.SET_NULL,
     db_column='inoffizielle_strasse',
@@ -2212,7 +2183,7 @@ class Geh_Radwegereinigung(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   wegeart = models.ForeignKey(
-    codelist_models.Arten_Wege,
+    models_codelist.Arten_Wege,
     verbose_name='Wegeart',
     on_delete=models.CASCADE,
     db_column='wegeart',
@@ -2220,7 +2191,7 @@ class Geh_Radwegereinigung(models.Model):
     related_name='wegearten+'
   )
   wegetyp = models.ForeignKey(
-    codelist_models.Wegetypen_Strassenreinigungssatzung_HRO,
+    models_codelist.Wegetypen_Strassenreinigungssatzung_HRO,
     verbose_name='Wegetyp',
     on_delete=models.CASCADE,
     db_column='wegetyp',
@@ -2230,7 +2201,7 @@ class Geh_Radwegereinigung(models.Model):
     null=True
   )
   reinigungsklasse = models.ForeignKey(
-    codelist_models.Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+    models_codelist.Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
     on_delete=models.SET_NULL,
     db_column='reinigungsklasse',
@@ -2240,7 +2211,7 @@ class Geh_Radwegereinigung(models.Model):
     null=True
   )
   reinigungsrhythmus = models.ForeignKey(
-    codelist_models.Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    models_codelist.Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
     on_delete=models.SET_NULL,
     db_column='reinigungsrhythmus',
@@ -2255,7 +2226,7 @@ class Geh_Radwegereinigung(models.Model):
     decimal_places=2,
     default=0)
   breite = models.ForeignKey(
-    codelist_models.Wegebreiten_Strassenreinigungssatzung_HRO,
+    models_codelist.Wegebreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Breite (in m)',
     on_delete=models.CASCADE,
     db_column='breite',
@@ -2282,7 +2253,7 @@ class Geh_Radwegereinigung(models.Model):
     blank=True,
     null=True)
   raeumbreite = models.ForeignKey(
-    codelist_models.Raeumbreiten_Strassenreinigungssatzung_HRO,
+    models_codelist.Raeumbreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Räumbreite im Winterdienst (in m)',
     on_delete=models.CASCADE,
     db_column='raeumbreite',
@@ -2384,11 +2355,9 @@ class Geh_Radwegereinigung(models.Model):
                self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geh_Radwegereinigung, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geh_Radwegereinigung, self).delete(*args, **kwargs)
 
 
@@ -2429,7 +2398,7 @@ class Geraetespielanlagen(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -2498,11 +2467,9 @@ class Geraetespielanlagen(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geraetespielanlagen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Geraetespielanlagen, self).delete(*args, **kwargs)
 
 
@@ -2538,7 +2505,7 @@ class Gutachterfotos(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -2633,11 +2600,9 @@ class Gutachterfotos(models.Model):
       '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Gutachterfotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Gutachterfotos, self).delete(*args, **kwargs)
 
 
@@ -2663,7 +2628,7 @@ class Hausnummern(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(
-    codelist_models.Strassen,
+    models_codelist.Strassen,
     verbose_name='Straße',
     on_delete=models.SET_NULL,
     db_column='strasse',
@@ -2741,7 +2706,7 @@ class Hausnummern(models.Model):
         regex=constants_vars.hnr_antragsnummer_regex,
         message=constants_vars.hnr_antragsnummer_message)])
   gebaeude_bauweise = models.ForeignKey(
-    codelist_models.Gebaeudebauweisen,
+    models_codelist.Gebaeudebauweisen,
     verbose_name='Bauweise des Gebäudes',
     on_delete=models.SET_NULL,
     db_column='gebaeude_bauweise',
@@ -2750,7 +2715,7 @@ class Hausnummern(models.Model):
     blank=True,
     null=True)
   gebaeude_funktion = models.ForeignKey(
-    codelist_models.Gebaeudefunktionen,
+    models_codelist.Gebaeudefunktionen,
     verbose_name='Funktion des Gebäudes',
     on_delete=models.SET_NULL,
     db_column='gebaeude_funktion',
@@ -2868,11 +2833,9 @@ class Hausnummern(models.Model):
            ' [Postleitzahl: ' + self.postleitzahl + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hausnummern, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hausnummern, self).delete(*args, **kwargs)
 
 
@@ -2890,7 +2853,7 @@ class Hospize(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -2918,7 +2881,7 @@ class Hospize(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -2994,11 +2957,9 @@ class Hospize(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hospize, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hospize, self).delete(*args, **kwargs)
 
 
@@ -3019,7 +2980,7 @@ class Hundetoiletten(models.Model):
     'Außerbetriebstellung', blank=True, null=True)
   id = models.CharField('ID', max_length=8, default='00000000')
   art = models.ForeignKey(
-    codelist_models.Arten_Hundetoiletten,
+    models_codelist.Arten_Hundetoiletten,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -3028,7 +2989,7 @@ class Hundetoiletten(models.Model):
   aufstellungsjahr = fields.PositiveSmallIntegerRangeField(
     'Aufstellungsjahr', max_value=functions.current_year(), blank=True, null=True)
   bewirtschafter = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=models.RESTRICT,
     db_column='bewirtschafter',
@@ -3136,11 +3097,9 @@ class Hundetoiletten(models.Model):
     return self.id + ' [Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hundetoiletten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hundetoiletten, self).delete(*args, **kwargs)
 
 
@@ -3167,14 +3126,14 @@ class Hydranten(models.Model):
         regex=constants_vars.hyd_bezeichnung_regex,
         message=constants_vars.hyd_bezeichnung_message)])
   eigentuemer = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=models.RESTRICT,
     db_column='eigentuemer',
     to_field='uuid',
     related_name='eigentuemer+')
   bewirtschafter = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=models.RESTRICT,
     db_column='bewirtschafter',
@@ -3182,7 +3141,7 @@ class Hydranten(models.Model):
     related_name='bewirtschafter+')
   feuerloeschgeeignet = models.BooleanField(' feuerlöschgeeignet?')
   betriebszeit = models.ForeignKey(
-    codelist_models.Betriebszeiten,
+    models_codelist.Betriebszeiten,
     verbose_name='Betriebszeit',
     on_delete=models.RESTRICT,
     db_column='betriebszeit',
@@ -3280,11 +3239,9 @@ class Hydranten(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hydranten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Hydranten, self).delete(*args, **kwargs)
 
 
@@ -3303,21 +3260,21 @@ class Kadaverfunde(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   zeitpunkt = models.DateTimeField('Zeitpunkt')
   tierseuche = models.ForeignKey(
-    codelist_models.Tierseuchen,
+    models_codelist.Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=models.RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
     related_name='tierseuchen+')
   geschlecht = models.ForeignKey(
-    codelist_models.Geschlechter_Kadaverfunde,
+    models_codelist.Geschlechter_Kadaverfunde,
     verbose_name='Geschlecht',
     on_delete=models.RESTRICT,
     db_column='geschlecht',
     to_field='uuid',
     related_name='geschlechter+')
   altersklasse = models.ForeignKey(
-    codelist_models.Altersklassen_Kadaverfunde,
+    models_codelist.Altersklassen_Kadaverfunde,
     verbose_name='Altersklasse',
     on_delete=models.RESTRICT,
     db_column='altersklasse',
@@ -3326,14 +3283,14 @@ class Kadaverfunde(models.Model):
   gewicht = fields.PositiveSmallIntegerRangeField(
     ' geschätztes Gewicht (in kg)', min_value=1, blank=True, null=True)
   zustand = models.ForeignKey(
-    codelist_models.Zustaende_Kadaverfunde,
+    models_codelist.Zustaende_Kadaverfunde,
     verbose_name='Zustand',
     on_delete=models.RESTRICT,
     db_column='zustand',
     to_field='uuid',
     related_name='zustaende+')
   art_auffinden = models.ForeignKey(
-    codelist_models.Arten_Fallwildsuchen_Kontrollen,
+    models_codelist.Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art des Auffindens',
     on_delete=models.RESTRICT,
     db_column='art_auffinden',
@@ -3430,7 +3387,7 @@ class Kadaverfunde(models.Model):
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
-    zeitpunkt_str = re.sub(r'([+-][0-9]{2})\:', '\\1', str(self.zeitpunkt))
+    zeitpunkt_str = re.sub(r'([+-][0-9]{2}):', '\\1', str(self.zeitpunkt))
     zeitpunkt = datetime.strptime(
       zeitpunkt_str,
       '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(local_tz)
@@ -3438,11 +3395,9 @@ class Kadaverfunde(models.Model):
     return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kadaverfunde, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kadaverfunde, self).delete(*args, **kwargs)
 
 
@@ -3460,7 +3415,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -3596,11 +3551,9 @@ class Kindertagespflegeeinrichtungen(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kindertagespflegeeinrichtungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kindertagespflegeeinrichtungen, self).delete(*args, **kwargs)
 
 
@@ -3622,7 +3575,7 @@ class Kinder_Jugendbetreuung(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -3650,7 +3603,7 @@ class Kinder_Jugendbetreuung(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -3724,11 +3677,9 @@ class Kinder_Jugendbetreuung(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kinder_Jugendbetreuung, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kinder_Jugendbetreuung, self).delete(*args, **kwargs)
 
 
@@ -3836,11 +3787,9 @@ class Kunst_im_oeffentlichen_Raum(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kunst_im_oeffentlichen_Raum, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Kunst_im_oeffentlichen_Raum, self).delete(*args, **kwargs)
 
 
@@ -3862,7 +3811,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -3891,7 +3840,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   betreiber = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=models.SET_NULL,
     db_column='betreiber',
@@ -3900,7 +3849,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
     blank=True,
     null=True)
   verbund = models.ForeignKey(
-    codelist_models.Verbuende_Ladestationen_Elektrofahrzeuge,
+    models_codelist.Verbuende_Ladestationen_Elektrofahrzeuge,
     verbose_name='Verbund',
     on_delete=models.SET_NULL,
     db_column='verbund',
@@ -3909,7 +3858,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
     blank=True,
     null=True)
   betriebsart = models.ForeignKey(
-    codelist_models.Betriebsarten,
+    models_codelist.Betriebsarten,
     verbose_name='Betriebsart',
     on_delete=models.RESTRICT,
     db_column='betriebsart',
@@ -4030,11 +3979,9 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Ladestationen_Elektrofahrzeuge, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
 
 
@@ -4056,7 +4003,7 @@ class Meldedienst_flaechenhaft(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Meldedienst_flaechenhaft,
+    models_codelist.Arten_Meldedienst_flaechenhaft,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -4136,11 +4083,9 @@ class Meldedienst_flaechenhaft(models.Model):
       str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_flaechenhaft, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
 
 
@@ -4164,7 +4109,7 @@ class Meldedienst_punkthaft(models.Model):
   deaktiviert = models.DateField(
     'Zurückstellung', blank=True, null=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -4173,7 +4118,7 @@ class Meldedienst_punkthaft(models.Model):
     blank=True,
     null=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Meldedienst_punkthaft,
+    models_codelist.Arten_Meldedienst_punkthaft,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -4263,11 +4208,9 @@ class Meldedienst_punkthaft(models.Model):
       '%d.%m.%Y') + (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_punkthaft, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Meldedienst_punkthaft, self).delete(*args, **kwargs)
 
 
@@ -4346,11 +4289,9 @@ class Mobilpunkte(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Mobilpunkte, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Mobilpunkte, self).delete(*args, **kwargs)
 
 
@@ -4368,7 +4309,7 @@ class Parkmoeglichkeiten(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -4377,7 +4318,7 @@ class Parkmoeglichkeiten(models.Model):
     blank=True,
     null=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Parkmoeglichkeiten,
+    models_codelist.Arten_Parkmoeglichkeiten,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -4403,7 +4344,7 @@ class Parkmoeglichkeiten(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   betreiber = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=models.SET_NULL,
     db_column='betreiber',
@@ -4527,11 +4468,9 @@ class Parkmoeglichkeiten(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkmoeglichkeiten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkmoeglichkeiten, self).delete(*args, **kwargs)
 
 
@@ -4553,7 +4492,7 @@ class Pflegeeinrichtungen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -4562,7 +4501,7 @@ class Pflegeeinrichtungen(models.Model):
     blank=True,
     null=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Pflegeeinrichtungen,
+    models_codelist.Arten_Pflegeeinrichtungen,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -4678,11 +4617,9 @@ class Pflegeeinrichtungen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Pflegeeinrichtungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Pflegeeinrichtungen, self).delete(*args, **kwargs)
 
 
@@ -4704,7 +4641,7 @@ class Poller(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Poller,
+    models_codelist.Arten_Poller,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -4739,7 +4676,7 @@ class Poller(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   status = models.ForeignKey(
-    codelist_models.Status_Poller,
+    models_codelist.Status_Poller,
     verbose_name='Status',
     on_delete=models.RESTRICT,
     db_column='status',
@@ -4751,7 +4688,7 @@ class Poller(models.Model):
     blank=True,
     null=True)
   hersteller = models.ForeignKey(
-    codelist_models.Hersteller_Poller,
+    models_codelist.Hersteller_Poller,
     verbose_name='Hersteller',
     on_delete=models.SET_NULL,
     db_column='hersteller',
@@ -4760,7 +4697,7 @@ class Poller(models.Model):
     blank=True,
     null=True)
   typ = models.ForeignKey(
-    codelist_models.Typen_Poller,
+    models_codelist.Typen_Poller,
     verbose_name='Typ',
     on_delete=models.SET_NULL,
     db_column='typ',
@@ -4848,11 +4785,9 @@ class Poller(models.Model):
            self.bezeichnung + ' [Status: ' + str(self.status) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Poller, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Poller, self).delete(*args, **kwargs)
 
 
@@ -4870,7 +4805,7 @@ class Rettungswachen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -4898,7 +4833,7 @@ class Rettungswachen(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -4972,11 +4907,9 @@ class Rettungswachen(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Rettungswachen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Rettungswachen, self).delete(*args, **kwargs)
 
 
@@ -4996,7 +4929,7 @@ class Schiffsliegeplaetze(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   hafen = models.ForeignKey(
-    codelist_models.Haefen,
+    models_codelist.Haefen,
     verbose_name='Hafen',
     on_delete=models.CASCADE,
     db_column='hafen',
@@ -5195,11 +5128,9 @@ class Schiffsliegeplaetze(models.Model):
            self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schiffsliegeplaetze, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schiffsliegeplaetze, self).delete(*args, **kwargs)
 
 
@@ -5221,14 +5152,14 @@ class Schutzzaeune_Tierseuchen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   tierseuche = models.ForeignKey(
-    codelist_models.Tierseuchen,
+    models_codelist.Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=models.RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
     related_name='tierseuchen+')
   zustand = models.ForeignKey(
-    codelist_models.Zustaende_Schutzzaeune_Tierseuchen,
+    models_codelist.Zustaende_Schutzzaeune_Tierseuchen,
     verbose_name='Zustand',
     on_delete=models.RESTRICT,
     db_column='zustand',
@@ -5267,11 +5198,9 @@ class Schutzzaeune_Tierseuchen(models.Model):
     return str(self.tierseuche) + ', ' + str(self.zustand)
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schutzzaeune_Tierseuchen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Schutzzaeune_Tierseuchen, self).delete(*args, **kwargs)
 
 
@@ -5293,7 +5222,7 @@ class Sporthallen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -5324,14 +5253,14 @@ class Sporthallen(models.Model):
     ]
   )
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
     to_field='uuid',
     related_name='traeger+')
   sportart = models.ForeignKey(
-    codelist_models.Sportarten,
+    models_codelist.Sportarten,
     verbose_name='Sportart',
     on_delete=models.RESTRICT,
     db_column='sportart',
@@ -5392,11 +5321,9 @@ class Sporthallen(models.Model):
            'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Sporthallen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Sporthallen, self).delete(*args, **kwargs)
 
 
@@ -5424,7 +5351,7 @@ class Stadtteil_Begegnungszentren(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -5455,7 +5382,7 @@ class Stadtteil_Begegnungszentren(models.Model):
     ]
   )
   traeger = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=models.RESTRICT,
     db_column='traeger',
@@ -5535,11 +5462,9 @@ class Stadtteil_Begegnungszentren(models.Model):
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Stadtteil_Begegnungszentren, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Stadtteil_Begegnungszentren, self).delete(*args, **kwargs)
 
 
@@ -5563,7 +5488,7 @@ class Strassenreinigung(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   id = models.CharField('ID', max_length=14, default='0000000000-000')
   strasse = models.ForeignKey(
-    codelist_models.Strassen,
+    models_codelist.Strassen,
     verbose_name='Straße',
     on_delete=models.SET_NULL,
     db_column='strasse',
@@ -5573,7 +5498,7 @@ class Strassenreinigung(models.Model):
     null=True
   )
   inoffizielle_strasse = models.ForeignKey(
-    codelist_models.Inoffizielle_Strassen,
+    models_codelist.Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
     on_delete=models.SET_NULL,
     db_column='inoffizielle_strasse',
@@ -5606,7 +5531,7 @@ class Strassenreinigung(models.Model):
       )])
   ausserhalb = models.BooleanField(' außerhalb geschlossener Ortslage?')
   reinigungsklasse = models.ForeignKey(
-    codelist_models.Reinigungsklassen_Strassenreinigungssatzung_HRO,
+    models_codelist.Reinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
     on_delete=models.SET_NULL,
     db_column='reinigungsklasse',
@@ -5616,7 +5541,7 @@ class Strassenreinigung(models.Model):
     null=True
   )
   reinigungsrhythmus = models.ForeignKey(
-    codelist_models.Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    models_codelist.Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
     on_delete=models.SET_NULL,
     db_column='reinigungsrhythmus',
@@ -5626,7 +5551,7 @@ class Strassenreinigung(models.Model):
     null=True
   )
   fahrbahnwinterdienst = models.ForeignKey(
-    codelist_models.Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
+    models_codelist.Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
     verbose_name='Fahrbahnwinterdienst',
     on_delete=models.SET_NULL,
     db_column='fahrbahnwinterdienst',
@@ -5708,11 +5633,9 @@ class Strassenreinigung(models.Model):
         + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Strassenreinigung, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Strassenreinigung, self).delete(*args, **kwargs)
 
 
@@ -5830,11 +5753,9 @@ class Thalasso_Kurwege(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Thalasso_Kurwege, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Thalasso_Kurwege, self).delete(*args, **kwargs)
 
 
@@ -5856,14 +5777,14 @@ class Toiletten(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Toiletten,
+    models_codelist.Arten_Toiletten,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
     to_field='uuid',
     related_name='arten+')
   bewirtschafter = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=models.SET_NULL,
     db_column='bewirtschafter',
@@ -5921,11 +5842,9 @@ class Toiletten(models.Model):
                if self.zeiten else ''))
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Toiletten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Toiletten, self).delete(*args, **kwargs)
 
 
@@ -5968,7 +5887,7 @@ class Trinkwassernotbrunnen(models.Model):
         message=constants_vars.gravis_message
       )])
   eigentuemer = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=models.SET_NULL,
     db_column='eigentuemer',
@@ -5977,7 +5896,7 @@ class Trinkwassernotbrunnen(models.Model):
     blank=True,
     null=True)
   betreiber = models.ForeignKey(
-    codelist_models.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=models.RESTRICT,
     db_column='betreiber',
@@ -6042,14 +5961,12 @@ class Trinkwassernotbrunnen(models.Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.id + ' [Art: ' + str(self.art) + ']'
+    return self.nummer
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Trinkwassernotbrunnen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Trinkwassernotbrunnen, self).delete(*args, **kwargs)
 
 
@@ -6071,7 +5988,7 @@ class Vereine(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -6185,11 +6102,9 @@ class Vereine(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Vereine, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Vereine, self).delete(*args, **kwargs)
 
 
@@ -6207,7 +6122,7 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
-    codelist_models.Adressen,
+    models_codelist.Adressen,
     verbose_name='Adresse',
     on_delete=models.SET_NULL,
     db_column='adresse',
@@ -6321,11 +6236,9 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Verkaufstellen_Angelberechtigungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Verkaufstellen_Angelberechtigungen, self).delete(*args, **kwargs)
 
 

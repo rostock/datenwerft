@@ -1,21 +1,22 @@
 /*
- * Erweiterungen von bestehenden Klassen
+ * Erweiterungen bestehender Leaflet-Klassen
  */
 
 /**
  * @function
  * @name getActiveOverlays
  *
- * Liefert Liste der aktivierten Layer im Layer-Auswahl-Button
+ * gibt alle via Layer-Auswahl aktivierte Layer zurück
+ *
+ * @returns {Object} - alle via Layer-Auswahl aktivierten Layer
  */
-L.Control.Layers.prototype.getActiveOverlays = function () {
+L.Control.Layers.prototype.getActiveOverlays = function() {
   let activeLayers = {};
   this._layers.forEach((layer) => {
     if (layer.overlay && this._map.hasLayer(layer.layer)) {
       window.currMap.eachLayer((lay) => {
-        if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection'){
+        if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection')
           activeLayers[layer.name] = lay;
-        }
       });
     }
   });
@@ -23,36 +24,32 @@ L.Control.Layers.prototype.getActiveOverlays = function () {
 }
 
 
-
-
 /*
- * Leaflet Hilfsfunktionen
- *
- * !!! Benötigen leaflet-geoman !!!
+ * Leaflet-Hilfsfunktionen
  */
 
 /**
  * @function
  * @name getLayersOfType
- * Ausgabe aller Layer eines Typs.
  *
- * @param {string} type - Typ der zu suchenden Layer als String (Bsp.: "LineString").
- * @param {boolean} [withCompatible=false] - Mit kompatiblen Layern (Bsp.: `type="Point"` → Rückgabe aller `Point`-
- *                                           und `MultiPoint`-Layer)
+ * gibt alle Layer des übergebenen Typs zurück
  *
- * @returns {Array} Ein Array der Layer mit dem angegebenen Typ
+ * @param {string} type - Typ der zu suchenden Layer als String (Beispiel: 'LineString')
+ * @param {boolean} [withCompatible=false] - mit kompatiblen Layern? (Beispiel: bei `type='Point'` Rückgabe aller Point- und Multi-Point-Layer)
+ *
+ * @returns {Array} - alle Layer des übergebenen Typs
  */
-L.Map.prototype.getLayersOfType = function (type, withCompatible=false) {
+L.Map.prototype.getLayersOfType = function(type, withCompatible = false) {
   let result = []
-  if (withCompatible === true){
+  if (withCompatible === true) {
     this.pm.getGeomanLayers().forEach((layer) => {
-      if (layer.toGeoJSON().geometry.type.indexOf(type) > -1){
+      if (layer.toGeoJSON().geometry.type.indexOf(type) > -1) {
         result.push(layer);
       }
     });
   } else {
     this.pm.getGeomanLayers().forEach((layer) => {
-      if (layer.toGeoJSON().geometry.type === type){
+      if (layer.toGeoJSON().geometry.type === type) {
         result.push(layer);
       }
     });
@@ -60,29 +57,28 @@ L.Map.prototype.getLayersOfType = function (type, withCompatible=false) {
   return result;
 }
 
-
 /**
  * @function
  * @name getAttachingLayers
  *
- * Liefert für einen gegebenen Layer alle anknüpfenden Layer vom selben Typ.
- * **Anknüpfend: **
- * - Bei Polygonen: mind. 2 gleiche Punkte
- * - Bei LineString: Anfang oder Endpunkt identisch
+ * gibt für einen übergebenen Layer alle anknüpfenden Layer desselben Typs zurück:
+ * - anknüpfend bei Polygonen: mindestens zwei Punkte identisch
+ * - anknüpfend bei Linien: Start- oder Endpunkt identisch
  *
- * @param {layer} layer - Layer für welchen die angeheftete Layer gefunden werden sollen.
- * @returns {Array} Ein Array
+ * @param {Object} layer - Layer, für den die anknüpfenden Layer desselben Typs gefunden werden sollen
+ *
+ * @returns {Array} - alle an den übergebenen Layer anknüpfenden Layer desselben Typs
  */
-L.Map.prototype.getAttachingLayers = function (layer) {
+L.Map.prototype.getAttachingLayers = function(layer) {
   let results = [];
   let coordsOfLayer = layer.toGeoJSON().geometry.coordinates;
   this.getLayersOfType(layer.toGeoJSON().geometry.type, false).forEach((l) => {
-    for (let i = 0; i < coordsOfLayer.length-1; i++) {
+    for (let i = 0; i < coordsOfLayer.length - 1; i++) {
       if (results.indexOf(l) > -1) {
         break;
       } else {
         let index = l.indexOf(coordsOfLayer[i]);
-        if (index > -1 && (l[index+1] === coordsOfLayer[i-1] || l[index+1] === coordsOfLayer[i+1])){
+        if (index > -1 && (l[index + 1] === coordsOfLayer[i - 1] || l[index + 1] === coordsOfLayer[i + 1])) {
           results.push(l);
         }
       }
@@ -91,28 +87,29 @@ L.Map.prototype.getAttachingLayers = function (layer) {
   return results;
 }
 
-
 /**
  * @function
  * @name loadGeometryFromField
  *
- * Laden der Geometry aus Hidden-Input-Feld.
+ * lädt Geometrie aus Input-Feld in Karte
  *
- * @param {string} fieldID - ID des Input-Felds
+ * @param {string} fieldId - ID des Input-Felds
+ *
+ * @returns {this} modifizierte Karte
  */
-L.Map.prototype.loadGeometryFromField = function (fieldID) {
+L.Map.prototype.loadGeometryFromField = function(fieldId) {
   let geojson = {
-    "type": "Feature",
-    "properties": {},
-    "geometry": JSON.parse($(fieldID).val()),
-    }
+    'type': 'Feature',
+    'properties': {},
+    'geometry': JSON.parse($(fieldId).val()),
+  }
   let changeGeom = new L.geoJSON(geojson, {
     pointToLayer: function (feature, latlng) {
-      // here you would difference between marker and circle
       return L.marker(latlng, {icon: redMarker});
     },
+    // Farbe während des Zeichnens
     templineStyle: {
-      color: 'red',             // Farbe während des zeichnens
+      color: 'red',
     },
     color: 'red',
     fillColor: 'red',
@@ -121,29 +118,28 @@ L.Map.prototype.loadGeometryFromField = function (fieldID) {
   changeGeom._changeGeom = true;
   changeGeom.eachLayer((layer) => {
     layer._drawnByGeoman = true;
-    if (layer instanceof L.Marker){
+    if (layer instanceof L.Marker)
       layer.setZIndexOffset(1000);
-    } else {
+    else
       layer.bringToFront();
-    }
   });
   return this;
 }
-
 
 /**
  * @function
  * @name loadExternalData
  *
- * Nachladen zusätzlicher Datenthemen im aktuellen Sichtbereich
+ * lädt zusätzliche Daten im aktuellen Sichtbereich nach
  *
- * @param {string} baseUrl - BasisUrl des Datenthemas
- * @param {layer} layer - Layer des Datenthemas
+ * @param {string} baseUrl - Basis-URL des Datenthemas
+ * @param {Object} layer - Layer des Datenthemas
  */
-L.Map.prototype.loadExternalData = function (baseUrl, layer) {
+L.Map.prototype.loadExternalData = function(baseUrl, layer) {
   let mapPart = this.getBounds();
   let center = this.getCenter();
-  let rad = this.distance(center, mapPart['_northEast']) * 1.2; // Berechnen des Bounding-Circle
+  // Bounding-Circle berechnen
+  let rad = this.distance(center, mapPart['_northEast']) * 1.2;
   let protocol = window.location.protocol;
   let host = window.location.host;
   fetch(
@@ -177,151 +173,136 @@ L.Map.prototype.loadExternalData = function (baseUrl, layer) {
           }
         };
         geoJsonFeature.geometry = wkt.toJson();
-        // Verhindern, dass Daten doppelt auf der Karte angezeigt werden
+        // verhindern, dass Daten doppelt auf der Karte angezeigt werden
         let exists = false;
-        for (let e of layer.toGeoJSON().features){
-          if (e.properties.uuid === geoJsonFeature.properties.uuid){
+        for (let e of layer.toGeoJSON().features) {
+          if (e.properties.uuid === geoJsonFeature.properties.uuid)
             exists = true;
-          }
         }
-        if (exists === false){
+        if (exists === false)
           geoJsonFeatureCollection.features.push(geoJsonFeature);
-        }
       }
       layer.addData(geoJsonFeatureCollection);
+      // Leaflet-Geoman-Optionen setzen
       layer.pm.setOptions({
         draggable: false,
         allowEditing: false,
         allowRemoval: false,
         allowCutting: false,
         allowRotation: false
-      }); // Geoman Optionen setzen
+      });
       layer._drawnByGeoman = false;
-      if (layer instanceof L.Marker){
+      if (layer instanceof L.Marker)
         layer.setZIndexOffset(0);
-      } else {
+      else
         layer.bringToBack();
-      }
     }
   ).catch(
-    function(err) {
-      console.log('Fetch Error: ' + err);
+    function(error) {
+      console.log(error);
     }
   );
 }
-
-
 
 /**
  * @function
  * @name updateMap
  *
- * Laden der externen Datensätze, doppelte Daten löschen und 'aktive' Layer anheben
+ * lädt externe Datensätze in Karte, löscht doppelte Daten aus Karte und hebt aktive Layer in Karte an
  *
- * @param map
+ * @param {Object} dataLayerControl - Layer-Control-Button zum Laden externer Datensätze
+ *
+ * @returns {this} modifizierte Karte
  */
-L.Map.prototype.updateMap = function (dataLayerControl) {
+L.Map.prototype.updateMap = function(dataLayerControl) {
   let list = dataLayerControl.getActiveOverlays();
-  if (this.getZoom() > this._minLayerZoom){
+  if (this.getZoom() > this._minLayerZoom) {
     for (const key in list) {
       this.loadExternalData(this._themaUrl[key], list[key]);
     }
-    // 'Anheben' des Layers, welches bearbeitet wird
+    // anheben des Layers, der bearbeitet wird
     this.eachLayer((layer) => {
-      if (layer._drawnByGeoman === true){
-        if (layer instanceof L.Marker){
+      if (layer._drawnByGeoman === true) {
+        if (layer instanceof L.Marker)
           layer.setZIndexOffset(1000);
-        } else {
+        else
           layer.bringToFront();
-        }
       }
     });
   } else {
     this.eachLayer((layer) => {
-      if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom)) {
+      if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom))
         layer.clearLayers();
-      }
     });
-  };
+  }
   return this;
 }
-
-
-
-
 
 /**
  * @function
  * @name setInteractive
  *
- * Interaktivität für den Layer oder die Layer einer LayerGruppe setzen.
+ * setzt Interaktivität für den übergebenen Layer bzw. die übergebene Layer-Gruppe
  *
- * @param {boolean} interactive
+ * @param {boolean} interactive - interaktiv?
  */
-L.Layer.prototype.setInteractive = function (interactive) {
+L.Layer.prototype.setInteractive = function(interactive) {
   if (this.getLayers) {
     this.getLayers().forEach(layer => {
       layer.setInteractive(interactive);
     });
     return;
   }
-  if (!this._path) {
+  if (!this._path)
     return;
-  }
-
   this.options.interactive = interactive;
-
-  if (interactive) {
+  if (interactive)
     this._path.classList.add('leaflet-interactive');
-  } else {
+  else
     this._path.classList.remove('leaflet-interactive');
-  }
 };
-
 
 /**
  * @function
  * @name unite
  *
- * Bildet die Vereinigung mit einem gegebenen Layer
+ * bildet die Vereinigung mit einem übergebenen Layer
  *
- * @param diffrentLayer
- * @returns {*}
+ * @param {Object} diffrentLayer - Layer, mit dem die Vereinigung durchgeführt werden soll
+ * @param {string} type - Typ des Layer, mit dem die Vereinigung durchgeführt werden soll, als String (Beispiel: 'LineString')
  */
-L.Polygon.prototype.unite = function (diffrentLayer, type){
+L.Polygon.prototype.unite = function(diffrentLayer, type) {
   let feature1 = this.toGeoJSON();
   let feature2 = diffrentLayer.toGeoJSON();
-  if (type.indexOf('Polygon') > 0){
-    // MultiPolygon
-    let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates); // Vereinigung erzeugen
-    result = interchangeRecursive(result, true); // Lat, Lng tauschen
+  // Multi-Polygon...
+  if (type.indexOf('Polygon') > 0) {
+    // Vereinigung durchführen
+    let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates);
+    // x- und y-Koordinate tauschen
+    result = interchangeRecursive(result, true);
     this.setLatLngs(result);
-  } else if (type.indexOf('Polygon') === 0){
-    // Polygon
-    let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates); // Vereinigung erzeugen
-    result = interchangeRecursive(result, true); // Lat, Lng tauschen
-    if (result.length === 1){
+  // Polygon...
+  } else if (type.indexOf('Polygon') === 0) {
+    // Vereinigung durchführen
+    let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates);
+    // x- und y-Koordinate tauschen
+    result = interchangeRecursive(result, true);
+    if (result.length === 1)
       this.setLatLngs(result[0]);
-    }
   }
 }
-
 
 /**
  * @function
  * @name interchangeLatLng
  *
- *
- *
- * @returns {*}
+ * Umkehren der Reihenfolge von x- und y-Koordinaten
  */
-L.Layer.prototype.interchangeLatLng = function () {
+L.Layer.prototype.interchangeLatLng = function() {
   let json = this.toGeoJSON();
   let polygon = false;
   let arr = json.geometry.coordinates;
-  if (json.geometry.type.indexOf('Polygon') > -1){
+  if (json.geometry.type.indexOf('Polygon') > -1)
     polygon = true;
-  }
   this.toGeoJSON().geometry.coordinates = interchangeRecursive(arr, polygon);
 }
-

@@ -8,10 +8,9 @@ from django.contrib.gis.db import models
 from django.db.models import signals
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
-from django_currentuser.middleware import get_current_authenticated_user
 from zoneinfo import ZoneInfo
 
-from . import codelist_models, constants_vars, fields, functions, storage
+from . import models_codelist, constants_vars, fields, functions, storage
 
 
 #
@@ -27,7 +26,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(
-    codelist_models.Strassen,
+    models_codelist.Strassen,
     verbose_name='Straße',
     on_delete=models.SET_NULL,
     db_column='strasse',
@@ -67,7 +66,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       choices=()),
     verbose_name='Sparte(n)')
   auftraggeber = models.ForeignKey(
-    codelist_models.Auftraggeber_Baustellen,
+    models_codelist.Auftraggeber_Baustellen,
     verbose_name='Auftraggeber',
     on_delete=models.RESTRICT,
     db_column='auftraggeber',
@@ -166,7 +165,6 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
            (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Baustellen_Fotodokumentation_Baustellen,
       self).save(
@@ -174,7 +172,6 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Baustellen_Fotodokumentation_Baustellen,
       self).delete(
@@ -205,7 +202,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     to_field='uuid',
     related_name='baustellen_fotodokumentation_baustellen+')
   status = models.ForeignKey(
-    codelist_models.Status_Baustellen_Fotodokumentation_Fotos,
+    models_codelist.Status_Baustellen_Fotodokumentation_Fotos,
     verbose_name='Status',
     on_delete=models.RESTRICT,
     db_column='status',
@@ -257,11 +254,9 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
       '%d.%m.%Y')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_Fotodokumentation_Fotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_Fotodokumentation_Fotos, self).delete(*args, **kwargs)
 
 
@@ -293,7 +288,7 @@ class Baustellen_geplant(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(
-    codelist_models.Strassen,
+    models_codelist.Strassen,
     verbose_name='Straße',
     on_delete=models.SET_NULL,
     db_column='strasse',
@@ -398,7 +393,7 @@ class Baustellen_geplant(models.Model):
   beginn = models.DateField('Beginn')
   ende = models.DateField('Ende')
   auftraggeber = models.ForeignKey(
-    codelist_models.Auftraggeber_Baustellen,
+    models_codelist.Auftraggeber_Baustellen,
     verbose_name='Auftraggeber',
     on_delete=models.RESTRICT,
     db_column='auftraggeber',
@@ -427,7 +422,7 @@ class Baustellen_geplant(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   status = models.ForeignKey(
-    codelist_models.Status_Baustellen_geplant,
+    models_codelist.Status_Baustellen_geplant,
     verbose_name='Status',
     on_delete=models.RESTRICT,
     db_column='status',
@@ -518,11 +513,9 @@ class Baustellen_geplant(models.Model):
            + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant, self).delete(*args, **kwargs)
 
 
@@ -603,11 +596,9 @@ class Baustellen_geplant_Dokumente(models.Model):
            ' mit Bezeichnung ' + self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Dokumente, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Dokumente, self).delete(*args, **kwargs)
 
 
@@ -689,11 +680,9 @@ class Baustellen_geplant_Links(models.Model):
            ' mit Bezeichnung ' + self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Links, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Links, self).delete(*args, **kwargs)
 
 
@@ -719,7 +708,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
-    codelist_models.Arten_Durchlaesse,
+    models_codelist.Arten_Durchlaesse,
     verbose_name='Art',
     on_delete=models.SET_NULL,
     db_column='art',
@@ -735,7 +724,7 @@ class Durchlaesse_Durchlaesse(models.Model):
         regex=constants_vars.dl_aktenzeichen_regex,
         message=constants_vars.dl_aktenzeichen_message)])
   material = models.ForeignKey(
-    codelist_models.Materialien_Durchlaesse,
+    models_codelist.Materialien_Durchlaesse,
     verbose_name='Material',
     on_delete=models.SET_NULL,
     db_column='material',
@@ -803,7 +792,7 @@ class Durchlaesse_Durchlaesse(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   zustand_durchlass = models.ForeignKey(
-    codelist_models.Zustandsbewertungen,
+    models_codelist.Zustandsbewertungen,
     verbose_name='Zustand des Durchlasses',
     on_delete=models.SET_NULL,
     db_column='zustand_durchlass',
@@ -812,7 +801,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     blank=True,
     null=True)
   zustand_nebenanlagen = models.ForeignKey(
-    codelist_models.Zustandsbewertungen,
+    models_codelist.Zustandsbewertungen,
     verbose_name='Zustand der Nebenanlagen',
     on_delete=models.SET_NULL,
     db_column='zustand_nebenanlagen',
@@ -821,7 +810,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     blank=True,
     null=True)
   zustand_zubehoer = models.ForeignKey(
-    codelist_models.Zustandsbewertungen,
+    models_codelist.Zustandsbewertungen,
     verbose_name='Zustand des Zubehörs',
     on_delete=models.SET_NULL,
     db_column='zustand_zubehoer',
@@ -937,11 +926,9 @@ class Durchlaesse_Durchlaesse(models.Model):
     return self.aktenzeichen
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Durchlaesse, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Durchlaesse, self).delete(*args, **kwargs)
 
 
@@ -1036,11 +1023,9 @@ class Durchlaesse_Fotos(models.Model):
       str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') if self.aufnahmedatum else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Fotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Fotos, self).delete(*args, **kwargs)
 
 
@@ -1072,7 +1057,7 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
     editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   tierseuche = models.ForeignKey(
-    codelist_models.Tierseuchen,
+    models_codelist.Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=models.RESTRICT,
     db_column='tierseuche',
@@ -1134,11 +1119,9 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Kontrollgebiete, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Kontrollgebiete, self).delete(*args, **kwargs)
 
 
@@ -1169,7 +1152,7 @@ class Fallwildsuchen_Nachweise(models.Model):
     to_field='uuid',
     related_name='kontrollgebiete+')
   art_kontrolle = models.ForeignKey(
-    codelist_models.Arten_Fallwildsuchen_Kontrollen,
+    models_codelist.Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art der Kontrolle',
     on_delete=models.RESTRICT,
     db_column='art_kontrolle',
@@ -1218,7 +1201,7 @@ class Fallwildsuchen_Nachweise(models.Model):
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
     startzeitpunkt_str = re.sub(
-      r'([+-][0-9]{2})\:',
+      r'([+-][0-9]{2}):',
       '\\1',
       str(self.startzeitpunkt)
     )
@@ -1228,7 +1211,7 @@ class Fallwildsuchen_Nachweise(models.Model):
     ).replace(tzinfo=timezone.utc).astimezone(local_tz)
     startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
     endzeitpunkt_str = re.sub(
-      r'([+-][0-9]{2})\:',
+      r'([+-][0-9]{2}):',
       '\\1',
       str(self.endzeitpunkt)
     )
@@ -1245,11 +1228,9 @@ class Fallwildsuchen_Nachweise(models.Model):
                                     + str(self.art_kontrolle) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Nachweise, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Nachweise, self).delete(*args, **kwargs)
 
 
@@ -1411,7 +1392,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     blank=True,
     null=True)
   bau_typ = models.ForeignKey(
-    codelist_models.Typen_Haltestellen,
+    models_codelist.Typen_Haltestellen,
     verbose_name='Typ',
     on_delete=models.SET_NULL,
     db_column='bau_typ',
@@ -1446,7 +1427,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     blank=True,
     null=True)
   bau_befestigungsart_aufstellflaeche_bus = models.ForeignKey(
-    codelist_models.Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster,
+    models_codelist.Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster,
     verbose_name='Befestigungsart der Aufstellfläche Bus',
     on_delete=models.SET_NULL,
     db_column='bau_befestigungsart_aufstellflaeche_bus',
@@ -1455,7 +1436,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     blank=True,
     null=True)
   bau_zustand_aufstellflaeche_bus = models.ForeignKey(
-    codelist_models.Schaeden_Haltestellenkataster,
+    models_codelist.Schaeden_Haltestellenkataster,
     verbose_name='Zustand der Aufstellfläche Bus',
     on_delete=models.SET_NULL,
     db_column='bau_zustand_aufstellflaeche_bus',
@@ -1464,7 +1445,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     blank=True,
     null=True)
   bau_befestigungsart_warteflaeche = models.ForeignKey(
-    codelist_models.Befestigungsarten_Warteflaeche_Haltestellenkataster,
+    models_codelist.Befestigungsarten_Warteflaeche_Haltestellenkataster,
     verbose_name='Befestigungsart der Wartefläche',
     on_delete=models.SET_NULL,
     db_column='bau_befestigungsart_warteflaeche',
@@ -1473,7 +1454,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     blank=True,
     null=True)
   bau_zustand_warteflaeche = models.ForeignKey(
-    codelist_models.Schaeden_Haltestellenkataster,
+    models_codelist.Schaeden_Haltestellenkataster,
     verbose_name='Zustand der Wartefläche',
     on_delete=models.SET_NULL,
     db_column='bau_zustand_warteflaeche',
@@ -1490,7 +1471,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_auffindestreifen = models.BooleanField(
     'Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True)
   tl_auffindestreifen_ausfuehrung = models.ForeignKey(
-    codelist_models.Ausfuehrungen_Haltestellenkataster,
+    models_codelist.Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Auffindestreifen',
     on_delete=models.SET_NULL,
     db_column='tl_auffindestreifen_ausfuehrung',
@@ -1506,7 +1487,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_einstiegsfeld = models.BooleanField(
     'Taktiles Leitsystem: Einstiegsfeld vorhanden?', blank=True, null=True)
   tl_einstiegsfeld_ausfuehrung = models.ForeignKey(
-    codelist_models.Ausfuehrungen_Haltestellenkataster,
+    models_codelist.Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Einstiegsfeld',
     on_delete=models.SET_NULL,
     db_column='tl_einstiegsfeld_ausfuehrung',
@@ -1522,7 +1503,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_leitstreifen = models.BooleanField(
     'Taktiles Leitsystem: Leitstreifen vorhanden?', blank=True, null=True)
   tl_leitstreifen_ausfuehrung = models.ForeignKey(
-    codelist_models.Ausfuehrungen_Haltestellenkataster,
+    models_codelist.Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Leitstreifen',
     on_delete=models.SET_NULL,
     db_column='tl_leitstreifen_ausfuehrung',
@@ -1542,7 +1523,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   tl_bahnsteigkante_taktil = models.BooleanField(
     'Bahnsteigkante taktil erkennbar?', blank=True, null=True)
   as_zh_typ = models.ForeignKey(
-    codelist_models.ZH_Typen_Haltestellenkataster,
+    models_codelist.ZH_Typen_Haltestellenkataster,
     verbose_name='ZH-Typ',
     on_delete=models.SET_NULL,
     db_column='as_zh_typ',
@@ -1552,7 +1533,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     null=True)
   as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
   as_h_masttyp = models.ForeignKey(
-    codelist_models.Masttypen_Haltestellenkataster,
+    models_codelist.Masttypen_Haltestellenkataster,
     verbose_name='Masttyp',
     on_delete=models.SET_NULL,
     db_column='as_h_masttyp',
@@ -1565,7 +1546,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   as_fahrgastunterstand = models.BooleanField(
     'Fahrgastunterstand vorhanden?', blank=True, null=True)
   as_fahrgastunterstandstyp = models.ForeignKey(
-    codelist_models.Fahrgastunterstandstypen_Haltestellenkataster,
+    models_codelist.Fahrgastunterstandstypen_Haltestellenkataster,
     verbose_name='Typ des Fahrgastunterstand',
     on_delete=models.SET_NULL,
     db_column='as_fahrgastunterstandstyp',
@@ -1578,7 +1559,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   as_sitzbank_ohne_armlehne = models.BooleanField(
     'Sitzbank ohne Armlehne vorhanden?', blank=True, null=True)
   as_sitzbanktyp = models.ForeignKey(
-    codelist_models.Sitzbanktypen_Haltestellenkataster,
+    models_codelist.Sitzbanktypen_Haltestellenkataster,
     verbose_name='Typ der Sitzbank',
     on_delete=models.SET_NULL,
     db_column='as_sitzbanktyp',
@@ -1591,7 +1572,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   as_fahrplanvitrine = models.BooleanField(
     'Fahrplanvitrine vorhanden?', blank=True, null=True)
   as_fahrplanvitrinentyp = models.ForeignKey(
-    codelist_models.Fahrplanvitrinentypen_Haltestellenkataster,
+    models_codelist.Fahrplanvitrinentypen_Haltestellenkataster,
     verbose_name='Typ der Fahrplanvitrine',
     on_delete=models.SET_NULL,
     db_column='as_fahrplanvitrinentyp',
@@ -1614,7 +1595,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     blank=True,
     null=True)
   as_dfi_typ = models.ForeignKey(
-    codelist_models.DFI_Typen_Haltestellenkataster,
+    models_codelist.DFI_Typen_Haltestellenkataster,
     verbose_name='Typ des Dynamischen Fahrgastinformationssystems',
     on_delete=models.SET_NULL,
     db_column='as_dfi_typ',
@@ -1731,11 +1712,9 @@ class Haltestellenkataster_Haltestellen(models.Model):
            + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Haltestellen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Haltestellen, self).delete(*args, **kwargs)
 
 
@@ -1763,7 +1742,7 @@ class Haltestellenkataster_Fotos(models.Model):
     to_field='uuid',
     related_name='haltestellenkataster_haltestellen+')
   motiv = models.ForeignKey(
-    codelist_models.Fotomotive_Haltestellenkataster,
+    models_codelist.Fotomotive_Haltestellenkataster,
     verbose_name='Motiv',
     on_delete=models.RESTRICT,
     db_column='motiv',
@@ -1814,11 +1793,9 @@ class Haltestellenkataster_Fotos(models.Model):
       '%d.%m.%Y')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Fotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Fotos, self).delete(*args, **kwargs)
 
 
@@ -1874,7 +1851,7 @@ class Parkscheinautomaten_Tarife(models.Model):
   normaltarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
     'Mindestparkdauer Normaltarif', min_value=1)
   normaltarif_parkdauer_min_einheit = models.ForeignKey(
-    codelist_models.Zeiteinheiten,
+    models_codelist.Zeiteinheiten,
     verbose_name='Einheit der Mindestparkdauer Normaltarif',
     on_delete=models.RESTRICT,
     db_column='normaltarif_parkdauer_min_einheit',
@@ -1883,7 +1860,7 @@ class Parkscheinautomaten_Tarife(models.Model):
   normaltarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
     'Maximalparkdauer Normaltarif', min_value=1)
   normaltarif_parkdauer_max_einheit = models.ForeignKey(
-    codelist_models.Zeiteinheiten,
+    models_codelist.Zeiteinheiten,
     verbose_name='Einheit der Maximalparkdauer Normaltarif',
     on_delete=models.RESTRICT,
     db_column='normaltarif_parkdauer_max_einheit',
@@ -1924,7 +1901,7 @@ class Parkscheinautomaten_Tarife(models.Model):
   veranstaltungstarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
     'Mindestparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
   veranstaltungstarif_parkdauer_min_einheit = models.ForeignKey(
-    codelist_models.Zeiteinheiten,
+    models_codelist.Zeiteinheiten,
     verbose_name='Einheit der Mindestparkdauer Veranstaltungstarif',
     on_delete=models.SET_NULL,
     db_column='veranstaltungstarif_parkdauer_min_einheit',
@@ -1935,7 +1912,7 @@ class Parkscheinautomaten_Tarife(models.Model):
   veranstaltungstarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
     'Maximalparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
   veranstaltungstarif_parkdauer_max_einheit = models.ForeignKey(
-    codelist_models.Zeiteinheiten,
+    models_codelist.Zeiteinheiten,
     verbose_name='Einheit der Maximalparkdauer Veranstaltungstarif',
     on_delete=models.SET_NULL,
     db_column='veranstaltungstarif_parkdauer_max_einheit',
@@ -2001,11 +1978,9 @@ class Parkscheinautomaten_Tarife(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkscheinautomaten_Tarife, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkscheinautomaten_Tarife, self).delete(*args, **kwargs)
 
 
@@ -2054,7 +2029,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
   zone = models.ForeignKey(
-    codelist_models.Zonen_Parkscheinautomaten,
+    models_codelist.Zonen_Parkscheinautomaten,
     verbose_name='Zone',
     on_delete=models.RESTRICT,
     db_column='zone',
@@ -2080,7 +2055,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
         message=constants_vars.psa_geraetenummer_message)])
   inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
   e_anschluss = models.ForeignKey(
-    codelist_models.E_Anschluesse_Parkscheinautomaten,
+    models_codelist.E_Anschluesse_Parkscheinautomaten,
     verbose_name='E-Anschluss',
     on_delete=models.RESTRICT,
     db_column='e_anschluss',
@@ -2135,7 +2110,6 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Parkscheinautomaten_Parkscheinautomaten,
       self).save(
@@ -2143,7 +2117,6 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
       **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Parkscheinautomaten_Parkscheinautomaten,
       self).delete(
@@ -2220,11 +2193,9 @@ class RSAG_Gleise(models.Model):
     return self.uuid
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Gleise, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Gleise, self).delete(*args, **kwargs)
 
 
@@ -2360,7 +2331,7 @@ class RSAG_Masten(models.Model):
     blank=True,
     null=True)
   masttyp = models.ForeignKey(
-    codelist_models.Masttypen_RSAG,
+    models_codelist.Masttypen_RSAG,
     verbose_name='Masttyp',
     on_delete=models.RESTRICT,
     db_column='masttyp',
@@ -2377,7 +2348,7 @@ class RSAG_Masten(models.Model):
     blank=True,
     null=True)
   fundamenttyp = models.ForeignKey(
-    codelist_models.Fundamenttypen_RSAG,
+    models_codelist.Fundamenttypen_RSAG,
     verbose_name='Fundamenttyp',
     on_delete=models.SET_NULL,
     db_column='fundamenttyp',
@@ -2436,7 +2407,7 @@ class RSAG_Masten(models.Model):
     blank=True,
     null=True)
   mastkennzeichen_1 = models.ForeignKey(
-    codelist_models.Mastkennzeichen_RSAG,
+    models_codelist.Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 1',
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_1',
@@ -2445,7 +2416,7 @@ class RSAG_Masten(models.Model):
     blank=True,
     null=True)
   mastkennzeichen_2 = models.ForeignKey(
-    codelist_models.Mastkennzeichen_RSAG,
+    models_codelist.Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 2',
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_2',
@@ -2454,7 +2425,7 @@ class RSAG_Masten(models.Model):
     blank=True,
     null=True)
   mastkennzeichen_3 = models.ForeignKey(
-    codelist_models.Mastkennzeichen_RSAG,
+    models_codelist.Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 3',
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_3',
@@ -2463,7 +2434,7 @@ class RSAG_Masten(models.Model):
     blank=True,
     null=True)
   mastkennzeichen_4 = models.ForeignKey(
-    codelist_models.Mastkennzeichen_RSAG,
+    models_codelist.Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 4',
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_4',
@@ -2566,11 +2537,9 @@ class RSAG_Masten(models.Model):
     return self.mastnummer
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Masten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Masten, self).delete(*args, **kwargs)
 
 
@@ -2612,11 +2581,9 @@ class RSAG_Leitungen(models.Model):
     return self.uuid
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Leitungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Leitungen, self).delete(*args, **kwargs)
 
 
@@ -2700,11 +2667,9 @@ class RSAG_Quertraeger(models.Model):
     return str(self.uuid)
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Quertraeger, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Quertraeger, self).delete(*args, **kwargs)
 
 
@@ -2792,11 +2757,9 @@ class RSAG_Spanndraehte(models.Model):
     return str(self.uuid)
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Spanndraehte, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Spanndraehte, self).delete(*args, **kwargs)
 
 
@@ -2842,14 +2805,14 @@ class UVP_Vorhaben(models.Model):
     ]
   )
   vorgangsart = models.ForeignKey(
-    codelist_models.Vorgangsarten_UVP_Vorhaben,
+    models_codelist.Vorgangsarten_UVP_Vorhaben,
     verbose_name='Vorgangsart',
     on_delete=models.RESTRICT,
     db_column='vorgangsart',
     to_field='uuid',
     related_name='vorgangsarten+')
   genehmigungsbehoerde = models.ForeignKey(
-    codelist_models.Genehmigungsbehoerden_UVP_Vorhaben,
+    models_codelist.Genehmigungsbehoerden_UVP_Vorhaben,
     verbose_name='Genehmigungsbehörde',
     on_delete=models.RESTRICT,
     db_column='genehmigungsbehoerde',
@@ -2894,14 +2857,14 @@ class UVP_Vorhaben(models.Model):
     ]
   )
   rechtsgrundlage = models.ForeignKey(
-    codelist_models.Rechtsgrundlagen_UVP_Vorhaben,
+    models_codelist.Rechtsgrundlagen_UVP_Vorhaben,
     verbose_name='Rechtsgrundlage',
     on_delete=models.RESTRICT,
     db_column='rechtsgrundlage',
     to_field='uuid',
     related_name='rechtsgrundlagen+')
   typ = models.ForeignKey(
-    codelist_models.Typen_UVP_Vorhaben,
+    models_codelist.Typen_UVP_Vorhaben,
     verbose_name='Typ',
     on_delete=models.RESTRICT,
     db_column='typ',
@@ -2960,11 +2923,9 @@ class UVP_Vorhaben(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorhaben, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorhaben, self).delete(*args, **kwargs)
 
 
@@ -2989,7 +2950,7 @@ class UVP_Vorpruefungen(models.Model):
     to_field='uuid',
     related_name='uvp_vorhaben+')
   art = models.ForeignKey(
-    codelist_models.Arten_UVP_Vorpruefungen,
+    models_codelist.Arten_UVP_Vorpruefungen,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
@@ -2998,7 +2959,7 @@ class UVP_Vorpruefungen(models.Model):
   datum_posteingang = models.DateField('Datum des Posteingangs')
   datum = models.DateField('Datum', default=date.today)
   ergebnis = models.ForeignKey(
-    codelist_models.Ergebnisse_UVP_Vorpruefungen,
+    models_codelist.Ergebnisse_UVP_Vorpruefungen,
     verbose_name='Ergebnis',
     on_delete=models.RESTRICT,
     db_column='ergebnis',
@@ -3066,11 +3027,9 @@ class UVP_Vorpruefungen(models.Model):
     ).strftime('%d.%m.%Y') + ' [Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorpruefungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorpruefungen, self).delete(*args, **kwargs)
 
 

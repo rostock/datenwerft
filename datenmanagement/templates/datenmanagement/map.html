@@ -22,6 +22,8 @@
   {% leaflet_js plugins="locatecontrol,markercluster" %}
   <script type="text/javascript" src="{% static 'proj4/proj4.js' %}"></script>
   <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -212,108 +214,19 @@
        * @param {Object} map - Karte
        */
       function mapCallbackFunction(map) {
-        // Rendering der Feature-Layer auf der Karte etwas beschleunigen
-        map.preferCanvas = true;
+        // Konstanten für Karte setzen
+        setMapConstants(map);
+
+        // Karte konfigurieren
+        configureMap(map, '{% url "datenmanagement:owsproxy" %}');
 
         // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.currMap = map;
 
-        // Standard-Zoom-Kontrollelemente entfernen und durch solche mit eigenen Tooltips ersetzen
-        map.zoomControl.remove();
-        L.control.zoom({
-          zoomInTitle:'hineinzoomen',
-          zoomOutTitle:'herauszoomen'
-        }).addTo(map);
-
-        // allgemeine Konstanten für die Karte definieren
-        const wmsFormat = 'image/png';
-        const maxZoom = 19;
-
-        // ORKa.MV definieren
-        const orkamv =  L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-          maxZoom: maxZoom,
-          attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank">ODbL</a>) und LkKfS-MV'
-        });
-
-        // ORKa.MV standardmäßig zur Karte hinzufügen
-        map.addLayer(orkamv);
-
-        // OpenStreetMap definieren
-        const osm =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: maxZoom,
-          attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
-        });
-
-        // basemap.de definieren
-        const basemapde = L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde', {
-          layers: 'de_basemapde_web_raster_farbe',
-          format: wmsFormat,
-          maxZoom: maxZoom,
-          attribution: '© GeoBasis-DE/BKG'
-        });
-
-        // Liegenschaftskarte definieren
-        const liegenschaftskarte = L.tileLayer.wms('{% url "datenmanagement:owsproxy" %}' + '/liegenschaftskarte/wms', {
-          layers: 'hro.liegenschaftskarte',
-          format: wmsFormat,
-          maxZoom: maxZoom,
-          attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
-        });
-
-        // Luftbild definieren
-        const luftbild =  L.tileLayer('{% url "datenmanagement:owsproxy" %}' + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
-          maxZoom: maxZoom,
-          attribution: '© GeoBasis-DE/M-V'
-        });
-
-        // zuvor definierte Karten als Hintergrundkarten zusammenfassen
-        const baseMaps = {
-          'basemap.de': basemapde,
-          'Liegenschaftskarte': liegenschaftskarte,
-          'Luftbild': luftbild,
-          'OpenStreetMap': osm,
-          'ORKa.MV': orkamv
-        };
-
-        // Kilometerquadrate ETRS89/UTM-33N definieren
-        const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
-          layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
-          format: wmsFormat,
-          maxZoom: maxZoom,
-          transparent: true
-        });
-
-        // zuvor definierte Karten als Overlay-Karten zusammenfassen
-        const overlayMaps = {
-          'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
-        };
-
-        // Umschalter für Hintergrundkarten zur Karte hinzufügen
-        L.control.layers(baseMaps,overlayMaps).addTo(map);
-
         // bei mobilen Geräten: Standortbestimmung hinzufügen
         {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-          L.control.locate({
-            drawCircle: false,
-            drawMarker: false,
-            flyTo: true,
-            locateOptions: {
-              enableHighAccuracy: true
-            },
-            setView: 'untilPan',
-            strings: {
-              title: 'Standortbestimmung'
-            }
-          }).addTo(map);
+          enableMapLocate(map);
         {% endif %}
-
-        // Kartenprojektion EPSG:25833 definieren
-        proj4.defs([
-          [
-            'EPSG:25833',
-            '+proj=utm +zone=33 +ellps=WGS84 +towgs84=0,0,0,0,0,0,1 +units=m +no_defs'
-          ],
-        ]);
 
         /**
          * @function
@@ -378,18 +291,6 @@
           $('#id_mapDataLoading-count').text(count);
           $('#id_mapDataLoading-border').text(border);
         {% endif %}
-
-        /**
-         * @function
-         * @name toggleModal
-         *
-         * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
-         *
-         * @param {Object} modal - Bootstrap-Modal
-         */
-        function toggleModal(modal) {
-          modal.modal('toggle');
-        }
 
         /**
          * @function
@@ -525,6 +426,9 @@
 
         // globale Variable für gelöschte Cluster-Features auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.removedLayers = [];
+
+        // globale Variable für Feature-Geometrie auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+        window.featureGeometry = [];
       }
 
       /**
@@ -547,41 +451,10 @@
         let checkboxFilterListsValues = {{ checkbox_filter_lists|safe }};
 
         // Adressensuche initialisieren
-        let results = $('div.results');
+        // dabei Resultate der Adressensuche auch in anderen Scopes bzw. außerhalb der Hauptfunktion verfügbar machen
+        window.results = $('div.results');
         let searchField = $('#searchtext');
-
-        // bei Klick auf Stelle außerhalb der Adressensuche...
-        results.click(function(event) {
-          $('html').one('click',function() {
-            // Resultate der Adressensuche leeren
-            results.children().remove();
-            results.fadeOut();
-          });
-          event.stopPropagation();
-        });
-
-        // ab dem dritten eingegebenen Zeichen in entsprechendem Eingabefeld Adressensuche durchführen
-        searchField.keyup(function() {
-          if ($(this).val().length >= 3) {
-            let searchText = searchField.val();
-            let url = '{% url "datenmanagement:addresssearch" %}';
-            fetch(url + '?query=' + searchText, {
-              method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => showAddressSearchResults(data))
-            .catch(error => console.log(error))
-          } else {
-            results.children().remove();
-            results.fadeOut();
-          }
-        });
-
-        // bei Klick in Eingabefeld für Adressensuche dieses und die Resultate der Adressensuche leeren
-        $('#searchtext').on('click', function() {
-          $(this).val('');
-          $('#results-container').hide();
-        });
+        initializeAddressSearch(searchField, '{% url "datenmanagement:addresssearch" %}');
 
         // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
         $('.filter-input').each(function() {
@@ -1023,7 +896,8 @@
           });
           $('#map-side-container').height(height);
           $('#map').height(height);
-          currMap.invalidateSize();
+          if (typeof currMap !== 'undefined')
+            currMap.invalidateSize();
         {% endif %}
       });
 
@@ -1053,110 +927,6 @@
           }
         });
         window.removedLayers = [];
-      }
-
-      /**
-       * @function
-       * @name setMapExtentByXYAndZoomLevel
-       *
-       * setzt den Kartenausschnitt mittels Kartenzentrum und Zoom-Level
-       *
-       * @param {number} x - x-Koordinate des Kartenzentrums
-       * @param {number} y - y-Koordinate des Kartenzentrums
-       * @param {number} zoomLevel - Zoom-Level
-       */
-      function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
-        currMap.panTo([y, x]);
-        currMap.setZoom(zoomLevel);
-      }
-
-      /**
-       * @function
-       * @name setMapExtentByBoundingBox
-       *
-       * setzt den Kartenausschnitt mittels Bounding-Box
-       *
-       * @param {number} min_x - minimale x-Koordinate
-       * @param {number} min_y - minimale y-Koordinate
-       * @param {number} max_x - maximale x-Koordinate
-       * @param {number} max_y - maximale y-Koordinate
-       */
-      function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
-        currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
-      }
-
-      /**
-       * @function
-       * @name setMapExtentByLeafletBounds
-       *
-       * setzt den Kartenausschnitt mittels Leaflet-Bounding-Box-Objekt
-       *
-       * @param {Object} leafletBounds - Leaflet-Bounding-Box-Objekt
-       */
-      function setMapExtentByLeafletBounds(leafletBounds) {
-        currMap.fitBounds(leafletBounds);
-      }
-
-      /**
-       * @function
-       * @name showAddressSearchResults
-       *
-       * zeigt und behandelt die Resultate der Adressensuche
-       *
-       * @param {Object} json - Resultate der Adressensuche
-       */
-      function showAddressSearchResults(json) {
-        // Resultate leeren
-        results.children().remove();
-
-        // JSON durchgehen...
-        jQuery.each(json.features, function(index, item) {
-          // je JSON-Feature ein Resultat bauen, falls JSON-Feature nicht als "historisch" markiert ist
-          if (!item.properties.historisch) {
-            let titel;
-            if (item.properties._title_.indexOf(', ') !== -1)
-              titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-            else
-              titel = item.properties._title_;
-            let result = '<div class="result-element" data-feature="' + index + '"><strong>' + titel + '</strong>';
-            if (item.properties.gemeindeteil_abkuerzung)
-              result += ' <small>(' + item.properties.gemeindeteil_abkuerzung + ')</small>';
-            result += '<small class="text-black-50"><em>' + item.properties.objektgruppe.replace(/ HRO/, '') + '</em></small></div>';
-            results.append(result);
-          }
-        });
-
-        // Resultate einblenden
-        results.fadeIn();
-
-        // bei Klick auf ein Resultat...
-        results.children().on('click', function() {
-          // Karte auf Resultat zoomen
-          let featureGeometry = json.features[$(this).data('feature')].geometry;
-          if (featureGeometry.type === 'Point') {
-            currMap.fitBounds([
-              [
-                featureGeometry.coordinates[1],
-                featureGeometry.coordinates[0]
-              ],
-              [
-                featureGeometry.coordinates[1],
-                featureGeometry.coordinates[0]
-              ]
-            ]);
-          } else {
-            currMap.fitBounds([
-              [
-                featureGeometry.coordinates[0][0][1],
-                featureGeometry.coordinates[0][1][0]
-              ],
-              [
-                featureGeometry.coordinates[0][2][1],
-                featureGeometry.coordinates[0][0][0]
-              ]
-            ]);
-          }
-        });
       }
     </script>
   {% endif %}

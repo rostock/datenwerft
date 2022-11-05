@@ -1,5 +1,5 @@
-from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import path, reverse_lazy
+from django.contrib.auth.views import LogoutView
 from rest_framework import routers
 from accounts import views
 
@@ -15,11 +15,13 @@ router.register(prefix=r'group_object_permission',
 
 api_urlpatterns = router.urls
 
+app_name = 'accounts'
 urlpatterns = [
     path('login/', views.PreLoginView.as_view(
         template_name='accounts/login.html',
         redirect_authenticated_user=True
     ), name='login'),
+
     path('login/<url_token>', views.ExternalLoginView.as_view(), name='external_login'),
 
     path('logout/', view=LogoutView.as_view(

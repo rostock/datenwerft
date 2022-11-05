@@ -138,12 +138,12 @@ options.DEFAULT_NAMES += (
   'address_type',
   # optional;
   # Text;
-  # Typ des Adressenbezugs: Adresse (Adresse) oder Straße (Straße)
+  # Typ des Adressenbezugs: Adresse (Adresse), Straße (Straße) oder Gemeindeteil (Gemeindeteil)
   'address_mandatory',
   # optional;
   # Boolean;
-  # Soll die Adresse oder die Straße (je nach Typ des Adressenbezugs) eine
-  # Pflichtangabe sein (True)?
+  # Soll die Adresse, die Straße oder der Gemeindeteil (je nach Typ des Adressenbezugs)
+  # eine Pflichtangabe sein (True)?
   'geometry_type',
   # optional;
   # Text;

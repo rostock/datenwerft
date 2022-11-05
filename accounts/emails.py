@@ -8,18 +8,18 @@ from accounts.models import UserAuthToken
 def send_login_code(user):
     # use email css framework like:
     # https://get.foundation/emails.html
-    subject = _("Login Code for Datenwerft")
+    subject = _("Login-Code für Datenwerft.HRO")
     try:
         code = user.userauthtoken.email_token
     except UserAuthToken.DoesNotExist:
         email_body = {
-            'content': _("Something wrong, place restart login process"),
+            'content': _("Fehler aufgetreten: Bitte führen Sie den Anmeldevorgang erneut aus."),
             'code': None,
             'user': user
         }
     else:
         email_body = {
-            'content': _("Please enter this code to authenticate"),
+            'content': _("Bitten geben Sie den folgenden Code zur Anmeldung ein:"),
             'code': code,
             'user': user
         }

@@ -10,30 +10,27 @@ api_urlpatterns = []
 api_urlpatterns += accounts_urls.api_urlpatterns
 api_urlpatterns += datenmanagement_urls.api_urlpatterns
 
-
 # Routen der URLs zu Views
 urlpatterns = [
-    # '' oder '/' -> Redirect auf 'datenmanagement'
-    # re_path(route=r'^(\/?)$',
-    #         view=RedirectView.as_view(url='datenmanagement')),
+  # Routen der Django-Administration
+  re_path(route=r'^admin/',
+          view=admin.site.urls),
 
-    # 'admin/' -> Django Adminpanel
-    re_path(route=r'^admin/',
-            view=admin.site.urls),
+  # Routen der Anmeldung
+  re_path(route=r'^accounts/',
+          view=include('accounts.urls')),
 
-    re_path('accounts/', include(accounts_urls.urlpatterns)),
+  # Routen der API-URLs
+  path('api/', include(api_urlpatterns)),
 
-    # Routen von Api URLs
-    path('api/', include(api_urlpatterns)),
+  # Routen der API-Authentifizierung
+  re_path(route=r'^api-auth/',
+          view=include('rest_framework.urls')),
 
-    # Routen der Api Authentifizierung
-    re_path(route=r'^api-auth/',
-            view=include('rest_framework.urls')),
-
-    #'datenmanagement' -> Datenmanagement App
-    re_path(route=r'^datenmanagement/',
-        view=include(datenmanagement_urls.urlpatterns))
+  # Routen der Datenmanagement-Anwendung
+  re_path(route=r'^datenmanagement/',
+          view=include('datenmanagement.urls'))
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+  urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

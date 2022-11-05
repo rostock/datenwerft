@@ -8,9 +8,12 @@ class ExternalAuthenticationForm(forms.Form):
     email_token = forms.CharField(label='Token', max_length=100)
 
     error_messages = {
-        'invalid_login': _("Please enter a correct %(email_token)s"),
-        'expired_token': _("The code has expired. Please restart the login process"),
-        'inactive': _("This account is inactive."),
+        'invalid_login':
+            _("%(email_token)s ungültig! Bitte führen Sie den Anmeldevorgang erneut aus."),
+        'expired_token':
+            _("Code abgelaufen! Bitte führen Sie den Anmeldevorgang erneut aus."),
+        'inactive':
+            _("Dieses Benutzerkonto ist inaktiv.")
     }
 
     def __init__(self, request=None, *args, **kwargs):
