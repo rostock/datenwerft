@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.urls import reverse
+from django.test import override_settings
 from rest_framework.test import APIClient, APITestCase
 
 from .forms import ExternalAuthenticationForm
@@ -55,3 +57,30 @@ class TestLoginForm(AccountTestCase):
         error_messages_key = 'invalid_login'
         self.assertEqual(form.error_messages[error_messages_key],
                          ExternalAuthenticationForm.error_messages.get(error_messages_key))
+    @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+    def test_pre_login_view(self):
+        response = self.client.post(
+            reverse('accounts:login'),
+            data={
+                'username': self.USERNAME,
+                'password': self.PASSWORD,
+            },
+        )
+        auth_tokens = UserAuthToken.objects.get(user=self.test_user)
+        self.assertTrue(response.wsgi_request.user.is_anonymous)
+        self.assertEqual(response.wsgi_request.session['_token'], auth_tokens.session_token)
+
+    def test_external_login_view(self):
+        last_login = self.test_user.last_login
+        self.assertIsNone(last_login)
+        session = self.client.session
+        session['_token'] = f'{self.auth_tokens.session_token}'
+        session.save()
+        response = self.client.post(reverse(
+            'accounts:external_login',
+            kwargs={'url_token': self.auth_tokens.url_token}),
+            data={'email_token': self.auth_tokens.email_token},
+        )
+        self.assertEqual(response.wsgi_request.user, self.test_user)
+        self.test_user.refresh_from_db()
+        self.assertIsNotNone(self.test_user.last_login)
