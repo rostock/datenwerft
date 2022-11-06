@@ -1,0 +1,9 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+DU BIST DABEI
+ {% if user.is_authenticated %}
+    Welcome,{{request.user.username}}
+
+ {% endif %}
+{% endblock %}
