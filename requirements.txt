@@ -1,6 +1,5 @@
 Django>=4.1.0
 django-auth-ldap
-django-currentuser
 django-datatables-view
 django-guardian
 django-jsonview

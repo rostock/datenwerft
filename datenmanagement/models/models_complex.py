@@ -8,7 +8,6 @@ from django.contrib.gis.db import models
 from django.db.models import signals
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
-from django_currentuser.middleware import get_current_authenticated_user
 from zoneinfo import ZoneInfo
 
 from . import models_codelist, constants_vars, fields, functions, storage
@@ -166,7 +165,6 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
            (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Baustellen_Fotodokumentation_Baustellen,
       self).save(
@@ -174,7 +172,6 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Baustellen_Fotodokumentation_Baustellen,
       self).delete(
@@ -257,11 +254,9 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
       '%d.%m.%Y')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_Fotodokumentation_Fotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_Fotodokumentation_Fotos, self).delete(*args, **kwargs)
 
 
@@ -518,11 +513,9 @@ class Baustellen_geplant(models.Model):
            + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant, self).delete(*args, **kwargs)
 
 
@@ -603,11 +596,9 @@ class Baustellen_geplant_Dokumente(models.Model):
            ' mit Bezeichnung ' + self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Dokumente, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Dokumente, self).delete(*args, **kwargs)
 
 
@@ -689,11 +680,9 @@ class Baustellen_geplant_Links(models.Model):
            ' mit Bezeichnung ' + self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Links, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Baustellen_geplant_Links, self).delete(*args, **kwargs)
 
 
@@ -937,11 +926,9 @@ class Durchlaesse_Durchlaesse(models.Model):
     return self.aktenzeichen
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Durchlaesse, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Durchlaesse, self).delete(*args, **kwargs)
 
 
@@ -1036,11 +1023,9 @@ class Durchlaesse_Fotos(models.Model):
       str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') if self.aufnahmedatum else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Fotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Durchlaesse_Fotos, self).delete(*args, **kwargs)
 
 
@@ -1134,11 +1119,9 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Kontrollgebiete, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Kontrollgebiete, self).delete(*args, **kwargs)
 
 
@@ -1245,11 +1228,9 @@ class Fallwildsuchen_Nachweise(models.Model):
                                     + str(self.art_kontrolle) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Nachweise, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Fallwildsuchen_Nachweise, self).delete(*args, **kwargs)
 
 
@@ -1731,11 +1712,9 @@ class Haltestellenkataster_Haltestellen(models.Model):
            + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Haltestellen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Haltestellen, self).delete(*args, **kwargs)
 
 
@@ -1814,11 +1793,9 @@ class Haltestellenkataster_Fotos(models.Model):
       '%d.%m.%Y')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Fotos, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Haltestellenkataster_Fotos, self).delete(*args, **kwargs)
 
 
@@ -2001,11 +1978,9 @@ class Parkscheinautomaten_Tarife(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkscheinautomaten_Tarife, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Parkscheinautomaten_Tarife, self).delete(*args, **kwargs)
 
 
@@ -2135,7 +2110,6 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Parkscheinautomaten_Parkscheinautomaten,
       self).save(
@@ -2143,7 +2117,6 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
       **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(
       Parkscheinautomaten_Parkscheinautomaten,
       self).delete(
@@ -2220,11 +2193,9 @@ class RSAG_Gleise(models.Model):
     return self.uuid
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Gleise, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Gleise, self).delete(*args, **kwargs)
 
 
@@ -2566,11 +2537,9 @@ class RSAG_Masten(models.Model):
     return self.mastnummer
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Masten, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Masten, self).delete(*args, **kwargs)
 
 
@@ -2612,11 +2581,9 @@ class RSAG_Leitungen(models.Model):
     return self.uuid
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Leitungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Leitungen, self).delete(*args, **kwargs)
 
 
@@ -2700,11 +2667,9 @@ class RSAG_Quertraeger(models.Model):
     return str(self.uuid)
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Quertraeger, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Quertraeger, self).delete(*args, **kwargs)
 
 
@@ -2792,11 +2757,9 @@ class RSAG_Spanndraehte(models.Model):
     return str(self.uuid)
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Spanndraehte, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(RSAG_Spanndraehte, self).delete(*args, **kwargs)
 
 
@@ -2960,11 +2923,9 @@ class UVP_Vorhaben(models.Model):
     return self.bezeichnung
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorhaben, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorhaben, self).delete(*args, **kwargs)
 
 
@@ -3066,11 +3027,9 @@ class UVP_Vorpruefungen(models.Model):
     ).strftime('%d.%m.%Y') + ' [Art: ' + str(self.art) + ']'
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorpruefungen, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(UVP_Vorpruefungen, self).delete(*args, **kwargs)
 
 

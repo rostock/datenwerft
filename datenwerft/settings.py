@@ -29,6 +29,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
   'datenmanagement',
+  'accounts'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -45,7 +46,6 @@ MIDDLEWARE = [
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'django.middleware.gzip.GZipMiddleware',
   'django_user_agents.middleware.UserAgentMiddleware',
-  'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'datenwerft.urls'

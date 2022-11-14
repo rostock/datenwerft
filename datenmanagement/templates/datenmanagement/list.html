@@ -1,4 +1,4 @@
-{% extends '_base/navbar.html' %}
+{% extends 'navbar.html' %}
 {% load datenmanagement_tags %}
 {% load guardian_tags %}
 {% load static %}
@@ -40,7 +40,7 @@
   {% if objects_count > 0 %}
     <div class="d-grid mt-5 gap-2 mx-auto">
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Achtung!</strong> Tabelle wird Server-seitig erzeugt, weshalb nur die <em>aktuell sichtbare</em> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
+        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <em>aktuell sichtbare</em> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <table id="datasets" class="table table-bordered table-striped">

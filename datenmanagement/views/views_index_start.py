@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.conf import settings
 from django.views import generic
 
 
@@ -56,6 +57,7 @@ class IndexView(generic.ListView):
           models_simple = True
           models_simple_list.append(list_model)
     context = super(IndexView, self).get_context_data(**kwargs)
+    context['LOGIN_URL'] = settings.LOGIN_URL
     context['models_codelist'] = models_codelist
     context['models_codelist_list'] = models_codelist_list
     context['models_complex'] = models_complex

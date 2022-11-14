@@ -20,7 +20,7 @@ def assign_permissions(sender, instance, created, **kwargs):
   :param **kwargs
   """
   model_name = instance.__class__.__name__.lower()
-  user = getattr(instance, 'current_authenticated_user', None)
+  user = instance.user
   if created:
     assign_perm('datenmanagement.change_' + model_name, user, instance)
     assign_perm('datenmanagement.delete_' + model_name, user, instance)
@@ -124,7 +124,7 @@ def delete_photo(sender, instance, **kwargs):
         thumb.unlink()
       except OSError:
         pass
-    delete_duplicate_photos_with_other_suffixes(path)
+      delete_duplicate_photos_with_other_suffixes(path)
     instance.foto.delete(False)
 
 
