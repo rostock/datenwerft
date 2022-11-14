@@ -81,8 +81,8 @@ Wenn das Deployment mittels *Apache HTTP Server* realisiert werden soll, **muss*
 
 Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle *Python*-Umgebung einen *Python*-Interpreter der Version 3.6):
 
-        RewriteCond         %{REQUEST_URI} ^/datenwerft$
-        RewriteRule         ^.*$ %{REQUEST_URI}/ [R=301,L]
+        RewriteCond         %{REQUEST_URI} ^/datenwerft/?$
+        RewriteRule         ^.*$ %{REQUEST_URI}/datenmanagement/ [R=301,L]
         Alias               /datenwerft/static /usr/local/datenwerft/datenwerft/static
         Alias               /datenwerft/uploads /usr/local/datenwerft/datenwerft/uploads
         WSGIDaemonProcess   datenwerft processes=2 threads=128 python-path=/usr/local/datenwerft/datenwerft:/usr/local/datenwerft/venv/lib/python3.10/site-packages
@@ -108,6 +108,10 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
 
 ### Grundsätzliches
 
+Bei Einrückungen werden generell zwei Leerzeichen verwendet, bei Umbrucheinrückungen vier.
+
+### Python
+
 Der Python-Code orientiert sich an der Python-Styling-Konvention [*PEP8*](https://pep8.org/). Es empfiehlt sich ein Tool wie [*pycodestyle*](https://pypi.org/project/pycodestyle/) zur Überprüfung des Codes zu nutzen. Mit Hilfe von zum Beispiel [*autopep8*](https://pypi.org/project/autopep8/) können Python-Dateien auch im Nachhinein noch automatisch korrigiert werden, können dadurch allerdings auch unleserlich werden.
 
 Die Python-Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [*reStructuredText*](https://docutils.sourceforge.io/rst.html) geschrieben.
@@ -116,13 +120,41 @@ Nützliche Tools für eine Entwicklungsumgebung, wie etwa *pycodestyle,* können
 
         pip install -r /usr/local/datenwerft/datenwerft/requirements-dev.txt
 
-### *PEP8*-Durchsetzung
+#### *PEP8*-Durchsetzung
 
 Die Vorgaben von *PEP8* finden mit zwei Ausnahmen vollständig Anwendung:
 
 1.  Zeilenlänge wird von 79 auf 99 erhöht
-2.  Anzahl der Leerzeichen bei der Einrückung wird von 4 auf 2 reduziert (beinhaltet die 
-    Einrückung und ergibt zudem eine Umbrucheinrückung von 4 statt 8)
+2.  Anzahl der Leerzeichen bei der Einrückung wird von vier auf zwei reduziert (ergibt zudem eine Umbrucheinrückung von vier statt acht)
 
-Die entsprechende Konfigurationsdatei `setup.cfg` für *pycodestyle* ist bereits im 
-Wurzelverzeichnis des Projekts angelegt.
+Die entsprechende Konfigurationsdatei `setup.cfg` für *pycodestyle* ist bereits im Wurzelverzeichnis des Projekts angelegt.
+
+### JavaScript
+
+JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc) dokumentiert, angelehnt an [diese Übersicht](https://devhints.io/jsdoc).
+
+## Linting
+
+-  CSS-Prüfungen mittels [*Stylelint*](https://stylelint.io/):
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/stylelint
+
+-  alle vorgenannten Prüfungen nacheinander:
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/lint
+
+## Tests
+
+## CI/CD
+
+1.  neuen Branch erstellen – Name des Branches:
+    - bei Features: `features/APPNAME_foobar` (Beispiel: `features/datenmanagement_fotos-bearbeiten`)
+    - bei Bugfixes: `bugfixes/APPNAME_foobar` (Beispiel: `features/accounts_emails`)
+2.  Änderungen linten und testen (siehe oben)
+3.  Änderungen committen und Commit(s) pushen
+4.  Pull-Request erstellen
+5.  Review anfordern und durchführen lassen
+6.  ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
+7.  Pull-Request in Branch `master` mit der Option *Squash and merge your commits* mergen

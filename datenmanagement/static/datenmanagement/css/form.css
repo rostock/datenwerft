@@ -1,0 +1,103 @@
+li > label > input {
+  margin-right: 0.3rem;
+}
+
+ul:not([class]) {
+  list-style: outside none none;
+  margin-left: -2rem;
+  margin-bottom: 0;
+}
+
+#address-search,
+input[name="adresse"],
+input[name="strasse"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+#id-geometrie-map {
+  height: 100%;
+}
+
+#postcode-assigner.enabled {
+  cursor: pointer;
+}
+
+.label-with-margin {
+  margin-left: 0.3rem;
+}
+
+.leaflet-container {
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    "Noto Sans",
+    "Liberation Sans",
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji";
+}
+
+.leaflet-container-default {
+  min-height: 300px;
+  height: 800px;
+}
+
+.results {
+  display: none;
+  width: 100%;
+  border-left: 1px solid #ced4da;
+  border-right: 1px solid #ced4da;
+  border-bottom: 1px solid #ced4da;
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+.result-element {
+  padding-left: 0.75rem;
+  line-height: 2rem;
+  cursor: pointer;
+}
+
+.result-element:hover {
+  background-color: #ddd;
+}
+
+.result-element .text-black-50 {
+  float: right;
+  padding-right: 0.75rem;
+}
+
+/*
+ * Leaflet-Button für Datenlayer überschreiben
+ */
+
+.leaflet-top.leaflet-right .leaflet-control-layers:nth-child(2) .leaflet-control-layers-toggle {
+  background-image: url("../img/datalayer.svg");
+}
+
+/*
+ * Leaflet-Buttons für Location überschreiben
+ */
+
+.leaflet-control-locate a .leaflet-control-locate-location-arrow {
+  mask-image: url("../img/location-arrow-solid.svg");
+}
+
+.leaflet-control-locate a .leaflet-control-locate-spinner {
+  mask-image: url("../img/spinner-solid.svg");
+}
+
+/*
+ * Leaflet-Button zum Adoptieren von Geometrien definieren
+ */
+
+.adopt-geometry-control {
+  background-image: url("../img/adopt-geometry.svg");
+}
