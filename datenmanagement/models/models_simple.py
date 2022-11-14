@@ -4902,11 +4902,9 @@ class Reinigungsreviere(models.Model):
     return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
 
   def save(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Reinigungsreviere, self).save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):
-    self.current_authenticated_user = get_current_authenticated_user()
     super(Reinigungsreviere, self).delete(*args, **kwargs)
 
 
