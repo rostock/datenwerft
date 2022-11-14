@@ -2,6 +2,7 @@ from django.urls import path, reverse_lazy
 from django.contrib.auth.views import LogoutView
 from rest_framework import routers
 from accounts import views
+from django.views.generic import TemplateView
 
 router = routers.DefaultRouter()
 router.register(prefix=r'user', viewset=views.UserViewSet)
@@ -27,4 +28,8 @@ urlpatterns = [
   path('logout/', view=LogoutView.as_view(
     template_name='accounts/logout.html'
   ), name='logout'),
+
+  path('test', view=TemplateView.as_view(
+    template_name='accounts/test.html'
+  ), name='test'),
 ]
