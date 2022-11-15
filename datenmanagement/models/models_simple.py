@@ -706,6 +706,122 @@ signals.post_delete.connect(
   sender=Behinderteneinrichtungen)
 
 
+# Beschlüsse des Bau- und Planungsausschusses
+
+class Beschluesse_Bau_Planungsausschuss(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(
+    models_codelist.Adressen,
+    verbose_name='Adresse',
+    on_delete=models.SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='adressen+',
+    blank=True,
+    null=True)
+  beschlussjahr = fields.PositiveSmallIntegerRangeField(
+    'Beschlussjahr', max_value=functions.current_year())
+  vorhabenbezeichnung = models.CharField(
+    'Bezeichnung des Vorhabens', max_length=255, validators=[
+      RegexValidator(
+        regex=constants_vars.akut_regex, message=constants_vars.akut_message
+      ), RegexValidator(
+        regex=constants_vars.anfuehrungszeichen_regex,
+        message=constants_vars.anfuehrungszeichen_message
+      ), RegexValidator(
+        regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+      ), RegexValidator(
+        regex=constants_vars.doppelleerzeichen_regex,
+        message=constants_vars.doppelleerzeichen_message
+      ), RegexValidator(
+        regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+  bearbeiter = models.CharField(
+    'Bearbeiter', max_length=255, validators=[
+      RegexValidator(
+        regex=constants_vars.akut_regex, message=constants_vars.akut_message
+      ), RegexValidator(
+        regex=constants_vars.anfuehrungszeichen_regex,
+        message=constants_vars.anfuehrungszeichen_message
+      ), RegexValidator(
+        regex=constants_vars.apostroph_regex, message=constants_vars.apostroph_message
+      ), RegexValidator(
+        regex=constants_vars.doppelleerzeichen_regex,
+        message=constants_vars.doppelleerzeichen_message
+      ), RegexValidator(
+        regex=constants_vars.gravis_regex, message=constants_vars.gravis_message)])
+  pdf = models.FileField(
+    'PDF',
+    storage=storage.OverwriteStorage(),
+    upload_to=functions.path_and_rename(
+      settings.PDF_PATH_PREFIX_PRIVATE +
+      'beschluesse_bau_planungsausschuss'),
+    max_length=255)
+  geometrie = models.PointField(
+    'Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"beschluesse_bau_planungsausschuss_hro'
+    verbose_name = 'Beschluss des Bau- und Planungsausschusses'
+    verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
+    description = 'Beschlüsse des Bau- und Planungsausschusses der Bürgerschaft der Hanse- und ' \
+                  'Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'beschlussjahr': 'Beschlussjahr',
+      'vorhabenbezeichnung': 'Bezeichnung des Vorhabens',
+      'bearbeiter': 'Bearbeiter',
+      'pdf': 'PDF'
+    }
+    list_fields_with_number = ['beschlussjahr']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse'
+    }
+    map_feature_tooltip_field = 'vorhabenbezeichnung'
+    map_filter_fields = {
+      'beschlussjahr': 'Beschlussjahr',
+      'vorhabenbezeichnung': 'Bezeichnung des Vorhabens'
+    }
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return self.vorhabenbezeichnung + ' (Beschlussjahr ' + str(self.beschlussjahr) + ')' + \
+           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+  def save(self, *args, **kwargs):
+    super(
+      Beschluesse_Bau_Planungsausschuss,
+      self).save(
+      *args,
+      **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(
+      Beschluesse_Bau_Planungsausschuss,
+      self).delete(
+      *args,
+      **kwargs)
+
+
+signals.post_save.connect(
+  functions.assign_permissions,
+  sender=Beschluesse_Bau_Planungsausschuss)
+
+signals.post_delete.connect(
+  functions.delete_pdf,
+  sender=Beschluesse_Bau_Planungsausschuss)
+
+signals.post_delete.connect(functions.remove_permissions,
+                            sender=Beschluesse_Bau_Planungsausschuss)
+
+
 # Bildungsträger
 
 class Bildungstraeger(models.Model):
