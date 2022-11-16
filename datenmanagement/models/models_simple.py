@@ -724,7 +724,8 @@ class Beschluesse_Bau_Planungsausschuss(models.Model):
     blank=True,
     null=True)
   beschlussjahr = fields.PositiveSmallIntegerRangeField(
-    'Beschlussjahr', max_value=functions.current_year())
+    'Beschlussjahr', min_value=1990, max_value=functions.current_year(),
+    default=functions.current_year())
   vorhabenbezeichnung = models.CharField(
     'Bezeichnung des Vorhabens', max_length=255, validators=[
       RegexValidator(
