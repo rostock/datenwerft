@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 
 sh linting/pycodestyle
+echo -e "\n"
 sh linting/djlint
+echo -e "\n"
 sh linting/eslint
+echo -e "\n"
 sh linting/stylelint

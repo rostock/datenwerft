@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 echo "Checking djLint rules..."
-djlint "templates/*.html" "accounts/templates/accounts/log*.html" "datenmanagement/templates/datenmanagement/*.html"
+djlint templates/*.html accounts/templates/accounts/log*.html datenmanagement/templates/datenmanagement/*.html
