@@ -1,3 +1,6 @@
+/* global $, interchangeRecursive, L, martinez, redMarker, Wkt */
+/* eslint no-undef: "error" */
+
 /*
  * Erweiterungen bestehender Leaflet-Klassen
  */

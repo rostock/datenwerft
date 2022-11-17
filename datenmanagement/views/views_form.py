@@ -520,7 +520,9 @@ class DataChangeView(generic.UpdateView):
         self.object.gemeindeteil.pk if hasattr(
             self.model._meta,
             'address_type'
-        ) and self.model._meta.address_type == 'Gemeindeteil' and self.object.gemeindeteil else None)
+        )
+        and self.model._meta.address_type == 'Gemeindeteil'
+        and self.object.gemeindeteil else None)
     return context
 
   def get_initial(self):

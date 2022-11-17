@@ -1,3 +1,6 @@
+/* global $, currMap, featureGeometry, L, proj4, jQuery, redMarker, results */
+/* eslint no-undef: "error" */
+
 /**
  * @function
  * @name configureLeafletGeoman

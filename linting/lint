@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
 
+sh linting/pycodestyle
+sh linting/eslint
 sh linting/stylelint

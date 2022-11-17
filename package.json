@@ -1,8 +1,12 @@
 {
   "dependencies": {
-    "bootstrap": "^5.2.1",
+    "@eslint/create-config": "^0.4.1",
     "@fortawesome/fontawesome-free": "^6.2.0",
     "@geoman-io/leaflet-geoman-free": "^2.13.0",
+    "bootstrap": "^5.2.1",
+    "eslint": "^8.27.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-jinja2-processor": "^1.2.0",
     "jquery": "^3.6.1",
     "leaflet.locatecontrol": "^0.76.1",
     "leaflet.markercluster": "^1.5.3",

@@ -7,8 +7,8 @@
 
 {% block style %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
 {% endblock %}
 
 {% block scripts %}
@@ -63,7 +63,15 @@
           </tr>
         </thead>
       </table>
+      <!-- eslint-disable-next-script -->
       <script type="text/javascript">
+        window.dataUrl = '{% url 'datenmanagement:'|add:model_name|add:'data' %}';
+        window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+      </script>
+      <script type="text/javascript">
+        /* global $, jQuery */
+        /* eslint no-undef: "error" */
+
         /**
          * @function
          *
@@ -71,7 +79,7 @@
          */
         $(document).ready(function() {
           let table = $('#datasets').DataTable({
-            ajax: '{% url 'datenmanagement:'|add:model_name|add:'data' %}',
+            ajax: window.dataUrl,
             buttons: [
               {
                 extend: 'csvHtml5',
@@ -125,7 +133,7 @@
             dom: '<Bfr<t>ilp>',
             fixedHeader: true,
             language: {
-              url: '{% static 'datatables/datatables.german.lang' %}'
+              url: window.languageUrl
             },
             lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
             order: [[ 1, 'asc' ]],

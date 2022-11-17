@@ -140,6 +140,11 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
         cd /usr/local/datenwerft/datenwerft
         sh linting/stylelint
 
+-  JavaScript-Prüfungen mittels [*ESLint*](https://eslint.org/):
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/eslint
+
 -  alle vorgenannten Prüfungen nacheinander:
 
         cd /usr/local/datenwerft/datenwerft
