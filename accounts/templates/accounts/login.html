@@ -27,11 +27,11 @@
       <form class="form-signin" role="form" method="post" action="{% url 'accounts:login' %}?next={{ next }}">
       {% csrf_token %}
       <div class="form-floating mb-3">
-        <input id="id_username" type="text" required class="form-control" name="username" autocapitalize="off" autocomplete="username" placeholder="Benutzername">
+        <input id="id_username" type="text" required class="form-control" name="username" autocapitalize="off" autocomplete="username" placeholder="Benutzername"/>
         <label for="id_username">Benutzername</label>
       </div>
       <div class="form-floating mb-4">
-        <input id="id_password" type="password" required class="form-control" name="password" autocomplete="current-password" placeholder="Passwort">
+        <input id="id_password" type="password" required class="form-control" name="password" autocomplete="current-password" placeholder="Passwort"/>
         <label for="id_password">Passwort</label>
       </div>
       <div class="d-grid">

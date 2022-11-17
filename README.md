@@ -135,15 +135,25 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 
 ## Linting
 
--  CSS-Prüfungen mittels [*Stylelint*](https://stylelint.io/):
+-  Python-Prüfungen mittels *pycodestyle:*
 
         cd /usr/local/datenwerft/datenwerft
-        sh linting/stylelint
+        sh linting/pycodestyle
+
+-  *Django*-Prüfungen mittels [*djLint*](https://github.com/Riverside-Healthcare/djlint):
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/djlint
 
 -  JavaScript-Prüfungen mittels [*ESLint*](https://eslint.org/):
 
         cd /usr/local/datenwerft/datenwerft
         sh linting/eslint
+
+-  CSS-Prüfungen mittels [*Stylelint*](https://stylelint.io/):
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/stylelint
 
 -  alle vorgenannten Prüfungen nacheinander:
 

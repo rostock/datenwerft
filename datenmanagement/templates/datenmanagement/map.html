@@ -59,7 +59,7 @@
               <div class="d-grid mt-2 mb-3">
                 <label for="filter-input-deadline" class="form-label">Stichtag</label>
                 <div class="input-group">
-                  <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both">
+                  <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both"/>
                   <button class="input-reset btn btn-outline-secondary">
                     <i class="fas fa-trash" title="Filterfeld leeren"></i>
                   </button>
@@ -76,12 +76,12 @@
                     <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left">
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left"/>
                       {% endif %}
                     </div>
                   </div>
@@ -89,12 +89,12 @@
                     <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right">
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right"/>
                       {% endif %}
                     </div>
                   </div>
@@ -110,7 +110,7 @@
                   <label for="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if 'Date' in map_filter_field|get_type_of_field:model_name %}
                     <div class="input-group">
-                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
                       <button class="input-reset btn btn-outline-secondary">
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
@@ -118,7 +118,7 @@
                   {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
                     {% if map_filter_boolean_fields_as_checkbox %}
                       <div class="filter-input">
-                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-check-input" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-check-input" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"/>
                       </div>
                     {% else %}
                       <div class="input-group">
@@ -150,7 +150,7 @@
                     <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control mt-2 filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></fieldset>
                   {% else %}
                     <div class="input-group">
-                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both">
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"/>
                       <button class="input-reset btn btn-outline-secondary">
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
@@ -176,7 +176,7 @@
       <div id="address-search"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
         <h5>Adressensuche</h5>
         <div class="form-floating">
-          <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+          <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…"/>
           <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
         </div>
         <div id="results-container" class="results"></div>
