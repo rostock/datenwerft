@@ -1,0 +1,5 @@
+name: Datenwerft.HRO CodeQL config
+
+paths-ignore:
+  - node_modules
+  - vendor
