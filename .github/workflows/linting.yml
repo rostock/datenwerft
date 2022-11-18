@@ -2,12 +2,9 @@ name: Linting
 
 on:
   push:
-    branches:
-    - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-    - main
-
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -25,3 +22,5 @@ jobs:
         run: npm install
       - name: Check CSS rules via Stylelint
         run: npx stylelint "accounts/**/*.css" "datenmanagement/**/*.css"
+      - name: Check JavaScript rules via ESLint
+        run: npx eslint "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/list.html"
