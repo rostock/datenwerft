@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python' ]
+        language: [ 'python', 'javascript' ]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -27,6 +27,10 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
+        setup-python-dependencies: false
+        paths-ignore:
+          - node_modules
+          - vendor
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
     - name: Perform CodeQL analysis
