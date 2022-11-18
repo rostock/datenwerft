@@ -2,10 +2,11 @@ name: Linting
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - master
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches:
+      - master
 
 jobs:
   linting_js_css:
