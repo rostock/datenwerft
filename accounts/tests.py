@@ -1,6 +1,4 @@
 from django.contrib.auth.models import User
-from django.urls import reverse
-from django.test import override_settings
 from rest_framework.test import APIClient, APITestCase
 
 from .forms import ExternalAuthenticationForm
