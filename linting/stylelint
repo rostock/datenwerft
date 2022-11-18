@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-echo "Checking Stylelint rules..."
+echo "Checking CSS rules via Stylelint..."
 node_modules/.bin/stylelint "accounts/**/*.css" "datenmanagement/**/*.css"

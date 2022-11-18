@@ -11,16 +11,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  linting:
+  linting_js_css:
+    name: Linting JavaScript and CSS
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: latest
       - name: Install Node.js dependencies
         run: npm install
       - name: Check CSS rules via Stylelint
-        run: stylelint "accounts/**/*.css" "datenmanagement/**/*.css"
+        run: npx stylelint "accounts/**/*.css" "datenmanagement/**/*.css"
