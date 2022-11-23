@@ -11,8 +11,8 @@ on:
 
 env:
   POSTGRES_USER: postgres
-  POSTGRES_PASS: postgres
-  POSTGRES_DBNAME: datenwerft
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: datenwerft
 
 jobs:
   tests:
@@ -30,13 +30,11 @@ jobs:
         ports:
           - 1389:1389
       postgres:
-        image: kartoza/postgis
+        image: postgis/postgis
         env:
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
-          POSTGRES_PASS: ${{ env.POSTGRES_PASS }}
-          POSTGRES_DBNAME: ${{ env.POSTGRES_DBNAME }}
-          PASSWORD_AUTHENTICATION: md5
-          ALLOW_IP_RANGE: 0.0.0.0/0
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
         ports:
           - 5432:5432
         options: >-
@@ -47,9 +45,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install prerequisites
-        run: sudo apt-get install postgresql-client
-      - name: Create database schema
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - name: Install prerequisites for Python dependencies
+        run: sudo apt-get install gdal-bin libgdal-dev libldap2-dev libpq-dev libsasl2-dev postgresql-client
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Create further settings file based on corresponding template
+        run: cp datenwerft/secrets.template datenwerft/secrets.py
+      - name: Create database schema for app datenmanagement
         env:
-          PGPASSWORD: ${{ env.POSTGRES_PASS }}
+          PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
         run: psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DBNAME -f datenmanagement/sql/schema.sql
+      - name: Run migrations
+        run: python manage.py migrate
+      - name: Run tests on app Accounts
+        run: python manage.py test accounts
