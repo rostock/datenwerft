@@ -45,6 +45,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -62,6 +66,16 @@ jobs:
         env:
           PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
         run: psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
+      - name: Install Node.js dependencies
+        run: npm install
+      - name: Create HTML files for help
+        run: |
+          cd hilfe
+          mkdir source/_static
+          make html
+          cd ..
+      - name: Collect static files
+        run: python manage.py collectstatic -c
       - name: Run migrations
         run: python manage.py migrate
       - name: Run tests on app Accounts

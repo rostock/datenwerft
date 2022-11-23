@@ -40,19 +40,22 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 ## Initialisierung
 
-1.  in *PostgreSQL*-Datenbank (mit den Erweiterungen *PostGIS* und *uuid-ossp*) Schema `django` für die Anwendungsadministration und Schema `daten` für die Datenbasis anlegen
-2.  virtuelle *Python*-Umgebung aktivieren:
+1.  Datenbankschema für die App *Datenmanagement* anlegen (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
+
+        psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
+
+2.  JavaScript-Module via *npm* installieren:
+
+        npm install
+
+3.  virtuelle *Python*-Umgebung aktivieren:
 
         source /usr/local/datenwerft/venv/bin/activate
 
-3.  Anwendung initialisieren:
+4.  Anwendung initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py migrate
-
-4.  Datenbankschema für die App *Datenmanagement* anlegen (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
-
-        psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
 
 5.  Administrator initialisieren:
 
@@ -70,11 +73,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
         mkdir source/_static
         make html
 
-8.  JavaScript-Module via *npm* installieren:
-
-        npm install
-
-9.  statische Dateien initialisieren:
+8.  statische Dateien initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py collectstatic -c
