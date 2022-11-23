@@ -10,10 +10,9 @@ on:
   workflow_dispatch:
 
 env:
-  POSTGRES_PASSWORD: postgres
-  POSTGRES_DB: datenwerft
-  PASSWORD_AUTHENTICATION: md5
-  ALLOW_IP_RANGE: 0.0.0.0/0
+  POSTGRES_USER: postgres
+  POSTGRES_PASS: postgres
+  POSTGRES_DBNAME: datenwerft
 
 jobs:
   tests:
@@ -31,12 +30,13 @@ jobs:
         ports:
           - 1389:1389
       postgres:
-        image: postgis/postgis
+        image: kartoza/postgis
         env:
-          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-          POSTGRES_DB: $POSTGRES_DB
-          PASSWORD_AUTHENTICATION: $PASSWORD_AUTHENTICATION
-          ALLOW_IP_RANGE: $ALLOW_IP_RANGE
+          POSTGRES_USER: $POSTGRES_USER
+          POSTGRES_PASS: $POSTGRES_PASS
+          POSTGRES_DBNAME: $POSTGRES_DBNAME
+          PASSWORD_AUTHENTICATION: md5
+          ALLOW_IP_RANGE: 0.0.0.0/0
         ports:
           - 5432:5432
         options: >-
@@ -51,5 +51,5 @@ jobs:
         run: sudo apt-get install postgresql-client
       - name: Create database schema
         env:
-          PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        run: psql -d postgresql://postgres@localhost/datenwerft -f datenmanagement/sql/schema.sql
+          PGPASSWORD: ${{ env.POSTGRES_PASS }}
+        run: psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DBNAME -f datenmanagement/sql/schema.sql
