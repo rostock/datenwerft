@@ -32,9 +32,9 @@ jobs:
       postgres:
         image: kartoza/postgis
         env:
-          POSTGRES_USER: $POSTGRES_USER
-          POSTGRES_PASS: $POSTGRES_PASS
-          POSTGRES_DBNAME: $POSTGRES_DBNAME
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASS: ${{ env.POSTGRES_PASS }}
+          POSTGRES_DBNAME: ${{ env.POSTGRES_DBNAME }}
           PASSWORD_AUTHENTICATION: md5
           ALLOW_IP_RANGE: 0.0.0.0/0
         ports:
