@@ -19,6 +19,16 @@ jobs:
     name: Tests on all apps
     runs-on: ubuntu-latest
     services:
+      openldap:
+        image: bitnami/openldap:latest
+        env:
+          LDAP_ROOT: dc=example,dc=org
+          LDAP_ADMIN_USERNAME: admin
+          LDAP_ADMIN_PASSWORD: password
+          LDAP_USERS: user01,user02
+          LDAP_PASSWORDS: password1,password2
+        ports:
+          - 1389:1389
       postgres:
         image: postgis/postgis
         env:
@@ -50,7 +60,8 @@ jobs:
         run: cp datenwerft/secrets.template datenwerft/secrets.py
       - name: Create database schema for app datenmanagement
         run: |
-          export PGPASSWORD="$POSTGRES_PASSWORD"
+          echo "localhost:5432:$POSTGRES_DB:$POSTGRES_USER:$POSTGRES_PASSWORD" > "${HOME}/.pgpass"
+          chmod 0600 "${HOME}/.pgpass"
           psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
       - name: Run migrations
         run: python manage.py migrate

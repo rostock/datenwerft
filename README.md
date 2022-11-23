@@ -52,7 +52,6 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 4.  Datenbankschema für die App *Datenmanagement* anlegen (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
 
-        export PGPASSWORD="[Datenbankpasswort]"
         psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
 
 5.  Administrator initialisieren:
