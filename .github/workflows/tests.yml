@@ -11,7 +11,7 @@ on:
 
 env:
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
+  POSTGRES_PASSWORD: deppchen
   POSTGRES_DB: datenwerft
 
 jobs:
@@ -60,10 +60,11 @@ jobs:
         run: cp datenwerft/secrets.template datenwerft/secrets.py
       - name: Create database schema for app datenmanagement
         env:
-          PGPASSWORD: postgres
+          PGPASSWORD: $POSTGRES_PASSWORD
         run: |
-          PGPASSWORD=postgres
-          PGPASSWORD=postgres psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
+          echo "$PGPASSWORD"
+          less /var/lib/postgresql/data/pg_hba.conf
+          psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
         #run: |
         #  echo "localhost:5432:$POSTGRES_DB:$POSTGRES_USER:$POSTGRES_PASSWORD" > "${HOME}/.pgpass"
         #  chmod 0600 "${HOME}/.pgpass"
