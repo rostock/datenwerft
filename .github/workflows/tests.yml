@@ -61,7 +61,7 @@ jobs:
       - name: Create database schema for app datenmanagement
         env:
           PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        run: psql -h localhost -U $POSTGRES_USER -d POSTGRES_DB -f datenmanagement/sql/schema.sql
+        run: psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
       - name: Run migrations
         run: python manage.py migrate
       - name: Run tests on app Accounts
