@@ -60,11 +60,12 @@ jobs:
         run: cp datenwerft/secrets.template datenwerft/secrets.py
       - name: Create database schema for app datenmanagement
         env:
-          PGPASSWORD: $POSTGRES_PASSWORD
+          PGPASSWORD: '$POSTGRES_PASSWORD'
         run: |
           echo "$PGPASSWORD"
-          less /var/lib/postgresql/data/pg_hba.conf
-          psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
+          PGPASSWORD=deppchen
+          echo "$PGPASSWORD"
+          PGPASSWORD=deppchen psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
         #run: |
         #  echo "localhost:5432:$POSTGRES_DB:$POSTGRES_USER:$POSTGRES_PASSWORD" > "${HOME}/.pgpass"
         #  chmod 0600 "${HOME}/.pgpass"
