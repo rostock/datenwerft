@@ -11,7 +11,7 @@ on:
 
 env:
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: deppchen
+  POSTGRES_PASSWORD: postgres
   POSTGRES_DB: datenwerft
 
 jobs:
@@ -43,34 +43,11 @@ jobs:
           --health-timeout 5s 
           --health-retries 5
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-      - name: Install prerequisites for Python dependencies
-        run: sudo apt-get install gdal-bin libgdal-dev libldap2-dev libpq-dev libsasl2-dev postgresql-client
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Create further settings file based on corresponding template
-        run: cp datenwerft/secrets.template datenwerft/secrets.py
-      - name: Create database schema for app datenmanagement
+      - name: Install prerequisites
+        run: sudo apt-get install postgresql-client
+      - name: Create database schema
         env:
-          PGPASSWORD: '$POSTGRES_PASSWORD'
+          PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
         run: |
           echo "$PGPASSWORD"
-          PGPASSWORD=deppchen
-          echo "$PGPASSWORD"
-          PGPASSWORD=deppchen psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
-        #run: |
-        #  echo "localhost:5432:$POSTGRES_DB:$POSTGRES_USER:$POSTGRES_PASSWORD" > "${HOME}/.pgpass"
-        #  chmod 0600 "${HOME}/.pgpass"
-        #  psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
-      - name: Run migrations
-        run: python manage.py migrate
-      - name: Run tests on app Accounts
-        run: python manage.py test accounts
+          PGPASSWORD=postgres psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
