@@ -9,6 +9,11 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: datenwerft
+
 jobs:
   tests:
     name: Tests on all apps
@@ -17,9 +22,9 @@ jobs:
       postgres:
         image: postgis/postgis
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: datenwerft
+          POSTGRES_USER: $POSTGRES_USER
+          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+          POSTGRES_DB: $POSTGRES_DB
         ports:
           - 5432:5432
         options: >-
@@ -44,7 +49,9 @@ jobs:
       - name: Create further settings file based on corresponding template
         run: cp datenwerft/secrets.template datenwerft/secrets.py
       - name: Create database schema for app datenmanagement
-        run: psql -h localhost -U postgres -d datenwerft -f datenmanagement/sql/schema.sql
+        run: |
+          export PGPASSWORD="$POSTGRES_PASSWORD"
+          psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
       - name: Run migrations
         run: python manage.py migrate
       - name: Run tests on app Accounts

@@ -45,32 +45,37 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
         source /usr/local/datenwerft/venv/bin/activate
 
-3.  Anwendungsadministration initialisieren:
+3.  Anwendung initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py migrate
 
-4.  Administrator initialisieren:
+4.  Datenbankschema für die App *Datenmanagement* anlegen (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
+
+        export PGPASSWORD="[Datenbankpasswort]"
+        psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
+
+5.  Administrator initialisieren:
 
         python manage.py createsuperuser
 
-5.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des 
+6.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des 
     genutzten HTTP-Servers anpassen – siehe unten):
 
         mkdir /usr/local/datenwerft/datenwerft/uploads
         chown -R wwwrun:www /usr/local/datenwerft/datenwerft/uploads
 
-6.  Webseiten für Hilfe bauen:
+7.  Webseiten für Hilfe bauen:
 
         cd /usr/local/datenwerft/datenwerft/hilfe
         mkdir source/_static
         make html
 
-7.  JavaScript-Module via *npm* installieren:
+8.  JavaScript-Module via *npm* installieren:
 
         npm install
 
-8.  statische Dateien initialisieren:
+9.  statische Dateien initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py collectstatic -c
