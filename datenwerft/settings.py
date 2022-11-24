@@ -52,11 +52,45 @@ ROOT_URLCONF = 'datenwerft.urls'
 
 WSGI_APPLICATION = 'datenwerft.wsgi.application'
 
+TEMPLATES = [
+  {
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+      BASE_DIR / 'templates',
+      BASE_DIR / 'accounts/templates',
+      BASE_DIR / 'datenmanagement/templates'
+    ],
+    'APP_DIRS': True,
+    'OPTIONS': {
+      'context_processors': [
+        'django.template.context_processors.debug',
+        'django.template.context_processors.request',
+        'django.contrib.auth.context_processors.auth',
+        'django.contrib.messages.context_processors.messages',
+        'datenwerft.context_processors.datenwerft_version',
+        'datenwerft.context_processors.address_search_key',
+        'datenwerft.context_processors.include_login_form',
+      ],
+      'libraries': {
+        'datenmanagement_tags': 'datenmanagement.tags.tags'
+      },
+    },
+  },
+]
+
 # Datenbanken
 
 DATABASE_ROUTERS = [
   'datenwerft.db_routers.DatenmanagementRouter'
 ]
+
+# Authentisierung
+
+AUTHENTICATION_BACKENDS = (
+  'accounts.backend.DatenwerftAuthBackend',
+  'django.contrib.auth.backends.ModelBackend',
+  'guardian.backends.ObjectPermissionBackend',
+)
 
 # Sicherheit
 
