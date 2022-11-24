@@ -12,7 +12,8 @@ on:
 env:
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
-  POSTGRES_DB: datenwerft
+  POSTGRES_DB_DEFAULT: datenwerft
+  POSTGRES_DB_DATENMANAGEMENT: datenmanagement
 
 jobs:
   tests:
@@ -34,7 +35,7 @@ jobs:
         env:
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB_DATENMANAGEMENT }}
         ports:
           - 5432:5432
         options: >-
@@ -62,10 +63,12 @@ jobs:
           pip install -r requirements.txt
       - name: Create further settings file based on corresponding template
         run: cp datenwerft/secrets.template datenwerft/secrets.py
-      - name: Create database schema for app datenmanagement
+      - name: Create default database and database schema for app Datenmanagement
         env:
           PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        run: psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB -f datenmanagement/sql/schema.sql
+        run: |
+          createdb -h localhost -U $POSTGRES_USER $POSTGRES_DB_DEFAULT
+          psql -h localhost -U $POSTGRES_USER -d $POSTGRES_DB_DATENMANAGEMENT -f datenmanagement/sql/schema.sql
       - name: Install Node.js dependencies
         run: npm install
       - name: Create HTML files for help
