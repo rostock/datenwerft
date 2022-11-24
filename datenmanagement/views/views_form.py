@@ -4,7 +4,7 @@ import time
 from django.apps import apps
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
-from django.db import connection
+from django.db import connections
 from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
@@ -495,7 +495,7 @@ class DataChangeView(generic.UpdateView):
     context['associated_new'] = (
         self.associated_new if self.associated_new else None)
     if hasattr(self.model._meta, 'geometry_type'):
-      with connection.cursor() as cursor:
+      with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
             'SELECT st_asgeojson(st_transform(geometrie, 4326)) FROM ' +
             self.model._meta.db_table.replace('"', '') +

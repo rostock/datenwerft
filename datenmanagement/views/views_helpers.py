@@ -4,7 +4,7 @@ import requests
 
 from datenwerft.secrets import FME_TOKEN, FME_URL
 from django.conf import settings
-from django.db import connection
+from django.db import connections
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
@@ -174,7 +174,7 @@ class GeometryView(JsonView):
     if self.request.GET.get('pk'):
       # Bei Angaben von 'pk'
       pk = self.request.GET.get('pk')
-      with connection.cursor() as cursor:
+      with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
             'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
             self.model._meta.db_table.replace(
@@ -194,7 +194,7 @@ class GeometryView(JsonView):
         rad = float(self.request.GET.get('rad'))
       else:
         rad = 0
-      with connection.cursor() as cursor:
+      with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
             'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
             self.model._meta.db_table.replace('"', '') +
@@ -212,7 +212,7 @@ class GeometryView(JsonView):
         context['object_list'] = geom
         context['model_name'] = self.model.__name__
     else:
-      with connection.cursor() as cursor:
+      with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
             'SELECT uuid, st_astext(st_transform(geometrie, 4326)) FROM ' +
             self.model._meta.db_table.replace(

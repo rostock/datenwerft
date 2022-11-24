@@ -12,14 +12,14 @@ def address_search_key(request):
   return {'address_search_key': settings.ADDRESS_SEARCH_KEY}
 
 
-def datenmanagement_version(request):
+def datenwerft_version(request):
   """
   holt die Versionsnummer der Anwendung aus den Einstellungen
 
   :param request: Anfrage
   :return: Versionsnummer der Anwendung
   """
-  return {'datenmanagement_version': settings.DATENMANAGEMENT_VERSION}
+  return {'datenwerft_version': settings.DATENWERFT_VERSION}
 
 
 def include_login_form(request):

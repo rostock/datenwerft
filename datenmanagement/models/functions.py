@@ -4,7 +4,7 @@ import uuid
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.db import connection
+from django.db import connections
 from guardian.shortcuts import assign_perm, remove_perm
 from pathlib import Path, PurePath
 from PIL import Image, ExifTags
@@ -280,7 +280,7 @@ def rotate_image(path):
 
 
 def sequence_id(sequence_name):
-  with connection.cursor() as cursor:
+  with connections['datenmanagement'].cursor() as cursor:
     cursor.execute("""SELECT nextval('""" + sequence_name + """')""")
     return cursor.fetchone()[0]
 

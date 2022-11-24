@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Anwendungsdefinition
 
-DATENMANAGEMENT_VERSION = '5.7.1'
+DATENWERFT_VERSION = '5.7.1'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -51,6 +51,12 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'datenwerft.urls'
 
 WSGI_APPLICATION = 'datenwerft.wsgi.application'
+
+# Datenbanken
+
+DATABASE_ROUTERS = [
+  'datenwerft.db_routers.DatenmanagementRouter'
+]
 
 # Sicherheit
 
