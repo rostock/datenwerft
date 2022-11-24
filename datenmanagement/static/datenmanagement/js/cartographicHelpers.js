@@ -203,7 +203,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   // ORKa.MV definieren
   const orkamv = L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
-    attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank">ODbL</a>) und LkKfS-MV'
+    attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer">ODbL</a>) und LkKfS-MV'
   });
 
   // ORKa.MV standardmäßig zur Karte hinzufügen
@@ -212,7 +212,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   // OpenStreetMap definieren
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
-    attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap-Mitwirkende</a>'
+    attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap-Mitwirkende</a>'
   });
 
   // basemap.de definieren

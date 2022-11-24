@@ -58,7 +58,7 @@
       {% if object and associated_objects %}
         <ul>
           {% for associated_object in associated_objects %}
-            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>{% if associated_object.preview_img_url %} <a href="{{ associated_object.preview_img_url }}" target="_blank" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px" /></a>{% endif %}
+            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>{% if associated_object.preview_img_url %} <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px" /></a>{% endif %}
           {% endfor %}
         </ul>
       {% else %}
@@ -68,7 +68,7 @@
         <hr/>
         {% for associated_new_entry in associated_new %}
           <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
-            <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
+            <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
           </p>
         {% endfor %}
       {% endif %}
@@ -603,6 +603,7 @@
       // Links auf vorhandene Fotos, PDF etc. immer in neuem Tab öffnen
       $('td').find('a').attr('title', 'in neuem Tab öffnen…');
       $('td').find('a').attr('target', '_blank');
+      $('td').find('a').attr('rel', 'noopener noreferrer');
 
       // Links auf vorhandene Fotos, PDF etc. sowie entsprechende Upload-Buttons mit ordentlichem Text versehen
       $('td').find('a').parent().contents().filter(function () {

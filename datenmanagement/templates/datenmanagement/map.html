@@ -242,7 +242,7 @@
           if (feature.properties.link) {
             layer.on('click', function () {
               // Feature den Link auf dessen Bearbeitungsseite mitgeben
-              window.open(feature.properties.link, '_blank').focus();
+              window.open(feature.properties.link, '_blank', 'noopener,noreferrer').focus();
             });
           }
           // falls Feature inaktiv ist...

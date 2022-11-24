@@ -99,7 +99,7 @@ class DataView(BaseDatatableView):
                       foreign_model_primary_key
                   )
               ]
-          ) + '" target="_blank" class="required" title="'\
+          ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
             + foreign_model_title + ' ansehen oder bearbeiten">' + str(
               getattr(
                   value,
@@ -134,8 +134,8 @@ class DataView(BaseDatatableView):
           data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
         elif value is not None and column == 'foto':
           try:
-            data = '<a href="' + value.url + '?' + str(
-                time.time()) + '" target="_blank" title="große Ansicht öffnen…">'
+            data = ('<a href="' + value.url + '?' + str(time.time()) +
+                    '" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">')
             if self.thumbs is not None and self.thumbs:
               data += '<img src="' + functions.get_thumb_url(
                   value.url) + '?' + str(
@@ -150,7 +150,7 @@ class DataView(BaseDatatableView):
                 column == 'dokument' or column == 'pdf'):
           try:
             data = '<a href="' + value.url + '?' + str(
-                time.time()) + '" target="_blank" title="' + (
+                time.time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
                 ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
                 ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
           except ValueError:
@@ -162,7 +162,9 @@ class DataView(BaseDatatableView):
         elif value is not None and type(value) in [list, tuple]:
           data = ', '.join(map(str, value))
         elif value is not None and isinstance(value, str) and value.startswith('http'):
-          data = '<a href="' + value + '" target="_blank" title="Link öffnen…">' + value + '</a>'
+          data = ('<a href="' + value +
+                  '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">' +
+                  value + '</a>')
         elif (value is not None and
               isinstance(value, str) and
               re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE)):
