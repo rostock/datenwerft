@@ -259,11 +259,6 @@ url_message = 'Die Adresse der <strong><em>Website</em></strong> muss ' \
 
 # speziell
 
-cont_id_regex = r'^[0-9]{2}-[0-9]{2}$'
-cont_id_message = 'Die <strong><em>ID</em></strong> muss ' \
-                  'aus genau zwei Ziffern, gefolgt von ' \
-                  'genau einem Bindestrich, und abermals ' \
-                  'genau zwei Ziffern bestehen.'
 denk_nummer_regex = r'^[0-9]+[a-z]*$'
 denk_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
                       'einer Ziffer beginnen und mit einer Ziffer ' \

@@ -213,7 +213,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -221,55 +221,43 @@ $$;
 
 
 --
--- Name: geometrie_offen_clipped(); Type: FUNCTION; Schema: fachdaten; Owner: -
+-- Name: id_abfallbehaelter(); Type: FUNCTION; Schema: fachdaten; Owner: -
 --
 
-CREATE FUNCTION fachdaten.geometrie_offen_clipped() RETURNS trigger
+CREATE FUNCTION fachdaten.id_abfallbehaelter() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+
 BEGIN
-   IF (TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NOT ST_Equals(NEW.geometrie ,OLD.geometrie))) AND ST_GeometryType(NEW.geometrie) ~ 'LineString' THEN
-  IF (NEW.art = (SELECT uuid FROM codelisten.arten_fliessgewaesser WHERE art = 'offen')) THEN
-    NEW.geometrie_offen_clipped := CASE
-                                    WHEN ST_GeometryType(ST_Difference(ST_MakeValid(NEW.geometrie), ST_Buffer((SELECT ST_Union(ST_MakeValid(geometrie)) FROM fachdaten.fliessgewaesser_hro WHERE art != (SELECT uuid FROM codelisten.arten_fliessgewaesser WHERE art = 'offen')), 1, 'endcap=flat'))) ~ 'LineString' THEN ST_Multi(ST_Difference(ST_MakeValid(NEW.geometrie), ST_Buffer((SELECT ST_Union(ST_MakeValid(geometrie)) FROM fachdaten.fliessgewaesser_hro WHERE art != (SELECT uuid FROM codelisten.arten_fliessgewaesser WHERE art = 'offen')), 1, 'endcap=flat')))
-                                    ELSE NEW.geometrie
-                                   END;
-            ELSE
-    NEW.geometrie_offen_clipped := ST_Multi(NEW.geometrie);
-  END IF;
-   END IF;
+   NEW.id := lpad(floor(random() * 100000000)::text, 8, '0');
    RETURN NEW;
 END;
 $$;
 
 
 --
--- Name: geometrie_offen_clipped_andere(); Type: FUNCTION; Schema: fachdaten; Owner: -
+-- Name: id_containerstellplaetze(); Type: FUNCTION; Schema: fachdaten; Owner: -
 --
 
-CREATE FUNCTION fachdaten.geometrie_offen_clipped_andere() RETURNS trigger
+CREATE FUNCTION fachdaten.id_containerstellplaetze() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+
 BEGIN
-   IF (TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NOT ST_Equals(NEW.geometrie ,OLD.geometrie))) AND ST_GeometryType(NEW.geometrie) ~ 'LineString' THEN
-  IF (NEW.art = (SELECT uuid FROM codelisten.arten_fliessgewaesser WHERE art = 'offen')) THEN
-    UPDATE fachdaten.fliessgewaesser_hro a SET geometrie_offen_clipped = CASE WHEN ST_GeometryType(ST_Difference(ST_MakeValid(a.geometrie_offen_clipped), ST_Buffer(ST_MakeValid(NEW.geometrie), 1, 'endcap=flat'))) ~ 'LineString' THEN ST_Multi(ST_Difference(ST_MakeValid(a.geometrie_offen_clipped), ST_Buffer(ST_MakeValid(NEW.geometrie), 1, 'endcap=flat'))) ELSE geometrie_offen_clipped END 
-                 WHERE a.geometrie_offen_clipped IS NOT NULL AND a.art = (SELECT uuid FROM codelisten.arten_fliessgewaesser WHERE art = 'offen') AND ST_Intersects(ST_MakeValid(a.geometrie_offen_clipped), ST_Buffer(ST_MakeValid(NEW.geometrie), 1, 'endcap=flat'));
-          UPDATE fachdaten.fliessgewaesser_hro a SET geometrie_offen_clipped = CASE WHEN ST_GeometryType(ST_Difference(ST_MakeValid(a.geometrie), ST_Buffer(ST_MakeValid(NEW.geometrie), 1, 'endcap=flat'))) ~ 'LineString' THEN ST_Multi(ST_Difference(ST_MakeValid(a.geometrie), ST_Buffer(ST_MakeValid(NEW.geometrie), 1, 'endcap=flat'))) ELSE geometrie_offen_clipped END WHERE a.geometrie_offen_clipped IS NULL AND a.art = (SELECT uuid FROM codelisten.arten_fliessgewaesser WHERE art = 'offen') AND ST_Intersects(ST_MakeValid(a.geometrie), ST_Buffer(ST_MakeValid(NEW.geometrie), 1, 'endcap=flat'));
-            END IF;
-   END IF;
+   NEW.id := lpad(floor(random() * 100)::text, 2, '0') || '-' || lpad(floor(random() * 100)::text, 2, '0');
    RETURN NEW;
 END;
 $$;
 
 
 --
--- Name: id(); Type: FUNCTION; Schema: fachdaten; Owner: -
+-- Name: id_hundetoiletten(); Type: FUNCTION; Schema: fachdaten; Owner: -
 --
 
-CREATE FUNCTION fachdaten.id() RETURNS trigger
+CREATE FUNCTION fachdaten.id_hundetoiletten() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+
 BEGIN
    NEW.id := lpad(floor(random() * 100000000)::text, 8, '0');
    RETURN NEW;
@@ -1506,7 +1494,7 @@ CREATE TABLE fachdaten.containerstellplaetze_hro (
     id_zielsystem character varying(255),
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
-    id character(5),
+    id character(5) NOT NULL,
     privat boolean NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     bewirtschafter_grundundboden uuid,
@@ -1693,8 +1681,7 @@ CREATE TABLE fachdaten.fliessgewaesser_hro (
     nennweite smallint,
     laenge integer NOT NULL,
     laenge_in_hro integer,
-    geometrie public.geometry(LineString,25833) NOT NULL,
-    geometrie_offen_clipped public.geometry(MultiLineString,25833) NOT NULL
+    geometrie public.geometry(LineString,25833) NOT NULL
 );
 
 
@@ -5100,27 +5087,6 @@ CREATE INDEX strassenreinigung_hro_inoffizielle_strasse_ix ON fachdaten_strassen
 
 
 --
--- Name: fliessgewaesser_hro tr_after_insert_10_geometrie_offen_clipped_andere; Type: TRIGGER; Schema: fachdaten; Owner: -
---
-
-CREATE TRIGGER tr_after_insert_10_geometrie_offen_clipped_andere AFTER INSERT ON fachdaten.fliessgewaesser_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.geometrie_offen_clipped_andere();
-
-
---
--- Name: fliessgewaesser_hro tr_after_update_10_geometrie_offen_clipped_andere; Type: TRIGGER; Schema: fachdaten; Owner: -
---
-
-CREATE TRIGGER tr_after_update_10_geometrie_offen_clipped_andere AFTER UPDATE OF geometrie ON fachdaten.fliessgewaesser_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.geometrie_offen_clipped_andere();
-
-
---
--- Name: containerstellplaetze_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
---
-
-CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.containerstellplaetze_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
-
-
---
 -- Name: feldsportanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -5132,6 +5098,13 @@ CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.feldsportanla
 --
 
 CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten.geraetespielanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: containerstellplaetze_hro tr_before_insert_10_id; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_id BEFORE INSERT ON fachdaten.containerstellplaetze_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_containerstellplaetze();
 
 
 --
@@ -5156,6 +5129,13 @@ CREATE TRIGGER tr_before_insert_10_laenge BEFORE INSERT ON fachdaten.thalasso_ku
 
 
 --
+-- Name: containerstellplaetze_hro tr_before_insert_20_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_20_foto BEFORE INSERT ON fachdaten.containerstellplaetze_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: fliessgewaesser_hro tr_before_insert_20_laenge_in_hro; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -5163,24 +5143,17 @@ CREATE TRIGGER tr_before_insert_20_laenge_in_hro BEFORE INSERT ON fachdaten.flie
 
 
 --
--- Name: fliessgewaesser_hro tr_before_insert_30_geometrie_offen_clipped; Type: TRIGGER; Schema: fachdaten; Owner: -
---
-
-CREATE TRIGGER tr_before_insert_30_geometrie_offen_clipped BEFORE INSERT ON fachdaten.fliessgewaesser_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.geometrie_offen_clipped();
-
-
---
 -- Name: abfallbehaelter_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
-CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.abfallbehaelter_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id();
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.abfallbehaelter_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
 
 
 --
 -- Name: hundetoiletten_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
-CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.hundetoiletten_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id();
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.hundetoiletten_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_hundetoiletten();
 
 
 --
@@ -5230,13 +5203,6 @@ CREATE TRIGGER tr_before_update_10_laenge BEFORE UPDATE OF geometrie ON fachdate
 --
 
 CREATE TRIGGER tr_before_update_20_laenge_in_hro BEFORE UPDATE OF geometrie ON fachdaten.fliessgewaesser_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.laenge_in_hro();
-
-
---
--- Name: fliessgewaesser_hro tr_before_update_30_geometrie_offen_clipped; Type: TRIGGER; Schema: fachdaten; Owner: -
---
-
-CREATE TRIGGER tr_before_update_30_geometrie_offen_clipped BEFORE UPDATE OF geometrie ON fachdaten.fliessgewaesser_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.geometrie_offen_clipped();
 
 
 --

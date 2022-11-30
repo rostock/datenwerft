@@ -1074,15 +1074,7 @@ class Containerstellplaetze(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField(
-    'ID',
-    max_length=5,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.cont_id_regex,
-        message=constants_vars.cont_id_message)])
+  id = models.CharField('ID', max_length=5, default='00-00')
   privat = models.BooleanField(' privat?')
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -1331,8 +1323,8 @@ class Containerstellplaetze(models.Model):
       'foto': 'Foto'
     }
     list_fields_with_date = ['deaktiviert']
-    readonly_fields = ['deaktiviert']
-    map_feature_tooltip_field = 'bezeichnung'
+    readonly_fields = ['deaktiviert', 'id']
+    map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'id': 'ID',
       'privat': 'privat?',

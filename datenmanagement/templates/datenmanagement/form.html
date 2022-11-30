@@ -468,7 +468,7 @@
       {% if readonly_fields %}
         {% for field in readonly_fields %}
           inputField = $('input#id_' + '{{ field }}');
-          {% if user|user_has_model_change_permission:model_name_lower %}
+          {% if object and user|user_has_model_change_permission:model_name_lower %}
             if (!inputField.val()) {
               inputField.closest('tr').hide();
             } else {
