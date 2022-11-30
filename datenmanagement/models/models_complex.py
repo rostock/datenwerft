@@ -179,13 +179,6 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Baustellen_Fotodokumentation_Baustellen)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Baustellen_Fotodokumentation_Baustellen)
-
-
 # Fotos
 
 class Baustellen_Fotodokumentation_Fotos(models.Model):
@@ -264,15 +257,9 @@ signals.post_save.connect(
   functions.photo_post_processing,
   sender=Baustellen_Fotodokumentation_Fotos)
 
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Baustellen_Fotodokumentation_Fotos)
-
 signals.post_delete.connect(
   functions.delete_photo,
   sender=Baustellen_Fotodokumentation_Fotos)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Baustellen_Fotodokumentation_Fotos)
 
 
 #
@@ -494,8 +481,8 @@ class Baustellen_geplant(models.Model):
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiPolygon'
-    group_with_users_for_choice_field = 'baustellen_geplant_add_delete_view'
-    admin_group = 'baustellen_geplant_full'
+    group_with_users_for_choice_field = 'baustellen_geplant_full'
+    admin_group = 'baustellen_geplant_admin'
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['bezeichnung']
@@ -517,15 +504,6 @@ class Baustellen_geplant(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Baustellen_geplant, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Baustellen_geplant)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Baustellen_geplant)
 
 
 # Dokumente
@@ -602,16 +580,8 @@ class Baustellen_geplant_Dokumente(models.Model):
     super(Baustellen_geplant_Dokumente, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Baustellen_geplant_Dokumente)
-
 signals.post_delete.connect(
   functions.delete_pdf,
-  sender=Baustellen_geplant_Dokumente)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
   sender=Baustellen_geplant_Dokumente)
 
 
@@ -684,15 +654,6 @@ class Baustellen_geplant_Links(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Baustellen_geplant_Links, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Baustellen_geplant_Links)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Baustellen_geplant_Links)
 
 
 #
@@ -932,15 +893,6 @@ class Durchlaesse_Durchlaesse(models.Model):
     super(Durchlaesse_Durchlaesse, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Durchlaesse_Durchlaesse)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Durchlaesse_Durchlaesse)
-
-
 # Fotos
 
 class Durchlaesse_Fotos(models.Model):
@@ -1033,15 +985,7 @@ signals.post_save.connect(
   functions.photo_post_processing,
   sender=Durchlaesse_Fotos)
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Durchlaesse_Fotos)
-
 signals.post_delete.connect(functions.delete_photo, sender=Durchlaesse_Fotos)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Durchlaesse_Fotos)
 
 
 #
@@ -1123,17 +1067,6 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Fallwildsuchen_Kontrollgebiete, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fallwildsuchen_Kontrollgebiete
-)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fallwildsuchen_Kontrollgebiete
-)
 
 
 # Nachweise
@@ -1232,15 +1165,6 @@ class Fallwildsuchen_Nachweise(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Fallwildsuchen_Nachweise, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fallwildsuchen_Nachweise)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fallwildsuchen_Nachweise)
 
 
 #
@@ -1718,14 +1642,6 @@ class Haltestellenkataster_Haltestellen(models.Model):
     super(Haltestellenkataster_Haltestellen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Haltestellenkataster_Haltestellen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Haltestellenkataster_Haltestellen)
-
-
 # Fotos
 
 class Haltestellenkataster_Fotos(models.Model):
@@ -1803,16 +1719,8 @@ signals.post_save.connect(
   functions.photo_post_processing,
   sender=Haltestellenkataster_Fotos)
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Haltestellenkataster_Fotos)
-
 signals.post_delete.connect(
   functions.delete_photo,
-  sender=Haltestellenkataster_Fotos)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
   sender=Haltestellenkataster_Fotos)
 
 
@@ -1984,15 +1892,6 @@ class Parkscheinautomaten_Tarife(models.Model):
     super(Parkscheinautomaten_Tarife, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Parkscheinautomaten_Tarife)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Parkscheinautomaten_Tarife)
-
-
 # Parkscheinautomaten
 
 class Parkscheinautomaten_Parkscheinautomaten(models.Model):
@@ -2124,13 +2023,6 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Parkscheinautomaten_Parkscheinautomaten)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Parkscheinautomaten_Parkscheinautomaten)
-
-
 #
 # RSAG
 #
@@ -2197,11 +2089,6 @@ class RSAG_Gleise(models.Model):
 
   def delete(self, *args, **kwargs):
     super(RSAG_Gleise, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=RSAG_Gleise)
-
-signals.post_delete.connect(functions.remove_permissions, sender=RSAG_Gleise)
 
 
 # Masten
@@ -2543,11 +2430,6 @@ class RSAG_Masten(models.Model):
     super(RSAG_Masten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=RSAG_Masten)
-
-signals.post_delete.connect(functions.remove_permissions, sender=RSAG_Masten)
-
-
 # Oberleitungen
 
 class RSAG_Leitungen(models.Model):
@@ -2585,13 +2467,6 @@ class RSAG_Leitungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(RSAG_Leitungen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=RSAG_Leitungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=RSAG_Leitungen)
 
 
 # Querträger
@@ -2673,15 +2548,6 @@ class RSAG_Quertraeger(models.Model):
     super(RSAG_Quertraeger, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=RSAG_Quertraeger)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=RSAG_Quertraeger)
-
-
 # Spanndrähte
 
 class RSAG_Spanndraehte(models.Model):
@@ -2761,15 +2627,6 @@ class RSAG_Spanndraehte(models.Model):
 
   def delete(self, *args, **kwargs):
     super(RSAG_Spanndraehte, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=RSAG_Spanndraehte)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=RSAG_Spanndraehte)
 
 
 #
@@ -2929,11 +2786,6 @@ class UVP_Vorhaben(models.Model):
     super(UVP_Vorhaben, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=UVP_Vorhaben)
-
-signals.post_delete.connect(functions.remove_permissions, sender=UVP_Vorhaben)
-
-
 # Vorprüfungen
 
 class UVP_Vorpruefungen(models.Model):
@@ -3031,12 +2883,3 @@ class UVP_Vorpruefungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(UVP_Vorpruefungen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=UVP_Vorpruefungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=UVP_Vorpruefungen)

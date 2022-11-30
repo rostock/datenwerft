@@ -8,7 +8,6 @@ from django.core.exceptions import PermissionDenied
 from django.forms import CheckboxSelectMultiple, TextInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from guardian.core import ObjectPermissionChecker
 from leaflet.forms.widgets import LeafletWidget
 
 
@@ -82,8 +81,7 @@ def delete_object_immediately(request, pk):
   )
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   obj = get_object_or_404(model, pk=pk)
-  if ObjectPermissionChecker(request.user).has_perm(
-      'delete_' + model_name.lower(), obj):
+  if request.user.has_perm('datenmanagement.delete_' + model_name.lower()):
     obj.delete()
   else:
     raise PermissionDenied()

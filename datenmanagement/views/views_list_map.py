@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
-from guardian.core import ObjectPermissionChecker
 from jsonview.views import JsonView
 from zoneinfo import ZoneInfo
 
@@ -66,9 +65,7 @@ class DataView(BaseDatatableView):
     for item in qs:
       item_data = []
       item_id = getattr(item, self.model._meta.pk.name)
-      checker = ObjectPermissionChecker(self.request.user)
-      obj = self.model.objects.get(pk=item_id)
-      if checker.has_perm('delete_' + self.model_name_lower, obj):
+      if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
         item_data.append(
             '<input class="action-checkbox" type="checkbox" value="' +
             str(item_id) +
@@ -175,7 +172,7 @@ class DataView(BaseDatatableView):
         elif value is not None:
           data = escape(value)
         item_data.append(data)
-      if checker.has_perm('change_' + self.model_name_lower, obj):
+      if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):
         item_data.append(
             '<a href="' +
             reverse(
@@ -184,8 +181,7 @@ class DataView(BaseDatatableView):
                 'change',
                 args=[item_id]) +
             '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>')
-      elif self.request.user.has_perm(
-              'datenmanagement.view_' + self.model_name_lower):
+      elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
         item_data.append(
             '<a href="' +
             reverse(
@@ -196,7 +192,7 @@ class DataView(BaseDatatableView):
             '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>')
       else:
         item_data.append('')
-      if checker.has_perm('delete_' + self.model_name_lower, obj):
+      if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
         item_data.append(
             '<a href="' +
             reverse(
@@ -403,28 +399,16 @@ class DataMapView(JsonView):
               }
           }
       }
+      # Link auf Objekt als Eigenschaft setzen
+      feature['properties']['link'] = (
+          reverse(
+              'datenmanagement:' +
+              self.model_name +
+              'change',
+              args=[curr_object.uuid]))
       # optional: Objekt als inaktiv kennzeichnen
       if curr_object.aktiv is False:
         feature['properties']['inaktiv'] = True
-      # optional: Link auf Objekt als Eigenschaft setzen,
-      # falls entsprechende Berechtigungen auf Objekt bestehen
-      checker = ObjectPermissionChecker(self.request.user)
-      if (
-          checker.has_perm(
-              'change_' +
-              self.model_name_lower,
-              curr_object) or checker.has_perm(
-              'delete_' +
-              self.model_name_lower,
-              curr_object) or self.request.user.has_perm(
-              'datenmanagement.view_' +
-              self.model_name_lower)):
-        feature['properties']['link'] = (
-            reverse(
-                'datenmanagement:' +
-                self.model_name +
-                'change',
-                args=[curr_object.uuid]))
       # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
       # falls entsprechende Klausel in der Modelldefinition existiert
       if hasattr(self.model._meta, 'map_filter_hide_initial'):

@@ -2,10 +2,9 @@ import uuid
 
 from decimal import *
 from django.contrib.gis.db import models
-from django.db.models import signals
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 
-from . import constants_vars, fields, functions
+from . import constants_vars, fields
 
 
 #
@@ -285,11 +284,6 @@ class Adressen(models.Model):
     super(Adressen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Adressen)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Adressen)
-
-
 #
 # Straßen
 #
@@ -323,11 +317,6 @@ class Strassen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Strassen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Strassen)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Strassen)
 
 
 #
@@ -364,11 +353,6 @@ class Gemeindeteile(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Gemeindeteile, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Gemeindeteile)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Gemeindeteile)
 
 
 #
@@ -430,15 +414,6 @@ class Altersklassen_Kadaverfunde(models.Model):
     super(Altersklassen_Kadaverfunde, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Altersklassen_Kadaverfunde)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Altersklassen_Kadaverfunde)
-
-
 # Angebote bei Mobilpunkten
 
 class Angebote_Mobilpunkte(models.Model):
@@ -489,15 +464,6 @@ class Angebote_Mobilpunkte(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Angebote_Mobilpunkte, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Angebote_Mobilpunkte)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Angebote_Mobilpunkte)
 
 
 # Angelberechtigungen
@@ -552,15 +518,6 @@ class Angelberechtigungen(models.Model):
     super(Angelberechtigungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Angelberechtigungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Angelberechtigungen)
-
-
 # Arten von Baudenkmalen
 
 class Arten_Baudenkmale(Art):
@@ -575,15 +532,6 @@ class Arten_Baudenkmale(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Baudenkmale, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Baudenkmale)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Baudenkmale)
 
 
 # Arten von Durchlässen
@@ -602,15 +550,6 @@ class Arten_Durchlaesse(Art):
     super(Arten_Durchlaesse, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Durchlaesse)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Durchlaesse)
-
-
 # Arten von Fair-Trade-Einrichtungen
 
 class Arten_FairTrade(Art):
@@ -625,13 +564,6 @@ class Arten_FairTrade(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_FairTrade, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Arten_FairTrade)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_FairTrade)
 
 
 # Arten von Feldsportanlagen
@@ -650,15 +582,6 @@ class Arten_Feldsportanlagen(Art):
     super(Arten_Feldsportanlagen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Feldsportanlagen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Feldsportanlagen)
-
-
 # Arten von Feuerwachen
 
 class Arten_Feuerwachen(Art):
@@ -673,15 +596,6 @@ class Arten_Feuerwachen(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Feuerwachen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Feuerwachen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Feuerwachen)
 
 
 # Arten von Fließgewässern
@@ -700,15 +614,6 @@ class Arten_Fliessgewaesser(Art):
     super(Arten_Fliessgewaesser, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Fliessgewaesser)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Fliessgewaesser)
-
-
 # Arten von Hundetoiletten
 
 class Arten_Hundetoiletten(Art):
@@ -723,15 +628,6 @@ class Arten_Hundetoiletten(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Hundetoiletten, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Hundetoiletten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Hundetoiletten)
 
 
 # Arten von Kontrollen im Rahmen von Fallwildsuchen
@@ -750,15 +646,6 @@ class Arten_Fallwildsuchen_Kontrollen(Art):
     super(Arten_Fallwildsuchen_Kontrollen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Fallwildsuchen_Kontrollen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Fallwildsuchen_Kontrollen)
-
-
 # Arten von Meldediensten (flächenhaft)
 
 class Arten_Meldedienst_flaechenhaft(Art):
@@ -773,15 +660,6 @@ class Arten_Meldedienst_flaechenhaft(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Meldedienst_flaechenhaft)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Meldedienst_flaechenhaft)
 
 
 # Arten von Meldediensten (punkthaft)
@@ -800,15 +678,6 @@ class Arten_Meldedienst_punkthaft(Art):
     super(Arten_Meldedienst_punkthaft, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Meldedienst_punkthaft)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Meldedienst_punkthaft)
-
-
 # Arten von Parkmöglichkeiten
 
 class Arten_Parkmoeglichkeiten(Art):
@@ -823,15 +692,6 @@ class Arten_Parkmoeglichkeiten(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Parkmoeglichkeiten, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Parkmoeglichkeiten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Parkmoeglichkeiten)
 
 
 # Arten von Pflegeeinrichtungen
@@ -850,15 +710,6 @@ class Arten_Pflegeeinrichtungen(Art):
     super(Arten_Pflegeeinrichtungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_Pflegeeinrichtungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Pflegeeinrichtungen)
-
-
 # Arten von Pollern
 
 class Arten_Poller(Art):
@@ -873,11 +724,6 @@ class Arten_Poller(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Poller, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Arten_Poller)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Arten_Poller)
 
 
 # Arten von Toiletten
@@ -896,13 +742,6 @@ class Arten_Toiletten(Art):
     super(Arten_Toiletten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Arten_Toiletten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_Toiletten)
-
-
 # Arten von UVP-Vorprüfungen
 
 class Arten_UVP_Vorpruefungen(Art):
@@ -919,15 +758,6 @@ class Arten_UVP_Vorpruefungen(Art):
     super(Arten_UVP_Vorpruefungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Arten_UVP_Vorpruefungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Arten_UVP_Vorpruefungen)
-
-
 # Arten von Wegen
 
 class Arten_Wege(Art):
@@ -942,11 +772,6 @@ class Arten_Wege(Art):
 
   def delete(self, *args, **kwargs):
     super(Arten_Wege, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Arten_Wege)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Arten_Wege)
 
 
 # Auftraggeber von Baustellen
@@ -1001,15 +826,6 @@ class Auftraggeber_Baustellen(models.Model):
     super(Auftraggeber_Baustellen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Auftraggeber_Baustellen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Auftraggeber_Baustellen)
-
-
 # Ausführungen innerhalb eines Haltestellenkatasters
 
 class Ausfuehrungen_Haltestellenkataster(models.Model):
@@ -1060,13 +876,6 @@ class Ausfuehrungen_Haltestellenkataster(models.Model):
     super(Ausfuehrungen_Haltestellenkataster, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Ausfuehrungen_Haltestellenkataster)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Ausfuehrungen_Haltestellenkataster)
-
-
 # Befestigungsarten der Aufstellfläche Bus innerhalb eines
 # Haltestellenkatasters
 
@@ -1095,15 +904,6 @@ class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(Befestigungsart
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster)
-
-
 # Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters
 
 class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
@@ -1126,15 +926,6 @@ class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
       self).delete(
       *args,
       **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Befestigungsarten_Warteflaeche_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Befestigungsarten_Warteflaeche_Haltestellenkataster)
 
 
 # Betriebsarten
@@ -1187,11 +978,6 @@ class Betriebsarten(models.Model):
     super(Betriebsarten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Betriebsarten)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Betriebsarten)
-
-
 # Betriebszeiten
 
 class Betriebszeiten(models.Model):
@@ -1240,13 +1026,6 @@ class Betriebszeiten(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Betriebszeiten, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Betriebszeiten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Betriebszeiten)
 
 
 # Bewirtschafter, Betreiber, Träger, Eigentümer etc.
@@ -1320,15 +1099,6 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Bewirtschafter_Betreiber_Traeger_Eigentuemer)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Bewirtschafter_Betreiber_Traeger_Eigentuemer)
-
-
 # Carsharing-Anbieter
 
 class Anbieter_Carsharing(models.Model):
@@ -1374,15 +1144,6 @@ class Anbieter_Carsharing(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Anbieter_Carsharing, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Anbieter_Carsharing)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Anbieter_Carsharing)
 
 
 # E-Anschlüsse für Parkscheinautomaten
@@ -1436,14 +1197,6 @@ class E_Anschluesse_Parkscheinautomaten(models.Model):
     super(E_Anschluesse_Parkscheinautomaten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions,
-                          sender=E_Anschluesse_Parkscheinautomaten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=E_Anschluesse_Parkscheinautomaten)
-
-
 # Ergebnisse von UVP-Vorprüfungen
 
 class Ergebnisse_UVP_Vorpruefungen(models.Model):
@@ -1493,15 +1246,6 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Ergebnisse_UVP_Vorpruefungen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Ergebnisse_UVP_Vorpruefungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Ergebnisse_UVP_Vorpruefungen)
 
 
 # Fahrbahnwinterdienst gemäß Straßenreinigungssatzung der Hanse- und
@@ -1555,15 +1299,6 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO)
-
-
 # Fotomotive innerhalb eines Haltestellenkatasters
 
 class Fotomotive_Haltestellenkataster(models.Model):
@@ -1613,15 +1348,6 @@ class Fotomotive_Haltestellenkataster(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Fotomotive_Haltestellenkataster, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fotomotive_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fotomotive_Haltestellenkataster)
 
 
 # Fundamenttypen für Masten innerhalb der Straßenbahninfrastruktur
@@ -1700,15 +1426,6 @@ class Fundamenttypen_RSAG(models.Model):
     super(Fundamenttypen_RSAG, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fundamenttypen_RSAG)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fundamenttypen_RSAG)
-
-
 # Gebäudebauweisen
 
 class Gebaeudebauweisen(models.Model):
@@ -1762,15 +1479,6 @@ class Gebaeudebauweisen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Gebaeudebauweisen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Gebaeudebauweisen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Gebaeudebauweisen)
 
 
 # Gebäudefunktionen
@@ -1828,15 +1536,6 @@ class Gebaeudefunktionen(models.Model):
     super(Gebaeudefunktionen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Gebaeudefunktionen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Gebaeudefunktionen)
-
-
 # Genehmigungsbehörden von UVP-Vorhaben
 
 class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
@@ -1886,13 +1585,6 @@ class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Genehmigungsbehoerden_UVP_Vorhaben, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Genehmigungsbehoerden_UVP_Vorhaben)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Genehmigungsbehoerden_UVP_Vorhaben)
 
 
 # Geschlechter bei Kadaverfunden
@@ -1948,15 +1640,6 @@ class Geschlechter_Kadaverfunde(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Geschlechter_Kadaverfunde, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Geschlechter_Kadaverfunde)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Geschlechter_Kadaverfunde)
 
 
 # Häfen
@@ -2022,11 +1705,6 @@ class Haefen(models.Model):
     super(Haefen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Haefen)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Haefen)
-
-
 # Hersteller von Pollern
 
 class Hersteller_Poller(models.Model):
@@ -2078,15 +1756,6 @@ class Hersteller_Poller(models.Model):
     super(Hersteller_Poller, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Hersteller_Poller)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Hersteller_Poller)
-
-
 # inoffizielle Straßen
 
 class Inoffizielle_Strassen(models.Model):
@@ -2118,15 +1787,6 @@ class Inoffizielle_Strassen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Inoffizielle_Strassen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Inoffizielle_Strassen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Inoffizielle_Strassen)
 
 
 # Ladekarten für Ladestationen für Elektrofahrzeuge
@@ -2188,14 +1848,6 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Ladekarten_Ladestationen_Elektrofahrzeuge)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Ladekarten_Ladestationen_Elektrofahrzeuge)
-
-
 # Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH
 
 class Linien(models.Model):
@@ -2233,11 +1885,6 @@ class Linien(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Linien, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Linien)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Linien)
 
 
 # Mastkennzeichen innerhalb der Straßenbahninfrastruktur
@@ -2316,15 +1963,6 @@ class Mastkennzeichen_RSAG(models.Model):
     super(Mastkennzeichen_RSAG, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Mastkennzeichen_RSAG)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Mastkennzeichen_RSAG)
-
-
 # Masttypen innerhalb der Straßenbahninfrastruktur
 # der Rostocker Straßenbahn AG
 
@@ -2399,15 +2037,6 @@ class Masttypen_RSAG(models.Model):
     super(Masttypen_RSAG, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Masttypen_RSAG)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Masttypen_RSAG)
-
-
 # Masttypen innerhalb eines Haltestellenkatasters
 
 class Masttypen_Haltestellenkataster(models.Model):
@@ -2459,15 +2088,6 @@ class Masttypen_Haltestellenkataster(models.Model):
     super(Masttypen_Haltestellenkataster, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Masttypen_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Masttypen_Haltestellenkataster)
-
-
 # Materialien von Denksteinen
 
 class Materialien_Denksteine(Material):
@@ -2484,15 +2104,6 @@ class Materialien_Denksteine(Material):
     super(Materialien_Denksteine, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Materialien_Denksteine)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Materialien_Denksteine)
-
-
 # Materialien von Durchlässen
 
 class Materialien_Durchlaesse(Material):
@@ -2507,15 +2118,6 @@ class Materialien_Durchlaesse(Material):
 
   def delete(self, *args, **kwargs):
     super(Materialien_Durchlaesse, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Materialien_Durchlaesse)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Materialien_Durchlaesse)
 
 
 # Ordnungen von Fließgewässern
@@ -2550,15 +2152,6 @@ class Ordnungen_Fliessgewaesser(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Ordnungen_Fliessgewaesser, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Ordnungen_Fliessgewaesser)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Ordnungen_Fliessgewaesser)
 
 
 # Personentitel
@@ -2610,11 +2203,6 @@ class Personentitel(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Personentitel, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Personentitel)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Personentitel)
 
 
 # Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und
@@ -2672,15 +2260,6 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Raeumbreiten_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Raeumbreiten_Strassenreinigungssatzung_HRO)
-
-
 # Rechtsgrundlagen von UVP-Vorhaben
 
 class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
@@ -2732,15 +2311,6 @@ class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
     super(Rechtsgrundlagen_UVP_Vorhaben, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Rechtsgrundlagen_UVP_Vorhaben)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Rechtsgrundlagen_UVP_Vorhaben)
-
-
 # Reinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und
 # Universitätsstadt Rostock
 
@@ -2786,15 +2356,6 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
       self).delete(
       *args,
       **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Reinigungsklassen_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Reinigungsklassen_Strassenreinigungssatzung_HRO)
 
 
 # Reinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und
@@ -2864,15 +2425,6 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Reinigungsrhythmen_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Reinigungsrhythmen_Strassenreinigungssatzung_HRO)
-
-
 # Schäden innerhalb eines Haltestellenkatasters
 
 class Schaeden_Haltestellenkataster(models.Model):
@@ -2924,15 +2476,6 @@ class Schaeden_Haltestellenkataster(models.Model):
     super(Schaeden_Haltestellenkataster, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Schaeden_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Schaeden_Haltestellenkataster)
-
-
 # Schlagwörter für Bildungsträger
 
 class Schlagwoerter_Bildungstraeger(Schlagwort):
@@ -2949,15 +2492,6 @@ class Schlagwoerter_Bildungstraeger(Schlagwort):
     super(Schlagwoerter_Bildungstraeger, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Schlagwoerter_Bildungstraeger)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Schlagwoerter_Bildungstraeger)
-
-
 # Schlagwörter für Vereine
 
 class Schlagwoerter_Vereine(Schlagwort):
@@ -2972,15 +2506,6 @@ class Schlagwoerter_Vereine(Schlagwort):
 
   def delete(self, *args, **kwargs):
     super(Schlagwoerter_Vereine, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Schlagwoerter_Vereine)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Schlagwoerter_Vereine)
 
 
 # Schließungen von Pollern
@@ -3034,15 +2559,6 @@ class Schliessungen_Poller(models.Model):
     super(Schliessungen_Poller, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Schliessungen_Poller)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Schliessungen_Poller)
-
-
 # Sitzbanktypen innerhalb eines Haltestellenkatasters
 
 class Sitzbanktypen_Haltestellenkataster(models.Model):
@@ -3092,13 +2608,6 @@ class Sitzbanktypen_Haltestellenkataster(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Sitzbanktypen_Haltestellenkataster, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Sitzbanktypen_Haltestellenkataster)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Sitzbanktypen_Haltestellenkataster)
 
 
 # Sparten von Baustellen
@@ -3152,15 +2661,6 @@ class Sparten_Baustellen(models.Model):
     super(Sparten_Baustellen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Sparten_Baustellen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Sparten_Baustellen)
-
-
 # Sportarten
 
 class Sportarten(models.Model):
@@ -3212,11 +2712,6 @@ class Sportarten(models.Model):
     super(Sportarten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Sportarten)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Sportarten)
-
-
 # Status von Baustellen (geplant)
 
 class Status_Baustellen_geplant(Status):
@@ -3231,15 +2726,6 @@ class Status_Baustellen_geplant(Status):
 
   def delete(self, *args, **kwargs):
     super(Status_Baustellen_geplant, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Status_Baustellen_geplant)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Status_Baustellen_geplant)
 
 
 # Status von Fotos der Baustellen-Fotodokumentation
@@ -3266,14 +2752,6 @@ class Status_Baustellen_Fotodokumentation_Fotos(Status):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Status_Baustellen_Fotodokumentation_Fotos)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Status_Baustellen_Fotodokumentation_Fotos)
-
-
 # Status von Pollern
 
 class Status_Poller(Status):
@@ -3288,11 +2766,6 @@ class Status_Poller(Status):
 
   def delete(self, *args, **kwargs):
     super(Status_Poller, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Status_Poller)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Status_Poller)
 
 
 # Tierseuchen
@@ -3341,11 +2814,6 @@ class Tierseuchen(models.Model):
     super(Tierseuchen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Tierseuchen)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Tierseuchen)
-
-
 # Typen von Abfallbehältern
 
 class Typen_Abfallbehaelter(Typ):
@@ -3360,15 +2828,6 @@ class Typen_Abfallbehaelter(Typ):
 
   def delete(self, *args, **kwargs):
     super(Typen_Abfallbehaelter, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Typen_Abfallbehaelter)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Typen_Abfallbehaelter)
 
 
 # Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines
@@ -3424,15 +2883,6 @@ class DFI_Typen_Haltestellenkataster(models.Model):
 
   def delete(self, *args, **kwargs):
     super(DFI_Typen_Haltestellenkataster, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=DFI_Typen_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=DFI_Typen_Haltestellenkataster)
 
 
 # Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
@@ -3494,15 +2944,6 @@ class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fahrgastunterstandstypen_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fahrgastunterstandstypen_Haltestellenkataster)
-
-
 # Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
 
 class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
@@ -3562,14 +3003,6 @@ class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Fahrplanvitrinentypen_Haltestellenkataster)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Fahrplanvitrinentypen_Haltestellenkataster)
-
-
 # Typen von Haltestellen
 
 class Typen_Haltestellen(Typ):
@@ -3584,15 +3017,6 @@ class Typen_Haltestellen(Typ):
 
   def delete(self, *args, **kwargs):
     super(Typen_Haltestellen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Typen_Haltestellen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Typen_Haltestellen)
 
 
 # Typen von Pollern
@@ -3611,11 +3035,6 @@ class Typen_Poller(Typ):
     super(Typen_Poller, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Typen_Poller)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Typen_Poller)
-
-
 # Typen von UVP-Vorhaben
 
 class Typen_UVP_Vorhaben(Typ):
@@ -3630,15 +3049,6 @@ class Typen_UVP_Vorhaben(Typ):
 
   def delete(self, *args, **kwargs):
     super(Typen_UVP_Vorhaben, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Typen_UVP_Vorhaben)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Typen_UVP_Vorhaben)
 
 
 # Verbünde von Ladestationen für Elektrofahrzeuge
@@ -3700,14 +3110,6 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Verbuende_Ladestationen_Elektrofahrzeuge)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Verbuende_Ladestationen_Elektrofahrzeuge)
-
-
 # Verkehrliche Lagen von Baustellen
 
 class Verkehrliche_Lagen_Baustellen(models.Model):
@@ -3757,15 +3159,6 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Verkehrliche_Lagen_Baustellen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Verkehrliche_Lagen_Baustellen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Verkehrliche_Lagen_Baustellen)
 
 
 # Verkehrsmittelklassen
@@ -3819,15 +3212,6 @@ class Verkehrsmittelklassen(models.Model):
     super(Verkehrsmittelklassen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Verkehrsmittelklassen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Verkehrsmittelklassen)
-
-
 # Vorgangsarten von UVP-Vorhaben
 
 class Vorgangsarten_UVP_Vorhaben(models.Model):
@@ -3877,15 +3261,6 @@ class Vorgangsarten_UVP_Vorhaben(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Vorgangsarten_UVP_Vorhaben, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Vorgangsarten_UVP_Vorhaben)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Vorgangsarten_UVP_Vorhaben)
 
 
 # Wegebreiten gemäß Straßenreinigungssatzung der Hanse- und
@@ -3943,15 +3318,6 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Wegebreiten_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Wegebreiten_Strassenreinigungssatzung_HRO)
-
-
 # Wegereinigungsklassen gemäß Straßenreinigungssatzung der Hanse- und
 # Universitätsstadt Rostock
 
@@ -3997,15 +3363,6 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
       self).delete(
       *args,
       **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Wegereinigungsklassen_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Wegereinigungsklassen_Strassenreinigungssatzung_HRO)
 
 
 # Wegereinigungsrhythmen gemäß Straßenreinigungssatzung der Hanse- und
@@ -4075,15 +3432,6 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO)
-
-
 # Wegetypen gemäß Straßenreinigungssatzung der Hanse- und
 # Universitätsstadt Rostock
 
@@ -4145,15 +3493,6 @@ class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
       self).delete(
       *args,
       **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Wegetypen_Strassenreinigungssatzung_HRO)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Wegetypen_Strassenreinigungssatzung_HRO)
 
 
 # Zeiteinheiten
@@ -4227,11 +3566,6 @@ class Zeiteinheiten(models.Model):
     super(Zeiteinheiten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Zeiteinheiten)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Zeiteinheiten)
-
-
 # ZH-Typen innerhalb eines Haltestellenkatasters
 
 class ZH_Typen_Haltestellenkataster(models.Model):
@@ -4283,15 +3617,6 @@ class ZH_Typen_Haltestellenkataster(models.Model):
     super(ZH_Typen_Haltestellenkataster, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=ZH_Typen_Haltestellenkataster)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=ZH_Typen_Haltestellenkataster)
-
-
 # Zonen für Parkscheinautomaten
 
 class Zonen_Parkscheinautomaten(models.Model):
@@ -4329,15 +3654,6 @@ class Zonen_Parkscheinautomaten(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Zonen_Parkscheinautomaten, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Zonen_Parkscheinautomaten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Zonen_Parkscheinautomaten)
 
 
 # Zustände von Kadaverfunden
@@ -4398,15 +3714,6 @@ class Zustaende_Kadaverfunde(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Zustaende_Kadaverfunde)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Zustaende_Kadaverfunde)
-
-
 # Zustände von Schutzzäunen gegen Tierseuchen
 
 class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
@@ -4465,15 +3772,6 @@ class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Zustaende_Schutzzaeune_Tierseuchen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Zustaende_Schutzzaeune_Tierseuchen)
-
-
 # Zustandsbewertungen
 
 class Zustandsbewertungen(models.Model):
@@ -4506,12 +3804,3 @@ class Zustandsbewertungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Zustandsbewertungen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Zustandsbewertungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Zustandsbewertungen)

@@ -1,7 +1,6 @@
 Django
 django-auth-ldap
 django-datatables-view
-django-guardian
 django-jsonview
 django-leaflet
 django-user-agents

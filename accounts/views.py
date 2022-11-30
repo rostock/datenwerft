@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
-from guardian.models import UserObjectPermission, GroupObjectPermission
 from rest_framework import viewsets
 
 from accounts import serializers
@@ -37,16 +36,6 @@ class ContentTypeViewSet(viewsets.ModelViewSet):
   queryset = ContentType.objects.all()
   serializer_class = serializers.ContentTypeSerializer
   # lookup_field = 'model'
-
-
-class UserObjectPermissionViewSet(viewsets.ModelViewSet):
-  queryset = UserObjectPermission.objects.all()
-  serializer_class = serializers.UserObjectPermissionSerializer
-
-
-class GroupObjectPermissionViewSet(viewsets.ModelViewSet):
-  queryset = GroupObjectPermission.objects.all()
-  serializer_class = serializers.GroupObjectPermissionSerializer
 
 
 class PreLoginView(LoginView):

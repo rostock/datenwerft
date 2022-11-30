@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Anwendungsdefinition
 
-DATENWERFT_VERSION = '5.7.1'
+DATENWERFT_VERSION = '5.8.0'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -20,7 +20,6 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
   'django_user_agents',
-  'guardian',
   'leaflet',
   'requests',
   'rest_framework',
@@ -89,7 +88,6 @@ DATABASE_ROUTERS = [
 AUTHENTICATION_BACKENDS = (
   'accounts.backend.DatenwerftAuthBackend',
   'django.contrib.auth.backends.ModelBackend',
-  'guardian.backends.ObjectPermissionBackend',
 )
 
 # Sicherheit

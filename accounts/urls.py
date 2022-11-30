@@ -1,4 +1,4 @@
-from django.urls import path, reverse_lazy
+from django.urls import path
 from django.contrib.auth.views import LogoutView
 from rest_framework import routers
 from accounts import views
@@ -9,10 +9,6 @@ router.register(prefix=r'user', viewset=views.UserViewSet)
 router.register(prefix=r'group', viewset=views.GroupViewSet)
 router.register(prefix=r'permission', viewset=views.PermissionViewSet)
 router.register(prefix=r'content_type', viewset=views.ContentTypeViewSet)
-router.register(prefix=r'user_object_permission',
-                viewset=views.UserObjectPermissionViewSet)
-router.register(prefix=r'group_object_permission',
-                viewset=views.GroupObjectPermissionViewSet)
 
 api_urlpatterns = router.urls
 

@@ -168,8 +168,9 @@ options.DEFAULT_NAMES += (
   'admin_group',
   # optional;
   # Text;
-  # Name der Gruppe von Benutzern, die als Admin-Gruppe für dieses Datenthema
-  # gelten soll
+  # Name der Gruppe von Benutzern, die für das Feld
+  # Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste
+  # genutzt werden sollen
   'additional_wms_layers',
   # optional;
   # Liste;

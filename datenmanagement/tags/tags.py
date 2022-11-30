@@ -1,7 +1,6 @@
 from django import template
 from django.apps import apps
 from django.contrib.gis import forms
-from guardian.core import ObjectPermissionChecker
 import os
 import re
 
@@ -303,38 +302,6 @@ def user_has_model_view_permission(user, model_name_lower):
   im übergebenen Datenmodell?
   """
   if user.has_perm('datenmanagement.view_' + model_name_lower):
-    return True
-  else:
-    return False
-
-
-@register.filter
-def user_has_object_change_permission(user, obj):
-  """
-  prüft, ob der übergebenene Nutzer Rechte zum Ändern des übergebenen Datenobjekts hat
-
-  :param user: Nutzer
-  :param obj: Datenobjekt
-  :return: hat der übergebenene Nutzer Rechte zum Ändern des übergebenen Datenobjekts?
-  """
-  if ObjectPermissionChecker(user).has_perm(
-      'change_' + obj.__class__.__name__.lower(), obj):
-    return True
-  else:
-    return False
-
-
-@register.filter
-def user_has_object_delete_permission(user, obj):
-  """
-  prüft, ob der übergebenene Nutzer Rechte zum Löschen des übergebenen Datenobjekts hat
-
-  :param user: Nutzer
-  :param obj: Datenobjekt
-  :return: hat der übergebenene Nutzer Rechte zum Löschen des übergebenen Datenobjekts?
-  """
-  if ObjectPermissionChecker(user).has_perm(
-      'delete_' + obj.__class__.__name__.lower(), obj):
     return True
   else:
     return False

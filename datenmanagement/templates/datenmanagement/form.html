@@ -1,6 +1,5 @@
 {% extends "navbar.html" %}
 {% load datenmanagement_tags %}
-{% load guardian_tags %}
 {% load leaflet_tags %}
 {% load static %}
 
@@ -64,7 +63,7 @@
       {% else %}
         (noch) keine assoziierten Datensätze vorhanden
       {% endif %}
-      {% if user|user_has_object_change_permission:object %}
+      {% if user|user_has_model_change_permission:model_name_lower %}
         <hr/>
         {% for associated_new_entry in associated_new %}
           <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
@@ -88,7 +87,7 @@
                 {% elif field|is_field_hours_related_field %}
                   {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
-                  {% if object and user|user_has_object_change_permission:object %}
+                  {% if object and user|user_has_model_change_permission:model_name_lower %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
                       {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
@@ -98,7 +97,7 @@
                     {% endwith %}
                   {% endif %}
                 {% elif postcode_assigner and field.name == postcode_assigner %}
-                  {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+                  {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
                     {{ field.label_tag }} <span><i id="postcode-assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
                   {% endif %}
                 {% else %}
@@ -136,7 +135,7 @@
           <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [] }</textarea>
         {% endif %}
         {% leaflet_map "id-geometrie-map" callback="window.mapCallbackFunction" %}
-        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
               {% if geometry_type == 'Point' %}
@@ -179,7 +178,7 @@
               <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_quarter %}{{ current_quarter }}{% endif %}"/>
             {% endif %}
           {% else %}
-            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
               <label for="address-search" class="form-label">Adressensuche</label>
               <div class="form-floating">
                 <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…"/>
@@ -193,10 +192,10 @@
     {% endif %}
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
-        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_object_change_permission:object %}
+        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
         {% endif %}
-        {% if object and user|user_has_model_delete_permission:model_name_lower and user|user_has_object_delete_permission:object %}
+        {% if object and user|user_has_model_delete_permission:model_name_lower %}
           <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><i class="fas fa-trash"></i> löschen</a>
         {% endif %}
         <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-hand"></i> abbrechen</a>
@@ -430,28 +429,34 @@
     $(document).ready(function() {
       // falls Gruppe von Benutzern gesetzt ist, die für das Feld Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste genutzt werden sollen...
       {% if group_with_users_for_choice_field %}
-        // falls Benutzer kein Änderungsrecht am Datensatz hat...
-        {% if not user|user_has_object_delete_permission:object %}
+          // alle Felder durchgehen...
           {% for field in form %}
-            // Auswahlfeld Ansprechpartner/Bearbeiter in normales Feld umwandeln
             {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
-              let value;
-              {% if field.name == 'ansprechpartner' %}
-                value = '{{ object.ansprechpartner }}';
+              // falls Benutzer kein Änderungsrecht am Datenmodell hat...
+              {% if not user|user_has_model_change_permission:model_name_lower %}
+                // Auswahlfeld Ansprechpartner/Bearbeiter in normales Feld umwandeln
+                let value;
+                {% if field.name == 'ansprechpartner' %}
+                  value = '{{ object.ansprechpartner }}';
+                {% endif %}
+                {% if field.name == 'bearbeiter' %}
+                  value = '{{ object.bearbeiter }}';
+                {% endif %}
+                let inputField = $('<input>').attr({
+                  id: 'id_' + '{{ field.name }}',
+                  class: 'form-control',
+                  type: 'text',
+                  name: '{{ field.name }}',
+                  value: value
+                });
+                $('select#id_' + '{{ field.name }}').replaceWith(inputField);
+              // ansonsten...
+              {% else %}
+                // lediglich Bootstratp-5-CSS-Klasse ergänzen
+                $('select#id_' + '{{ field.name }}').addClass('form-select');
               {% endif %}
-              {% if field.name == 'bearbeiter' %}
-                value = '{{ object.bearbeiter }}';
-              {% endif %}
-              let inputField = $('<input>').attr({
-                id: 'id_' + '{{ field.name }}',
-                type: 'text',
-                name: '{{ field.name }}',
-                value: value
-              });
-              $('select#id_' + '{{ field.name }}').replaceWith(inputField);
             {% endif %}
           {% endfor %}
-        {% endif %}
       {% endif %}
 
       // Checkboxen in Multiple-Choice-Feldern an Bootstrap 5 anpassen
@@ -463,7 +468,7 @@
       {% if readonly_fields %}
         {% for field in readonly_fields %}
           inputField = $('input#id_' + '{{ field }}');
-          {% if user|user_has_object_change_permission:object %}
+          {% if user|user_has_model_change_permission:model_name_lower %}
             if (!inputField.val()) {
               inputField.closest('tr').hide();
             } else {
@@ -483,8 +488,8 @@
         {% endfor %}
       {% endif %}
 
-      // falls Benutzer kein Änderungsrecht am Datensatz hat...
-      {% if not user|user_has_object_change_permission:object %}
+      // falls Benutzer kein Änderungsrecht am Datenmodell hat...
+      {% if not user|user_has_model_change_permission:model_name_lower %}
         // alle Felder deaktivieren
         $('input').each(function () {
             $(this).prop('disabled', true);
@@ -582,7 +587,7 @@
       $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
 
       // Fremdschlüssellinks dynamisch anpassen je nach aktueller Auswahl in entsprechenden Auswahlfeldern (bei leerer Auswahl Link verstecken)
-      {% if fields_with_foreign_key_to_linkify and user|user_has_object_change_permission:object or not object %}
+      {% if fields_with_foreign_key_to_linkify and user|user_has_model_change_permission:model_name_lower or not object %}
         {% for field in fields_with_foreign_key_to_linkify %}
           $('select#id_' + '{{ field }}').each(function () {
             $(this).on('change', function() {

@@ -1,71 +1,10 @@
-import re
 import uuid
 
 from datetime import date
 from django.conf import settings
-from django.contrib.auth.models import Group, User
 from django.db import connections
-from guardian.shortcuts import assign_perm, remove_perm
 from pathlib import Path, PurePath
 from PIL import Image, ExifTags
-
-
-def assign_permissions(sender, instance, created, **kwargs):
-  """
-  weist Rechte am übergebenenen Datenobjekts zu
-
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
-  :param created: Datenobjekt neu hinzugefügt?
-  :param **kwargs
-  """
-  model_name = instance.__class__.__name__.lower()
-  user = instance.user
-  if created:
-    assign_perm('datenmanagement.change_' + model_name, user, instance)
-    assign_perm('datenmanagement.delete_' + model_name, user, instance)
-    if (hasattr(instance.__class__._meta, 'admin_group') and
-        Group.objects.filter(
-          name=instance.__class__._meta.admin_group
-        ).exists()):
-      group = Group.objects.filter(
-        name=instance.__class__._meta.admin_group)
-      assign_perm(
-        'datenmanagement.change_' +
-        model_name,
-        group,
-        instance)
-      assign_perm(
-        'datenmanagement.delete_' +
-        model_name,
-        group,
-        instance)
-    else:
-      for group in Group.objects.all():
-        if group.permissions.filter(codename='change_' + model_name):
-          assign_perm(
-            'datenmanagement.change_' +
-            model_name,
-            group,
-            instance)
-        if group.permissions.filter(codename='delete_' + model_name):
-          assign_perm(
-            'datenmanagement.delete_' +
-            model_name,
-            group,
-            instance)
-  elif hasattr(
-      instance.__class__._meta,
-      'group_with_users_for_choice_field'
-  ) and Group.objects.filter(
-    name=instance.__class__._meta.group_with_users_for_choice_field
-  ).exists():
-    mail = instance.ansprechpartner.split()[-1]
-    mail = re.sub(r'\(', '', re.sub(r'\)', '', mail))
-    if User.objects.filter(email__iexact=mail).exists():
-      user = User.objects.get(email__iexact=mail)
-      assign_perm('datenmanagement.change_' + model_name, user, instance)
-      assign_perm('datenmanagement.delete_' + model_name, user, instance)
 
 
 def current_year():
@@ -235,23 +174,6 @@ def photo_post_processing(sender, instance, **kwargs):
       thumb_path = thumb_path / PurePath(path).name
       thumb_image(path, thumb_path)
       delete_duplicate_photos_with_other_suffixes(thumb_path)
-
-
-def remove_permissions(sender, instance, **kwargs):
-  """
-  entfernt Rechte am übergebenenen Datenobjekt
-
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
-  :param **kwargs
-  """
-  model_name = instance.__class__.__name__.lower()
-  for user in User.objects.all():
-    remove_perm('datenmanagement.change_' + model_name, user, instance)
-    remove_perm('datenmanagement.delete_' + model_name, user, instance)
-  for group in Group.objects.all():
-    remove_perm('datenmanagement.change_' + model_name, group, instance)
-    remove_perm('datenmanagement.delete_' + model_name, group, instance)
 
 
 def rotate_image(path):

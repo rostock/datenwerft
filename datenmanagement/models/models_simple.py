@@ -239,13 +239,6 @@ class Abfallbehaelter(models.Model):
     super(Abfallbehaelter, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Abfallbehaelter)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Abfallbehaelter)
-
-
 # Angelverbotsbereiche
 
 class Angelverbotsbereiche(models.Model):
@@ -326,14 +319,6 @@ class Angelverbotsbereiche(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Angelverbotsbereiche, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Angelverbotsbereiche)
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Angelverbotsbereiche)
 
 
 # Aufteilungspläne nach Wohnungseigentumsgesetz
@@ -455,16 +440,9 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
-
 signals.post_delete.connect(
   functions.delete_pdf,
   sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
 
 # Baudenkmale
@@ -571,11 +549,6 @@ class Baudenkmale(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Baudenkmale, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Baudenkmale)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Baudenkmale)
 
 
 # Behinderteneinrichtungen
@@ -697,15 +670,6 @@ class Behinderteneinrichtungen(models.Model):
     super(Behinderteneinrichtungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Behinderteneinrichtungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Behinderteneinrichtungen)
-
-
 # Beschlüsse des Bau- und Planungsausschusses
 
 class Beschluesse_Bau_Planungsausschuss(models.Model):
@@ -811,16 +775,9 @@ class Beschluesse_Bau_Planungsausschuss(models.Model):
       **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Beschluesse_Bau_Planungsausschuss)
-
 signals.post_delete.connect(
   functions.delete_pdf,
   sender=Beschluesse_Bau_Planungsausschuss)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Beschluesse_Bau_Planungsausschuss)
 
 
 # Bildungsträger
@@ -965,13 +922,6 @@ class Bildungstraeger(models.Model):
     super(Bildungstraeger, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Bildungstraeger)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Bildungstraeger)
-
-
 # Carsharing-Stationen
 
 class Carsharing_Stationen(models.Model):
@@ -1112,15 +1062,6 @@ class Carsharing_Stationen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Carsharing_Stationen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Carsharing_Stationen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Carsharing_Stationen)
 
 
 # Containerstellplätze
@@ -1423,16 +1364,8 @@ signals.post_save.connect(
   functions.delete_photo_after_emptied,
   sender=Containerstellplaetze)
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Containerstellplaetze)
-
 signals.post_delete.connect(
   functions.delete_photo,
-  sender=Containerstellplaetze)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
   sender=Containerstellplaetze)
 
 
@@ -1512,13 +1445,6 @@ class Denkmalbereiche(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Denkmalbereiche, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Denkmalbereiche)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Denkmalbereiche)
 
 
 # Denksteine
@@ -1715,11 +1641,6 @@ class Denksteine(models.Model):
     super(Denksteine, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Denksteine)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Denksteine)
-
-
 # Fair Trade
 
 class FairTrade(models.Model):
@@ -1864,11 +1785,6 @@ class FairTrade(models.Model):
     super(FairTrade, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=FairTrade)
-
-signals.post_delete.connect(functions.remove_permissions, sender=FairTrade)
-
-
 # Feldsportanlagen
 
 class Feldsportanlagen(models.Model):
@@ -1971,15 +1887,7 @@ signals.post_save.connect(
   functions.delete_photo_after_emptied,
   sender=Feldsportanlagen)
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Feldsportanlagen)
-
 signals.post_delete.connect(functions.delete_photo, sender=Feldsportanlagen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Feldsportanlagen)
 
 
 # Feuerwachen
@@ -2099,11 +2007,6 @@ class Feuerwachen(models.Model):
     super(Feuerwachen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Feuerwachen)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Feuerwachen)
-
-
 # Fließgewässer
 
 class Fliessgewaesser(models.Model):
@@ -2218,13 +2121,6 @@ class Fliessgewaesser(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Fliessgewaesser, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Fliessgewaesser)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Fliessgewaesser)
 
 
 # Geh- und Radwegereinigung
@@ -2488,15 +2384,6 @@ class Geh_Radwegereinigung(models.Model):
     super(Geh_Radwegereinigung, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Geh_Radwegereinigung)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Geh_Radwegereinigung)
-
-
 # Gerätespielanlagen
 
 class Geraetespielanlagen(models.Model):
@@ -2612,15 +2499,7 @@ signals.post_save.connect(
   functions.delete_photo_after_emptied,
   sender=Geraetespielanlagen)
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Geraetespielanlagen)
-
 signals.post_delete.connect(functions.delete_photo, sender=Geraetespielanlagen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Geraetespielanlagen)
 
 
 # Gutachterfotos
@@ -2737,13 +2616,7 @@ signals.post_save.connect(
   functions.photo_post_processing,
   sender=Gutachterfotos)
 
-signals.post_save.connect(functions.assign_permissions, sender=Gutachterfotos)
-
 signals.post_delete.connect(functions.delete_photo, sender=Gutachterfotos)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Gutachterfotos)
 
 
 # Hausnummern
@@ -2966,11 +2839,6 @@ class Hausnummern(models.Model):
     super(Hausnummern, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Hausnummern)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Hausnummern)
-
-
 # Hospize
 
 class Hospize(models.Model):
@@ -3088,11 +2956,6 @@ class Hospize(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Hospize, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Hospize)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Hospize)
 
 
 # Hundetoiletten
@@ -3230,13 +3093,6 @@ class Hundetoiletten(models.Model):
     super(Hundetoiletten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Hundetoiletten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Hundetoiletten)
-
-
 # Hydranten
 
 class Hydranten(models.Model):
@@ -3370,11 +3226,6 @@ class Hydranten(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Hydranten, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Hydranten)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Hydranten)
 
 
 # Kadaverfunde
@@ -3528,11 +3379,6 @@ class Kadaverfunde(models.Model):
     super(Kadaverfunde, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Kadaverfunde)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Kadaverfunde)
-
-
 # Kindertagespflegeeinrichtungen
 
 class Kindertagespflegeeinrichtungen(models.Model):
@@ -3684,15 +3530,6 @@ class Kindertagespflegeeinrichtungen(models.Model):
     super(Kindertagespflegeeinrichtungen, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Kindertagespflegeeinrichtungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Kindertagespflegeeinrichtungen)
-
-
 # Kinder- und Jugendbetreuung
 
 class Kinder_Jugendbetreuung(models.Model):
@@ -3810,15 +3647,6 @@ class Kinder_Jugendbetreuung(models.Model):
     super(Kinder_Jugendbetreuung, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Kinder_Jugendbetreuung)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Kinder_Jugendbetreuung)
-
-
 # Kunst im öffentlichen Raum
 
 class Kunst_im_oeffentlichen_Raum(models.Model):
@@ -3918,15 +3746,6 @@ class Kunst_im_oeffentlichen_Raum(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Kunst_im_oeffentlichen_Raum, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Kunst_im_oeffentlichen_Raum)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Kunst_im_oeffentlichen_Raum)
 
 
 # Ladestationen für Elektrofahrzeuge
@@ -4112,15 +3931,6 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
     super(Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Ladestationen_Elektrofahrzeuge)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Ladestationen_Elektrofahrzeuge)
-
-
 # Meldedienst (flächenhaft)
 
 class Meldedienst_flaechenhaft(models.Model):
@@ -4214,15 +4024,6 @@ class Meldedienst_flaechenhaft(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Meldedienst_flaechenhaft)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Meldedienst_flaechenhaft)
 
 
 # Meldedienst (punkthaft)
@@ -4341,15 +4142,6 @@ class Meldedienst_punkthaft(models.Model):
     super(Meldedienst_punkthaft, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Meldedienst_punkthaft)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Meldedienst_punkthaft)
-
-
 # Mobilpunkte
 
 class Mobilpunkte(models.Model):
@@ -4420,11 +4212,6 @@ class Mobilpunkte(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Mobilpunkte, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Mobilpunkte)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Mobilpunkte)
 
 
 # Parkmöglichkeiten
@@ -4601,15 +4388,6 @@ class Parkmoeglichkeiten(models.Model):
     super(Parkmoeglichkeiten, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Parkmoeglichkeiten)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Parkmoeglichkeiten)
-
-
 # Pflegeeinrichtungen
 
 class Pflegeeinrichtungen(models.Model):
@@ -4748,15 +4526,6 @@ class Pflegeeinrichtungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Pflegeeinrichtungen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Pflegeeinrichtungen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Pflegeeinrichtungen)
 
 
 # Poller
@@ -4918,11 +4687,6 @@ class Poller(models.Model):
     super(Poller, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Poller)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Poller)
-
-
 # Reinigungsreviere
 
 class Reinigungsreviere(models.Model):
@@ -5023,15 +4787,6 @@ class Reinigungsreviere(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Reinigungsreviere, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Reinigungsreviere)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Reinigungsreviere)
 
 
 # Rettungswachen
@@ -5149,13 +4904,6 @@ class Rettungswachen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Rettungswachen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Rettungswachen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Rettungswachen)
 
 
 # Schiffsliegeplätze
@@ -5372,15 +5120,6 @@ class Schiffsliegeplaetze(models.Model):
     super(Schiffsliegeplaetze, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Schiffsliegeplaetze)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Schiffsliegeplaetze)
-
-
 # Schutzzäune gegen Tierseuchen
 
 class Schutzzaeune_Tierseuchen(models.Model):
@@ -5440,15 +5179,6 @@ class Schutzzaeune_Tierseuchen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Schutzzaeune_Tierseuchen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Schutzzaeune_Tierseuchen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Schutzzaeune_Tierseuchen)
 
 
 # Sporthallen
@@ -5573,11 +5303,7 @@ signals.post_save.connect(
   functions.delete_photo_after_emptied,
   sender=Sporthallen)
 
-signals.post_save.connect(functions.assign_permissions, sender=Sporthallen)
-
 signals.post_delete.connect(functions.delete_photo, sender=Sporthallen)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Sporthallen)
 
 
 # Stadtteil- und Begegnungszentren
@@ -5704,15 +5430,6 @@ class Stadtteil_Begegnungszentren(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Stadtteil_Begegnungszentren, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Stadtteil_Begegnungszentren)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Stadtteil_Begegnungszentren)
 
 
 # Straßenreinigung
@@ -5889,15 +5606,6 @@ class Strassenreinigung(models.Model):
     super(Strassenreinigung, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Strassenreinigung)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Strassenreinigung)
-
-
 # Thalasso-Kurwege
 
 class Thalasso_Kurwege(models.Model):
@@ -6009,15 +5717,6 @@ class Thalasso_Kurwege(models.Model):
     super(Thalasso_Kurwege, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Thalasso_Kurwege)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Thalasso_Kurwege)
-
-
 # Toiletten
 
 class Toiletten(models.Model):
@@ -6096,11 +5795,6 @@ class Toiletten(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Toiletten, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions, sender=Toiletten)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Toiletten)
 
 
 # Trinkwassernotbrunnen
@@ -6218,15 +5912,6 @@ class Trinkwassernotbrunnen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Trinkwassernotbrunnen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(
-  functions.assign_permissions,
-  sender=Trinkwassernotbrunnen)
-
-signals.post_delete.connect(
-  functions.remove_permissions,
-  sender=Trinkwassernotbrunnen)
 
 
 # Vereine
@@ -6358,11 +6043,6 @@ class Vereine(models.Model):
     super(Vereine, self).delete(*args, **kwargs)
 
 
-signals.post_save.connect(functions.assign_permissions, sender=Vereine)
-
-signals.post_delete.connect(functions.remove_permissions, sender=Vereine)
-
-
 # Verkaufstellen für Angelberechtigungen
 
 class Verkaufstellen_Angelberechtigungen(models.Model):
@@ -6490,10 +6170,3 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Verkaufstellen_Angelberechtigungen, self).delete(*args, **kwargs)
-
-
-signals.post_save.connect(functions.assign_permissions,
-                          sender=Verkaufstellen_Angelberechtigungen)
-
-signals.post_delete.connect(functions.remove_permissions,
-                            sender=Verkaufstellen_Angelberechtigungen)

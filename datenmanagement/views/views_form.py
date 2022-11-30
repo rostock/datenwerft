@@ -9,7 +9,6 @@ from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views import generic
-from guardian.core import ObjectPermissionChecker
 from operator import attrgetter
 
 from . import fields, functions
@@ -63,13 +62,15 @@ class DataForm(ModelForm):
 
     for field in self.model._meta.get_fields():
       if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-        # Textfelder in Auswahllisten umwandeln, falls Benutzer kein
-        # Admin und kein Mitglied der Gruppe von Benutzern ist,
+        # Textfelder gegebenenfalls in Auswahllisten umwandeln,
+        # falls Benutzer kein Mitglied der Gruppe von Benutzern ist,
         # die als Admin-Gruppe für dieses Datenthema gilt
-        if self.group_with_users_for_choice_field and Group.objects.filter(
-            name=self.group_with_users_for_choice_field).exists() and not (
-            self.request.user.is_superuser or self.request.user.groups.filter(
-                name=self.admin_group).exists()):
+        if (
+            self.group_with_users_for_choice_field
+            and self.admin_group
+            and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
+            and not (self.request.user.groups.filter(name=self.admin_group).exists())
+        ):
           users = sorted(User.objects.filter(
               groups__name=self.group_with_users_for_choice_field),
               key=attrgetter('last_name', 'first_name'))
@@ -327,17 +328,15 @@ class DataAddView(generic.CreateView):
         bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name if (
             self.request.user.first_name and
             self.request.user.last_name) else self.request.user.username
-    if ansprechpartner or bearbeiter or (
-            preselect_field and preselect_value):
-      if self.request.user.is_superuser or (
-              hasattr(
-                  self.model._meta,
-                  'admin_group') and self.request.user.groups.filter(
-                  name=self.model._meta.admin_group).exists()) or not hasattr(
-              self.model._meta,
-              'group_with_users_for_choice_field') or not hasattr(
-              self.model._meta,
-              'admin_group'):
+    if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
+      if (
+          (
+              hasattr(self.model._meta, "admin_group")
+              and self.request.user.groups.filter(name=self.model._meta.admin_group).exists()
+          )
+          or not hasattr(self.model._meta, "group_with_users_for_choice_field")
+          or not hasattr(self.model._meta, "admin_group")
+      ):
         return {
             'ansprechpartner': ansprechpartner,
             'bearbeiter': bearbeiter,
@@ -565,13 +564,6 @@ class DataChangeView(generic.UpdateView):
     :return: Objekt, das geändert werden soll
     """
     obj = super(DataChangeView, self).get_object(*args, **kwargs)
-    userobjperm_change = ObjectPermissionChecker(
-        self.request.user).has_perm(
-        'change_' + self.model.__name__.lower(), obj)
-    userperm_view = self.request.user.has_perm(
-        'datenmanagement.view_' + self.model.__name__.lower())
-    if not userobjperm_change and not userperm_view:
-      raise PermissionDenied()
     return obj
 
 
@@ -590,9 +582,8 @@ class DataDeleteView(generic.DeleteView):
     :return: Objekt, das gelöscht werden soll
     """
     obj = super(DataDeleteView, self).get_object(*args, **kwargs)
-    userobjperm_delete = ObjectPermissionChecker(
-        self.request.user).has_perm(
-        'delete_' + self.model.__name__.lower(), obj)
-    if not userobjperm_delete:
+    userperm_delete = self.request.user.has_perm(
+        'datenmanagement.delete_' + self.model.__name__.lower())
+    if not userperm_delete:
       raise PermissionDenied()
     return obj
