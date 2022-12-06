@@ -247,7 +247,7 @@ leerzeichen_bindestrich_message = 'Im Text darf vor einem Bindestrich kein ' \
 postleitzahl_regex = r'^[0-9]{5}$'
 postleitzahl_message = 'Die <strong><em>Postleitzahl</em></strong> ' \
                        'muss aus genau fünf Ziffern bestehen.'
-rufnummer_regex = r'^\+49 [1-9][0-9]{1,5} [0-9]{1,13}$'
+rufnummer_regex = r'^\+(1 )?([0-9]{1,3}) [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = 'Die Schreibweise von ' \
                     '<strong><em>Rufnummern</em></strong> muss der ' \
                     'Empfehlung E.123 der Internationalen Fernmeldeunion ' \
