@@ -59,6 +59,13 @@ CREATE SCHEMA fachdaten_strassenbezug;
 
 
 --
+-- Name: topology; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA topology;
+
+
+--
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
 --
 

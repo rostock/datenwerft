@@ -83,3 +83,5 @@ jobs:
         run: python manage.py migrate
       - name: Run tests on app Accounts
         run: python manage.py test accounts
+      - name: Run tests on app Datenmanagement
+        run: python manage.py test datenmanagement

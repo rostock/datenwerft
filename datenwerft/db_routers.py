@@ -29,15 +29,9 @@ class DatenmanagementRouter:
 
   def allow_relation(self, obj1, obj2, **hints):
     """
-    Relationen erlauben,
-    sobald beide beteiligten Datenmodelle aus der Anwendung datenmanagement stammen
+    Relationen grundsätzlich immer erlauben
     """
-    if (
-      obj1._meta.app_label in self.route_app_labels and
-      obj2._meta.app_label in self.route_app_labels
-    ):
-      return True
-    return None
+    return True
 
   def allow_migrate(self, db, app_label, model_name=None, **hints):
     """
