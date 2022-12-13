@@ -280,10 +280,8 @@ dl_aktenzeichen_message = 'Das <strong><em>Aktenzeichen' \
                           'abermals eine oder zwei ' \
                           'Ziffern folgen.'
 fw_sr_code_regex = r'^[A-C]$'
-fw_sr_code_message = 'Der <strong><em>Code</em>' \
-                     '</strong> muss entweder ' \
-                     '<em>A, B</em> oder <em>C' \
-                     '</em> lauten.'
+fw_sr_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
+                     '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'
 haef_abkuerzung_regex = r'^[A-Z-]{3,5}$'
 haef_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss ' \
                           'aus drei, vier oder fünf Großbuchstaben ' \
@@ -321,6 +319,8 @@ poll_nummer_regex = r'^[A-Z][0-9]{0,2}$'
 poll_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
                       'genau einem Großbuchstaben bestehen, der um eine ' \
                       'oder zwei Ziffer(n) ergänzt werden kann.'
+quar_code_regex = r'^[0-9]{3}$'
+quar_code_message = 'Der <strong><em>Code</em></strong> muss aus genau drei Ziffern bestehen.'
 twnb_nummer_regex = r'^13003000-[0-9]{3}$'
 twnb_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
                       '<em>13003000-,</em> gefolgt von genau drei ' \

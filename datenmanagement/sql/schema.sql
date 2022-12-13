@@ -220,7 +220,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -971,6 +971,19 @@ CREATE TABLE codelisten.personentitel (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     bezeichnung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: quartiere; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.quartiere (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    code character(3) NOT NULL,
+    bezeichnung character varying(255)
 );
 
 
@@ -2815,6 +2828,64 @@ CREATE TABLE fachdaten_adressbezug.stadtteil_begegnungszentren_hro (
 
 
 --
+-- Name: standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    bewertungsjahr smallint NOT NULL,
+    quartier uuid NOT NULL,
+    kundschaftskontakte_anfangswert numeric(4,2) NOT NULL,
+    kundschaftskontakte_endwert numeric(4,2) NOT NULL,
+    verkehrsanbindung_anfangswert numeric(4,2) NOT NULL,
+    verkehrsanbindung_endwert numeric(4,2) NOT NULL,
+    ausstattung_anfangswert numeric(4,2) NOT NULL,
+    ausstattung_endwert numeric(4,2) NOT NULL,
+    beeintraechtigung_anfangswert numeric(4,2) NOT NULL,
+    beeintraechtigung_endwert numeric(4,2) NOT NULL,
+    standortnutzung_anfangswert numeric(4,2) NOT NULL,
+    standortnutzung_endwert numeric(4,2) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: standortqualitaeten_wohnlagen_sanierungsgebiet_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.standortqualitaeten_wohnlagen_sanierungsgebiet_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    bewertungsjahr smallint NOT NULL,
+    quartier uuid NOT NULL,
+    gesellschaftslage_anfangswert numeric(4,2) NOT NULL,
+    gesellschaftslage_endwert numeric(4,2) NOT NULL,
+    verkehrsanbindung_anfangswert numeric(4,2) NOT NULL,
+    verkehrsanbindung_endwert numeric(4,2) NOT NULL,
+    ausstattung_anfangswert numeric(4,2) NOT NULL,
+    ausstattung_endwert numeric(4,2) NOT NULL,
+    beeintraechtigung_anfangswert numeric(4,2) NOT NULL,
+    beeintraechtigung_endwert numeric(4,2) NOT NULL,
+    standortnutzung_anfangswert numeric(4,2) NOT NULL,
+    standortnutzung_endwert numeric(4,2) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: vereine_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -3867,6 +3938,22 @@ ALTER TABLE ONLY codelisten.personentitel
 
 ALTER TABLE ONLY codelisten.personentitel
     ADD CONSTRAINT personentitel_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: quartiere quartiere_code_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.quartiere
+    ADD CONSTRAINT quartiere_code_unique UNIQUE (code);
+
+
+--
+-- Name: quartiere quartiere_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.quartiere
+    ADD CONSTRAINT quartiere_pk PRIMARY KEY (uuid);
 
 
 --
@@ -4923,6 +5010,22 @@ ALTER TABLE ONLY fachdaten_adressbezug.sporthallen_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.stadtteil_begegnungszentren_hro
     ADD CONSTRAINT stadtteil_begegnungszentren_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro
+    ADD CONSTRAINT standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: standortqualitaeten_wohnlagen_sanierungsgebiet_hro standortqualitaeten_wohnlagen_sanierungsgebiet_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_wohnlagen_sanierungsgebiet_hro
+    ADD CONSTRAINT standortqualitaeten_wohnlagen_sanierungsgebiet_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6112,6 +6215,22 @@ ALTER TABLE ONLY fachdaten_adressbezug.sporthallen_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.stadtteil_begegnungszentren_hro
     ADD CONSTRAINT stadtteil_begegnungszentren_hro_traeger_fk FOREIGN KEY (traeger) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro_quarti; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro
+    ADD CONSTRAINT standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro_quarti FOREIGN KEY (quartier) REFERENCES codelisten.quartiere(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: standortqualitaeten_wohnlagen_sanierungsgebiet_hro standortqualitaeten_wohnlagen_sanierungsgebiet_hro_quartiere_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_wohnlagen_sanierungsgebiet_hro
+    ADD CONSTRAINT standortqualitaeten_wohnlagen_sanierungsgebiet_hro_quartiere_fk FOREIGN KEY (quartier) REFERENCES codelisten.quartiere(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

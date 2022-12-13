@@ -5424,6 +5424,448 @@ class Stadtteil_Begegnungszentren(models.Model):
     super(Stadtteil_Begegnungszentren, self).delete(*args, **kwargs)
 
 
+# Standortqualitäten von Geschäftslagen im Sanierungsgebiet
+
+class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(
+    models_codelist.Adressen,
+    verbose_name='Adresse',
+    on_delete=models.SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='adressen+',
+    blank=True,
+    null=True)
+  bewertungsjahr = fields.PositiveSmallIntegerRangeField(
+    'Bewertungsjahr', min_value=1990, max_value=functions.current_year(),
+    default=functions.current_year())
+  quartier = models.ForeignKey(
+    models_codelist.Quartiere,
+    verbose_name='Quartier',
+    on_delete=models.RESTRICT,
+    db_column='quartier',
+    to_field='uuid',
+    related_name='quartiere+')
+  kundschaftskontakte_anfangswert = models.DecimalField(
+    'Kundschaftskontakte (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Kundschaftskontakte</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Kundschaftskontakte</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  kundschaftskontakte_endwert = models.DecimalField(
+    'Kundschaftskontakte (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Kundschaftskontakte</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Kundschaftskontakte</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  verkehrsanbindung_anfangswert = models.DecimalField(
+    'Verkehrsanbindung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  verkehrsanbindung_endwert = models.DecimalField(
+    'Verkehrsanbindung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  ausstattung_anfangswert = models.DecimalField(
+    'Ausstattung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Ausstattung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Ausstattung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  ausstattung_endwert = models.DecimalField(
+    'Ausstattung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Ausstattung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Ausstattung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  beeintraechtigung_anfangswert = models.DecimalField(
+    'Beeinträchtigung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  beeintraechtigung_endwert = models.DecimalField(
+    'Beeinträchtigung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  standortnutzung_anfangswert = models.DecimalField(
+    'Standortnutzung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  standortnutzung_endwert = models.DecimalField(
+    'Standortnutzung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Standortnutzung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Standortnutzung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  geometrie = models.PointField(
+    'Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro'
+    verbose_name = 'Standortqualität einer Geschäftslage im Sanierungsgebiet'
+    verbose_name_plural = 'Standortqualitäten von Geschäftslagen im Sanierungsgebiet'
+    description = 'Standortqualitäten von Geschäftslagen ' \
+                  'im Sanierungsgebiet der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bewertungsjahr': 'Bewertungsjahr',
+      'quartier': 'Quartier',
+      'kundschaftskontakte_anfangswert': 'Kundschaftskontakte (Anfangswert)',
+      'kundschaftskontakte_endwert': 'Kundschaftskontakte (Endwert)',
+      'verkehrsanbindung_anfangswert': 'Verkehrsanbindung (Anfangswert)',
+      'verkehrsanbindung_endwert': 'Verkehrsanbindung (Endwert)',
+      'ausstattung_anfangswert': 'Ausstattung (Anfangswert)',
+      'ausstattung_endwert': 'Ausstattung (Endwert)',
+      'beeintraechtigung_anfangswert': 'Beeinträchtigung (Anfangswert)',
+      'beeintraechtigung_endwert': 'Beeinträchtigung (Endwert)',
+      'standortnutzung_anfangswert': 'Standortnutzung (Anfangswert)',
+      'standortnutzung_endwert': 'Standortnutzung (Endwert)'
+    }
+    list_fields_with_number = [
+      'bewertungsjahr',
+      'kundschaftskontakte_anfangswert',
+      'kundschaftskontakte_endwert',
+      'verkehrsanbindung_anfangswert',
+      'verkehrsanbindung_endwert',
+      'ausstattung_anfangswert',
+      'ausstattung_endwert',
+      'beeintraechtigung_anfangswert',
+      'beeintraechtigung_endwert',
+      'standortnutzung_anfangswert',
+      'standortnutzung_endwert'
+    ]
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse',
+      'quartier': 'code'
+    }
+    map_feature_tooltip_field = 'adresse'
+    map_filter_fields = {
+      'adresse': 'Adresse',
+      'bewertungsjahr': 'Bewertungsjahr',
+      'quartier': 'Quartier'
+    }
+    map_filter_fields_as_list = ['quartier']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return str(self.adresse)
+
+  def save(self, *args, **kwargs):
+    super(Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, self).delete(*args, **kwargs)
+
+
+# Standortqualitäten von Wohnlagen im Sanierungsgebiet
+
+class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  adresse = models.ForeignKey(
+    models_codelist.Adressen,
+    verbose_name='Adresse',
+    on_delete=models.SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='adressen+',
+    blank=True,
+    null=True)
+  bewertungsjahr = fields.PositiveSmallIntegerRangeField(
+    'Bewertungsjahr', min_value=1990, max_value=functions.current_year(),
+    default=functions.current_year())
+  quartier = models.ForeignKey(
+    models_codelist.Quartiere,
+    verbose_name='Quartier',
+    on_delete=models.RESTRICT,
+    db_column='quartier',
+    to_field='uuid',
+    related_name='quartiere+')
+  gesellschaftslage_anfangswert = models.DecimalField(
+    'Gesellschaftslage (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Gesellschaftslage</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Gesellschaftslage</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  gesellschaftslage_endwert = models.DecimalField(
+    'Gesellschaftslage (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Gesellschaftslage</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Gesellschaftslage</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  verkehrsanbindung_anfangswert = models.DecimalField(
+    'Verkehrsanbindung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  verkehrsanbindung_endwert = models.DecimalField(
+    'Verkehrsanbindung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  ausstattung_anfangswert = models.DecimalField(
+    'Ausstattung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Ausstattung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Ausstattung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  ausstattung_endwert = models.DecimalField(
+    'Ausstattung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Ausstattung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Ausstattung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  beeintraechtigung_anfangswert = models.DecimalField(
+    'Beeinträchtigung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  beeintraechtigung_endwert = models.DecimalField(
+    'Beeinträchtigung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  standortnutzung_anfangswert = models.DecimalField(
+    'Standortnutzung (Anfangswert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  standortnutzung_endwert = models.DecimalField(
+    'Standortnutzung (Endwert)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der Endwert <strong><em>Standortnutzung</em></strong> '
+        'muss mindestens 0,01 betragen.'),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Der Endwert <strong><em>Standortnutzung</em></strong> '
+        'darf höchstens 99,99 betragen.')])
+  geometrie = models.PointField(
+    'Geometrie', srid=25833, default='POINT(0 0)')
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_wohnlagen_sanierungsgebiet_hro'
+    verbose_name = 'Standortqualität einer Wohnlage im Sanierungsgebiet'
+    verbose_name_plural = 'Standortqualitäten von Wohnlagen im Sanierungsgebiet'
+    description = 'Standortqualitäten von Wohnlagen ' \
+                  'im Sanierungsgebiet der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'bewertungsjahr': 'Bewertungsjahr',
+      'quartier': 'Quartier',
+      'gesellschaftslage_anfangswert': 'Gesellschaftslage (Anfangswert)',
+      'gesellschaftslage_endwert': 'Gesellschaftslage (Endwert)',
+      'verkehrsanbindung_anfangswert': 'Verkehrsanbindung (Anfangswert)',
+      'verkehrsanbindung_endwert': 'Verkehrsanbindung (Endwert)',
+      'ausstattung_anfangswert': 'Ausstattung (Anfangswert)',
+      'ausstattung_endwert': 'Ausstattung (Endwert)',
+      'beeintraechtigung_anfangswert': 'Beeinträchtigung (Anfangswert)',
+      'beeintraechtigung_endwert': 'Beeinträchtigung (Endwert)',
+      'standortnutzung_anfangswert': 'Standortnutzung (Anfangswert)',
+      'standortnutzung_endwert': 'Standortnutzung (Endwert)'
+    }
+    list_fields_with_number = [
+      'bewertungsjahr',
+      'gesellschaftslage_anfangswert',
+      'gesellschaftslage_endwert',
+      'verkehrsanbindung_anfangswert',
+      'verkehrsanbindung_endwert',
+      'ausstattung_anfangswert',
+      'ausstattung_endwert',
+      'beeintraechtigung_anfangswert',
+      'beeintraechtigung_endwert',
+      'standortnutzung_anfangswert',
+      'standortnutzung_endwert'
+    ]
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse',
+      'quartier': 'code'
+    }
+    map_feature_tooltip_field = 'adresse'
+    map_filter_fields = {
+      'adresse': 'Adresse',
+      'bewertungsjahr': 'Bewertungsjahr',
+      'quartier': 'Quartier'
+    }
+    map_filter_fields_as_list = ['quartier']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return str(self.adresse)
+
+  def save(self, *args, **kwargs):
+    super(Standortqualitaeten_Wohnlagen_Sanierungsgebiet, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Standortqualitaeten_Wohnlagen_Sanierungsgebiet, self).delete(*args, **kwargs)
+
+
 # Straßenreinigung
 
 class Strassenreinigung(models.Model):

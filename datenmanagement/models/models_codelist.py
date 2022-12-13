@@ -2205,6 +2205,67 @@ class Personentitel(models.Model):
     super(Personentitel, self).delete(*args, **kwargs)
 
 
+# Quartiere
+
+class Quartiere(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  code = models.CharField(
+    'Code',
+    max_length=3,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.quar_code_regex,
+        message=constants_vars.quar_code_message)])
+  bezeichnung = models.CharField(
+    'Bezeichnung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.akut_regex,
+        message=constants_vars.akut_message),
+      RegexValidator(
+        regex=constants_vars.anfuehrungszeichen_regex,
+        message=constants_vars.anfuehrungszeichen_message),
+      RegexValidator(
+        regex=constants_vars.apostroph_regex,
+        message=constants_vars.apostroph_message),
+      RegexValidator(
+        regex=constants_vars.doppelleerzeichen_regex,
+        message=constants_vars.doppelleerzeichen_message),
+      RegexValidator(
+        regex=constants_vars.gravis_regex,
+        message=constants_vars.gravis_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"quartiere'
+    verbose_name = 'Quartier'
+    verbose_name_plural = 'Quartiere'
+    description = 'Quartiere'
+    list_fields = {
+      'code': 'Code',
+      'bezeichnung': 'Bezeichnung'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = ['code']
+
+  def __str__(self):
+    return str(self.code)
+
+  def save(self, *args, **kwargs):
+    super(Quartiere, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Quartiere, self).delete(*args, **kwargs)
+
+
 # Räumbreiten gemäß Straßenreinigungssatzung der Hanse- und
 # Universitätsstadt Rostock
 
