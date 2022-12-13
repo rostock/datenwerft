@@ -1,11 +1,11 @@
-import datetime
 import os
 
 import binascii
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
+from zoneinfo import ZoneInfo
 
 from .utils import generate_key
 
@@ -44,8 +44,9 @@ class UserAuthToken(models.Model):
 
   def is_expired_token(self):
     live_time = getattr(settings, "AUTH_LDAP_EXTENSION_ACCESS_TOKEN_LIFETIME", 5 * 60)
-    max_age = self.created_at + datetime.timedelta(seconds=live_time)
-    return timezone.now() >= max_age
+    local_tz = ZoneInfo(settings.TIME_ZONE)
+    max_age = self.created_at.astimezone(local_tz) + timedelta(seconds=live_time)
+    return datetime.now().astimezone(local_tz) >= max_age
 
   def save(self, *args, **kwargs):
     self.session_token = self.generate_session_token()
