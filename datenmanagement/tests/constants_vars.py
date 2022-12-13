@@ -1,0 +1,4 @@
+DATABASES = {
+  'default',
+  'datenmanagement'
+}
