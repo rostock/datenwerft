@@ -83,25 +83,31 @@ class DataForm(ModelForm):
           )
           users = normal_users + admin_users
           # Sonderbehandlung für Datenmodell Baustellen (geplant):
-          # hier zusätzlich xxxxxx
+          # hier zusätzliche Benutzer aus Codeliste holen
           if self.model.__name__ == 'Baustellen_geplant':
-            more = Ansprechpartner_Baustellen.objects.all().annotate(first_name=F('vorname'), last_name=F('nachname')).values('first_name', 'last_name', 'email')
-            users += more
+            additional_users = Ansprechpartner_Baustellen.objects.all()
+            additional_users = additional_users.annotate(
+              first_name=F('vorname'), last_name=F('nachname')
+            ).values('first_name', 'last_name', 'email')
+            additional_user_list = []
+            for additional_user in list(additional_users):
+              if additional_user['first_name'] is None:
+                additional_user['first_name'] = 'zz'
+              if additional_user['last_name'] is None:
+                additional_user['last_name'] = 'zz'
+              additional_user_list.append(additional_user)
+            users += additional_user_list
           sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'email'))
+          user_list = []
+          for user in sorted_users:
+            if user['first_name'] != 'zz' and user['last_name'] != 'zz':
+              user_list.append(
+                user['first_name'] + ' ' + user['last_name'] + ' (' + user['email'].lower() + ')'
+              )
+            else:
+              user_list.append(user['email'].lower())
           choice_field = ChoiceField(
-              choices=[
-                  (user['first_name'] +
-                   ' ' +
-                   user['last_name'] +
-                   ' (' +
-                   user['email'].lower() +
-                   ')',
-                   user['first_name'] +
-                   ' ' +
-                   user['last_name'] +
-                   ' (' +
-                   user['email'].lower() +
-                   ')') for user in sorted_users],
+              choices=[(user, user) for user in user_list],
               initial=request.user.first_name +
               ' ' +
               request.user.last_name +
