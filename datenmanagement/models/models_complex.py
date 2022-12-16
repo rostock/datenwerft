@@ -463,10 +463,6 @@ class Baustellen_geplant(models.Model):
     }
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
-    map_rangefilter_fields = {
-      'beginn': 'Beginn',
-      'ende': 'Ende'
-    }
     map_deadlinefilter_fields = ['beginn', 'ende']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -680,6 +676,7 @@ class Durchlaesse_Durchlaesse(models.Model):
   aktenzeichen = models.CharField(
     'Aktenzeichen',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.dl_aktenzeichen_regex,
@@ -1600,6 +1597,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     managed = False
     complex = True
     db_table = 'fachdaten\".\"haltestellenkataster_haltestellen_hro'
+    unique_together = ['hst_hafas_id', 'hst_bus_bahnsteigbezeichnung']
     verbose_name = 'Haltestelle des Haltestellenkatasters'
     verbose_name_plural = 'Haltestellen des Haltestellenkatasters'
     description = 'Haltestellen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
@@ -1739,6 +1737,7 @@ class Parkscheinautomaten_Tarife(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,

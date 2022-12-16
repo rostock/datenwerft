@@ -2,7 +2,8 @@ import uuid
 
 from decimal import *
 from django.contrib.gis.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator,\
+  RegexValidator
 
 from . import constants_vars, fields
 
@@ -19,6 +20,7 @@ class Art(models.Model):
   art = models.CharField(
     'Art',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -58,6 +60,7 @@ class Befestigungsart(models.Model):
   befestigungsart = models.CharField(
     'Befestigungsart',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -98,6 +101,7 @@ class Material(models.Model):
   material = models.CharField(
     'Material',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -136,7 +140,7 @@ class Schlagwort(models.Model):
     default=uuid.uuid4,
     editable=False)
   schlagwort = models.CharField(
-    'Schlagwort', max_length=255, validators=[
+    'Schlagwort', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
         message=constants_vars.akut_message
@@ -177,6 +181,7 @@ class Status(models.Model):
   status = models.CharField(
     'Status',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -217,6 +222,7 @@ class Typ(models.Model):
   typ = models.CharField(
     'Typ',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -371,6 +377,7 @@ class Altersklassen_Kadaverfunde(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -424,6 +431,7 @@ class Angebote_Mobilpunkte(models.Model):
   angebot = models.CharField(
     'Angebot',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -476,6 +484,7 @@ class Angelberechtigungen(models.Model):
   angelberechtigung = models.CharField(
     'Angelberechtigung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -516,6 +525,106 @@ class Angelberechtigungen(models.Model):
 
   def delete(self, *args, **kwargs):
     super(Angelberechtigungen, self).delete(*args, **kwargs)
+
+
+# Ansprechpartner bei Baustellen
+
+class Ansprechpartner_Baustellen(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  vorname = models.CharField(
+    'Vorname',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.akut_regex,
+        message=constants_vars.akut_message),
+      RegexValidator(
+        regex=constants_vars.anfuehrungszeichen_regex,
+        message=constants_vars.anfuehrungszeichen_message),
+      RegexValidator(
+        regex=constants_vars.apostroph_regex,
+        message=constants_vars.apostroph_message),
+      RegexValidator(
+        regex=constants_vars.doppelleerzeichen_regex,
+        message=constants_vars.doppelleerzeichen_message),
+      RegexValidator(
+        regex=constants_vars.gravis_regex,
+        message=constants_vars.gravis_message),
+      RegexValidator(
+        regex=constants_vars.bindestrich_leerzeichen_regex,
+        message=constants_vars.bindestrich_leerzeichen_message),
+      RegexValidator(
+        regex=constants_vars.leerzeichen_bindestrich_regex,
+        message=constants_vars.leerzeichen_bindestrich_message)])
+  nachname = models.CharField(
+    'Nachname',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.akut_regex,
+        message=constants_vars.akut_message),
+      RegexValidator(
+        regex=constants_vars.anfuehrungszeichen_regex,
+        message=constants_vars.anfuehrungszeichen_message),
+      RegexValidator(
+        regex=constants_vars.apostroph_regex,
+        message=constants_vars.apostroph_message),
+      RegexValidator(
+        regex=constants_vars.doppelleerzeichen_regex,
+        message=constants_vars.doppelleerzeichen_message),
+      RegexValidator(
+        regex=constants_vars.gravis_regex,
+        message=constants_vars.gravis_message),
+      RegexValidator(
+        regex=constants_vars.bindestrich_leerzeichen_regex,
+        message=constants_vars.bindestrich_leerzeichen_message),
+      RegexValidator(
+        regex=constants_vars.leerzeichen_bindestrich_regex,
+        message=constants_vars.leerzeichen_bindestrich_message)])
+  email = models.CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    unique=True,
+    validators=[
+      EmailValidator(
+        message=constants_vars.email_message)])
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"ansprechpartner_baustellen'
+    verbose_name = 'Ansprechpartner bei einer Baustelle'
+    verbose_name_plural = 'Ansprechpartner bei Baustellen'
+    description = 'Ansprechpartner bei Baustellen'
+    list_fields = {
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'email': 'E-Mail-Adresse'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = [
+      'nachname',
+      'vorname',
+      'email'
+    ]
+
+  def __str__(self):
+    return self.email if not self.nachname else self.vorname + ' ' + self.nachname + \
+                                                ' (' + self.email + ')'
+
+  def save(self, *args, **kwargs):
+    super(Ansprechpartner_Baustellen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Ansprechpartner_Baustellen, self).delete(*args, **kwargs)
 
 
 # Arten von Baudenkmalen
@@ -784,6 +893,7 @@ class Auftraggeber_Baustellen(models.Model):
   auftraggeber = models.CharField(
     'Auftraggeber',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -834,7 +944,7 @@ class Ausfuehrungen_Haltestellenkataster(models.Model):
     default=uuid.uuid4,
     editable=False)
   ausfuehrung = models.CharField(
-    'Ausführung', max_length=255, validators=[
+    'Ausführung', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
         message=constants_vars.akut_message
@@ -936,7 +1046,7 @@ class Betriebsarten(models.Model):
     default=uuid.uuid4,
     editable=False)
   betriebsart = models.CharField(
-    'Betriebsart', max_length=255, validators=[
+    'Betriebsart', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
         message=constants_vars.akut_message
@@ -986,7 +1096,7 @@ class Betriebszeiten(models.Model):
     default=uuid.uuid4,
     editable=False)
   betriebszeit = models.CharField(
-    'Betriebszeit', max_length=255, validators=[
+    'Betriebszeit', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
         message=constants_vars.akut_message
@@ -1036,7 +1146,7 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
     default=uuid.uuid4,
     editable=False)
   bezeichnung = models.CharField(
-    'Bezeichnung', max_length=255, validators=[
+    'Bezeichnung', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex, message=constants_vars.akut_message
       ), RegexValidator(
@@ -1107,7 +1217,7 @@ class Anbieter_Carsharing(models.Model):
     default=uuid.uuid4,
     editable=False)
   anbieter = models.CharField(
-    'Anbieter', max_length=255, validators=[
+    'Anbieter', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex, message=constants_vars.akut_message
       ), RegexValidator(
@@ -1156,6 +1266,7 @@ class E_Anschluesse_Parkscheinautomaten(models.Model):
   e_anschluss = models.CharField(
     'E-Anschluss',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1207,6 +1318,7 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
   ergebnis = models.CharField(
     'Ergebnis',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1259,6 +1371,7 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(models.Model):
   code = models.CharField(
     'Code',
     max_length=1,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.fw_sr_code_regex,
@@ -1309,6 +1422,7 @@ class Fotomotive_Haltestellenkataster(models.Model):
   fotomotiv = models.CharField(
     'Fotomotiv',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1361,6 +1475,7 @@ class Fundamenttypen_RSAG(models.Model):
   typ = models.CharField(
     'Typ',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1377,7 +1492,6 @@ class Fundamenttypen_RSAG(models.Model):
       RegexValidator(
         regex=constants_vars.gravis_regex,
         message=constants_vars.gravis_message)])
-
   erlaeuterung = models.CharField(
     'Erläuterung',
     max_length=255,
@@ -1434,7 +1548,7 @@ class Gebaeudebauweisen(models.Model):
     default=uuid.uuid4,
     editable=False)
   code = fields.PositiveSmallIntegerRangeField(
-    'Code', min_value=1, blank=True, null=True)
+    'Code', min_value=1, unique=True, blank=True, null=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -1489,7 +1603,7 @@ class Gebaeudefunktionen(models.Model):
     default=uuid.uuid4,
     editable=False)
   code = fields.PositiveSmallIntegerRangeField(
-    'Code', min_value=1, blank=True, null=True)
+    'Code', min_value=1, unique=True, blank=True, null=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -1546,6 +1660,7 @@ class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
   genehmigungsbehoerde = models.CharField(
     'Genehmigungsbehörde',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1599,6 +1714,7 @@ class Geschlechter_Kadaverfunde(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1671,12 +1787,13 @@ class Haefen(models.Model):
   abkuerzung = models.CharField(
     'Abkürzung',
     max_length=5,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.haef_abkuerzung_regex,
         message=constants_vars.haef_abkuerzung_message)])
   code = fields.PositiveSmallIntegerRangeField(
-    'Code', min_value=1, blank=True, null=True)
+    'Code', min_value=1, unique=True, blank=True, null=True)
 
   class Meta:
     managed = False
@@ -1715,6 +1832,7 @@ class Hersteller_Poller(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1799,6 +1917,7 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
   ladekarte = models.CharField(
     'Ladekarte',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1858,6 +1977,7 @@ class Linien(models.Model):
   linie = models.CharField(
     'Linie',
     max_length=4,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.lin_linie_regex,
@@ -1898,6 +2018,7 @@ class Mastkennzeichen_RSAG(models.Model):
   kennzeichen = models.CharField(
     'Kennzeichen',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -1974,6 +2095,7 @@ class Masttypen_RSAG(models.Model):
   typ = models.CharField(
     'Typ',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2047,6 +2169,7 @@ class Masttypen_Haltestellenkataster(models.Model):
   masttyp = models.CharField(
     'Masttyp',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2127,7 +2250,7 @@ class Ordnungen_Fliessgewaesser(models.Model):
     primary_key=True,
     default=uuid.uuid4,
     editable=False)
-  ordnung = fields.PositiveSmallIntegerMinField('Ordnung', min_value=1)
+  ordnung = fields.PositiveSmallIntegerMinField('Ordnung', min_value=1, unique=True)
 
   class Meta:
     managed = False
@@ -2164,6 +2287,7 @@ class Personentitel(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2215,6 +2339,7 @@ class Quartiere(models.Model):
   code = models.CharField(
     'Code',
     max_length=3,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.quar_code_regex,
@@ -2278,6 +2403,7 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
     'Räumbreite (in m)',
     max_digits=4,
     decimal_places=2,
+    unique=True,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
@@ -2331,6 +2457,7 @@ class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
   rechtsgrundlage = models.CharField(
     'Rechtsgrundlage',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2381,7 +2508,7 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
     default=uuid.uuid4,
     editable=False)
   code = fields.PositiveSmallIntegerRangeField(
-    'Code', min_value=1, max_value=7)
+    'Code', min_value=1, max_value=7, unique=True)
 
   class Meta:
     managed = False
@@ -2428,7 +2555,7 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
     default=uuid.uuid4,
     editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
-    'Ordinalzahl', min_value=1)
+    'Ordinalzahl', min_value=1, unique=True)
   reinigungsrhythmus = models.CharField(
     'Reinigungsrhythmus',
     max_length=255,
@@ -2496,6 +2623,7 @@ class Schaeden_Haltestellenkataster(models.Model):
   schaden = models.CharField(
     'Schaden',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2579,6 +2707,7 @@ class Schliessungen_Poller(models.Model):
   schliessung = models.CharField(
     'Schließung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2630,6 +2759,7 @@ class Sitzbanktypen_Haltestellenkataster(models.Model):
   sitzbanktyp = models.CharField(
     'Sitzbanktyp',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2681,6 +2811,7 @@ class Sparten_Baustellen(models.Model):
   sparte = models.CharField(
     'Sparte',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2732,6 +2863,7 @@ class Sportarten(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2837,7 +2969,7 @@ class Tierseuchen(models.Model):
     default=uuid.uuid4,
     editable=False)
   bezeichnung = models.CharField(
-    'Bezeichnung', max_length=255, validators=[
+    'Bezeichnung', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex, message=constants_vars.akut_message
       ), RegexValidator(
@@ -2902,6 +3034,7 @@ class DFI_Typen_Haltestellenkataster(models.Model):
   dfi_typ = models.CharField(
     'DFI-Typ',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -2956,6 +3089,7 @@ class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
   fahrgastunterstandstyp = models.CharField(
     'Fahrgastunterstandstyp',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3015,6 +3149,7 @@ class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
   fahrplanvitrinentyp = models.CharField(
     'Fahrplanvitrinentyp',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3122,6 +3257,7 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
   verbund = models.CharField(
     'Verbund',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3181,6 +3317,7 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
   verkehrliche_lage = models.CharField(
     ' verkehrliche Lage',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3232,6 +3369,7 @@ class Verkehrsmittelklassen(models.Model):
   verkehrsmittelklasse = models.CharField(
     'Verkehrsmittelklasse',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3283,6 +3421,7 @@ class Vorgangsarten_UVP_Vorhaben(models.Model):
   vorgangsart = models.CharField(
     'Vorgangsart',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3336,6 +3475,7 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
     'Wegebreite (in m)',
     max_digits=4,
     decimal_places=2,
+    unique=True,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
@@ -3388,7 +3528,7 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
     default=uuid.uuid4,
     editable=False)
   code = fields.PositiveSmallIntegerRangeField(
-    'Code', min_value=1, max_value=7)
+    'Code', min_value=1, max_value=7, unique=True)
 
   class Meta:
     managed = False
@@ -3435,7 +3575,7 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
     default=uuid.uuid4,
     editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
-    'Ordinalzahl', min_value=1)
+    'Ordinalzahl', min_value=1, unique=True)
   reinigungsrhythmus = models.CharField(
     'Reinigungsrhythmus',
     max_length=255,
@@ -3504,6 +3644,7 @@ class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
   wegetyp = models.CharField(
     'Wegetyp',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3566,6 +3707,7 @@ class Zeiteinheiten(models.Model):
   zeiteinheit = models.CharField(
     'Zeiteinheit',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3637,6 +3779,7 @@ class ZH_Typen_Haltestellenkataster(models.Model):
   zh_typ = models.CharField(
     'ZH-Typ',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.akut_regex,
@@ -3688,6 +3831,7 @@ class Zonen_Parkscheinautomaten(models.Model):
   zone = models.CharField(
     'Zone',
     max_length=1,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.zon_psa_zone_regex,
@@ -3727,7 +3871,7 @@ class Zustaende_Kadaverfunde(models.Model):
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1)
   zustand = models.CharField(
-    'Zustand', max_length=255, validators=[
+    'Zustand', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex, message=constants_vars.akut_message
       ), RegexValidator(
@@ -3785,7 +3929,7 @@ class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1)
   zustand = models.CharField(
-    'Zustand', max_length=255, validators=[
+    'Zustand', max_length=255, unique=True, validators=[
       RegexValidator(
         regex=constants_vars.akut_regex, message=constants_vars.akut_message
       ), RegexValidator(
@@ -3841,7 +3985,7 @@ class Zustandsbewertungen(models.Model):
     default=uuid.uuid4,
     editable=False)
   zustandsbewertung = fields.PositiveSmallIntegerMinField(
-    'Zustandsbewertung', min_value=1)
+    'Zustandsbewertung', min_value=1, unique=True)
 
   class Meta:
     managed = False

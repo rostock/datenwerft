@@ -23,7 +23,7 @@ class Abfallbehaelter(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=8, default='00000000')
+  id = models.CharField('ID', max_length=8, unique=True, default='00000000')
   typ = models.ForeignKey(
     models_codelist.Typen_Abfallbehaelter,
     verbose_name='Typ',
@@ -1074,7 +1074,7 @@ class Containerstellplaetze(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=5, default='00-00')
+  id = models.CharField('ID', max_length=5, unique=True, default='00-00')
   privat = models.BooleanField(' privat?')
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -2763,6 +2763,7 @@ class Hausnummern(models.Model):
   class Meta:
     managed = False
     db_table = 'fachdaten_strassenbezug\".\"hausnummern_hro'
+    unique_together = ['strasse', 'hausnummer', 'hausnummer_zusatz']
     verbose_name = 'Hausnummer'
     verbose_name_plural = 'Hausnummern'
     description = 'Hausnummern der Hanse- und Universitätsstadt Rostock'
@@ -2960,7 +2961,7 @@ class Hundetoiletten(models.Model):
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=8, default='00000000')
+  id = models.CharField('ID', max_length=8, unique=True, default='00000000')
   art = models.ForeignKey(
     models_codelist.Arten_Hundetoiletten,
     verbose_name='Art',
@@ -3096,6 +3097,7 @@ class Hydranten(models.Model):
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.hyd_bezeichnung_regex,
@@ -6390,7 +6392,6 @@ class Vereine(models.Model):
   vereinsregister_id = fields.PositiveSmallIntegerMinField(
     'ID im Vereinsregister',
     min_value=1,
-    unique=True,
     blank=True,
     null=True
   )
