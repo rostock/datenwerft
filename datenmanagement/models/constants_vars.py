@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from django.db.models import options
 
 #
@@ -122,13 +123,18 @@ options.DEFAULT_NAMES += (
   'map_filter_fields_as_list',
   # optional;
   # Liste;
-  # Namen der Felder aus map_filter_fields, die als Listenfilter auftreten
-  # sollen
+  # Namen der Felder aus map_filter_fields, die als Listenfilter dargestellt werden sollen
+  'map_filter_fields_as_checkbox',
+  # optional;
+  # Liste;
+  # Namen der Felder aus map_filter_fields, die als Checkboxen-Set dargestellt werden sollen
+  # (Achtung: Hierbei darf es sich nicht um jene Felder aus map_filter_fields handeln,
+  # die ohnehin bereits Mehrfachauswahlfelder sind!)
   'map_filter_boolean_fields_as_checkbox',
   # optional;
   # Boolean;
   # Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten
-  # sollen, als Checkboxen dargestellt werden (True)?
+  # sollen, als Checkboxen-Set dargestellt werden (True)?
   'map_filter_hide_initial',
   # optional;
   # Dictionary;
@@ -160,12 +166,6 @@ options.DEFAULT_NAMES += (
   # Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen
   # 'foto' existieren!
   'group_with_users_for_choice_field',
-  # optional;
-  # Text;
-  # Name der Gruppe von Benutzern, die für das Feld
-  # Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste
-  # genutzt werden sollen
-  'admin_group',
   # optional;
   # Text;
   # Name der Gruppe von Benutzern, die für das Feld
@@ -256,6 +256,22 @@ rufnummer_message = 'Die Schreibweise von ' \
 url_message = 'Die Adresse der <strong><em>Website</em></strong> muss ' \
               'syntaktisch korrekt sein und daher folgendes Format ' \
               'aufweisen: http[s]://abc-123.098_zyx.xyz-567/def/abc'
+standard_validators = [
+  RegexValidator(regex=akut_regex, message=akut_message),
+  RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message),
+  RegexValidator(regex=apostroph_regex, message=apostroph_message),
+  RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message),
+  RegexValidator(regex=gravis_regex, message=gravis_message)
+]
+ansprechpartner_validators = standard_validators
+ansprechpartner_validators.append(
+  RegexValidator(regex=ansprechpartner_regex, message=ansprechpartner_message)
+)
+personennamen_validators = standard_validators
+personennamen_validators.extend([
+  RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message),
+  RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)
+])
 
 # speziell
 

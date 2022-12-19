@@ -1,15 +1,17 @@
 import re
 import time
 
+from datenmanagement.models import Ansprechpartner_Baustellen
 from django.apps import apps
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.db import connections
+from django.db.models import F
 from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views import generic
-from operator import attrgetter
+from operator import itemgetter
 
 from . import fields, functions
 
@@ -33,7 +35,6 @@ class DataForm(ModelForm):
         'choices_models_for_choices_fields', None)
     group_with_users_for_choice_field = kwargs.pop(
         'group_with_users_for_choice_field', None)
-    admin_group = kwargs.pop('admin_group', None)
     multi_foto_field = kwargs.pop('multi_foto_field', None)
     multi_files = kwargs.pop('multi_files', None)
     file = kwargs.pop('file', None)
@@ -46,7 +47,6 @@ class DataForm(ModelForm):
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
-    self.admin_group = admin_group
     self.multi_foto_field = multi_foto_field
     self.multi_files = multi_files
     self.file = file
@@ -62,41 +62,54 @@ class DataForm(ModelForm):
 
     for field in self.model._meta.get_fields():
       if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-        # Textfelder gegebenenfalls in Auswahllisten umwandeln,
-        # falls Benutzer kein Mitglied der Gruppe von Benutzern ist,
-        # die als Admin-Gruppe für dieses Datenthema gilt
+        # Textfelder gegebenenfalls in Auswahllisten umwandeln
         if (
             self.group_with_users_for_choice_field
-            and self.admin_group
             and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
-            and not (self.request.user.groups.filter(name=self.admin_group).exists())
         ):
-          users = sorted(User.objects.filter(
-              groups__name=self.group_with_users_for_choice_field),
-              key=attrgetter('last_name', 'first_name'))
+          users = list(
+            User.objects.filter(
+              groups__name=self.group_with_users_for_choice_field
+            ).values('first_name', 'last_name', 'email')
+          )
+          # Sonderbehandlung für Datenmodell Baustellen (geplant):
+          # hier zusätzliche Benutzer aus Codeliste holen
+          if self.model.__name__ == 'Baustellen_geplant':
+            additional_users = Ansprechpartner_Baustellen.objects.all()
+            additional_users = additional_users.annotate(
+              first_name=F('vorname'), last_name=F('nachname')
+            ).values('first_name', 'last_name', 'email')
+            additional_user_list = []
+            for additional_user in list(additional_users):
+              if additional_user['first_name'] is None:
+                additional_user['first_name'] = 'zzz'
+              if additional_user['last_name'] is None:
+                additional_user['last_name'] = 'zzz'
+              additional_user_list.append(additional_user)
+            users += additional_user_list
+          sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'email'))
+          user_list = []
+          for user in sorted_users:
+            if user['first_name'] != 'zzz' and user['last_name'] != 'zzz':
+              user_list.append(
+                user['first_name'] + ' ' + user['last_name'] + ' (' + user['email'].lower() + ')'
+              )
+            else:
+              user_list.append(user['email'].lower())
+          choices = [(user, user) for user in user_list]
+          # Leerwert an erster Stelle einfügen
+          choices.insert(0, ('', '---------'))
           choice_field = ChoiceField(
-              choices=[
-                  (user.first_name +
-                   ' ' +
-                   user.last_name +
-                   ' (' +
-                   user.email.lower() +
-                   ')',
-                   user.first_name +
-                   ' ' +
-                   user.last_name +
-                   ' (' +
-                   user.email.lower() +
-                   ')') for user in users],
-              initial=request.user.first_name +
-              ' ' +
-              request.user.last_name +
-              ' (' +
-              request.user.email.lower() +
-              ')')
-          if field.name == 'ansprechpartner':
-            self.fields[field.name] = choice_field
-          if field.name == 'bearbeiter':
+            label=field.verbose_name,
+            choices=choices,
+            initial=request.user.first_name +
+            ' ' +
+            request.user.last_name +
+            ' (' +
+            request.user.email.lower() +
+            ')'
+          )
+          if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
             self.fields[field.name] = choice_field
       # Adressfelder in eigenen Feldtypen umwandeln
       elif (field.name == 'adresse' or
@@ -282,7 +295,6 @@ class DataAddView(generic.CreateView):
         'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs[
         'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['admin_group'] = self.admin_group
     kwargs['multi_foto_field'] = self.multi_foto_field
     kwargs['multi_files'] = self.multi_files
     kwargs['file'] = self.file
@@ -319,24 +331,17 @@ class DataAddView(generic.CreateView):
       if field.name == 'ansprechpartner':
         ansprechpartner = (
             self.request.user.first_name + ' '
-            + self.request.user.last_name if (
-                self.request.user.first_name and
-                self.request.user.last_name
-            ) else self.request.user.username
-        ) + ' (' + self.request.user.email.lower() + ')'
+            + self.request.user.last_name
+            + ' (' + self.request.user.email.lower() + ')'
+        )
       if field.name == 'bearbeiter':
-        bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name if (
-            self.request.user.first_name and
-            self.request.user.last_name) else self.request.user.username
+        bearbeiter = (
+            self.request.user.first_name + ' '
+            + self.request.user.last_name
+            + ' (' + self.request.user.email.lower() + ')'
+        )
     if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
-      if (
-          (
-              hasattr(self.model._meta, "admin_group")
-              and self.request.user.groups.filter(name=self.model._meta.admin_group).exists()
-          )
-          or not hasattr(self.model._meta, "group_with_users_for_choice_field")
-          or not hasattr(self.model._meta, "admin_group")
-      ):
+      if not hasattr(self.model._meta, "group_with_users_for_choice_field"):
         return {
             'ansprechpartner': ansprechpartner,
             'bearbeiter': bearbeiter,
@@ -387,7 +392,6 @@ class DataChangeView(generic.UpdateView):
         'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs[
         'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['admin_group'] = self.admin_group
     kwargs['file'] = self.file
     kwargs['model'] = self.model
     kwargs['request'] = self.request

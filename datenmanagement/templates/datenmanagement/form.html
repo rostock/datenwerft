@@ -193,10 +193,10 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
+          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
-          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><i class="fas fa-trash"></i> löschen</a>
+          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><i class="fas fa-trash"></i> Datensatz löschen</a>
         {% endif %}
         <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
@@ -391,7 +391,7 @@
          *
          * setzt, falls der Adressenbezug verpflichtend ist,
          * beim Hinzufügen oder Editieren einer Geometrie die Adresse oder die Straße
-         * und aktiviert die Postleitzahl-Auto-Zuweisung
+         * und schaltet bei Bedarf die Postleitzahl-Auto-Zuweisung frei
          *
          * @param {Object} layer - Layer (= Feature)
          */
@@ -409,13 +409,13 @@
                 setAddressReference('{{ address_type }}', e.layer);
               });
             {% endif %}
-            $('#postcode-assigner').removeClass('text-black-50');
-            $('#postcode-assigner').addClass('text-success enabled');
-            $('#postcode-assigner').attr('title', 'Postleitzahl automatisch zuweisen');
+            // bei Bedarf Postleitzahl-Auto-Zuweisung freischalten
+            {% if postcode_assigner %}
+              enablePostcodeAssigner();
+            {% endif %}
           {% else %}
-            $('#mapToAddress').prop('disabled', false);
-            $('#mapToStreet').prop('disabled', false);
-            $('#mapToQuarter').prop('disabled', false);
+            // passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte freischalten
+            enableAddressReferenceButton();
           {% endif %}
         });
       {% endif %}
@@ -432,29 +432,8 @@
           // alle Felder durchgehen...
           {% for field in form %}
             {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
-              // falls Benutzer kein Änderungsrecht am Datenmodell hat...
-              {% if not user|user_has_model_change_permission:model_name_lower %}
-                // Auswahlfeld Ansprechpartner/Bearbeiter in normales Feld umwandeln
-                let value;
-                {% if field.name == 'ansprechpartner' %}
-                  value = '{{ object.ansprechpartner }}';
-                {% endif %}
-                {% if field.name == 'bearbeiter' %}
-                  value = '{{ object.bearbeiter }}';
-                {% endif %}
-                let inputField = $('<input>').attr({
-                  id: 'id_' + '{{ field.name }}',
-                  class: 'form-control',
-                  type: 'text',
-                  name: '{{ field.name }}',
-                  value: value
-                });
-                $('select#id_' + '{{ field.name }}').replaceWith(inputField);
-              // ansonsten...
-              {% else %}
-                // lediglich Bootstratp-5-CSS-Klasse ergänzen
-                $('select#id_' + '{{ field.name }}').addClass('form-select');
-              {% endif %}
+              // Bootstratp-5-CSS-Klasse ergänzen
+              $('select#id_' + '{{ field.name }}').addClass('form-select');
             {% endif %}
           {% endfor %}
       {% endif %}
@@ -543,11 +522,14 @@
 
       // bei Klick auf Button „Marker setzen“...
       $('#addressToMap').on('click', function() {
-        // Marker in der Karte auf Adresse oder Straße aus Adressensuche setzen
-        setMarkerToAddressOrStreet(window.currMap);
-        $('#mapToAddress').prop('disabled', false);
-        $('#mapToStreet').prop('disabled', false);
-        $('#mapToQuarter').prop('disabled', false);
+        // Marker in die Karte setzen, und zwar zentriert auf Ergebnis der Adressensuche
+        setMarkerToAddressSearchResult(window.currMap);
+        // passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte freischalten
+        enableAddressReferenceButton();
+        // bei Bedarf Postleitzahl-Auto-Zuweisung freischalten
+        {% if postcode_assigner %}
+          enablePostcodeAssigner();
+        {% endif %}
       });
 
       // bei Klick auf Button „Adresse übernehmen“...
@@ -632,13 +614,25 @@
 
     /**
      * @function
-     * @name setMarkerToAddressOrStreet
+     * @name enablePostcodeAssigner
+     *
+     * schaltet Postleitzahl-Auto-Zuweisung frei
+     */
+    function enablePostcodeAssigner() {
+      $('#postcode-assigner').removeClass('text-black-50');
+      $('#postcode-assigner').addClass('text-success enabled');
+      $('#postcode-assigner').attr('title', 'Postleitzahl automatisch zuweisen');
+    }
+
+    /**
+     * @function
+     * @name setMarkerToAddressSearchResult
      *
      * @param {Object} map - Karte
      *
-     * setzt Marker in der Karte auf Adresse oder Straße aus Adressensuche
+     * setzt Marker in die Karte, und zwar zentriert auf Ergebnis der Adressensuche
      */
-    function setMarkerToAddressOrStreet(map) {
+    function setMarkerToAddressSearchResult(map) {
       if (map.pm.getGeomanLayers().length > 0) {
         let layer = map.pm.getGeomanLayers()[0];
         if (layer._drawnByGeoman && layer._latlng) {
@@ -655,6 +649,22 @@
           layer.addTo(window.currMap);
         {% endif %}
       }
+    }
+
+    /**
+     * @function
+     * @name enableAddressReferenceButton
+     *
+     * schaltet passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte frei
+     */
+    function enableAddressReferenceButton() {
+      {% if address_type == 'Adresse' %}
+        $('#mapToAddress').prop('disabled', false);
+      {% elif address_type == 'Straße' %}
+        $('#mapToStreet').prop('disabled', false);
+      {% elif address_type == 'Gemeindeteil' %}
+        $('#mapToQuarter').prop('disabled', false);
+      {% endif %}
     }
 
     /**

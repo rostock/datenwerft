@@ -131,8 +131,6 @@ def set_form_attributes(form):
   form.group_with_users_for_choice_field = (
       form.model._meta.group_with_users_for_choice_field if hasattr(
           form.model._meta, 'group_with_users_for_choice_field') else None)
-  form.admin_group = (
-      form.model._meta.admin_group if hasattr(form.model._meta, 'admin_group') else None)
   return form
 
 
@@ -168,8 +166,6 @@ def set_form_context_elements(context, model):
   context['group_with_users_for_choice_field'] = (
       model._meta.group_with_users_for_choice_field if hasattr(
           model._meta, 'group_with_users_for_choice_field') else None)
-  context['admin_group'] = (
-      model._meta.admin_group if hasattr(model._meta, 'admin_group') else None)
   # GPX-Upload-Feld
   context['gpx_input'] = (
       model._meta.gpx_input if hasattr(model._meta, 'gpx_input') else None)

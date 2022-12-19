@@ -236,4 +236,4 @@ Sofern die Referenz zu einem Gemeindeteil keine Pflicht ist, sondern optional, w
 Wie kann ich den neuen Datensatz speichern?
 -------------------------------------------
 
-Sie können den neuen Datensatz speichern, indem Sie auf den orangen Button *speichern* links unten auf der Seite klicken.
+Sie können den neuen Datensatz speichern, indem Sie auf den Button *neuen Datensatz speichern* links unten auf der Seite klicken.
