@@ -193,7 +193,7 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 4.  Pull-Request erstellen
 5.  Review anfordern und durchführen lassen
 6.  ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
-7.  Pull-Request in Branch `master` mit der Option *Squash and merge your commits* mergen
+7.  Pull-Request in Branch `master` mit der Option *Squash and merge* mergen
 
 ### *GitHub*-Actions
 
