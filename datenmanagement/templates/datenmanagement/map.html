@@ -137,14 +137,18 @@
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
                     </div>
-                  {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
+                  {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' or map_filter_fields_as_checkbox and map_filter_field in map_filter_fields_as_list %}
                     <div class="d-grid gap-2 d-md-block">
-                      Listeneinträge
-                      <select id="filtertype-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filtertype">
-                        <option value="additive">additiv (wie „UND“)</option>
-                        <option value="exclusive">exklusiv (wie „ODER“)</option>
-                      </select>
-                      filtern
+                      {% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
+                        Listeneinträge
+                        <select id="filtertype-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filtertype">
+                          <option value="additive">additiv (wie „UND“)</option>
+                          <option value="exclusive">exklusiv (wie „ODER“)</option>
+                        </select>
+                        filtern
+                      {% else %}
+                        Listeneinträge werden exklusiv (wie „ODER“) gefiltert
+                      {% endif %}
                     </div>
                     <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control mt-2 filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></fieldset>
                   {% else %}
@@ -439,7 +443,7 @@
         // Variablen definieren für:
         // Bounding-Box der aktuellen Filtermenge
         // minimale und maximale Werte von entsprechenden Intervallfilterfeldern
-        // Wertelisten für entsprechende Filterfelder, die als Auswahlfeld dargestellt werden sollen
+        // Wertelisten für entsprechende Filterfelder, die als Listenfilter dargestellt werden sollen
         // Wertelisten für entsprechende Filterfelder, die als Checkboxen-Set dargestellt werden sollen
         let currentFilterExtent = [];
         let intervalFilterMin = [];
@@ -480,7 +484,7 @@
           } else if ($(this).data('type') === 'list' && $(this).attr('name') in listFilterListsValues) {
             // Wert des Feldobjekts entsprechend setzen
             filterField.value = listFilterListsValues[filterField.name];
-            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
+            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Listenfilter dargestellt werden sollen
             listFilterLists.push(filterField);
           }
         });
@@ -499,7 +503,7 @@
           }
           // falls es sich um ein Listenfeld handelt...
           if ($(this).attr('name') in listFilterListsValues)
-            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Auswahlfeld dargestellt werden sollen
+            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Listenfilter dargestellt werden sollen
             listFilterLists.push(filterField);
         });
 
@@ -549,7 +553,7 @@
 
         // Listenfelder initialisieren
         $("select[data-type='list']").each(function() {
-          // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Auswahlfeld dargestellt werden sollen...
+          // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Listenfilter dargestellt werden sollen...
           for (let i = 0; i < listFilterLists.length; i++) {
             if (listFilterLists[i].name === $(this).attr('name')) {
               // falls Listenfeld nicht schon als Ja-Nein-Listenfeld vordefiniert ist...
@@ -641,7 +645,12 @@
             let name = $(this).attr('name');
             filterAttribute.name = name;
             filterAttribute.type = $(this).data('type');
-            filterAttribute.filtertype = $('select[id^=filtertype-' + name + ']').children('option:selected').val();
+            // Wirkung der Filter (additiv oder exklusiv) entweder aus entsprechendem Auswahlfeld auslesen
+            // oder direkt als exklusiv festlegen, wenn kein entsprechendes Auswahlfeld existiert
+            if ($('select[id^=filtertype-' + name + ']').length)
+              filterAttribute.filtertype = $('select[id^=filtertype-' + name + ']').children('option:selected').val();
+            else
+              filterAttribute.filtertype = 'exclusive';
             filterAttribute.intervalside = $(this).data('intervalside');
             filterAttribute.value = [];
             // Wertliste des Filterobjekts mit dem Wert jeder aktiven Checkbox befüllen

@@ -538,8 +538,15 @@ class DataMapListView(generic.ListView):
     if hasattr(self.model._meta, 'map_filter_fields'):
       # alle entsprechend definierten Felder durchgehen
       for field_name in self.model._meta.map_filter_fields:
-        # falls es sich um ein ChoiceArrayField handelt...
-        if self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField':
+        # falls es sich um ein ChoiceArrayField handelt
+        # oder das Feld explizit als Checkboxen-Set fungieren soll...
+        if (
+          self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField'
+          or (
+            hasattr(self.model._meta, 'map_filter_fields_as_checkbox')
+            and field_name in self.model._meta.map_filter_fields_as_checkbox
+          )
+        ):
           # NOT-NULL-Filter konstruieren
           field_name_isnull = field_name + '__isnull'
           # sortierte Liste aller eindeutigen Werte des Feldes erhalten
@@ -580,6 +587,9 @@ class DataMapListView(generic.ListView):
     context['map_filter_fields_labels'] = (
         list(self.model._meta.map_filter_fields.values()) if hasattr(
             self.model._meta, 'map_filter_fields') else None)
+    context['map_filter_fields_as_checkbox'] = (
+        self.model._meta.map_filter_fields_as_checkbox if hasattr(
+            self.model._meta, 'map_filter_fields_as_checkbox') else None)
     context['checkbox_filter_lists'] = json.dumps(checkbox_filter_lists)
     context['map_filter_fields_as_list'] = (
         self.model._meta.map_filter_fields_as_list if hasattr(

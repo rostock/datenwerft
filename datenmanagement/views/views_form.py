@@ -35,7 +35,6 @@ class DataForm(ModelForm):
         'choices_models_for_choices_fields', None)
     group_with_users_for_choice_field = kwargs.pop(
         'group_with_users_for_choice_field', None)
-    admin_group = kwargs.pop('admin_group', None)
     multi_foto_field = kwargs.pop('multi_foto_field', None)
     multi_files = kwargs.pop('multi_files', None)
     file = kwargs.pop('file', None)
@@ -48,7 +47,6 @@ class DataForm(ModelForm):
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.choices_models_for_choices_fields = choices_models_for_choices_fields
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
-    self.admin_group = admin_group
     self.multi_foto_field = multi_foto_field
     self.multi_files = multi_files
     self.file = file
@@ -67,21 +65,13 @@ class DataForm(ModelForm):
         # Textfelder gegebenenfalls in Auswahllisten umwandeln
         if (
             self.group_with_users_for_choice_field
-            and self.admin_group
             and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
-            and Group.objects.filter(name=self.admin_group).exists()
         ):
-          normal_users = list(
+          users = list(
             User.objects.filter(
               groups__name=self.group_with_users_for_choice_field
             ).values('first_name', 'last_name', 'email')
           )
-          admin_users = list(
-            User.objects.filter(
-              groups__name=self.admin_group
-            ).values('first_name', 'last_name', 'email')
-          )
-          users = normal_users + admin_users
           # Sonderbehandlung für Datenmodell Baustellen (geplant):
           # hier zusätzliche Benutzer aus Codeliste holen
           if self.model.__name__ == 'Baustellen_geplant':
@@ -92,15 +82,15 @@ class DataForm(ModelForm):
             additional_user_list = []
             for additional_user in list(additional_users):
               if additional_user['first_name'] is None:
-                additional_user['first_name'] = 'zz'
+                additional_user['first_name'] = 'zzz'
               if additional_user['last_name'] is None:
-                additional_user['last_name'] = 'zz'
+                additional_user['last_name'] = 'zzz'
               additional_user_list.append(additional_user)
             users += additional_user_list
           sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'email'))
           user_list = []
           for user in sorted_users:
-            if user['first_name'] != 'zz' and user['last_name'] != 'zz':
+            if user['first_name'] != 'zzz' and user['last_name'] != 'zzz':
               user_list.append(
                 user['first_name'] + ' ' + user['last_name'] + ' (' + user['email'].lower() + ')'
               )
@@ -300,7 +290,6 @@ class DataAddView(generic.CreateView):
         'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs[
         'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['admin_group'] = self.admin_group
     kwargs['multi_foto_field'] = self.multi_foto_field
     kwargs['multi_files'] = self.multi_files
     kwargs['file'] = self.file
@@ -341,14 +330,13 @@ class DataAddView(generic.CreateView):
             + ' (' + self.request.user.email.lower() + ')'
         )
       if field.name == 'bearbeiter':
-        bearbeiter = self.request.user.first_name + ' ' + self.request.user.last_name if (
-            self.request.user.first_name and
-            self.request.user.last_name) else self.request.user.username
+        bearbeiter = (
+            self.request.user.first_name + ' '
+            + self.request.user.last_name
+            + ' (' + self.request.user.email.lower() + ')'
+        )
     if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
-      if (
-          not hasattr(self.model._meta, "group_with_users_for_choice_field")
-          or not hasattr(self.model._meta, "admin_group")
-      ):
+      if not hasattr(self.model._meta, "group_with_users_for_choice_field"):
         return {
             'ansprechpartner': ansprechpartner,
             'bearbeiter': bearbeiter,
@@ -399,7 +387,6 @@ class DataChangeView(generic.UpdateView):
         'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs[
         'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['admin_group'] = self.admin_group
     kwargs['file'] = self.file
     kwargs['model'] = self.model
     kwargs['request'] = self.request

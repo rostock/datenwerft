@@ -7,7 +7,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 * [*Python*](https://www.python.org/) (v3.x)
 * [*pip*](https://pip.pypa.io/) (für *Python* v3.x)
 * [*GDAL*](https://gdal.org/)
-* [*PostgreSQL*](https://www.postgresql.org/) mit den Erweiterungen [*PostGIS*](https://postgis.net/) und [*uuid-ossp*](https://www.postgresql.org/docs/current/uuid-ossp.html)
+* [*PostgreSQL*](https://www.postgresql.org/) mit der Erweiterung [*PostGIS*](https://postgis.net/)
 * [*npm*](https://www.npmjs.com/)
 
 ## Installation
@@ -28,6 +28,9 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
         pip install -r /usr/local/datenwerft/datenwerft/requirements.txt
 
+5.  leere *PostgreSQL*-Datenbank für die Anwendungsadministration anlegen
+6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
+
 ## Konfiguration
 
 1.  Konfigurationsdatei `/usr/local/datenwerft/datenwerft/settings.py` entsprechend anpassen
@@ -40,7 +43,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 ## Initialisierung
 
-1.  Datenbankschema für die App *Datenmanagement* anlegen (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
+1.  Datenbankschema in Datenbank für die App *Datenmanagement* installieren (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
 
         psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
 
