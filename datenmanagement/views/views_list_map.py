@@ -547,20 +547,36 @@ class DataMapListView(generic.ListView):
             and field_name in self.model._meta.map_filter_fields_as_checkbox
           )
         ):
+          complete_field_name = field_name
+          # falls es sich um ein Fremdschlüsselfeld handelt...
+          if (
+            hasattr(self.model._meta.get_field(field_name), 'remote_field')
+            and self.model._meta.get_field(field_name).remote_field is not None
+          ):
+            # passendes Feld im Zielmodell identifizieren
+            foreign_field_name = \
+              self.model._meta.get_field(field_name).remote_field.model._meta.ordering[0]
+            complete_field_name = field_name + '__' + foreign_field_name
           # NOT-NULL-Filter konstruieren
           field_name_isnull = field_name + '__isnull'
           # sortierte Liste aller eindeutigen Werte des Feldes erhalten
           values_list = list(self.model.objects.exclude(**{field_name_isnull: True}).order_by(
-              field_name).values_list(field_name, flat=True).distinct())
-          # Werte vereinzeln und sortierte Liste
-          # aller eindeutigen Einzelwerte erhalten und
-          # in vorbereitetes Dictionary einfügen
-          value_list = list([item for sublist in values_list for item in sublist])
-          distinct_value_list = []
-          for value_list_item in value_list:
-            if value_list_item not in distinct_value_list:
-              distinct_value_list.append(value_list_item)
-          checkbox_filter_lists[field_name] = distinct_value_list
+              complete_field_name).values_list(complete_field_name, flat=True).distinct())
+          # falls es sich NICHT um ein Fremdschlüsselfeld handelt...
+          if field_name == complete_field_name:
+            # Werte vereinzeln, sortierte Liste aller eindeutigen Einzelwerte erhalten
+            # und diese in vorbereitetes Dictionary einfügen
+            value_list = list([item for sublist in values_list for item in sublist])
+            distinct_value_list = []
+            for value_list_item in value_list:
+              if value_list_item not in distinct_value_list:
+                distinct_value_list.append(value_list_item)
+            checkbox_filter_lists[field_name] = distinct_value_list
+          # ansonsten...
+          else:
+            # sortierte Liste aller eindeutigen Einzelwerte erhalten
+            # direkt in vorbereitetes Dictionary einfügen
+            checkbox_filter_lists[field_name] = values_list
     context = super(DataMapListView, self).get_context_data(**kwargs)
     context = functions.set_model_related_context_elements(context, self.model, True)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG

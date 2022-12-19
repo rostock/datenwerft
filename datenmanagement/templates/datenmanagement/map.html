@@ -137,7 +137,7 @@
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
                     </div>
-                  {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' or map_filter_fields_as_checkbox and map_filter_field in map_filter_fields_as_list %}
+                  {% elif map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' or map_filter_fields_as_checkbox and map_filter_field in map_filter_fields_as_checkbox %}
                     <div class="d-grid gap-2 d-md-block">
                       {% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
                         Listeneinträge

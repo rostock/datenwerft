@@ -96,14 +96,19 @@ class DataForm(ModelForm):
               )
             else:
               user_list.append(user['email'].lower())
+          choices = [(user, user) for user in user_list]
+          # Leerwert an erster Stelle einfügen
+          choices.insert(0, ('', '---------'))
           choice_field = ChoiceField(
-              choices=[(user, user) for user in user_list],
-              initial=request.user.first_name +
-              ' ' +
-              request.user.last_name +
-              ' (' +
-              request.user.email.lower() +
-              ')')
+            label=field.verbose_name,
+            choices=choices,
+            initial=request.user.first_name +
+            ' ' +
+            request.user.last_name +
+            ' (' +
+            request.user.email.lower() +
+            ')'
+          )
           if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
             self.fields[field.name] = choice_field
       # Adressfelder in eigenen Feldtypen umwandeln

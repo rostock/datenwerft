@@ -10,7 +10,7 @@ Wie kann ich mich anmelden?
 
 Die Anmeldung erfolgt über die Anmeldeseite, auf die Sie über den blauen Button *Anmeldung* in der :doc:`Titelleiste <../nav/titelleiste>` gelangen: In das erste Eingabefeld auf der Anmeldeseite müssen Sie Ihren Benutzernamen eingeben, in das zweite Feld Ihr Passwort – Achtung, beide Felder berücksichtigen die Groß- und Kleinschreibung! Danach klicken Sie auf den grünen Button *anmelden*: Sie werden dann automatisch zu Ihrer :doc:`Datenthemen-Übersicht <../nav/datenthemen-uebersicht>` weitergeleitet und Ihr Name erscheint oben in der Titelleiste als „Beleg“ dafür, dass Sie jetzt angemeldet sind.
 
-**Tipp:** Sie können auch einfach die ``Enter``-Taste auf Ihrer Tastatur drücken statt auf den grünen Button *anmelden* zu klicken!
+**Tipp:** Sie können auch einfach die ``Enter``-Taste auf Ihrer Tastatur drücken statt auf den blauen Button *anmelden* zu klicken!
 
 
 .. _benutzername_passwort:
