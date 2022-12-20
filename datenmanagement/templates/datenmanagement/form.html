@@ -431,9 +431,19 @@
       {% if group_with_users_for_choice_field %}
           // alle Felder durchgehen...
           {% for field in form %}
+            // beim Feld Ansprechpartner/Bearbeiter...
             {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
+              let select = $('select#id_' + '{{ field.name }}');
               // Bootstratp-5-CSS-Klasse ergänzen
-              $('select#id_' + '{{ field.name }}').addClass('form-select');
+              select.addClass('form-select');
+              // passenden Wert vorauswählen, wenn die darin enthaltende E-Mail-Adresse mit dem Feldwert übereinstimmt
+              {% if object %}
+                select.children().each(function() {
+                  let optionValue = $(this).val();
+                  if (optionValue.indexOf('{{ field.value }}'.toLowerCase()) !== -1)
+                    select.val(optionValue);
+                });
+              {% endif %}
             {% endif %}
           {% endfor %}
       {% endif %}
