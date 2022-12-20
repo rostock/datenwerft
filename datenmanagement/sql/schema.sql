@@ -414,6 +414,20 @@ CREATE TABLE codelisten.angelberechtigungen (
 
 
 --
+-- Name: ansprechpartner_baustellen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ansprechpartner_baustellen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    vorname character varying(255),
+    nachname character varying(255),
+    email character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_baudenkmale; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -3197,6 +3211,22 @@ ALTER TABLE ONLY codelisten.angelberechtigungen
 
 
 --
+-- Name: ansprechpartner_baustellen ansprechpartner_baustellen_email_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ansprechpartner_baustellen
+    ADD CONSTRAINT ansprechpartner_baustellen_email_unique UNIQUE (email);
+
+
+--
+-- Name: ansprechpartner_baustellen ansprechpartner_baustellen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ansprechpartner_baustellen
+    ADD CONSTRAINT ansprechpartner_baustellen_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_baudenkmale arten_baudenkmale_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4565,14 +4595,6 @@ ALTER TABLE ONLY fachdaten.durchlaesse_durchlaesse_hro
 
 
 --
--- Name: durchlaesse_durchlaesse_hro durchlaesse_durchlaesse_hro_id_fachsystem_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.durchlaesse_durchlaesse_hro
-    ADD CONSTRAINT durchlaesse_durchlaesse_hro_id_fachsystem_unique UNIQUE (id_fachsystem);
-
-
---
 -- Name: durchlaesse_durchlaesse_hro durchlaesse_durchlaesse_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -4821,14 +4843,6 @@ ALTER TABLE ONLY fachdaten.toiletten_hro
 
 
 --
--- Name: trinkwassernotbrunnen_hro trinkwassernotbrunnen_hro_id_fachsystem_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.trinkwassernotbrunnen_hro
-    ADD CONSTRAINT trinkwassernotbrunnen_hro_id_fachsystem_unique UNIQUE (id_fachsystem);
-
-
---
 -- Name: trinkwassernotbrunnen_hro trinkwassernotbrunnen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5037,19 +5051,19 @@ ALTER TABLE ONLY fachdaten_adressbezug.vereine_hro
 
 
 --
--- Name: vereine_hro vereine_hro_vereinsregister_id; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.vereine_hro
-    ADD CONSTRAINT vereine_hro_vereinsregister_id UNIQUE (vereinsregister_id);
-
-
---
 -- Name: verkaufstellen_angelberechtigungen_hro verkaufstellen_angelberechtigungen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
 ALTER TABLE ONLY fachdaten_adressbezug.verkaufstellen_angelberechtigungen_hro
     ADD CONSTRAINT verkaufstellen_angelberechtigungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: reinigungsreviere_hro reinigungsreviere_hro_nummer_unique; Type: CONSTRAINT; Schema: fachdaten_gemeindeteilbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_gemeindeteilbezug.reinigungsreviere_hro
+    ADD CONSTRAINT reinigungsreviere_hro_nummer_unique UNIQUE (nummer);
 
 
 --

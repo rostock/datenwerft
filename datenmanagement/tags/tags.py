@@ -15,7 +15,13 @@ def customize_error_message(value):
   :param value: Formularfehlermeldung
   :return: bereinigte übergebene Formularfehlermeldung oder allgemeine Fehlermeldung
   """
-  if 'existiert bereits' in value:
+  if 'mit diesem' in value and 'existiert bereits' in value:
+    value = re.sub(r' existiert bereits.*$', '!', value)
+    value = re.sub(r'^.* mit diesem',
+                   'Es existiert bereits ein Datensatz mit den angegebenen Werten '
+                   'in den Attributen', value)
+    return value
+  elif 'existiert bereits' in value:
     return value[:-1]
   else:
     return 'Fehler bei der Eingabe'

@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Anwendungsdefinition
 
-DATENWERFT_VERSION = '5.8.0'
+DATENWERFT_VERSION = '5.9.1'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
