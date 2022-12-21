@@ -147,18 +147,6 @@ for model in app_models:
     )),
     name=model_name + 'add'
   ))
-  # erstellt einen Klon eines vorhandenen Datenbankobjektes eines Datensatzes
-  urlpatterns.append(re_path(
-    route=regex + r'clone/(?P<pk>.*)/$',
-    view=permission_required(
-      'datenmanagement.add_' + model_name_lower
-    )(views_form.DataAddView.as_view(
-      model=model,
-      template_name='datenmanagement/form.html',
-      success_url=reverse_lazy('datenmanagement:' + model_name + 'start')
-    )),
-    name=model_name + 'clone'
-  ))
 
   # DataChangeView:
   # ändert ein vorhandenes Datenbankobjekt eines Datensatzes

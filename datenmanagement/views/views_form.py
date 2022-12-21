@@ -3,6 +3,8 @@ import time
 
 from datenmanagement.models import Ansprechpartner_Baustellen
 from django.apps import apps
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.db import connections
@@ -356,6 +358,10 @@ class DataAddView(generic.CreateView):
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
     form.instance.user = self.request.user
+    messages.success(
+      self.request,
+      'Der neue Datensatz %s wurde erfolgreich angelegt!' % form.instance.pk
+    )
     return super(DataAddView, self).form_valid(form)
 
 
@@ -556,6 +562,10 @@ class DataChangeView(generic.UpdateView):
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
     form.instance.user = self.request.user
+    messages.success(
+      self.request,
+      'Der Datensatz %s wurde erfolgreich geändert!' % form.instance.pk
+    )
     return super(DataChangeView, self).form_valid(form)
 
   def get_object(self, *args, **kwargs):
@@ -571,7 +581,7 @@ class DataChangeView(generic.UpdateView):
     return obj
 
 
-class DataDeleteView(generic.DeleteView):
+class DataDeleteView(SuccessMessageMixin, generic.DeleteView):
   """
   löscht ein vorhandenes Datenbankobjekt eines Datensatzes
   """
@@ -591,3 +601,16 @@ class DataDeleteView(generic.DeleteView):
     if not userperm_delete:
       raise PermissionDenied()
     return obj
+
+  def form_valid(self, form):
+    """
+    sendet eine HTTP-Response, wenn Formular valide ist
+
+    :param form: Formular, das geprüft werden soll
+    :return: Success-URL als HTTP-Response, falls Formular valide
+    """
+    messages.success(
+      self.request,
+      'Der Datensatz %s wurde erfolgreich gelöscht!' % self.object.pk
+    )
+    return super(DataDeleteView, self).form_valid(form)

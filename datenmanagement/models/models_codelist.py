@@ -1858,13 +1858,6 @@ class Quartiere(models.Model):
       )
     ]
   )
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
 
   class Meta:
     managed = False
@@ -1874,8 +1867,7 @@ class Quartiere(models.Model):
     verbose_name_plural = 'Quartiere'
     description = 'Quartiere'
     list_fields = {
-      'code': 'Code',
-      'bezeichnung': 'Bezeichnung'
+      'code': 'Code'
     }
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet

@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 echo "Checking JavaScript rules via ESLint..."
-node_modules/.bin/eslint "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/list.html"
+node_modules/.bin/eslint "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/list.html" "datenmanagement/templates/datenmanagement/start.html"

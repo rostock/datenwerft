@@ -803,7 +803,7 @@
      * klont den gesamten Datensatz als neuen Datensatz
      */
     function cloneObject() {
-      $('form').attr('action', "{% url 'datenmanagement:'|add:model_name|add:'clone' object.pk %}");
+      $('form').attr('action', "{% url 'datenmanagement:'|add:model_name|add:'add' %}");
     }
 
     {% if gpx_input %}
