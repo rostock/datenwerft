@@ -169,7 +169,7 @@ options.DEFAULT_NAMES += (
   # optional;
   # Text;
   # Name der Gruppe von Benutzern, die für das Feld
-  # Ansprechpartner/Bearbeiter in einer entsprechenden Auswahlliste
+  # Ansprechpartner:in/Bearbeiter:in in einer entsprechenden Auswahlliste
   # genutzt werden sollen
   'additional_wms_layers',
   # optional;
@@ -213,9 +213,9 @@ anfuehrungszeichen_message = 'Der Text darf keine doppelten ' \
                              'typographisch korrekten Anführungszeichen ' \
                              '(„“) verwendet werden.'
 ansprechpartner_regex = r'^(?!.*\(.*[A-Z]+.*\)).*'
-ansprechpartner_message = 'Die E-Mail-Adresse des ' \
-                          '<strong><em>Ansprechpartners</em></strong> darf ' \
-                          'keine Großbuchstaben enthalten.'
+ansprechpartner_message = 'Die E-Mail-Adresse der <strong><em>Ansprechpartnerin</em></strong> ' \
+                          'oder des <strong><em>Ansprechpartners</em></strong> ' \
+                          'darf keine Großbuchstaben enthalten.'
 apostroph_regex = r'^(?!.*\').*$'
 apostroph_message = 'Der Text darf keine einfachen ' \
                     'Schreibmaschinensatz-Anführungszeichen (\') enthalten. ' \
@@ -321,6 +321,9 @@ lin_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
                     'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
                     'dem optional weitere Ziffern und/oder ' \
                     'Großbuchstaben folgen können.'
+mit_personalnummer_regex = r'^[0-9]{6}$'
+mit_personalnummer_message = 'Die <strong><em>Personalnummer</em></strong> muss aus ' \
+                           'genau sechs Ziffern bestehen.'
 psa_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
 psa_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em>' \
                                  '</strong> muss aus genau einem ' \

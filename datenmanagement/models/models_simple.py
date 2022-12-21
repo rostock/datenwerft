@@ -282,7 +282,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
   datum_abgeschlossenheitserklaerung = models.DateField(
     'Datum der Abgeschlossenheitserklärung', blank=True, null=True)
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -577,7 +577,7 @@ class Beschluesse_Bau_Planungsausschuss(models.Model):
     validators=constants_vars.standard_validators
   )
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -603,7 +603,7 @@ class Beschluesse_Bau_Planungsausschuss(models.Model):
       'adresse': 'Adresse',
       'beschlussjahr': 'Beschlussjahr',
       'vorhabenbezeichnung': 'Bezeichnung des Vorhabens',
-      'bearbeiter': 'Bearbeiter',
+      'bearbeiter': 'Bearbeiter:in',
       'pdf': 'PDF'
     }
     list_fields_with_number = ['beschlussjahr']
@@ -666,7 +666,7 @@ class Bildungstraeger(models.Model):
     validators=constants_vars.standard_validators
   )
   betreiber = models.CharField(
-    'Betreiber',
+    'Betreiber:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -1343,7 +1343,7 @@ class FairTrade(models.Model):
     validators=constants_vars.standard_validators
   )
   betreiber = models.CharField(
-    'Betreiber',
+    'Betreiber:in',
     max_length=255,
     blank=True,
     null=True,
@@ -2076,7 +2076,7 @@ class Gutachterfotos(models.Model):
     blank=True,
     null=True)
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -2108,7 +2108,7 @@ class Gutachterfotos(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
-      'bearbeiter': 'Bearbeiter',
+      'bearbeiter': 'Bearbeiter:in',
       'datum': 'Datum',
       'aufnahmedatum': 'Aufnahmedatum',
       'foto': 'Foto'
@@ -2257,7 +2257,7 @@ class Hausnummern(models.Model):
     validators=constants_vars.standard_validators
   )
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -3255,7 +3255,7 @@ class Meldedienst_flaechenhaft(models.Model):
     to_field='uuid',
     related_name='arten+')
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -3278,7 +3278,7 @@ class Meldedienst_flaechenhaft(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
-      'bearbeiter': 'Bearbeiter',
+      'bearbeiter': 'Bearbeiter:in',
       'bemerkungen': 'Bemerkungen',
       'datum': 'Datum'
     }
@@ -3289,7 +3289,7 @@ class Meldedienst_flaechenhaft(models.Model):
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
       'art': 'Art',
-      'bearbeiter': 'Bearbeiter',
+      'bearbeiter': 'Bearbeiter:in',
       'datum': 'Datum'
     }
     map_filter_fields_as_list = ['art']
@@ -3333,7 +3333,7 @@ class Meldedienst_punkthaft(models.Model):
     to_field='uuid',
     related_name='arten+')
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -3359,7 +3359,7 @@ class Meldedienst_punkthaft(models.Model):
       'deaktiviert': 'Zurückstellung',
       'adresse': 'Adresse',
       'art': 'Art',
-      'bearbeiter': 'Bearbeiter',
+      'bearbeiter': 'Bearbeiter:in',
       'bemerkungen': 'Bemerkungen',
       'datum': 'Datum'
     }
@@ -3373,7 +3373,7 @@ class Meldedienst_punkthaft(models.Model):
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
-      'bearbeiter': 'Bearbeiter',
+      'bearbeiter': 'Bearbeiter:in',
       'datum': 'Datum'
     }
     map_filter_fields_as_list = ['art']
@@ -3631,7 +3631,7 @@ class Pflegeeinrichtungen(models.Model):
     validators=constants_vars.standard_validators
   )
   betreiber = models.CharField(
-    'Betreiber',
+    'Betreiber:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -3697,7 +3697,7 @@ class Pflegeeinrichtungen(models.Model):
       'adresse': 'Adresse',
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
-      'betreiber': 'Betreiber'
+      'betreiber': 'Betreiber:in'
     }
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
@@ -3707,7 +3707,7 @@ class Pflegeeinrichtungen(models.Model):
     map_filter_fields = {
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
-      'betreiber': 'Betreiber'
+      'betreiber': 'Betreiber:in'
     }
     map_filter_fields_as_list = ['art']
     address_type = 'Adresse'

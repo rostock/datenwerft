@@ -59,7 +59,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     to_field='uuid',
     related_name='auftraggeber+')
   ansprechpartner = models.CharField(
-    'Ansprechpartner',
+    'Ansprechpartner:in',
     max_length=255,
     validators=constants_vars.ansprechpartner_validators
   )
@@ -92,7 +92,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       'verkehrliche_lagen': 'verkehrliche Lage(n)',
       'sparten': 'Sparte(n)',
       'auftraggeber': 'Auftraggeber',
-      'ansprechpartner': 'Ansprechpartner',
+      'ansprechpartner': 'Ansprechpartner:in',
       'bemerkungen': 'Bemerkungen'
     }
     list_fields_with_foreign_key = {
@@ -286,7 +286,7 @@ class Baustellen_geplant(models.Model):
     to_field='uuid',
     related_name='auftraggeber+')
   ansprechpartner = models.CharField(
-    'Ansprechpartner',
+    'Ansprechpartner:in',
     max_length=255,
     validators=constants_vars.ansprechpartner_validators
   )
@@ -328,7 +328,7 @@ class Baustellen_geplant(models.Model):
       'beginn': 'Beginn',
       'ende': 'Ende',
       'auftraggeber': 'Auftraggeber',
-      'ansprechpartner': 'Ansprechpartner',
+      'ansprechpartner': 'Ansprechpartner:in',
       'status': 'Status',
       'konflikt': 'Konflikt(e)?',
       'konflikt_tolerieren': 'Konflikt(e) tolerieren?'
@@ -619,7 +619,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     validators=constants_vars.standard_validators
   )
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
@@ -642,7 +642,7 @@ class Durchlaesse_Durchlaesse(models.Model):
       'nennweite': 'Nennweite (in mm)',
       'laenge': 'Länge (in m)',
       'zustaendigkeit': 'Zuständigkeit',
-      'bearbeiter': 'Bearbeiter'
+      'bearbeiter': 'Bearbeiter:in'
     }
     list_fields_with_foreign_key = {
       'art': 'art',
@@ -658,7 +658,7 @@ class Durchlaesse_Durchlaesse(models.Model):
       'aktenzeichen': 'Aktenzeichen',
       'material': 'Material',
       'zustaendigkeit': 'Zuständigkeit',
-      'bearbeiter': 'Bearbeiter'
+      'bearbeiter': 'Bearbeiter:in'
     }
     map_filter_fields_as_list = ['art', 'material']
     geometry_type = 'Point'
@@ -1254,7 +1254,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
   bfe_medizinische_versorgungseinrichtung = models.BooleanField(
     'Medizinische Versorgungseinrichtung in Umgebung vorhanden?', blank=True, null=True)
   bearbeiter = models.CharField(
-    'Bearbeiter',
+    'Bearbeiter:in',
     max_length=255,
     blank=True,
     null=True,

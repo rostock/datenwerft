@@ -360,7 +360,8 @@ class DataAddView(generic.CreateView):
     form.instance.user = self.request.user
     messages.success(
       self.request,
-      'Der neue Datensatz %s wurde erfolgreich angelegt!' % form.instance.pk
+      'Der neue Datensatz <strong><em>%s</em></strong> '
+      'wurde erfolgreich angelegt!' % str(form.instance)
     )
     return super(DataAddView, self).form_valid(form)
 
@@ -564,7 +565,8 @@ class DataChangeView(generic.UpdateView):
     form.instance.user = self.request.user
     messages.success(
       self.request,
-      'Der Datensatz %s wurde erfolgreich geändert!' % form.instance.pk
+      'Der Datensatz <strong><em>%s</em></strong> '
+      'wurde erfolgreich geändert!' % str(form.instance)
     )
     return super(DataChangeView, self).form_valid(form)
 
@@ -611,6 +613,7 @@ class DataDeleteView(SuccessMessageMixin, generic.DeleteView):
     """
     messages.success(
       self.request,
-      'Der Datensatz %s wurde erfolgreich gelöscht!' % self.object.pk
+      'Der Datensatz <strong><em>%s</em></strong> '
+      'wurde erfolgreich gelöscht!' % str(self.object)
     )
     return super(DataDeleteView, self).form_valid(form)

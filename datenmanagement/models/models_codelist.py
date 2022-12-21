@@ -401,7 +401,7 @@ class Angelberechtigungen(models.Model):
     super(Angelberechtigungen, self).delete(*args, **kwargs)
 
 
-# Ansprechpartner bei Baustellen
+# Ansprechpartner:innen bei Baustellen
 
 class Ansprechpartner_Baustellen(models.Model):
   uuid = models.UUIDField(
@@ -428,15 +428,18 @@ class Ansprechpartner_Baustellen(models.Model):
     unique=True,
     validators=[
       EmailValidator(
-        message=constants_vars.email_message)])
+        message=constants_vars.email_message
+      )
+    ]
+  )
 
   class Meta:
     managed = False
     codelist = True
     db_table = 'codelisten\".\"ansprechpartner_baustellen'
-    verbose_name = 'Ansprechpartner bei einer Baustelle'
-    verbose_name_plural = 'Ansprechpartner bei Baustellen'
-    description = 'Ansprechpartner bei Baustellen'
+    verbose_name = 'Ansprechpartner:in bei einer Baustelle'
+    verbose_name_plural = 'Ansprechpartner:innen bei Baustellen'
+    description = 'Ansprechpartner:innen bei Baustellen'
     list_fields = {
       'vorname': 'Vorname',
       'nachname': 'Nachname',
@@ -1768,6 +1771,65 @@ class Materialien_Durchlaesse(Material):
     super(Materialien_Durchlaesse, self).delete(*args, **kwargs)
 
 
+# Mitarbeiter:innen
+
+class Mitarbeiter(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False)
+  vorname = models.CharField(
+    'Vorname',
+    max_length=255,
+    validators=constants_vars.personennamen_validators
+  )
+  nachname = models.CharField(
+    'Nachname',
+    max_length=255,
+    validators=constants_vars.personennamen_validators
+  )
+  personalnummer = models.CharField(
+    'Personalnummer',
+    max_length=6,
+    unique=True,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.mit_personalnummer_regex,
+        message=constants_vars.mit_personalnummer_message
+      )
+    ]
+  )
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"mitarbeiter'
+    verbose_name = 'Mitarbeiter:in'
+    verbose_name_plural = 'Mitarbeiter:innen'
+    description = 'Mitarbeiter:innen'
+    list_fields = {
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'personalnummer': 'Personalnummer'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = [
+      'nachname',
+      'vorname',
+      'personalnummer'
+    ]
+
+  def __str__(self):
+    return self.vorname + ' ' + self.nachname + ' (' + self.personalnummer + ')'
+
+  def save(self, *args, **kwargs):
+    super(Mitarbeiter, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Mitarbeiter, self).delete(*args, **kwargs)
+
+
 # Ordnungen von Fließgewässern
 
 class Ordnungen_Fliessgewaesser(models.Model):
@@ -1899,10 +1961,14 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Räumbreite</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Räumbreite</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
-        'Die <strong><em>Räumbreite</em></strong> darf höchstens 99,99 m betragen.')])
+        'Die <strong><em>Räumbreite</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ]
+  )
 
   class Meta:
     managed = False
@@ -2767,10 +2833,14 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Wegebreite</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Wegebreite</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
-        'Die <strong><em>Wegebreite</em></strong> darf höchstens 99,99 m betragen.')])
+        'Die <strong><em>Wegebreite</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ]
+  )
 
   class Meta:
     managed = False

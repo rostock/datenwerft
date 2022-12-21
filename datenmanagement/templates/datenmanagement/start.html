@@ -9,7 +9,7 @@
     {% for message in messages %}
       {% if message.tags and message.tags == 'success' %}
         <div class="alert alert-success" role="alert">
-          {{ message }}
+          {{ message|safe }}
         </div>
       {% endif %}
     {% endfor %}
