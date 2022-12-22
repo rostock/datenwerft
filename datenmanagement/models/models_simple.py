@@ -4101,7 +4101,7 @@ class Schiffsliegeplaetze(models.Model):
     blank=True,
     null=True)
   zulaessiger_tiefgang = models.DecimalField(
-    'zulässiger Tiefgang (in m)',
+    ' zulässiger Tiefgang (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -4114,7 +4114,7 @@ class Schiffsliegeplaetze(models.Model):
     blank=True,
     null=True)
   zulaessige_schiffslaenge = models.DecimalField(
-    'zulässige Schiffslänge (in m)',
+    ' zulässige Schiffslänge (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
