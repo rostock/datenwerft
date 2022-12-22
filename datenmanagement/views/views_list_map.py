@@ -586,6 +586,9 @@ class DataMapListView(generic.ListView):
     context['map_filters_enabled'] = (
         True if hasattr(self.model._meta, 'map_filter_fields') or hasattr(
             self.model._meta, 'map_rangefilter_fields') else None)
+    context['map_one_click_filters'] = (
+        self.model._meta.map_one_click_filters if hasattr(
+            self.model._meta, 'map_one_click_filters') else None)
     context['map_rangefilter_fields'] = (
         list(self.model._meta.map_rangefilter_fields.keys()) if hasattr(
             self.model._meta, 'map_rangefilter_fields') else None)

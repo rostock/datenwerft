@@ -345,6 +345,7 @@ class Baustellen_geplant(models.Model):
     }
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
+    map_one_click_filters = True
     map_deadlinefilter_fields = ['beginn', 'ende']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',

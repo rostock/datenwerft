@@ -53,6 +53,16 @@
         <div id="filter"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
           <h5>Filter für Kartenobjekte</h5>
           <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv</strong> (wie „UND“)</div>
+          {% if map_one_click_filters %}
+            <h6>Ein-Klick-Filter</h6>
+            <div id="filter-one-click" class="btn-group-vertical">
+              {% if model_name == 'Baustellen_geplant' %}
+                <button id="filter-one-click-baustellen-geplant-a" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> Ende erreicht, aber Status != abgeschlossen</button>
+                <button id="filter-one-click-baustellen-geplant-b" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> Beginn erreicht, aber Status != im Bau (LP8)</button>
+              {% endif %}
+            </div>
+            <hr/>
+          {% endif %}
           {% if map_deadlinefilter_fields %}
             <div id="filter-deadline">
               <div class="d-grid mt-2 mb-3">
@@ -595,6 +605,44 @@
           }
         });
 
+        // bei Klick auf einen Ein-Klick-Filter-Button...
+        $('.filter-one-click-button').on('click', function(e) {
+          let $this = $(this);
+
+          // alle übrigen Ein-Klick-Filter-Buttons deaktivieren
+          $this.parent().children('button').each(function() {
+            if ($(this).attr('id') !== e.target.id) {
+              $(this).prop('disabled', true);
+            }
+          });
+
+          // Button zum Anwenden der Filter deaktivieren
+          $('#filter-apply').prop('disabled', true);
+
+          // Variable für Liste für Filterobjekte definieren
+          let filterAttributesList = [];
+
+          // Ein-Klick-Filter für Datenmodell Baustellen (geplant) behandeln
+          if (e.target.id === 'filter-one-click-baustellen-geplant-a') {
+            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
+            let filterAttribute = {};
+            filterAttribute.name = 'ende';
+            filterAttribute.type = 'date';
+            filterAttribute.intervalside = 'right';
+            filterAttribute.value = new Date().toJSON().slice(0, 10);
+            // Filterobjekt zur Liste für Filterobjekte hinzufügen
+            filterAttributesList.push(filterAttribute);
+            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
+            filterAttribute = {};
+            filterAttribute.name = 'status';
+            filterAttribute.type = 'text';
+            filterAttribute.intervalside = 'both';
+            filterAttribute.value = 'abgeschlossen';
+            // Filterobjekt zur Liste für Filterobjekte hinzufügen
+            filterAttributesList.push(filterAttribute);
+          }
+        });
+
         // bei Klick auf Button zum Anwenden der Filter...
         $('#filter-apply').on('click', function() {
           // Hinweise auf additive Wirkung der Filter anzeigen
@@ -813,6 +861,14 @@
 
         // bei Klick auf Button zum Zurücksetzen der Filter...
         $('#filter-reset').on('click', function() {
+          // alle Ein-Klick-Filter-Buttons (wieder) aktivieren
+          $('#filter-one-click').children('button').each(function() {
+            $(this).prop('disabled', false);
+          });
+
+          // Button zum Anwenden der Filter (wieder) aktivieren
+          $('#filter-apply').prop('disabled', false);
+
           // Hinweise auf additive Wirkung der Filter (wieder) verbergen
           $('#filter-alert').hide();
 
