@@ -2,6 +2,10 @@
   display: none;
 }
 
+#filter-one-click {
+  width: 100%;
+}
+
 #map {
   height: 100%;
 }

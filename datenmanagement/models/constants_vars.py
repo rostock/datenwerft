@@ -10,7 +10,7 @@ options.DEFAULT_NAMES += (
   # optional;
   # Boolean;
   # Handelt es sich um eine Codeliste, die dann für normale Benutzer in der
-  # Liste der verfügbaren Datenthemen nicht auftaucht (True)?
+  # Liste der verfügbaren Datenmodelle nicht auftaucht (True)?
   'complex',
   # optional;
   # Boolean;
@@ -18,7 +18,7 @@ options.DEFAULT_NAMES += (
   'description',
   # Pflicht;
   # Text;
-  # Beschreibung bzw. Langtitel des Datenthemas
+  # Beschreibung bzw. Langtitel des Datenmodells
   'catalog_link_fields',
   # optional;
   # Dictionary;
@@ -103,6 +103,11 @@ options.DEFAULT_NAMES += (
   # getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das
   # Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt
   # werden kann
+  'map_one_click_filters',
+  # optional;
+  # Boolean;
+  # Soll(en) der/die Ein-Klick-Filter in der Kartenansicht greifen,
+  # der/die im Template für dieses Datenmodell definiert ist/sind (True)?
   'map_rangefilter_fields',
   # optional;
   # Dictionary;
