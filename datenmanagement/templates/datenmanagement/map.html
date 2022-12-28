@@ -23,6 +23,9 @@
   <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
   <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  {% if map_one_click_filters %}
+    <script type="text/javascript" src="{% static 'datenmanagement/js/customMapFilters.js' %}"></script>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -57,8 +60,8 @@
             <h6>Ein-Klick-Filter</h6>
             <div id="filter-one-click" class="btn-group-vertical">
               {% if model_name == 'Baustellen_geplant' %}
-                <button id="filter-one-click-baustellen-geplant-a" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> Ende erreicht, aber Status != abgeschlossen</button>
-                <button id="filter-one-click-baustellen-geplant-b" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> Beginn erreicht, aber Status != im Bau (LP8)</button>
+                <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
+                <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8)</button>
               {% endif %}
             </div>
             <hr/>
@@ -68,7 +71,7 @@
               <div class="d-grid mt-2 mb-3">
                 <label for="filter-input-deadline" class="form-label">Stichtag</label>
                 <div class="input-group">
-                  <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both"/>
+                  <input id="filter-input-deadline" type="date" name="deadline" class="form-control filter-input datetime-input" data-type="date" data-nullable data-intervalside="both" data-logic="positive"/>
                   <button class="input-reset btn btn-outline-secondary">
                     <i class="fas fa-trash" title="Filterfeld leeren"></i>
                   </button>
@@ -85,12 +88,12 @@
                     <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left"/>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive"/>
                       {% endif %}
                     </div>
                   </div>
@@ -98,12 +101,12 @@
                     <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
                       {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right"/>
+                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive"/>
                       {% endif %}
                     </div>
                   </div>
@@ -119,7 +122,7 @@
                   <label for="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label{% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %} filter-checkbox-label{% endif %}">{{ map_filter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                   {% if 'Date' in map_filter_field|get_type_of_field:model_name %}
                     <div class="input-group">
-                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive" {% if map_filter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}/>
                       <button class="input-reset btn btn-outline-secondary">
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
@@ -127,11 +130,11 @@
                   {% elif map_filter_field|get_type_of_field:model_name == 'BooleanField' %}
                     {% if map_filter_boolean_fields_as_checkbox %}
                       <div class="filter-input">
-                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-check-input" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"/>
+                        <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="checkbox" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-check-input" data-type="boolean" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive"/>
                       </div>
                     {% else %}
                       <div class="input-group">
-                        <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filter-input" data-type="list" data-nullable data-boolean data-intervalside="both">
+                        <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filter-input" data-type="list" data-nullable data-boolean data-intervalside="both" data-logic="positive">
                           <option value="True">ja</option>
                           <option value="False">nein</option>
                         </select>
@@ -142,7 +145,7 @@
                     {% endif %}
                   {% elif map_filter_fields_as_list and map_filter_field in map_filter_fields_as_list %}
                     <div class="input-group">
-                      <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></select>
+                      <select id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filter-input" data-type="list" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive"></select>
                       <button class="input-reset btn btn-outline-secondary">
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
@@ -160,10 +163,10 @@
                         Listeneinträge werden exklusiv (wie „ODER“) gefiltert
                       {% endif %}
                     </div>
-                    <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control mt-2 filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"></fieldset>
+                    <fieldset id="filter-checkbox-fieldset-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control mt-2 filter-checkbox-fieldset" data-type="checkbox-set" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive"></fieldset>
                   {% else %}
                     <div class="input-group">
-                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both"/>
+                      <input id="filter-input-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_filter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="both" data-logic="positive"/>
                       <button class="input-reset btn btn-outline-secondary">
                         <i class="fas fa-trash" title="Filterfeld leeren"></i>
                       </button>
@@ -455,7 +458,7 @@
         // minimale und maximale Werte von entsprechenden Intervallfilterfeldern
         // Wertelisten für entsprechende Filterfelder, die als Listenfilter dargestellt werden sollen
         // Wertelisten für entsprechende Filterfelder, die als Checkboxen-Set dargestellt werden sollen
-        let currentFilterExtent = [];
+        window.currentFilterExtent = [];
         let intervalFilterMin = [];
         let intervalFilterMax = [];
         let listFilterLists = [];
@@ -619,40 +622,28 @@
           // Button zum Anwenden der Filter deaktivieren
           $('#filter-apply').prop('disabled', true);
 
-          // Variable für Liste für Filterobjekte definieren
-          let filterAttributesList = [];
+          // Liste für Filterobjekte definieren und befüllen
+          let filterAttributesList = customMapFilters(e.target.id);
 
-          // Ein-Klick-Filter für Datenmodell Baustellen (geplant) behandeln
-          if (e.target.id === 'filter-one-click-baustellen-geplant-a') {
-            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
-            let filterAttribute = {};
-            filterAttribute.name = 'ende';
-            filterAttribute.type = 'date';
-            filterAttribute.intervalside = 'right';
-            filterAttribute.value = new Date().toJSON().slice(0, 10);
-            // Filterobjekt zur Liste für Filterobjekte hinzufügen
-            filterAttributesList.push(filterAttribute);
-            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
-            filterAttribute = {};
-            filterAttribute.name = 'status';
-            filterAttribute.type = 'text';
-            filterAttribute.intervalside = 'both';
-            filterAttribute.value = 'abgeschlossen';
-            // Filterobjekt zur Liste für Filterobjekte hinzufügen
-            filterAttributesList.push(filterAttribute);
-          }
+          // Filter anwenden
+          applyFilters(filterAttributesList);
         });
 
         // bei Klick auf Button zum Anwenden der Filter...
         $('#filter-apply').on('click', function() {
-          // Hinweise auf additive Wirkung der Filter anzeigen
-          $('#filter-alert').show();
-
-          // Variable für Bounding-Box der aktuellen Filtermenge leeren
-          currentFilterExtent = [];
+          // alle Ein-Klick-Filter-Buttons deaktivieren
+          $('#filter-one-click').children('button').each(function() {
+            $(this).prop('disabled', true);
+          });
 
           // Variable für Liste für Filterobjekte definieren
           let filterAttributesList = [];
+
+          // Bounding-Box der aktuellen Filtermenge zurücksetzen
+          window.currentFilterExtent = [];
+
+          // Hinweise auf additive Wirkung der Filter anzeigen
+          $('#filter-alert').show();
 
           // über alle Filter (außer Boolean-Filter und Checkboxen-Sets) gehen...
           $('.filter-input').each(function() {
@@ -712,151 +703,8 @@
               filterAttributesList.push(filterAttribute);
           });
 
-          /**
-           * @function
-           * @name filterMapFeatures
-           *
-           * filtert Layer (= Features) auf der Karte
-           *
-           * @param {Object} layer - Layer (= Feature)
-           * @param {boolean} isSubLayer - Layer (= Feature) ist Bestandteil einer Layergruppe (= eines Clusters)?
-           * @param {Object} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
-           */
-          function filterMapFeatures(layer, isSubLayer, clusterLayer = layer) {
-            let stillVisible = true;
-            for (let i = 0; i < filterAttributesList.length; i++) {
-              // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-              if (filterAttributesList[i].name === 'deadline') {
-                // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
-                if (!(new Date(filterAttributesList[i].value) > new Date(layer.feature.properties['deadline_0'])) || !(new Date(layer.feature.properties['deadline_1']) > new Date(filterAttributesList[i].value)))
-                  stillVisible = false;
-              // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-              } else if (filterAttributesList[i].intervalside === 'left') {
-                if (filterAttributesList[i].type === 'date') {
-                  // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                  if (new Date(filterAttributesList[i].value) > new Date(layer.feature.properties[filterAttributesList[i].name]))
-                    stillVisible = false;
-                } else if (filterAttributesList[i].type === 'datetime') {
-                  // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                  if (new Date(filterAttributesList[i].value).valueOf() > new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
-                    stillVisible = false;
-                } else {
-                  if (filterAttributesList[i].value > layer.feature.properties[filterAttributesList[i].name])
-                    stillVisible = false;
-                }
-              // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-              } else if (filterAttributesList[i].intervalside === 'right') {
-                if (filterAttributesList[i].type === 'date') {
-                  // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                  if (new Date(layer.feature.properties[filterAttributesList[i].name]) > new Date(filterAttributesList[i].value))
-                    stillVisible = false;
-                } else if (filterAttributesList[i].type === 'datetime') {
-                  // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                  if (new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf() > new Date(filterAttributesList[i].value).valueOf())
-                    stillVisible = false;
-                } else {
-                  if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value)
-                    stillVisible = false;
-                }
-              // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken, falls einzelne Checkboxen additiv wirken sollen
-              } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
-                if (filterAttributesList[i].filtertype === 'additive') {
-                  for (let j = 0; j < filterAttributesList[i].value.length; j++) {
-                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) === -1)
-                      stillVisible = false;
-                  }
-                } else {
-                  stillVisible = false;
-                  for (let k = 0; k < filterAttributesList[i].value.length; k++) {
-                    if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[k].toLowerCase()) !== -1) {
-                      stillVisible = true;
-                      break;
-                    }
-                  }
-                }
-              // ansonsten einen Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-              } else if (filterAttributesList[i].type !== 'checkbox-set') {
-                if (filterAttributesList[i].type === 'date') {
-                  // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-                  if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
-                    stillVisible = false;
-                } else if (filterAttributesList[i].type === 'datetime') {
-                  // auf passende Formatierung achten, wenn es sich beim Filter um einen Filter mit Datum und Zeit handelt!
-                  if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
-                    stillVisible = false;
-                } else if (filterAttributesList[i].type === 'list') {
-                  if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() !== filterAttributesList[i].value.toLowerCase())
-                    stillVisible = false;
-                } else {
-                  if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) === -1)
-                    stillVisible = false;
-                }
-              }
-            }
-            // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
-            if (stillVisible) {
-              // Variable für Bounding-Box der aktuellen Filtermenge aktualisieren
-              let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
-              let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
-              let south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
-              let west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
-              if (currentFilterExtent.length === 0) {
-                currentFilterExtent[0] = [];
-                currentFilterExtent[0][0] = north;
-                currentFilterExtent[0][1] = east;
-                currentFilterExtent[1] = [];
-                currentFilterExtent[1][0] = south;
-                currentFilterExtent[1][1] = west;
-              } else {
-                if (currentFilterExtent[0][0] > north)
-                  currentFilterExtent[0][0] = north;
-                if (currentFilterExtent[0][1] > east)
-                  currentFilterExtent[0][1] = east;
-                if (currentFilterExtent[1][0] < south)
-                  currentFilterExtent[1][0] = south;
-                if (currentFilterExtent[1][1] < west)
-                  currentFilterExtent[1][1] = west;
-              }
-              // Layer (= Feature) einblenden, falls es von initialer Feature-Ausblendung betroffen ist
-              {% if map_filter_hide_initial %}
-                if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
-                  layer.setStyle({
-                    color: '#3388ff',
-                    fill: true,
-                    fillColor: '#3388ff',
-                    stroke: true,
-                    opacity: 1
-                  });
-                }
-              {% endif %}
-            // ansonsten:
-            } else {
-              // Layer (= Feature) tatsächlich ausblenden
-              if (isSubLayer) {
-                window.removedLayers.push(layer);
-                clusterLayer.removeLayer(layer);
-              } else
-                layer.getElement().style.display = 'none';
-            }
-          }
-
-          // über alle Filterobjekte gehen...
-          if (filterAttributesList.length > 0) {
-            showAllMapFeatures();
-            window.currMap.eachLayer(function(layer) {
-              if (layer.feature) {
-                filterMapFeatures(layer, false);
-              } else if (layer.id === 'cluster') {
-                let clusterLayer = layer;
-                layer.eachLayer(function(subLayer) {
-                  filterMapFeatures(subLayer, true, clusterLayer);
-                });
-                layer.refreshClusters();
-              }
-            });
-          } else {
-            showAllMapFeatures();
-          }
+          // Filter anwenden
+          applyFilters(filterAttributesList);
         });
 
         // bei Klick auf Button zum Zurücksetzen der Filter...
@@ -915,7 +763,7 @@
           });
 
           // Bounding-Box der aktuellen Filtermenge zurücksetzen
-          currentFilterExtent = [];
+          window.currentFilterExtent = [];
 
           // alle Layers (= Features) auf der Karte wieder anzeigen
           showAllMapFeatures();
@@ -943,9 +791,9 @@
         // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding-Box der aktuellen Filtermenge...
         $('#map-extent-filter').on('click', function() {
           // falls Filter aktiv...
-          if (currentFilterExtent.length > 0)
+          if (window.currentFilterExtent.length > 0)
             // Kartenausschnitt auf Bounding-Box der aktuellen Filtermenge setzen
-            setMapExtentByBoundingBox(currentFilterExtent[1][1], currentFilterExtent[1][0], currentFilterExtent[0][1], currentFilterExtent[0][0]);
+            setMapExtentByBoundingBox(window.currentFilterExtent[1][1], window.currentFilterExtent[1][0], window.currentFilterExtent[0][1], window.currentFilterExtent[0][0]);
           // ansonsten...
           else
             // Kartenausschnitt auf Bounding-Box aller Objekte setzen
@@ -964,6 +812,150 @@
             currMap.invalidateSize();
         {% endif %}
       });
+
+      /**
+       * @function
+       * @name filterMapFeatures
+       *
+       * filtert Layer (= Features) auf der Karte
+       *
+       * @param {Object[]} filterAttributesList - Liste für Filterobjekte
+       * @param {Object} layer - Layer (= Feature)
+       * @param {boolean} isSubLayer - Layer (= Feature) ist Bestandteil einer Layergruppe (= eines Clusters)?
+       * @param {Object} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
+       */
+      function filterMapFeatures(filterAttributesList, layer, isSubLayer, clusterLayer = layer) {
+        let stillVisible = true;
+        for (let i = 0; i < filterAttributesList.length; i++) {
+          // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
+          if (filterAttributesList[i].name === 'deadline') {
+            // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
+            if (!(new Date(filterAttributesList[i].value) > new Date(layer.feature.properties['deadline_0'])) || !(new Date(layer.feature.properties['deadline_1']) > new Date(filterAttributesList[i].value)))
+              stillVisible = false;
+          // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
+          } else if (filterAttributesList[i].intervalside === 'left') {
+            if (filterAttributesList[i].type === 'date') {
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+              if (new Date(filterAttributesList[i].value) > new Date(layer.feature.properties[filterAttributesList[i].name]))
+                stillVisible = false;
+            } else if (filterAttributesList[i].type === 'datetime') {
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Zeitstempelfilter handelt!
+              if (new Date(filterAttributesList[i].value).valueOf() > new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
+                stillVisible = false;
+            } else {
+              if (filterAttributesList[i].value > layer.feature.properties[filterAttributesList[i].name])
+                stillVisible = false;
+            }
+          // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
+          } else if (filterAttributesList[i].intervalside === 'right') {
+            if (filterAttributesList[i].type === 'date') {
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
+              if (new Date(layer.feature.properties[filterAttributesList[i].name]) > new Date(filterAttributesList[i].value))
+                stillVisible = false;
+            } else if (filterAttributesList[i].type === 'datetime') {
+              // auf passende Formatierung achten, wenn es sich beim Filter um einen Zeitstempelfilter handelt!
+              if (new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf() > new Date(filterAttributesList[i].value).valueOf())
+                stillVisible = false;
+            } else {
+              if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value)
+                stillVisible = false;
+            }
+          // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken, falls einzelne Checkboxen additiv wirken sollen
+          } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
+            if (filterAttributesList[i].filtertype === 'additive') {
+              for (let j = 0; j < filterAttributesList[i].value.length; j++) {
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) === -1)
+                  stillVisible = false;
+              }
+            } else {
+              stillVisible = false;
+              for (let k = 0; k < filterAttributesList[i].value.length; k++) {
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[k].toLowerCase()) !== -1) {
+                  stillVisible = true;
+                  break;
+                }
+              }
+            }
+          // ansonsten einen Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
+          } else if (filterAttributesList[i].type !== 'checkbox-set') {
+            if (filterAttributesList[i].type === 'date' || filterAttributesList[i].type === 'datetime') {
+              // negative oder positive Wirkungslogik?
+              if (filterAttributesList[i].logic === 'negative') {
+                // auf passende Formatierung achten, wenn es sich beim Filter um einen Datums- oder Zeitstempelfilter handelt!
+                if (new Date(filterAttributesList[i].value).valueOf() === new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
+                  stillVisible = false;
+              } else {
+                // auf passende Formatierung achten, wenn es sich beim Filter um einen Datums- oder Zeitstempelfilter handelt!
+                if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
+                  stillVisible = false;
+              }
+            } else if (filterAttributesList[i].type === 'list') {
+              // negative oder positive Wirkungslogik?
+              if (filterAttributesList[i].logic === 'negative') {
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() === filterAttributesList[i].value.toLowerCase())
+                  stillVisible = false;
+              } else {
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() !== filterAttributesList[i].value.toLowerCase())
+                  stillVisible = false;
+              }
+            } else {
+              // negative oder positive Wirkungslogik?
+              if (filterAttributesList[i].logic === 'negative') {
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) !== -1)
+                  stillVisible = false;
+              } else {
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) === -1)
+                  stillVisible = false;
+              }
+            }
+          }
+        }
+        // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
+        if (stillVisible) {
+          // Variable für Bounding-Box der aktuellen Filtermenge aktualisieren
+          let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
+          let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
+          let south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
+          let west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
+          if (window.currentFilterExtent.length === 0) {
+            window.currentFilterExtent[0] = [];
+            window.currentFilterExtent[0][0] = north;
+            window.currentFilterExtent[0][1] = east;
+            window.currentFilterExtent[1] = [];
+            window.currentFilterExtent[1][0] = south;
+            window.currentFilterExtent[1][1] = west;
+          } else {
+            if (window.currentFilterExtent[0][0] > north)
+              window.currentFilterExtent[0][0] = north;
+            if (window.currentFilterExtent[0][1] > east)
+              window.currentFilterExtent[0][1] = east;
+            if (window.currentFilterExtent[1][0] < south)
+              window.currentFilterExtent[1][0] = south;
+            if (window.currentFilterExtent[1][1] < west)
+              window.currentFilterExtent[1][1] = west;
+          }
+          // Layer (= Feature) einblenden, falls es von initialer Feature-Ausblendung betroffen ist
+          {% if map_filter_hide_initial %}
+            if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
+              layer.setStyle({
+                color: '#3388ff',
+                fill: true,
+                fillColor: '#3388ff',
+                stroke: true,
+                opacity: 1
+              });
+            }
+          {% endif %}
+        // ansonsten:
+        } else {
+          // Layer (= Feature) tatsächlich ausblenden
+          if (isSubLayer) {
+            window.removedLayers.push(layer);
+            clusterLayer.removeLayer(layer);
+          } else
+            layer.getElement().style.display = 'none';
+        }
+      }
 
       /**
        * @function
@@ -991,6 +983,33 @@
           }
         });
         window.removedLayers = [];
+      }
+
+      /**
+       * @function
+       * @name applyFilters
+       *
+       * wendet Filter an
+       *
+       * @param {Object[]} filterAttributesList - Liste für Filterobjekte
+       */
+      function applyFilters(filterAttributesList) {
+        if (filterAttributesList.length > 0) {
+          showAllMapFeatures();
+          window.currMap.eachLayer(function(layer) {
+            if (layer.feature) {
+              filterMapFeatures(filterAttributesList, layer, false);
+            } else if (layer.id === 'cluster') {
+              let clusterLayer = layer;
+              layer.eachLayer(function(subLayer) {
+                filterMapFeatures(filterAttributesList, subLayer, true, clusterLayer);
+              });
+              layer.refreshClusters();
+            }
+          });
+        } else {
+          showAllMapFeatures();
+        }
       }
     </script>
   {% endif %}

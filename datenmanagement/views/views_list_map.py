@@ -438,6 +438,8 @@ class DataMapView(JsonView):
             data = data.strftime('%Y-%m-%d %H:%M:%S')
           feature['properties']['deadline_' +
                                 str(index)] = str(data)
+          # zusätzlich Feld auch als "normale" Filtereigenschaft setzen
+          feature['properties'][field] = str(data)
       # optional: Intervallfilter als Eigenschaften setzen,
       # falls entsprechende Klausel in der Modelldefinition existiert
       if hasattr(self.model._meta, 'map_rangefilter_fields'):
