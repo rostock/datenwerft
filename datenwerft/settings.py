@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Anwendungsdefinition
 
-DATENWERFT_VERSION = '5.9.1'
+DATENWERFT_VERSION = '5.10.0'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -28,6 +28,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
   'datenmanagement',
+  'subsetter',
   'accounts'
 ]
 

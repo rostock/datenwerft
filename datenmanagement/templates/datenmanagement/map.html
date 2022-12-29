@@ -40,12 +40,13 @@
       {% endif %}
     </em>
   </h4>
-  <div class="d-grid mb-3 gap-2 d-md-block">
+  <div class="d-grid mb-3 gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
     {% if user|user_has_model_add_permission:model_name_lower %}
       <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> Datensätze in Tabelle auflisten</a>
+      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
+      <button id="subsetter" class="btn btn-secondary" disabled><i class="fas fa-table"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge in Tabelle übernehmen</button>
     {% endif %}
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
@@ -60,8 +61,8 @@
             <h6>Ein-Klick-Filter</h6>
             <div id="filter-one-click" class="btn-group-vertical">
               {% if model_name == 'Baustellen_geplant' %}
-                <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
-                <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8)</button>
+                <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
+                <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8)</button>
               {% endif %}
             </div>
             <hr/>
@@ -177,16 +178,16 @@
             </div>
           {% endif %}
           <div id="filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
-            <button id="filter-apply" class="btn btn-success" type="submit"><i class="fas fa-filter"></i> Filter anwenden</button>
-            <button id="filter-reset" class="btn btn-warning" type="submit"><i class="fas fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
+            <button id="filter-apply" class="btn btn-success"><i class="fas fa-filter"></i> Filter anwenden</button>
+            <button id="filter-reset" class="btn btn-warning"><i class="fas fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
           </div>
         </div>
       {% endif %}
       <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
         <h5>Kartenausschnitt</h5>
         <div class="d-grid mt-2 gap-2 d-md-block">
-          <button id="map-extent-filter" class="btn btn-success" type="submit"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
-          <button id="map-extent-initial" class="btn btn-warning" type="submit"><i class="fas fa-map"></i> gesamt</button>
+          <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
+          <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-map"></i> gesamt</button>
         </div>
       </div>
       <div id="address-search"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
@@ -612,6 +613,9 @@
         $('.filter-one-click-button').on('click', function(e) {
           let $this = $(this);
 
+          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht aktivieren
+          $('#subsetter').prop('disabled', false);
+
           // alle übrigen Ein-Klick-Filter-Buttons deaktivieren
           $this.parent().children('button').each(function() {
             if ($(this).attr('id') !== e.target.id) {
@@ -631,6 +635,9 @@
 
         // bei Klick auf Button zum Anwenden der Filter...
         $('#filter-apply').on('click', function() {
+          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht aktivieren
+          $('#subsetter').prop('disabled', false);
+
           // alle Ein-Klick-Filter-Buttons deaktivieren
           $('#filter-one-click').children('button').each(function() {
             $(this).prop('disabled', true);
@@ -716,6 +723,9 @@
 
           // Button zum Anwenden der Filter (wieder) aktivieren
           $('#filter-apply').prop('disabled', false);
+
+          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht deaktivieren
+          $('#subsetter').prop('disabled', true);
 
           // Hinweise auf additive Wirkung der Filter (wieder) verbergen
           $('#filter-alert').hide();
