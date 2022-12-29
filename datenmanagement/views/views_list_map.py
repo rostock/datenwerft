@@ -320,6 +320,7 @@ class DataMapView(JsonView):
     self.model = model
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
+    self.model_pk_field = self.model._meta.pk.name
     super(DataMapView, self).__init__()
 
   def get_context_data(self, **kwargs):
@@ -381,7 +382,7 @@ class DataMapView(JsonView):
           previous_value = field_value
         tooltip = tooltip_value.strip()
       else:
-        tooltip = str(curr_object.uuid)
+        tooltip = str(curr_object.pk)
       # GeoJSON-Feature definieren:
       # * Geometrie aus serialisiertem GeoJSON holen
       # * Eigenschaften aus den zuvor befüllten Variablen holen
@@ -389,7 +390,7 @@ class DataMapView(JsonView):
           'type': 'Feature',
           'geometry': object_serialized['features'][0]['geometry'],
           'properties': {
-              'uuid': str(curr_object.uuid),
+              self.model_pk_field: str(curr_object.pk),
               'tooltip': tooltip
           },
           'crs': {
@@ -405,7 +406,7 @@ class DataMapView(JsonView):
               'datenmanagement:' +
               self.model_name +
               'change',
-              args=[curr_object.uuid]))
+              args=[curr_object.pk]))
       # optional: Objekt als inaktiv kennzeichnen
       if curr_object.aktiv is False:
         feature['properties']['inaktiv'] = True

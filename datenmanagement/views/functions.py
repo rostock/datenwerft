@@ -197,6 +197,7 @@ def set_model_related_context_elements(context, model, objects_count=False):
   """
   context['model_name'] = model.__name__
   context['model_name_lower'] = model.__name__.lower()
+  context['model_pk_field'] = model._meta.pk.name
   context['model_verbose_name'] = model._meta.verbose_name
   context['model_verbose_name_plural'] = model._meta.verbose_name_plural
   context['model_description'] = model._meta.description

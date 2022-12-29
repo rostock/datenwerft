@@ -455,10 +455,12 @@
        */
       $(document).ready(function() {
         // Variablen definieren für:
+        // Primärschlüssel der aktuellen Filtermenge
         // Bounding-Box der aktuellen Filtermenge
         // minimale und maximale Werte von entsprechenden Intervallfilterfeldern
         // Wertelisten für entsprechende Filterfelder, die als Listenfilter dargestellt werden sollen
         // Wertelisten für entsprechende Filterfelder, die als Checkboxen-Set dargestellt werden sollen
+        window.currentFilterPrimaryKeys = [];
         window.currentFilterExtent = [];
         let intervalFilterMin = [];
         let intervalFilterMax = [];
@@ -646,6 +648,9 @@
           // Variable für Liste für Filterobjekte definieren
           let filterAttributesList = [];
 
+          // Primärschlüssel der aktuellen Filtermenge zurücksetzen
+          window.currentFilterPrimaryKeys = [];
+
           // Bounding-Box der aktuellen Filtermenge zurücksetzen
           window.currentFilterExtent = [];
 
@@ -772,6 +777,9 @@
             $(this)[0].selectedIndex = 0;
           });
 
+          // Primärschlüssel der aktuellen Filtermenge zurücksetzen
+          window.currentFilterPrimaryKeys = [];
+
           // Bounding-Box der aktuellen Filtermenge zurücksetzen
           window.currentFilterExtent = [];
 
@@ -808,6 +816,26 @@
           else
             // Kartenausschnitt auf Bounding-Box aller Objekte setzen
             setMapExtentByLeafletBounds(objectsExtent);
+        });
+
+        // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
+        $('#subsetter').on('click', function() {
+          // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
+          let pks = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "foobar"]';
+          console.log(window.currentFilterPrimaryKeys);
+          // POST-Request an Subsetter-View zum Erstellen eines neuen Subsetter-Objekts senden
+          fetch('{% url "subsetter:add" %}', {
+            method: 'POST',
+            body: new URLSearchParams({
+              app_label: 'datenmanagement',
+              model: '{{ model_name_lower }}',
+              pk_field: '{{ model_pk_field }}',
+              pks: pks
+            })
+          })
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.log(error))
         });
 
         // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
@@ -922,6 +950,8 @@
         }
         // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
         if (stillVisible) {
+          // Variable für Primärschlüssel der aktuellen Filtermenge aktualisieren
+          window.currentFilterPrimaryKeys.push(layer.feature.properties['{{ model_pk_field }}']);
           // Variable für Bounding-Box der aktuellen Filtermenge aktualisieren
           let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
           let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());

@@ -33,10 +33,15 @@ class AddSubsetView(generic.View):
     :param kwargs:
     :return:
     """
+    print(request)
     self.app_label = request.POST.get('app_label', '')
     self.model = request.POST.get('model', '')
     self.pk_field = request.POST.get('pk_field', '')
     pks = request.POST.get('pks', '')
+    print(self.app_label)
+    print(self.model)
+    print(self.pk_field)
+    print(pks)
     self.pks = json.loads(pks)
     return super(AddSubsetView, self).dispatch(request, *args, **kwargs)
 
