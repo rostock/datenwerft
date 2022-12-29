@@ -1771,65 +1771,6 @@ class Materialien_Durchlaesse(Material):
     super(Materialien_Durchlaesse, self).delete(*args, **kwargs)
 
 
-# Mitarbeiter:innen
-
-class Mitarbeiter(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
-  vorname = models.CharField(
-    'Vorname',
-    max_length=255,
-    validators=constants_vars.personennamen_validators
-  )
-  nachname = models.CharField(
-    'Nachname',
-    max_length=255,
-    validators=constants_vars.personennamen_validators
-  )
-  personalnummer = models.CharField(
-    'Personalnummer',
-    max_length=6,
-    unique=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.mit_personalnummer_regex,
-        message=constants_vars.mit_personalnummer_message
-      )
-    ]
-  )
-
-  class Meta:
-    managed = False
-    codelist = True
-    db_table = 'codelisten\".\"mitarbeiter'
-    verbose_name = 'Mitarbeiter:in'
-    verbose_name_plural = 'Mitarbeiter:innen'
-    description = 'Mitarbeiter:innen'
-    list_fields = {
-      'vorname': 'Vorname',
-      'nachname': 'Nachname',
-      'personalnummer': 'Personalnummer'
-    }
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
-    ordering = [
-      'nachname',
-      'vorname',
-      'personalnummer'
-    ]
-
-  def __str__(self):
-    return self.vorname + ' ' + self.nachname + ' (' + self.personalnummer + ')'
-
-  def save(self, *args, **kwargs):
-    super(Mitarbeiter, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Mitarbeiter, self).delete(*args, **kwargs)
-
-
 # Ordnungen von Fließgewässern
 
 class Ordnungen_Fliessgewaesser(models.Model):
