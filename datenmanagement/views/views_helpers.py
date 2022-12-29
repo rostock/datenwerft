@@ -19,6 +19,10 @@ class OWSProxyView(generic.View):
   """
   http_method_names = ['get', ]
 
+  def __init__(self):
+    self.destination_url = None
+    super().__init__()
+
   def dispatch(self, request, *args, **kwargs):
     """
 
@@ -54,6 +58,15 @@ class AddressSearchView(generic.View):
   API-Key bleibt nach außen verborgen
   """
   http_method_names = ['get', ]
+
+  def __init__(self):
+    self.addresssearch_type = None
+    self.addresssearch_class = None
+    self.addresssearch_query = None
+    self.addresssearch_out_epsg = None
+    self.addresssearch_shape = None
+    self.addresssearch_limit = None
+    super().__init__()
 
   def dispatch(self, request, *args, **kwargs):
     """
@@ -103,6 +116,14 @@ class ReverseSearchView(generic.View):
   API-Key bleibt nach außen verborgen
   """
   http_method_names = ['get', ]
+
+  def __init__(self):
+    self.reversesearch_type = None
+    self.reversesearch_class = None
+    self.reversesearch_x = None
+    self.reversesearch_y = None
+    self.reversesearch_in_epsg = None
+    super().__init__()
 
   def dispatch(self, request, *args, **kwargs):
     """
