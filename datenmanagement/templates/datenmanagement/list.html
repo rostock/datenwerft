@@ -38,8 +38,14 @@
   </div>
   {% if objects_count > 0 %}
     <div class="d-grid mt-5 gap-2 mx-auto">
+      {% if objects_count > 0 %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <em>aktuell sichtbare</em> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
+        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <table id="datasets" class="table table-bordered table-striped">
@@ -65,6 +71,9 @@
       <!-- eslint-disable-next-script -->
       <script type="text/javascript">
         window.dataUrl = '{% url 'datenmanagement:'|add:model_name|add:'data' %}';
+        {% if subset_id %}
+          window.dataUrl = window.dataUrl + '?subset_id=' + '{{ subset_id }}';
+        {% endif %}
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script type="text/javascript">

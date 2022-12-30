@@ -199,21 +199,36 @@
         <div id="results-container" class="results"></div>
       </div>
     </div>
+    <div id="subsetter-error-modal" class="modal fade" tabindex="-1" aria-labelledby="subsetter-error-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header" id="subsetter-error-modal-header">
+              <h5 class="modal-title" id="subsetter-error-modal-title">Keine Übernahme der aktuellen Filtermenge in die Tabelle möglich!</h5>
+          </div>
+          <div class="modal-body" id="subsetter-error-modal-body">
+            Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Fehler aufgetreten.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
     {% if heavy_load_limit %}
-      <div id="id_mapDataLoading" class="modal fade" tabindex="-1" aria-labelledby="id_mapDataLoading-label" aria-hidden="true">
+      <div id="map-data-loading-modal" class="modal fade" tabindex="-1" aria-labelledby="map-data-loading-modal-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header" id="id_mapDataLoading-header">
-              <h5 class="modal-title" id="id_mapDataLoading-title">Laden der Kartendaten</h5>
+            <div class="modal-header" id="map-data-loading-modal-header">
+              <h5 class="modal-title" id="map-data-loading-modal-title">Laden der Kartendaten</h5>
             </div>
-            <div class="modal-body" id="id_mapDataLoading-body">
+            <div class="modal-body" id="map-data-loading-modal-body">
               Die Kartendaten werden (nach-)geladen. Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.
               <div class="text-center">
                 <div class="spinner-border m-4 text-primary" role="status">
                   <span class="sr-only">laden…</span>
                 </div>
                 <div class="m-4">
-                  <span id="id_mapDataLoading-count"></span> von <span id="id_mapDataLoading-border"></span> Datensätzen geladen
+                  <span id="map-data-loading-modal-count"></span> von <span id="map-data-loading-modal-border"></span> Datensätzen geladen
                 </div>
               </div>
             </div>
@@ -305,8 +320,8 @@
           let promises = [];
           let count = 0;
           // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON-FeatureCollection für die Karte eingeblendet wird
-          $('#id_mapDataLoading-count').text(count);
-          $('#id_mapDataLoading-border').text(border);
+          $('#map-data-loading-modal-count').text(count);
+          $('#map-data-loading-modal-border').text(border);
         {% endif %}
 
         /**
@@ -326,19 +341,19 @@
             if (heavyLoad) {
               url += '?limit=' + limit + '&offset=' + offset;
             }
-            toggleModal($('#id_mapDataLoading'));
+            toggleModal($('#map-data-loading-modal'));
             const response = await fetch(url, {
               method: 'GET'
             });
             const data = await response.json();
             if (heavyLoad) {
               count += data.features.length;
-              $('#id_mapDataLoading-count').text(count);
+              $('#map-data-loading-modal-count').text(count);
               if (count === border) {
-                toggleModal($('#id_mapDataLoading'));
+                toggleModal($('#map-data-loading-modal'));
               }
             } else
-              toggleModal($('#id_mapDataLoading'));
+              toggleModal($('#map-data-loading-modal'));
             return data;
           } catch (error) {
             console.error(error);
@@ -821,8 +836,7 @@
         // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
         $('#subsetter').on('click', function() {
           // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
-          let pk_values = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "foobar"]';
-          console.log(window.currentFilterPrimaryKeys);
+          let pk_values = JSON.stringify(window.currentFilterPrimaryKeys);
           // POST-Request an Subsetter-View zum Erstellen eines neuen Subsetter-Objekts senden
           fetch('{% url "toolbox:add_subsetter" %}', {
             method: 'POST',
@@ -834,8 +848,17 @@
             })
           })
           .then(response => response.json())
-          .then(data => console.log(data))
-          .catch(error => console.log(error))
+          .then(data => {
+            let subset_id = JSON.parse(data).id;
+            let url = "{% url 'datenmanagement:'|add:model_name|add:'list' %}";
+            window.open(url + '?subset_id=' + subset_id, '_blank', 'noopener,noreferrer');
+          })
+          .catch(
+            (error) => {
+              console.error(error);
+              toggleModal($('#subsetter-error-modal'));
+            }
+          );
         });
 
         // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
