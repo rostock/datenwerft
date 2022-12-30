@@ -160,7 +160,7 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
   dateiname_original = models.CharField(
     'Original-Dateiname', max_length=255, default='ohne')
   foto = models.ImageField(
-    'Foto',
+    'Foto(s)',
     storage=storage.OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE +
@@ -708,7 +708,7 @@ class Durchlaesse_Fotos(models.Model):
   dateiname_original = models.CharField(
     'Original-Dateiname', max_length=255, default='ohne')
   foto = models.ImageField(
-    'Foto',
+    'Foto(s)',
     storage=storage.OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC +
@@ -1344,7 +1344,7 @@ class Haltestellenkataster_Fotos(models.Model):
   dateiname_original = models.CharField(
     'Original-Dateiname', max_length=255, default='ohne')
   foto = models.ImageField(
-    'Foto',
+    'Foto(s)',
     storage=storage.OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE +

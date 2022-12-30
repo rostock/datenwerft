@@ -1926,8 +1926,7 @@ class Geh_Radwegereinigung(models.Model):
       'wegetyp',
       'reinigungsklasse',
       'reinigungsrhythmus',
-      'breite',
-      'winterdienst'
+      'breite'
     ]
     additional_wms_layers = [
       {

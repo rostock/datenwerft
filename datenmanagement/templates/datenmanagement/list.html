@@ -27,19 +27,25 @@
       {% endif %}
     </em>
   </h4>
-  <div class="d-grid gap-2 d-md-block">
+  <div class="d-grid gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
     {% if user|user_has_model_add_permission:model_name_lower %}
       <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 and geometry_type %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}"><i class="fas fa-map"></i> Datensätze auf Karte anzeigen</a>
+      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
     {% endif %}
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
     <div class="d-grid mt-5 gap-2 mx-auto">
+      {% if objects_count > 0 %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <em>aktuell sichtbare</em> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
+        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <table id="datasets" class="table table-bordered table-striped">
@@ -65,6 +71,9 @@
       <!-- eslint-disable-next-script -->
       <script type="text/javascript">
         window.dataUrl = '{% url 'datenmanagement:'|add:model_name|add:'data' %}';
+        {% if subset_id %}
+          window.dataUrl = window.dataUrl + '?subset_id=' + '{{ subset_id }}';
+        {% endif %}
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script type="text/javascript">

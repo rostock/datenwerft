@@ -17,7 +17,11 @@ class OWSProxyView(generic.View):
 
   mit diesem können auch interne OWS nach außen bereitgestellt werden
   """
-  http_method_names = ['get', ]
+  http_method_names = ['get']
+
+  def __init__(self):
+    self.destination_url = None
+    super().__init__()
 
   def dispatch(self, request, *args, **kwargs):
     """
@@ -53,7 +57,16 @@ class AddressSearchView(generic.View):
 
   API-Key bleibt nach außen verborgen
   """
-  http_method_names = ['get', ]
+  http_method_names = ['get']
+
+  def __init__(self):
+    self.addresssearch_type = None
+    self.addresssearch_class = None
+    self.addresssearch_query = None
+    self.addresssearch_out_epsg = None
+    self.addresssearch_shape = None
+    self.addresssearch_limit = None
+    super().__init__()
 
   def dispatch(self, request, *args, **kwargs):
     """
@@ -102,7 +115,15 @@ class ReverseSearchView(generic.View):
 
   API-Key bleibt nach außen verborgen
   """
-  http_method_names = ['get', ]
+  http_method_names = ['get']
+
+  def __init__(self):
+    self.reversesearch_type = None
+    self.reversesearch_class = None
+    self.reversesearch_x = None
+    self.reversesearch_y = None
+    self.reversesearch_in_epsg = None
+    super().__init__()
 
   def dispatch(self, request, *args, **kwargs):
     """
@@ -237,7 +258,7 @@ class GPXtoGeoJSON(generic.View):
   """
   Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
   """
-  http_method_names = ['post', ]
+  http_method_names = ['post']
 
   @csrf_exempt
   def dispatch(self, request, *args, **kwargs):

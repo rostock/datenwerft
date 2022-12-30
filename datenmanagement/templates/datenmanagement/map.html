@@ -40,12 +40,13 @@
       {% endif %}
     </em>
   </h4>
-  <div class="d-grid mb-3 gap-2 d-md-block">
+  <div class="d-grid mb-3 gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
     {% if user|user_has_model_add_permission:model_name_lower %}
       <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> Datensätze in Tabelle auflisten</a>
+      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
+      <button id="subsetter" class="btn btn-secondary" disabled><i class="fas fa-table"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge in Tabelle übernehmen</button>
     {% endif %}
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
@@ -60,8 +61,8 @@
             <h6>Ein-Klick-Filter</h6>
             <div id="filter-one-click" class="btn-group-vertical">
               {% if model_name == 'Baustellen_geplant' %}
-                <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
-                <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success" type="submit"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8)</button>
+                <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
+                <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8)</button>
               {% endif %}
             </div>
             <hr/>
@@ -177,16 +178,16 @@
             </div>
           {% endif %}
           <div id="filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
-            <button id="filter-apply" class="btn btn-success" type="submit"><i class="fas fa-filter"></i> Filter anwenden</button>
-            <button id="filter-reset" class="btn btn-warning" type="submit"><i class="fas fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
+            <button id="filter-apply" class="btn btn-success"><i class="fas fa-filter"></i> Filter anwenden</button>
+            <button id="filter-reset" class="btn btn-warning"><i class="fas fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
           </div>
         </div>
       {% endif %}
       <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
         <h5>Kartenausschnitt</h5>
         <div class="d-grid mt-2 gap-2 d-md-block">
-          <button id="map-extent-filter" class="btn btn-success" type="submit"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
-          <button id="map-extent-initial" class="btn btn-warning" type="submit"><i class="fas fa-map"></i> gesamt</button>
+          <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
+          <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-map"></i> gesamt</button>
         </div>
       </div>
       <div id="address-search"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
@@ -198,21 +199,36 @@
         <div id="results-container" class="results"></div>
       </div>
     </div>
+    <div id="subsetter-error-modal" class="modal fade" tabindex="-1" aria-labelledby="subsetter-error-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header" id="subsetter-error-modal-header">
+              <h5 class="modal-title" id="subsetter-error-modal-title">Keine Übernahme der aktuellen Filtermenge in die Tabelle möglich!</h5>
+          </div>
+          <div class="modal-body" id="subsetter-error-modal-body">
+            Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Fehler aufgetreten.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
     {% if heavy_load_limit %}
-      <div id="id_mapDataLoading" class="modal fade" tabindex="-1" aria-labelledby="id_mapDataLoading-label" aria-hidden="true">
+      <div id="map-data-loading-modal" class="modal fade" tabindex="-1" aria-labelledby="map-data-loading-modal-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header" id="id_mapDataLoading-header">
-              <h5 class="modal-title" id="id_mapDataLoading-title">Laden der Kartendaten</h5>
+            <div class="modal-header" id="map-data-loading-modal-header">
+              <h5 class="modal-title" id="map-data-loading-modal-title">Laden der Kartendaten</h5>
             </div>
-            <div class="modal-body" id="id_mapDataLoading-body">
+            <div class="modal-body" id="map-data-loading-modal-body">
               Die Kartendaten werden (nach-)geladen. Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.
               <div class="text-center">
                 <div class="spinner-border m-4 text-primary" role="status">
                   <span class="sr-only">laden…</span>
                 </div>
                 <div class="m-4">
-                  <span id="id_mapDataLoading-count"></span> von <span id="id_mapDataLoading-border"></span> Datensätzen geladen
+                  <span id="map-data-loading-modal-count"></span> von <span id="map-data-loading-modal-border"></span> Datensätzen geladen
                 </div>
               </div>
             </div>
@@ -304,8 +320,8 @@
           let promises = [];
           let count = 0;
           // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON-FeatureCollection für die Karte eingeblendet wird
-          $('#id_mapDataLoading-count').text(count);
-          $('#id_mapDataLoading-border').text(border);
+          $('#map-data-loading-modal-count').text(count);
+          $('#map-data-loading-modal-border').text(border);
         {% endif %}
 
         /**
@@ -325,19 +341,19 @@
             if (heavyLoad) {
               url += '?limit=' + limit + '&offset=' + offset;
             }
-            toggleModal($('#id_mapDataLoading'));
+            toggleModal($('#map-data-loading-modal'));
             const response = await fetch(url, {
               method: 'GET'
             });
             const data = await response.json();
             if (heavyLoad) {
               count += data.features.length;
-              $('#id_mapDataLoading-count').text(count);
+              $('#map-data-loading-modal-count').text(count);
               if (count === border) {
-                toggleModal($('#id_mapDataLoading'));
+                toggleModal($('#map-data-loading-modal'));
               }
             } else
-              toggleModal($('#id_mapDataLoading'));
+              toggleModal($('#map-data-loading-modal'));
             return data;
           } catch (error) {
             console.error(error);
@@ -454,10 +470,12 @@
        */
       $(document).ready(function() {
         // Variablen definieren für:
+        // Primärschlüssel der aktuellen Filtermenge
         // Bounding-Box der aktuellen Filtermenge
         // minimale und maximale Werte von entsprechenden Intervallfilterfeldern
         // Wertelisten für entsprechende Filterfelder, die als Listenfilter dargestellt werden sollen
         // Wertelisten für entsprechende Filterfelder, die als Checkboxen-Set dargestellt werden sollen
+        window.currentFilterPrimaryKeys = [];
         window.currentFilterExtent = [];
         let intervalFilterMin = [];
         let intervalFilterMax = [];
@@ -612,6 +630,9 @@
         $('.filter-one-click-button').on('click', function(e) {
           let $this = $(this);
 
+          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht aktivieren
+          $('#subsetter').prop('disabled', false);
+
           // alle übrigen Ein-Klick-Filter-Buttons deaktivieren
           $this.parent().children('button').each(function() {
             if ($(this).attr('id') !== e.target.id) {
@@ -631,6 +652,9 @@
 
         // bei Klick auf Button zum Anwenden der Filter...
         $('#filter-apply').on('click', function() {
+          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht aktivieren
+          $('#subsetter').prop('disabled', false);
+
           // alle Ein-Klick-Filter-Buttons deaktivieren
           $('#filter-one-click').children('button').each(function() {
             $(this).prop('disabled', true);
@@ -638,6 +662,9 @@
 
           // Variable für Liste für Filterobjekte definieren
           let filterAttributesList = [];
+
+          // Primärschlüssel der aktuellen Filtermenge zurücksetzen
+          window.currentFilterPrimaryKeys = [];
 
           // Bounding-Box der aktuellen Filtermenge zurücksetzen
           window.currentFilterExtent = [];
@@ -717,6 +744,9 @@
           // Button zum Anwenden der Filter (wieder) aktivieren
           $('#filter-apply').prop('disabled', false);
 
+          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht deaktivieren
+          $('#subsetter').prop('disabled', true);
+
           // Hinweise auf additive Wirkung der Filter (wieder) verbergen
           $('#filter-alert').hide();
 
@@ -762,6 +792,9 @@
             $(this)[0].selectedIndex = 0;
           });
 
+          // Primärschlüssel der aktuellen Filtermenge zurücksetzen
+          window.currentFilterPrimaryKeys = [];
+
           // Bounding-Box der aktuellen Filtermenge zurücksetzen
           window.currentFilterExtent = [];
 
@@ -798,6 +831,34 @@
           else
             // Kartenausschnitt auf Bounding-Box aller Objekte setzen
             setMapExtentByLeafletBounds(objectsExtent);
+        });
+
+        // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
+        $('#subsetter').on('click', function() {
+          // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
+          let pk_values = JSON.stringify(window.currentFilterPrimaryKeys);
+          // POST-Request an Subsetter-View zum Erstellen eines neuen Subsetter-Objekts senden
+          fetch('{% url "toolbox:add_subsetter" %}', {
+            method: 'POST',
+            body: new URLSearchParams({
+              app_label: 'datenmanagement',
+              model_name: '{{ model_name_lower }}',
+              pk_field: '{{ model_pk_field }}',
+              pk_values: pk_values
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            let subset_id = JSON.parse(data).id;
+            let url = "{% url 'datenmanagement:'|add:model_name|add:'list' %}";
+            window.open(url + '?subset_id=' + subset_id, '_blank', 'noopener,noreferrer');
+          })
+          .catch(
+            (error) => {
+              console.error(error);
+              toggleModal($('#subsetter-error-modal'));
+            }
+          );
         });
 
         // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
@@ -912,6 +973,8 @@
         }
         // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
         if (stillVisible) {
+          // Variable für Primärschlüssel der aktuellen Filtermenge aktualisieren
+          window.currentFilterPrimaryKeys.push(layer.feature.properties['{{ model_pk_field }}']);
           // Variable für Bounding-Box der aktuellen Filtermenge aktualisieren
           let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
           let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
