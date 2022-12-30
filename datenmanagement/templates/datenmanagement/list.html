@@ -33,6 +33,7 @@
     {% endif %}
     {% if objects_count > 0 and geometry_type %}
       <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
+      <button id="subsetter" class="btn btn-secondary"><i class="fas fa-map"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge auf Karte übernehmen</button>
     {% endif %}
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
