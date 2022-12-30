@@ -1,3 +1,4 @@
+import decimal
 import json
 import re
 import time
@@ -486,10 +487,8 @@ class DataMapListView(generic.ListView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    # Variablen für Filterfelder vorbereiten,
-    # die als Intervallfelder fungieren sollen,
-    # und zwar eine Variable mit dem Minimal-
-    # und eine Variable mit dem Maximalwert
+    # Variablen für Filterfelder vorbereiten, die als Intervallfelder fungieren sollen,
+    # und zwar eine Variable mit dem Minimal- und eine Variable mit dem Maximalwert
     interval_filter_min = None
     interval_filter_max = None
     if hasattr(self.model._meta, 'map_rangefilter_fields'):
@@ -497,8 +496,7 @@ class DataMapListView(generic.ListView):
       field_name = list(self.model._meta.map_rangefilter_fields.keys())[0]
       # NOT-NULL-Filter konstruieren
       field_name_isnull = field_name + '__isnull'
-      # Minimalwert erhalten und
-      # in vorbereitete Variable einfügen
+      # Minimalwert erhalten und in vorbereitete Variable einfügen
       interval_filter_min = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
           field_name).values_list(field_name, flat=True).first()
       if isinstance(interval_filter_min, date):
@@ -509,34 +507,42 @@ class DataMapListView(generic.ListView):
       field_name = list(self.model._meta.map_rangefilter_fields.keys())[1]
       # NOT-NULL-Filter konstruieren
       field_name_isnull = field_name + '__isnull'
-      # Maximalwert erhalten und
-      # in vorbereitete Variable einfügen
+      # Maximalwert erhalten und in vorbereitete Variable einfügen
       interval_filter_max = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
           field_name).values_list(field_name, flat=True).last()
       if isinstance(interval_filter_max, date):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d')
       elif isinstance(interval_filter_max, datetime):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d %H:%M:%S')
-    # Dictionary für Filterfelder vorbereiten,
-    # die als Auswahlfeld fungieren sollen
+    # Dictionary für Filterfelder vorbereiten, die als Auswahlfeld fungieren sollen
     list_filter_lists = {}
     if hasattr(self.model._meta, 'map_filter_fields_as_list'):
       # alle entsprechend definierten Felder durchgehen
       for field_name in self.model._meta.map_filter_fields_as_list:
-        # passendes Feld im Zielmodell identifizieren
-        foreign_field_name = \
-            self.model._meta.get_field(field_name).remote_field.model._meta.ordering[0]
+        # passendes Zielmodell identifizieren
+        target_model = self.model._meta.get_field(field_name).remote_field.model
+        # passendes Feld im Zielmodell für die Sortierung identifizieren
+        foreign_field_name_ordering = target_model._meta.ordering[0]
+        # passendes Feld im Zielmodell für die Anzeige identifizieren
+        if hasattr(target_model._meta, 'naming'):
+          foreign_field_name_naming = target_model._meta.naming
+        else:
+          foreign_field_name_naming = foreign_field_name_ordering
         # NOT-NULL-Filter konstruieren
         field_name_isnull = field_name + '__isnull'
-        # sortierte Liste aller eindeutigen Werte
-        # des passenden Feldes aus Zielmodell erhalten und
-        # in vorbereitetes Dictionary einfügen
-        list_filter_lists[field_name] = list(
+        # sortierte Liste aller eindeutigen Werte des passenden Feldes aus Zielmodell erhalten
+        value_list = list(
             self.model.objects.exclude(**{field_name_isnull: True}).order_by(
-                field_name + '__' + foreign_field_name).values_list(
-                field_name + '__' + foreign_field_name, flat=True).distinct())
-    # Dictionary für Filterfelder vorbereiten,
-    # die als Checkboxen-Set fungieren sollen
+                field_name + '__' + foreign_field_name_ordering).values_list(
+                field_name + '__' + foreign_field_name_naming, flat=True).distinct())
+        # Dezimalzahlen in Liste in Strings umwandeln,
+        # da Dezimalzahlen nicht als JSON serialisiert werden können
+        cleaned_value_list = []
+        for value in value_list:
+          cleaned_value_list.append(str(value) if isinstance(value, decimal.Decimal) else value)
+        # Liste in vorbereitetes Dictionary einfügen
+        list_filter_lists[field_name] = cleaned_value_list
+    # Dictionary für Filterfelder vorbereiten, die als Checkboxen-Set fungieren sollen
     checkbox_filter_lists = {}
     if hasattr(self.model._meta, 'map_filter_fields'):
       # alle entsprechend definierten Felder durchgehen
@@ -577,7 +583,7 @@ class DataMapListView(generic.ListView):
             checkbox_filter_lists[field_name] = distinct_value_list
           # ansonsten...
           else:
-            # sortierte Liste aller eindeutigen Einzelwerte erhalten
+            # sortierte Liste aller eindeutigen Einzelwerte
             # direkt in vorbereitetes Dictionary einfügen
             checkbox_filter_lists[field_name] = values_list
     context = super(DataMapListView, self).get_context_data(**kwargs)
@@ -616,6 +622,7 @@ class DataMapListView(generic.ListView):
     context['map_filter_fields_as_list'] = (
         self.model._meta.map_filter_fields_as_list if hasattr(
             self.model._meta, 'map_filter_fields_as_list') else None)
+    print(list_filter_lists)
     context['list_filter_lists'] = json.dumps(list_filter_lists)
     context['map_filter_boolean_fields_as_checkbox'] = (
         self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(

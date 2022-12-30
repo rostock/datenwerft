@@ -314,6 +314,7 @@ class Altersklassen_Kadaverfunde(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['ordinalzahl']
+    naming = 'bezeichnung'
 
   def __str__(self):
     return self.bezeichnung
@@ -1381,6 +1382,7 @@ class Geschlechter_Kadaverfunde(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['ordinalzahl']
+    naming = 'bezeichnung'
 
   def __str__(self):
     return self.bezeichnung
@@ -2065,6 +2067,7 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['ordinalzahl']
+    naming = 'reinigungsrhythmus'
 
   def __str__(self):
     return str(self.reinigungsrhythmus)
@@ -2899,6 +2902,7 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['ordinalzahl']
+    naming = 'reinigungsrhythmus'
 
   def __str__(self):
     return str(self.reinigungsrhythmus)
@@ -3124,6 +3128,7 @@ class Zustaende_Kadaverfunde(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['ordinalzahl']
+    naming = 'zustand'
 
   def __str__(self):
     return str(self.zustand)
@@ -3174,6 +3179,7 @@ class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
     # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
     # Kindtabellen sortiert aufgelistet
     ordering = ['ordinalzahl']
+    naming = 'zustand'
 
   def __str__(self):
     return str(self.zustand)

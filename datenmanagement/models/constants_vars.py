@@ -9,8 +9,8 @@ options.DEFAULT_NAMES += (
   'codelist',
   # optional;
   # Boolean;
-  # Handelt es sich um eine Codeliste, die dann für normale Benutzer in der
-  # Liste der verfügbaren Datenmodelle nicht auftaucht (True)?
+  # Handelt es sich um eine Codeliste, die dann für normale Benutzer
+  # in der Liste der verfügbaren Datenmodelle nicht auftaucht (True)?
   'complex',
   # optional;
   # Boolean;
@@ -23,56 +23,56 @@ options.DEFAULT_NAMES += (
   # optional;
   # Dictionary;
   # Namen der Felder (als Keys), die im Formular mit einem entsprechenden
-  # Katalog verlinkt werden sollen, mit ihren Links (als Values)
+  # Katalog verlinkt werden sollen, mit ihren jeweiligen Links (als Values)
   'choices_models_for_choices_fields',
   # optional;
   # Dictionary;
-  # Namen der Felder (als Keys), denen Modelle (als Values) zugewiesen sind,
+  # Namen der Felder (als Keys), denen jeweils Modelle (als Values) zugewiesen sind,
   # die zur Befüllung entsprechender Auswahllisten herangezogen werden sollen
   'list_fields',
   # Pflicht;
   # Dictionary;
-  # Namen der Felder (als Keys), die in genau dieser Reihenfolge in der
-  # Tabelle der Listenansicht als Spalten auftreten sollen, mit ihren Labels
-  # (als Values)
+  # Namen der Felder (als Keys), die in genau dieser Reihenfolge in der Tabelle
+  # der Listenansicht als Spalten auftreten sollen, mit ihren jeweiligen Labels (als Values)
   'list_fields_with_number',
   # optional;
   # Liste;
-  # Liste mit den Namen der Felder aus list_fields, deren Werte von einem
-  # numerischen Datentyp sind und die daher entsprechend behandelt werden
-  # müssen, damit die Sortierung in der Tabelle
-  # der Listenansicht funktioniert
+  # Liste mit den Namen der Felder aus ``list_fields``, deren Werte von einem
+  # numerischen Datentyp sind und die daher entsprechend behandelt werden müssen,
+  # damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_date',
   # optional;
   # Liste;
-  # Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp
-  # Datum sind und die daher entsprechend behandelt werden müssen, damit die
-  # Sortierung in der Tabelle der Listenansicht funktioniert
+  # Liste mit den Namen der Felder aus ``list_fields``, deren Werte vom Datentyp
+  # Datum sind und die daher entsprechend behandelt werden müssen,
+  # damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_datetime',
   # optional;
   # Liste;
-  # Liste mit den Namen der Felder aus list_fields, deren Werte vom Datentyp
+  # Liste mit den Namen der Felder aus ``list_fields``, deren Werte vom Datentyp
   # Datum mit Zeit sind und die daher entsprechend behandelt werden müssen,
   # damit die Sortierung in der Tabelle der Listenansicht funktioniert
   'list_fields_with_foreign_key',
   # optional;
   # Dictionary;
-  # Namen der Felder (als Keys) aus list_fields, die für die Tabelle der
-  # Listenansicht in Namen von Fremdschlüsselfeldern (als Values) umgewandelt
+  # Namen der Felder (als Keys) aus ``list_fields``, die für die Tabelle der
+  # Listenansicht jeweils in Namen von Fremdschlüsselfeldern (als Values) umgewandelt
   # werden sollen, damit sie in der jeweils referenzierten Tabelle auch
   # gefunden und in der Tabelle der Listenansicht dargestellt werden
+  'naming',
+  # optional;
+  # Text;
+  # Name des Feldes, dessen Wert in Drop-down-Listen in Kartenansichten erscheinen soll
   'fields_with_foreign_key_to_linkify',
   # optional;
   # Liste;
-  # Liste mit den Namen der Felder, deren Werte mit Fremdschlüssellinks
-  # versehen werden sollen
+  # Liste mit den Namen der Felder, deren Werte mit Fremdschlüssellinks versehen werden sollen
   'associated_models',
   # optional;
   # Dictionary;
-  # Sollen andere Modelle (als Keys), die mit Fremdschlüsselfeldern
-  # (als Values) auf dieses Model verweisen, herangezogen werden, um
-  # entsprechende Links auf der Bearbeitungsseite und in der Tabelle der
-  # Listenansicht dieses Modelle bereitzustellen?
+  # Sollen andere Modelle (als Keys), die jeweils mit Fremdschlüsselfeldern (als Values)
+  # auf dieses Model verweisen, herangezogen werden, um entsprechende Links
+  # auf der Bearbeitungsseite und in der Tabelle der Listenansicht dieses Modells bereitzustellen?
   'highlight_flag',
   # optional;
   # Text;
@@ -81,28 +81,26 @@ options.DEFAULT_NAMES += (
   'readonly_fields',
   # optional;
   # Liste;
-  # Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar
-  # erscheinen sollen
+  # Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
   'object_title',
   # optional;
   # Text;
-  # Textbaustein für die Löschansicht (relevant nur bei Modellen mit
-  # Fremdschlüssel)
+  # Textbaustein für die Löschansicht (relevant nur bei Modellen mit Fremdschlüssel)
   'foreign_key_label',
-  # optional ; Text       ; Titel des Feldes mit dem Fremdschlüssel
-  # (relevant nur bei Modellen mit Fremdschlüssel)
+  # optional;
+  # Text;
+  # Titel des Feldes mit dem Fremdschlüssel (relevant nur bei Modellen mit Fremdschlüssel)
   'map_feature_tooltip_field',
   # optional;
   # Text;
-  # Name des Feldes, dessen Werte in der Kartenansicht als Tooltip der
-  # Kartenobjekte angezeigt werden sollen
+  # Name des Feldes, dessen Werte in der Kartenansicht
+  # als Tooltip der Kartenobjekte angezeigt werden sollen
   'map_feature_tooltip_fields',
   # optional;
   # Liste;
-  # Namen der Felder, deren Werte in genau dieser Reihenfolge jeweils
-  # getrennt durch ein Leerzeichen zusammengefügt werden sollen, damit das
-  # Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt
-  # werden kann
+  # Namen der Felder, deren Werte in genau dieser Reihenfolge,
+  # jeweils getrennt durch ein Leerzeichen, zusammengefügt werden sollen,
+  # damit das Ergebnis in der Kartenansicht als Tooltip der Kartenobjekte angezeigt werden kann
   'map_one_click_filters',
   # optional;
   # Boolean;
@@ -112,19 +110,18 @@ options.DEFAULT_NAMES += (
   # optional;
   # Dictionary;
   # Namen der Felder (als Keys), die in genau dieser Reihenfolge in der
-  # Kartenansicht als Intervallfilter auftreten sollen, mit ihren Titeln
+  # Kartenansicht als Intervallfilter auftreten sollen, mit ihren jeweiligen Titeln
   # (als Values) – Achtung: Verarbeitung immer paarweise!
   'map_deadlinefilter_fields',
   # optional;
   # Liste;
   # Namen von genau zwei Datumsfeldern, die in der Kartenansicht für einen
-  # Stichtagsfilter herangezogen werden sollen – Achtung: Verarbeitung nur
-  # als Paar!
+  # Stichtagsfilter herangezogen werden sollen – Achtung: Verarbeitung nur als Paar!
   'map_filter_fields',
   # optional;
   # Dictionary;
   # Namen der Felder (als Keys), die in genau dieser Reihenfolge in der
-  # Kartenansicht als Filter auftreten sollen, mit ihren Titeln (als Values)
+  # Kartenansicht als Filter auftreten sollen, mit ihren jeweiligen Titeln (als Values)
   'map_filter_fields_as_list',
   # optional;
   # Liste;
@@ -133,18 +130,18 @@ options.DEFAULT_NAMES += (
   # optional;
   # Liste;
   # Namen der Felder aus map_filter_fields, die als Checkboxen-Set dargestellt werden sollen
-  # (Achtung: Hierbei darf es sich nicht um jene Felder aus map_filter_fields handeln,
+  # (Achtung: Hierbei darf es sich nicht um jene Felder aus ``map_filter_fields`` handeln,
   # die ohnehin bereits Mehrfachauswahlfelder sind!)
   'map_filter_boolean_fields_as_checkbox',
   # optional;
   # Boolean;
-  # Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten
-  # sollen, als Checkboxen-Set dargestellt werden (True)?
+  # Sollen Boolean-Felder, die in der Kartenansicht als Filter auftreten sollen,
+  # als Checkboxen-Set dargestellt werden (True)?
   'map_filter_hide_initial',
   # optional;
   # Dictionary;
-  # Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen
-  # soll, Objekte initial nicht auf der Karte erscheinen, die in diesem Feld
+  # Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll,
+  # dass Objekte initial nicht auf der Karte erscheinen, die in diesem Feld
   # genau diesen bestimmten Wert aufweisen
   'address_type',
   # optional;
@@ -168,38 +165,35 @@ options.DEFAULT_NAMES += (
   # Boolean;
   # Sollen mehrere Fotos hochgeladen werden können (True)? Es werden dann
   # automatisch mehrere Datensätze erstellt, und zwar jeweils einer pro Foto.
-  # Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld mit Namen
-  # 'foto' existieren!
+  # Achtung: Es muss bei Verwendung dieser Option ein Pflichtfeld
+  # mit Namen ``foto`` existieren!
   'group_with_users_for_choice_field',
   # optional;
   # Text;
-  # Name der Gruppe von Benutzern, die für das Feld
-  # Ansprechpartner:in/Bearbeiter:in in einer entsprechenden Auswahlliste
-  # genutzt werden sollen
+  # Name der Gruppe von Benutzern, die für das Feld Ansprechpartner:in/Bearbeiter:in
+  # in einer entsprechenden Auswahlliste genutzt werden sollen
   'additional_wms_layers',
   # optional;
   # Liste;
-  # Eigenschaften zusätzlicher WMS-Layer, die für dieses Modell in den
-  # jeweiligen Kartenansichten optional mit angeboten werden sollen
+  # Eigenschaften zusätzlicher WMS-Layer, die für dieses Modell
+  # in den jeweiligen Kartenansichten optional mit angeboten werden sollen
   'as_overlay',
   # optional;
   # Boolean;
-  # Zusätzliche Overlay Layer
+  # Soll dieses Datenmodell als zusätzlicher Overlay-Layer in der Karte auswählbar sein (True)?
   'gpx_input',
   # optional;
   # Boolean;
-  # Gibt an, ob ein GPX-Upload-Feld im Formular angezeigt werden soll.
+  # Soll ein GPX-Upload-Feld im Formular angezeigt werden (True)?
   'postcode_assigner',
   # optional;
   # Text;
-  # Name des Feldes, das im Formular mit einer Funktion zur
-  # automatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
+  # Name des Feldes, das im Formular mit einer Funktion
+  #  zurautomatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
   'heavy_load_limit'
   # optional;
   # Zahl;
-  # Limit für einzelne Datenladeschritte in Kartenübersicht,
-  # falls sehr große Datenmenge zu erwarten ist.
-
+  # Limit für einzelne Datenladeschritte in Kartenübersicht bei großer Datenmenge
 )
 
 #
