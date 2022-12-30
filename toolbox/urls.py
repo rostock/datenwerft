@@ -8,11 +8,11 @@ router = routers.DefaultRouter()
 
 api_urlpatterns = router.urls
 
-app_name = 'subsetter'
+app_name = 'toolbox'
 urlpatterns = [
   path(
-    'add',
+    'subsetter/add',
     view=login_required(AddSubsetView.as_view()),
-    name='add'
+    name='add_subsetter'
   )
 ]

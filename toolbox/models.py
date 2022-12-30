@@ -17,7 +17,7 @@ class Subsets(models.Model):
   pk_field = models.CharField(
     max_length=255
   )
-  pks = ArrayField(
+  pk_values = ArrayField(
     models.CharField(
       # normally model primary keys are UUIDs (36 chars in length)
       max_length=36

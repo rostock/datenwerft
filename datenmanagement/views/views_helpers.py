@@ -17,7 +17,7 @@ class OWSProxyView(generic.View):
 
   mit diesem können auch interne OWS nach außen bereitgestellt werden
   """
-  http_method_names = ['get', ]
+  http_method_names = ['get']
 
   def __init__(self):
     self.destination_url = None
@@ -57,7 +57,7 @@ class AddressSearchView(generic.View):
 
   API-Key bleibt nach außen verborgen
   """
-  http_method_names = ['get', ]
+  http_method_names = ['get']
 
   def __init__(self):
     self.addresssearch_type = None
@@ -115,7 +115,7 @@ class ReverseSearchView(generic.View):
 
   API-Key bleibt nach außen verborgen
   """
-  http_method_names = ['get', ]
+  http_method_names = ['get']
 
   def __init__(self):
     self.reversesearch_type = None
@@ -258,7 +258,7 @@ class GPXtoGeoJSON(generic.View):
   """
   Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
   """
-  http_method_names = ['post', ]
+  http_method_names = ['post']
 
   @csrf_exempt
   def dispatch(self, request, *args, **kwargs):

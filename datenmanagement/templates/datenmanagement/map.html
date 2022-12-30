@@ -821,16 +821,16 @@
         // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
         $('#subsetter').on('click', function() {
           // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
-          let pks = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "foobar"]';
+          let pk_values = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "foobar"]';
           console.log(window.currentFilterPrimaryKeys);
           // POST-Request an Subsetter-View zum Erstellen eines neuen Subsetter-Objekts senden
-          fetch('{% url "subsetter:add" %}', {
+          fetch('{% url "toolbox:add_subsetter" %}', {
             method: 'POST',
             body: new URLSearchParams({
               app_label: 'datenmanagement',
-              model: '{{ model_name_lower }}',
+              model_name: '{{ model_name_lower }}',
               pk_field: '{{ model_pk_field }}',
-              pks: pks
+              pk_values: pk_values
             })
           })
           .then(response => response.json())

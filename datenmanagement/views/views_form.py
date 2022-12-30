@@ -270,6 +270,9 @@ class DataAddView(generic.CreateView):
         form=DataForm,
         fields='__all__',
         formfield_callback=functions.assign_widgets)
+    self.multi_foto_field = None
+    self.multi_files = None
+    self.file = None
     super(DataAddView, self).__init__()
 
   def get_form_kwargs(self):
@@ -280,17 +283,12 @@ class DataAddView(generic.CreateView):
     """
     kwargs = super(DataAddView, self).get_form_kwargs()
     self = functions.set_form_attributes(self)
-    self.multi_foto_field = (
-        self.model._meta.multi_foto_field if hasattr(
-            self.model._meta,
-            'multi_foto_field'
-        ) else None)
-    self.multi_files = (
-        self.request.FILES if hasattr(
-            self.model._meta,
-            'multi_foto_field') and self.request.method == 'POST' else None)
-    self.file = (
-        self.request.FILES if self.request.method == 'POST' else None)
+    if hasattr(self.model._meta, 'multi_foto_field'):
+      self.multi_foto_field = self.model._meta.multi_foto_field
+      if self.request.method == 'POST':
+        self.multi_files = self.request.FILES
+    if self.request.method == 'POST':
+      self.file = self.request.FILES
     kwargs[
         'fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs[
@@ -375,6 +373,21 @@ class DataChangeView(generic.UpdateView):
   :param success_url: Success-URL
   """
 
+  def __init__(self, model=None, template_name=None, success_url=None):
+    self.model = model
+    self.template_name = template_name
+    self.success_url = success_url
+    self.form_class = modelform_factory(
+      self.model,
+      form=DataForm,
+      fields='__all__',
+      formfield_callback=functions.assign_widgets)
+    self.associated_models = None
+    self.file = None
+    self.associated_new = None
+    self.associated_objects = None
+    super(DataChangeView, self).__init__()
+
   def get_form_kwargs(self):
     """
     liefert **kwargs als Dictionary mit Formularattributen
@@ -385,12 +398,10 @@ class DataChangeView(generic.UpdateView):
     self = functions.set_form_attributes(self)
     self.associated_objects = None
     self.associated_new = None
-    self.associated_models = (
-        self.model._meta.associated_models if hasattr(
-            self.model._meta,
-            'associated_models') else None)
-    self.file = (
-        self.request.FILES if self.request.method == 'POST' else None)
+    if hasattr(self.model._meta, 'associated_models'):
+      self.associated_models = self.model._meta.associated_models
+    if self.request.method == 'POST':
+      self.file = self.request.FILES
     kwargs['associated_objects'] = self.associated_objects
     kwargs['associated_new'] = self.associated_new
     kwargs[
@@ -478,17 +489,6 @@ class DataChangeView(generic.UpdateView):
       kwargs['associated_new'] = self.associated_new
 
     return kwargs
-
-  def __init__(self, model=None, template_name=None, success_url=None):
-    self.model = model
-    self.template_name = template_name
-    self.success_url = success_url
-    self.form_class = modelform_factory(
-        self.model,
-        form=DataForm,
-        fields='__all__',
-        formfield_callback=functions.assign_widgets)
-    super(DataChangeView, self).__init__()
 
   def get_context_data(self, **kwargs):
     """
