@@ -442,7 +442,7 @@ class DataChangeView(generic.UpdateView):
             'link': reverse(
                 'datenmanagement:' +
                 associated_model +
-                'add') +
+                '_add') +
             '?preselect_field=' +
             associated_model_foreign_key_field +
             '&preselect_value=' +
@@ -479,7 +479,7 @@ class DataChangeView(generic.UpdateView):
               'name': str(associated_object),
               'id': associated_object.pk,
               'link': reverse(
-                  'datenmanagement:' + associated_model + 'change',
+                  'datenmanagement:' + associated_model + '_change',
                   args=[associated_object.pk]),
               'preview_img_url': preview_img_url,
               'preview_thumb_url': preview_thumb_url

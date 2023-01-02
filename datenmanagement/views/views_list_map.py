@@ -56,8 +56,8 @@ class DataView(BaseDatatableView):
     super(DataView, self).__init__()
 
   def get_initial_queryset(self):
-    if self.request.GET.get('subset_id'):
-      subset = Subsets.objects.filter(id=int(self.request.GET.get('subset_id')))[0]
+    if self.kwargs and self.kwargs['subset_id']:
+      subset = Subsets.objects.filter(id=int(self.kwargs['subset_id']))[0]
       if (
           subset is not None
           and isinstance(subset, Subsets)
@@ -81,13 +81,11 @@ class DataView(BaseDatatableView):
     for item in qs:
       item_data = []
       item_id = getattr(item, self.model._meta.pk.name)
-      if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
-        item_data.append(
-            '<input class="action-checkbox" type="checkbox" value="' +
-            str(item_id) +
-            '">')
-      else:
-        item_data.append('')
+      d = ''
+      if not self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
+        d = ' disabled'
+      cb = '<input class="action-checkbox" type="checkbox" value="' + str(item_id) + '"' + d + '>'
+      item_data.append(cb)
       for column in self.columns:
         data = None
         value = getattr(item, column)
@@ -105,7 +103,7 @@ class DataView(BaseDatatableView):
               'datenmanagement:' + foreign_model.replace(
                   value._meta.app_label + '.',
                   ''
-              ) + 'change',
+              ) + '_change',
               args=[
                   getattr(
                       value,
@@ -194,7 +192,7 @@ class DataView(BaseDatatableView):
             reverse(
                 'datenmanagement:' +
                 self.model_name +
-                'change',
+                '_change',
                 args=[item_id]) +
             '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>')
       elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
@@ -203,7 +201,7 @@ class DataView(BaseDatatableView):
             reverse(
                 'datenmanagement:' +
                 self.model_name +
-                'change',
+                '_change',
                 args=[item_id]) +
             '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>')
       else:
@@ -214,7 +212,7 @@ class DataView(BaseDatatableView):
             reverse(
                 'datenmanagement:' +
                 self.model_name +
-                'delete',
+                '_delete',
                 args=[item_id]) +
             '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>')
       else:
@@ -318,7 +316,7 @@ class DataListView(generic.ListView):
     context = super(DataListView, self).get_context_data(**kwargs)
     context = functions.set_model_related_context_elements(context, self.model, True)
     context['subset_id'] = (
-        int(self.request.GET.get('subset_id')) if self.request.GET.get('subset_id') else None)
+        int(self.kwargs['subset_id']) if self.kwargs and self.kwargs['subset_id'] else None)
     context['list_fields_labels'] = list(self.model._meta.list_fields.values())
     context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     return context
@@ -348,7 +346,7 @@ class DataMapView(JsonView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    map_features, limit, offset = None, None, None
+    map_features, limit, offset, objects = None, None, None, None
     if self.request.GET.get('limit'):
       limit = int(self.request.GET.get('limit'))
     if self.request.GET.get('offset'):
@@ -358,12 +356,22 @@ class DataMapView(JsonView):
         'type': 'FeatureCollection',
         'features': []
     }
-    if limit is not None and offset is not None:
-      objects = self.model.objects.all()[offset:(offset + limit)]
-    elif limit is not None:
-      objects = self.model.objects.all()[:limit]
+    if self.kwargs and self.kwargs['subset_id']:
+      subset = Subsets.objects.filter(id=int(self.kwargs['subset_id']))[0]
+      if (
+          subset is not None
+          and isinstance(subset, Subsets)
+          and subset.model.model == self.model_name_lower
+      ):
+        objects = self.model.objects.filter(pk__in=subset.pk_values)
+      else:
+        objects = self.model.objects.all()
     else:
       objects = self.model.objects.all()
+    if limit is not None and offset is not None:
+      objects = objects[offset:(offset + limit)]
+    elif limit is not None:
+      objects = objects[:limit]
     # über alle Objekte gehen...
     for curr_object in objects:
       # Objekt als GeoJSON serializieren
@@ -423,7 +431,7 @@ class DataMapView(JsonView):
           reverse(
               'datenmanagement:' +
               self.model_name +
-              'change',
+              '_change',
               args=[curr_object.pk]))
       # optional: Objekt als inaktiv kennzeichnen
       if curr_object.aktiv is False:
@@ -622,6 +630,8 @@ class DataMapListView(generic.ListView):
     context = super(DataMapListView, self).get_context_data(**kwargs)
     context = functions.set_model_related_context_elements(context, self.model, True)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['subset_id'] = (
+        int(self.kwargs['subset_id']) if self.kwargs and self.kwargs['subset_id'] else None)
     context['highlight_flag'] = (
         self.model._meta.highlight_flag if hasattr(
             self.model._meta, 'highlight_flag') else None)
@@ -655,7 +665,6 @@ class DataMapListView(generic.ListView):
     context['map_filter_fields_as_list'] = (
         self.model._meta.map_filter_fields_as_list if hasattr(
             self.model._meta, 'map_filter_fields_as_list') else None)
-    print(list_filter_lists)
     context['list_filter_lists'] = json.dumps(list_filter_lists)
     context['map_filter_boolean_fields_as_checkbox'] = (
         self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(

@@ -13,6 +13,8 @@
 {% block scripts %}
   {{ block.super }}
   <script type="text/javascript" src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -29,16 +31,17 @@
   </h4>
   <div class="d-grid gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
     {% if user|user_has_model_add_permission:model_name_lower %}
-      <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
+      <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 and geometry_type %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'map' %}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
+      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_map' %}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
+      <button id="subsetter" class="btn btn-secondary"><i class="fas fa-map"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge auf Karte übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
+    <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
     <div class="d-grid mt-5 gap-2 mx-auto">
-      {% if objects_count > 0 %}
+      {% if subset_id %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -70,9 +73,10 @@
       </table>
       <!-- eslint-disable-next-script -->
       <script type="text/javascript">
-        window.dataUrl = '{% url 'datenmanagement:'|add:model_name|add:'data' %}';
         {% if subset_id %}
-          window.dataUrl = window.dataUrl + '?subset_id=' + '{{ subset_id }}';
+          window.dataUrl = "{% url 'datenmanagement:'|add:model_name|add:'_data'|add:'_subset' subset_id %}";
+        {% else %}
+          window.dataUrl = "{% url 'datenmanagement:'|add:model_name|add:'_data' %}";
         {% endif %}
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
@@ -165,7 +169,11 @@
                 // alle ausgewählten Zeilen (= Datensätze) durchgehen...
                 actionCheckboxes.each(function() {
                   // Zeile (= Datensatz) löschen
-                  jQuery.get(window.document.location + '../deleteimmediately/' + $(this).val() + '/');
+                  let id = $(this).val();
+                  {% with tmp='foobar' %}
+                    let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_deleteimmediately' tmp %}".replace(/foobar/, id.toString());
+                  {% endwith %}
+                  jQuery.get(url_mask);
                 });
                 // kurz warten und Tabelle neuladen, damit gelöschte Zeilen (= Datensätze) verschwinden
                 setTimeout(function() {
@@ -174,6 +182,29 @@
                 }, 1000);
               }
             }
+          });
+
+          // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Kartenansicht...
+          $('#subsetter').on('click', function() {
+            // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
+            let currentTablePrimaryKeys = [];
+            let tableData = table.rows().data();
+            for (let i = 0; i < tableData.length; i++) {
+              let stringWithPrimaryKeys = tableData[i][0];
+              currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value=\"/, '').replace(/\">/, ''));
+            }
+            // Filtermenge behandeln und übergeben
+            {% with tmp='foobar' %}
+              let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_map'|add:'_subset' tmp %}";
+            {% endwith %}
+            subsetting(
+              currentTablePrimaryKeys,
+              '{% url "toolbox:subset_add" %}',
+              '{{ model_name }}',
+              '{{ model_pk_field }}',
+              url_mask,
+              'Bei der Übernahme der aktuellen Filtermenge auf die Karte ist ein Serverfehler aufgetreten.'
+            );
           });
         });
 
@@ -204,5 +235,18 @@
         </div>
       </div>
     {% endif %}
+    <div id="subsetter-error-modal" class="modal fade" tabindex="-1" aria-labelledby="subsetter-error-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header" id="subsetter-error-modal-header">
+              <h5 class="modal-title" id="subsetter-error-modal-title">Keine Übernahme der aktuellen Filtermenge auf die Karte möglich!</h5>
+          </div>
+          <div class="modal-body" id="subsetter-error-modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
   {% endif %}
 {% endblock %}

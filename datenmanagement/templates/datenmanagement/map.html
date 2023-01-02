@@ -23,6 +23,7 @@
   <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
   <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
   {% if map_one_click_filters %}
     <script type="text/javascript" src="{% static 'datenmanagement/js/customMapFilters.js' %}"></script>
   {% endif %}
@@ -42,16 +43,22 @@
   </h4>
   <div class="d-grid mb-3 gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
     {% if user|user_has_model_add_permission:model_name_lower %}
-      <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
+      <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
     {% if objects_count > 0 %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'list' %}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
+      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_list' %}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
       <button id="subsetter" class="btn btn-secondary" disabled><i class="fas fa-table"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge in Tabelle übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-backward"></i> zurück</a>
+    <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
-      <div id="map-side-container" class="mb-3">
+    {% if subset_id %}
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze auf der Karte angezeigt, sondern nur die <strong><em>aus der Tabelle übernommenen</em></strong> Datensätze!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endif %}
+    <div id="map-side-container" class="mb-3">
       {% leaflet_map "map" callback="window.mapCallbackFunction" %}
       {% if map_filters_enabled %}
         <div id="filter"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
@@ -205,9 +212,7 @@
           <div class="modal-header" id="subsetter-error-modal-header">
               <h5 class="modal-title" id="subsetter-error-modal-title">Keine Übernahme der aktuellen Filtermenge in die Tabelle möglich!</h5>
           </div>
-          <div class="modal-body" id="subsetter-error-modal-body">
-            Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Fehler aufgetreten.
-          </div>
+          <div class="modal-body" id="subsetter-error-modal-body"></div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
           </div>
@@ -250,7 +255,7 @@
         setMapConstants(map);
 
         // Karte konfigurieren
-        configureMap(map, '{% url "datenmanagement:owsproxy" %}');
+        configureMap(map, '{% url "toolbox:owsproxy" %}');
 
         // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.currMap = map;
@@ -336,7 +341,10 @@
          */
         async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
           try {
-            let url = '{% url 'datenmanagement:'|add:model_name|add:'mapdata' %}';
+            let url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata' %}";
+            {% if subset_id %}
+             url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata'|add:'_subset' subset_id %}";
+            {% endif %}
             // Parameter für aktuellen Ladeschritt setzen, falls große Datenmenge zu erwarten ist
             if (heavyLoad) {
               url += '?limit=' + limit + '&offset=' + offset;
@@ -488,7 +496,7 @@
         // dabei Resultate der Adressensuche auch in anderen Scopes bzw. außerhalb der Hauptfunktion verfügbar machen
         window.results = $('div.results');
         let searchField = $('#searchtext');
-        initializeAddressSearch(searchField, '{% url "datenmanagement:addresssearch" %}');
+        initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}');
 
         // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
         $('.filter-input').each(function() {
@@ -835,29 +843,17 @@
 
         // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
         $('#subsetter').on('click', function() {
-          // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
-          let pk_values = JSON.stringify(window.currentFilterPrimaryKeys);
-          // POST-Request an Subsetter-View zum Erstellen eines neuen Subsetter-Objekts senden
-          fetch('{% url "toolbox:add_subsetter" %}', {
-            method: 'POST',
-            body: new URLSearchParams({
-              app_label: 'datenmanagement',
-              model_name: '{{ model_name_lower }}',
-              pk_field: '{{ model_pk_field }}',
-              pk_values: pk_values
-            })
-          })
-          .then(response => response.json())
-          .then(data => {
-            let subset_id = JSON.parse(data).id;
-            let url = "{% url 'datenmanagement:'|add:model_name|add:'list' %}";
-            window.open(url + '?subset_id=' + subset_id, '_blank', 'noopener,noreferrer');
-          })
-          .catch(
-            (error) => {
-              console.error(error);
-              toggleModal($('#subsetter-error-modal'));
-            }
+          // Filtermenge behandeln und übergeben
+          {% with tmp='foobar' %}
+            let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_list'|add:'_subset' tmp %}";
+          {% endwith %}
+          subsetting(
+            window.currentFilterPrimaryKeys,
+            '{% url "toolbox:subset_add" %}',
+            '{{ model_name }}',
+            '{{ model_pk_field }}',
+            url_mask,
+            'Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Serverfehler aufgetreten.'
           );
         });
 

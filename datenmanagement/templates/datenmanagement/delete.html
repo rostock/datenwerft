@@ -19,7 +19,7 @@
     <div class="d-grid mt-4 gap-2 d-md-block">
       <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i> Datensatz löschen</button>
       {% with model_name=object|get_class_name %}
-        <a class="btn btn-warning" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-hand"></i> abbrechen</a>
+        <a class="btn btn-warning" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
       {% endwith %}
     </div>
 	</form>

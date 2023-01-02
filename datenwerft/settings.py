@@ -4,8 +4,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Anwendungsdefinition
 
-DATENWERFT_VERSION = '5.10.0'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DJANGO_APPS = [
@@ -67,8 +65,6 @@ TEMPLATES = [
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
         'django.contrib.messages.context_processors.messages',
-        'datenwerft.context_processors.datenwerft_version',
-        'datenwerft.context_processors.address_search_key',
         'datenwerft.context_processors.include_login_form',
       ],
       'libraries': {

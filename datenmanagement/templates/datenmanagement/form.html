@@ -89,11 +89,11 @@
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                   {% if object and user|user_has_model_change_permission:model_name_lower %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
-                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% else %}
                     {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
-                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'change' '' %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' foreign_model %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
                 {% elif postcode_assigner and field.name == postcode_assigner %}
@@ -199,9 +199,9 @@
           <button class="btn btn-primary" type="submit" onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
-          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'delete' object.pk %}"><i class="fas fa-trash"></i> {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
+          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
         {% endif %}
-        <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'start' %}"><i class="fas fa-hand"></i> abbrechen</a>
+        <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
     </div>
     {% if address_type %}
@@ -285,7 +285,7 @@
       {% endif %}
 
       // Karte konfigurieren
-      configureMap(map, '{% url "datenmanagement:owsproxy" %}', additionalWmsLayers);
+      configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWmsLayers);
 
       // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
       window.currMap = map;
@@ -335,7 +335,7 @@
         // alle Datenthemen durchgehen...
         {% for key, value in model_list.items %}
           {% with datenthema_name_lower=key|lower %}
-            map._themaUrl = {...map._themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'geometry' %}'};
+            map._themaUrl = {...map._themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'_geometry' %}'};
             // neuen GeoJSON-Layer für Datenthema initialisieren
             let {{ datenthema_name_lower }} = new L.Proj.geoJson();
             // neuen GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
@@ -345,7 +345,7 @@
               if (map.getZoom() > map._minLayerZoom) {
                 // Features zum entsprechenden GeoJSON-Layer hinzufügen
                 map.loadExternalData(
-                  '{% url 'datenmanagement:'|add:key|add:'geometry' %}',
+                  '{% url 'datenmanagement:'|add:key|add:'_geometry' %}',
                   this
                 );
                 map.eachLayer((layer) => {
@@ -531,7 +531,7 @@
         window.searchField = $('#address-search');
         window.addressUuidField = null;
       }
-      initializeAddressSearch(searchField, '{% url "datenmanagement:addresssearch" %}', addressType, addressUuidField);
+      initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType, addressUuidField);
 
       // bei Klick auf Button „Marker setzen“...
       $('#addressToMap').on('click', function() {
@@ -590,7 +590,7 @@
               let href = link.prop('href');
               let value = $(this).find(':selected').val();
               if (value) {
-                href = href.replace(/\/change\/.*/, '/change/' + value + '/');
+                href = href.replace(/\/change\/.*/, '/change/' + value);
                 link.prop('href', href);
                 link.prop('hidden', false);
               } else
@@ -700,7 +700,7 @@
         geometryType = 'Polygon';
       {% endif %}
       let ort = getFeatureCenter(geoJson, geometryType);
-      let url = '{% url "datenmanagement:reversesearch" %}';
+      let url = '{% url "toolbox:reversesearch" %}';
       fetch(url + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
         method: 'GET'
       })
@@ -803,7 +803,7 @@
      * klont den gesamten Datensatz als neuen Datensatz
      */
     function cloneObject() {
-      $('form').attr('action', "{% url 'datenmanagement:'|add:model_name|add:'add' %}");
+      $('form').attr('action', "{% url 'datenmanagement:'|add:model_name|add:'_add' %}");
     }
 
     {% if gpx_input %}
@@ -899,7 +899,7 @@
           y: ort[1]
         };
         let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-        let url = '{% url "datenmanagement:reversesearch" %}' + '?' + query;
+        let url = '{% url "toolbox:reversesearch" %}' + '?' + query;
         fetch(
           url
         ).then(
@@ -925,7 +925,7 @@
       // wird dessen Geometrie auf die Karte gezeichnet
       $('#id_kontrollgebiet').change(function() {
         let element = $('#id_kontrollgebiet option:selected')[0];
-        let url = "{% url 'datenmanagement:'|add:'Fallwildsuchen_Kontrollgebiete'|add:'geometry' %}";
+        let url = "{% url 'datenmanagement:'|add:'Fallwildsuchen_Kontrollgebiete'|add:'_geometry' %}";
         currMap.pm.getGeomanLayers().forEach((layer) => {
           if (layer.toGeoJSON().properties.datenthema) {
             layer.remove();
