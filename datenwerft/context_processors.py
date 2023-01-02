@@ -1,25 +1,4 @@
-from django.conf import settings
 from django.urls import reverse, NoReverseMatch
-
-
-def address_search_key(request):
-  """
-  holt den API-Key für die Adressensuche aus den Einstellungen
-
-  :param request: Anfrage
-  :return: API-Key für die Adressensuche
-  """
-  return {'address_search_key': settings.ADDRESS_SEARCH_KEY}
-
-
-def datenwerft_version(request):
-  """
-  holt die Versionsnummer der Anwendung aus den Einstellungen
-
-  :param request: Anfrage
-  :return: Versionsnummer der Anwendung
-  """
-  return {'datenwerft_version': settings.DATENWERFT_VERSION}
 
 
 def include_login_form(request):

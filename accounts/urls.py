@@ -21,11 +21,7 @@ urlpatterns = [
 
   path('login/<url_token>', views.ExternalLoginView.as_view(), name='external_login'),
 
-  path('logout/', view=LogoutView.as_view(
-    template_name='accounts/logout.html'
-  ), name='logout'),
+  path('logout/', view=LogoutView.as_view(template_name='accounts/logout.html'), name='logout'),
 
-  path('test', view=TemplateView.as_view(
-    template_name='accounts/test.html'
-  ), name='test'),
+  path('test', view=TemplateView.as_view(template_name='accounts/test.html'), name='test'),
 ]
