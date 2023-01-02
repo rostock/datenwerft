@@ -1,4 +1,4 @@
-/* global $ */
+/* global $, toggleModal */
 /* eslint no-undef: "error" */
 
 /**

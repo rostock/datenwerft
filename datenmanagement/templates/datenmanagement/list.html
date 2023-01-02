@@ -81,7 +81,7 @@
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script type="text/javascript">
-        /* global $, jQuery */
+        /* global $, jQuery, subsetting */
         /* eslint no-undef: "error" */
 
         /**
@@ -191,7 +191,7 @@
             let tableData = table.rows().data();
             for (let i = 0; i < tableData.length; i++) {
               let stringWithPrimaryKeys = tableData[i][0];
-              currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value=\"/, '').replace(/\">/, ''));
+              currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value="/, '').replace(/">/, ''));
             }
             // Filtermenge behandeln und übergeben
             {% with tmp='foobar' %}
