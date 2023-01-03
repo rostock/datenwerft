@@ -113,7 +113,7 @@ class DataForm(ModelForm):
           )
           if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
             self.fields[field.name] = choice_field
-      # Adressfelder in eigenen Feldtypen umwandeln
+      # Adressfelder in eigenen Feldtyp umwandeln
       elif (field.name == 'adresse' or
             field.name == 'strasse' or
             field.name == 'gemeindeteil'):
@@ -325,8 +325,8 @@ class DataAddView(generic.CreateView):
     """
     ansprechpartner = None
     bearbeiter = None
-    preselect_field = self.request.GET.get('preselect_field', 'foobar')
-    preselect_value = self.request.GET.get('preselect_value', '')
+    preselect_field = self.request.GET.get('preselect_field', None)
+    preselect_value = self.request.GET.get('preselect_value', None)
     for field in self.model._meta.get_fields():
       if field.name == 'ansprechpartner':
         ansprechpartner = (

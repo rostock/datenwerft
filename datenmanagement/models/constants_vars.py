@@ -266,11 +266,11 @@ standard_validators = [
   RegexValidator(regex=doppelleerzeichen_regex, message=doppelleerzeichen_message),
   RegexValidator(regex=gravis_regex, message=gravis_message)
 ]
-ansprechpartner_validators = standard_validators
+ansprechpartner_validators = standard_validators[:]
 ansprechpartner_validators.append(
   RegexValidator(regex=ansprechpartner_regex, message=ansprechpartner_message)
 )
-personennamen_validators = standard_validators
+personennamen_validators = standard_validators[:]
 personennamen_validators.extend([
   RegexValidator(regex=bindestrich_leerzeichen_regex, message=bindestrich_leerzeichen_message),
   RegexValidator(regex=leerzeichen_bindestrich_regex, message=leerzeichen_bindestrich_message)
