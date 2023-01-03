@@ -97,6 +97,9 @@ class StartView(generic.ListView):
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model._meta.description
+    context['editable'] = (
+        self.model._meta.editable if hasattr(
+            self.model._meta, 'editable') else True)
     context['geometry_type'] = (
         self.model._meta.geometry_type if hasattr(
             self.model._meta, 'geometry_type') else None)

@@ -62,8 +62,10 @@
                 {% endwith %}
               {% endwith %}
             {% endfor %}
-            {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
-              <th class="no-export"><i class="fas fa-eye" title="Datensätze ansehen"></i> oder <i class="fas fa-edit" title="Datensätze bearbeiten"></i></th>
+            {% if editable %}
+              {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
+                <th class="no-export"><i class="fas fa-eye" title="Datensätze ansehen"></i> oder <i class="fas fa-edit" title="Datensätze bearbeiten"></i></th>
+              {% endif %}
             {% endif %}
             {% if user|user_has_model_delete_permission:model_name_lower %}
               <th class="no-export"><i class="fas fa-trash" title="Datensätze löschen"></i></th>

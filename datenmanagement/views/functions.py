@@ -19,7 +19,10 @@ def assign_widgets(field):
   :return: Formularelement (Widget) zu übergebenem Feld
   """
   form_field = field.formfield()
-  if form_field.widget.__class__.__name__ == 'Select':
+  if (
+      form_field.widget.__class__.__name__ == 'Select'
+      or form_field.widget.__class__.__name__ == 'NullBooleanSelect'
+  ):
     form_field.widget.attrs['class'] = 'form-select'
     return form_field
   elif form_field.widget.__class__.__name__ == 'Textarea':
@@ -201,6 +204,8 @@ def set_model_related_context_elements(context, model, objects_count=False):
   context['model_verbose_name'] = model._meta.verbose_name
   context['model_verbose_name_plural'] = model._meta.verbose_name_plural
   context['model_description'] = model._meta.description
+  context['editable'] = (
+      model._meta.editable if hasattr(model._meta, 'editable') else True)
   context['geometry_type'] = (
       model._meta.geometry_type if hasattr(model._meta, 'geometry_type') else None)
   if objects_count:

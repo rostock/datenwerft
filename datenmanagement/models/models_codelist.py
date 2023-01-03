@@ -188,6 +188,7 @@ class Adressen(models.Model):
   class Meta:
     managed = False
     codelist = True
+    editable = False
     db_table = 'basisdaten\".\"adressenliste_datenwerft'
     verbose_name = 'Adresse'
     verbose_name_plural = 'Adressen'
@@ -223,6 +224,7 @@ class Strassen(models.Model):
   class Meta:
     managed = False
     codelist = True
+    editable = False
     db_table = 'basisdaten\".\"strassenliste_datenwerft'
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
@@ -258,6 +260,7 @@ class Gemeindeteile(models.Model):
   class Meta:
     managed = False
     codelist = True
+    editable = False
     db_table = 'basisdaten\".\"gemeindeteile_datenwerft_hro'
     verbose_name = 'Gemeindeteil'
     verbose_name_plural = 'Gemeindeteile'
@@ -1497,6 +1500,7 @@ class Inoffizielle_Strassen(models.Model):
   class Meta:
     managed = False
     codelist = True
+    editable = False
     db_table = 'basisdaten\".\"inoffizielle_strassenliste_datenwerft_hro'
     verbose_name = 'Inoffizielle Straße der Hanse- und Universitätsstadt Rostock'
     verbose_name_plural = 'Inoffizielle Straßen der Hanse- und Universitätsstadt Rostock'
@@ -1621,7 +1625,6 @@ class Mastkennzeichen_RSAG(models.Model):
     unique=True,
     validators=constants_vars.standard_validators
   )
-
   erlaeuterung = models.CharField(
     'Erläuterung',
     max_length=255,
@@ -1670,7 +1673,6 @@ class Masttypen_RSAG(models.Model):
     unique=True,
     validators=constants_vars.standard_validators
   )
-
   erlaeuterung = models.CharField(
     'Erläuterung',
     max_length=255,

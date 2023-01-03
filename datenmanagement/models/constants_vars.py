@@ -11,6 +11,10 @@ options.DEFAULT_NAMES += (
   # Boolean;
   # Handelt es sich um eine Codeliste, die dann für normale Benutzer
   # in der Liste der verfügbaren Datenmodelle nicht auftaucht (True)?
+  'editable',
+  # optional;
+  # Boolean;
+  # Handelt es sich um ein Datenmodell, das generell nicht bearbeitet werden darf (False)?
   'complex',
   # optional;
   # Boolean;

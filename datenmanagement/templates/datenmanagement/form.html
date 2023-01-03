@@ -456,6 +456,11 @@
           $(this).addClass('form-check-input');
       });
 
+      // Checkboxen in Multiple-Choice-Feldern an Bootstrap 5 anpassen
+      $('ul input[type="checkbox"]').each(function () {
+          $(this).addClass('form-check-input');
+      });
+
       // Read-only-Felder behandeln
       {% if readonly_fields %}
         {% for field in readonly_fields %}

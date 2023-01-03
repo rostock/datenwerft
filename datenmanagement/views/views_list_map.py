@@ -29,6 +29,9 @@ class DataView(BaseDatatableView):
     self.model = model
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
+    self.editable = (
+        self.model._meta.editable if hasattr(
+            self.model._meta, 'editable') else True)
     self.columns = self.model._meta.list_fields
     self.columns_with_foreign_key_to_linkify = (
         self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
@@ -186,7 +189,10 @@ class DataView(BaseDatatableView):
         elif value is not None:
           data = escape(value)
         item_data.append(data)
-      if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):
+      if (
+          self.editable
+          and self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower)
+      ):
         item_data.append(
             '<a href="' +
             reverse(
@@ -195,7 +201,10 @@ class DataView(BaseDatatableView):
                 '_change',
                 args=[item_id]) +
             '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>')
-      elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
+      elif (
+          self.editable
+          and self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower)
+      ):
         item_data.append(
             '<a href="' +
             reverse(
@@ -204,8 +213,6 @@ class DataView(BaseDatatableView):
                 '_change',
                 args=[item_id]) +
             '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>')
-      else:
-        item_data.append('')
       if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
         item_data.append(
             '<a href="' +
