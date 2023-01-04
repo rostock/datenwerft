@@ -9,6 +9,7 @@ from django.forms import CheckboxSelectMultiple, TextInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from leaflet.forms.widgets import LeafletWidget
+from toolbox.models import Subsets
 
 
 def assign_widgets(field):
@@ -107,6 +108,32 @@ def get_data(curr_object, field):
   return data
 
 
+def get_model_objects(model, subset_id=None, count_only=False):
+  """
+  gibt entweder alle Datenobjekte des übergebenen Datenmodells
+  oder aber eine Untermenge davon zurück
+
+  :param model: Datenmodell
+  :param subset_id: ID der Untermenge
+  :param count_only: nur die Anzahl und nicht die Datenobjekte selbst zurückgeben?
+  :return: entweder alle Datenobjekte des übergebenen Datenmodells
+  oder aber eine Untermenge davon
+  """
+  if subset_id is not None and isinstance(subset_id, int):
+    subset = Subsets.objects.filter(id=subset_id)[0]
+    if (
+        subset is not None
+        and isinstance(subset, Subsets)
+        and subset.model.model == model.__name__.lower()
+    ):
+      objects = model.objects.filter(pk__in=subset.pk_values)
+    else:
+      objects = model.objects.all()
+  else:
+    objects = model.objects.all()
+  return objects.count() if count_only else objects
+
+
 def get_thumb_url(url):
   """
   gibt die zugehörige Thumbnail-URL für die übergebene URL eines Fotos zurück
@@ -188,14 +215,14 @@ def set_form_context_elements(context, model):
   return context
 
 
-def set_model_related_context_elements(context, model, objects_count=False):
+def set_model_related_context_elements(context, model, kwargs=None):
   """
   setzt allgemeine, auf das übergebene Datenmodell bezogene Elemente im übergebenen Kontext
   und gibt diesen Kontext anschließend wieder zurück
 
   :param context: Kontext
   :param model: Datenmodell
-  :param objects_count: Objektanzahl als Kontextelement?
+  :param kwargs: kwargs des Views, der diese Funktion aufruft
   :return: Kontext mit gesetzten allgemeinen, auf das übergebene Datenmodell bezogenen Elementen
   """
   context['model_name'] = model.__name__
@@ -208,6 +235,11 @@ def set_model_related_context_elements(context, model, objects_count=False):
       model._meta.editable if hasattr(model._meta, 'editable') else True)
   context['geometry_type'] = (
       model._meta.geometry_type if hasattr(model._meta, 'geometry_type') else None)
-  if objects_count:
-    context['objects_count'] = model.objects.count()
+  context['subset_id'] = None
+  if kwargs and kwargs['subset_id']:
+    subset_id = int(kwargs['subset_id'])
+    context['subset_id'] = subset_id
+    context['objects_count'] = get_model_objects(model, subset_id, True)
+  else:
+    context['objects_count'] = get_model_objects(model, None, True)
   return context

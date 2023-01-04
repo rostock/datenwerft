@@ -4991,6 +4991,77 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
     super(Standortqualitaeten_Wohnlagen_Sanierungsgebiet, self).delete(*args, **kwargs)
 
 
+# Straßen
+
+class Strassen_Simple(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False
+  )
+  aktiv = models.BooleanField(' aktiv?', default=True)
+  kategorie = models.ForeignKey(
+    models_codelist.Kategorien_Strassen,
+    verbose_name='Kategorie',
+    on_delete=models.RESTRICT,
+    db_column='kategorie',
+    to_field='uuid',
+    related_name='kategorien+'
+  )
+  bezeichnung = models.CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=constants_vars.standard_validators
+  )
+  schluessel = models.CharField(
+    'Schlüssel',
+    max_length=5,
+    validators=[
+      RegexValidator(
+        regex=constants_vars.str_schluessel_regex,
+        message=constants_vars.str_schluessel_message
+      )
+    ]
+  )
+  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+
+  class Meta:
+    managed = False
+    db_table = 'fachdaten\".\"strassen_hro'
+    verbose_name = 'Straße'
+    verbose_name_plural = 'Straßen'
+    description = 'Straßen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'kategorie': 'Kategorie',
+      'bezeichnung': 'Bezeichnung',
+      'schluessel': 'Schlüssel'
+    }
+    list_fields_with_foreign_key = {
+      'kategorie': 'code'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'kategorie': 'Kategorie',
+      'bezeichnung': 'Bezeichnung',
+      'schluessel': 'Schlüssel'
+    }
+    map_filter_fields_as_list = [
+      'kategorie'
+    ]
+    geometry_type = 'MultiLineString'
+    as_overlay = True
+
+  def __str__(self):
+    return self.bezeichnung + ' (' + self.schluessel + ')'
+
+  def save(self, *args, **kwargs):
+    super(Strassen_Simple, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Strassen_Simple, self).delete(*args, **kwargs)
+
+
 # Straßenreinigung
 
 class Strassenreinigung(models.Model):

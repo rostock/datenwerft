@@ -275,10 +275,10 @@
          * @param {Object} layer - Feature-Layer
          */
         function setMapFeaturePropertiesAndActions(feature, layer) {
-          // falls Feature einen Link auf dessen Bearbeitungsseite aufweist...
+          // falls Feature einen Link auf dessen Bearbeitungs-/Betrachtungssseite aufweist...
           if (feature.properties.link) {
+            // Link öffnen bei Klick auf Feature
             layer.on('click', function () {
-              // Feature den Link auf dessen Bearbeitungsseite mitgeben
               window.open(feature.properties.link, '_blank', 'noopener,noreferrer').focus();
             });
           }

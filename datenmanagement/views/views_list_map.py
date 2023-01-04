@@ -12,7 +12,6 @@ from django.utils.html import escape
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
-from toolbox.models import Subsets
 from zoneinfo import ZoneInfo
 
 from . import functions
@@ -60,17 +59,9 @@ class DataView(BaseDatatableView):
 
   def get_initial_queryset(self):
     if self.kwargs and self.kwargs['subset_id']:
-      subset = Subsets.objects.filter(id=int(self.kwargs['subset_id']))[0]
-      if (
-          subset is not None
-          and isinstance(subset, Subsets)
-          and subset.model.model == self.model_name_lower
-      ):
-        return self.model.objects.filter(pk__in=subset.pk_values)
-      else:
-        return self.model.objects.all()
+      return functions.get_model_objects(self.model, int(self.kwargs['subset_id']))
     else:
-      return self.model.objects.all()
+      return functions.get_model_objects(self.model)
 
   def prepare_results(self, qs):
     """
@@ -321,9 +312,7 @@ class DataListView(generic.ListView):
     :return: Dictionary mit Kontextelementen des Views
     """
     context = super(DataListView, self).get_context_data(**kwargs)
-    context = functions.set_model_related_context_elements(context, self.model, True)
-    context['subset_id'] = (
-        int(self.kwargs['subset_id']) if self.kwargs and self.kwargs['subset_id'] else None)
+    context = functions.set_model_related_context_elements(context, self.model, self.kwargs)
     context['list_fields_labels'] = list(self.model._meta.list_fields.values())
     context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     return context
@@ -344,6 +333,9 @@ class DataMapView(JsonView):
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
     self.model_pk_field = self.model._meta.pk.name
+    self.editable = (
+        self.model._meta.editable if hasattr(
+            self.model._meta, 'editable') else True)
     super(DataMapView, self).__init__()
 
   def get_context_data(self, **kwargs):
@@ -364,17 +356,9 @@ class DataMapView(JsonView):
         'features': []
     }
     if self.kwargs and self.kwargs['subset_id']:
-      subset = Subsets.objects.filter(id=int(self.kwargs['subset_id']))[0]
-      if (
-          subset is not None
-          and isinstance(subset, Subsets)
-          and subset.model.model == self.model_name_lower
-      ):
-        objects = self.model.objects.filter(pk__in=subset.pk_values)
-      else:
-        objects = self.model.objects.all()
+      objects = functions.get_model_objects(self.model, int(self.kwargs['subset_id']))
     else:
-      objects = self.model.objects.all()
+      objects = functions.get_model_objects(self.model)
     if limit is not None and offset is not None:
       objects = objects[offset:(offset + limit)]
     elif limit is not None:
@@ -433,13 +417,15 @@ class DataMapView(JsonView):
               }
           }
       }
-      # Link auf Objekt als Eigenschaft setzen
-      feature['properties']['link'] = (
-          reverse(
-              'datenmanagement:' +
-              self.model_name +
-              '_change',
-              args=[curr_object.pk]))
+      # falls Datenmodell generell bearbeitet werden darf...
+      if self.editable:
+        # Link auf Objekt als Eigenschaft setzen
+        feature['properties']['link'] = (
+            reverse(
+                'datenmanagement:' +
+                self.model_name +
+                '_change',
+                args=[curr_object.pk]))
       # optional: Objekt als inaktiv kennzeichnen
       if curr_object.aktiv is False:
         feature['properties']['inaktiv'] = True
@@ -635,7 +621,7 @@ class DataMapListView(generic.ListView):
             # direkt in vorbereitetes Dictionary einfügen
             checkbox_filter_lists[field_name] = values_list
     context = super(DataMapListView, self).get_context_data(**kwargs)
-    context = functions.set_model_related_context_elements(context, self.model, True)
+    context = functions.set_model_related_context_elements(context, self.model, self.kwargs)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['subset_id'] = (
         int(self.kwargs['subset_id']) if self.kwargs and self.kwargs['subset_id'] else None)

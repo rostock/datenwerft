@@ -340,6 +340,9 @@ poll_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
                       'oder zwei Ziffer(n) ergänzt werden kann.'
 quar_code_regex = r'^[0-9]{3}$'
 quar_code_message = 'Der <strong><em>Code</em></strong> muss aus genau drei Ziffern bestehen.'
+str_schluessel_regex = r'^[0-9]{5}$'
+str_schluessel_message = 'Der <strong><em>Schlüssel</em></strong> ' \
+                       'muss aus genau fünf Ziffern bestehen.'
 twnb_nummer_regex = r'^13003000-[0-9]{3}$'
 twnb_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
                       '<em>13003000-,</em> gefolgt von genau drei ' \

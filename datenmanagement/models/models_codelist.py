@@ -1522,6 +1522,66 @@ class Inoffizielle_Strassen(models.Model):
     super(Inoffizielle_Strassen, self).delete(*args, **kwargs)
 
 
+# Kategorien von Straßen
+
+class Kategorien_Strassen(models.Model):
+  uuid = models.UUIDField(
+    primary_key=True,
+    default=uuid.uuid4,
+    editable=False
+  )
+  code = fields.PositiveSmallIntegerRangeField(
+    'Code',
+    min_value=1,
+    unique=True
+  )
+  bezeichnung = models.CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=constants_vars.standard_validators
+  )
+  erlaeuterung = models.CharField(
+    'Erläuterung',
+    max_length=255,
+    validators=constants_vars.standard_validators
+  )
+
+  class Meta:
+    managed = False
+    codelist = True
+    db_table = 'codelisten\".\"kategorien_strassen'
+    verbose_name = 'Kategorie einer Straße'
+    verbose_name_plural = 'Kategorien von Straßen'
+    description = 'Kategorien von Straßen'
+    list_fields = {
+      'code': 'Code',
+      'bezeichnung': 'Bezeichnung',
+      'erlaeuterung': 'Erläuterung'
+    }
+    list_fields_with_number = ['code']
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = ['code']
+    naming = 'bezeichnung'
+
+  def __str__(self):
+    return self.bezeichnung
+
+  def save(self, *args, **kwargs):
+    super(
+      Kategorien_Strassen,
+      self).save(
+      *args,
+      **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(
+      Kategorien_Strassen,
+      self).delete(
+      *args,
+      **kwargs)
+
+
 # Ladekarten für Ladestationen für Elektrofahrzeuge
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
