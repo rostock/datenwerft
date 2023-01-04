@@ -9,8 +9,11 @@
   {{ block.super }}
   {% leaflet_css plugins="geoman,locatecontrol" %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}" />
-  {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+  {% if forms_in_mobile_mode or request.user_agent.is_mobile or request.user_agent.is_tablet %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}" />
+    {% if forms_in_mobile_mode %}
+      <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}" />
+    {% endif %}
   {% else %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}" />
   {% endif %}
@@ -193,13 +196,13 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
         {% if object and user|user_has_model_add_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit" onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
-          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
+          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
         {% endif %}
         <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
@@ -576,7 +579,7 @@
 
       // bei Desktop und bei vorhandener Karte:
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
-      {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
+      {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
         let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
         $('#buttons').offset({
           top: top

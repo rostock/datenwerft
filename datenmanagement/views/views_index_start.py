@@ -24,12 +24,7 @@ class IndexView(generic.ListView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    models_codelist = False
-    models_codelist_list = []
-    models_complex = False
-    models_complex_list = []
-    models_simple = False
-    models_simple_list = []
+    models_meta, models_codelist, models_complex, models_simple = [], [], [], []
     app_models = apps.get_app_config('datenmanagement').get_models()
     for model in app_models:
       if (
@@ -47,23 +42,20 @@ class IndexView(generic.ListView):
             'verbose_name_plural': model._meta.verbose_name_plural,
             'description': model._meta.description
         }
-        if hasattr(model._meta, 'codelist') and model._meta.codelist is True:
-          models_codelist = True
-          models_codelist_list.append(list_model)
+        if hasattr(model._meta, 'metamodel') and model._meta.metamodel is True:
+          models_meta.append(list_model)
+        elif hasattr(model._meta, 'codelist') and model._meta.codelist is True:
+          models_codelist.append(list_model)
         elif hasattr(model._meta, 'complex') and model._meta.complex is True:
-          models_complex = True
-          models_complex_list.append(list_model)
+          models_complex.append(list_model)
         else:
-          models_simple = True
-          models_simple_list.append(list_model)
+          models_simple.append(list_model)
     context = super(IndexView, self).get_context_data(**kwargs)
     context['LOGIN_URL'] = settings.LOGIN_URL
+    context['models_meta'] = models_meta
     context['models_codelist'] = models_codelist
-    context['models_codelist_list'] = models_codelist_list
     context['models_complex'] = models_complex
-    context['models_complex_list'] = models_complex_list
     context['models_simple'] = models_simple
-    context['models_simple_list'] = models_simple_list
     return context
 
 

@@ -5016,6 +5016,7 @@ class Strassen_Simple(models.Model):
   schluessel = models.CharField(
     'Schlüssel',
     max_length=5,
+    unique=True,
     validators=[
       RegexValidator(
         regex=constants_vars.str_schluessel_regex,
@@ -5049,8 +5050,49 @@ class Strassen_Simple(models.Model):
     map_filter_fields_as_list = [
       'kategorie'
     ]
+    additional_wms_layers = [
+      {
+        'title': 'Eigentum HRO',
+        'url': 'https://geo.sv.rostock.de/geodienste/eigentum_hro/wms',
+        'layers': 'hro.eigentum_hro.eigentum_hro_hro'
+      }, {
+        'title': 'Bewirtschaftungskataster',
+        'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms',
+        'layers': 'hro.bewirtschaftungskataster.bewirtschaftungskataster'
+      }, {
+        'title': 'Grundvermögen: Flächen in Abstimmung',
+        'url': 'https://geo.sv.rostock.de/geodienste/grundvermoegen/wms',
+        'layers': 'hro.grundvermoegen.flaechen_in_abstimmung'
+      }, {
+        'title': 'Grundvermögen: Realnutzungsarten',
+        'url': 'https://geo.sv.rostock.de/geodienste/grundvermoegen/wms',
+        'layers': 'hro.grundvermoegen.realnutzungsarten'
+      }, {
+        'title': 'Liegenschaftsverwaltung: An- und Verkauf',
+        'url': 'https://geo.sv.rostock.de/geodienste/liegenschaftsverwaltung/wms',
+        'layers': 'hro.liegenschaftsverwaltung.anundverkauf'
+      }, {
+        'title': 'Liegenschaftsverwaltung: Mieten und Pachten',
+        'url': 'https://geo.sv.rostock.de/geodienste/liegenschaftsverwaltung/wms',
+        'layers': 'hro.liegenschaftsverwaltung.mieten_pachten'
+      }, {
+        'title': 'Flurstücke',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wms',
+        'layers': 'hro.flurstuecke.flurstuecke'
+      }, {
+        'title': 'Straßenwidmungen',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenwidmungen/wms',
+        'layers': 'hro.strassenwidmungen.strassenwidmungen'
+      }, {
+        'title': 'Adressen',
+        'url': 'https://geo.sv.rostock.de/geodienste/adressen/wms',
+        'layers': 'hro.adressen.adressen'
+      }
+    ]
     geometry_type = 'MultiLineString'
     as_overlay = True
+    heavy_load_limit = 600
+    forms_in_mobile_mode = True
 
   def __str__(self):
     return self.bezeichnung + ' (' + self.schluessel + ')'

@@ -6,11 +6,18 @@ from django.db.models import options
 #
 
 options.DEFAULT_NAMES += (
+  'metamodel',
+  # optional;
+  # Boolean;
+  # Handelt es sich um ein Meta-Datenmodell, das für normale Benutzer
+  # in der Liste der verfügbaren Datenmodelle nicht auftaucht (True),
+  # es sei denn, sie verfügen über explizite Rechte?
   'codelist',
   # optional;
   # Boolean;
-  # Handelt es sich um eine Codeliste, die dann für normale Benutzer
-  # in der Liste der verfügbaren Datenmodelle nicht auftaucht (True)?
+  # Handelt es sich um eine Codeliste, die für normale Benutzer
+  # in der Liste der verfügbaren Datenmodelle nicht auftaucht (True),
+  # es sei denn, sie verfügen über explizite Rechte?
   'editable',
   # optional;
   # Boolean;
@@ -194,10 +201,14 @@ options.DEFAULT_NAMES += (
   # Text;
   # Name des Feldes, das im Formular mit einer Funktion
   #  zurautomatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
-  'heavy_load_limit'
+  'heavy_load_limit',
   # optional;
   # Zahl;
   # Limit für einzelne Datenladeschritte in Kartenübersicht bei großer Datenmenge
+  'forms_in_mobile_mode'
+  # optional;
+  # Boolean;
+  # Sollen die Formulare dieses Datenmodells immer in der mobilen Ansicht angezeigt werden (True)?
 )
 
 #

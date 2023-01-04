@@ -208,10 +208,12 @@ def set_form_context_elements(context, model):
   # Liste aller Datensätze für die Overlay-Daten-Liste
   model_list = {}
   app_models = apps.get_app_config('datenmanagement').get_models()
-  for model in app_models:
-    if hasattr(model._meta, 'as_overlay') and model._meta.as_overlay is True:
-      model_list[model.__name__] = model._meta.verbose_name_plural
+  for app_model in app_models:
+    if hasattr(app_model._meta, 'as_overlay') and app_model._meta.as_overlay is True:
+      model_list[app_model.__name__] = app_model._meta.verbose_name_plural
   context['model_list'] = dict(sorted(model_list.items()))
+  context['forms_in_mobile_mode'] = (
+      model._meta.forms_in_mobile_mode if hasattr(model._meta, 'forms_in_mobile_mode') else False)
   return context
 
 

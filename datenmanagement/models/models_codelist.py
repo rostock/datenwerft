@@ -175,8 +175,10 @@ class Typ(models.Model):
 
 
 #
-# Adressen
+# Meta-Datenmodelle
 #
+
+# Adressen
 
 class Adressen(models.Model):
   uuid = models.UUIDField(
@@ -187,7 +189,7 @@ class Adressen(models.Model):
 
   class Meta:
     managed = False
-    codelist = True
+    metamodel = True
     editable = False
     db_table = 'basisdaten\".\"adressenliste_datenwerft'
     verbose_name = 'Adresse'
@@ -210,9 +212,7 @@ class Adressen(models.Model):
     super(Adressen, self).delete(*args, **kwargs)
 
 
-#
 # Straßen
-#
 
 class Strassen(models.Model):
   uuid = models.UUIDField(
@@ -223,7 +223,7 @@ class Strassen(models.Model):
 
   class Meta:
     managed = False
-    codelist = True
+    metamodel = True
     editable = False
     db_table = 'basisdaten\".\"strassenliste_datenwerft'
     verbose_name = 'Straße'
@@ -246,9 +246,7 @@ class Strassen(models.Model):
     super(Strassen, self).delete(*args, **kwargs)
 
 
-#
 # Gemeindeteile
-#
 
 class Gemeindeteile(models.Model):
   uuid = models.UUIDField(
@@ -259,7 +257,7 @@ class Gemeindeteile(models.Model):
 
   class Meta:
     managed = False
-    codelist = True
+    metamodel = True
     editable = False
     db_table = 'basisdaten\".\"gemeindeteile_datenwerft_hro'
     verbose_name = 'Gemeindeteil'

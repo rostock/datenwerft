@@ -260,7 +260,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   };
 
   // ggf. zusätzlich definierte Karten zu den Overlay-Karten hinzufügen
-  overlayMaps = Object.assign(overlayMaps, additionalWmsLayers);
+  overlayMaps = Object.assign(additionalWmsLayers, overlayMaps);
 
   // Umschalter für Hintergrundkarten zur Karte hinzufügen
   L.control.layers(baseMaps, overlayMaps).addTo(map);

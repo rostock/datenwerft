@@ -760,6 +760,20 @@ CREATE TABLE codelisten.hersteller_poller (
 
 
 --
+-- Name: kategorien_strassen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.kategorien_strassen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    code smallint NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    erlaeuterung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: ladekarten_ladestationen_elektrofahrzeuge; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -2118,6 +2132,25 @@ CREATE TABLE fachdaten.schutzzaeune_tierseuchen_hro (
 --
 
 COMMENT ON COLUMN fachdaten.schutzzaeune_tierseuchen_hro.laenge IS 'Einheit: m';
+
+
+--
+-- Name: strassen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.strassen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    kategorie uuid NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    schluessel character(5) NOT NULL,
+    geometrie public.geometry(MultiLineString,25833) NOT NULL
+);
 
 
 --
@@ -3707,6 +3740,22 @@ ALTER TABLE ONLY codelisten.hersteller_poller
 
 
 --
+-- Name: kategorien_strassen kategorien_strassen_code_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kategorien_strassen
+    ADD CONSTRAINT kategorien_strassen_code_unique UNIQUE (code);
+
+
+--
+-- Name: kategorien_strassen kategorien_strassen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kategorien_strassen
+    ADD CONSTRAINT kategorien_strassen_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: ladekarten_ladestationen_elektrofahrzeuge ladekarten_ladestationen_elektrofahrzeuge_ladekarte_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4704,6 +4753,22 @@ ALTER TABLE ONLY fachdaten.schiffsliegeplaetze_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: strassen_hro strassen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassen_hro
+    ADD CONSTRAINT strassen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: strassen_hro strassen_hro_schluessel_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassen_hro
+    ADD CONSTRAINT strassen_hro_schluessel_unique UNIQUE (schluessel);
 
 
 --
@@ -5861,6 +5926,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_schutzzaeune_tierseuchen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: strassen_hro strassen_hro_kategorien_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassen_hro
+    ADD CONSTRAINT strassen_hro_kategorien_fk FOREIGN KEY (kategorie) REFERENCES codelisten.kategorien_strassen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
