@@ -5053,40 +5053,61 @@ class Strassen_Simple(models.Model):
     additional_wms_layers = [
       {
         'title': 'Eigentum HRO',
-        'url': 'https://geo.sv.rostock.de/geodienste/eigentum_hro/wms',
-        'layers': 'hro.eigentum_hro.eigentum_hro_hro'
+        'url': '/eigentum_hro/wms',
+        'layers': 'hro.eigentum_hro.eigentum_hro_hro',
+        'proxy': True
       }, {
         'title': 'Bewirtschaftungskataster',
         'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms',
         'layers': 'hro.bewirtschaftungskataster.bewirtschaftungskataster'
       }, {
         'title': 'Grundvermögen: Flächen in Abstimmung',
-        'url': 'https://geo.sv.rostock.de/geodienste/grundvermoegen/wms',
-        'layers': 'hro.grundvermoegen.flaechen_in_abstimmung'
+        'url': '/grundvermoegen/wms',
+        'layers': 'hro.grundvermoegen.flaechen_in_abstimmung',
+        'proxy': True
       }, {
         'title': 'Grundvermögen: Realnutzungsarten',
-        'url': 'https://geo.sv.rostock.de/geodienste/grundvermoegen/wms',
-        'layers': 'hro.grundvermoegen.realnutzungsarten'
+        'url': '/grundvermoegen/wms',
+        'layers': 'hro.grundvermoegen.realnutzungsarten',
+        'proxy': True
       }, {
         'title': 'Liegenschaftsverwaltung: An- und Verkauf',
-        'url': 'https://geo.sv.rostock.de/geodienste/liegenschaftsverwaltung/wms',
-        'layers': 'hro.liegenschaftsverwaltung.anundverkauf'
+        'url': '/liegenschaftsverwaltung/wms',
+        'layers': 'hro.liegenschaftsverwaltung.anundverkauf',
+        'proxy': True
       }, {
         'title': 'Liegenschaftsverwaltung: Mieten und Pachten',
-        'url': 'https://geo.sv.rostock.de/geodienste/liegenschaftsverwaltung/wms',
-        'layers': 'hro.liegenschaftsverwaltung.mieten_pachten'
+        'url': '/liegenschaftsverwaltung/wms',
+        'layers': 'hro.liegenschaftsverwaltung.mieten_pachten',
+        'proxy': True
       }, {
         'title': 'Flurstücke',
         'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wms',
         'layers': 'hro.flurstuecke.flurstuecke'
       }, {
         'title': 'Straßenwidmungen',
-        'url': 'https://geo.sv.rostock.de/geodienste/strassenwidmungen/wms',
-        'layers': 'hro.strassenwidmungen.strassenwidmungen'
+        'url': '/strassenwidmungen/wms',
+        'layers': 'hro.strassenwidmungen.strassenwidmungen',
+        'proxy': True
       }, {
         'title': 'Adressen',
         'url': 'https://geo.sv.rostock.de/geodienste/adressen/wms',
         'layers': 'hro.adressen.adressen'
+      }
+    ]
+    additional_wfs_featuretypes = [
+      {
+        'name': 'eigentum_hro',
+        'title': 'Eigentum HRO',
+        'url': '/eigentum_hro/wfs',
+        'featuretypes': 'hro.eigentum_hro.eigentum_hro_hro',
+        'proxy': True
+      }, {
+        'name': 'flurstuecke',
+        'title': 'Flurstücke',
+        'url': '/flurstuecke_hro/wfs',
+        'featuretypes': 'hro.flurstuecke.flurstuecke',
+        'proxy': True
       }
     ]
     geometry_type = 'MultiLineString'

@@ -95,7 +95,4 @@ class StartView(generic.ListView):
     context['geometry_type'] = (
         self.model._meta.geometry_type if hasattr(
             self.model._meta, 'geometry_type') else None)
-    context['additional_wms_layers'] = (
-        self.model._meta.additional_wms_layers if hasattr(
-            self.model._meta, 'additional_wms_layers') else None)
     return context

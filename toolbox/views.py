@@ -94,7 +94,7 @@ class OWSProxyView(generic.View):
     self.destination_url = settings.OWS_BASE + re.sub(
         pattern='^.*owsproxy',
         repl='',
-        string=str(request.get_full_path)
+        string=str(request.get_full_path())
     )
     return super(OWSProxyView, self).dispatch(request, *args, **kwargs)
 

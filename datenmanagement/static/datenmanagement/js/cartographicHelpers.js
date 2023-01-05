@@ -232,7 +232,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   });
 
   // Luftbild definieren
-  const luftbild = L.tileLayer(owsProxyUrl + '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+  const luftbild = L.tileLayer('https://geo.sv.rostock.de/geodienste/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/M-V'
   });

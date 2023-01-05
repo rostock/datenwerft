@@ -145,6 +145,22 @@ def get_thumb_url(url):
   return head + '/thumbs/' + tail
 
 
+def get_uuids_geometries_from_sql(rows):
+  """
+  gibt alle UUID (als Liste) und alle Geometrien (als Liste)
+  aus dem Resultat einer SQL-Abfrage zurück
+
+  :param rows: Resultat einer SQL-Abfrage
+  :return: alle UUID (als Liste) und alle Geometrien (als Liste) aus dem Resultat einer SQL-Abfrage
+  """
+  uuid_list = []
+  geometry_list = []
+  for i in range(len(rows)):
+    uuid_list.append(rows[i][0])
+    geometry_list.append(str(rows[i][1]))
+  return uuid_list, geometry_list
+
+
 def set_form_attributes(form):
   """
   setzt Attribute im übergebenen Forumular und gibt dieses Forumular anschließend wieder zurück
@@ -202,9 +218,14 @@ def set_form_context_elements(context, model):
   # Postleitzahl-Auto-Zuweisung
   context['postcode_assigner'] = (
       model._meta.postcode_assigner if hasattr(model._meta, 'postcode_assigner') else None)
-  # zusätzliche Karten
+  # zusätzliche WMS-Layer
   context['additional_wms_layers'] = (
-      model._meta.additional_wms_layers if hasattr(model._meta, 'additional_wms_layers') else None)
+    model._meta.additional_wms_layers if hasattr(
+      model._meta, 'additional_wms_layers') else None)
+  # zusätzliche WFS-FeatureTypes
+  context['additional_wfs_featuretypes'] = (
+    model._meta.additional_wfs_featuretypes if hasattr(
+      model._meta, 'additional_wfs_featuretypes') else None)
   # Liste aller Datensätze für die Overlay-Daten-Liste
   model_list = {}
   app_models = apps.get_app_config('datenmanagement').get_models()

@@ -137,55 +137,65 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
  *
  * @param {string} baseUrl - Basis-URL des Datenthemas
  * @param {Object} layer - Layer des Datenthemas
+ * @param {boolean} [isWFS=false] - handelt es sich um einen WFS?
  */
-L.Map.prototype.loadExternalData = function(baseUrl, layer) {
+L.Map.prototype.loadExternalData = function(baseUrl, layer, isWFS = false) {
+  let url = baseUrl;
   let mapPart = this.getBounds();
-  let center = this.getCenter();
-  // Bounding-Circle berechnen
-  let rad = this.distance(center, mapPart['_northEast']) * 1.2;
-  let protocol = window.location.protocol;
-  let host = window.location.host;
+  if (isWFS === true) {
+    let boundingBoxParameter = '&bbox=' + mapPart.getSouthEast().lat + ',' + mapPart.getSouthEast().lng + ',' + mapPart.getNorthWest().lat + ',' + mapPart.getNorthWest().lng + ',urn:ogc:def:crs:EPSG::4326';
+    url += boundingBoxParameter;
+  } else {
+    let center = this.getCenter();
+    // Bounding-Circle berechnen
+    let rad = this.distance(center, mapPart['_northEast']) * 1.2;
+    url += '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad;
+  }
   fetch(
-    String(protocol + '//' + host + baseUrl + '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad)
+    String(url)
   ).then(
     (response) => response.json()
   ).then(
     (data) => {
-      // neue leere GeoJSON-FeatureCollection definieren
-      let geoJsonFeatureCollection = {
-        type: 'FeatureCollection',
-        features: []
-      };
-      let wkt = new Wkt.Wkt();
-      for (let i = 0; i < data.object_list.length; i++) {
-        let item = data.object_list[i];
-        wkt.read(item.substring(item.indexOf(';') + 1, item.length));
-        // neues leeres GeoJSON-Feature definieren
-        let geoJsonFeature = {
-          type: 'Feature',
-          geometry: null,
-          properties: {
-            'uuid': data.uuids[i],
-            'datenthema': data.model_name,
-          },
-          crs: {
-            type: 'name',
-            properties: {
-              'name': 'urn:ogc:def:crs:EPSG::4326'
-            }
-          }
+      if (isWFS === true) {
+        layer.clearLayers().addData(data);
+      } else {
+        // neue leere GeoJSON-FeatureCollection definieren
+        let geoJsonFeatureCollection = {
+          type: 'FeatureCollection',
+          features: []
         };
-        geoJsonFeature.geometry = wkt.toJson();
-        // verhindern, dass Daten doppelt auf der Karte angezeigt werden
-        let exists = false;
-        for (let e of layer.toGeoJSON().features) {
-          if (e.properties.uuid === geoJsonFeature.properties.uuid)
-            exists = true;
+        let wkt = new Wkt.Wkt();
+        for (let i = 0; i < data.object_list.length; i++) {
+          let item = data.object_list[i];
+          wkt.read(item.substring(item.indexOf(';') + 1, item.length));
+          // neues leeres GeoJSON-Feature definieren
+          let geoJsonFeature = {
+            type: 'Feature',
+            geometry: null,
+            properties: {
+              'uuid': data.uuids[i],
+              'datenthema': data.model_name,
+            },
+            crs: {
+              type: 'name',
+              properties: {
+                'name': 'urn:ogc:def:crs:EPSG::4326'
+              }
+            }
+          };
+          geoJsonFeature.geometry = wkt.toJson();
+          // verhindern, dass Daten doppelt auf der Karte angezeigt werden
+          let exists = false;
+          for (let e of layer.toGeoJSON().features) {
+            if (e.properties.uuid === geoJsonFeature.properties.uuid)
+              exists = true;
+          }
+          if (exists === false)
+            geoJsonFeatureCollection.features.push(geoJsonFeature);
         }
-        if (exists === false)
-          geoJsonFeatureCollection.features.push(geoJsonFeature);
+        layer.addData(geoJsonFeatureCollection);
       }
-      layer.addData(geoJsonFeatureCollection);
       // Leaflet-Geoman-Optionen setzen
       layer.pm.setOptions({
         draggable: false,
@@ -221,7 +231,7 @@ L.Map.prototype.updateMap = function(dataLayerControl) {
   let list = dataLayerControl.getActiveOverlays();
   if (this.getZoom() > this._minLayerZoom) {
     for (const key in list) {
-      this.loadExternalData(this._themaUrl[key], list[key]);
+      this.loadExternalData(this._themaUrl[key], list[key], this._themaUrl[key].toLowerCase().indexOf('getfeature') !== -1);
     }
     // anheben des Layers, der bearbeitet wird
     this.eachLayer((layer) => {

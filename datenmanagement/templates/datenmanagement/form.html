@@ -275,10 +275,14 @@
       setMapConstants(map);
 
       // ggf. zusätzliche Karten definieren, die dann beim Konfigurieren der Karte zu den Overlay-Karten hinzugefügt werden
-      let additionalWmsLayers = {};
       {% if additional_wms_layers %}
+        let additionalWMSLayers = {};
+        let additionalWMSLayerUrl;
         {% for additional_wms_layer in additional_wms_layers %}
-          additionalWmsLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms('{{ additional_wms_layer.url }}', {
+          additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
+          if ('{{ additional_wms_layer.proxy }}'.toLowerCase() === 'true')
+            additionalWMSLayerUrl = '{% url "toolbox:owsproxy" %}' + additionalWMSLayerUrl;
+          additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms(additionalWMSLayerUrl, {
             layers: '{{ additional_wms_layer.layers }}',
             format: map._wmsFormat,
             maxZoom: map._maxLayerZoom,
@@ -288,7 +292,7 @@
       {% endif %}
 
       // Karte konfigurieren
-      configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWmsLayers);
+      configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWMSLayers);
 
       // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
       window.currMap = map;
@@ -335,6 +339,41 @@
         // Layer-Control hinzufügen zum Anzeigen zusätzlicher Datenthemen
         let dataLayerControl = new L.control.layers({}, {}).addTo(map);
 
+        // alle zusätzlichen WFS-FeatureTypes durchgehen...
+        {% for additional_wfs_featuretype in additional_wfs_featuretypes %}
+          if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true') {
+            map._themaUrl = {...map._themaUrl, '{{ additional_wfs_featuretype.title }}': '{% url "toolbox:owsproxy" %}' + '{{ additional_wfs_featuretype.url }}' + '?service=WFS&version=2.0.0&request=GetFeature&typeNames=' + '{{ additional_wfs_featuretype.featuretypes }}' + '&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326'};
+          } else {
+            map._themaUrl = {
+              ...map._themaUrl,
+              '{{ additional_wfs_featuretype.title }}': '{{ additional_wfs_featuretype.url }}' + '?service=WFS&version=2.0.0&request=GetFeature&typeNames=' + '{{ additional_wfs_featuretype.featuretypes }}' + '&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326'
+            };
+          }
+          // neuen GeoJSON-Layer für zusätzlichen WFS-FeatureType initialisieren
+          let {{ additional_wfs_featuretype.name }} = new L.Proj.geoJson();
+          // neuen GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
+          dataLayerControl.addOverlay({{ additional_wfs_featuretype.name }}, '{{ additional_wfs_featuretype.title }}')
+          // beim Zuschalten des GeoJSON-Layers Features laden
+          {{ additional_wfs_featuretype.name }}.on('add', function () {
+            if (map.getZoom() > map._minLayerZoom) {
+              // Features zum entsprechenden GeoJSON-Layer hinzufügen
+              let url = '{{ additional_wfs_featuretype.url }}' + '?service=WFS&version=2.0.0&request=GetFeature&typeNames=' + '{{ additional_wfs_featuretype.featuretypes }}' + '&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
+              if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true')
+                url = '{% url "toolbox:owsproxy" %}' + url;
+              map.loadExternalData(url, this, true);
+              map.eachLayer((layer) => {
+                // GeoJSON-Layer „anheben“, der bearbeitet wird
+                if (layer._drawnByGeoman === true) {
+                  if (layer instanceof L.Marker)
+                    layer.setZIndexOffset(1000);
+                  else
+                    layer.bringToFront();
+                }
+              });
+            }
+          });
+        {% endfor %}
+
         // alle Datenthemen durchgehen...
         {% for key, value in model_list.items %}
           {% with datenthema_name_lower=key|lower %}
@@ -347,10 +386,7 @@
             {{ datenthema_name_lower }}.on('add', function () {
               if (map.getZoom() > map._minLayerZoom) {
                 // Features zum entsprechenden GeoJSON-Layer hinzufügen
-                map.loadExternalData(
-                  '{% url 'datenmanagement:'|add:key|add:'_geometry' %}',
-                  this
-                );
+                map.loadExternalData('{% url 'datenmanagement:'|add:key|add:'_geometry' %}', this);
                 map.eachLayer((layer) => {
                   // GeoJSON-Layer „anheben“, der bearbeitet wird
                   if (layer._drawnByGeoman === true) {
@@ -467,6 +503,7 @@
       // Read-only-Felder behandeln
       {% if readonly_fields %}
         {% for field in readonly_fields %}
+          let inputField;
           inputField = $('input#id_' + '{{ field }}');
           {% if object and user|user_has_model_change_permission:model_name_lower %}
             if (!inputField.val()) {
@@ -699,14 +736,13 @@
      */
     function setAddressReference(addressType, layer) {
       let geoJson = layer.toGeoJSON();
-      let geometryType;
-      {% if 'point' in geometry_type|lower %}
+      let geometryType = '{{ geometry_type|lower }}';
+      if (geometryType.indexOf('point') !== -1)
         geometryType = 'Point';
-      {% elif 'line' in geometry_type|lower %}
+      else if (geometryType.indexOf('line') !== -1)
         geometryType = 'LineString';
-      {% elif 'polygon' in geometry_type|lower %}
+      else
         geometryType = 'Polygon';
-      {% endif %}
       let ort = getFeatureCenter(geoJson, geometryType);
       let url = '{% url "toolbox:reversesearch" %}';
       fetch(url + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
@@ -891,14 +927,13 @@
       // und die Geometrie auf die Karte gezeichnet
       $('#postcode-assigner').parent('span').click(function() {
         let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
-        let geometryType;
-        {% if 'point' in geometry_type|lower %}
+        let geometryType = '{{ geometry_type|lower }}';
+        if (geometryType.indexOf('point') !== -1)
           geometryType = 'Point';
-        {% elif 'line' in geometry_type|lower %}
+        else if (geometryType.indexOf('line') !== -1)
           geometryType = 'LineString';
-        {% elif 'polygon' in geometry_type|lower %}
+        else
           geometryType = 'Polygon';
-        {% endif %}
         let ort = getFeatureCenter(geoJson, geometryType);
         // Anfragen des Servers und Warten auf Antwort des Servers
         let params = {

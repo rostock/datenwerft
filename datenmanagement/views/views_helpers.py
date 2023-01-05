@@ -8,6 +8,8 @@ from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from jsonview.views import JsonView
 
+from . import functions
+
 
 class GeometryView(JsonView):
   """
@@ -48,7 +50,6 @@ class GeometryView(JsonView):
         uuid, geom = cursor.fetchone()  # Tupel
         context['uuid'] = uuid
         context['geometry'] = geom
-        context['model_name'] = self.model.__name__
     elif self.request.GET.get('lat') and self.request.GET.get('lng'):
       # Bei Angabe von Koordinaten (rad standardmäßig 0)
       lat = float(self.request.GET.get('lat'))
@@ -65,15 +66,9 @@ class GeometryView(JsonView):
             'st_makepoint(%s, %s),4326)::geometry,25833),%s) && geometrie;',
             [lng, lat, rad]
         )
-        row = cursor.fetchall()
-        uuids = []
-        geom = []
-        for i in range(len(row)):
-          uuids.append(row[i][0])
-          geom.append(str(row[i][1]))
-        context['uuids'] = uuids
-        context['object_list'] = geom
-        context['model_name'] = self.model.__name__
+        uuids_geometries = functions.get_uuids_geometries_from_sql(cursor.fetchall())
+        context['uuids'] = uuids_geometries[0]
+        context['object_list'] = uuids_geometries[1]
     else:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
@@ -83,15 +78,10 @@ class GeometryView(JsonView):
                 '') +
             ';',
             [])
-        row = cursor.fetchall()
-        uuids = []
-        geom = []
-        for i in range(len(row)):
-          uuids.append(row[i][0])
-          geom.append(str(row[i][1]))
-        context['uuids'] = uuids
-        context['object_list'] = geom
-        context['model_name'] = self.model.__name__
+        uuids_geometries = functions.get_uuids_geometries_from_sql(cursor.fetchall())
+        context['uuids'] = uuids_geometries[0]
+        context['object_list'] = uuids_geometries[1]
+    context['model_name'] = self.model.__name__
 
     return context
 
