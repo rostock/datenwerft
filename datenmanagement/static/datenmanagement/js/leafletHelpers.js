@@ -229,9 +229,13 @@ L.Map.prototype.loadExternalData = function(baseUrl, layer, isWFS = false) {
  */
 L.Map.prototype.updateMap = function(dataLayerControl) {
   let list = dataLayerControl.getActiveOverlays();
-  if (this.getZoom() > this._minLayerZoom) {
+  let currentZoom = this.getZoom();
+  if (currentZoom > this._minLayerZoomForDataThemes) {
     for (const key in list) {
-      this.loadExternalData(this._themaUrl[key], list[key], this._themaUrl[key].toLowerCase().indexOf('getfeature') !== -1);
+      let url = this._themaUrl[key];
+      let isWFS = url.toLowerCase().indexOf('getfeature') !== -1;
+      if (isWFS === false || (isWFS === true && currentZoom > this._minLayerZoomForWFSFeaturetypes))
+        this.loadExternalData(url, list[key], isWFS);
     }
     // anheben des Layers, der bearbeitet wird
     this.eachLayer((layer) => {

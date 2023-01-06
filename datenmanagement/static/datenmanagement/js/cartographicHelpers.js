@@ -373,9 +373,11 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  */
 function setMapConstants(map) {
   // allgemeine Konstanten
+  map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
   map._wmsFormat = 'image/png';
   map._maxLayerZoom = 19;
-  map._minLayerZoom = 12;
+  map._minLayerZoomForWFSFeaturetypes = 16;
+  map._minLayerZoomForDataThemes = 13;
   map._themaUrl = {};
 
   // Optionen für das Zeichnen von Objekten

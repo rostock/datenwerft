@@ -275,8 +275,8 @@
       setMapConstants(map);
 
       // ggf. zusätzliche Karten definieren, die dann beim Konfigurieren der Karte zu den Overlay-Karten hinzugefügt werden
+      let additionalWMSLayers = {};
       {% if additional_wms_layers %}
-        let additionalWMSLayers = {};
         let additionalWMSLayerUrl;
         {% for additional_wms_layer in additional_wms_layers %}
           additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
@@ -316,14 +316,14 @@
       window.featureGeometry = [];
 
       // Leaflet-Geoman konfigurieren
-      {% if geometry_type == 'Point' %}
-        configureLeafletGeoman(map, 'Point');
-      {% elif 'LineString' in geometry_type and model_name != 'Fallwildsuchen_Nachweise' %}
-        configureLeafletGeoman(map, 'LineString');
-      {% elif geometry_type == 'Polygon' %}
-        configureLeafletGeoman(map, 'Polygon');
-      {% elif geometry_type == 'MultiPolygon' %}
-        configureLeafletGeoman(map, 'MultiPolygon');
+      {% if not gpx_input %}
+        {% if 'LineString' in geometry_type %}
+          configureLeafletGeoman(map, 'LineString');
+        {% elif geometry_type == 'Point' or geometry_type == 'Polygon' or geometry_type == 'MultiPolygon' %}
+          configureLeafletGeoman(map, '{{ geometry_type }}');
+        {% else %}
+          configureLeafletGeoman(map);
+        {% endif %}
       {% else %}
         configureLeafletGeoman(map);
       {% endif %}
@@ -335,18 +335,21 @@
       {% endif %}
 
       // zusätzliche Datenthemen anbieten
-      {% if model_name != 'Fallwildsuchen_Nachweise' %}
+      {% if not gpx_input %}
         // Layer-Control hinzufügen zum Anzeigen zusätzlicher Datenthemen
         let dataLayerControl = new L.control.layers({}, {}).addTo(map);
 
         // alle zusätzlichen WFS-FeatureTypes durchgehen...
         {% for additional_wfs_featuretype in additional_wfs_featuretypes %}
           if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true') {
-            map._themaUrl = {...map._themaUrl, '{{ additional_wfs_featuretype.title }}': '{% url "toolbox:owsproxy" %}' + '{{ additional_wfs_featuretype.url }}' + '?service=WFS&version=2.0.0&request=GetFeature&typeNames=' + '{{ additional_wfs_featuretype.featuretypes }}' + '&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326'};
+            map._themaUrl = {
+              ...map._themaUrl,
+              '{{ additional_wfs_featuretype.title }}': '{% url "toolbox:owsproxy" %}' + '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}')
+            };
           } else {
             map._themaUrl = {
               ...map._themaUrl,
-              '{{ additional_wfs_featuretype.title }}': '{{ additional_wfs_featuretype.url }}' + '?service=WFS&version=2.0.0&request=GetFeature&typeNames=' + '{{ additional_wfs_featuretype.featuretypes }}' + '&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326'
+              '{{ additional_wfs_featuretype.title }}': '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}')
             };
           }
           // neuen GeoJSON-Layer für zusätzlichen WFS-FeatureType initialisieren
@@ -355,9 +358,9 @@
           dataLayerControl.addOverlay({{ additional_wfs_featuretype.name }}, '{{ additional_wfs_featuretype.title }}')
           // beim Zuschalten des GeoJSON-Layers Features laden
           {{ additional_wfs_featuretype.name }}.on('add', function () {
-            if (map.getZoom() > map._minLayerZoom) {
+            if (map.getZoom() > map._minLayerZoomForWFSFeaturetypes) {
               // Features zum entsprechenden GeoJSON-Layer hinzufügen
-              let url = '{{ additional_wfs_featuretype.url }}' + '?service=WFS&version=2.0.0&request=GetFeature&typeNames=' + '{{ additional_wfs_featuretype.featuretypes }}' + '&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
+              let url = '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}');
               if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true')
                 url = '{% url "toolbox:owsproxy" %}' + url;
               map.loadExternalData(url, this, true);
@@ -384,7 +387,7 @@
             dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
             // beim Zuschalten des GeoJSON-Layers Features laden
             {{ datenthema_name_lower }}.on('add', function () {
-              if (map.getZoom() > map._minLayerZoom) {
+              if (map.getZoom() > map._minLayerZoomForDataThemes) {
                 // Features zum entsprechenden GeoJSON-Layer hinzufügen
                 map.loadExternalData('{% url 'datenmanagement:'|add:key|add:'_geometry' %}', this);
                 map.eachLayer((layer) => {
@@ -502,8 +505,8 @@
 
       // Read-only-Felder behandeln
       {% if readonly_fields %}
+        let inputField;
         {% for field in readonly_fields %}
-          let inputField;
           inputField = $('input#id_' + '{{ field }}');
           {% if object and user|user_has_model_change_permission:model_name_lower %}
             if (!inputField.val()) {
