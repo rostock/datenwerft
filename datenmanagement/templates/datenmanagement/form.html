@@ -8,14 +8,17 @@
 {% block style %}
   {{ block.super }}
   {% leaflet_css plugins="geoman,locatecontrol" %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}"/>
   {% if forms_in_mobile_mode or request.user_agent.is_mobile or request.user_agent.is_tablet %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}" />
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'datenmanagement/css/form-mobile.css' %}"/>
     {% if forms_in_mobile_mode %}
-      <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}" />
+      <link rel="stylesheet" type="text/css"
+            href="{% static 'datenmanagement/css/form-mobile-mode.css' %}"/>
     {% endif %}
   {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}" />
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'datenmanagement/css/form-desktop.css' %}"/>
   {% endif %}
 {% endblock %}
 
@@ -27,8 +30,10 @@
   <script type="text/javascript" src="{% static 'wicket/wicket-leaflet.js' %}"></script>
   <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
   <script type="module" src="{% static 'martinez-polygon-clipping/martinez.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script type="text/javascript"
+          src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script type="text/javascript"
+          src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
 {% endblock %}
 
@@ -60,7 +65,17 @@
       {% if object and associated_objects %}
         <ul>
           {% for associated_object in associated_objects %}
-            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>{% if associated_object.preview_img_url %} <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px" /></a>{% endif %}
+            <li>{{ associated_object.title }} {{ associated_object.name }} <a
+                href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer"
+                title="{{ associated_object.title }} ansehen oder bearbeiten"><i
+                class="fas fa-arrow-up-right-from-square"></i></a></li>
+            {% if associated_object.preview_img_url %}
+              <a href="{{ associated_object.preview_img_url }}" target="_blank"
+                 rel="noopener noreferrer" title="große Ansicht öffnen…"><img src="
+                  {% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}"
+                                                                              alt="Vorschau"
+                                                                              width="50px"/></a>
+            {% endif %}
           {% endfor %}
         </ul>
       {% else %}
@@ -70,7 +85,10 @@
         <hr/>
         {% for associated_new_entry in associated_new %}
           <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
-            <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
+            <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}"
+               target="_blank" rel="noopener noreferrer"><i
+                class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }}
+              anlegen</a>
           </p>
         {% endfor %}
       {% endif %}
@@ -86,22 +104,36 @@
             <tr>
               <td>
                 {% if field.name in catalog_link_fields_names %}
-                  {{ field.label_tag }} <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
+                  {{ field.label_tag }}
+                  <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i
+                      class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
                 {% elif field|is_field_hours_related_field %}
-                  {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
+                  {{ field.label_tag }}<small>(<a
+                    href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i
+                    class="fas fa-circle-question"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
                   {% if object and user|user_has_model_change_permission:model_name_lower %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
-                      {{ field.label_tag }} <a href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }}
+                      <a href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' field.value %}"
+                         id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square"
+                                                        title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% else %}
                     {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
-                      {{ field.label_tag }} <a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' foreign_model %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }}<a hidden
+                                              href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' foreign_model %}"
+                                              id="link_{{ field.name }}"> <i
+                        class="fas fa-arrow-up-right-from-square"
+                        title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
                 {% elif postcode_assigner and field.name == postcode_assigner %}
                   {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-                    {{ field.label_tag }} <span><i id="postcode-assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
+                    {{ field.label_tag }}<span><i id="postcode-assigner"
+                                                  class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"
+                      {% if geometry %}
+                                                  title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
                   {% endif %}
                 {% else %}
                   {{ field.label_tag }}
@@ -133,24 +165,34 @@
       <div id="map-adresssearch-container-form">
         <label hidden for="id_geometrie" class="form-label">Geometrie</label>
         {% if geometry %}
-          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea"
+                    name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
         {% else %}
-          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [] }</textarea>
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea"
+                    name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [] }</textarea>
         {% endif %}
         {% leaflet_map "id-geometrie-map" callback="window.mapCallbackFunction" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
               {% if geometry_type == 'Point' %}
-                <button disabled id="addressToMap" class="btn btn-success" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
+                <button disabled id="addressToMap" class="btn btn-success" type="button"><i
+                    class="fas fa-location-dot"></i> Marker setzen
+                </button>
               {% endif %}
               {% if not address_mandatory %}
                 {% if address_type == 'Adresse' %}
-                  <button disabled id="mapToAddress" class="btn btn-success" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
+                  <button disabled id="mapToAddress" class="btn btn-success" type="button"><i
+                      class="fas fa-house"></i> Adresse übernehmen
+                  </button>
                 {% elif address_type == 'Straße' %}
-                  <button disabled id="mapToStreet" class="btn btn-success" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
+                  <button disabled id="mapToStreet" class="btn btn-success" type="button"><i
+                      class="fas fa-road"></i> Straße übernehmen
+                  </button>
                 {% elif address_type == 'Gemeindeteil' %}
-                  <button disabled id="mapToQuarter" class="btn btn-success" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
+                  <button disabled id="mapToQuarter" class="btn btn-success" type="button"><i
+                      class="fas fa-circle-dot"></i> Gemeindeteil übernehmen
+                  </button>
                 {% endif %}
               {% endif %}
             </div>
@@ -159,32 +201,40 @@
         <div class="mt-3">
           {% if address_type %}
             {% if address_type == 'Adresse' %}
-              <label for="id_adresse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
+              <label for="id_adresse"
+                     class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.adresse }}
                 <label for="id_adresse">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}"/>
+              <input id="id_adresse_uuid" type="hidden" name="adresse_uuid"
+                     value="{% if current_address %}{{ current_address }}{% endif %}"/>
             {% elif address_type == 'Straße' %}
-              <label for="id_strasse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
+              <label for="id_strasse"
+                     class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.strasse }}
                 <label for="id_strasse">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}"/>
+              <input id="id_strasse_uuid" type="hidden" name="strasse_uuid"
+                     value="{% if current_street %}{{ current_street }}{% endif %}"/>
             {% elif address_type == 'Gemeindeteil' %}
-              <label for="id_gemeindeteil" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
+              <label for="id_gemeindeteil"
+                     class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.gemeindeteil }}
                 <label for="id_gemeindeteil">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_quarter %}{{ current_quarter }}{% endif %}"/>
+              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid"
+                     value="{% if current_quarter %}{{ current_quarter }}{% endif %}"/>
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
               <label for="address-search" class="form-label">Adressensuche</label>
               <div class="form-floating">
-                <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…"/>
+                <input id="address-search" type="text" class="form-control" name="address_search"
+                       autocapitalize="off" autocomplete="off"
+                       placeholder="Adresse, Straße oder Gemeindeteil eingeben…"/>
                 <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
               </div>
             {% endif %}
@@ -196,26 +246,50 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i
+              class="fas fa-floppy-disk"></i>
+            {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+              {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern
+          </button>
         {% endif %}
         {% if object and user|user_has_model_add_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit"
+                  onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i>
+            {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+              als neuen Datensatz {% endif %}klonen
+          </button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
-          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
+          <a class="btn btn-danger" role="button"
+             href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i
+              class="fas fa-trash"></i>
+            {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+              Datensatz {% endif %}löschen</a>
         {% endif %}
-        <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
+        <a class="btn btn-warning" role="button"
+           href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i
+            class="fas fa-hand"></i> abbrechen</a>
       </div>
     </div>
     {% if address_type %}
-      <div id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal" class="modal fade" tabindex="-1" aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-label" aria-hidden="true">
+      <div
+          id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal"
+          class="modal fade" tabindex="-1"
+          aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-label"
+          aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header" id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-header">
-              <h5 class="modal-title">Keine automatische Zuordnung {% if address_type == 'Gemeindeteil' %}eines{% else %}einer{% endif %} {{ address_type }} möglich!</h5>
+            <div class="modal-header"
+                 id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-header">
+              <h5 class="modal-title">Keine automatische Zuordnung
+                {% if address_type == 'Gemeindeteil' %}eines{% else %}
+                  einer{% endif %} {{ address_type }} möglich!</h5>
             </div>
             <div class="modal-body">
-              Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an {% if address_type == 'Gemeindeteil' %}den nächsten{% else %}die nächste{% endif %} {{ address_type }} heran.
+              Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der
+              Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an
+              {% if address_type == 'Gemeindeteil' %}den nächsten{% else %}die
+                nächste{% endif %} {{ address_type }} heran.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -225,14 +299,16 @@
       </div>
     {% endif %}
     {% if gpx_input %}
-      <div id="id_gpxLoading" class="modal fade" tabindex="-1" aria-labelledby="id_gpxLoading-label" aria-hidden="true">
+      <div id="id_gpxLoading" class="modal fade" tabindex="-1"
+           aria-labelledby="id_gpxLoading-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header" id="id_gpxLoading-header">
               <h5 class="modal-title" id="id_gpxLoading-title">Auswerten der GPX-Datei</h5>
             </div>
             <div class="modal-body" id="id_gpxLoading-body">
-              Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.
+              Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment
+              dauern.
               <div class="text-center">
                 <div class="spinner-border m-4 text-primary" role="status">
                   <span class="sr-only">laden…</span>
@@ -244,14 +320,17 @@
       </div>
     {% endif %}
     {% if postcode_assigner %}
-      <div id="id_postcodeAssigning" class="modal fade" tabindex="-1" aria-labelledby="id_postcodeAssigning-label" aria-hidden="true">
+      <div id="id_postcodeAssigning" class="modal fade" tabindex="-1"
+           aria-labelledby="id_postcodeAssigning-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header" id="id_postcodeAssigning-header">
-              <h5 class="modal-title" id="id_postcodeAssigning-title">Fehler bei Zuweisung einer Postleitzahl</h5>
+              <h5 class="modal-title" id="id_postcodeAssigning-title">Fehler bei Zuweisung einer
+                Postleitzahl</h5>
             </div>
             <div class="modal-body" id="id_postcodeAssigning-body">
-              Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.
+              Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten.
+              Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -263,38 +342,39 @@
   </form>
   <script type="text/javascript">
     /**
-    * @function
-    * @name mapCallbackFunction
-    *
-    * behandelt als Callback-Funktion die übergebene Karte
-    *
-    * @param {Object} map - Karte
-    */
+     * @function
+     * @name mapCallbackFunction
+     *
+     * behandelt als Callback-Funktion die übergebene Karte
+     *
+     * @param {Object} map - Karte
+     */
     function mapCallbackFunction(map) {
       // Konstanten für Karte setzen
       setMapConstants(map);
 
-      // ggf. zusätzliche Karten definieren, die dann beim Konfigurieren der Karte zu den Overlay-Karten hinzugefügt werden
-      let additionalWMSLayers = {};
-      {% if additional_wms_layers %}
-        let additionalWMSLayerUrl;
-        {% for additional_wms_layer in additional_wms_layers %}
-          additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
-          if ('{{ additional_wms_layer.proxy }}'.toLowerCase() === 'true')
-            additionalWMSLayerUrl = '{% url "toolbox:owsproxy" %}' + additionalWMSLayerUrl;
-          additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms(additionalWMSLayerUrl, {
-            layers: '{{ additional_wms_layer.layers }}',
-            format: map._wmsFormat,
-            maxZoom: map._maxLayerZoom,
-            transparent: true
-          });
-        {% endfor %}
-      {% endif %}
+      // ggf. zusätzliche WMS-Layer definieren,
+      // die dann beim Konfigurieren der Karte zu den Overlay-Karten hinzugefügt werden
+      let additionalWMSLayers = {}, additionalWMSLayerUrl;
+      {% for additional_wms_layer in additional_wms_layers %}
+        additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
+        if ('{{ additional_wms_layer.proxy }}'.toLowerCase() === 'true')
+          additionalWMSLayerUrl = '{% url "toolbox:owsproxy" %}' + additionalWMSLayerUrl;
+        additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms(
+            additionalWMSLayerUrl, {
+              layers: '{{ additional_wms_layer.layers }}',
+              format: map._wmsFormat,
+              maxZoom: map._maxLayerZoom,
+              transparent: true
+            });
+      {% empty %}
+      {% endfor %}
 
       // Karte konfigurieren
       configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWMSLayers);
 
-      // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+      // Karte auch in anderen Scopes
+      // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
       window.currMap = map;
 
       // bei mobilen Geräten: Standortbestimmung hinzufügen
@@ -302,7 +382,8 @@
         enableMapLocate(map);
       {% endif %}
 
-      // globalen Marker für Leaflet konfigurieren und auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+      // globalen Marker für Leaflet konfigurieren und auch in anderen Scopes
+      // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
       window.redMarker = new L.Icon({
         iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
         shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
@@ -312,7 +393,8 @@
         shadowSize: [41, 41]
       });
 
-      // globale Variable für Feature-Geometrie auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+      // globale Variable für Feature-Geometrie auch in anderen Scopes
+      // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
       window.featureGeometry = [];
 
       // Leaflet-Geoman konfigurieren
@@ -334,12 +416,12 @@
         map.loadGeometryFromField('#id_geometrie')
       {% endif %}
 
-      // zusätzliche Datenthemen anbieten
-      {% if not gpx_input %}
-        // Layer-Control hinzufügen zum Anzeigen zusätzlicher Datenthemen
-        let dataLayerControl = new L.control.layers({}, {}).addTo(map);
-
-        // alle zusätzlichen WFS-FeatureTypes durchgehen...
+      // ggf. zusätzliche WFS-Feature-Types definieren,
+      // die dann zum Zuschalten in der Karte angeboten werden
+      {% if additional_wfs_featuretypes %}
+        // Layer-Control hinzufügen zum Zuschalten zusätzlicher WFS-Feature-Types
+        let featureTypeControl = new L.control.layers({}, {}).addTo(map);
+        // alle zusätzlichen WFS-Feature-Types durchgehen...
         {% for additional_wfs_featuretype in additional_wfs_featuretypes %}
           if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true') {
             map._themaUrl = {
@@ -352,18 +434,24 @@
               '{{ additional_wfs_featuretype.title }}': '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}')
             };
           }
-          // neuen GeoJSON-Layer für zusätzlichen WFS-FeatureType initialisieren
+          // neuen GeoJSON-Layer für WFS-Feature-Type initialisieren und mit Namen versehen
           let {{ additional_wfs_featuretype.name }} = new L.Proj.geoJson();
-          // neuen GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
-          dataLayerControl.addOverlay({{ additional_wfs_featuretype.name }}, '{{ additional_wfs_featuretype.title }}')
-          // beim Zuschalten des GeoJSON-Layers Features laden
+          {{ additional_wfs_featuretype.name }}.name = '{{ additional_wfs_featuretype.title }}';
+          // GeoJSON-Layer für WFS-Feature-Type zur Layer-Control hinzufügen
+          featureTypeControl.addOverlay({{ additional_wfs_featuretype.name }}, '{{ additional_wfs_featuretype.title }}')
+          // beim Zuschalten des GeoJSON-Layers WFS-Features laden
           {{ additional_wfs_featuretype.name }}.on('add', function () {
             if (map.getZoom() > map._minLayerZoomForWFSFeaturetypes) {
-              // Features zum entsprechenden GeoJSON-Layer hinzufügen
+              // WFS-Features zum entsprechenden GeoJSON-Layer hinzufügen
               let url = '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}');
               if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true')
                 url = '{% url "toolbox:owsproxy" %}' + url;
-              map.loadExternalData(url, this, true);
+              map.loadExternalData(
+                  '{{ additional_wfs_featuretype.title }}',
+                  url,
+                  this,
+                  true
+              );
               map.eachLayer((layer) => {
                 // GeoJSON-Layer „anheben“, der bearbeitet wird
                 if (layer._drawnByGeoman === true) {
@@ -377,19 +465,38 @@
           });
         {% endfor %}
 
-        // alle Datenthemen durchgehen...
+        // beim Bewegen der Karte WFS-Features nachladen
+        map.on('moveend', () => {
+          map.updateMap(featureTypeControl, true);
+        });
+      {% endif %}
+
+      // ggf. zusätzliche Datenthemen definieren,
+      // die dann zum Zuschalten in der Karte angeboten werden
+      {% if model_list and not gpx_input %}
+        // Layer-Control hinzufügen zum Zuschalten zusätzlicher Datenthemen
+        let dataThemeControl = new L.control.layers({}, {}).addTo(map);
+        // alle zusätzlichen Datenthemen durchgehen...
         {% for key, value in model_list.items %}
           {% with datenthema_name_lower=key|lower %}
-            map._themaUrl = {...map._themaUrl, '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'_geometry' %}'};
-            // neuen GeoJSON-Layer für Datenthema initialisieren
+            map._themaUrl = {
+              ...map._themaUrl,
+              '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'_geometry' %}'
+            };
+            // neuen GeoJSON-Layer für Datenthema initialisieren und mit Namen versehen
             let {{ datenthema_name_lower }} = new L.Proj.geoJson();
-            // neuen GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
-            dataLayerControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
-            // beim Zuschalten des GeoJSON-Layers Features laden
+            {{ datenthema_name_lower }}.name = '{{ value }}';
+            // GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
+            dataThemeControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
+            // beim Zuschalten des GeoJSON-Layers Datenthema-Features laden
             {{ datenthema_name_lower }}.on('add', function () {
               if (map.getZoom() > map._minLayerZoomForDataThemes) {
-                // Features zum entsprechenden GeoJSON-Layer hinzufügen
-                map.loadExternalData('{% url 'datenmanagement:'|add:key|add:'_geometry' %}', this);
+                // Datenthema-Features zum entsprechenden GeoJSON-Layer hinzufügen
+                map.loadExternalData(
+                    '{{ value }}',
+                    '{% url 'datenmanagement:'|add:key|add:'_geometry' %}',
+                    this
+                );
                 map.eachLayer((layer) => {
                   // GeoJSON-Layer „anheben“, der bearbeitet wird
                   if (layer._drawnByGeoman === true) {
@@ -404,13 +511,10 @@
           {% endwith %}
         {% endfor %}
 
-        // beim Bewegen der Karte Features nachladen
+        // beim Bewegen der Karte Datenthema-Features nachladen
         map.on('moveend', () => {
-          map.updateMap(dataLayerControl);
+          map.updateMap(dataThemeControl);
         });
-        map.on('zoomend', () => {
-          map.updateMap(dataLayerControl);
-        })
       {% endif %}
 
       /**
@@ -418,7 +522,7 @@
        *
        * prüft beim Start des Modus „Zeichnen“, ob es bereits einen Leaflet-Geoman-Layer gibt, und löscht diesen gegebenenfalls
        */
-      map.on('pm:drawstart', function() {
+      map.on('pm:drawstart', function () {
         {% if geometry_type == 'Point' or geometry_type == 'LineString' or geometry_type == 'Polygon' %}
           if (map.pm.getGeomanLayers().length > 0) {
             map.pm.getGeomanLayers().forEach((item) => {
@@ -440,7 +544,7 @@
          *
          * @param {Object} layer - Layer (= Feature)
          */
-        map.on('pm:create', function({layer}) {
+        map.on('pm:create', function ({layer}) {
           {% if address_mandatory %}
             // Adressenbezug für gesetze Geometrie setzen
             setAddressReference('{{ address_type }}', layer);
@@ -471,36 +575,36 @@
      *
      * Hauptfunktion
      */
-    $(document).ready(function() {
+    $(document).ready(function () {
       // falls Gruppe von Benutzern gesetzt ist, die für das Feld Ansprechpartner:in/Bearbeiter:in in einer entsprechenden Auswahlliste genutzt werden sollen...
       {% if group_with_users_for_choice_field %}
-          // alle Felder durchgehen...
-          {% for field in form %}
-            // beim Feld Ansprechpartner:in/Bearbeiter:in...
-            {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
-              let select = $('select#id_' + '{{ field.name }}');
-              // Bootstratp-5-CSS-Klasse ergänzen
-              select.addClass('form-select');
-              // passenden Wert vorauswählen, wenn die darin enthaltende E-Mail-Adresse mit dem Feldwert übereinstimmt
-              {% if object %}
-                select.children().each(function() {
-                  let optionValue = $(this).val();
-                  if (optionValue.indexOf('{{ field.value }}'.toLowerCase()) !== -1)
-                    select.val(optionValue);
-                });
-              {% endif %}
+        // alle Felder durchgehen...
+        {% for field in form %}
+          // beim Feld Ansprechpartner:in/Bearbeiter:in...
+          {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
+            let select = $('select#id_' + '{{ field.name }}');
+            // Bootstratp-5-CSS-Klasse ergänzen
+            select.addClass('form-select');
+            // passenden Wert vorauswählen, wenn die darin enthaltende E-Mail-Adresse mit dem Feldwert übereinstimmt
+            {% if object %}
+              select.children().each(function () {
+                let optionValue = $(this).val();
+                if (optionValue.indexOf('{{ field.value }}'.toLowerCase()) !== -1)
+                  select.val(optionValue);
+              });
             {% endif %}
-          {% endfor %}
+          {% endif %}
+        {% endfor %}
       {% endif %}
 
       // Checkboxen in Multiple-Choice-Feldern an Bootstrap 5 anpassen
       $('ul input[type="checkbox"]').each(function () {
-          $(this).addClass('form-check-input');
+        $(this).addClass('form-check-input');
       });
 
       // Checkboxen in Multiple-Choice-Feldern an Bootstrap 5 anpassen
       $('ul input[type="checkbox"]').each(function () {
-          $(this).addClass('form-check-input');
+        $(this).addClass('form-check-input');
       });
 
       // Read-only-Felder behandeln
@@ -515,7 +619,11 @@
               let wert = inputField.val();
               if (inputField.attr('type') === 'date') {
                 let datum = new Date(inputField.val());
-                wert = datum.toLocaleDateString('de-DE', options = {day: '2-digit', month: '2-digit', year: 'numeric'});
+                wert = datum.toLocaleDateString('de-DE', options = {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                });
               }
               inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + wert + '</em></span>');
               let label = inputField.parent().closest('tr').find('label');
@@ -532,13 +640,13 @@
       {% if not user|user_has_model_change_permission:model_name_lower %}
         // alle Felder deaktivieren
         $('input').each(function () {
-            $(this).prop('disabled', true);
+          $(this).prop('disabled', true);
         });
         $('select').each(function () {
-            $(this).prop('disabled', true);
+          $(this).prop('disabled', true);
         });
         $('textarea').each(function () {
-            $(this).prop('disabled', true);
+          $(this).prop('disabled', true);
         });
       {% endif %}
 
@@ -582,7 +690,7 @@
       initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType, addressUuidField);
 
       // bei Klick auf Button „Marker setzen“...
-      $('#addressToMap').on('click', function() {
+      $('#addressToMap').on('click', function () {
         // Marker in die Karte setzen, und zwar zentriert auf Ergebnis der Adressensuche
         setMarkerToAddressSearchResult(window.currMap);
         // passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte freischalten
@@ -594,21 +702,21 @@
       });
 
       // bei Klick auf Button „Adresse übernehmen“...
-      $('#mapToAddress').on('click', function() {
+      $('#mapToAddress').on('click', function () {
         // aktuelle Adresse der Geometrie in der Karte übernehmen
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
       // bei Klick auf Button „Straße übernehmen“...
-      $('#mapToStreet').on('click', function() {
+      $('#mapToStreet').on('click', function () {
         // aktuelle Straße der Geometrie in der Karte übernehmen
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
       // bei Klick auf Button „Gemeindeteil übernehmen“...
-      $('#mapToQuarter').on('click', function() {
+      $('#mapToQuarter').on('click', function () {
         // aktuellen Gemeindeteil der Geometrie in der Karte übernehmen
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
@@ -633,7 +741,7 @@
       {% if fields_with_foreign_key_to_linkify and user|user_has_model_change_permission:model_name_lower or not object %}
         {% for field in fields_with_foreign_key_to_linkify %}
           $('select#id_' + '{{ field }}').each(function () {
-            $(this).on('change', function() {
+            $(this).on('change', function () {
               let link = $('a#link_' + '{{ field }}');
               let href = link.prop('href');
               let value = $(this).find(':selected').val();
@@ -751,12 +859,12 @@
       fetch(url + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
         method: 'GET'
       })
-      .then(response => response.json())
-      .then(data => {
-        if (ort[0] !== 0 && ort[1] !== 0)
-          adoptReverseSearchResult(data, addressType);
-      })
-      .catch(error => console.log(error))
+          .then(response => response.json())
+          .then(data => {
+            if (ort[0] !== 0 && ort[1] !== 0)
+              adoptReverseSearchResult(data, addressType);
+          })
+          .catch(error => console.log(error))
     }
 
     /**
@@ -770,7 +878,7 @@
      */
     function adoptReverseSearchResult(geoJson, addressType) {
       let erfolg = false;
-      jQuery.each(geoJson.features, function(index, item) {
+      jQuery.each(geoJson.features, function (index, item) {
         if (item.properties.objektgruppe === addressType) {
           let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
           if (item.properties.gemeindeteil_abkuerzung)
@@ -859,7 +967,7 @@
       // als GeoJSON mit den zusätzlichen Attributen mit Start- und Endzeitpunkt erwartet;
       // diese Attribute werden nach dem erfolgreichen Empfangen der Antwort des Servers in die dafür vorgesehenen Input-Felder geschrieben
       // und die Geometrie auf die Karte gezeichnet
-      $('#id_gpx').change(function(e) {
+      $('#id_gpx').change(function (e) {
         toggleModal($('#id_gpxLoading'));
         let file = e.target.files[0];
         let formData = new FormData();
@@ -872,53 +980,53 @@
         });
         // Upload der GPX-Datei und Warten auf Antwort des Servers
         fetch(
-          '{% url "datenmanagement:gpxtogeojson" %}', {
-            method: 'POST',
-            body: formData,
-          }
-        ).then(
-          (response) => {
-            return response.json();
-          }
-        ).then(
-          (data) => {
-            // falls Fehler bei der Kommunikation mit FME auftrat...
-            if (data.StatusCode) {
-              // Ausgabe der Fehlermeldung
-              console.log('Fehler bei Kommunikation mit FME');
-              console.log(data);
-            // ansonsten...
-            } else {
-              // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben
-              $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
-              $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
-              // Layer erzeugen
-              let track = new L.geoJSON(data, {
-                color: 'red'
-              });
-              // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
-              track._changeGeom = true;
-              track.eachLayer((layer) => {
-                layer._drawnByGeoman = true;
-              });
-              // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
-              track.addTo(currMap);
+            '{% url "datenmanagement:gpxtogeojson" %}', {
+              method: 'POST',
+              body: formData,
             }
-            toggleModal($('#id_gpxLoading'));
-          }
+        ).then(
+            (response) => {
+              return response.json();
+            }
+        ).then(
+            (data) => {
+              // falls Fehler bei der Kommunikation mit FME auftrat...
+              if (data.StatusCode) {
+                // Ausgabe der Fehlermeldung
+                console.log('Fehler bei Kommunikation mit FME');
+                console.log(data);
+                // ansonsten...
+              } else {
+                // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben
+                $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
+                $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
+                // Layer erzeugen
+                let track = new L.geoJSON(data, {
+                  color: 'red'
+                });
+                // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
+                track._changeGeom = true;
+                track.eachLayer((layer) => {
+                  layer._drawnByGeoman = true;
+                });
+                // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
+                track.addTo(currMap);
+              }
+              toggleModal($('#id_gpxLoading'));
+            }
         ).catch(
-          (error) => {
-            $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
-            $('#id_gpxLoading-body').text(
-              'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
-            );
-            $('#id_gpxLoading-body').after(
-              '<div class="modal-footer">' +
-                '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
-              '</div>'
-            );
-            console.error(error);
-          }
+            (error) => {
+              $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
+              $('#id_gpxLoading-body').text(
+                  'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
+              );
+              $('#id_gpxLoading-body').after(
+                  '<div class="modal-footer">' +
+                  '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
+                  '</div>'
+              );
+              console.error(error);
+            }
         );
       });
     {% endif %}
@@ -928,7 +1036,7 @@
       // als Antwort des Servers wird ein GeoJSON mit einem Attribut mit der Postleitzahl erwartet;
       // dieses Attribute wird nach dem erfolgreichen Empfangen der Antwort des Servers in das dafür vorgesehene Input-Feld geschrieben
       // und die Geometrie auf die Karte gezeichnet
-      $('#postcode-assigner').parent('span').click(function() {
+      $('#postcode-assigner').parent('span').click(function () {
         let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
         let geometryType = '{{ geometry_type|lower }}';
         if (geometryType.indexOf('point') !== -1)
@@ -947,21 +1055,21 @@
         let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
         let url = '{% url "toolbox:reversesearch" %}' + '?' + query;
         fetch(
-          url
+            url
         ).then(
-          (response) => {
-            return response.json();
-          }
+            (response) => {
+              return response.json();
+            }
         ).then(
-          (data) => {
-            if (data.features[0].properties.postleitzahl && typeof data.features[0].properties.postleitzahl == 'string')
-              $('#postcode-assigner').parent().parent().next().find('input').val(data.features[0].properties.postleitzahl);
-          }
+            (data) => {
+              if (data.features[0].properties.postleitzahl && typeof data.features[0].properties.postleitzahl == 'string')
+                $('#postcode-assigner').parent().parent().next().find('input').val(data.features[0].properties.postleitzahl);
+            }
         ).catch(
-          (error) => {
-            console.error(error);
-            toggleModal($('#id_postcodeAssigning'));
-          }
+            (error) => {
+              console.error(error);
+              toggleModal($('#id_postcodeAssigning'));
+            }
         );
       });
     {% endif %}
@@ -969,7 +1077,7 @@
     {% if model_name == 'Fallwildsuchen_Nachweise' %}
       // bei Zuweisung eines bzw. Änderung des Kontrollgebietes im Rahmen einer Fallwildsuche
       // wird dessen Geometrie auf die Karte gezeichnet
-      $('#id_kontrollgebiet').change(function() {
+      $('#id_kontrollgebiet').change(function () {
         let element = $('#id_kontrollgebiet option:selected')[0];
         let url = "{% url 'datenmanagement:'|add:'Fallwildsuchen_Kontrollgebiete'|add:'_geometry' %}";
         currMap.pm.getGeomanLayers().forEach((layer) => {
@@ -978,37 +1086,37 @@
           }
         });
         fetch(
-          String(url + '?pk=' + element.getAttribute('value'))
+            String(url + '?pk=' + element.getAttribute('value'))
         ).then(
-          (response) => {
-            return response.json();
-          }
+            (response) => {
+              return response.json();
+            }
         ).then(
-          (data) => {
-            let wkt = new Wkt.Wkt();
-            let geom = data.geometry;
-            wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
-            let geoJsonFeature = {
-              type: 'Feature',
-              geometry: null,
-              properties: {
-                'uuid': data.uuid,
-                'datenthema': data.model_name,
-              },
-              crs: {
-                type: 'name',
+            (data) => {
+              let wkt = new Wkt.Wkt();
+              let geom = data.geometry;
+              wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
+              let geoJsonFeature = {
+                type: 'Feature',
+                geometry: null,
                 properties: {
-                  'name': 'urn:ogc:def:crs:EPSG::4326'
+                  'uuid': data.uuid,
+                  'datenthema': data.model_name,
+                },
+                crs: {
+                  type: 'name',
+                  properties: {
+                    'name': 'urn:ogc:def:crs:EPSG::4326'
+                  }
                 }
-              }
-            };
-            geoJsonFeature.geometry = wkt.toJson();
-            new L.geoJSON(geoJsonFeature).addTo(currMap);
-          }
+              };
+              geoJsonFeature.geometry = wkt.toJson();
+              new L.geoJSON(geoJsonFeature).addTo(currMap);
+            }
         ).catch(
-          (error) => {
-            console.error(error);
-          }
+            (error) => {
+              console.error(error);
+            }
         );
       });
     {% endif %}

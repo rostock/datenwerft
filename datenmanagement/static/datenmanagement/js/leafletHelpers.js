@@ -9,16 +9,20 @@
  * @function
  * @name getActiveOverlays
  *
- * gibt alle via Layer-Auswahl aktivierte Layer zurück
+ * gibt alle aktiven Layer im Layer-Control zurück
  *
- * @returns {Object} - alle via Layer-Auswahl aktivierten Layer
+ * @returns {Object} - alle aktiven Layer im Layer-Control
  */
 L.Control.Layers.prototype.getActiveOverlays = function() {
   let activeLayers = {};
   this._layers.forEach((layer) => {
     if (layer.overlay && this._map.hasLayer(layer.layer)) {
       window.currMap.eachLayer((lay) => {
-        if (lay instanceof L.GeoJSON && lay.toGeoJSON().type === 'FeatureCollection')
+        if (
+            lay instanceof L.GeoJSON
+            && lay.toGeoJSON().type === 'FeatureCollection'
+            && lay.name === layer.name
+        )
           activeLayers[layer.name] = lay;
       });
     }
@@ -133,13 +137,14 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
  * @function
  * @name loadExternalData
  *
- * lädt zusätzliche Daten im aktuellen Sichtbereich nach
+ * lädt zusätzliche Features im aktuellen Sichtbereich nach
  *
- * @param {string} baseUrl - Basis-URL des Datenthemas
- * @param {Object} layer - Layer des Datenthemas
+ * @param {string} name - Name des Datenthemas oder WFS-Feature-Types
+ * @param {string} baseUrl - Basis-URL des Datenthemas oder WFS
+ * @param {Object} layer - Layer des Datenthemas oder WFS-Feature-Types
  * @param {boolean} [isWFS=false] - handelt es sich um einen WFS?
  */
-L.Map.prototype.loadExternalData = function(baseUrl, layer, isWFS = false) {
+L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false) {
   let url = baseUrl;
   let mapPart = this.getBounds();
   if (isWFS === true) {
@@ -158,7 +163,9 @@ L.Map.prototype.loadExternalData = function(baseUrl, layer, isWFS = false) {
   ).then(
     (data) => {
       if (isWFS === true) {
-        layer.clearLayers().addData(data);
+        if (name === layer.name)
+          layer.clearLayers();
+        layer.addData(data);
       } else {
         // neue leere GeoJSON-FeatureCollection definieren
         let geoJsonFeatureCollection = {
@@ -221,36 +228,47 @@ L.Map.prototype.loadExternalData = function(baseUrl, layer, isWFS = false) {
  * @function
  * @name updateMap
  *
- * lädt externe Datensätze in Karte, löscht doppelte Daten aus Karte und hebt aktive Layer in Karte an
+ * lädt zusätzliche Features in Karte,
+ * löscht doppelte Features aus Karte (falls die Quelle der Features ein Datenthema ist)
+ * und hebt aktive Layer in der Karte an
  *
- * @param {Object} dataLayerControl - Layer-Control-Button zum Laden externer Datensätze
+ * @param {Object} layerControl - Layer-Control zum Zuschalten zusätzlicher Datenthemen oder WFS-Feature-Types
+ * @param {boolean} [isWFS=false] - handelt es sich um einen WFS?
  *
  * @returns {this} modifizierte Karte
  */
-L.Map.prototype.updateMap = function(dataLayerControl) {
-  let list = dataLayerControl.getActiveOverlays();
-  let currentZoom = this.getZoom();
-  if (currentZoom > this._minLayerZoomForDataThemes) {
-    for (const key in list) {
-      let url = this._themaUrl[key];
-      let isWFS = url.toLowerCase().indexOf('getfeature') !== -1;
-      if (isWFS === false || (isWFS === true && currentZoom > this._minLayerZoomForWFSFeaturetypes))
-        this.loadExternalData(url, list[key], isWFS);
+L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
+  // aktive Layer im Layer-Control ermitteln
+  let list = layerControl.getActiveOverlays();
+  // falls überhaupt aktive Layer vorhanden sind...
+  if (Object.keys(list).length > 0) {
+    let minZoom = this._minLayerZoomForDataThemes;
+    if (isWFS === true) {
+      minZoom = this._minLayerZoomForWFSFeaturetypes;
     }
-    // anheben des Layers, der bearbeitet wird
-    this.eachLayer((layer) => {
-      if (layer._drawnByGeoman === true) {
-        if (layer instanceof L.Marker)
-          layer.setZIndexOffset(1000);
-        else
-          layer.bringToFront();
+    if (this.getZoom() > minZoom) {
+      for (let key in list) {
+        this.loadExternalData(key, this._themaUrl[key], list[key], isWFS);
       }
-    });
-  } else {
-    this.eachLayer((layer) => {
-      if (layer instanceof L.GeoJSON && layer.toGeoJSON().type === 'FeatureCollection' && !(layer._changeGeom))
-        layer.clearLayers();
-    });
+      // anheben des Layers, der bearbeitet wird
+      this.eachLayer((layer) => {
+        if (layer._drawnByGeoman === true) {
+          if (layer instanceof L.Marker)
+            layer.setZIndexOffset(1000);
+          else
+            layer.bringToFront();
+        }
+      });
+    } else {
+      this.eachLayer((layer) => {
+        if (
+            layer instanceof L.GeoJSON
+            && layer.toGeoJSON().type === 'FeatureCollection'
+            && !(layer._changeGeom)
+        )
+          layer.clearLayers();
+      });
+    }
   }
   return this;
 }

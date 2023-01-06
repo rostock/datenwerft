@@ -222,7 +222,7 @@ def set_form_context_elements(context, model):
   context['additional_wms_layers'] = (
     model._meta.additional_wms_layers if hasattr(
       model._meta, 'additional_wms_layers') else None)
-  # zusätzliche WFS-FeatureTypes
+  # zusätzliche WFS-Feature-Types
   context['additional_wfs_featuretypes'] = (
     model._meta.additional_wfs_featuretypes if hasattr(
       model._meta, 'additional_wfs_featuretypes') else None)

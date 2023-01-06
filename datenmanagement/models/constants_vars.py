@@ -187,12 +187,12 @@ options.DEFAULT_NAMES += (
   # optional;
   # Liste;
   # Eigenschaften zusätzlicher WMS-Layer, die für dieses Modell
-  # in den jeweiligen Kartenansichten optional mit angeboten werden sollen
+  # in den Formularansichten zu den Overlay-Karten hinzugefügt werden
   'additional_wfs_featuretypes',
   # optional;
   # Liste;
-  # Eigenschaften zusätzlicher WFS-FeatureTypes, die für dieses Modell
-  # in den jeweiligen Kartenansichten optional mit angeboten werden sollen
+  # Eigenschaften zusätzlicher WFS-Feature-Types, die für dieses Modell
+  # in den Formularansichten zum Zuschalten in der Karte angeboten werden
   'as_overlay',
   # optional;
   # Boolean;

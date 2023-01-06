@@ -78,7 +78,7 @@ input[name="strasse"] {
  * Leaflet-Button für Datenlayer überschreiben
  */
 
-.leaflet-top.leaflet-right .leaflet-control-layers:nth-child(2) .leaflet-control-layers-toggle {
+.leaflet-top.leaflet-right .leaflet-control-layers:nth-child(n+2) .leaflet-control-layers-toggle {
   background-image: url("../img/datalayer.svg");
 }
 
