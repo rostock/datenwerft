@@ -240,9 +240,9 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
 L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
   // aktive Layer im Layer-Control ermitteln
   let list = layerControl.getActiveOverlays();
+  let minZoom = isWFS === true ? this._minLayerZoomForWFSFeaturetypes : this._minLayerZoomForDataThemes;
   // falls überhaupt aktive Layer vorhanden sind...
   if (Object.keys(list).length > 0) {
-    let minZoom = isWFS === true ? this._minLayerZoomForWFSFeaturetypes : this._minLayerZoomForDataThemes;
     if (this.getZoom() > minZoom) {
       for (let key in list) {
         this.loadExternalData(key, this._themaUrl[key], list[key], isWFS);
@@ -257,27 +257,23 @@ L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
         }
       });
     } else {
-      let minZoom = isWFS === true ? this._minLayerZoomForWFSFeaturetypes : this._minLayerZoomForDataThemes;
       let zoomDifference = minZoom - this.getZoom() + 1;
       zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
-      let scope = isWFS === true ? 'WFS-Feature-Types' : 'Datenthemen';
-      if (this.getZoom() <= minZoom) {
-        if (window.showWFSZoomModal === true) {
-          toggleModal(
-            $('#error-modal'),
-            'Sichtbarkeit zusätzlicher ' + scope,
-            'Sie müssen zunächst wieder ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen ' + scope + ' wieder sichtbar werden!'
-          );
-          window.showWFSZoomModal = false;
-        }
-        if (window.showDataThemesZoomModal === true) {
-          toggleModal(
-            $('#error-modal'),
-            'Sichtbarkeit zusätzlicher ' + scope,
-            'Sie müssen zunächst wieder ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen ' + scope + ' wieder sichtbar werden!'
-          );
-          window.showDataThemesZoomModal = false;
-        }
+      if (isWFS === true && window.showWFSZoomModal === true) {
+        toggleModal(
+          $('#error-modal'),
+          'Sichtbarkeit zusätzlicher WFS-Feature-Types',
+          'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen WFS-Feature-Types wieder sichtbar werden!'
+        );
+        window.showWFSZoomModal = false;
+      }
+      if (isWFS === false && window.showDataThemesZoomModal === true) {
+        toggleModal(
+          $('#error-modal'),
+          'Sichtbarkeit zusätzlicher Datenthemen',
+          'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen Datenthemen wieder sichtbar werden!'
+        );
+        window.showDataThemesZoomModal = false;
       }
       this.eachLayer((layer) => {
         if (

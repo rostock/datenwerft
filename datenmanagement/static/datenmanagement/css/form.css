@@ -2,6 +2,10 @@ li > label > input {
   margin-right: 0.3rem;
 }
 
+tbody, td, tfoot, th, thead, tr {
+  border-style: none;
+}
+
 ul:not([class]) {
   list-style: outside none none;
   margin-left: -2rem;
@@ -79,7 +83,7 @@ input[name="strasse"] {
  */
 
 .leaflet-control-layers-toggle {
-  background-size: 70%;
+  background-size: 60%;
   background-repeat: no-repeat;
 }
 

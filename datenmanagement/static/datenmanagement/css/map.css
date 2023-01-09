@@ -102,7 +102,7 @@
  */
 
 .leaflet-control-layers-toggle {
-  background-size: 70%;
+  background-size: 60%;
   background-repeat: no-repeat;
   background-image: url("../img/layer-control-wms.svg");
 }

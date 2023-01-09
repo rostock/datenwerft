@@ -94,7 +94,7 @@
   <form class="form" role="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div {% if geometry_type %}id="custom-form"{% endif %}>
-      <table class="table table-striped">
+      <table class="table">
         {% for field in form %}
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
             <tr>
@@ -457,6 +457,7 @@
                 'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen WFS-Feature-Types sichtbar werden!'
               );
               window.showWFSZoomModal = false;
+              console.log(window.showWFSZoomModal);
             }
           });
         {% endfor %}
