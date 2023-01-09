@@ -237,18 +237,6 @@
         </div>
       </div>
     {% endif %}
-    <div id="subsetter-error-modal" class="modal fade" tabindex="-1" aria-labelledby="subsetter-error-modal-label" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header" id="subsetter-error-modal-header">
-              <h5 class="modal-title" id="subsetter-error-modal-title">Keine Übernahme der aktuellen Filtermenge auf die Karte möglich!</h5>
-          </div>
-          <div class="modal-body" id="subsetter-error-modal-body"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include "modal-error.html" %}
   {% endif %}
 {% endblock %}

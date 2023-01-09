@@ -99,12 +99,47 @@ function interchangeRecursive(arr, polygon = false) {
 
 /**
  * @function
+ * @name refreshModal
+ *
+ * aktualisiert den Inhalt des übergebenen Bootstrap-Modals
+ *
+ * @param {Object} modal - Bootstrap-Modal
+ * @param {String} [title=''] - Titel des Bootstrap-Modals
+ * @param {String} [body=''] - Body des Bootstrap-Modals
+ * @param {Boolean} [addFooter=false] - Footer zum Bootstrap-Modal hinzufügen?
+ * @returns {Object} - aktualisierter Bootstrap-Modal
+ */
+function refreshModal(modal, title = '', body = '', addFooter = false) {
+  modal.find('.modal-title').text(title);
+  if (modal.find('#loading-modal-body-text').length > 0)
+    modal.find('#loading-modal-body-text').text(body);
+  else
+    modal.find('.modal-body').text(body);
+  if (addFooter === true) {
+    modal.find('.spinner-border').remove();
+    modal.find('.modal-body').after(
+        '<div class="modal-footer">' +
+        '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
+        '</div>'
+    );
+  }
+  return modal;
+}
+
+/**
+ * @function
  * @name toggleModal
  *
  * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
  *
  * @param {Object} modal - Bootstrap-Modal
+ * @param {String} [title=''] - Titel des Bootstrap-Modals
+ * @param {String} [body=''] - Body des Bootstrap-Modals
+ * @param {Boolean} [showCustomLoadingContent=false] - zusätzlichen Inhalt für Ladeansicht anzeigen?
  */
-function toggleModal(modal) {
+function toggleModal(modal, title = '', body = '', showCustomLoadingContent = false) {
+  refreshModal(modal, title, body);
+  if (showCustomLoadingContent === true)
+    modal.find('#loading-custom-content').prop('hidden', false);
   modal.modal('toggle');
 }

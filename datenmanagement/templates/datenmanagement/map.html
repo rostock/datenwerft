@@ -206,41 +206,8 @@
         <div id="results-container" class="results"></div>
       </div>
     </div>
-    <div id="subsetter-error-modal" class="modal fade" tabindex="-1" aria-labelledby="subsetter-error-modal-label" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header" id="subsetter-error-modal-header">
-              <h5 class="modal-title" id="subsetter-error-modal-title">Keine Übernahme der aktuellen Filtermenge in die Tabelle möglich!</h5>
-          </div>
-          <div class="modal-body" id="subsetter-error-modal-body"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% if heavy_load_limit %}
-      <div id="map-data-loading-modal" class="modal fade" tabindex="-1" aria-labelledby="map-data-loading-modal-label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header" id="map-data-loading-modal-header">
-              <h5 class="modal-title" id="map-data-loading-modal-title">Laden der Kartendaten</h5>
-            </div>
-            <div class="modal-body" id="map-data-loading-modal-body">
-              Die Kartendaten werden (nach-)geladen. Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.
-              <div class="text-center">
-                <div class="spinner-border m-4 text-primary" role="status">
-                  <span class="sr-only">laden…</span>
-                </div>
-                <div class="m-4">
-                  <span id="map-data-loading-modal-count"></span> von <span id="map-data-loading-modal-border"></span> Datensätzen geladen
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
+    {% include "modal-error.html" %}
+    {% include "modal-loading.html" %}
     <script type="text/javascript">
       /**
        * @function
@@ -340,8 +307,9 @@
          * @param {number} [offset=0] - Offset für aktuellen Ladeschritt (= Vielfaches des Limits für aktuellen Ladeschritt)
          */
         async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
+          let url;
           try {
-            let url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata' %}";
+            url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata' %}";
             {% if subset_id %}
              url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata'|add:'_subset' subset_id %}";
             {% endif %}
@@ -349,7 +317,12 @@
             if (heavyLoad) {
               url += '?limit=' + limit + '&offset=' + offset;
             }
-            toggleModal($('#map-data-loading-modal'));
+            toggleModal(
+              $('#loading-modal'),
+              'Laden der Kartendaten',
+              'Die Kartendaten werden (nach-)geladen.' + (heavyLoad ? ' Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.' : ''),
+              heavyLoad
+            );
             const response = await fetch(url, {
               method: 'GET'
             });
@@ -358,10 +331,10 @@
               count += data.features.length;
               $('#map-data-loading-modal-count').text(count);
               if (count === border) {
-                toggleModal($('#map-data-loading-modal'));
+                toggleModal($('#loading-modal'));
               }
             } else
-              toggleModal($('#map-data-loading-modal'));
+              toggleModal($('#loading-modal'));
             return data;
           } catch (error) {
             console.error(error);

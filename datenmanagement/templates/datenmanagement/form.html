@@ -40,23 +40,19 @@
 {% block content %}
   {% if form.errors %}
     {% for field in form %}
-      {% if field.errors %}
-        {% for error in field.errors %}
-          <div class="alert alert-danger" role="alert">
-            {% autoescape off %}
-              {{ error }}
-            {% endautoescape %}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endfor %}
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
+      {% for error in field.errors %}
         <div class="alert alert-danger" role="alert">
-          {{ error|customize_error_message }}
+          {% autoescape off %}
+            {{ error }}
+          {% endautoescape %}
         </div>
       {% endfor %}
-    {% endif %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        {{ error|customize_error_message }}
+      </div>
+    {% endfor %}
     <div class="mb-4"></div>
   {% endif %}
   {% if associated_new %}
@@ -108,7 +104,7 @@
                   <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i
                       class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
                 {% elif field|is_field_hours_related_field %}
-                  {{ field.label_tag }}<small>(<a
+                  {{ field.label_tag }} <small>(<a
                     href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i
                     class="fas fa-circle-question"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
@@ -271,73 +267,9 @@
             class="fas fa-hand"></i> abbrechen</a>
       </div>
     </div>
-    {% if address_type %}
-      <div
-          id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal"
-          class="modal fade" tabindex="-1"
-          aria-labelledby="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-label"
-          aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header"
-                 id="{% if address_type == 'Adresse' %}maptoaddress{% elif address_type == 'Straße' %}maptostreet{% elif address_type == 'Gemeindeteil' %}maptoquarter{% endif %}-error-modal-header">
-              <h5 class="modal-title">Keine automatische Zuordnung
-                {% if address_type == 'Gemeindeteil' %}eines{% else %}
-                  einer{% endif %} {{ address_type }} möglich!</h5>
-            </div>
-            <div class="modal-body">
-              Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der
-              Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an
-              {% if address_type == 'Gemeindeteil' %}den nächsten{% else %}die
-                nächste{% endif %} {{ address_type }} heran.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
+    {% include "modal-error.html" %}
     {% if gpx_input %}
-      <div id="id_gpxLoading" class="modal fade" tabindex="-1"
-           aria-labelledby="id_gpxLoading-label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header" id="id_gpxLoading-header">
-              <h5 class="modal-title" id="id_gpxLoading-title">Auswerten der GPX-Datei</h5>
-            </div>
-            <div class="modal-body" id="id_gpxLoading-body">
-              Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment
-              dauern.
-              <div class="text-center">
-                <div class="spinner-border m-4 text-primary" role="status">
-                  <span class="sr-only">laden…</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-    {% if postcode_assigner %}
-      <div id="id_postcodeAssigning" class="modal fade" tabindex="-1"
-           aria-labelledby="id_postcodeAssigning-label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header" id="id_postcodeAssigning-header">
-              <h5 class="modal-title" id="id_postcodeAssigning-title">Fehler bei Zuweisung einer
-                Postleitzahl</h5>
-            </div>
-            <div class="modal-body" id="id_postcodeAssigning-body">
-              Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten.
-              Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {% include "modal-loading.html" %}
     {% endif %}
   </form>
   <script type="text/javascript">
@@ -416,6 +348,61 @@
         map.loadGeometryFromField('#id_geometrie')
       {% endif %}
 
+      // ggf. zusätzliche Datenthemen definieren,
+      // die dann zum Zuschalten in der Karte angeboten werden
+      {% if model_list and not gpx_input %}
+        // Layer-Control hinzufügen zum Zuschalten zusätzlicher Datenthemen
+        let dataThemeControl = new L.control.layers({}, {}).addTo(map);
+        // alle zusätzlichen Datenthemen durchgehen...
+        {% for key, value in model_list.items %}
+          {% with datenthema_name_lower=key|lower %}
+            map._themaUrl = {
+              ...map._themaUrl,
+              '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'_geometry' %}'
+            };
+            // neuen GeoJSON-Layer für Datenthema initialisieren und mit Namen versehen
+            let {{ datenthema_name_lower }} = new L.Proj.geoJson();
+            {{ datenthema_name_lower }}.name = '{{ value }}';
+            // GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
+            dataThemeControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
+            // beim Zuschalten des GeoJSON-Layers Datenthema-Features laden
+            {{ datenthema_name_lower }}.on('add', function () {
+              if (map.getZoom() > map._minLayerZoomForDataThemes) {
+                // Datenthema-Features zum entsprechenden GeoJSON-Layer hinzufügen
+                map.loadExternalData(
+                    '{{ value }}',
+                    '{% url 'datenmanagement:'|add:key|add:'_geometry' %}',
+                    this
+                );
+                map.eachLayer((layer) => {
+                  // GeoJSON-Layer „anheben“, der bearbeitet wird
+                  if (layer._drawnByGeoman === true) {
+                    if (layer instanceof L.Marker)
+                      layer.setZIndexOffset(1000);
+                    else
+                      layer.bringToFront();
+                  }
+                });
+              } else if (window.showDataThemesZoomModal === true) {
+                let zoomDifference = map._minLayerZoomForDataThemes - map.getZoom() + 1;
+                zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
+                toggleModal(
+                  $('#error-modal'),
+                  'Sichtbarkeit zusätzlicher Datenthemen',
+                  'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen Datenthemen sichtbar werden!'
+                );
+                window.showDataThemesZoomModal = false;
+              }
+            });
+          {% endwith %}
+        {% endfor %}
+
+        // beim Bewegen der Karte Datenthema-Features nachladen
+        map.on('moveend', () => {
+          map.updateMap(dataThemeControl);
+        });
+      {% endif %}
+
       // ggf. zusätzliche WFS-Feature-Types definieren,
       // die dann zum Zuschalten in der Karte angeboten werden
       {% if additional_wfs_featuretypes %}
@@ -461,6 +448,15 @@
                     layer.bringToFront();
                 }
               });
+            } else if (window.showWFSZoomModal === true) {
+              let zoomDifference = map._minLayerZoomForWFSFeaturetypes - map.getZoom() + 1;
+              zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
+              toggleModal(
+                $('#error-modal'),
+                'Sichtbarkeit zusätzlicher WFS-Feature-Types',
+                'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen WFS-Feature-Types sichtbar werden!'
+              );
+              window.showWFSZoomModal = false;
             }
           });
         {% endfor %}
@@ -468,52 +464,6 @@
         // beim Bewegen der Karte WFS-Features nachladen
         map.on('moveend', () => {
           map.updateMap(featureTypeControl, true);
-        });
-      {% endif %}
-
-      // ggf. zusätzliche Datenthemen definieren,
-      // die dann zum Zuschalten in der Karte angeboten werden
-      {% if model_list and not gpx_input %}
-        // Layer-Control hinzufügen zum Zuschalten zusätzlicher Datenthemen
-        let dataThemeControl = new L.control.layers({}, {}).addTo(map);
-        // alle zusätzlichen Datenthemen durchgehen...
-        {% for key, value in model_list.items %}
-          {% with datenthema_name_lower=key|lower %}
-            map._themaUrl = {
-              ...map._themaUrl,
-              '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'_geometry' %}'
-            };
-            // neuen GeoJSON-Layer für Datenthema initialisieren und mit Namen versehen
-            let {{ datenthema_name_lower }} = new L.Proj.geoJson();
-            {{ datenthema_name_lower }}.name = '{{ value }}';
-            // GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
-            dataThemeControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
-            // beim Zuschalten des GeoJSON-Layers Datenthema-Features laden
-            {{ datenthema_name_lower }}.on('add', function () {
-              if (map.getZoom() > map._minLayerZoomForDataThemes) {
-                // Datenthema-Features zum entsprechenden GeoJSON-Layer hinzufügen
-                map.loadExternalData(
-                    '{{ value }}',
-                    '{% url 'datenmanagement:'|add:key|add:'_geometry' %}',
-                    this
-                );
-                map.eachLayer((layer) => {
-                  // GeoJSON-Layer „anheben“, der bearbeitet wird
-                  if (layer._drawnByGeoman === true) {
-                    if (layer instanceof L.Marker)
-                      layer.setZIndexOffset(1000);
-                    else
-                      layer.bringToFront();
-                  }
-                });
-              }
-            });
-          {% endwith %}
-        {% endfor %}
-
-        // beim Bewegen der Karte Datenthema-Features nachladen
-        map.on('moveend', () => {
-          map.updateMap(dataThemeControl);
         });
       {% endif %}
 
@@ -576,6 +526,11 @@
      * Hauptfunktion
      */
     $(document).ready(function () {
+      // globale Variablen für die Anzeige des Hinweis-Modals
+      // in Bezug auf das Zuschalten zusätzlicher Datenthemen und/oder WFS-Feature-Types
+      window.showWFSZoomModal = true;
+      window.showDataThemesZoomModal = true;
+
       // falls Gruppe von Benutzern gesetzt ist, die für das Feld Ansprechpartner:in/Bearbeiter:in in einer entsprechenden Auswahlliste genutzt werden sollen...
       {% if group_with_users_for_choice_field %}
         // alle Felder durchgehen...
@@ -890,12 +845,12 @@
           return false;
         }
       });
-      if (erfolg === false) {
-        if (addressType === 'Adresse')
-          toggleModal($('#maptoaddress-error-modal'));
-        else if (addressType === 'Straße')
-          toggleModal($('#maptostreet-error-modal'));
-      }
+      if (erfolg === false)
+        toggleModal(
+          $('#error-modal'),
+          'Keine automatische Zuordnung ' + (addressType === 'Gemeindeteil' ? 'eines ' : 'einer ') + addressType + (addressType === 'Gemeindeteil' ? 's' : '') + ' möglich!',
+          'Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an ' + (addressType === 'Gemeindeteil' ? 'den nächsten ' : 'die nächste ') + addressType +  ' heran.'
+        );
     }
 
     /**
@@ -968,7 +923,11 @@
       // diese Attribute werden nach dem erfolgreichen Empfangen der Antwort des Servers in die dafür vorgesehenen Input-Felder geschrieben
       // und die Geometrie auf die Karte gezeichnet
       $('#id_gpx').change(function (e) {
-        toggleModal($('#id_gpxLoading'));
+        toggleModal(
+          $('#loading-modal'),
+          'Auswerten der GPX-Datei',
+          'Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.'
+        );
         let file = e.target.files[0];
         let formData = new FormData();
         formData.append('gpx', file);
@@ -1012,18 +971,15 @@
                 // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
                 track.addTo(currMap);
               }
-              toggleModal($('#id_gpxLoading'));
+              toggleModal($('#loading-modal'));
             }
         ).catch(
             (error) => {
-              $('#id_gpxLoading-title').text('Fehler bei Kommunikation mit Server');
-              $('#id_gpxLoading-body').text(
-                  'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
-              );
-              $('#id_gpxLoading-body').after(
-                  '<div class="modal-footer">' +
-                  '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
-                  '</div>'
+              refreshModal(
+                $('#loading-modal'),
+                'Fehler bei Kommunikation mit Server',
+                'Es ist ein Fehler bei der Kommunikation mit dem Server aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.',
+                true
               );
               console.error(error);
             }
@@ -1068,7 +1024,11 @@
         ).catch(
             (error) => {
               console.error(error);
-              toggleModal($('#id_postcodeAssigning'));
+              toggleModal(
+                $('#error-modal'),
+                'Fehler bei Zuweisung einer Postleitzahl',
+                'Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
+              );
             }
         );
       });

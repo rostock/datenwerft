@@ -98,7 +98,17 @@
 }
 
 /*
- * Leaflet-Buttons f�r Location �berschreiben
+ * Leaflet-Button für Layer-Control überschreiben
+ */
+
+.leaflet-control-layers-toggle {
+  background-size: 70%;
+  background-repeat: no-repeat;
+  background-image: url("../img/layer-control-wms.svg");
+}
+
+/*
+ * Leaflet-Buttons für Location überschreiben
  */
 
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {

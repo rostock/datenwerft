@@ -15,6 +15,7 @@
  * @param {String} errorText - Text für Fehlermeldung
  */
 function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL, errorText) {
+  let errorModalTitle = 'Keine Übernahme der aktuellen Filtermenge möglich!';
   if (keys.length > 0) {
     // Liste mit Primärschlüsseln von Objekten einer Filtermenge in JSON umwandeln
     let pk_values = JSON.stringify(keys);
@@ -36,12 +37,17 @@ function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL
     .catch(
       (error) => {
         console.error(error);
-        $('#subsetter-error-modal-body').text('Bei der Übernahme der aktuellen Filtermenge auf die Karte ist ein Serverfehler aufgetreten.');
-        toggleModal($('#subsetter-error-modal'));
+        toggleModal(
+          $('#error-modal'),
+          errorModalTitle,
+          'Bei der Übernahme der aktuellen Filtermenge ist ein Serverfehler aufgetreten.'
+        );
       }
     );
-  } else {
-    $('#subsetter-error-modal-body').text('Die aktuelle Filtermenge ist leer.');
-    toggleModal($('#subsetter-error-modal'));
-  }
+  } else
+    toggleModal(
+      $('#error-modal'),
+      errorModalTitle,
+      'Die aktuelle Filtermenge ist leer.'
+    );
 }

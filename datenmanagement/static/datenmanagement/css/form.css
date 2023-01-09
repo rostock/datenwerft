@@ -75,11 +75,24 @@ input[name="strasse"] {
 }
 
 /*
- * Leaflet-Button für Datenlayer überschreiben
+ * Leaflet-Buttons für Layer-Controls überschreiben
  */
 
-.leaflet-top.leaflet-right .leaflet-control-layers:nth-child(n+2) .leaflet-control-layers-toggle {
-  background-image: url("../img/datalayer.svg");
+.leaflet-control-layers-toggle {
+  background-size: 70%;
+  background-repeat: no-repeat;
+}
+
+.leaflet-control-layers:nth-child(1) .leaflet-control-layers-toggle {
+  background-image: url("../img/layer-control-wms.svg");
+}
+
+.leaflet-control-layers:nth-child(2) .leaflet-control-layers-toggle {
+  background-image: url("../img/layer-control-datathemes.svg");
+}
+
+.leaflet-control-layers:nth-child(3) .leaflet-control-layers-toggle {
+  background-image: url("../img/layer-control-wfs.svg");
 }
 
 /*

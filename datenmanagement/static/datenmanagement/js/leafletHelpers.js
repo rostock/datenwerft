@@ -242,10 +242,7 @@ L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
   let list = layerControl.getActiveOverlays();
   // falls überhaupt aktive Layer vorhanden sind...
   if (Object.keys(list).length > 0) {
-    let minZoom = this._minLayerZoomForDataThemes;
-    if (isWFS === true) {
-      minZoom = this._minLayerZoomForWFSFeaturetypes;
-    }
+    let minZoom = isWFS === true ? this._minLayerZoomForWFSFeaturetypes : this._minLayerZoomForDataThemes;
     if (this.getZoom() > minZoom) {
       for (let key in list) {
         this.loadExternalData(key, this._themaUrl[key], list[key], isWFS);
@@ -260,6 +257,28 @@ L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
         }
       });
     } else {
+      let minZoom = isWFS === true ? this._minLayerZoomForWFSFeaturetypes : this._minLayerZoomForDataThemes;
+      let zoomDifference = minZoom - this.getZoom() + 1;
+      zoomDifference += zoomDifference === 1 ? ' Stufe' : ' Stufen';
+      let scope = isWFS === true ? 'WFS-Feature-Types' : 'Datenthemen';
+      if (this.getZoom() <= minZoom) {
+        if (window.showWFSZoomModal === true) {
+          toggleModal(
+            $('#error-modal'),
+            'Sichtbarkeit zusätzlicher ' + scope,
+            'Sie müssen zunächst wieder ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen ' + scope + ' wieder sichtbar werden!'
+          );
+          window.showWFSZoomModal = false;
+        }
+        if (window.showDataThemesZoomModal === true) {
+          toggleModal(
+            $('#error-modal'),
+            'Sichtbarkeit zusätzlicher ' + scope,
+            'Sie müssen zunächst wieder ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen ' + scope + ' wieder sichtbar werden!'
+          );
+          window.showDataThemesZoomModal = false;
+        }
+      }
       this.eachLayer((layer) => {
         if (
             layer instanceof L.GeoJSON
