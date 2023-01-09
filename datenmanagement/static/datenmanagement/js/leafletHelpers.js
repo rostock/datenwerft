@@ -1,4 +1,4 @@
-/* global $, interchangeRecursive, L, martinez, redMarker, Wkt */
+/* global $, interchangeRecursive, L, martinez, redMarker, toggleModal, Wkt */
 /* eslint no-undef: "error" */
 
 /*
