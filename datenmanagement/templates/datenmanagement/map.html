@@ -292,8 +292,8 @@
           let promises = [];
           let count = 0;
           // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON-FeatureCollection für die Karte eingeblendet wird
-          $('#map-data-loading-modal-count').text(count);
-          $('#map-data-loading-modal-border').text(border);
+          $('#loading-modal-map-data-count').text(count);
+          $('#loading-modal-map-data-border').text(border);
         {% endif %}
 
         /**
@@ -321,7 +321,7 @@
               $('#loading-modal'),
               'Laden der Kartendaten',
               'Die Kartendaten werden (nach-)geladen.' + (heavyLoad ? ' Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.' : ''),
-              heavyLoad
+              heavyLoad ? '#loading-modal-map-data' : null
             );
             const response = await fetch(url, {
               method: 'GET'
@@ -329,7 +329,7 @@
             const data = await response.json();
             if (heavyLoad) {
               count += data.features.length;
-              $('#map-data-loading-modal-count').text(count);
+              $('#loading-modal-map-data-count').text(count);
               if (count === border) {
                 toggleModal($('#loading-modal'));
               }

@@ -186,6 +186,26 @@ $$;
 
 
 --
+-- Name: gemeindeteil(); Type: FUNCTION; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE FUNCTION fachdaten_strassenbezug.gemeindeteil() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+
+DECLARE
+    _gemeindeteil uuid;
+BEGIN
+   IF (TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NOT ST_Equals(NEW.geometrie ,OLD.geometrie))) AND ST_GeometryType(NEW.geometrie) ~ 'LineString' THEN
+   EXECUTE 'SELECT gt.uuid FROM basisdaten.gemeindeteile_datenwerft_hro gt ORDER BY (st_length(st_intersection(gt.geometrie, $1.geometrie))) DESC LIMIT 1' USING NEW INTO _gemeindeteil;
+  NEW.gemeindeteil := _gemeindeteil;
+   END IF;
+   RETURN NEW;
+END;
+$_$;
+
+
+--
 -- Name: id(); Type: FUNCTION; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -2961,7 +2981,8 @@ CREATE TABLE fachdaten_strassenbezug.geh_und_radwegereinigung_hro (
     winterdienst boolean,
     raeumbreite uuid,
     reinigungsrhythmus uuid,
-    winterdienstflaeche numeric(7,2)
+    winterdienstflaeche numeric(7,2),
+    gemeindeteil uuid NOT NULL
 );
 
 
@@ -3016,7 +3037,8 @@ CREATE TABLE fachdaten_strassenbezug.strassenreinigung_hro (
     id character(14) NOT NULL,
     beschreibung character varying(255),
     ausserhalb boolean DEFAULT false NOT NULL,
-    reinigungsrhythmus uuid
+    reinigungsrhythmus uuid,
+    gemeindeteil uuid NOT NULL
 );
 
 
@@ -5317,6 +5339,20 @@ CREATE TRIGGER tr_before_insert_10_laenge BEFORE INSERT ON fachdaten_strassenbez
 
 
 --
+-- Name: geh_und_radwegereinigung_hro tr_before_insert_20_gemeindeteil; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_strassenbezug.gemeindeteil();
+
+
+--
+-- Name: strassenreinigung_hro tr_before_insert_20_gemeindeteil; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_strassenbezug.strassenreinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_strassenbezug.gemeindeteil();
+
+
+--
 -- Name: geh_und_radwegereinigung_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -5342,6 +5378,20 @@ CREATE TRIGGER tr_before_update_10_laenge BEFORE UPDATE OF geometrie ON fachdate
 --
 
 CREATE TRIGGER tr_before_update_10_laenge BEFORE UPDATE OF geometrie ON fachdaten_strassenbezug.strassenreinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.laenge();
+
+
+--
+-- Name: geh_und_radwegereinigung_hro tr_before_update_20_gemeindeteil; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_20_gemeindeteil BEFORE UPDATE OF geometrie ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_strassenbezug.gemeindeteil();
+
+
+--
+-- Name: strassenreinigung_hro tr_before_update_20_gemeindeteil; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_20_gemeindeteil BEFORE UPDATE OF geometrie ON fachdaten_strassenbezug.strassenreinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_strassenbezug.gemeindeteil();
 
 
 --

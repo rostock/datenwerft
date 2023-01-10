@@ -16,10 +16,7 @@ from . import models_codelist, constants_vars, fields, functions, storage
 # Abfallbehälter
 
 class Abfallbehaelter(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
@@ -208,10 +205,7 @@ class Abfallbehaelter(models.Model):
 # Angelverbotsbereiche
 
 class Angelverbotsbereiche(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -258,10 +252,7 @@ class Angelverbotsbereiche(models.Model):
 # Aufteilungspläne nach Wohnungseigentumsgesetz
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -359,10 +350,7 @@ signals.post_delete.connect(
 # Baudenkmale
 
 class Baudenkmale(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -437,10 +425,7 @@ class Baudenkmale(models.Model):
 # Behinderteneinrichtungen
 
 class Behinderteneinrichtungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -554,10 +539,7 @@ class Behinderteneinrichtungen(models.Model):
 # Beschlüsse des Bau- und Planungsausschusses
 
 class Beschluesse_Bau_Planungsausschuss(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -646,10 +628,7 @@ signals.post_delete.connect(
 # Bildungsträger
 
 class Bildungstraeger(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -772,10 +751,7 @@ class Bildungstraeger(models.Model):
 # Carsharing-Stationen
 
 class Carsharing_Stationen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -898,10 +874,7 @@ class Carsharing_Stationen(models.Model):
 # Containerstellplätze
 
 class Containerstellplaetze(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
@@ -1134,10 +1107,7 @@ signals.post_delete.connect(
 # Denkmalbereiche
 
 class Denkmalbereiche(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -1184,10 +1154,7 @@ class Denkmalbereiche(models.Model):
 # Denksteine
 
 class Denksteine(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -1316,10 +1283,7 @@ class Denksteine(models.Model):
 # Fair Trade
 
 class FairTrade(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -1444,10 +1408,7 @@ class FairTrade(models.Model):
 # Feldsportanlagen
 
 class Feldsportanlagen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
     models_codelist.Arten_Feldsportanlagen,
@@ -1535,10 +1496,7 @@ signals.post_delete.connect(functions.delete_photo, sender=Feldsportanlagen)
 # Feuerwachen
 
 class Feuerwachen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -1650,10 +1608,7 @@ class Feuerwachen(models.Model):
 # Fließgewässer
 
 class Fliessgewaesser(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   nummer = models.CharField(
     'Nummer',
@@ -1738,13 +1693,18 @@ class Fliessgewaesser(models.Model):
 # Geh- und Radwegereinigung
 
 class Geh_Radwegereinigung(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False
-  )
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   id = models.CharField('ID', max_length=14, default='0000000000-000')
+  gemeindeteil = models.ForeignKey(
+    models_codelist.Gemeindeteile,
+    verbose_name='Gemeindeteil',
+    on_delete=models.RESTRICT,
+    db_column='gemeindeteil',
+    to_field='uuid',
+    related_name='gemeindeteile+',
+    default='00000000-0000-0000-0000-000000000000'
+  )
   strasse = models.ForeignKey(
     models_codelist.Strassen,
     verbose_name='Straße',
@@ -1883,6 +1843,7 @@ class Geh_Radwegereinigung(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
       'strasse': 'Straße',
       'inoffizielle_strasse': 'inoffizielle Straße',
       'nummer': 'Nummer',
@@ -1895,6 +1856,7 @@ class Geh_Radwegereinigung(models.Model):
       'winterdienst': 'Winterdienst?'
     }
     list_fields_with_foreign_key = {
+      'gemeindeteil': 'gemeindeteil',
       'strasse': 'strasse',
       'inoffizielle_strasse': 'strasse',
       'wegeart': 'art',
@@ -1904,10 +1866,11 @@ class Geh_Radwegereinigung(models.Model):
       'breite': 'wegebreite'
     }
     list_fields_with_number = ['id', 'laenge']
-    readonly_fields = ['id', 'laenge']
+    readonly_fields = ['id', 'gemeindeteil', 'laenge']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
       'strasse': 'Straße',
       'inoffizielle_strasse': 'inoffizielle Straße',
       'nummer': 'Nummer',
@@ -1921,6 +1884,7 @@ class Geh_Radwegereinigung(models.Model):
     }
     map_filter_fields_as_list = [
       'strasse',
+      'gemeindeteil',
       'inoffizielle_strasse',
       'wegeart',
       'wegetyp',
@@ -1970,10 +1934,7 @@ class Geh_Radwegereinigung(models.Model):
 # Gerätespielanlagen
 
 class Geraetespielanlagen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -2060,10 +2021,7 @@ signals.post_delete.connect(functions.delete_photo, sender=Geraetespielanlagen)
 # Gutachterfotos
 
 class Gutachterfotos(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -2149,10 +2107,7 @@ signals.post_delete.connect(functions.delete_photo, sender=Gutachterfotos)
 # Hausnummern
 
 class Hausnummern(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(
     models_codelist.Strassen,
@@ -2345,10 +2300,7 @@ class Hausnummern(models.Model):
 # Hospize
 
 class Hospize(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -2462,10 +2414,7 @@ class Hospize(models.Model):
 # Hundetoiletten
 
 class Hundetoiletten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
@@ -2572,10 +2521,7 @@ class Hundetoiletten(models.Model):
 # Hydranten
 
 class Hydranten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -2677,10 +2623,7 @@ class Hydranten(models.Model):
 # Kadaverfunde
 
 class Kadaverfunde(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   zeitpunkt = models.DateTimeField('Zeitpunkt')
   tierseuche = models.ForeignKey(
@@ -2800,10 +2743,7 @@ class Kadaverfunde(models.Model):
 # Kindertagespflegeeinrichtungen
 
 class Kindertagespflegeeinrichtungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -2923,10 +2863,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
 # Kinder- und Jugendbetreuung
 
 class Kinder_Jugendbetreuung(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -3038,10 +2975,7 @@ class Kinder_Jugendbetreuung(models.Model):
 # Kunst im öffentlichen Raum
 
 class Kunst_im_oeffentlichen_Raum(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -3097,10 +3031,7 @@ class Kunst_im_oeffentlichen_Raum(models.Model):
 # Ladestationen für Elektrofahrzeuge
 
 class Ladestationen_Elektrofahrzeuge(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -3241,10 +3172,7 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
 # Meldedienst (flächenhaft)
 
 class Meldedienst_flaechenhaft(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
     models_codelist.Arten_Meldedienst_flaechenhaft,
@@ -3308,10 +3236,7 @@ class Meldedienst_flaechenhaft(models.Model):
 # Meldedienst (punkthaft)
 
 class Meldedienst_punkthaft(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Zurückstellung', blank=True, null=True)
@@ -3396,10 +3321,7 @@ class Meldedienst_punkthaft(models.Model):
 # Mobilpunkte
 
 class Mobilpunkte(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -3457,10 +3379,7 @@ class Mobilpunkte(models.Model):
 # Parkmöglichkeiten
 
 class Parkmoeglichkeiten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -3603,10 +3522,7 @@ class Parkmoeglichkeiten(models.Model):
 # Pflegeeinrichtungen
 
 class Pflegeeinrichtungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -3727,10 +3643,7 @@ class Pflegeeinrichtungen(models.Model):
 # Poller
 
 class Poller(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
     models_codelist.Arten_Poller,
@@ -3861,11 +3774,7 @@ class Poller(models.Model):
 # Reinigungsreviere
 
 class Reinigungsreviere(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False
-  )
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   gemeindeteil = models.ForeignKey(
     models_codelist.Gemeindeteile,
@@ -3949,10 +3858,7 @@ class Reinigungsreviere(models.Model):
 # Rettungswachen
 
 class Rettungswachen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -4064,10 +3970,7 @@ class Rettungswachen(models.Model):
 # Schiffsliegeplätze
 
 class Schiffsliegeplaetze(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   hafen = models.ForeignKey(
     models_codelist.Haefen,
@@ -4202,10 +4105,7 @@ class Schiffsliegeplaetze(models.Model):
 # Schutzzäune gegen Tierseuchen
 
 class Schutzzaeune_Tierseuchen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   tierseuche = models.ForeignKey(
     models_codelist.Tierseuchen,
@@ -4263,10 +4163,7 @@ class Schutzzaeune_Tierseuchen(models.Model):
 # Sporthallen
 
 class Sporthallen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -4371,10 +4268,7 @@ signals.post_delete.connect(functions.delete_photo, sender=Sporthallen)
 # Stadtteil- und Begegnungszentren
 
 class Stadtteil_Begegnungszentren(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -4492,10 +4386,7 @@ class Stadtteil_Begegnungszentren(models.Model):
 # Standortqualitäten von Geschäftslagen im Sanierungsgebiet
 
 class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -4743,10 +4634,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
 # Standortqualitäten von Wohnlagen im Sanierungsgebiet
 
 class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -4994,11 +4882,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
 # Straßen
 
 class Strassen_Simple(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False
-  )
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   kategorie = models.ForeignKey(
     models_codelist.Kategorien_Strassen,
@@ -5128,13 +5012,18 @@ class Strassen_Simple(models.Model):
 # Straßenreinigung
 
 class Strassenreinigung(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False
-  )
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   id = models.CharField('ID', max_length=14, default='0000000000-000')
+  gemeindeteil = models.ForeignKey(
+    models_codelist.Gemeindeteile,
+    verbose_name='Gemeindeteil',
+    on_delete=models.RESTRICT,
+    db_column='gemeindeteil',
+    to_field='uuid',
+    related_name='gemeindeteile+',
+    default='00000000-0000-0000-0000-000000000000'
+  )
   strasse = models.ForeignKey(
     models_codelist.Strassen,
     verbose_name='Straße',
@@ -5210,6 +5099,7 @@ class Strassenreinigung(models.Model):
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
       'strasse': 'Straße',
       'inoffizielle_strasse': 'inoffizielle Straße',
       'beschreibung': 'Beschreibung',
@@ -5220,6 +5110,7 @@ class Strassenreinigung(models.Model):
       'laenge': 'Länge (in m)'
     }
     list_fields_with_foreign_key = {
+      'gemeindeteil': 'gemeindeteil',
       'strasse': 'strasse',
       'inoffizielle_strasse': 'strasse',
       'reinigungsklasse': 'code',
@@ -5227,10 +5118,11 @@ class Strassenreinigung(models.Model):
       'fahrbahnwinterdienst': 'code'
     }
     list_fields_with_number = ['id', 'laenge']
-    readonly_fields = ['id', 'laenge']
+    readonly_fields = ['id', 'gemeindeteil', 'laenge']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
       'strasse': 'Straße',
       'inoffizielle_strasse': 'inoffizielle Straße',
       'beschreibung': 'Beschreibung',
@@ -5241,6 +5133,7 @@ class Strassenreinigung(models.Model):
     }
     map_filter_fields_as_list = [
       'strasse',
+      'gemeindeteil',
       'inoffizielle_strasse',
       'reinigungsklasse',
       'reinigungsrhythmus',
@@ -5287,10 +5180,7 @@ class Strassenreinigung(models.Model):
 # Thalasso-Kurwege
 
 class Thalasso_Kurwege(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -5353,10 +5243,7 @@ class Thalasso_Kurwege(models.Model):
 # Toiletten
 
 class Toiletten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
     models_codelist.Arten_Toiletten,
@@ -5433,10 +5320,7 @@ class Toiletten(models.Model):
 # Trinkwassernotbrunnen
 
 class Trinkwassernotbrunnen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   nummer = models.CharField(
     'Nummer',
@@ -5546,10 +5430,7 @@ class Trinkwassernotbrunnen(models.Model):
 # Vereine
 
 class Vereine(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,
@@ -5669,10 +5550,7 @@ class Vereine(models.Model):
 # Verkaufstellen für Angelberechtigungen
 
 class Verkaufstellen_Angelberechtigungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   adresse = models.ForeignKey(
     models_codelist.Adressen,

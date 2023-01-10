@@ -118,9 +118,9 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
   if (addFooter === true) {
     modal.find('.spinner-border').remove();
     modal.find('.modal-body').after(
-        '<div class="modal-footer">' +
+      '<div class="modal-footer">' +
         '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
-        '</div>'
+      '</div>'
     );
   }
   return modal;
@@ -135,11 +135,11 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
  * @param {Object} modal - Bootstrap-Modal
  * @param {String} [title=''] - Titel des Bootstrap-Modals
  * @param {String} [body=''] - Body des Bootstrap-Modals
- * @param {Boolean} [showCustomLoadingContent=false] - zusätzlichen Inhalt für Ladeansicht anzeigen?
+ * @param {String} [customLoadingContent=null] - zusätzlichen Inhalt für Ladeansicht anzeigen
  */
-function toggleModal(modal, title = '', body = '', showCustomLoadingContent = false) {
+function toggleModal(modal, title = '', body = '', customLoadingContent = null) {
   refreshModal(modal, title, body);
-  if (showCustomLoadingContent === true)
-    modal.find('#loading-custom-content').prop('hidden', false);
+  if (customLoadingContent !== null)
+    modal.find(customLoadingContent).prop('hidden', false);
   modal.modal('toggle');
 }

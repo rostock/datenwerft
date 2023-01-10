@@ -13,10 +13,7 @@ from . import constants_vars, fields
 #
 
 class Art(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   art = models.CharField(
     'Art',
     max_length=255,
@@ -40,10 +37,7 @@ class Art(models.Model):
 
 
 class Befestigungsart(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   befestigungsart = models.CharField(
     'Befestigungsart',
     max_length=255,
@@ -67,10 +61,7 @@ class Befestigungsart(models.Model):
 
 
 class Material(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   material = models.CharField(
     'Material',
     max_length=255,
@@ -94,10 +85,7 @@ class Material(models.Model):
 
 
 class Schlagwort(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   schlagwort = models.CharField(
     'Schlagwort',
     max_length=255,
@@ -121,10 +109,7 @@ class Schlagwort(models.Model):
 
 
 class Status(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   status = models.CharField(
     'Status',
     max_length=255,
@@ -148,10 +133,7 @@ class Status(models.Model):
 
 
 class Typ(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   typ = models.CharField(
     'Typ',
     max_length=255,
@@ -181,10 +163,7 @@ class Typ(models.Model):
 # Adressen
 
 class Adressen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   adresse = models.CharField('Adresse', max_length=255, editable=False)
 
   class Meta:
@@ -215,10 +194,7 @@ class Adressen(models.Model):
 # Straßen
 
 class Strassen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   strasse = models.CharField('Straße', max_length=255, editable=False)
 
   class Meta:
@@ -249,10 +225,7 @@ class Strassen(models.Model):
 # Gemeindeteile
 
 class Gemeindeteile(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   gemeindeteil = models.CharField('Gemeindeteil', max_length=255, editable=False)
 
   class Meta:
@@ -288,10 +261,7 @@ class Gemeindeteile(models.Model):
 # Altersklassen bei Kadaverfunden
 
 class Altersklassen_Kadaverfunde(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1)
   bezeichnung = models.CharField(
@@ -330,10 +300,7 @@ class Altersklassen_Kadaverfunde(models.Model):
 # Angebote bei Mobilpunkten
 
 class Angebote_Mobilpunkte(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   angebot = models.CharField(
     'Angebot',
     max_length=255,
@@ -368,10 +335,7 @@ class Angebote_Mobilpunkte(models.Model):
 # Angelberechtigungen
 
 class Angelberechtigungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   angelberechtigung = models.CharField(
     'Angelberechtigung',
     max_length=255,
@@ -406,10 +370,7 @@ class Angelberechtigungen(models.Model):
 # Ansprechpartner:innen bei Baustellen
 
 class Ansprechpartner_Baustellen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   vorname = models.CharField(
     'Vorname',
     max_length=255,
@@ -725,10 +686,7 @@ class Arten_Wege(Art):
 # Auftraggeber von Baustellen
 
 class Auftraggeber_Baustellen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   auftraggeber = models.CharField(
     'Auftraggeber',
     max_length=255,
@@ -763,10 +721,7 @@ class Auftraggeber_Baustellen(models.Model):
 # Ausführungen innerhalb eines Haltestellenkatasters
 
 class Ausfuehrungen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ausfuehrung = models.CharField(
     'Ausführung',
     max_length=255,
@@ -853,10 +808,7 @@ class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
 # Betriebsarten
 
 class Betriebsarten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   betriebsart = models.CharField(
     'Betriebsart',
     max_length=255,
@@ -891,10 +843,7 @@ class Betriebsarten(models.Model):
 # Betriebszeiten
 
 class Betriebszeiten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   betriebszeit = models.CharField(
     'Betriebszeit',
     max_length=255,
@@ -929,10 +878,7 @@ class Betriebszeiten(models.Model):
 # Bewirtschafter, Betreiber, Träger, Eigentümer etc.
 
 class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -981,10 +927,7 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(models.Model):
 # Carsharing-Anbieter
 
 class Anbieter_Carsharing(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   anbieter = models.CharField(
     'Anbieter',
     max_length=255,
@@ -1019,10 +962,7 @@ class Anbieter_Carsharing(models.Model):
 # E-Anschlüsse für Parkscheinautomaten
 
 class E_Anschluesse_Parkscheinautomaten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   e_anschluss = models.CharField(
     'E-Anschluss',
     max_length=255,
@@ -1057,10 +997,7 @@ class E_Anschluesse_Parkscheinautomaten(models.Model):
 # Ergebnisse von UVP-Vorprüfungen
 
 class Ergebnisse_UVP_Vorpruefungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ergebnis = models.CharField(
     'Ergebnis',
     max_length=255,
@@ -1096,10 +1033,7 @@ class Ergebnisse_UVP_Vorpruefungen(models.Model):
 # Universitätsstadt Rostock
 
 class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = models.CharField(
     'Code',
     max_length=1,
@@ -1150,10 +1084,7 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(models.Model):
 # Fotomotive innerhalb eines Haltestellenkatasters
 
 class Fotomotive_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   fotomotiv = models.CharField(
     'Fotomotiv',
     max_length=255,
@@ -1189,10 +1120,7 @@ class Fotomotive_Haltestellenkataster(models.Model):
 # der Rostocker Straßenbahn AG
 
 class Fundamenttypen_RSAG(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   typ = models.CharField(
     'Typ',
     max_length=255,
@@ -1236,10 +1164,7 @@ class Fundamenttypen_RSAG(models.Model):
 # Gebäudebauweisen
 
 class Gebaeudebauweisen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = fields.PositiveSmallIntegerRangeField(
     'Code', min_value=1, unique=True, blank=True, null=True)
   bezeichnung = models.CharField(
@@ -1277,10 +1202,7 @@ class Gebaeudebauweisen(models.Model):
 # Gebäudefunktionen
 
 class Gebaeudefunktionen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = fields.PositiveSmallIntegerRangeField(
     'Code', min_value=1, unique=True, blank=True, null=True)
   bezeichnung = models.CharField(
@@ -1318,10 +1240,7 @@ class Gebaeudefunktionen(models.Model):
 # Genehmigungsbehörden von UVP-Vorhaben
 
 class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   genehmigungsbehoerde = models.CharField(
     'Genehmigungsbehörde',
     max_length=255,
@@ -1356,10 +1275,7 @@ class Genehmigungsbehoerden_UVP_Vorhaben(models.Model):
 # Geschlechter bei Kadaverfunden
 
 class Geschlechter_Kadaverfunde(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1)
   bezeichnung = models.CharField(
@@ -1398,10 +1314,7 @@ class Geschlechter_Kadaverfunde(models.Model):
 # Häfen
 
 class Haefen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -1451,10 +1364,7 @@ class Haefen(models.Model):
 # Hersteller von Pollern
 
 class Hersteller_Poller(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -1489,10 +1399,7 @@ class Hersteller_Poller(models.Model):
 # inoffizielle Straßen
 
 class Inoffizielle_Strassen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   strasse = models.CharField('Straße', max_length=255, editable=False)
 
   class Meta:
@@ -1523,11 +1430,7 @@ class Inoffizielle_Strassen(models.Model):
 # Kategorien von Straßen
 
 class Kategorien_Strassen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False
-  )
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = fields.PositiveSmallIntegerRangeField(
     'Code',
     min_value=1,
@@ -1583,10 +1486,7 @@ class Kategorien_Strassen(models.Model):
 # Ladekarten für Ladestationen für Elektrofahrzeuge
 
 class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ladekarte = models.CharField(
     'Ladekarte',
     max_length=255,
@@ -1629,10 +1529,7 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(models.Model):
 # Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH
 
 class Linien(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   linie = models.CharField(
     'Linie',
     max_length=4,
@@ -1673,10 +1570,7 @@ class Linien(models.Model):
 # der Rostocker Straßenbahn AG
 
 class Mastkennzeichen_RSAG(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   kennzeichen = models.CharField(
     'Kennzeichen',
     max_length=255,
@@ -1721,10 +1615,7 @@ class Mastkennzeichen_RSAG(models.Model):
 # der Rostocker Straßenbahn AG
 
 class Masttypen_RSAG(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   typ = models.CharField(
     'Typ',
     max_length=255,
@@ -1766,10 +1657,7 @@ class Masttypen_RSAG(models.Model):
 # Masttypen innerhalb eines Haltestellenkatasters
 
 class Masttypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   masttyp = models.CharField(
     'Masttyp',
     max_length=255,
@@ -1836,10 +1724,7 @@ class Materialien_Durchlaesse(Material):
 # Ordnungen von Fließgewässern
 
 class Ordnungen_Fliessgewaesser(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordnung = fields.PositiveSmallIntegerMinField('Ordnung', min_value=1, unique=True)
 
   class Meta:
@@ -1870,10 +1755,7 @@ class Ordnungen_Fliessgewaesser(models.Model):
 # Personentitel
 
 class Personentitel(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -1908,10 +1790,7 @@ class Personentitel(models.Model):
 # Quartiere
 
 class Quartiere(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = models.CharField(
     'Code',
     max_length=3,
@@ -1952,10 +1831,7 @@ class Quartiere(models.Model):
 # Universitätsstadt Rostock
 
 class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   raeumbreite = models.DecimalField(
     'Räumbreite (in m)',
     max_digits=4,
@@ -2011,10 +1887,7 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(models.Model):
 # Rechtsgrundlagen von UVP-Vorhaben
 
 class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   rechtsgrundlage = models.CharField(
     'Rechtsgrundlage',
     max_length=255,
@@ -2050,10 +1923,7 @@ class Rechtsgrundlagen_UVP_Vorhaben(models.Model):
 # Universitätsstadt Rostock
 
 class Reinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = fields.PositiveSmallIntegerRangeField(
     'Code', min_value=1, max_value=7, unique=True)
 
@@ -2097,10 +1967,7 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
 # Universitätsstadt Rostock
 
 class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1, unique=True)
   reinigungsrhythmus = models.CharField(
@@ -2150,10 +2017,7 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
 # Schäden innerhalb eines Haltestellenkatasters
 
 class Schaeden_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   schaden = models.CharField(
     'Schaden',
     max_length=255,
@@ -2220,10 +2084,7 @@ class Schlagwoerter_Vereine(Schlagwort):
 # Schließungen von Pollern
 
 class Schliessungen_Poller(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   schliessung = models.CharField(
     'Schließung',
     max_length=255,
@@ -2258,10 +2119,7 @@ class Schliessungen_Poller(models.Model):
 # Sitzbanktypen innerhalb eines Haltestellenkatasters
 
 class Sitzbanktypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   sitzbanktyp = models.CharField(
     'Sitzbanktyp',
     max_length=255,
@@ -2296,10 +2154,7 @@ class Sitzbanktypen_Haltestellenkataster(models.Model):
 # Sparten von Baustellen
 
 class Sparten_Baustellen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   sparte = models.CharField(
     'Sparte',
     max_length=255,
@@ -2334,10 +2189,7 @@ class Sparten_Baustellen(models.Model):
 # Sportarten
 
 class Sportarten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -2428,10 +2280,7 @@ class Status_Poller(Status):
 # Tierseuchen
 
 class Tierseuchen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -2483,10 +2332,7 @@ class Typen_Abfallbehaelter(Typ):
 # Haltestellenkatasters
 
 class DFI_Typen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   dfi_typ = models.CharField(
     'DFI-Typ',
     max_length=255,
@@ -2524,10 +2370,7 @@ class DFI_Typen_Haltestellenkataster(models.Model):
 # Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
 
 class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   fahrgastunterstandstyp = models.CharField(
     'Fahrgastunterstandstyp',
     max_length=255,
@@ -2570,10 +2413,7 @@ class Fahrgastunterstandstypen_Haltestellenkataster(models.Model):
 # Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
 
 class Fahrplanvitrinentypen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   fahrplanvitrinentyp = models.CharField(
     'Fahrplanvitrinentyp',
     max_length=255,
@@ -2664,10 +2504,7 @@ class Typen_UVP_Vorhaben(Typ):
 # Verbünde von Ladestationen für Elektrofahrzeuge
 
 class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   verbund = models.CharField(
     'Verbund',
     max_length=255,
@@ -2710,10 +2547,7 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(models.Model):
 # Verkehrliche Lagen von Baustellen
 
 class Verkehrliche_Lagen_Baustellen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   verkehrliche_lage = models.CharField(
     ' verkehrliche Lage',
     max_length=255,
@@ -2748,10 +2582,7 @@ class Verkehrliche_Lagen_Baustellen(models.Model):
 # Verkehrsmittelklassen
 
 class Verkehrsmittelklassen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   verkehrsmittelklasse = models.CharField(
     'Verkehrsmittelklasse',
     max_length=255,
@@ -2786,10 +2617,7 @@ class Verkehrsmittelklassen(models.Model):
 # Vorgangsarten von UVP-Vorhaben
 
 class Vorgangsarten_UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   vorgangsart = models.CharField(
     'Vorgangsart',
     max_length=255,
@@ -2825,10 +2653,7 @@ class Vorgangsarten_UVP_Vorhaben(models.Model):
 # Universitätsstadt Rostock
 
 class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   wegebreite = models.DecimalField(
     'Wegebreite (in m)',
     max_digits=4,
@@ -2885,10 +2710,7 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(models.Model):
 # Universitätsstadt Rostock
 
 class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   code = fields.PositiveSmallIntegerRangeField(
     'Code', min_value=1, max_value=7, unique=True)
 
@@ -2932,10 +2754,7 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(models.Model):
 # Universitätsstadt Rostock
 
 class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1, unique=True)
   reinigungsrhythmus = models.CharField(
@@ -2986,10 +2805,7 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(models.Model):
 # Universitätsstadt Rostock
 
 class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   wegetyp = models.CharField(
     'Wegetyp',
     max_length=255,
@@ -3035,10 +2851,7 @@ class Wegetypen_Strassenreinigungssatzung_HRO(models.Model):
 # Zeiteinheiten
 
 class Zeiteinheiten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zeiteinheit = models.CharField(
     'Zeiteinheit',
     max_length=255,
@@ -3079,10 +2892,7 @@ class Zeiteinheiten(models.Model):
 # ZH-Typen innerhalb eines Haltestellenkatasters
 
 class ZH_Typen_Haltestellenkataster(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zh_typ = models.CharField(
     'ZH-Typ',
     max_length=255,
@@ -3117,10 +2927,7 @@ class ZH_Typen_Haltestellenkataster(models.Model):
 # Zonen für Parkscheinautomaten
 
 class Zonen_Parkscheinautomaten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zone = models.CharField(
     'Zone',
     max_length=1,
@@ -3160,10 +2967,7 @@ class Zonen_Parkscheinautomaten(models.Model):
 # Zustände von Kadaverfunden
 
 class Zustaende_Kadaverfunde(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1)
   zustand = models.CharField(
@@ -3211,10 +3015,7 @@ class Zustaende_Kadaverfunde(models.Model):
 # Zustände von Schutzzäunen gegen Tierseuchen
 
 class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   ordinalzahl = fields.PositiveSmallIntegerRangeField(
     'Ordinalzahl', min_value=1)
   zustand = models.CharField(
@@ -3262,10 +3063,7 @@ class Zustaende_Schutzzaeune_Tierseuchen(models.Model):
 # Zustandsbewertungen
 
 class Zustandsbewertungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   zustandsbewertung = fields.PositiveSmallIntegerMinField(
     'Zustandsbewertung', min_value=1, unique=True)
 

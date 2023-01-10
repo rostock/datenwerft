@@ -20,10 +20,7 @@ from . import models_codelist, constants_vars, fields, functions, storage
 # Baustellen
 
 class Baustellen_Fotodokumentation_Baustellen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(
     models_codelist.Strassen,
@@ -137,10 +134,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
 # Fotos
 
 class Baustellen_Fotodokumentation_Fotos(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   baustellen_fotodokumentation_baustelle = models.ForeignKey(
     Baustellen_Fotodokumentation_Baustellen,
@@ -224,10 +218,7 @@ signals.post_delete.connect(
 # Baustellen
 
 class Baustellen_geplant(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   strasse = models.ForeignKey(
     models_codelist.Strassen,
@@ -388,10 +379,7 @@ class Baustellen_geplant(models.Model):
 # Dokumente
 
 class Baustellen_geplant_Dokumente(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   baustelle_geplant = models.ForeignKey(
     Baustellen_geplant,
@@ -453,10 +441,7 @@ signals.post_delete.connect(
 # Links
 
 class Baustellen_geplant_Links(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   baustelle_geplant = models.ForeignKey(
     Baustellen_geplant,
@@ -514,10 +499,7 @@ class Baustellen_geplant_Links(models.Model):
 # Durchlässe
 
 class Durchlaesse_Durchlaesse(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   art = models.ForeignKey(
     models_codelist.Arten_Durchlaesse,
@@ -681,10 +663,7 @@ class Durchlaesse_Durchlaesse(models.Model):
 # Fotos
 
 class Durchlaesse_Fotos(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   durchlaesse_durchlass = models.ForeignKey(
     Durchlaesse_Durchlaesse,
@@ -766,10 +745,7 @@ signals.post_delete.connect(functions.delete_photo, sender=Durchlaesse_Fotos)
 # Kontrollgebiete
 
 class Fallwildsuchen_Kontrollgebiete(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   tierseuche = models.ForeignKey(
     models_codelist.Tierseuchen,
@@ -828,10 +804,7 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
 # Nachweise
 
 class Fallwildsuchen_Nachweise(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   kontrollgebiet = models.ForeignKey(
     Fallwildsuchen_Kontrollgebiete,
@@ -930,10 +903,7 @@ class Fallwildsuchen_Nachweise(models.Model):
 # Haltestellen
 
 class Haltestellenkataster_Haltestellen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   deaktiviert = models.DateField(
     'Außerbetriebstellung', blank=True, null=True)
@@ -1321,10 +1291,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
 # Fotos
 
 class Haltestellenkataster_Fotos(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   haltestellenkataster_haltestelle = models.ForeignKey(
     Haltestellenkataster_Haltestellen,
@@ -1407,10 +1374,7 @@ signals.post_delete.connect(
 # Tarife
 
 class Parkscheinautomaten_Tarife(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -1558,10 +1522,7 @@ class Parkscheinautomaten_Tarife(models.Model):
 # Parkscheinautomaten
 
 class Parkscheinautomaten_Parkscheinautomaten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   parkscheinautomaten_tarif = models.ForeignKey(
     Parkscheinautomaten_Tarife,
@@ -1685,10 +1646,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
 # Gleise
 
 class RSAG_Gleise(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   quelle = models.CharField(
     'Quelle',
@@ -1734,10 +1692,7 @@ class RSAG_Gleise(models.Model):
 # Masten
 
 class RSAG_Masten(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   mastnummer = models.CharField(
     'Mastnummer',
@@ -2030,10 +1985,7 @@ class RSAG_Masten(models.Model):
 # Oberleitungen
 
 class RSAG_Leitungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   geometrie = models.LineStringField('Geometrie', srid=25833)
 
@@ -2069,10 +2021,7 @@ class RSAG_Leitungen(models.Model):
 # Querträger
 
 class RSAG_Quertraeger(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   mast = models.ForeignKey(
     RSAG_Masten,
@@ -2133,10 +2082,7 @@ class RSAG_Quertraeger(models.Model):
 # Spanndrähte
 
 class RSAG_Spanndraehte(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   mast = models.ForeignKey(
     RSAG_Masten,
@@ -2203,10 +2149,7 @@ class RSAG_Spanndraehte(models.Model):
 # Vorhaben
 
 class UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -2324,10 +2267,7 @@ class UVP_Vorhaben(models.Model):
 # Vorprüfungen
 
 class UVP_Vorpruefungen(models.Model):
-  uuid = models.UUIDField(
-    primary_key=True,
-    default=uuid.uuid4,
-    editable=False)
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   aktiv = models.BooleanField(' aktiv?', default=True)
   uvp_vorhaben = models.ForeignKey(
     UVP_Vorhaben,
