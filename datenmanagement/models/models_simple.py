@@ -1,11 +1,10 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
-from django.contrib.gis.db.models.fields import LineStringField, MultiLineStringField, \
-  MultiPolygonField, PointField, PolygonField
-from django.core.validators import EmailValidator, MaxValueValidator, \
-  MinValueValidator, RegexValidator, URLValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, signals
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, \
+  URLValidator
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField
 from django.db.models.fields.files import FileField, ImageField
@@ -13,10 +12,36 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from .classes import Model
-from .fields import ChoiceArrayField, NullTextField, \
-  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField
+from .constants_vars import standard_validators, hausnummer_zusatz_regex, \
+  hausnummer_zusatz_message, inventarnummer_regex, inventarnummer_message, url_message, \
+  denksteine_nummer_regex, denksteine_nummer_message, hausnummern_antragsnummer_message, \
+  hausnummern_antragsnummer_regex, hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
+  poller_nummer_regex, poller_nummer_message, postleitzahl_message, postleitzahl_regex, \
+  strassen_schluessel_regex, strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
+  trinkwassernotbrunnen_nummer_message
+from .fields import barrierefrei_field, bearbeiter_field, bemerkungen_field, bezeichnung_field, \
+  email_field, nachname_field, oeffnungszeiten_field, plaetze_field, telefon_festnetz_field, \
+  telefon_mobil_field, vorname_field, website_field, ChoiceArrayField, NullTextField,\
+  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, punkt_field, linie_field, \
+  multilinie_field, flaeche_field, multiflaeche_field
+from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
+  get_pre_save_instance, path_and_rename, photo_post_processing
+from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
+  Altersklassen_Kadaverfunde, Arten_Baudenkmale, Arten_FairTrade, Arten_Feldsportanlagen, \
+  Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
+  Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Arten_Wege, \
+  Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
+  Anbieter_Carsharing, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Gebaeudebauweisen, \
+  Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
+  Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
+  Raeumbreiten_Strassenreinigungssatzung_HRO, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Sportarten, Status_Poller, Tierseuchen, \
+  Typen_Abfallbehaelter, Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, \
+  Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
+  Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
 from .storage import OverwriteStorage
-from . import models_codelist, constants_vars, functions
 
 
 class Abfallbehaelter(Model):
@@ -36,7 +61,7 @@ class Abfallbehaelter(Model):
     default='00000000'
   )
   typ = ForeignKey(
-    models_codelist.Typen_Abfallbehaelter,
+    Typen_Abfallbehaelter,
     verbose_name='Typ',
     on_delete=SET_NULL,
     db_column='typ',
@@ -47,12 +72,12 @@ class Abfallbehaelter(Model):
   )
   aufstellungsjahr = PositiveSmallIntegerRangeField(
     'Aufstellungsjahr',
-    max_value=functions.current_year(),
+    max_value=current_year(),
     blank=True,
     null=True
   )
   eigentuemer = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=RESTRICT,
     db_column='eigentuemer',
@@ -60,7 +85,7 @@ class Abfallbehaelter(Model):
     related_name='%(app_label)s_%(class)s_eigentuemer'
   )
   bewirtschafter = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=RESTRICT,
     db_column='bewirtschafter',
@@ -70,7 +95,7 @@ class Abfallbehaelter(Model):
   pflegeobjekt = CharField(
     'Pflegeobjekt',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   inventarnummer = CharField(
     'Inventarnummer',
@@ -79,8 +104,8 @@ class Abfallbehaelter(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.inventarnummer_regex,
-        message=constants_vars.inventarnummer_message
+        regex=inventarnummer_regex,
+        message=inventarnummer_message
       )
     ]
   )
@@ -190,18 +215,8 @@ class Abfallbehaelter(Model):
     blank=True,
     null=True
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = PointField(
-    'Geometrie',
-    srid=25833,
-    default='POINT(0 0)'
-  )
+  bemerkungen = bemerkungen_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"abfallbehaelter_hro'
@@ -243,27 +258,26 @@ class Abfallbehaelter(Model):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
 
-# Angelverbotsbereiche
-
 class Angelverbotsbereiche(Model):
+  """
+  Angelverbotsbereiche
+  """
+
   bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   beschreibung = NullTextField(
     'Beschreibung',
     max_length=1000,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = LineStringField(
-    'Geometrie',
-    srid=25833
-  )
+  geometrie = linie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"angelverbotsbereiche_hro'
@@ -284,11 +298,13 @@ class Angelverbotsbereiche(Model):
            (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
 
 
-# Aufteilungspläne nach Wohnungseigentumsgesetz
-
 class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
+  """
+  Aufteilungspläne nach Wohnungseigentumsgesetz
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -302,46 +318,43 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   datum_abgeschlossenheitserklaerung = DateField(
-    'Datum der Abgeschlossenheitserklärung', blank=True, null=True)
-  bearbeiter = CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
+    'Datum der Abgeschlossenheitserklärung',
     blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
+    null=True
   )
-  datum = DateField('Datum', default=date.today)
+  bearbeiter = bearbeiter_field
+  bemerkungen = bemerkungen_field
+  datum = DateField(
+    'Datum',
+    default=date.today
+  )
   pdf = FileField(
     'PDF',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PDF_PATH_PREFIX_PRIVATE +
-      'aufteilungsplaene_wohnungseigentumsgesetz'),
-    max_length=255)
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PRIVATE + 'aufteilungsplaene_wohnungseigentumsgesetz'
+    ),
+    max_length=255
+  )
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"aufteilungsplaene_wohnungseigentumsgesetz_hro'
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
-    description = 'Aufteilungspläne nach Wohnungseigentumsgesetz in der Hanse- und ' \
-                  'Universitätsstadt Rostock'
+    description = 'Aufteilungspläne nach Wohnungseigentumsgesetz' \
+                  'in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
       'aktenzeichen': 'Aktenzeichen',
       'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
       'pdf': 'PDF',
-      'datum': 'Datum'}
+      'datum': 'Datum'
+    }
     list_fields_with_date = ['datum_abgeschlossenheitserklaerung', 'datum']
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
@@ -350,27 +363,28 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
     map_filter_fields = {
       'aktenzeichen': 'Aktenzeichen',
       'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
-      'datum': 'Datum'}
+      'datum': 'Datum'
+    }
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'Point'
 
   def __str__(self):
-    return 'Abgeschlossenheitserklärung mit Datum ' + datetime.strptime(str(self.datum),
-                                                                        '%Y-%m-%d').strftime(
-      '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return 'Abgeschlossenheitserklärung mit Datum ' + \
+      datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + \
+      (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-signals.post_delete.connect(
-  functions.delete_pdf,
-  sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
+post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
-
-# Baudenkmale
 
 class Baudenkmale(Model):
+  """
+  Baudenkmale
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -380,25 +394,26 @@ class Baudenkmale(Model):
     null=True
   )
   art = ForeignKey(
-    models_codelist.Arten_Baudenkmale,
+    Arten_Baudenkmale,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
+    related_name='%(app_label)s_%(class)s_arten'
+  )
   bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = MultiPolygonField('Geometrie', srid=25833)
+  geometrie = multiflaeche_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
@@ -429,15 +444,18 @@ class Baudenkmale(Model):
     as_overlay = True
 
   def __str__(self):
-    return self.beschreibung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+    return self.beschreibung + \
+      ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Art: ' + str(self.art) + ']'
 
-
-# Behinderteneinrichtungen
 
 class Behinderteneinrichtungen(Model):
+  """
+  Behinderteneinrichtungen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -446,68 +464,21 @@ class Behinderteneinrichtungen(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
-  plaetze = PositiveSmallIntegerMinField(
-    'Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
+    related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  plaetze = plaetze_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"behinderteneinrichtungen_hro'
@@ -535,15 +506,18 @@ class Behinderteneinrichtungen(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+    return self.bezeichnung + \
+      ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Träger: ' + str(self.traeger) + ']'
 
-
-# Beschlüsse des Bau- und Planungsausschusses
 
 class Beschluesse_Bau_Planungsausschuss(Model):
+  """
+  Beschlüsse des Bau- und Planungsausschusses
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -553,34 +527,33 @@ class Beschluesse_Bau_Planungsausschuss(Model):
     null=True
   )
   beschlussjahr = PositiveSmallIntegerRangeField(
-    'Beschlussjahr', min_value=1990, max_value=functions.current_year(),
-    default=functions.current_year())
+    'Beschlussjahr',
+    min_value=1990,
+    max_value=current_year(),
+    default=current_year()
+  )
   vorhabenbezeichnung = CharField(
     'Bezeichnung des Vorhabens',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  bearbeiter = CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bearbeiter = bearbeiter_field
   pdf = FileField(
     'PDF',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PDF_PATH_PREFIX_PRIVATE +
-      'beschluesse_bau_planungsausschuss'),
-    max_length=255)
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PRIVATE + 'beschluesse_bau_planungsausschuss'
+    ),
+    max_length=255
+  )
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"beschluesse_bau_planungsausschuss_hro'
     verbose_name = 'Beschluss des Bau- und Planungsausschusses'
     verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
-    description = 'Beschlüsse des Bau- und Planungsausschusses der Bürgerschaft der Hanse- und ' \
-                  'Universitätsstadt Rostock'
+    description = 'Beschlüsse des Bau- und Planungsausschusses der Bürgerschaft ' \
+                  'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -607,16 +580,16 @@ class Beschluesse_Bau_Planungsausschuss(Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-signals.post_delete.connect(
-  functions.delete_pdf,
-  sender=Beschluesse_Bau_Planungsausschuss)
+post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
 
-
-# Bildungsträger
 
 class Bildungstraeger(Model):
+  """
+  Bildungsträger
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -625,77 +598,27 @@ class Bildungstraeger(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   betreiber = CharField(
     'Betreiber:in',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   schlagwoerter = ChoiceArrayField(
     CharField(
       'Schlagwörter',
       max_length=255,
-      choices=()),
-    verbose_name='Schlagwörter')
-  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
+      choices=()
+    ),
+    verbose_name='Schlagwörter'
   )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  barrierefrei = barrierefrei_field
+  zeiten = oeffnungszeiten_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"bildungstraeger_hro'
@@ -724,15 +647,16 @@ class Bildungstraeger(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-
-# Carsharing-Stationen
 
 class Carsharing_Stationen(Model):
+  """
+  Carsharing-Stationen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -741,75 +665,33 @@ class Carsharing_Stationen(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   anbieter = ForeignKey(
-    models_codelist.Anbieter_Carsharing,
+    Anbieter_Carsharing,
     verbose_name='Anbieter',
     on_delete=RESTRICT,
     db_column='anbieter',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_anbieter')
+    related_name='%(app_label)s_%(class)s_anbieter'
+  )
   anzahl_fahrzeuge = PositiveSmallIntegerMinField(
-    'Anzahl der Fahrzeuge', min_value=1, blank=True, null=True)
+    'Anzahl der Fahrzeuge',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"carsharing_stationen_hro'
@@ -839,27 +721,31 @@ class Carsharing_Stationen(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Anbieter: ' + str(self.anbieter) + ']'
+    return self.bezeichnung + \
+      ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Anbieter: ' + str(self.anbieter) + ']'
 
-
-# Containerstellplätze
 
 class Containerstellplaetze(Model):
+  """
+  Containerstellplätze
+  """
+
   deaktiviert = DateField(
     'Außerbetriebstellung',
     blank=True,
     null=True
   )
-  id = CharField('ID', max_length=5, unique=True, default='00-00')
-  privat = BooleanField(' privat?')
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+  id = CharField(
+    'ID',
+    max_length=5,
+    unique=True,
+    default='00-00'
   )
+  privat = BooleanField(' privat?')
+  bezeichnung = bezeichnung_field
   bewirtschafter_grundundboden = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Grund und Boden',
     on_delete=SET_NULL,
     db_column='bewirtschafter_grundundboden',
@@ -869,7 +755,7 @@ class Containerstellplaetze(Model):
     null=True
   )
   bewirtschafter_glas = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Glas',
     on_delete=SET_NULL,
     db_column='bewirtschafter_glas',
@@ -879,11 +765,19 @@ class Containerstellplaetze(Model):
     null=True
   )
   anzahl_glas = PositiveSmallIntegerMinField(
-    'Anzahl Glas normal', min_value=1, blank=True, null=True)
+    'Anzahl Glas normal',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   anzahl_glas_unterflur = PositiveSmallIntegerMinField(
-    'Anzahl Glas unterflur', min_value=1, blank=True, null=True)
+    'Anzahl Glas unterflur',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   bewirtschafter_papier = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Papier',
     on_delete=SET_NULL,
     db_column='bewirtschafter_papier',
@@ -893,11 +787,19 @@ class Containerstellplaetze(Model):
     null=True
   )
   anzahl_papier = PositiveSmallIntegerMinField(
-    'Anzahl Papier normal', min_value=1, blank=True, null=True)
+    'Anzahl Papier normal',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   anzahl_papier_unterflur = PositiveSmallIntegerMinField(
-    'Anzahl Papier unterflur', min_value=1, blank=True, null=True)
+    'Anzahl Papier unterflur',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   bewirtschafter_altkleider = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Altkleider',
     on_delete=SET_NULL,
     db_column='bewirtschafter_altkleider',
@@ -907,9 +809,17 @@ class Containerstellplaetze(Model):
     null=True
   )
   anzahl_altkleider = PositiveSmallIntegerMinField(
-    'Anzahl Altkleider', min_value=1, blank=True, null=True)
+    'Anzahl Altkleider',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   inbetriebnahmejahr = PositiveSmallIntegerRangeField(
-    'Inbetriebnahmejahr', max_value=functions.current_year(), blank=True, null=True)
+    'Inbetriebnahmejahr',
+    max_value=current_year(),
+    blank=True,
+    null=True
+  )
   inventarnummer = CharField(
     'Inventarnummer Stellplatz',
     max_length=8,
@@ -917,8 +827,8 @@ class Containerstellplaetze(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.inventarnummer_regex,
-        message=constants_vars.inventarnummer_message
+        regex=inventarnummer_regex,
+        message=inventarnummer_message
       )
     ]
   )
@@ -929,8 +839,8 @@ class Containerstellplaetze(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.inventarnummer_regex,
-        message=constants_vars.inventarnummer_message
+        regex=inventarnummer_regex,
+        message=inventarnummer_message
       )
     ]
   )
@@ -941,8 +851,8 @@ class Containerstellplaetze(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.inventarnummer_regex,
-        message=constants_vars.inventarnummer_message
+        regex=inventarnummer_regex,
+        message=inventarnummer_message
       )
     ]
   )
@@ -953,51 +863,72 @@ class Containerstellplaetze(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'),
+        'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('99999.99'),
-        'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 99.999,99 € betragen.')],
+        'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 99.999,99 € betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
   oeffentliche_widmung = BooleanField(
-    ' öffentliche Widmung?', blank=True, null=True)
+    ' öffentliche Widmung?',
+    blank=True,
+    null=True
+  )
   bga = BooleanField(
     'Zuordnung BgA Stellplatz?',
     blank=True,
     null=True
   )
   bga_grundundboden = BooleanField(
-    'Zuordnung BgA Grund und Boden?', blank=True, null=True)
+    'Zuordnung BgA Grund und Boden?',
+    blank=True,
+    null=True
+  )
   bga_zaun = BooleanField(
-    'Zuordnung BgA Zaun?', blank=True, null=True)
+    'Zuordnung BgA Zaun?',
+    blank=True,
+    null=True
+  )
   art_eigentumserwerb = CharField(
     'Art des Eigentumserwerbs Stellplatz',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   art_eigentumserwerb_zaun = CharField(
     'Art des Eigentumserwerbs Zaun',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   vertraege = CharField(
     'Verträge',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   winterdienst_a = BooleanField(
-    'Winterdienst A?', blank=True, null=True)
+    'Winterdienst A?',
+    blank=True,
+    null=True
+  )
   winterdienst_b = BooleanField(
-    'Winterdienst B?', blank=True, null=True)
+    'Winterdienst B?',
+    blank=True,
+    null=True
+  )
   winterdienst_c = BooleanField(
-    'Winterdienst C?', blank=True, null=True)
+    'Winterdienst C?',
+    blank=True,
+    null=True
+  )
   flaeche = DecimalField(
     'Fläche (in m²)',
     max_digits=5,
@@ -1005,32 +936,28 @@ class Containerstellplaetze(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'),
+        'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Fläche</em></strong> darf höchstens 999,99 m² betragen.')],
+        'Die <strong><em>Fläche</em></strong> darf höchstens 999,99 m² betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
+  bemerkungen = bemerkungen_field
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PRIVATE +
-      'containerstellplaetze'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'containerstellplaetze'
+    ),
     max_length=255,
     blank=True,
     null=True
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"containerstellplaetze_hro'
@@ -1061,37 +988,27 @@ class Containerstellplaetze(Model):
     return self.bezeichnung
 
 
-signals.pre_save.connect(
-  functions.get_pre_save_instance,
-  sender=Containerstellplaetze)
+pre_save.connect(get_pre_save_instance, sender=Containerstellplaetze)
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Containerstellplaetze)
+post_save.connect(photo_post_processing, sender=Containerstellplaetze)
 
-signals.post_save.connect(
-  functions.delete_photo_after_emptied,
-  sender=Containerstellplaetze)
+post_save.connect(delete_photo_after_emptied, sender=Containerstellplaetze)
 
-signals.post_delete.connect(
-  functions.delete_photo,
-  sender=Containerstellplaetze)
+post_delete.connect(delete_photo, sender=Containerstellplaetze)
 
-
-# Denkmalbereiche
 
 class Denkmalbereiche(Model):
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  """
+  Denkmalbereiche
+  """
+
+  bezeichnung = bezeichnung_field
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = MultiPolygonField('Geometrie', srid=25833)
+  geometrie = multiflaeche_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"denkmalbereiche_hro'
@@ -1112,15 +1029,16 @@ class Denkmalbereiche(Model):
     as_overlay = True
 
   def __str__(self):
-    return self.bezeichnung + \
-           ' [Beschreibung: ' + str(self.beschreibung) + ']'
+    return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
 
-
-# Denksteine
 
 class Denksteine(Model):
+  """
+  Denksteine
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -1134,13 +1052,13 @@ class Denksteine(Model):
     max_length=255,
     validators=[
       RegexValidator(
-        regex=constants_vars.denk_nummer_regex,
-        message=constants_vars.denk_nummer_message
+        regex=denksteine_nummer_regex,
+        message=denksteine_nummer_message
       )
     ]
   )
   titel = ForeignKey(
-    models_codelist.Personentitel,
+    Personentitel,
     verbose_name='Titel',
     on_delete=SET_NULL,
     db_column='titel',
@@ -1149,52 +1067,55 @@ class Denksteine(Model):
     blank=True,
     null=True
   )
-  vorname = CharField(
-    'Vorname',
-    max_length=255,
-    validators=constants_vars.personennamen_validators
-  )
-  nachname = CharField(
-    'Nachname',
-    max_length=255,
-    validators=constants_vars.personennamen_validators
-  )
+  vorname = vorname_field
+  nachname = nachname_field
   geburtsjahr = PositiveSmallIntegerRangeField(
-    'Geburtsjahr', min_value=1850, max_value=1945)
+    'Geburtsjahr',
+    min_value=1850,
+    max_value=1945
+  )
   sterbejahr = PositiveSmallIntegerRangeField(
-    'Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
+    'Sterbejahr',
+    min_value=1933,
+    max_value=1945,
+    blank=True,
+    null=True
+  )
   text_auf_dem_stein = CharField(
     'Text auf dem Stein',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   ehemalige_adresse = CharField(
     ' ehemalige Adresse',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   material = ForeignKey(
-    models_codelist.Materialien_Denksteine,
+    Materialien_Denksteine,
     verbose_name='Material',
     on_delete=RESTRICT,
     db_column='material',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_materialien')
+    related_name='%(app_label)s_%(class)s_materialien'
+  )
   erstes_verlegejahr = PositiveSmallIntegerRangeField(
-    ' erstes Verlegejahr', min_value=2002, max_value=functions.current_year())
+    ' erstes Verlegejahr',
+    min_value=2002,
+    max_value=current_year()
+  )
   website = CharField(
     'Website',
     max_length=255,
     validators=[
       URLValidator(
-        message=constants_vars.url_message
+        message=url_message
       )
     ]
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"denksteine_hro'
@@ -1231,18 +1152,19 @@ class Denksteine(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return (str(
-      self.titel) + ' ' if self.titel else '') + self.vorname + ' ' + self.nachname + ' (* ' + str(
-      self.geburtsjahr) + \
-           (', † ' + str(self.sterbejahr) if self.sterbejahr else '') + ')' + (
-             ' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return (str(self.titel) + ' ' if self.titel else '') + \
+      self.vorname + ' ' + self.nachname + ' (* ' + str(self.geburtsjahr) + \
+      (', † ' + str(self.sterbejahr) if self.sterbejahr else '') + ')' + \
+      (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-
-# Fair Trade
 
 class FairTrade(Model):
+  """
+  Fair Trade
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -1252,79 +1174,28 @@ class FairTrade(Model):
     null=True
   )
   art = ForeignKey(
-    models_codelist.Arten_FairTrade,
+    Arten_FairTrade,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_arten'
   )
+  bezeichnung = bezeichnung_field
   betreiber = CharField(
     'Betreiber:in',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  barrierefrei = barrierefrei_field
+  zeiten = oeffnungszeiten_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"fairtrade_hro'
@@ -1352,44 +1223,44 @@ class FairTrade(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Art: ' + str(self.art) + ']'
 
-
-# Feldsportanlagen
 
 class Feldsportanlagen(Model):
+  """
+  Feldsportanlagen
+  """
+
   art = ForeignKey(
-    models_codelist.Arten_Feldsportanlagen,
+    Arten_Feldsportanlagen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_arten'
   )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
+    related_name='%(app_label)s_%(class)s_traeger'
+  )
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PUBLIC +
-      'feldsportanlagen'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'feldsportanlagen'
+    ),
     max_length=255,
     blank=True,
     null=True
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"feldsportanlagen_hro'
@@ -1421,26 +1292,22 @@ class Feldsportanlagen(Model):
     return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
 
 
-signals.pre_save.connect(
-  functions.get_pre_save_instance,
-  sender=Feldsportanlagen)
+pre_save.connect(get_pre_save_instance, sender=Feldsportanlagen)
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Feldsportanlagen)
+post_save.connect(photo_post_processing, sender=Feldsportanlagen)
 
-signals.post_save.connect(
-  functions.delete_photo_after_emptied,
-  sender=Feldsportanlagen)
+post_save.connect(delete_photo_after_emptied, sender=Feldsportanlagen)
 
-signals.post_delete.connect(functions.delete_photo, sender=Feldsportanlagen)
+post_delete.connect(delete_photo, sender=Feldsportanlagen)
 
-
-# Feuerwachen
 
 class Feuerwachen(Model):
+  """
+  Feuerwachen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -1450,65 +1317,19 @@ class Feuerwachen(Model):
     null=True
   )
   art = ForeignKey(
-    models_codelist.Arten_Feuerwachen,
+    Arten_Feuerwachen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_arten'
   )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bezeichnung = bezeichnung_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"feuerwachen_hro'
@@ -1536,27 +1357,31 @@ class Feuerwachen(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Art: ' + str(self.art) + ']'
 
-
-# Fließgewässer
 
 class Fliessgewaesser(Model):
+  """
+  Fließgewässer
+  """
+
   nummer = CharField(
     'Nummer',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   art = ForeignKey(
-    models_codelist.Arten_Fliessgewaesser,
+    Arten_Fliessgewaesser,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
+    related_name='%(app_label)s_%(class)s_arten'
+  )
   ordnung = ForeignKey(
-    models_codelist.Ordnungen_Fliessgewaesser,
+    Ordnungen_Fliessgewaesser,
     verbose_name='Ordnung',
     on_delete=SET_NULL,
     db_column='ordnung',
@@ -1570,14 +1395,24 @@ class Fliessgewaesser(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   nennweite = PositiveSmallIntegerMinField(
-    'Nennweite (in mm)', min_value=100, blank=True, null=True)
-  laenge = PositiveIntegerField('Länge (in m)', default=0)
+    'Nennweite (in mm)',
+    min_value=100,
+    blank=True,
+    null=True
+  )
+  laenge = PositiveIntegerField(
+    'Länge (in m)',
+    default=0
+  )
   laenge_in_hro = PositiveIntegerField(
-    'Länge innerhalb Rostocks (in m)', blank=True, null=True)
-  geometrie = LineStringField('Geometrie', srid=25833)
+    'Länge innerhalb Rostocks (in m)',
+    blank=True,
+    null=True
+  )
+  geometrie = linie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"fliessgewaesser_hro'
@@ -1612,17 +1447,22 @@ class Fliessgewaesser(Model):
     heavy_load_limit = 500
 
   def __str__(self):
-    return self.nummer + \
-           ' [Art: ' + str(self.art) + (
-             ', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
+    return self.nummer + ' [Art: ' + str(self.art) + \
+      (', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
 
-
-# Geh- und Radwegereinigung
 
 class Geh_Radwegereinigung(Model):
-  id = CharField('ID', max_length=14, default='0000000000-000')
+  """
+  Geh- und Radwegereinigung
+  """
+
+  id = CharField(
+    'ID',
+    max_length=14,
+    default='0000000000-000'
+  )
   gemeindeteil = ForeignKey(
-    models_codelist.Gemeindeteile,
+    Gemeindeteile,
     verbose_name='Gemeindeteil',
     on_delete=RESTRICT,
     db_column='gemeindeteil',
@@ -1631,7 +1471,7 @@ class Geh_Radwegereinigung(Model):
     default='00000000-0000-0000-0000-000000000000'
   )
   strasse = ForeignKey(
-    models_codelist.Strassen,
+    Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -1641,7 +1481,7 @@ class Geh_Radwegereinigung(Model):
     null=True
   )
   inoffizielle_strasse = ForeignKey(
-    models_codelist.Inoffizielle_Strassen,
+    Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
     on_delete=SET_NULL,
     db_column='inoffizielle_strasse',
@@ -1655,17 +1495,17 @@ class Geh_Radwegereinigung(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   wegeart = ForeignKey(
-    models_codelist.Arten_Wege,
+    Arten_Wege,
     verbose_name='Wegeart',
     on_delete=CASCADE,
     db_column='wegeart',
@@ -1673,7 +1513,7 @@ class Geh_Radwegereinigung(Model):
     related_name='%(app_label)s_%(class)s_wegearten'
   )
   wegetyp = ForeignKey(
-    models_codelist.Wegetypen_Strassenreinigungssatzung_HRO,
+    Wegetypen_Strassenreinigungssatzung_HRO,
     verbose_name='Wegetyp',
     on_delete=CASCADE,
     db_column='wegetyp',
@@ -1683,7 +1523,7 @@ class Geh_Radwegereinigung(Model):
     null=True
   )
   reinigungsklasse = ForeignKey(
-    models_codelist.Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+    Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
     on_delete=SET_NULL,
     db_column='reinigungsklasse',
@@ -1693,7 +1533,7 @@ class Geh_Radwegereinigung(Model):
     null=True
   )
   reinigungsrhythmus = ForeignKey(
-    models_codelist.Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
     on_delete=SET_NULL,
     db_column='reinigungsrhythmus',
@@ -1706,9 +1546,10 @@ class Geh_Radwegereinigung(Model):
     'Länge (in m)',
     max_digits=6,
     decimal_places=2,
-    default=0)
+    default=0
+  )
   breite = ForeignKey(
-    models_codelist.Wegebreiten_Strassenreinigungssatzung_HRO,
+    Wegebreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Breite (in m)',
     on_delete=CASCADE,
     db_column='breite',
@@ -1724,10 +1565,13 @@ class Geh_Radwegereinigung(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Reinigungsfläche</em></strong> muss mindestens 0,01 m² betragen.'),
+        'Die <strong><em>Reinigungsfläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
       MaxValueValidator(
         Decimal('99999.99'),
-        'Die <strong><em>Reinigungsfläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
+        'Die <strong><em>Reinigungsfläche</em></strong> darf höchstens 99.999,99 m² betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -1737,7 +1581,7 @@ class Geh_Radwegereinigung(Model):
     null=True
   )
   raeumbreite = ForeignKey(
-    models_codelist.Raeumbreiten_Strassenreinigungssatzung_HRO,
+    Raeumbreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Räumbreite im Winterdienst (in m)',
     on_delete=CASCADE,
     db_column='raeumbreite',
@@ -1753,14 +1597,17 @@ class Geh_Radwegereinigung(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Winterdienstfläche</em></strong> muss mindestens 0,01 m² betragen.'),
+        'Die <strong><em>Winterdienstfläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
       MaxValueValidator(
         Decimal('99999.99'),
-        'Die <strong><em>Winterdienstfläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
+        'Die <strong><em>Winterdienstfläche</em></strong> darf höchstens 99.999,99 m² betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
-  geometrie = MultiLineStringField('Geometrie', srid=25833)
+  geometrie = multilinie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
@@ -1852,40 +1699,38 @@ class Geh_Radwegereinigung(Model):
                self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
 
-# Gerätespielanlagen
-
 class Geraetespielanlagen(Model):
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  """
+  Gerätespielanlagen
+  """
+
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
+    related_name='%(app_label)s_%(class)s_traeger'
+  )
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PUBLIC +
-      'geraetespielanlagen'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'geraetespielanlagen'
+    ),
     max_length=255,
     blank=True,
     null=True
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"geraetespielanlagen_hro'
@@ -1916,26 +1761,22 @@ class Geraetespielanlagen(Model):
     return self.bezeichnung
 
 
-signals.pre_save.connect(
-  functions.get_pre_save_instance,
-  sender=Geraetespielanlagen)
+pre_save.connect(get_pre_save_instance, sender=Geraetespielanlagen)
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Geraetespielanlagen)
+post_save.connect(photo_post_processing, sender=Geraetespielanlagen)
 
-signals.post_save.connect(
-  functions.delete_photo_after_emptied,
-  sender=Geraetespielanlagen)
+post_save.connect(delete_photo_after_emptied, sender=Geraetespielanlagen)
 
-signals.post_delete.connect(functions.delete_photo, sender=Geraetespielanlagen)
+post_delete.connect(delete_photo, sender=Geraetespielanlagen)
 
-
-# Gutachterfotos
 
 class Gutachterfotos(Model):
+  """
+  Gutachterfotos
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -1944,29 +1785,25 @@ class Gutachterfotos(Model):
     blank=True,
     null=True
   )
-  bearbeiter = CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
+  bearbeiter = bearbeiter_field
+  bemerkungen = bemerkungen_field
+  datum = DateField(
+    'Datum',
+    default=date.today
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
+  aufnahmedatum = DateField(
+    'Aufnahmedatum',
+    default=date.today
   )
-  datum = DateField('Datum', default=date.today)
-  aufnahmedatum = DateField('Aufnahmedatum', default=date.today)
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PRIVATE +
-      'gutachterfotos'),
-    max_length=255)
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'gutachterfotos'
+    ),
+    max_length=255
+  )
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"gutachterfotos_hro'
@@ -1997,23 +1834,23 @@ class Gutachterfotos(Model):
     heavy_load_limit = 800
 
   def __str__(self):
-    return 'Gutachterfoto mit Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum),
-                                                                  '%Y-%m-%d').strftime(
-      '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return 'Gutachterfoto mit Aufnahmedatum ' + \
+      datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') + \
+      (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Gutachterfotos)
+post_save.connect(photo_post_processing, sender=Gutachterfotos)
 
-signals.post_delete.connect(functions.delete_photo, sender=Gutachterfotos)
+post_delete.connect(delete_photo, sender=Gutachterfotos)
 
-
-# Hausnummern
 
 class Hausnummern(Model):
+  """
+  Hausnummern
+  """
+
   strasse = ForeignKey(
-    models_codelist.Strassen,
+    Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -2032,14 +1869,14 @@ class Hausnummern(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   vorherige_adresse = CharField(
     ' vorherige Adresse',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   vorherige_antragsnummer = CharField(
     ' vorherige Antragsnummer',
@@ -2048,13 +1885,16 @@ class Hausnummern(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.hnr_antragsnummer_regex,
-        message=constants_vars.hnr_antragsnummer_message
+        regex=hausnummern_antragsnummer_regex,
+        message=hausnummern_antragsnummer_message
       )
     ]
   )
   hausnummer = PositiveSmallIntegerRangeField(
-    'Hausnummer', min_value=1, max_value=999)
+    'Hausnummer',
+    min_value=1,
+    max_value=999
+  )
   hausnummer_zusatz = CharField(
     'Hausnummernzusatz',
     max_length=1,
@@ -2062,8 +1902,8 @@ class Hausnummern(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.hausnummer_zusatz_regex,
-        message=constants_vars.hausnummer_zusatz_message
+        regex=hausnummer_zusatz_regex,
+        message=hausnummer_zusatz_message
       )
     ]
   )
@@ -2072,13 +1912,15 @@ class Hausnummern(Model):
     max_length=5,
     validators=[
       RegexValidator(
-        regex=constants_vars.postleitzahl_regex,
-        message=constants_vars.postleitzahl_message
+        regex=postleitzahl_regex,
+        message=postleitzahl_message
       )
     ]
   )
   vergabe_datum = DateField(
-    'Datum der Vergabe', default=date.today)
+    'Datum der Vergabe',
+    default=date.today
+  )
   antragsnummer = CharField(
     'Antragsnummer',
     max_length=6,
@@ -2086,13 +1928,13 @@ class Hausnummern(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.hnr_antragsnummer_regex,
-        message=constants_vars.hnr_antragsnummer_message
+        regex=hausnummern_antragsnummer_regex,
+        message=hausnummern_antragsnummer_message
       )
     ]
   )
   gebaeude_bauweise = ForeignKey(
-    models_codelist.Gebaeudebauweisen,
+    Gebaeudebauweisen,
     verbose_name='Bauweise des Gebäudes',
     on_delete=SET_NULL,
     db_column='gebaeude_bauweise',
@@ -2102,7 +1944,7 @@ class Hausnummern(Model):
     null=True
   )
   gebaeude_funktion = ForeignKey(
-    models_codelist.Gebaeudefunktionen,
+    Gebaeudefunktionen,
     verbose_name='Funktion des Gebäudes',
     on_delete=SET_NULL,
     db_column='gebaeude_funktion',
@@ -2116,22 +1958,11 @@ class Hausnummern(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  bearbeiter = CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bearbeiter = bearbeiter_field
+  bemerkungen = bemerkungen_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_strassenbezug\".\"hausnummern_hro'
@@ -2141,7 +1972,8 @@ class Hausnummern(Model):
     description = 'Hausnummern der Hanse- und Universitätsstadt Rostock'
     catalog_link_fields = {
       'gebaeude_bauweise': 'https://geo.sv.rostock.de/alkis-ok/31001/baw/',
-      'gebaeude_funktion': 'https://geo.sv.rostock.de/alkis-ok/31001/gfk/'}
+      'gebaeude_funktion': 'https://geo.sv.rostock.de/alkis-ok/31001/gfk/'
+    }
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Datum der Löschung',
@@ -2190,15 +2022,17 @@ class Hausnummern(Model):
 
   def __str__(self):
     return str(self.strasse) + ' ' + str(self.hausnummer) + \
-           (self.hausnummer_zusatz if self.hausnummer_zusatz else '') + \
-           ' [Postleitzahl: ' + self.postleitzahl + ']'
+      (self.hausnummer_zusatz if self.hausnummer_zusatz else '') + \
+      ' [Postleitzahl: ' + self.postleitzahl + ']'
 
-
-# Hospize
 
 class Hospize(Model):
+  """
+  Hospize
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2207,68 +2041,21 @@ class Hospize(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
-  plaetze = PositiveSmallIntegerMinField(
-    'Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
+    related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  plaetze = plaetze_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"hospize_hro'
@@ -2296,13 +2083,16 @@ class Hospize(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Träger: ' + str(self.traeger) + ']'
 
-
-# Hundetoiletten
 
 class Hundetoiletten(Model):
+  """
+  Hundetoiletten
+  """
+
   deaktiviert = DateField(
     'Außerbetriebstellung',
     blank=True,
@@ -2315,25 +2105,31 @@ class Hundetoiletten(Model):
     default='00000000'
   )
   art = ForeignKey(
-    models_codelist.Arten_Hundetoiletten,
+    Arten_Hundetoiletten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
+    related_name='%(app_label)s_%(class)s_arten'
+  )
   aufstellungsjahr = PositiveSmallIntegerRangeField(
-    'Aufstellungsjahr', max_value=functions.current_year(), blank=True, null=True)
+    'Aufstellungsjahr',
+    max_value=current_year(),
+    blank=True,
+    null=True
+  )
   bewirtschafter = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=RESTRICT,
     db_column='bewirtschafter',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_bewirtschafter')
+    related_name='%(app_label)s_%(class)s_bewirtschafter'
+  )
   pflegeobjekt = CharField(
     'Pflegeobjekt',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   inventarnummer = CharField(
     'Inventarnummer',
@@ -2342,8 +2138,8 @@ class Hundetoiletten(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.inventarnummer_regex,
-        message=constants_vars.inventarnummer_message
+        regex=inventarnummer_regex,
+        message=inventarnummer_message
       )
     ]
   )
@@ -2354,22 +2150,18 @@ class Hundetoiletten(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'),
+        'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9999.99'),
-        'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.')],
+        'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bemerkungen = bemerkungen_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"hundetoiletten_hro'
@@ -2407,58 +2199,62 @@ class Hundetoiletten(Model):
     return self.id + ' [Art: ' + str(self.art) + ']'
 
 
-# Hydranten
-
 class Hydranten(Model):
+  """
+  Hydranten
+  """
+
   bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     unique=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.hyd_bezeichnung_regex,
-        message=constants_vars.hyd_bezeichnung_message
+        regex=hydranten_bezeichnung_regex,
+        message=hydranten_bezeichnung_message
       )
     ]
   )
   eigentuemer = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=RESTRICT,
     db_column='eigentuemer',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_eigentuemer')
+    related_name='%(app_label)s_%(class)s_eigentuemer'
+  )
   bewirtschafter = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=RESTRICT,
     db_column='bewirtschafter',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_bewirtschafter')
+    related_name='%(app_label)s_%(class)s_bewirtschafter'
+  )
   feuerloeschgeeignet = BooleanField(' feuerlöschgeeignet?')
   betriebszeit = ForeignKey(
-    models_codelist.Betriebszeiten,
+    Betriebszeiten,
     verbose_name='Betriebszeit',
     on_delete=RESTRICT,
     db_column='betriebszeit',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_betriebszeiten')
+    related_name='%(app_label)s_%(class)s_betriebszeiten'
+  )
   entnahme = CharField(
     'Entnahme',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   hauptwasserzaehler = CharField(
     'Hauptwasserzähler',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"hydranten_hro'
@@ -2499,63 +2295,73 @@ class Hydranten(Model):
     return self.bezeichnung
 
 
-# Kadaverfunde
-
 class Kadaverfunde(Model):
+  """
+  Kadaverfunde
+  """
+
   zeitpunkt = DateTimeField('Zeitpunkt')
   tierseuche = ForeignKey(
-    models_codelist.Tierseuchen,
+    Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_tierseuchen')
+    related_name='%(app_label)s_%(class)s_tierseuchen'
+  )
   geschlecht = ForeignKey(
-    models_codelist.Geschlechter_Kadaverfunde,
+    Geschlechter_Kadaverfunde,
     verbose_name='Geschlecht',
     on_delete=RESTRICT,
     db_column='geschlecht',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_geschlechter')
+    related_name='%(app_label)s_%(class)s_geschlechter'
+  )
   altersklasse = ForeignKey(
-    models_codelist.Altersklassen_Kadaverfunde,
+    Altersklassen_Kadaverfunde,
     verbose_name='Altersklasse',
     on_delete=RESTRICT,
     db_column='altersklasse',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_altersklassen')
+    related_name='%(app_label)s_%(class)s_altersklassen'
+  )
   gewicht = PositiveSmallIntegerRangeField(
-    ' geschätztes Gewicht (in kg)', min_value=1, blank=True, null=True)
+    ' geschätztes Gewicht (in kg)',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   zustand = ForeignKey(
-    models_codelist.Zustaende_Kadaverfunde,
+    Zustaende_Kadaverfunde,
     verbose_name='Zustand',
     on_delete=RESTRICT,
     db_column='zustand',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_zustaende')
+    related_name='%(app_label)s_%(class)s_zustaende'
+  )
   art_auffinden = ForeignKey(
-    models_codelist.Arten_Fallwildsuchen_Kontrollen,
+    Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art des Auffindens',
     on_delete=RESTRICT,
     db_column='art_auffinden',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten_auffinden')
+    related_name='%(app_label)s_%(class)s_arten_auffinden'
+  )
   witterung = CharField(
     'Witterung vor Ort',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"kadaverfunde_hro'
@@ -2610,11 +2416,13 @@ class Kadaverfunde(Model):
     return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
 
 
-# Kindertagespflegeeinrichtungen
-
 class Kindertagespflegeeinrichtungen(Model):
+  """
+  Kindertagespflegeeinrichtungen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2623,72 +2431,20 @@ class Kindertagespflegeeinrichtungen(Model):
     blank=True,
     null=True
   )
-  vorname = CharField(
-    'Vorname',
-    max_length=255,
-    validators=constants_vars.personennamen_validators
-  )
-  nachname = CharField(
-    'Nachname',
-    max_length=255,
-    validators=constants_vars.personennamen_validators
-  )
-  plaetze = PositiveSmallIntegerMinField(
-    'Plätze', min_value=1, blank=True, null=True)
+  vorname = vorname_field
+  nachname = nachname_field
+  plaetze = plaetze_field
   zeiten = CharField(
     'Betreuungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"kindertagespflegeeinrichtungen_hro'
@@ -2723,11 +2479,13 @@ class Kindertagespflegeeinrichtungen(Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-# Kinder- und Jugendbetreuung
-
 class Kinder_Jugendbetreuung(Model):
+  """
+  Kinder- und Jugendbetreuung
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2736,66 +2494,20 @@ class Kinder_Jugendbetreuung(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
+    related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"kinder_jugendbetreuung_hro'
@@ -2823,36 +2535,38 @@ class Kinder_Jugendbetreuung(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') \
+      + 'Träger: ' + str(self.traeger) + ']'
 
-
-# Kunst im öffentlichen Raum
 
 class Kunst_im_oeffentlichen_Raum(Model):
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  """
+  Kunst im öffentlichen Raum
+  """
+
+  bezeichnung = bezeichnung_field
   ausfuehrung = CharField(
     'Ausführung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   schoepfer = CharField(
     'Schöpfer',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   entstehungsjahr = PositiveSmallIntegerRangeField(
-    'Entstehungsjahr', max_value=functions.current_year(), blank=True, null=True)
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+    'Entstehungsjahr',
+    max_value=current_year(),
+    blank=True,
+    null=True
+  )
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"kunst_im_oeffentlichen_raum_hro'
@@ -2874,11 +2588,13 @@ class Kunst_im_oeffentlichen_Raum(Model):
     return self.bezeichnung
 
 
-# Ladestationen für Elektrofahrzeuge
-
 class Ladestationen_Elektrofahrzeuge(Model):
+  """
+  Ladestationen für Elektrofahrzeuge
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2888,13 +2604,9 @@ class Ladestationen_Elektrofahrzeuge(Model):
     null=True
   )
   geplant = BooleanField(' geplant?')
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   betreiber = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=SET_NULL,
     db_column='betreiber',
@@ -2904,7 +2616,7 @@ class Ladestationen_Elektrofahrzeuge(Model):
     null=True
   )
   verbund = ForeignKey(
-    models_codelist.Verbuende_Ladestationen_Elektrofahrzeuge,
+    Verbuende_Ladestationen_Elektrofahrzeuge,
     verbose_name='Verbund',
     on_delete=SET_NULL,
     db_column='verbund',
@@ -2914,26 +2626,32 @@ class Ladestationen_Elektrofahrzeuge(Model):
     null=True
   )
   betriebsart = ForeignKey(
-    models_codelist.Betriebsarten,
+    Betriebsarten,
     verbose_name='Betriebsart',
     on_delete=RESTRICT,
     db_column='betriebsart',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_betriebsarten')
+    related_name='%(app_label)s_%(class)s_betriebsarten'
+  )
   anzahl_ladepunkte = PositiveSmallIntegerMinField(
-    'Anzahl an Ladepunkten', min_value=1, blank=True, null=True)
+    'Anzahl an Ladepunkten',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   arten_ladepunkte = CharField(
     'Arten der Ladepunkte',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   ladekarten = ChoiceArrayField(
     CharField(
       'Ladekarten',
       max_length=255,
-      choices=()),
+      choices=()
+    ),
     verbose_name='Ladekarten',
     blank=True,
     null=True
@@ -2943,27 +2661,11 @@ class Ladestationen_Elektrofahrzeuge(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  zeiten = oeffnungszeiten_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"ladestationen_elektrofahrzeuge_hro'
@@ -3007,34 +2709,29 @@ class Ladestationen_Elektrofahrzeuge(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-
-# Meldedienst (flächenhaft)
 
 class Meldedienst_flaechenhaft(Model):
+  """
+  Meldedienst (flächenhaft)
+  """
+
   art = ForeignKey(
-    models_codelist.Arten_Meldedienst_flaechenhaft,
+    Arten_Meldedienst_flaechenhaft,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  bearbeiter = CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_arten'
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
+  bearbeiter = bearbeiter_field
+  bemerkungen = bemerkungen_field
+  datum = DateField(
+    'Datum',
+    default=date.today
   )
-  datum = DateField('Datum', default=date.today)
-  geometrie = PolygonField('Geometrie', srid=25833)
+  geometrie = flaeche_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"meldedienst_flaechenhaft_hro'
@@ -3062,20 +2759,22 @@ class Meldedienst_flaechenhaft(Model):
     geometry_type = 'Polygon'
 
   def __str__(self):
-    return str(self.art) + ' [Datum: ' + datetime.strptime(
-      str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
+    return str(self.art) + \
+      ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
-
-# Meldedienst (punkthaft)
 
 class Meldedienst_punkthaft(Model):
+  """
+  Meldedienst (punkthaft)
+  """
+
   deaktiviert = DateField(
     'Zurückstellung',
     blank=True,
     null=True
   )
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3085,27 +2784,20 @@ class Meldedienst_punkthaft(Model):
     null=True
   )
   art = ForeignKey(
-    models_codelist.Arten_Meldedienst_punkthaft,
+    Arten_Meldedienst_punkthaft,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  bearbeiter = CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_arten'
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
+  bearbeiter = bearbeiter_field
+  bemerkungen = bemerkungen_field
+  datum = DateField(
+    'Datum',
+    default=date.today
   )
-  datum = DateField('Datum', default=date.today)
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"meldedienst_punkthaft_hro'
@@ -3142,37 +2834,27 @@ class Meldedienst_punkthaft(Model):
     heavy_load_limit = 600
 
   def __str__(self):
-    return str(self.art) + ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime(
-      '%d.%m.%Y') + (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
+    return str(self.art) + \
+      ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + \
+      (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
 
-
-# Mobilpunkte
 
 class Mobilpunkte(Model):
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  """
+  Mobilpunkte
+  """
+
+  bezeichnung = bezeichnung_field
   angebote = ChoiceArrayField(
     CharField(
       'Angebote',
       max_length=255,
-      choices=()),
-    verbose_name='Angebote')
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
+      choices=()
+    ),
+    verbose_name='Angebote'
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"mobilpunkte_hro'
@@ -3195,11 +2877,13 @@ class Mobilpunkte(Model):
     return self.bezeichnung
 
 
-# Parkmöglichkeiten
-
 class Parkmoeglichkeiten(Model):
+  """
+  Parkmöglichkeiten
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3209,19 +2893,20 @@ class Parkmoeglichkeiten(Model):
     null=True
   )
   art = ForeignKey(
-    models_codelist.Arten_Parkmoeglichkeiten,
+    Arten_Parkmoeglichkeiten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
+    related_name='%(app_label)s_%(class)s_arten'
+  )
   standort = CharField(
     'Standort',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   betreiber = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=SET_NULL,
     db_column='betreiber',
@@ -3231,11 +2916,23 @@ class Parkmoeglichkeiten(Model):
     null=True
   )
   stellplaetze_pkw = PositiveSmallIntegerMinField(
-    'Pkw-Stellplätze', min_value=1, blank=True, null=True)
+    'Pkw-Stellplätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   stellplaetze_wohnmobil = PositiveSmallIntegerMinField(
-    'Wohnmobilstellplätze', min_value=1, blank=True, null=True)
+    'Wohnmobilstellplätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   stellplaetze_bus = PositiveSmallIntegerMinField(
-    'Busstellplätze', min_value=1, blank=True, null=True)
+    'Busstellplätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   gebuehren_halbe_stunde = DecimalField(
     'Gebühren pro ½ h (in €)',
     max_digits=3,
@@ -3243,10 +2940,13 @@ class Parkmoeglichkeiten(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Gebühren pro ½ h</em></strong> müssen mindestens 0,01 € betragen.'),
+        'Die <strong><em>Gebühren pro ½ h</em></strong> müssen mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
-        'Die <strong><em>Gebühren pro ½ h</em></strong> dürfen höchstens 9,99 € betragen.')],
+        'Die <strong><em>Gebühren pro ½ h</em></strong> dürfen höchstens 9,99 € betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3257,10 +2957,13 @@ class Parkmoeglichkeiten(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Gebühren pro 1 h</em></strong> müssen mindestens 0,01 € betragen.'),
+        'Die <strong><em>Gebühren pro 1 h</em></strong> müssen mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
-        'Die <strong><em>Gebühren pro 1 h</em></strong> dürfen höchstens 9,99 € betragen.')],
+        'Die <strong><em>Gebühren pro 1 h</em></strong> dürfen höchstens 9,99 € betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3271,10 +2974,13 @@ class Parkmoeglichkeiten(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Gebühren pro 2 h</em></strong> müssen mindestens 0,01 € betragen.'),
+        'Die <strong><em>Gebühren pro 2 h</em></strong> müssen mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
-        'Die <strong><em>Gebühren pro 2 h</em></strong> dürfen höchstens 9,99 € betragen.')],
+        'Die <strong><em>Gebühren pro 2 h</em></strong> dürfen höchstens 9,99 € betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3285,22 +2991,18 @@ class Parkmoeglichkeiten(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Gebühren ganztags</em></strong> müssen mindestens 0,01 € betragen.'),
+        'Die <strong><em>Gebühren ganztags</em></strong> müssen mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
-        'Die <strong><em>Gebühren ganztags</em></strong> dürfen höchstens 9,99 € betragen.')],
+        'Die <strong><em>Gebühren ganztags</em></strong> dürfen höchstens 9,99 € betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bemerkungen = bemerkungen_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"parkmoeglichkeiten_hro'
@@ -3332,14 +3034,16 @@ class Parkmoeglichkeiten(Model):
 
   def __str__(self):
     return str(self.art) + ' ' + self.standort + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+      (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-
-# Pflegeeinrichtungen
 
 class Pflegeeinrichtungen(Model):
+  """
+  Pflegeeinrichtungen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3349,72 +3053,25 @@ class Pflegeeinrichtungen(Model):
     null=True
   )
   art = ForeignKey(
-    models_codelist.Arten_Pflegeeinrichtungen,
+    Arten_Pflegeeinrichtungen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_arten'
   )
+  bezeichnung = bezeichnung_field
   betreiber = CharField(
     'Betreiber:in',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  plaetze = PositiveSmallIntegerMinField(
-    'Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  plaetze = plaetze_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"pflegeeinrichtungen_hro'
@@ -3444,20 +3101,24 @@ class Pflegeeinrichtungen(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Art: ' + str(self.art) + ']'
 
-
-# Poller
 
 class Poller(Model):
+  """
+  Poller
+  """
+
   art = ForeignKey(
-    models_codelist.Arten_Poller,
+    Arten_Poller,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
+    related_name='%(app_label)s_%(class)s_arten'
+  )
   nummer = CharField(
     'Nummer',
     max_length=3,
@@ -3465,23 +3126,20 @@ class Poller(Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.poller_nummer_regex,
-        message=constants_vars.poller_nummer_message
+        regex=poller_nummer_regex,
+        message=poller_nummer_message
       )
     ]
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   status = ForeignKey(
-    models_codelist.Status_Poller,
+    Status_Poller,
     verbose_name='Status',
     on_delete=RESTRICT,
     db_column='status',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status')
+    related_name='%(app_label)s_%(class)s_status'
+  )
   zeiten = CharField(
     'Lieferzeiten',
     max_length=255,
@@ -3489,7 +3147,7 @@ class Poller(Model):
     null=True
   )
   hersteller = ForeignKey(
-    models_codelist.Hersteller_Poller,
+    Hersteller_Poller,
     verbose_name='Hersteller',
     on_delete=SET_NULL,
     db_column='hersteller',
@@ -3499,7 +3157,7 @@ class Poller(Model):
     null=True
   )
   typ = ForeignKey(
-    models_codelist.Typen_Poller,
+    Typen_Poller,
     verbose_name='Typ',
     on_delete=SET_NULL,
     db_column='typ',
@@ -3508,25 +3166,22 @@ class Poller(Model):
     blank=True,
     null=True
   )
-  anzahl = PositiveSmallIntegerMinField('Anzahl', min_value=1)
+  anzahl = PositiveSmallIntegerMinField(
+    'Anzahl',
+    min_value=1
+  )
   schliessungen = ChoiceArrayField(
     CharField(
       'Schließungen',
       max_length=255,
-      choices=()),
+      choices=()
+    ),
     verbose_name='Schließungen',
     blank=True,
     null=True
   )
-  bemerkungen = CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bemerkungen = bemerkungen_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"poller_hro'
@@ -3571,14 +3226,16 @@ class Poller(Model):
 
   def __str__(self):
     return (self.nummer + ', ' if self.nummer else '') + \
-           self.bezeichnung + ' [Status: ' + str(self.status) + ']'
+      self.bezeichnung + ' [Status: ' + str(self.status) + ']'
 
-
-# Reinigungsreviere
 
 class Reinigungsreviere(Model):
+  """
+  Reinigungsreviere
+  """
+
   gemeindeteil = ForeignKey(
-    models_codelist.Gemeindeteile,
+    Gemeindeteile,
     verbose_name='Gemeindeteil',
     on_delete=SET_NULL,
     db_column='gemeindeteil',
@@ -3594,12 +3251,8 @@ class Reinigungsreviere(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = MultiPolygonField('Geometrie', srid=25833)
+  bezeichnung = bezeichnung_field
+  geometrie = multiflaeche_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_gemeindeteilbezug\".\"reinigungsreviere_hro'
@@ -3647,11 +3300,13 @@ class Reinigungsreviere(Model):
     return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
 
 
-# Rettungswachen
-
 class Rettungswachen(Model):
+  """
+  Rettungswachen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3660,66 +3315,20 @@ class Rettungswachen(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
+    related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"rettungswachen_hro'
@@ -3747,30 +3356,30 @@ class Rettungswachen(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Träger: ' + str(self.traeger) + ']'
 
-
-# Schiffsliegeplätze
 
 class Schiffsliegeplaetze(Model):
+  """
+  Schiffsliegeplätze
+  """
+
   hafen = ForeignKey(
-    models_codelist.Haefen,
+    Haefen,
     verbose_name='Hafen',
     on_delete=CASCADE,
     db_column='hafen',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_haefen')
+    related_name='%(app_label)s_%(class)s_haefen'
+  )
   liegeplatznummer = CharField(
     'Liegeplatz',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   liegeplatzlaenge = DecimalField(
     'Liegeplatzlänge (in m)',
     max_digits=5,
@@ -3778,10 +3387,13 @@ class Schiffsliegeplaetze(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Liegeplatzlänge</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Liegeplatzlänge</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Liegeplatzlänge</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>Liegeplatzlänge</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3792,10 +3404,13 @@ class Schiffsliegeplaetze(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>zulässige Tiefgang</em></strong> muss mindestens 0,01 m betragen.'),
+        'Der <strong><em>zulässige Tiefgang</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
-        'Der <strong><em>zulässige Tiefgang</em></strong> darf höchstens 99,99 m betragen.')],
+        'Der <strong><em>zulässige Tiefgang</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3806,10 +3421,13 @@ class Schiffsliegeplaetze(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>zulässige Schiffslänge</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>zulässige Schiffslänge</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>zulässige Schiffslänge</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>zulässige Schiffslänge</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3820,10 +3438,13 @@ class Schiffsliegeplaetze(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Kaihöhe</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Kaihöhe</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
-        'Die <strong><em>Kaihöhe</em></strong> darf höchstens 9,99 m betragen.')],
+        'Die <strong><em>Kaihöhe</em></strong> darf höchstens 9,99 m betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -3832,23 +3453,23 @@ class Schiffsliegeplaetze(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   poller_von = CharField(
     'Poller (von)',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   poller_bis = CharField(
     'Poller (bis)',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = PolygonField('Geometrie', srid=25833)
+  geometrie = flaeche_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"schiffsliegeplaetze_hro'
@@ -3877,29 +3498,35 @@ class Schiffsliegeplaetze(Model):
     as_overlay = True
 
   def __str__(self):
-    return self.liegeplatznummer + ', ' + \
-           self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
+    return self.liegeplatznummer + ', ' + self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
 
-
-# Schutzzäune gegen Tierseuchen
 
 class Schutzzaeune_Tierseuchen(Model):
+  """
+  Schutzzäune gegen Tierseuchen
+  """
+
   tierseuche = ForeignKey(
-    models_codelist.Tierseuchen,
+    Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_tierseuchen')
+    related_name='%(app_label)s_%(class)s_tierseuchen'
+  )
   zustand = ForeignKey(
-    models_codelist.Zustaende_Schutzzaeune_Tierseuchen,
+    Zustaende_Schutzzaeune_Tierseuchen,
     verbose_name='Zustand',
     on_delete=RESTRICT,
     db_column='zustand',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_zustaende')
-  laenge = PositiveIntegerField('Länge (in m)', default=0)
-  geometrie = MultiLineStringField('Geometrie', srid=25833)
+    related_name='%(app_label)s_%(class)s_zustaende'
+  )
+  laenge = PositiveIntegerField(
+    'Länge (in m)',
+    default=0
+  )
+  geometrie = multilinie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"schutzzaeune_tierseuchen_hro'
@@ -3910,7 +3537,8 @@ class Schutzzaeune_Tierseuchen(Model):
       'aktiv': 'aktiv?',
       'tierseuche': 'Tierseuche',
       'laenge': 'Länge (in m)',
-      'zustand': 'Zustand'}
+      'zustand': 'Zustand'
+    }
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung',
       'zustand': 'zustand'
@@ -3920,7 +3548,8 @@ class Schutzzaeune_Tierseuchen(Model):
     map_feature_tooltip_field = 'zustand'
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
-      'zustand': 'Zustand'}
+      'zustand': 'Zustand'
+    }
     map_filter_fields_as_list = ['tierseuche', 'zustand']
     geometry_type = 'MultiLineString'
     as_overlay = True
@@ -3929,11 +3558,13 @@ class Schutzzaeune_Tierseuchen(Model):
     return str(self.tierseuche) + ', ' + str(self.zustand)
 
 
-# Sporthallen
-
 class Sporthallen(Model):
+  """
+  Sporthallen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3942,44 +3573,36 @@ class Sporthallen(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
+    related_name='%(app_label)s_%(class)s_traeger'
+  )
   sportart = ForeignKey(
-    models_codelist.Sportarten,
+    Sportarten,
     verbose_name='Sportart',
     on_delete=RESTRICT,
     db_column='sportart',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_sportarten')
-  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
+    related_name='%(app_label)s_%(class)s_sportarten'
   )
+  barrierefrei = barrierefrei_field
+  zeiten = oeffnungszeiten_field
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PUBLIC +
-      'sporthallen'),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'sporthallen'
+    ),
     max_length=255,
     blank=True,
     null=True
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"sporthallen_hro'
@@ -4012,27 +3635,27 @@ class Sporthallen(Model):
     thumbs = True
 
   def __str__(self):
-    return self.bezeichnung + ' [' + (
-      'Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
-           'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
 
 
-signals.pre_save.connect(functions.get_pre_save_instance, sender=Sporthallen)
+pre_save.connect(get_pre_save_instance, sender=Sporthallen)
 
-signals.post_save.connect(functions.photo_post_processing, sender=Sporthallen)
+post_save.connect(photo_post_processing, sender=Sporthallen)
 
-signals.post_save.connect(
-  functions.delete_photo_after_emptied,
-  sender=Sporthallen)
+post_save.connect(delete_photo_after_emptied, sender=Sporthallen)
 
-signals.post_delete.connect(functions.delete_photo, sender=Sporthallen)
+post_delete.connect(delete_photo, sender=Sporthallen)
 
-
-# Stadtteil- und Begegnungszentren
 
 class Stadtteil_Begegnungszentren(Model):
+  """
+  Stadtteil- und Begegnungszentren
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4041,73 +3664,22 @@ class Stadtteil_Begegnungszentren(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   traeger = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger')
-  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
+    related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  barrierefrei = barrierefrei_field
+  zeiten = oeffnungszeiten_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"stadtteil_begegnungszentren_hro'
@@ -4135,15 +3707,18 @@ class Stadtteil_Begegnungszentren(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + ' [' + ('Adresse: ' + str(
-      self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
+    return self.bezeichnung + ' [' + \
+      ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
+      'Träger: ' + str(self.traeger) + ']'
 
-
-# Standortqualitäten von Geschäftslagen im Sanierungsgebiet
 
 class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
+  """
+  Standortqualitäten von Geschäftslagen im Sanierungsgebiet
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4153,15 +3728,19 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
     null=True
   )
   bewertungsjahr = PositiveSmallIntegerRangeField(
-    'Bewertungsjahr', min_value=1990, max_value=functions.current_year(),
-    default=functions.current_year())
+    'Bewertungsjahr',
+    min_value=1990,
+    max_value=current_year(),
+    default=current_year()
+  )
   quartier = ForeignKey(
-    models_codelist.Quartiere,
+    Quartiere,
     verbose_name='Quartier',
     on_delete=RESTRICT,
     db_column='quartier',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_quartiere')
+    related_name='%(app_label)s_%(class)s_quartiere'
+  )
   kundschaftskontakte_anfangswert = DecimalField(
     'Kundschaftskontakte (Anfangswert)',
     max_digits=4,
@@ -4170,7 +3749,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Kundschaftskontakte</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Kundschaftskontakte</em></strong> '
@@ -4186,7 +3766,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Kundschaftskontakte</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Kundschaftskontakte</em></strong> '
@@ -4202,7 +3783,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
@@ -4218,7 +3800,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
@@ -4234,7 +3817,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Ausstattung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Ausstattung</em></strong> '
@@ -4250,7 +3834,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Ausstattung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Ausstattung</em></strong> '
@@ -4266,7 +3851,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
@@ -4282,7 +3868,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
@@ -4298,7 +3885,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
@@ -4314,7 +3902,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Standortnutzung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Standortnutzung</em></strong> '
@@ -4322,8 +3911,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
       )
     ]
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro'
@@ -4379,11 +3967,13 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
     return str(self.adresse)
 
 
-# Standortqualitäten von Wohnlagen im Sanierungsgebiet
-
 class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
+  """
+  Standortqualitäten von Wohnlagen im Sanierungsgebiet
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4393,15 +3983,19 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
     null=True
   )
   bewertungsjahr = PositiveSmallIntegerRangeField(
-    'Bewertungsjahr', min_value=1990, max_value=functions.current_year(),
-    default=functions.current_year())
+    'Bewertungsjahr',
+    min_value=1990,
+    max_value=current_year(),
+    default=current_year()
+  )
   quartier = ForeignKey(
-    models_codelist.Quartiere,
+    Quartiere,
     verbose_name='Quartier',
     on_delete=RESTRICT,
     db_column='quartier',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_quartiere')
+    related_name='%(app_label)s_%(class)s_quartiere'
+  )
   gesellschaftslage_anfangswert = DecimalField(
     'Gesellschaftslage (Anfangswert)',
     max_digits=4,
@@ -4410,7 +4004,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Gesellschaftslage</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Gesellschaftslage</em></strong> '
@@ -4426,7 +4021,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Gesellschaftslage</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Gesellschaftslage</em></strong> '
@@ -4442,7 +4038,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Verkehrsanbindung</em></strong> '
@@ -4458,7 +4055,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Verkehrsanbindung</em></strong> '
@@ -4474,7 +4072,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Ausstattung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Ausstattung</em></strong> '
@@ -4490,7 +4089,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Ausstattung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Ausstattung</em></strong> '
@@ -4506,7 +4106,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Beeinträchtigung</em></strong> '
@@ -4522,7 +4123,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Beeinträchtigung</em></strong> '
@@ -4538,7 +4140,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Anfangswert <strong><em>Standortnutzung</em></strong> '
@@ -4554,7 +4157,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       MinValueValidator(
         Decimal('0.01'),
         'Der Endwert <strong><em>Standortnutzung</em></strong> '
-        'muss mindestens 0,01 betragen.'),
+        'muss mindestens 0,01 betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Der Endwert <strong><em>Standortnutzung</em></strong> '
@@ -4562,8 +4166,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
       )
     ]
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_wohnlagen_sanierungsgebiet_hro'
@@ -4619,34 +4222,32 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
     return str(self.adresse)
 
 
-# Straßen
-
 class Strassen_Simple(Model):
+  """
+  Straßen
+  """
+
   kategorie = ForeignKey(
-    models_codelist.Kategorien_Strassen,
+    Kategorien_Strassen,
     verbose_name='Kategorie',
     on_delete=RESTRICT,
     db_column='kategorie',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_kategorien'
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   schluessel = CharField(
     'Schlüssel',
     max_length=5,
     unique=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.strassen_schluessel_regex,
-        message=constants_vars.strassen_schluessel_message
+        regex=strassen_schluessel_regex,
+        message=strassen_schluessel_message
       )
     ]
   )
-  geometrie = MultiLineStringField('Geometrie', srid=25833)
+  geometrie = multilinie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"strassen_hro'
@@ -4738,12 +4339,18 @@ class Strassen_Simple(Model):
     return self.bezeichnung + ' (' + self.schluessel + ')'
 
 
-# Straßenreinigung
-
 class Strassenreinigung(Model):
-  id = CharField('ID', max_length=14, default='0000000000-000')
+  """
+  Straßenreinigung
+  """
+
+  id = CharField(
+    'ID',
+    max_length=14,
+    default='0000000000-000'
+  )
   gemeindeteil = ForeignKey(
-    models_codelist.Gemeindeteile,
+    Gemeindeteile,
     verbose_name='Gemeindeteil',
     on_delete=RESTRICT,
     db_column='gemeindeteil',
@@ -4752,7 +4359,7 @@ class Strassenreinigung(Model):
     default='00000000-0000-0000-0000-000000000000'
   )
   strasse = ForeignKey(
-    models_codelist.Strassen,
+    Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -4762,7 +4369,7 @@ class Strassenreinigung(Model):
     null=True
   )
   inoffizielle_strasse = ForeignKey(
-    models_codelist.Inoffizielle_Strassen,
+    Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
     on_delete=SET_NULL,
     db_column='inoffizielle_strasse',
@@ -4776,11 +4383,11 @@ class Strassenreinigung(Model):
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
   ausserhalb = BooleanField(' außerhalb geschlossener Ortslage?')
   reinigungsklasse = ForeignKey(
-    models_codelist.Reinigungsklassen_Strassenreinigungssatzung_HRO,
+    Reinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
     on_delete=SET_NULL,
     db_column='reinigungsklasse',
@@ -4790,7 +4397,7 @@ class Strassenreinigung(Model):
     null=True
   )
   reinigungsrhythmus = ForeignKey(
-    models_codelist.Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
     on_delete=SET_NULL,
     db_column='reinigungsrhythmus',
@@ -4800,7 +4407,7 @@ class Strassenreinigung(Model):
     null=True
   )
   fahrbahnwinterdienst = ForeignKey(
-    models_codelist.Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
+    Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
     verbose_name='Fahrbahnwinterdienst',
     on_delete=SET_NULL,
     db_column='fahrbahnwinterdienst',
@@ -4815,7 +4422,7 @@ class Strassenreinigung(Model):
     decimal_places=2,
     default=0
   )
-  geometrie = MultiLineStringField('Geometrie', srid=25833)
+  geometrie = multilinie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
@@ -4886,43 +4493,49 @@ class Strassenreinigung(Model):
     as_overlay = True
 
   def __str__(self):
-    return str(self.id) + (', ' + str(self.beschreibung) if self.beschreibung else '') + (
-      ', außerhalb geschlossener Ortslage' if self.ausserhalb else '') + (
-             ', Reinigungsklasse '
-             + str(self.reinigungsklasse) if self.reinigungsklasse else '') + (
-             ', Fahrbahnwinterdienst '
-             + str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + (
-             ' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (
-             ' [inoffizielle Straße: '
-             + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+    return str(self.id) + (', ' + str(self.beschreibung) if self.beschreibung else '') + \
+      (', außerhalb geschlossener Ortslage' if self.ausserhalb else '') + \
+      (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + \
+      (', Fahrbahnwinterdienst ' +
+       str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + \
+      (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + \
+      (' [inoffizielle Straße: ' +
+       str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
-
-# Thalasso-Kurwege
 
 class Thalasso_Kurwege(Model):
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  """
+  Thalasso-Kurwege
+  """
+
+  bezeichnung = bezeichnung_field
   streckenbeschreibung = CharField(
     'Streckenbeschreibung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  barrierefrei = BooleanField(' barrierefrei?', default=False)
-  farbe = CharField('Farbe', max_length=7)
+  barrierefrei = BooleanField(
+    ' barrierefrei?',
+    default=False
+  )
+  farbe = CharField(
+    'Farbe',
+    max_length=7
+  )
   beschriftung = CharField(
     'Beschriftung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  laenge = PositiveIntegerField('Länge (in m)', default=0)
-  geometrie = LineStringField('Geometrie', srid=25833)
+  laenge = PositiveIntegerField(
+    'Länge (in m)',
+    default=0
+  )
+  geometrie = linie_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"thalasso_kurwege_hro'
@@ -4944,25 +4557,29 @@ class Thalasso_Kurwege(Model):
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'streckenbeschreibung': 'Streckenbeschreibung',
-      'barrierefrei': 'barrierefrei?'}
+      'barrierefrei': 'barrierefrei?'
+    }
     geometry_type = 'LineString'
 
   def __str__(self):
     return self.bezeichnung
 
 
-# Toiletten
-
 class Toiletten(Model):
+  """
+  Toiletten
+  """
+
   art = ForeignKey(
-    models_codelist.Arten_Toiletten,
+    Arten_Toiletten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
+    related_name='%(app_label)s_%(class)s_arten'
+  )
   bewirtschafter = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=SET_NULL,
     db_column='bewirtschafter',
@@ -4974,14 +4591,8 @@ class Toiletten(Model):
   behindertengerecht = BooleanField(' behindertengerecht?')
   duschmoeglichkeit = BooleanField('Duschmöglichkeit vorhanden?')
   wickelmoeglichkeit = BooleanField('Wickelmöglichkeit vorhanden?')
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  zeiten = oeffnungszeiten_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"toiletten_hro'
@@ -5014,33 +4625,29 @@ class Toiletten(Model):
     as_overlay = True
 
   def __str__(self):
-    return str(self.art) + ((' [Bewirtschafter: '
-                             + str(self.bewirtschafter) + ']'
-                             if self.bewirtschafter else '')) \
-           + ((' mit Öffnungszeiten ' + self.zeiten + ']'
-               if self.zeiten else ''))
+    return str(self.art) + \
+      (' [Bewirtschafter: ' + str(self.bewirtschafter) + ']' if self.bewirtschafter else '') + \
+      (' mit Öffnungszeiten ' + self.zeiten + ']' if self.zeiten else '')
 
-
-# Trinkwassernotbrunnen
 
 class Trinkwassernotbrunnen(Model):
+  """
+  Trinkwassernotbrunnen
+  """
+
   nummer = CharField(
     'Nummer',
     max_length=12,
     validators=[
       RegexValidator(
-        regex=constants_vars.trinkwassernotbrunnen_nummer_regex,
-        message=constants_vars.trinkwassernotbrunnen_nummer_message
+        regex=trinkwassernotbrunnen_nummer_regex,
+        message=trinkwassernotbrunnen_nummer_message
       )
     ]
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   eigentuemer = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=SET_NULL,
     db_column='eigentuemer',
@@ -5050,12 +4657,13 @@ class Trinkwassernotbrunnen(Model):
     null=True
   )
   betreiber = ForeignKey(
-    models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=RESTRICT,
     db_column='betreiber',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_betreiber')
+    related_name='%(app_label)s_%(class)s_betreiber'
+  )
   betriebsbereit = BooleanField(' betriebsbereit?')
   bohrtiefe = DecimalField(
     'Bohrtiefe (in m)',
@@ -5064,7 +4672,8 @@ class Trinkwassernotbrunnen(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Bohrtiefe</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Bohrtiefe</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Die <strong><em>Bohrtiefe</em></strong> darf höchstens 99,99 m betragen.'
@@ -5078,15 +4687,15 @@ class Trinkwassernotbrunnen(Model):
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Ausbautiefe</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Ausbautiefe</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('99.99'),
         'Die <strong><em>Ausbautiefe</em></strong> darf höchstens 99,99 m betragen.'
       )
     ]
   )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten\".\"trinkwassernotbrunnen_hro'
@@ -5123,11 +4732,13 @@ class Trinkwassernotbrunnen(Model):
     return self.nummer
 
 
-# Vereine
-
 class Vereine(Model):
+  """
+  Vereine
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -5136,11 +4747,7 @@ class Vereine(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   vereinsregister_id = PositiveSmallIntegerMinField(
     'ID im Vereinsregister',
     min_value=1,
@@ -5148,61 +4755,23 @@ class Vereine(Model):
     null=True
   )
   vereinsregister_datum = DateField(
-    'Datum des Eintrags im Vereinsregister', blank=True, null=True)
+    'Datum des Eintrags im Vereinsregister',
+    blank=True,
+    null=True
+  )
   schlagwoerter = ChoiceArrayField(
     CharField(
       'Schlagwörter',
       max_length=255,
-      choices=()),
-    verbose_name='Schlagwörter')
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
+      choices=()
+    ),
+    verbose_name='Schlagwörter'
   )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"vereine_hro'
@@ -5231,15 +4800,16 @@ class Vereine(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-
-# Verkaufstellen für Angelberechtigungen
 
 class Verkaufstellen_Angelberechtigungen(Model):
+  """
+  Verkaufstellen für Angelberechtigungen
+  """
+
   adresse = ForeignKey(
-    models_codelist.Adressen,
+    Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -5248,75 +4818,24 @@ class Verkaufstellen_Angelberechtigungen(Model):
     blank=True,
     null=True
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
+  bezeichnung = bezeichnung_field
   berechtigungen = ChoiceArrayField(
     CharField(
       'verkaufte Berechtigung(en)',
       max_length=255,
-      choices=()),
+      choices=()
+    ),
     verbose_name='verkaufte Berechtigung(en)',
     blank=True,
     null=True
   )
-  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = CharField(
-    'Öffnungszeiten',
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  telefon_mobil = CharField(
-    'Telefon (mobil)',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      RegexValidator(
-        regex=constants_vars.rufnummer_regex,
-        message=constants_vars.rufnummer_message
-      )
-    ]
-  )
-  email = CharField(
-    'E-Mail-Adresse',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      EmailValidator(
-        message=constants_vars.email_message
-      )
-    ]
-  )
-  website = CharField(
-    'Website',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=[
-      URLValidator(
-        message=constants_vars.url_message
-      )
-    ]
-  )
-  geometrie = PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  barrierefrei = barrierefrei_field
+  zeiten = oeffnungszeiten_field
+  telefon_festnetz = telefon_festnetz_field
+  telefon_mobil = telefon_mobil_field
+  email = email_field
+  website = website_field
+  geometrie = punkt_field
 
   class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"verkaufstellen_angelberechtigungen_hro'
@@ -5346,5 +4865,4 @@ class Verkaufstellen_Angelberechtigungen(Model):
     geometry_type = 'Point'
 
   def __str__(self):
-    return self.bezeichnung + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+    return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')

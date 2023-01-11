@@ -512,8 +512,8 @@ class Durchlaesse_Durchlaesse(models.Model):
     unique=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.dl_aktenzeichen_regex,
-        message=constants_vars.dl_aktenzeichen_message
+        regex=constants_vars.durchlaesse_aktenzeichen_regex,
+        message=constants_vars.durchlaesse_aktenzeichen_message
       )
     ]
   )
@@ -913,8 +913,8 @@ class Haltestellenkataster_Haltestellen(models.Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.hst_hst_hafas_id_regex,
-        message=constants_vars.hst_hst_hafas_id_message
+        regex=constants_vars.haltestellenkataster_hafas_id_regex,
+        message=constants_vars.haltestellenkataster_hafas_id_message
       )
     ]
   )

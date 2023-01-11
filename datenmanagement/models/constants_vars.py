@@ -2,7 +2,7 @@ from django.core.validators import RegexValidator
 from django.db.models import options
 
 #
-# Datenmodelloptionen bzw. Meta-Attribute für Datenmodelle
+# Optionen (Meta-Attribute) für Datenmodelle
 #
 
 options.DEFAULT_NAMES += (
@@ -294,52 +294,51 @@ personennamen_validators.extend([
 
 # speziell
 
-denk_nummer_regex = r'^[0-9]+[a-z]*$'
-denk_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
-                      'einer Ziffer beginnen und mit einer Ziffer ' \
-                      'oder einem Kleinbuchstaben enden.'
-dl_aktenzeichen_regex = r'^[A-Z-]{2,}\.[0-9]{1,2}-[0-9]{1,2}(-[0-9]{1,2})?$'
-dl_aktenzeichen_message = 'Das <strong><em>Aktenzeichen' \
-                          '</em></strong> muss aus ' \
-                          'mindestens zwei ' \
-                          'Großbuchstaben und/oder ' \
-                          'Bindestrichen, gefolgt von ' \
-                          'genau einem Punkt, einer ' \
-                          'oder zwei Ziffern, ' \
-                          'gefolgt von genau einem ' \
-                          'Bindestrich, und abermals ' \
-                          'einer oder zwei Ziffern ' \
-                          'bestehen. Darauf können ' \
-                          'optional nochmals genau ein ' \
-                          'Bindestrich sowie ' \
-                          'abermals eine oder zwei ' \
-                          'Ziffern folgen.'
-fw_sr_code_regex = r'^[A-C]$'
-fw_sr_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
-                     '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'
-haef_abkuerzung_regex = r'^[A-Z-]{3,5}$'
-haef_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss ' \
-                          'aus drei, vier oder fünf Großbuchstaben ' \
-                          'und/oder Bindestrichen bestehen.'
-hnr_antragsnummer_regex = r'^[0-9]{2}H[0-9]{3}$'
-hnr_antragsnummer_message = 'Die <strong><em>Antragsnummer</em></strong> ' \
-                            'muss aus genau zwei Ziffern, gefolgt vom ' \
-                            'Großbuchstaben H, und abermals genau drei ' \
-                            'Ziffern bestehen.'
-hst_hst_hafas_id_regex = r'^[0-9]{8}$'
-hst_hst_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus ' \
-                           'genau acht Ziffern bestehen.'
-hyd_bezeichnung_regex = r'^HSA .*$'
-hyd_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> ' \
-                          'muss mit der Großbuchstabenfolge ' \
-                          '<em>HSA</em> beginnen, gefolgt von genau ' \
-                          'einem Leerzeichen. Die übrigen Zeichen ' \
-                          'können beliebig gewählt werden.'
-lin_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
-lin_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
-                    'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
-                    'dem optional weitere Ziffern und/oder ' \
-                    'Großbuchstaben folgen können.'
+denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
+denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
+                            'einer Ziffer beginnen und mit einer Ziffer ' \
+                            'oder einem Kleinbuchstaben enden.'
+durchlaesse_aktenzeichen_regex = r'^[A-Z-]{2,}\.[0-9]{1,2}-[0-9]{1,2}(-[0-9]{1,2})?$'
+durchlaesse_aktenzeichen_message = 'Das <strong><em>Aktenzeichen' \
+                                   '</em></strong> muss aus ' \
+                                   'mindestens zwei ' \
+                                   'Großbuchstaben und/oder ' \
+                                   'Bindestrichen, gefolgt von ' \
+                                   'genau einem Punkt, einer ' \
+                                   'oder zwei Ziffern, ' \
+                                   'gefolgt von genau einem ' \
+                                   'Bindestrich, und abermals ' \
+                                   'einer oder zwei Ziffern ' \
+                                   'bestehen. Darauf können ' \
+                                   'optional nochmals genau ein ' \
+                                   'Bindestrich sowie ' \
+                                   'abermals eine oder zwei ' \
+                                   'Ziffern folgen.'
+fahrbahnwinterdienst_code_regex = r'^[A-C]$'
+fahrbahnwinterdienst_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
+                                    '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'
+haefen_abkuerzung_regex = r'^[A-Z-]{3,5}$'
+haefen_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss ' \
+                            'aus drei, vier oder fünf Großbuchstaben ' \
+                            'und/oder Bindestrichen bestehen.'
+hausnummern_antragsnummer_regex = r'^[0-9]{2}H[0-9]{3}$'
+hausnummern_antragsnummer_message = 'Die <strong><em>Antragsnummer</em></strong> ' \
+                                    'muss aus genau zwei Ziffern, gefolgt vom ' \
+                                    'Großbuchstaben H, und abermals genau drei ' \
+                                    'Ziffern bestehen.'
+haltestellenkataster_hafas_id_regex = r'^[0-9]{8}$'
+haltestellenkataster_hafas_id_message = 'Die <strong><em>HAFAS-ID</em></strong> muss aus ' \
+                                        'genau acht Ziffern bestehen.'
+hydranten_bezeichnung_regex = r'^HSA .*$'
+hydranten_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> ' \
+                                'muss mit der Großbuchstabenfolge ' \
+                                '<em>HSA</em> beginnen, gefolgt von genau ' \
+                                'einem Leerzeichen. Die übrigen Zeichen ' \
+                                'können beliebig gewählt werden.'
+linien_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
+linien_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
+                       'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
+                       'dem optional weitere Ziffern und/oder Großbuchstaben folgen können.'
 parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
 parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em>' \
                                                  '</strong> muss aus genau einem ' \

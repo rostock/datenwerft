@@ -1,15 +1,25 @@
-from django import forms
-from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
-from django.core import exceptions
+from django.contrib.gis.db.models.fields import LineStringField, MultiLineStringField, \
+  MultiPolygonField, PointField, PolygonField
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator, RegexValidator, URLValidator
+from django.db.models.fields import BooleanField, CharField, PositiveIntegerField, \
+  PositiveSmallIntegerField, TextField
+from django.forms import Textarea, TypedMultipleChoiceField
 
+from .constants_vars import standard_validators, personennamen_validators, email_message, \
+  rufnummer_regex, rufnummer_message, url_message
 
-# Quelle :https://gist.github.com/danni/f55c4ce19598b2b345ef
 
 class ChoiceArrayField(ArrayField):
+  """
+  Multiple-Choice-Feld
+  (Quelle: https://gist.github.com/danni/f55c4ce19598b2b345ef)
+  """
+
   def formfield(self, **kwargs):
     defaults = {
-      'form_class': forms.TypedMultipleChoiceField,
+      'form_class': TypedMultipleChoiceField,
       'choices': self.base_field.choices,
     }
     defaults.update(kwargs)
@@ -26,32 +36,38 @@ class ChoiceArrayField(ArrayField):
   def validate(self, value, model_instance):
     if not self.editable:
       return
-
     if value is None or value in self.empty_values:
       return None
-
     if self.choices is not None and value not in self.empty_values:
       if set(value).issubset(
           {option_key for option_key, _ in self.choices}):
         return
-      raise exceptions.ValidationError(
+      raise ValidationError(
         self.error_messages['invalid_choice'],
         code='invalid_choice',
         params={
           'value': value
-        },
+        }
       )
 
     if value is None and not self.null:
-      raise exceptions.ValidationError(
-        self.error_messages['null'], code='null')
+      raise ValidationError(
+        self.error_messages['null'],
+        code='null'
+      )
 
     if not self.blank and value in self.empty_values:
-      raise exceptions.ValidationError(
-        self.error_messages['blank'], code='blank')
+      raise ValidationError(
+        self.error_messages['blank'],
+        code='blank'
+      )
 
 
-class NullTextField(models.TextField):
+class NullTextField(TextField):
+  """
+  Textfeld, das NULL-Werte statt Leerstrings schreibt
+  """
+
   def get_internal_type(self):
     return 'TextField'
 
@@ -69,22 +85,19 @@ class NullTextField(models.TextField):
   def formfield(self, **kwargs):
     return super(NullTextField, self).formfield(**{
       'max_length': self.max_length,
-      **({} if self.choices is not None else {'widget': forms.Textarea}),
+      **({} if self.choices is not None else {'widget': Textarea}),
       **kwargs,
     })
 
 
-class PositiveIntegerRangeField(models.PositiveIntegerField):
-  def __init__(
-      self,
-      verbose_name=None,
-      name=None,
-      min_value=None,
-      max_value=None,
-      **kwargs):
+class PositiveIntegerRangeField(PositiveIntegerField):
+  """
+  positives Integer-Feld mit Minimal- und Maximalwert
+  """
+
+  def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
     self.min_value, self.max_value = min_value, max_value
-    models.PositiveIntegerField.__init__(
-      self, verbose_name, name, **kwargs)
+    PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
     defaults = {'min_value': self.min_value, 'max_value': self.max_value}
@@ -92,11 +105,14 @@ class PositiveIntegerRangeField(models.PositiveIntegerField):
     return super(PositiveIntegerRangeField, self).formfield(**defaults)
 
 
-class PositiveIntegerMinField(models.PositiveIntegerField):
+class PositiveIntegerMinField(PositiveIntegerField):
+  """
+  positives Integer-Feld mit Minimalwert
+  """
+
   def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
     self.min_value = min_value
-    models.PositiveIntegerField.__init__(
-      self, verbose_name, name, **kwargs)
+    PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
     defaults = {'min_value': self.min_value}
@@ -104,11 +120,14 @@ class PositiveIntegerMinField(models.PositiveIntegerField):
     return super(PositiveIntegerMinField, self).formfield(**defaults)
 
 
-class PositiveSmallIntegerMinField(models.PositiveSmallIntegerField):
+class PositiveSmallIntegerMinField(PositiveSmallIntegerField):
+  """
+  positives Small-Integer-Feld mit Minimalwert
+  """
+
   def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
     self.min_value = min_value
-    models.PositiveSmallIntegerField.__init__(
-      self, verbose_name, name, **kwargs)
+    PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
     defaults = {'min_value': self.min_value}
@@ -116,22 +135,130 @@ class PositiveSmallIntegerMinField(models.PositiveSmallIntegerField):
     return super(PositiveSmallIntegerMinField, self).formfield(**defaults)
 
 
-class PositiveSmallIntegerRangeField(models.PositiveSmallIntegerField):
-  def __init__(
-      self,
-      verbose_name=None,
-      name=None,
-      min_value=None,
-      max_value=None,
-      **kwargs):
+class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
+  """
+  positives Small-Integer-Feld mit Minimal- und Maximalwert
+  """
+
+  def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
     self.min_value, self.max_value = min_value, max_value
-    models.PositiveSmallIntegerField.__init__(
-      self, verbose_name, name, **kwargs)
+    PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
     defaults = {'min_value': self.min_value, 'max_value': self.max_value}
     defaults.update(kwargs)
-    return super(
-      PositiveSmallIntegerRangeField,
-      self).formfield(
-      **defaults)
+    return super(PositiveSmallIntegerRangeField, self).formfield(**defaults)
+
+
+barrierefrei_field = BooleanField(
+  ' barrierefrei?',
+  blank=True,
+  null=True
+)
+bearbeiter_field = CharField(
+  'Bearbeiter:in',
+  max_length=255,
+  validators=standard_validators
+)
+bemerkungen_field = CharField(
+  'Bemerkungen',
+  max_length=255,
+  blank=True,
+  null=True,
+  validators=standard_validators
+)
+bezeichnung_field = CharField(
+  'Bezeichnung',
+  max_length=255,
+  validators=standard_validators
+)
+email_field = CharField(
+  'E-Mail-Adresse',
+  max_length=255,
+  blank=True,
+  null=True,
+  validators=[
+    EmailValidator(
+      message=email_message
+    )
+  ]
+)
+nachname_field = CharField(
+  'Nachname',
+  max_length=255,
+  validators=personennamen_validators
+)
+oeffnungszeiten_field = CharField(
+  'Öffnungszeiten',
+  max_length=255,
+  blank=True,
+  null=True
+)
+plaetze_field = PositiveSmallIntegerMinField(
+  'Plätze',
+  min_value=1,
+  blank=True,
+  null=True
+)
+telefon_festnetz_field = CharField(
+  'Telefon (Festnetz)',
+  max_length=255,
+  blank=True,
+  null=True,
+  validators=[
+    RegexValidator(
+      regex=rufnummer_regex,
+      message=rufnummer_message
+    )
+  ]
+)
+telefon_mobil_field = CharField(
+  'Telefon (mobil)',
+  max_length=255,
+  blank=True,
+  null=True,
+  validators=[
+    RegexValidator(
+      regex=rufnummer_regex,
+      message=rufnummer_message
+    )
+  ]
+)
+vorname_field = CharField(
+  'Vorname',
+  max_length=255,
+  validators=personennamen_validators
+)
+website_field = CharField(
+  'Website',
+  max_length=255,
+  blank=True,
+  null=True,
+  validators=[
+    URLValidator(
+      message=url_message
+    )
+  ]
+)
+
+punkt_field = PointField(
+  'Geometrie',
+  srid=25833,
+  default='POINT(0 0)'
+)
+linie_field = LineStringField(
+  'Geometrie',
+  srid=25833
+)
+multilinie_field = MultiLineStringField(
+  'Geometrie',
+  srid=25833
+)
+flaeche_field = PolygonField(
+  'Geometrie',
+  srid=25833
+)
+multiflaeche_field = MultiPolygonField(
+  'Geometrie',
+  srid=25833
+)

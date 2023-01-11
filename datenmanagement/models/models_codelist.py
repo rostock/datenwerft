@@ -5,9 +5,10 @@ from django.db.models.fields import CharField, DecimalField
 
 from .classes import Metamodel, Codelist, Art, Befestigungsart, Material, Schlagwort, Status, Typ
 from .constants_vars import personennamen_validators, standard_validators, email_message, \
-  fw_sr_code_regex, fw_sr_code_message, haef_abkuerzung_regex, haef_abkuerzung_message, \
-  lin_linie_regex, lin_linie_message, parkscheinautomaten_zone_regex, \
-  parkscheinautomaten_zone_message, quartiere_code_regex, quartiere_code_message
+  fahrbahnwinterdienst_code_regex, fahrbahnwinterdienst_code_message, haefen_abkuerzung_regex, \
+  haefen_abkuerzung_message, linien_linie_regex, linien_linie_message, \
+  parkscheinautomaten_zone_regex, parkscheinautomaten_zone_message, quartiere_code_regex, \
+  quartiere_code_message
 from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField
 
 
@@ -691,8 +692,8 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(Codelist):
     unique=True,
     validators=[
       RegexValidator(
-        regex=fw_sr_code_regex,
-        message=fw_sr_code_message
+        regex=fahrbahnwinterdienst_code_regex,
+        message=fahrbahnwinterdienst_code_message
       )
     ]
   )
@@ -917,8 +918,8 @@ class Haefen(Codelist):
     unique=True,
     validators=[
       RegexValidator(
-        regex=haef_abkuerzung_regex,
-        message=haef_abkuerzung_message
+        regex=haefen_abkuerzung_regex,
+        message=haefen_abkuerzung_message
       )
     ]
   )
@@ -1049,8 +1050,8 @@ class Linien(Codelist):
     unique=True,
     validators=[
       RegexValidator(
-        regex=lin_linie_regex,
-        message=lin_linie_message
+        regex=linien_linie_regex,
+        message=linien_linie_message
       )
     ]
   )

@@ -1,10 +1,9 @@
-import uuid
-
 from datetime import date
 from django.conf import settings
 from django.db import connections
 from pathlib import Path, PurePath
-from PIL import Image, ExifTags
+from PIL import ExifTags, Image
+from uuid import uuid4
 
 
 def current_year():
@@ -144,7 +143,7 @@ def path_and_rename(path):
     if hasattr(instance, 'uuid'):
       filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
     else:
-      filename = '{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
+      filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
     return Path(path) / filename
 
   return wrapper
@@ -202,6 +201,12 @@ def rotate_image(path):
 
 
 def sequence_id(sequence_name):
+  """
+  liefert den nächsten Wert der seriellen Datenbank-ID mit dem übergebenen Namen zurück
+
+  :param sequence_name: Name der seriellen Datenbank-ID
+  :return: nächster Wert der seriellen Datenbank-ID mit dem übergebenen Namen
+  """
   with connections['datenmanagement'].cursor() as cursor:
     cursor.execute("""SELECT nextval('""" + sequence_name + """')""")
     return cursor.fetchone()[0]
