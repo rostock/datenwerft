@@ -340,35 +340,35 @@ lin_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
                     'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
                     'dem optional weitere Ziffern und/oder ' \
                     'Großbuchstaben folgen können.'
-psa_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
-psa_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em>' \
-                                 '</strong> muss aus genau einem ' \
-                                 'Großbuchstaben sowie genau einer Ziffer ' \
-                                 'bestehen.'
-psa_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
-psa_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> ' \
-                            'muss aus genau zwei Ziffern, gefolgt von genau ' \
-                            'einem Unterstrich, und abermals genau fünf ' \
-                            'Ziffern bestehen.'
-poll_nummer_regex = r'^[A-Z][0-9]{0,2}$'
-poll_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
-                      'genau einem Großbuchstaben bestehen, der um eine ' \
-                      'oder zwei Ziffer(n) ergänzt werden kann.'
-quar_code_regex = r'^[0-9]{3}$'
-quar_code_message = 'Der <strong><em>Code</em></strong> muss aus genau drei Ziffern bestehen.'
-str_schluessel_regex = r'^[0-9]{5}$'
-str_schluessel_message = 'Der <strong><em>Schlüssel</em></strong> ' \
-                       'muss aus genau fünf Ziffern bestehen.'
-twnb_nummer_regex = r'^13003000-[0-9]{3}$'
-twnb_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
-                      '<em>13003000-,</em> gefolgt von genau drei ' \
-                      'Ziffern, bestehen.'
-uvp_vh_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
-uvp_vh_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer ' \
-                                         'des Bauamtes</em></strong> muss ' \
-                                         'aus genau fünf Ziffern, gefolgt ' \
-                                         'von genau einem Bindestrich und ' \
-                                         'genau zwei Ziffern bestehen.'
-zon_psa_zone_regex = r'^[A-Z]$'
-zon_psa_zone_message = 'Die <strong><em>Zone</em></strong> ' \
-                       'muss aus genau einem Großbuchstaben bestehen.'
+parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
+parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em>' \
+                                                 '</strong> muss aus genau einem ' \
+                                                 'Großbuchstaben sowie genau einer Ziffer ' \
+                                                 'bestehen.'
+parkscheinautomaten_geraetenummer_regex = r'^[0-9]{2}_[0-9]{5}$'
+parkscheinautomaten_geraetenummer_message = 'Die <strong><em>Gerätenummer</em></strong> ' \
+                                            'muss aus genau zwei Ziffern, gefolgt von genau ' \
+                                            'einem Unterstrich, und abermals genau fünf ' \
+                                            'Ziffern bestehen.'
+parkscheinautomaten_zone_regex = r'^[A-Z]$'
+parkscheinautomaten_zone_message = 'Die <strong><em>Zone</em></strong> ' \
+                                   'muss aus genau einem Großbuchstaben bestehen.'
+poller_nummer_regex = r'^[A-Z][0-9]{0,2}$'
+poller_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
+                        'genau einem Großbuchstaben bestehen, der um eine ' \
+                        'oder zwei Ziffer(n) ergänzt werden kann.'
+quartiere_code_regex = r'^[0-9]{3}$'
+quartiere_code_message = 'Der <strong><em>Code</em></strong> muss aus genau drei Ziffern bestehen.'
+strassen_schluessel_regex = r'^[0-9]{5}$'
+strassen_schluessel_message = 'Der <strong><em>Schlüssel</em></strong> ' \
+                              'muss aus genau fünf Ziffern bestehen.'
+trinkwassernotbrunnen_nummer_regex = r'^13003000-[0-9]{3}$'
+trinkwassernotbrunnen_nummer_message = 'Die <strong><em>Nummer</em></strong> muss aus ' \
+                                       '<em>13003000-,</em> gefolgt von genau drei ' \
+                                       'Ziffern, bestehen.'
+uvp_registriernummer_bauamt_regex = r'^[0-9]{5}-[0-9]{2}$'
+uvp_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer ' \
+                                      'des Bauamtes</em></strong> muss ' \
+                                      'aus genau fünf Ziffern, gefolgt ' \
+                                      'von genau einem Bindestrich und ' \
+                                      'genau zwei Ziffern bestehen.'

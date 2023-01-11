@@ -1,57 +1,78 @@
-import re
-import uuid
-
 from datetime import date, datetime, timezone
-from decimal import *
+from decimal import Decimal
 from django.conf import settings
-from django.contrib.gis.db import models
-from django.db.models import signals
+from django.contrib.gis.db.models.fields import LineStringField, MultiLineStringField, \
+  MultiPolygonField, PointField, PolygonField
 from django.core.validators import EmailValidator, MaxValueValidator, \
   MinValueValidator, RegexValidator, URLValidator
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, signals
+from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
+  DecimalField, PositiveIntegerField
+from django.db.models.fields.files import FileField, ImageField
+from re import sub
 from zoneinfo import ZoneInfo
 
-from . import models_codelist, constants_vars, fields, functions, storage
+from .classes import Model
+from .fields import ChoiceArrayField, NullTextField, \
+  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField
+from .storage import OverwriteStorage
+from . import models_codelist, constants_vars, functions
 
 
-# Abfallbehälter
+class Abfallbehaelter(Model):
+  """
+  Abfallbehälter
+  """
 
-class Abfallbehaelter(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  deaktiviert = models.DateField(
-    'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=8, unique=True, default='00000000')
-  typ = models.ForeignKey(
+  deaktiviert = DateField(
+    'Außerbetriebstellung',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    'ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  typ = ForeignKey(
     models_codelist.Typen_Abfallbehaelter,
     verbose_name='Typ',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='typ',
     to_field='uuid',
-    related_name='typen+',
+    related_name='%(app_label)s_%(class)s_typen',
     blank=True,
-    null=True)
-  aufstellungsjahr = fields.PositiveSmallIntegerRangeField(
-    'Aufstellungsjahr', max_value=functions.current_year(), blank=True, null=True)
-  eigentuemer = models.ForeignKey(
+    null=True
+  )
+  aufstellungsjahr = PositiveSmallIntegerRangeField(
+    'Aufstellungsjahr',
+    max_value=functions.current_year(),
+    blank=True,
+    null=True
+  )
+  eigentuemer = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='eigentuemer',
     to_field='uuid',
-    related_name='eigentuemer+')
-  bewirtschafter = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_eigentuemer'
+  )
+  bewirtschafter = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='bewirtschafter',
     to_field='uuid',
-    related_name='bewirtschafter+')
-  pflegeobjekt = models.CharField(
+    related_name='%(app_label)s_%(class)s_bewirtschafter'
+  )
+  pflegeobjekt = CharField(
     'Pflegeobjekt',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  inventarnummer = models.CharField(
+  inventarnummer = CharField(
     'Inventarnummer',
     max_length=8,
     blank=True,
@@ -63,100 +84,126 @@ class Abfallbehaelter(models.Model):
       )
     ]
   )
-  anschaffungswert = models.DecimalField(
+  anschaffungswert = DecimalField(
     'Anschaffungswert (in €)',
     max_digits=6,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'),
+        'Der <strong><em>Anschaffungswert</em></strong> muss mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9999.99'),
-        'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.')],
+        'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  haltestelle = models.BooleanField(
-    'Lage an einer Haltestelle?', blank=True, null=True)
-  sommer_mo = fields.PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen montags im Sommer', min_value=1, blank=True, null=True)
-  sommer_di = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  haltestelle = BooleanField(
+    'Lage an einer Haltestelle?',
+    blank=True,
+    null=True
+  )
+  sommer_mo = PositiveSmallIntegerRangeField(
+    'Anzahl Leerungen montags im Sommer',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  sommer_di = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen dienstags im Sommer',
     min_value=1,
     blank=True,
-    null=True)
-  sommer_mi = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  sommer_mi = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen mittwochs im Sommer',
     min_value=1,
     blank=True,
-    null=True)
-  sommer_do = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  sommer_do = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen donnerstags im Sommer',
     min_value=1,
     blank=True,
-    null=True)
-  sommer_fr = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  sommer_fr = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen freitags im Sommer',
     min_value=1,
     blank=True,
-    null=True)
-  sommer_sa = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  sommer_sa = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen samstags im Sommer',
     min_value=1,
     blank=True,
-    null=True)
-  sommer_so = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  sommer_so = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen sonntags im Sommer',
     min_value=1,
     blank=True,
-    null=True)
-  winter_mo = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_mo = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen montags im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  winter_di = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_di = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen dienstags im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  winter_mi = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_mi = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen mittwochs im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  winter_do = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_do = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen donnerstags im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  winter_fr = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_fr = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen freitags im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  winter_sa = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_sa = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen samstags im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  winter_so = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  winter_so = PositiveSmallIntegerRangeField(
     'Anzahl Leerungen sonntags im Winter',
     min_value=1,
     blank=True,
-    null=True)
-  bemerkungen = models.CharField(
+    null=True
+  )
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = PointField(
+    'Geometrie',
+    srid=25833,
+    default='POINT(0 0)'
+  )
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"abfallbehaelter_hro'
     verbose_name = 'Abfallbehälter'
     verbose_name_plural = 'Abfallbehälter'
@@ -195,36 +242,30 @@ class Abfallbehaelter(models.Model):
   def __str__(self):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
-  def save(self, *args, **kwargs):
-    super(Abfallbehaelter, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Abfallbehaelter, self).delete(*args, **kwargs)
-
 
 # Angelverbotsbereiche
 
-class Angelverbotsbereiche(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Angelverbotsbereiche(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  beschreibung = fields.NullTextField(
+  beschreibung = NullTextField(
     'Beschreibung',
     max_length=1000,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+  geometrie = LineStringField(
+    'Geometrie',
+    srid=25833
+  )
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"angelverbotsbereiche_hro'
     verbose_name = 'Angelverbotsbereich'
     verbose_name_plural = 'Angelverbotsbereiche'
@@ -242,61 +283,53 @@ class Angelverbotsbereiche(models.Model):
     return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + \
            (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
 
-  def save(self, *args, **kwargs):
-    super(Angelverbotsbereiche, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Angelverbotsbereiche, self).delete(*args, **kwargs)
-
 
 # Aufteilungspläne nach Wohnungseigentumsgesetz
 
-class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  aktenzeichen = models.CharField(
+    null=True
+  )
+  aktenzeichen = CharField(
     'Aktenzeichen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  datum_abgeschlossenheitserklaerung = models.DateField(
+  datum_abgeschlossenheitserklaerung = DateField(
     'Datum der Abgeschlossenheitserklärung', blank=True, null=True)
-  bearbeiter = models.CharField(
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bemerkungen = models.CharField(
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  datum = models.DateField('Datum', default=date.today)
-  pdf = models.FileField(
+  datum = DateField('Datum', default=date.today)
+  pdf = FileField(
     'PDF',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PDF_PATH_PREFIX_PRIVATE +
       'aufteilungsplaene_wohnungseigentumsgesetz'),
     max_length=255)
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"aufteilungsplaene_wohnungseigentumsgesetz_hro'
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
@@ -327,20 +360,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(models.Model):
                                                                         '%Y-%m-%d').strftime(
       '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(
-      Aufteilungsplaene_Wohnungseigentumsgesetz,
-      self).save(
-      *args,
-      **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(
-      Aufteilungsplaene_Wohnungseigentumsgesetz,
-      self).delete(
-      *args,
-      **kwargs)
-
 
 signals.post_delete.connect(
   functions.delete_pdf,
@@ -349,41 +368,39 @@ signals.post_delete.connect(
 
 # Baudenkmale
 
-class Baudenkmale(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Baudenkmale(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  art = models.ForeignKey(
+    null=True
+  )
+  art = ForeignKey(
     models_codelist.Arten_Baudenkmale,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bezeichnung = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  beschreibung = models.CharField(
+  beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+  geometrie = MultiPolygonField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
     verbose_name = 'Baudenkmal'
     verbose_name_plural = 'Baudenkmale'
@@ -415,42 +432,35 @@ class Baudenkmale(models.Model):
     return self.beschreibung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Baudenkmale, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Baudenkmale, self).delete(*args, **kwargs)
-
 
 # Behinderteneinrichtungen
 
-class Behinderteneinrichtungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Behinderteneinrichtungen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  plaetze = fields.PositiveSmallIntegerMinField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  plaetze = PositiveSmallIntegerMinField(
     'Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = models.CharField(
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -462,7 +472,7 @@ class Behinderteneinrichtungen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -474,7 +484,7 @@ class Behinderteneinrichtungen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -485,7 +495,7 @@ class Behinderteneinrichtungen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -496,11 +506,10 @@ class Behinderteneinrichtungen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"behinderteneinrichtungen_hro'
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
@@ -529,52 +538,44 @@ class Behinderteneinrichtungen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Behinderteneinrichtungen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Behinderteneinrichtungen, self).delete(*args, **kwargs)
-
 
 # Beschlüsse des Bau- und Planungsausschusses
 
-class Beschluesse_Bau_Planungsausschuss(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Beschluesse_Bau_Planungsausschuss(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  beschlussjahr = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  beschlussjahr = PositiveSmallIntegerRangeField(
     'Beschlussjahr', min_value=1990, max_value=functions.current_year(),
     default=functions.current_year())
-  vorhabenbezeichnung = models.CharField(
+  vorhabenbezeichnung = CharField(
     'Bezeichnung des Vorhabens',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bearbeiter = models.CharField(
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  pdf = models.FileField(
+  pdf = FileField(
     'PDF',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PDF_PATH_PREFIX_PRIVATE +
       'beschluesse_bau_planungsausschuss'),
     max_length=255)
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"beschluesse_bau_planungsausschuss_hro'
     verbose_name = 'Beschluss des Bau- und Planungsausschusses'
     verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
@@ -605,20 +606,6 @@ class Beschluesse_Bau_Planungsausschuss(models.Model):
     return self.vorhabenbezeichnung + ' (Beschlussjahr ' + str(self.beschlussjahr) + ')' + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(
-      Beschluesse_Bau_Planungsausschuss,
-      self).save(
-      *args,
-      **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(
-      Beschluesse_Bau_Planungsausschuss,
-      self).delete(
-      *args,
-      **kwargs)
-
 
 signals.post_delete.connect(
   functions.delete_pdf,
@@ -627,41 +614,41 @@ signals.post_delete.connect(
 
 # Bildungsträger
 
-class Bildungstraeger(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Bildungstraeger(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  betreiber = models.CharField(
+  betreiber = CharField(
     'Betreiber:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  schlagwoerter = fields.ChoiceArrayField(
-    models.CharField(
+  schlagwoerter = ChoiceArrayField(
+    CharField(
       'Schlagwörter',
       max_length=255,
       choices=()),
     verbose_name='Schlagwörter')
-  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = models.CharField(
+  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  telefon_festnetz = models.CharField(
+    null=True
+  )
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -673,7 +660,7 @@ class Bildungstraeger(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -685,7 +672,7 @@ class Bildungstraeger(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -696,7 +683,7 @@ class Bildungstraeger(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -707,11 +694,10 @@ class Bildungstraeger(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"bildungstraeger_hro'
     verbose_name = 'Bildungsträger'
     verbose_name_plural = 'Bildungsträger'
@@ -741,49 +727,42 @@ class Bildungstraeger(models.Model):
     return self.bezeichnung + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Bildungstraeger, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Bildungstraeger, self).delete(*args, **kwargs)
-
 
 # Carsharing-Stationen
 
-class Carsharing_Stationen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Carsharing_Stationen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  anbieter = models.ForeignKey(
+  anbieter = ForeignKey(
     models_codelist.Anbieter_Carsharing,
     verbose_name='Anbieter',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='anbieter',
     to_field='uuid',
-    related_name='anbieter+')
-  anzahl_fahrzeuge = fields.PositiveSmallIntegerMinField(
+    related_name='%(app_label)s_%(class)s_anbieter')
+  anzahl_fahrzeuge = PositiveSmallIntegerMinField(
     'Anzahl der Fahrzeuge', min_value=1, blank=True, null=True)
-  bemerkungen = fields.NullTextField(
+  bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  telefon_festnetz = models.CharField(
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -795,7 +774,7 @@ class Carsharing_Stationen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -807,7 +786,7 @@ class Carsharing_Stationen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -818,7 +797,7 @@ class Carsharing_Stationen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -829,11 +808,10 @@ class Carsharing_Stationen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"carsharing_stationen_hro'
     verbose_name = 'Carsharing-Station'
     verbose_name_plural = 'Carsharing-Stationen'
@@ -864,76 +842,75 @@ class Carsharing_Stationen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Anbieter: ' + str(self.anbieter) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Carsharing_Stationen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Carsharing_Stationen, self).delete(*args, **kwargs)
-
 
 # Containerstellplätze
 
-class Containerstellplaetze(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  deaktiviert = models.DateField(
-    'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=5, unique=True, default='00-00')
-  privat = models.BooleanField(' privat?')
-  bezeichnung = models.CharField(
+class Containerstellplaetze(Model):
+  deaktiviert = DateField(
+    'Außerbetriebstellung',
+    blank=True,
+    null=True
+  )
+  id = CharField('ID', max_length=5, unique=True, default='00-00')
+  privat = BooleanField(' privat?')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bewirtschafter_grundundboden = models.ForeignKey(
+  bewirtschafter_grundundboden = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Grund und Boden',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bewirtschafter_grundundboden',
     to_field='uuid',
-    related_name='bewirtschafter_grundundboden+',
+    related_name='%(app_label)s_%(class)s_bewirtschafter_grundundboden',
     blank=True,
-    null=True)
-  bewirtschafter_glas = models.ForeignKey(
+    null=True
+  )
+  bewirtschafter_glas = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Glas',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bewirtschafter_glas',
     to_field='uuid',
-    related_name='bewirtschafter_glas+',
+    related_name='%(app_label)s_%(class)s_bewirtschafter_glas',
     blank=True,
-    null=True)
-  anzahl_glas = fields.PositiveSmallIntegerMinField(
+    null=True
+  )
+  anzahl_glas = PositiveSmallIntegerMinField(
     'Anzahl Glas normal', min_value=1, blank=True, null=True)
-  anzahl_glas_unterflur = fields.PositiveSmallIntegerMinField(
+  anzahl_glas_unterflur = PositiveSmallIntegerMinField(
     'Anzahl Glas unterflur', min_value=1, blank=True, null=True)
-  bewirtschafter_papier = models.ForeignKey(
+  bewirtschafter_papier = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Papier',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bewirtschafter_papier',
     to_field='uuid',
-    related_name='bewirtschafter_papier+',
+    related_name='%(app_label)s_%(class)s_bewirtschafter_papier',
     blank=True,
-    null=True)
-  anzahl_papier = fields.PositiveSmallIntegerMinField(
+    null=True
+  )
+  anzahl_papier = PositiveSmallIntegerMinField(
     'Anzahl Papier normal', min_value=1, blank=True, null=True)
-  anzahl_papier_unterflur = fields.PositiveSmallIntegerMinField(
+  anzahl_papier_unterflur = PositiveSmallIntegerMinField(
     'Anzahl Papier unterflur', min_value=1, blank=True, null=True)
-  bewirtschafter_altkleider = models.ForeignKey(
+  bewirtschafter_altkleider = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Altkleider',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bewirtschafter_altkleider',
     to_field='uuid',
-    related_name='bewirtschafter_altkleider+',
+    related_name='%(app_label)s_%(class)s_bewirtschafter_altkleider',
     blank=True,
-    null=True)
-  anzahl_altkleider = fields.PositiveSmallIntegerMinField(
+    null=True
+  )
+  anzahl_altkleider = PositiveSmallIntegerMinField(
     'Anzahl Altkleider', min_value=1, blank=True, null=True)
-  inbetriebnahmejahr = fields.PositiveSmallIntegerRangeField(
+  inbetriebnahmejahr = PositiveSmallIntegerRangeField(
     'Inbetriebnahmejahr', max_value=functions.current_year(), blank=True, null=True)
-  inventarnummer = models.CharField(
+  inventarnummer = CharField(
     'Inventarnummer Stellplatz',
     max_length=8,
     blank=True,
@@ -945,7 +922,7 @@ class Containerstellplaetze(models.Model):
       )
     ]
   )
-  inventarnummer_grundundboden = models.CharField(
+  inventarnummer_grundundboden = CharField(
     'Inventarnummer Grund und Boden',
     max_length=8,
     blank=True,
@@ -957,7 +934,7 @@ class Containerstellplaetze(models.Model):
       )
     ]
   )
-  inventarnummer_zaun = models.CharField(
+  inventarnummer_zaun = CharField(
     'Inventarnummer Zaun',
     max_length=8,
     blank=True,
@@ -969,7 +946,7 @@ class Containerstellplaetze(models.Model):
       )
     ]
   )
-  anschaffungswert = models.DecimalField(
+  anschaffungswert = DecimalField(
     'Anschaffungswert (in €)',
     max_digits=7,
     decimal_places=2,
@@ -981,45 +958,47 @@ class Containerstellplaetze(models.Model):
         Decimal('99999.99'),
         'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 99.999,99 € betragen.')],
     blank=True,
-    null=True)
-  oeffentliche_widmung = models.BooleanField(
+    null=True
+  )
+  oeffentliche_widmung = BooleanField(
     ' öffentliche Widmung?', blank=True, null=True)
-  bga = models.BooleanField(
+  bga = BooleanField(
     'Zuordnung BgA Stellplatz?',
     blank=True,
-    null=True)
-  bga_grundundboden = models.BooleanField(
+    null=True
+  )
+  bga_grundundboden = BooleanField(
     'Zuordnung BgA Grund und Boden?', blank=True, null=True)
-  bga_zaun = models.BooleanField(
+  bga_zaun = BooleanField(
     'Zuordnung BgA Zaun?', blank=True, null=True)
-  art_eigentumserwerb = models.CharField(
+  art_eigentumserwerb = CharField(
     'Art des Eigentumserwerbs Stellplatz',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  art_eigentumserwerb_zaun = models.CharField(
+  art_eigentumserwerb_zaun = CharField(
     'Art des Eigentumserwerbs Zaun',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  vertraege = models.CharField(
+  vertraege = CharField(
     'Verträge',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  winterdienst_a = models.BooleanField(
+  winterdienst_a = BooleanField(
     'Winterdienst A?', blank=True, null=True)
-  winterdienst_b = models.BooleanField(
+  winterdienst_b = BooleanField(
     'Winterdienst B?', blank=True, null=True)
-  winterdienst_c = models.BooleanField(
+  winterdienst_c = BooleanField(
     'Winterdienst C?', blank=True, null=True)
-  flaeche = models.DecimalField(
+  flaeche = DecimalField(
     'Fläche (in m²)',
     max_digits=5,
     decimal_places=2,
@@ -1031,28 +1010,29 @@ class Containerstellplaetze(models.Model):
         Decimal('999.99'),
         'Die <strong><em>Fläche</em></strong> darf höchstens 999,99 m² betragen.')],
     blank=True,
-    null=True)
-  bemerkungen = models.CharField(
+    null=True
+  )
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  foto = models.ImageField(
+  foto = ImageField(
     'Foto',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE +
       'containerstellplaetze'),
     max_length=255,
     blank=True,
-    null=True)
-  geometrie = models.PointField(
+    null=True
+  )
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"containerstellplaetze_hro'
     verbose_name = 'Containerstellplatz'
     verbose_name_plural = 'Containerstellplätze'
@@ -1080,12 +1060,6 @@ class Containerstellplaetze(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Containerstellplaetze, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Containerstellplaetze, self).delete(*args, **kwargs)
-
 
 signals.pre_save.connect(
   functions.get_pre_save_instance,
@@ -1106,23 +1080,20 @@ signals.post_delete.connect(
 
 # Denkmalbereiche
 
-class Denkmalbereiche(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Denkmalbereiche(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  beschreibung = models.CharField(
+  beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+  geometrie = MultiPolygonField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"denkmalbereiche_hro'
     verbose_name = 'Denkmalbereich'
     verbose_name_plural = 'Denkmalbereiche'
@@ -1144,28 +1115,21 @@ class Denkmalbereiche(models.Model):
     return self.bezeichnung + \
            ' [Beschreibung: ' + str(self.beschreibung) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Denkmalbereiche, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Denkmalbereiche, self).delete(*args, **kwargs)
-
 
 # Denksteine
 
-class Denksteine(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Denksteine(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  nummer = models.CharField(
+    null=True
+  )
+  nummer = CharField(
     'Nummer',
     max_length=255,
     validators=[
@@ -1175,51 +1139,52 @@ class Denksteine(models.Model):
       )
     ]
   )
-  titel = models.ForeignKey(
+  titel = ForeignKey(
     models_codelist.Personentitel,
     verbose_name='Titel',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='titel',
     to_field='uuid',
-    related_name='titel+',
+    related_name='%(app_label)s_%(class)s_titel',
     blank=True,
-    null=True)
-  vorname = models.CharField(
+    null=True
+  )
+  vorname = CharField(
     'Vorname',
     max_length=255,
     validators=constants_vars.personennamen_validators
   )
-  nachname = models.CharField(
+  nachname = CharField(
     'Nachname',
     max_length=255,
     validators=constants_vars.personennamen_validators
   )
-  geburtsjahr = fields.PositiveSmallIntegerRangeField(
+  geburtsjahr = PositiveSmallIntegerRangeField(
     'Geburtsjahr', min_value=1850, max_value=1945)
-  sterbejahr = fields.PositiveSmallIntegerRangeField(
+  sterbejahr = PositiveSmallIntegerRangeField(
     'Sterbejahr', min_value=1933, max_value=1945, blank=True, null=True)
-  text_auf_dem_stein = models.CharField(
+  text_auf_dem_stein = CharField(
     'Text auf dem Stein',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  ehemalige_adresse = models.CharField(
+  ehemalige_adresse = CharField(
     ' ehemalige Adresse',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  material = models.ForeignKey(
+  material = ForeignKey(
     models_codelist.Materialien_Denksteine,
     verbose_name='Material',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='material',
     to_field='uuid',
-    related_name='materialien+')
-  erstes_verlegejahr = fields.PositiveSmallIntegerRangeField(
+    related_name='%(app_label)s_%(class)s_materialien')
+  erstes_verlegejahr = PositiveSmallIntegerRangeField(
     ' erstes Verlegejahr', min_value=2002, max_value=functions.current_year())
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     validators=[
@@ -1228,11 +1193,10 @@ class Denksteine(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"denksteine_hro'
     verbose_name = 'Denkstein'
     verbose_name_plural = 'Denksteine'
@@ -1273,53 +1237,47 @@ class Denksteine(models.Model):
            (', † ' + str(self.sterbejahr) if self.sterbejahr else '') + ')' + (
              ' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Denksteine, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Denksteine, self).delete(*args, **kwargs)
-
 
 # Fair Trade
 
-class FairTrade(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class FairTrade(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  art = models.ForeignKey(
+    null=True
+  )
+  art = ForeignKey(
     models_codelist.Arten_FairTrade,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bezeichnung = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  betreiber = models.CharField(
+  betreiber = CharField(
     'Betreiber:in',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = models.CharField(
+  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  telefon_festnetz = models.CharField(
+    null=True
+  )
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -1331,7 +1289,7 @@ class FairTrade(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -1343,7 +1301,7 @@ class FairTrade(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -1354,7 +1312,7 @@ class FairTrade(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -1365,11 +1323,10 @@ class FairTrade(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"fairtrade_hro'
     verbose_name = 'Fair Trade'
     verbose_name_plural = 'Fair Trade'
@@ -1398,51 +1355,43 @@ class FairTrade(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
-  def save(self, *args, **kwargs):
-    super(FairTrade, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(FairTrade, self).delete(*args, **kwargs)
-
 
 # Feldsportanlagen
 
-class Feldsportanlagen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  art = models.ForeignKey(
+class Feldsportanlagen(Model):
+  art = ForeignKey(
     models_codelist.Arten_Feldsportanlagen,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bezeichnung = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  foto = models.ImageField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  foto = ImageField(
     'Foto',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC +
       'feldsportanlagen'),
     max_length=255,
     blank=True,
-    null=True)
-  geometrie = models.PointField(
+    null=True
+  )
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"feldsportanlagen_hro'
     verbose_name = 'Feldsportanlage'
     verbose_name_plural = 'Feldsportanlagen'
@@ -1471,12 +1420,6 @@ class Feldsportanlagen(models.Model):
   def __str__(self):
     return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Feldsportanlagen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Feldsportanlagen, self).delete(*args, **kwargs)
-
 
 signals.pre_save.connect(
   functions.get_pre_save_instance,
@@ -1495,31 +1438,30 @@ signals.post_delete.connect(functions.delete_photo, sender=Feldsportanlagen)
 
 # Feuerwachen
 
-class Feuerwachen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Feuerwachen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  art = models.ForeignKey(
+    null=True
+  )
+  art = ForeignKey(
     models_codelist.Arten_Feuerwachen,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bezeichnung = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  telefon_festnetz = models.CharField(
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -1531,7 +1473,7 @@ class Feuerwachen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -1543,7 +1485,7 @@ class Feuerwachen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -1554,7 +1496,7 @@ class Feuerwachen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -1565,11 +1507,10 @@ class Feuerwachen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"feuerwachen_hro'
     verbose_name = 'Feuerwache'
     verbose_name_plural = 'Feuerwachen'
@@ -1598,55 +1539,47 @@ class Feuerwachen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Feuerwachen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Feuerwachen, self).delete(*args, **kwargs)
-
 
 # Fließgewässer
 
-class Fliessgewaesser(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  nummer = models.CharField(
+class Fliessgewaesser(Model):
+  nummer = CharField(
     'Nummer',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  art = models.ForeignKey(
+  art = ForeignKey(
     models_codelist.Arten_Fliessgewaesser,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  ordnung = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_arten')
+  ordnung = ForeignKey(
     models_codelist.Ordnungen_Fliessgewaesser,
     verbose_name='Ordnung',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='ordnung',
     to_field='uuid',
-    related_name='ordnungen+',
+    related_name='%(app_label)s_%(class)s_ordnungen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  nennweite = fields.PositiveSmallIntegerMinField(
+  nennweite = PositiveSmallIntegerMinField(
     'Nennweite (in mm)', min_value=100, blank=True, null=True)
-  laenge = models.PositiveIntegerField('Länge (in m)', default=0)
-  laenge_in_hro = models.PositiveIntegerField(
+  laenge = PositiveIntegerField('Länge (in m)', default=0)
+  laenge_in_hro = PositiveIntegerField(
     'Länge innerhalb Rostocks (in m)', blank=True, null=True)
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+  geometrie = LineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"fliessgewaesser_hro'
     verbose_name = 'Fließgewässer'
     verbose_name_plural = 'Fließgewässer'
@@ -1683,116 +1616,108 @@ class Fliessgewaesser(models.Model):
            ' [Art: ' + str(self.art) + (
              ', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
 
-  def save(self, *args, **kwargs):
-    super(Fliessgewaesser, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Fliessgewaesser, self).delete(*args, **kwargs)
-
 
 # Geh- und Radwegereinigung
 
-class Geh_Radwegereinigung(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  id = models.CharField('ID', max_length=14, default='0000000000-000')
-  gemeindeteil = models.ForeignKey(
+class Geh_Radwegereinigung(Model):
+  id = CharField('ID', max_length=14, default='0000000000-000')
+  gemeindeteil = ForeignKey(
     models_codelist.Gemeindeteile,
     verbose_name='Gemeindeteil',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='gemeindeteil',
     to_field='uuid',
-    related_name='gemeindeteile+',
+    related_name='%(app_label)s_%(class)s_gemeindeteile',
     default='00000000-0000-0000-0000-000000000000'
   )
-  strasse = models.ForeignKey(
+  strasse = ForeignKey(
     models_codelist.Strassen,
     verbose_name='Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='strasse',
     to_field='uuid',
-    related_name='strassen+',
+    related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
     null=True
   )
-  inoffizielle_strasse = models.ForeignKey(
+  inoffizielle_strasse = ForeignKey(
     models_codelist.Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='inoffizielle_strasse',
     to_field='uuid',
-    related_name='inoffizielle_strassen+',
+    related_name='%(app_label)s_%(class)s_inoffizielle_strassen',
     blank=True,
     null=True
   )
-  nummer = models.CharField(
+  nummer = CharField(
     'Nummer',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  beschreibung = models.CharField(
+  beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  wegeart = models.ForeignKey(
+  wegeart = ForeignKey(
     models_codelist.Arten_Wege,
     verbose_name='Wegeart',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='wegeart',
     to_field='uuid',
-    related_name='wegearten+'
+    related_name='%(app_label)s_%(class)s_wegearten'
   )
-  wegetyp = models.ForeignKey(
+  wegetyp = ForeignKey(
     models_codelist.Wegetypen_Strassenreinigungssatzung_HRO,
     verbose_name='Wegetyp',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='wegetyp',
     to_field='uuid',
-    related_name='wegetypen',
+    related_name='%(app_label)s_%(class)s_wegetypen',
     blank=True,
     null=True
   )
-  reinigungsklasse = models.ForeignKey(
+  reinigungsklasse = ForeignKey(
     models_codelist.Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='reinigungsklasse',
     to_field='uuid',
-    related_name='wegereinigungsklassen',
+    related_name='%(app_label)s_%(class)s_reinigungsklassen',
     blank=True,
     null=True
   )
-  reinigungsrhythmus = models.ForeignKey(
+  reinigungsrhythmus = ForeignKey(
     models_codelist.Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='reinigungsrhythmus',
     to_field='uuid',
-    related_name='wegereinigungsrhythmen',
+    related_name='%(app_label)s_%(class)s_reinigungsrhythmen',
     blank=True,
     null=True
   )
-  laenge = models.DecimalField(
+  laenge = DecimalField(
     'Länge (in m)',
     max_digits=6,
     decimal_places=2,
     default=0)
-  breite = models.ForeignKey(
+  breite = ForeignKey(
     models_codelist.Wegebreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Breite (in m)',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='breite',
     to_field='uuid',
-    related_name='wegebreiten',
+    related_name='%(app_label)s_%(class)s_breiten',
     blank=True,
     null=True
   )
-  reinigungsflaeche = models.DecimalField(
+  reinigungsflaeche = DecimalField(
     'Reinigungsfläche (in m²)',
     max_digits=7,
     decimal_places=2,
@@ -1804,22 +1729,24 @@ class Geh_Radwegereinigung(models.Model):
         Decimal('99999.99'),
         'Die <strong><em>Reinigungsfläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
     blank=True,
-    null=True)
-  winterdienst = models.BooleanField(
+    null=True
+  )
+  winterdienst = BooleanField(
     'Winterdienst?',
-    blank=True,
-    null=True)
-  raeumbreite = models.ForeignKey(
-    models_codelist.Raeumbreiten_Strassenreinigungssatzung_HRO,
-    verbose_name='Räumbreite im Winterdienst (in m)',
-    on_delete=models.CASCADE,
-    db_column='raeumbreite',
-    to_field='uuid',
-    related_name='raeumbreiten',
     blank=True,
     null=True
   )
-  winterdienstflaeche = models.DecimalField(
+  raeumbreite = ForeignKey(
+    models_codelist.Raeumbreiten_Strassenreinigungssatzung_HRO,
+    verbose_name='Räumbreite im Winterdienst (in m)',
+    on_delete=CASCADE,
+    db_column='raeumbreite',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_raeumbreiten',
+    blank=True,
+    null=True
+  )
+  winterdienstflaeche = DecimalField(
     'Winterdienstfläche (in m²)',
     max_digits=7,
     decimal_places=2,
@@ -1831,11 +1758,11 @@ class Geh_Radwegereinigung(models.Model):
         Decimal('99999.99'),
         'Die <strong><em>Winterdienstfläche</em></strong> darf höchstens 99.999,99 m² betragen.')],
     blank=True,
-    null=True)
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+    null=True
+  )
+  geometrie = MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
     verbose_name = 'Geh- und Radwegereinigung'
     verbose_name_plural = 'Geh- und Radwegereinigung'
@@ -1924,51 +1851,43 @@ class Geh_Radwegereinigung(models.Model):
              ' [inoffizielle Straße: ' + str(
                self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
-  def save(self, *args, **kwargs):
-    super(Geh_Radwegereinigung, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Geh_Radwegereinigung, self).delete(*args, **kwargs)
-
 
 # Gerätespielanlagen
 
-class Geraetespielanlagen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Geraetespielanlagen(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  beschreibung = models.CharField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  foto = models.ImageField(
+  foto = ImageField(
     'Foto',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC +
       'geraetespielanlagen'),
     max_length=255,
     blank=True,
-    null=True)
-  geometrie = models.PointField(
+    null=True
+  )
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"geraetespielanlagen_hro'
     verbose_name = 'Gerätespielanlage'
     verbose_name_plural = 'Gerätespielanlagen'
@@ -1996,12 +1915,6 @@ class Geraetespielanlagen(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Geraetespielanlagen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Geraetespielanlagen, self).delete(*args, **kwargs)
-
 
 signals.pre_save.connect(
   functions.get_pre_save_instance,
@@ -2020,44 +1933,42 @@ signals.post_delete.connect(functions.delete_photo, sender=Geraetespielanlagen)
 
 # Gutachterfotos
 
-class Gutachterfotos(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Gutachterfotos(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bearbeiter = models.CharField(
+    null=True
+  )
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bemerkungen = models.CharField(
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  datum = models.DateField('Datum', default=date.today)
-  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
-  foto = models.ImageField(
+  datum = DateField('Datum', default=date.today)
+  aufnahmedatum = DateField('Aufnahmedatum', default=date.today)
+  foto = ImageField(
     'Foto',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE +
       'gutachterfotos'),
     max_length=255)
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"gutachterfotos_hro'
     verbose_name = 'Gutachterfoto'
     verbose_name_plural = 'Gutachterfotos'
@@ -2090,12 +2001,6 @@ class Gutachterfotos(models.Model):
                                                                   '%Y-%m-%d').strftime(
       '%d.%m.%Y') + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Gutachterfotos, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Gutachterfotos, self).delete(*args, **kwargs)
-
 
 signals.post_save.connect(
   functions.photo_post_processing,
@@ -2106,36 +2011,37 @@ signals.post_delete.connect(functions.delete_photo, sender=Gutachterfotos)
 
 # Hausnummern
 
-class Hausnummern(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  strasse = models.ForeignKey(
+class Hausnummern(Model):
+  strasse = ForeignKey(
     models_codelist.Strassen,
     verbose_name='Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='strasse',
     to_field='uuid',
-    related_name='strassen+',
+    related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
     null=True
   )
-  deaktiviert = models.DateField(
-    'Datum der Löschung', blank=True, null=True)
-  loeschung_details = models.CharField(
+  deaktiviert = DateField(
+    'Datum der Löschung',
+    blank=True,
+    null=True
+  )
+  loeschung_details = CharField(
     'Details zur Löschung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  vorherige_adresse = models.CharField(
+  vorherige_adresse = CharField(
     ' vorherige Adresse',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  vorherige_antragsnummer = models.CharField(
+  vorherige_antragsnummer = CharField(
     ' vorherige Antragsnummer',
     max_length=6,
     blank=True,
@@ -2147,9 +2053,9 @@ class Hausnummern(models.Model):
       )
     ]
   )
-  hausnummer = fields.PositiveSmallIntegerRangeField(
+  hausnummer = PositiveSmallIntegerRangeField(
     'Hausnummer', min_value=1, max_value=999)
-  hausnummer_zusatz = models.CharField(
+  hausnummer_zusatz = CharField(
     'Hausnummernzusatz',
     max_length=1,
     blank=True,
@@ -2161,7 +2067,7 @@ class Hausnummern(models.Model):
       )
     ]
   )
-  postleitzahl = models.CharField(
+  postleitzahl = CharField(
     'Postleitzahl',
     max_length=5,
     validators=[
@@ -2171,9 +2077,9 @@ class Hausnummern(models.Model):
       )
     ]
   )
-  vergabe_datum = models.DateField(
+  vergabe_datum = DateField(
     'Datum der Vergabe', default=date.today)
-  antragsnummer = models.CharField(
+  antragsnummer = CharField(
     'Antragsnummer',
     max_length=6,
     blank=True,
@@ -2185,48 +2091,49 @@ class Hausnummern(models.Model):
       )
     ]
   )
-  gebaeude_bauweise = models.ForeignKey(
+  gebaeude_bauweise = ForeignKey(
     models_codelist.Gebaeudebauweisen,
     verbose_name='Bauweise des Gebäudes',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='gebaeude_bauweise',
     to_field='uuid',
-    related_name='gebaeude_bauweisen+',
+    related_name='%(app_label)s_%(class)s_gebaeude_bauweisen',
     blank=True,
-    null=True)
-  gebaeude_funktion = models.ForeignKey(
+    null=True
+  )
+  gebaeude_funktion = ForeignKey(
     models_codelist.Gebaeudefunktionen,
     verbose_name='Funktion des Gebäudes',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='gebaeude_funktion',
     to_field='uuid',
-    related_name='gebaeude_funktionen+',
+    related_name='%(app_label)s_%(class)s_gebaeude_funktionen',
     blank=True,
-    null=True)
-  hinweise_gebaeude = models.CharField(
+    null=True
+  )
+  hinweise_gebaeude = CharField(
     ' weitere Hinweise zum Gebäude',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  bearbeiter = models.CharField(
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bemerkungen = models.CharField(
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_strassenbezug\".\"hausnummern_hro'
     unique_together = ['strasse', 'hausnummer', 'hausnummer_zusatz']
     verbose_name = 'Hausnummer'
@@ -2274,11 +2181,7 @@ class Hausnummern(models.Model):
       'gebaeude_bauweise': 'Bauweise des Gebäudes',
       'gebaeude_funktion': 'Funktion des Gebäudes'
     }
-    map_filter_fields_as_list = [
-      'strasse',
-      'gebaeude_bauweise',
-      'gebaeude_funktion'
-    ]
+    map_filter_fields_as_list = ['strasse', 'gebaeude_bauweise', 'gebaeude_funktion']
     address_type = 'Straße'
     address_mandatory = True
     geometry_type = 'Point'
@@ -2290,42 +2193,35 @@ class Hausnummern(models.Model):
            (self.hausnummer_zusatz if self.hausnummer_zusatz else '') + \
            ' [Postleitzahl: ' + self.postleitzahl + ']'
 
-  def save(self, *args, **kwargs):
-    super(Hausnummern, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Hausnummern, self).delete(*args, **kwargs)
-
 
 # Hospize
 
-class Hospize(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Hospize(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  plaetze = fields.PositiveSmallIntegerMinField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  plaetze = PositiveSmallIntegerMinField(
     'Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = models.CharField(
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -2337,7 +2233,7 @@ class Hospize(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -2349,7 +2245,7 @@ class Hospize(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -2360,7 +2256,7 @@ class Hospize(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -2371,11 +2267,10 @@ class Hospize(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"hospize_hro'
     verbose_name = 'Hospiz'
     verbose_name_plural = 'Hospize'
@@ -2404,43 +2299,43 @@ class Hospize(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Hospize, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Hospize, self).delete(*args, **kwargs)
-
 
 # Hundetoiletten
 
-class Hundetoiletten(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  deaktiviert = models.DateField(
-    'Außerbetriebstellung', blank=True, null=True)
-  id = models.CharField('ID', max_length=8, unique=True, default='00000000')
-  art = models.ForeignKey(
+class Hundetoiletten(Model):
+  deaktiviert = DateField(
+    'Außerbetriebstellung',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    'ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  art = ForeignKey(
     models_codelist.Arten_Hundetoiletten,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  aufstellungsjahr = fields.PositiveSmallIntegerRangeField(
+    related_name='%(app_label)s_%(class)s_arten')
+  aufstellungsjahr = PositiveSmallIntegerRangeField(
     'Aufstellungsjahr', max_value=functions.current_year(), blank=True, null=True)
-  bewirtschafter = models.ForeignKey(
+  bewirtschafter = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='bewirtschafter',
     to_field='uuid',
-    related_name='bewirtschafter+')
-  pflegeobjekt = models.CharField(
+    related_name='%(app_label)s_%(class)s_bewirtschafter')
+  pflegeobjekt = CharField(
     'Pflegeobjekt',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  inventarnummer = models.CharField(
+  inventarnummer = CharField(
     'Inventarnummer',
     max_length=8,
     blank=True,
@@ -2452,7 +2347,7 @@ class Hundetoiletten(models.Model):
       )
     ]
   )
-  anschaffungswert = models.DecimalField(
+  anschaffungswert = DecimalField(
     'Anschaffungswert (in €)',
     max_digits=6,
     decimal_places=2,
@@ -2464,19 +2359,19 @@ class Hundetoiletten(models.Model):
         Decimal('9999.99'),
         'Der <strong><em>Anschaffungswert</em></strong> darf höchstens 9.999,99 € betragen.')],
     blank=True,
-    null=True)
-  bemerkungen = models.CharField(
+    null=True
+  )
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"hundetoiletten_hro'
     verbose_name = 'Hundetoilette'
     verbose_name_plural = 'Hundetoiletten'
@@ -2511,19 +2406,11 @@ class Hundetoiletten(models.Model):
   def __str__(self):
     return self.id + ' [Art: ' + str(self.art) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Hundetoiletten, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Hundetoiletten, self).delete(*args, **kwargs)
-
 
 # Hydranten
 
-class Hydranten(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Hydranten(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     unique=True,
@@ -2534,47 +2421,46 @@ class Hydranten(models.Model):
       )
     ]
   )
-  eigentuemer = models.ForeignKey(
+  eigentuemer = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='eigentuemer',
     to_field='uuid',
-    related_name='eigentuemer+')
-  bewirtschafter = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_eigentuemer')
+  bewirtschafter = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='bewirtschafter',
     to_field='uuid',
-    related_name='bewirtschafter+')
-  feuerloeschgeeignet = models.BooleanField(' feuerlöschgeeignet?')
-  betriebszeit = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_bewirtschafter')
+  feuerloeschgeeignet = BooleanField(' feuerlöschgeeignet?')
+  betriebszeit = ForeignKey(
     models_codelist.Betriebszeiten,
     verbose_name='Betriebszeit',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='betriebszeit',
     to_field='uuid',
-    related_name='betriebszeiten+')
-  entnahme = models.CharField(
+    related_name='%(app_label)s_%(class)s_betriebszeiten')
+  entnahme = CharField(
     'Entnahme',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  hauptwasserzaehler = models.CharField(
+  hauptwasserzaehler = CharField(
     'Hauptwasserzähler',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"hydranten_hro'
     verbose_name = 'Hydrant'
     verbose_name_plural = 'Hydranten'
@@ -2605,83 +2491,73 @@ class Hydranten(models.Model):
       'entnahme': 'Entnahme',
       'hauptwasserzaehler': 'Hauptwasserzähler'
     }
-    map_filter_fields_as_list = [
-      'eigentuemer', 'bewirtschafter', 'betriebszeit']
+    map_filter_fields_as_list = ['eigentuemer', 'bewirtschafter', 'betriebszeit']
     geometry_type = 'Point'
     as_overlay = True
 
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Hydranten, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Hydranten, self).delete(*args, **kwargs)
-
 
 # Kadaverfunde
 
-class Kadaverfunde(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  zeitpunkt = models.DateTimeField('Zeitpunkt')
-  tierseuche = models.ForeignKey(
+class Kadaverfunde(Model):
+  zeitpunkt = DateTimeField('Zeitpunkt')
+  tierseuche = ForeignKey(
     models_codelist.Tierseuchen,
     verbose_name='Tierseuche',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
-    related_name='tierseuchen+')
-  geschlecht = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_tierseuchen')
+  geschlecht = ForeignKey(
     models_codelist.Geschlechter_Kadaverfunde,
     verbose_name='Geschlecht',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='geschlecht',
     to_field='uuid',
-    related_name='geschlechter+')
-  altersklasse = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_geschlechter')
+  altersklasse = ForeignKey(
     models_codelist.Altersklassen_Kadaverfunde,
     verbose_name='Altersklasse',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='altersklasse',
     to_field='uuid',
-    related_name='altersklassen+')
-  gewicht = fields.PositiveSmallIntegerRangeField(
+    related_name='%(app_label)s_%(class)s_altersklassen')
+  gewicht = PositiveSmallIntegerRangeField(
     ' geschätztes Gewicht (in kg)', min_value=1, blank=True, null=True)
-  zustand = models.ForeignKey(
+  zustand = ForeignKey(
     models_codelist.Zustaende_Kadaverfunde,
     verbose_name='Zustand',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='zustand',
     to_field='uuid',
-    related_name='zustaende+')
-  art_auffinden = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_zustaende')
+  art_auffinden = ForeignKey(
     models_codelist.Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art des Auffindens',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art_auffinden',
     to_field='uuid',
-    related_name='arten_auffinden+')
-  witterung = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten_auffinden')
+  witterung = CharField(
     'Witterung vor Ort',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  bemerkungen = fields.NullTextField(
+  bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"kadaverfunde_hro'
     verbose_name = 'Kadaverfund'
     verbose_name_plural = 'Kadaverfunde'
@@ -2726,52 +2602,46 @@ class Kadaverfunde(models.Model):
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
-    zeitpunkt_str = re.sub(r'([+-][0-9]{2}):', '\\1', str(self.zeitpunkt))
+    zeitpunkt_str = sub(r'([+-][0-9]{2}):', '\\1', str(self.zeitpunkt))
     zeitpunkt = datetime.strptime(
       zeitpunkt_str,
       '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(local_tz)
     zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
     return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
 
-  def save(self, *args, **kwargs):
-    super(Kadaverfunde, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Kadaverfunde, self).delete(*args, **kwargs)
-
 
 # Kindertagespflegeeinrichtungen
 
-class Kindertagespflegeeinrichtungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Kindertagespflegeeinrichtungen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  vorname = models.CharField(
+    null=True
+  )
+  vorname = CharField(
     'Vorname',
     max_length=255,
     validators=constants_vars.personennamen_validators
   )
-  nachname = models.CharField(
+  nachname = CharField(
     'Nachname',
     max_length=255,
     validators=constants_vars.personennamen_validators
   )
-  plaetze = fields.PositiveSmallIntegerMinField(
+  plaetze = PositiveSmallIntegerMinField(
     'Plätze', min_value=1, blank=True, null=True)
-  zeiten = models.CharField(
+  zeiten = CharField(
     'Betreuungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  telefon_festnetz = models.CharField(
+    null=True
+  )
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -2783,7 +2653,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -2795,7 +2665,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -2806,7 +2676,7 @@ class Kindertagespflegeeinrichtungen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -2817,11 +2687,10 @@ class Kindertagespflegeeinrichtungen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"kindertagespflegeeinrichtungen_hro'
     verbose_name = 'Kindertagespflegeeinrichtung'
     verbose_name_plural = 'Kindertagespflegeeinrichtungen'
@@ -2853,40 +2722,33 @@ class Kindertagespflegeeinrichtungen(models.Model):
     return self.vorname + ' ' + self.nachname + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Kindertagespflegeeinrichtungen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Kindertagespflegeeinrichtungen, self).delete(*args, **kwargs)
-
 
 # Kinder- und Jugendbetreuung
 
-class Kinder_Jugendbetreuung(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Kinder_Jugendbetreuung(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  telefon_festnetz = models.CharField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -2898,7 +2760,7 @@ class Kinder_Jugendbetreuung(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -2910,7 +2772,7 @@ class Kinder_Jugendbetreuung(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -2921,7 +2783,7 @@ class Kinder_Jugendbetreuung(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -2932,11 +2794,10 @@ class Kinder_Jugendbetreuung(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"kinder_jugendbetreuung_hro'
     verbose_name = 'Kinder- und/oder Jugendbetreuung'
     verbose_name_plural = 'Kinder- und Jugendbetreuung'
@@ -2965,44 +2826,35 @@ class Kinder_Jugendbetreuung(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Kinder_Jugendbetreuung, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Kinder_Jugendbetreuung, self).delete(*args, **kwargs)
-
 
 # Kunst im öffentlichen Raum
 
-class Kunst_im_oeffentlichen_Raum(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Kunst_im_oeffentlichen_Raum(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  ausfuehrung = models.CharField(
+  ausfuehrung = CharField(
     'Ausführung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  schoepfer = models.CharField(
+  schoepfer = CharField(
     'Schöpfer',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  entstehungsjahr = fields.PositiveSmallIntegerRangeField(
+  entstehungsjahr = PositiveSmallIntegerRangeField(
     'Entstehungsjahr', max_value=functions.current_year(), blank=True, null=True)
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"kunst_im_oeffentlichen_raum_hro'
     verbose_name = 'Kunst im öffentlichen Raum'
     verbose_name_plural = 'Kunst im öffentlichen Raum'
@@ -3021,88 +2873,85 @@ class Kunst_im_oeffentlichen_Raum(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Kunst_im_oeffentlichen_Raum, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Kunst_im_oeffentlichen_Raum, self).delete(*args, **kwargs)
-
 
 # Ladestationen für Elektrofahrzeuge
 
-class Ladestationen_Elektrofahrzeuge(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Ladestationen_Elektrofahrzeuge(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  geplant = models.BooleanField(' geplant?')
-  bezeichnung = models.CharField(
+    null=True
+  )
+  geplant = BooleanField(' geplant?')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  betreiber = models.ForeignKey(
+  betreiber = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='betreiber',
     to_field='uuid',
-    related_name='betreiber+',
+    related_name='%(app_label)s_%(class)s_betreiber',
     blank=True,
-    null=True)
-  verbund = models.ForeignKey(
+    null=True
+  )
+  verbund = ForeignKey(
     models_codelist.Verbuende_Ladestationen_Elektrofahrzeuge,
     verbose_name='Verbund',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='verbund',
     to_field='uuid',
-    related_name='verbuende+',
+    related_name='%(app_label)s_%(class)s_verbuende',
     blank=True,
-    null=True)
-  betriebsart = models.ForeignKey(
+    null=True
+  )
+  betriebsart = ForeignKey(
     models_codelist.Betriebsarten,
     verbose_name='Betriebsart',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='betriebsart',
     to_field='uuid',
-    related_name='betriebsarten+')
-  anzahl_ladepunkte = fields.PositiveSmallIntegerMinField(
+    related_name='%(app_label)s_%(class)s_betriebsarten')
+  anzahl_ladepunkte = PositiveSmallIntegerMinField(
     'Anzahl an Ladepunkten', min_value=1, blank=True, null=True)
-  arten_ladepunkte = models.CharField(
+  arten_ladepunkte = CharField(
     'Arten der Ladepunkte',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  ladekarten = fields.ChoiceArrayField(
-    models.CharField(
+  ladekarten = ChoiceArrayField(
+    CharField(
       'Ladekarten',
       max_length=255,
       choices=()),
     verbose_name='Ladekarten',
     blank=True,
-    null=True)
-  kosten = models.CharField(
+    null=True
+  )
+  kosten = CharField(
     'Kosten',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  zeiten = models.CharField(
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  website = models.CharField(
+    null=True
+  )
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -3113,11 +2962,10 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"ladestationen_elektrofahrzeuge_hro'
     verbose_name = 'Ladestation für Elektrofahrzeuge'
     verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
@@ -3162,42 +3010,33 @@ class Ladestationen_Elektrofahrzeuge(models.Model):
     return self.bezeichnung + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Ladestationen_Elektrofahrzeuge, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Ladestationen_Elektrofahrzeuge, self).delete(*args, **kwargs)
-
 
 # Meldedienst (flächenhaft)
 
-class Meldedienst_flaechenhaft(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  art = models.ForeignKey(
+class Meldedienst_flaechenhaft(Model):
+  art = ForeignKey(
     models_codelist.Arten_Meldedienst_flaechenhaft,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bearbeiter = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bemerkungen = models.CharField(
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  datum = models.DateField('Datum', default=date.today)
-  geometrie = models.PolygonField('Geometrie', srid=25833)
+  datum = DateField('Datum', default=date.today)
+  geometrie = PolygonField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"meldedienst_flaechenhaft_hro'
     verbose_name = 'Meldedienst (flächenhaft)'
     verbose_name_plural = 'Meldedienst (flächenhaft)'
@@ -3226,54 +3065,49 @@ class Meldedienst_flaechenhaft(models.Model):
     return str(self.art) + ' [Datum: ' + datetime.strptime(
       str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
-  def save(self, *args, **kwargs):
-    super(Meldedienst_flaechenhaft, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Meldedienst_flaechenhaft, self).delete(*args, **kwargs)
-
 
 # Meldedienst (punkthaft)
 
-class Meldedienst_punkthaft(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  deaktiviert = models.DateField(
-    'Zurückstellung', blank=True, null=True)
-  adresse = models.ForeignKey(
+class Meldedienst_punkthaft(Model):
+  deaktiviert = DateField(
+    'Zurückstellung',
+    blank=True,
+    null=True
+  )
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  art = models.ForeignKey(
+    null=True
+  )
+  art = ForeignKey(
     models_codelist.Arten_Meldedienst_punkthaft,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bearbeiter = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bemerkungen = models.CharField(
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  datum = models.DateField('Datum', default=date.today)
-  geometrie = models.PointField(
+  datum = DateField('Datum', default=date.today)
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"meldedienst_punkthaft_hro'
     verbose_name = 'Meldedienst (punkthaft)'
     verbose_name_plural = 'Meldedienst (punkthaft)'
@@ -3311,30 +3145,22 @@ class Meldedienst_punkthaft(models.Model):
     return str(self.art) + ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime(
       '%d.%m.%Y') + (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
 
-  def save(self, *args, **kwargs):
-    super(Meldedienst_punkthaft, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Meldedienst_punkthaft, self).delete(*args, **kwargs)
-
 
 # Mobilpunkte
 
-class Mobilpunkte(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Mobilpunkte(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  angebote = fields.ChoiceArrayField(
-    models.CharField(
+  angebote = ChoiceArrayField(
+    CharField(
       'Angebote',
       max_length=255,
       choices=()),
     verbose_name='Angebote')
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -3345,11 +3171,10 @@ class Mobilpunkte(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"mobilpunkte_hro'
     verbose_name = 'Mobilpunkt'
     verbose_name_plural = 'Mobilpunkte'
@@ -3369,55 +3194,49 @@ class Mobilpunkte(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Mobilpunkte, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Mobilpunkte, self).delete(*args, **kwargs)
-
 
 # Parkmöglichkeiten
 
-class Parkmoeglichkeiten(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Parkmoeglichkeiten(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  art = models.ForeignKey(
+    null=True
+  )
+  art = ForeignKey(
     models_codelist.Arten_Parkmoeglichkeiten,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  standort = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  standort = CharField(
     'Standort',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  betreiber = models.ForeignKey(
+  betreiber = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='betreiber',
     to_field='uuid',
-    related_name='betreiber+',
+    related_name='%(app_label)s_%(class)s_betreiber',
     blank=True,
-    null=True)
-  stellplaetze_pkw = fields.PositiveSmallIntegerMinField(
+    null=True
+  )
+  stellplaetze_pkw = PositiveSmallIntegerMinField(
     'Pkw-Stellplätze', min_value=1, blank=True, null=True)
-  stellplaetze_wohnmobil = fields.PositiveSmallIntegerMinField(
+  stellplaetze_wohnmobil = PositiveSmallIntegerMinField(
     'Wohnmobilstellplätze', min_value=1, blank=True, null=True)
-  stellplaetze_bus = fields.PositiveSmallIntegerMinField(
+  stellplaetze_bus = PositiveSmallIntegerMinField(
     'Busstellplätze', min_value=1, blank=True, null=True)
-  gebuehren_halbe_stunde = models.DecimalField(
+  gebuehren_halbe_stunde = DecimalField(
     'Gebühren pro ½ h (in €)',
     max_digits=3,
     decimal_places=2,
@@ -3429,8 +3248,9 @@ class Parkmoeglichkeiten(models.Model):
         Decimal('9.99'),
         'Die <strong><em>Gebühren pro ½ h</em></strong> dürfen höchstens 9,99 € betragen.')],
     blank=True,
-    null=True)
-  gebuehren_eine_stunde = models.DecimalField(
+    null=True
+  )
+  gebuehren_eine_stunde = DecimalField(
     'Gebühren pro 1 h (in €)',
     max_digits=3,
     decimal_places=2,
@@ -3442,8 +3262,9 @@ class Parkmoeglichkeiten(models.Model):
         Decimal('9.99'),
         'Die <strong><em>Gebühren pro 1 h</em></strong> dürfen höchstens 9,99 € betragen.')],
     blank=True,
-    null=True)
-  gebuehren_zwei_stunden = models.DecimalField(
+    null=True
+  )
+  gebuehren_zwei_stunden = DecimalField(
     'Gebühren pro 2 h (in €)',
     max_digits=3,
     decimal_places=2,
@@ -3455,8 +3276,9 @@ class Parkmoeglichkeiten(models.Model):
         Decimal('9.99'),
         'Die <strong><em>Gebühren pro 2 h</em></strong> dürfen höchstens 9,99 € betragen.')],
     blank=True,
-    null=True)
-  gebuehren_ganztags = models.DecimalField(
+    null=True
+  )
+  gebuehren_ganztags = DecimalField(
     'Gebühren ganztags (in €)',
     max_digits=3,
     decimal_places=2,
@@ -3468,19 +3290,19 @@ class Parkmoeglichkeiten(models.Model):
         Decimal('9.99'),
         'Die <strong><em>Gebühren ganztags</em></strong> dürfen höchstens 9,99 € betragen.')],
     blank=True,
-    null=True)
-  bemerkungen = models.CharField(
+    null=True
+  )
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"parkmoeglichkeiten_hro'
     verbose_name = 'Parkmöglichkeit'
     verbose_name_plural = 'Parkmöglichkeiten'
@@ -3512,47 +3334,40 @@ class Parkmoeglichkeiten(models.Model):
     return str(self.art) + ' ' + self.standort + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Parkmoeglichkeiten, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Parkmoeglichkeiten, self).delete(*args, **kwargs)
-
 
 # Pflegeeinrichtungen
 
-class Pflegeeinrichtungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Pflegeeinrichtungen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  art = models.ForeignKey(
+    null=True
+  )
+  art = ForeignKey(
     models_codelist.Arten_Pflegeeinrichtungen,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bezeichnung = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  betreiber = models.CharField(
+  betreiber = CharField(
     'Betreiber:in',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  plaetze = fields.PositiveSmallIntegerMinField(
+  plaetze = PositiveSmallIntegerMinField(
     'Plätze', min_value=1, blank=True, null=True)
-  telefon_festnetz = models.CharField(
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -3564,7 +3379,7 @@ class Pflegeeinrichtungen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -3576,7 +3391,7 @@ class Pflegeeinrichtungen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -3587,7 +3402,7 @@ class Pflegeeinrichtungen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -3598,11 +3413,10 @@ class Pflegeeinrichtungen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"pflegeeinrichtungen_hro'
     verbose_name = 'Pflegeeinrichtung'
     verbose_name_plural = 'Pflegeeinrichtungen'
@@ -3633,93 +3447,88 @@ class Pflegeeinrichtungen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Art: ' + str(self.art) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Pflegeeinrichtungen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Pflegeeinrichtungen, self).delete(*args, **kwargs)
-
 
 # Poller
 
-class Poller(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  art = models.ForeignKey(
+class Poller(Model):
+  art = ForeignKey(
     models_codelist.Arten_Poller,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  nummer = models.CharField(
+    related_name='%(app_label)s_%(class)s_arten')
+  nummer = CharField(
     'Nummer',
     max_length=3,
     blank=True,
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.poll_nummer_regex,
-        message=constants_vars.poll_nummer_message
+        regex=constants_vars.poller_nummer_regex,
+        message=constants_vars.poller_nummer_message
       )
     ]
   )
-  bezeichnung = models.CharField(
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  status = models.ForeignKey(
+  status = ForeignKey(
     models_codelist.Status_Poller,
     verbose_name='Status',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='status',
     to_field='uuid',
-    related_name='status+')
-  zeiten = models.CharField(
+    related_name='%(app_label)s_%(class)s_status')
+  zeiten = CharField(
     'Lieferzeiten',
     max_length=255,
     blank=True,
-    null=True)
-  hersteller = models.ForeignKey(
+    null=True
+  )
+  hersteller = ForeignKey(
     models_codelist.Hersteller_Poller,
     verbose_name='Hersteller',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='hersteller',
     to_field='uuid',
-    related_name='hersteller+',
+    related_name='%(app_label)s_%(class)s_hersteller',
     blank=True,
-    null=True)
-  typ = models.ForeignKey(
+    null=True
+  )
+  typ = ForeignKey(
     models_codelist.Typen_Poller,
     verbose_name='Typ',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='typ',
     to_field='uuid',
-    related_name='typen+',
+    related_name='%(app_label)s_%(class)s_typen',
     blank=True,
-    null=True)
-  anzahl = fields.PositiveSmallIntegerMinField('Anzahl', min_value=1)
-  schliessungen = fields.ChoiceArrayField(
-    models.CharField(
+    null=True
+  )
+  anzahl = PositiveSmallIntegerMinField('Anzahl', min_value=1)
+  schliessungen = ChoiceArrayField(
+    CharField(
       'Schließungen',
       max_length=255,
       choices=()),
     verbose_name='Schließungen',
     blank=True,
-    null=True)
-  bemerkungen = models.CharField(
+    null=True
+  )
+  bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"poller_hro'
     verbose_name = 'Poller'
     verbose_name_plural = 'Poller'
@@ -3764,44 +3573,35 @@ class Poller(models.Model):
     return (self.nummer + ', ' if self.nummer else '') + \
            self.bezeichnung + ' [Status: ' + str(self.status) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Poller, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Poller, self).delete(*args, **kwargs)
-
 
 # Reinigungsreviere
 
-class Reinigungsreviere(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  gemeindeteil = models.ForeignKey(
+class Reinigungsreviere(Model):
+  gemeindeteil = ForeignKey(
     models_codelist.Gemeindeteile,
     verbose_name='Gemeindeteil',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='gemeindeteil',
     to_field='uuid',
-    related_name='gemeindeteile+',
+    related_name='%(app_label)s_%(class)s_gemeindeteile',
     blank=True,
     null=True
   )
-  nummer = fields.PositiveSmallIntegerMinField(
+  nummer = PositiveSmallIntegerMinField(
     'Nummer',
     min_value=1,
     unique=True,
     blank=True,
     null=True
   )
-  bezeichnung = models.CharField(
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+  geometrie = MultiPolygonField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_gemeindeteilbezug\".\"reinigungsreviere_hro'
     verbose_name = 'Reinigungsreviere'
     verbose_name_plural = 'Reinigungsreviere'
@@ -3822,9 +3622,7 @@ class Reinigungsreviere(models.Model):
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung'
     }
-    map_filter_fields_as_list = [
-      'gemeindeteil'
-    ]
+    map_filter_fields_as_list = ['gemeindeteil']
     additional_wms_layers = [
       {
         'title': 'Reinigungsreviere',
@@ -3848,40 +3646,33 @@ class Reinigungsreviere(models.Model):
   def __str__(self):
     return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
 
-  def save(self, *args, **kwargs):
-    super(Reinigungsreviere, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Reinigungsreviere, self).delete(*args, **kwargs)
-
 
 # Rettungswachen
 
-class Rettungswachen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Rettungswachen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  telefon_festnetz = models.CharField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -3893,7 +3684,7 @@ class Rettungswachen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -3905,7 +3696,7 @@ class Rettungswachen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -3916,7 +3707,7 @@ class Rettungswachen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -3927,11 +3718,10 @@ class Rettungswachen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"rettungswachen_hro'
     verbose_name = 'Rettungswache'
     verbose_name_plural = 'Rettungswachen'
@@ -3960,36 +3750,28 @@ class Rettungswachen(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Rettungswachen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Rettungswachen, self).delete(*args, **kwargs)
-
 
 # Schiffsliegeplätze
 
-class Schiffsliegeplaetze(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  hafen = models.ForeignKey(
+class Schiffsliegeplaetze(Model):
+  hafen = ForeignKey(
     models_codelist.Haefen,
     verbose_name='Hafen',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='hafen',
     to_field='uuid',
-    related_name='haefen+')
-  liegeplatznummer = models.CharField(
+    related_name='%(app_label)s_%(class)s_haefen')
+  liegeplatznummer = CharField(
     'Liegeplatz',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  bezeichnung = models.CharField(
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  liegeplatzlaenge = models.DecimalField(
+  liegeplatzlaenge = DecimalField(
     'Liegeplatzlänge (in m)',
     max_digits=5,
     decimal_places=2,
@@ -4001,8 +3783,9 @@ class Schiffsliegeplaetze(models.Model):
         Decimal('999.99'),
         'Die <strong><em>Liegeplatzlänge</em></strong> darf höchstens 999,99 m betragen.')],
     blank=True,
-    null=True)
-  zulaessiger_tiefgang = models.DecimalField(
+    null=True
+  )
+  zulaessiger_tiefgang = DecimalField(
     ' zulässiger Tiefgang (in m)',
     max_digits=4,
     decimal_places=2,
@@ -4014,8 +3797,9 @@ class Schiffsliegeplaetze(models.Model):
         Decimal('99.99'),
         'Der <strong><em>zulässige Tiefgang</em></strong> darf höchstens 99,99 m betragen.')],
     blank=True,
-    null=True)
-  zulaessige_schiffslaenge = models.DecimalField(
+    null=True
+  )
+  zulaessige_schiffslaenge = DecimalField(
     ' zulässige Schiffslänge (in m)',
     max_digits=5,
     decimal_places=2,
@@ -4027,8 +3811,9 @@ class Schiffsliegeplaetze(models.Model):
         Decimal('999.99'),
         'Die <strong><em>zulässige Schiffslänge</em></strong> darf höchstens 999,99 m betragen.')],
     blank=True,
-    null=True)
-  kaihoehe = models.DecimalField(
+    null=True
+  )
+  kaihoehe = DecimalField(
     'Kaihöhe (in m)',
     max_digits=3,
     decimal_places=2,
@@ -4040,32 +3825,32 @@ class Schiffsliegeplaetze(models.Model):
         Decimal('9.99'),
         'Die <strong><em>Kaihöhe</em></strong> darf höchstens 9,99 m betragen.')],
     blank=True,
-    null=True)
-  pollerzug = models.CharField(
+    null=True
+  )
+  pollerzug = CharField(
     'Pollerzug',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  poller_von = models.CharField(
+  poller_von = CharField(
     'Poller (von)',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  poller_bis = models.CharField(
+  poller_bis = CharField(
     'Poller (bis)',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  geometrie = models.PolygonField('Geometrie', srid=25833)
+  geometrie = PolygonField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"schiffsliegeplaetze_hro'
     verbose_name = 'Schiffsliegeplatz'
     verbose_name_plural = 'Schiffsliegeplätze'
@@ -4095,37 +3880,28 @@ class Schiffsliegeplaetze(models.Model):
     return self.liegeplatznummer + ', ' + \
            self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Schiffsliegeplaetze, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Schiffsliegeplaetze, self).delete(*args, **kwargs)
-
 
 # Schutzzäune gegen Tierseuchen
 
-class Schutzzaeune_Tierseuchen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  tierseuche = models.ForeignKey(
+class Schutzzaeune_Tierseuchen(Model):
+  tierseuche = ForeignKey(
     models_codelist.Tierseuchen,
     verbose_name='Tierseuche',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
-    related_name='tierseuchen+')
-  zustand = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_tierseuchen')
+  zustand = ForeignKey(
     models_codelist.Zustaende_Schutzzaeune_Tierseuchen,
     verbose_name='Zustand',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='zustand',
     to_field='uuid',
-    related_name='zustaende+')
-  laenge = models.PositiveIntegerField('Länge (in m)', default=0)
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+    related_name='%(app_label)s_%(class)s_zustaende')
+  laenge = PositiveIntegerField('Länge (in m)', default=0)
+  geometrie = MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"schutzzaeune_tierseuchen_hro'
     verbose_name = 'Schutzzaun gegen eine Tierseuche'
     verbose_name_plural = 'Schutzzäune gegen Tierseuchen'
@@ -4145,74 +3921,67 @@ class Schutzzaeune_Tierseuchen(models.Model):
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
       'zustand': 'Zustand'}
-    map_filter_fields_as_list = [
-      'tierseuche', 'zustand']
+    map_filter_fields_as_list = ['tierseuche', 'zustand']
     geometry_type = 'MultiLineString'
     as_overlay = True
 
   def __str__(self):
     return str(self.tierseuche) + ', ' + str(self.zustand)
 
-  def save(self, *args, **kwargs):
-    super(Schutzzaeune_Tierseuchen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Schutzzaeune_Tierseuchen, self).delete(*args, **kwargs)
-
 
 # Sporthallen
 
-class Sporthallen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Sporthallen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  sportart = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_traeger')
+  sportart = ForeignKey(
     models_codelist.Sportarten,
     verbose_name='Sportart',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='sportart',
     to_field='uuid',
-    related_name='sportarten+')
-  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = models.CharField(
+    related_name='%(app_label)s_%(class)s_sportarten')
+  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  foto = models.ImageField(
+    null=True
+  )
+  foto = ImageField(
     'Foto',
-    storage=storage.OverwriteStorage(),
+    storage=OverwriteStorage(),
     upload_to=functions.path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC +
       'sporthallen'),
     max_length=255,
     blank=True,
-    null=True)
-  geometrie = models.PointField(
+    null=True
+  )
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"sporthallen_hro'
     verbose_name = 'Sporthalle'
     verbose_name_plural = 'Sporthallen'
@@ -4247,12 +4016,6 @@ class Sporthallen(models.Model):
       'Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
            'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Sporthallen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Sporthallen, self).delete(*args, **kwargs)
-
 
 signals.pre_save.connect(functions.get_pre_save_instance, sender=Sporthallen)
 
@@ -4267,37 +4030,37 @@ signals.post_delete.connect(functions.delete_photo, sender=Sporthallen)
 
 # Stadtteil- und Begegnungszentren
 
-class Stadtteil_Begegnungszentren(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Stadtteil_Begegnungszentren(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  traeger = models.ForeignKey(
+  traeger = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='traeger',
     to_field='uuid',
-    related_name='traeger+')
-  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = models.CharField(
+    related_name='%(app_label)s_%(class)s_traeger')
+  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  telefon_festnetz = models.CharField(
+    null=True
+  )
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -4309,7 +4072,7 @@ class Stadtteil_Begegnungszentren(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -4321,7 +4084,7 @@ class Stadtteil_Begegnungszentren(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -4332,7 +4095,7 @@ class Stadtteil_Begegnungszentren(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -4343,11 +4106,10 @@ class Stadtteil_Begegnungszentren(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"stadtteil_begegnungszentren_hro'
     verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
     verbose_name_plural = 'Stadtteil- und Begegnungszentren'
@@ -4376,38 +4138,31 @@ class Stadtteil_Begegnungszentren(models.Model):
     return self.bezeichnung + ' [' + ('Adresse: ' + str(
       self.adresse) + ', ' if self.adresse else '') + 'Träger: ' + str(self.traeger) + ']'
 
-  def save(self, *args, **kwargs):
-    super(Stadtteil_Begegnungszentren, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Stadtteil_Begegnungszentren, self).delete(*args, **kwargs)
-
 
 # Standortqualitäten von Geschäftslagen im Sanierungsgebiet
 
-class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bewertungsjahr = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  bewertungsjahr = PositiveSmallIntegerRangeField(
     'Bewertungsjahr', min_value=1990, max_value=functions.current_year(),
     default=functions.current_year())
-  quartier = models.ForeignKey(
+  quartier = ForeignKey(
     models_codelist.Quartiere,
     verbose_name='Quartier',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='quartier',
     to_field='uuid',
-    related_name='quartiere+')
-  kundschaftskontakte_anfangswert = models.DecimalField(
+    related_name='%(app_label)s_%(class)s_quartiere')
+  kundschaftskontakte_anfangswert = DecimalField(
     'Kundschaftskontakte (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4423,7 +4178,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  kundschaftskontakte_endwert = models.DecimalField(
+  kundschaftskontakte_endwert = DecimalField(
     'Kundschaftskontakte (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4439,7 +4194,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  verkehrsanbindung_anfangswert = models.DecimalField(
+  verkehrsanbindung_anfangswert = DecimalField(
     'Verkehrsanbindung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4455,7 +4210,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  verkehrsanbindung_endwert = models.DecimalField(
+  verkehrsanbindung_endwert = DecimalField(
     'Verkehrsanbindung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4471,7 +4226,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  ausstattung_anfangswert = models.DecimalField(
+  ausstattung_anfangswert = DecimalField(
     'Ausstattung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4487,7 +4242,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  ausstattung_endwert = models.DecimalField(
+  ausstattung_endwert = DecimalField(
     'Ausstattung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4503,7 +4258,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  beeintraechtigung_anfangswert = models.DecimalField(
+  beeintraechtigung_anfangswert = DecimalField(
     'Beeinträchtigung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4519,7 +4274,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  beeintraechtigung_endwert = models.DecimalField(
+  beeintraechtigung_endwert = DecimalField(
     'Beeinträchtigung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4535,7 +4290,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  standortnutzung_anfangswert = models.DecimalField(
+  standortnutzung_anfangswert = DecimalField(
     'Standortnutzung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4551,7 +4306,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  standortnutzung_endwert = models.DecimalField(
+  standortnutzung_endwert = DecimalField(
     'Standortnutzung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4567,11 +4322,10 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro'
     verbose_name = 'Standortqualität einer Geschäftslage im Sanierungsgebiet'
     verbose_name_plural = 'Standortqualitäten von Geschäftslagen im Sanierungsgebiet'
@@ -4624,38 +4378,31 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(models.Model):
   def __str__(self):
     return str(self.adresse)
 
-  def save(self, *args, **kwargs):
-    super(Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, self).delete(*args, **kwargs)
-
 
 # Standortqualitäten von Wohnlagen im Sanierungsgebiet
 
-class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bewertungsjahr = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  bewertungsjahr = PositiveSmallIntegerRangeField(
     'Bewertungsjahr', min_value=1990, max_value=functions.current_year(),
     default=functions.current_year())
-  quartier = models.ForeignKey(
+  quartier = ForeignKey(
     models_codelist.Quartiere,
     verbose_name='Quartier',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='quartier',
     to_field='uuid',
-    related_name='quartiere+')
-  gesellschaftslage_anfangswert = models.DecimalField(
+    related_name='%(app_label)s_%(class)s_quartiere')
+  gesellschaftslage_anfangswert = DecimalField(
     'Gesellschaftslage (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4671,7 +4418,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  gesellschaftslage_endwert = models.DecimalField(
+  gesellschaftslage_endwert = DecimalField(
     'Gesellschaftslage (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4687,7 +4434,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  verkehrsanbindung_anfangswert = models.DecimalField(
+  verkehrsanbindung_anfangswert = DecimalField(
     'Verkehrsanbindung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4703,7 +4450,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  verkehrsanbindung_endwert = models.DecimalField(
+  verkehrsanbindung_endwert = DecimalField(
     'Verkehrsanbindung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4719,7 +4466,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  ausstattung_anfangswert = models.DecimalField(
+  ausstattung_anfangswert = DecimalField(
     'Ausstattung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4735,7 +4482,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  ausstattung_endwert = models.DecimalField(
+  ausstattung_endwert = DecimalField(
     'Ausstattung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4751,7 +4498,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  beeintraechtigung_anfangswert = models.DecimalField(
+  beeintraechtigung_anfangswert = DecimalField(
     'Beeinträchtigung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4767,7 +4514,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  beeintraechtigung_endwert = models.DecimalField(
+  beeintraechtigung_endwert = DecimalField(
     'Beeinträchtigung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4783,7 +4530,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  standortnutzung_anfangswert = models.DecimalField(
+  standortnutzung_anfangswert = DecimalField(
     'Standortnutzung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
@@ -4799,7 +4546,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  standortnutzung_endwert = models.DecimalField(
+  standortnutzung_endwert = DecimalField(
     'Standortnutzung (Endwert)',
     max_digits=4,
     decimal_places=2,
@@ -4815,11 +4562,10 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_wohnlagen_sanierungsgebiet_hro'
     verbose_name = 'Standortqualität einer Wohnlage im Sanierungsgebiet'
     verbose_name_plural = 'Standortqualitäten von Wohnlagen im Sanierungsgebiet'
@@ -4872,46 +4618,37 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(models.Model):
   def __str__(self):
     return str(self.adresse)
 
-  def save(self, *args, **kwargs):
-    super(Standortqualitaeten_Wohnlagen_Sanierungsgebiet, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Standortqualitaeten_Wohnlagen_Sanierungsgebiet, self).delete(*args, **kwargs)
-
 
 # Straßen
 
-class Strassen_Simple(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  kategorie = models.ForeignKey(
+class Strassen_Simple(Model):
+  kategorie = ForeignKey(
     models_codelist.Kategorien_Strassen,
     verbose_name='Kategorie',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='kategorie',
     to_field='uuid',
-    related_name='kategorien+'
+    related_name='%(app_label)s_%(class)s_kategorien'
   )
-  bezeichnung = models.CharField(
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  schluessel = models.CharField(
+  schluessel = CharField(
     'Schlüssel',
     max_length=5,
     unique=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.str_schluessel_regex,
-        message=constants_vars.str_schluessel_message
+        regex=constants_vars.strassen_schluessel_regex,
+        message=constants_vars.strassen_schluessel_message
       )
     ]
   )
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+  geometrie = MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"strassen_hro'
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
@@ -4931,9 +4668,7 @@ class Strassen_Simple(models.Model):
       'bezeichnung': 'Bezeichnung',
       'schluessel': 'Schlüssel'
     }
-    map_filter_fields_as_list = [
-      'kategorie'
-    ]
+    map_filter_fields_as_list = ['kategorie']
     additional_wms_layers = [
       {
         'title': 'Eigentum HRO',
@@ -5002,96 +4737,87 @@ class Strassen_Simple(models.Model):
   def __str__(self):
     return self.bezeichnung + ' (' + self.schluessel + ')'
 
-  def save(self, *args, **kwargs):
-    super(Strassen_Simple, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Strassen_Simple, self).delete(*args, **kwargs)
-
 
 # Straßenreinigung
 
-class Strassenreinigung(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  id = models.CharField('ID', max_length=14, default='0000000000-000')
-  gemeindeteil = models.ForeignKey(
+class Strassenreinigung(Model):
+  id = CharField('ID', max_length=14, default='0000000000-000')
+  gemeindeteil = ForeignKey(
     models_codelist.Gemeindeteile,
     verbose_name='Gemeindeteil',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='gemeindeteil',
     to_field='uuid',
-    related_name='gemeindeteile+',
+    related_name='%(app_label)s_%(class)s_gemeindeteile',
     default='00000000-0000-0000-0000-000000000000'
   )
-  strasse = models.ForeignKey(
+  strasse = ForeignKey(
     models_codelist.Strassen,
     verbose_name='Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='strasse',
     to_field='uuid',
-    related_name='strassen+',
+    related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
     null=True
   )
-  inoffizielle_strasse = models.ForeignKey(
+  inoffizielle_strasse = ForeignKey(
     models_codelist.Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='inoffizielle_strasse',
     to_field='uuid',
-    related_name='inoffizielle_strassen+',
+    related_name='%(app_label)s_%(class)s_inoffizielle_strassen',
     blank=True,
     null=True
   )
-  beschreibung = models.CharField(
+  beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  ausserhalb = models.BooleanField(' außerhalb geschlossener Ortslage?')
-  reinigungsklasse = models.ForeignKey(
+  ausserhalb = BooleanField(' außerhalb geschlossener Ortslage?')
+  reinigungsklasse = ForeignKey(
     models_codelist.Reinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='reinigungsklasse',
     to_field='uuid',
-    related_name='reinigungsklassen+',
+    related_name='%(app_label)s_%(class)s_reinigungsklassen',
     blank=True,
     null=True
   )
-  reinigungsrhythmus = models.ForeignKey(
+  reinigungsrhythmus = ForeignKey(
     models_codelist.Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='reinigungsrhythmus',
     to_field='uuid',
-    related_name='reinigungsrhythmen+',
+    related_name='%(app_label)s_%(class)s_reinigungsrhythmen',
     blank=True,
     null=True
   )
-  fahrbahnwinterdienst = models.ForeignKey(
+  fahrbahnwinterdienst = ForeignKey(
     models_codelist.Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
     verbose_name='Fahrbahnwinterdienst',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='fahrbahnwinterdienst',
     to_field='uuid',
-    related_name='fahrbahnwinterdienste+',
+    related_name='%(app_label)s_%(class)s_fahrbahnwinterdienste',
     blank=True,
     null=True
   )
-  laenge = models.DecimalField(
+  laenge = DecimalField(
     'Länge (in m)',
     max_digits=6,
     decimal_places=2,
     default=0
   )
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+  geometrie = MultiLineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
     verbose_name = 'Straßenreinigung'
     verbose_name_plural = 'Straßenreinigung'
@@ -5170,44 +4896,35 @@ class Strassenreinigung(models.Model):
              ' [inoffizielle Straße: '
              + str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
-  def save(self, *args, **kwargs):
-    super(Strassenreinigung, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Strassenreinigung, self).delete(*args, **kwargs)
-
 
 # Thalasso-Kurwege
 
-class Thalasso_Kurwege(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+class Thalasso_Kurwege(Model):
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  streckenbeschreibung = models.CharField(
+  streckenbeschreibung = CharField(
     'Streckenbeschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  barrierefrei = models.BooleanField(' barrierefrei?', default=False)
-  farbe = models.CharField('Farbe', max_length=7)
-  beschriftung = models.CharField(
+  barrierefrei = BooleanField(' barrierefrei?', default=False)
+  farbe = CharField('Farbe', max_length=7)
+  beschriftung = CharField(
     'Beschriftung',
     max_length=255,
     blank=True,
     null=True,
     validators=constants_vars.standard_validators
   )
-  laenge = models.PositiveIntegerField('Länge (in m)', default=0)
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+  laenge = PositiveIntegerField('Länge (in m)', default=0)
+  geometrie = LineStringField('Geometrie', srid=25833)
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"thalasso_kurwege_hro'
     verbose_name = 'Thalasso-Kurweg'
     verbose_name_plural = 'Thalasso-Kurwege'
@@ -5233,47 +4950,40 @@ class Thalasso_Kurwege(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Thalasso_Kurwege, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Thalasso_Kurwege, self).delete(*args, **kwargs)
-
 
 # Toiletten
 
-class Toiletten(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  art = models.ForeignKey(
+class Toiletten(Model):
+  art = ForeignKey(
     models_codelist.Arten_Toiletten,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
-  bewirtschafter = models.ForeignKey(
+    related_name='%(app_label)s_%(class)s_arten')
+  bewirtschafter = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bewirtschafter',
     to_field='uuid',
-    related_name='bewirtschafter+',
+    related_name='%(app_label)s_%(class)s_bewirtschafter',
     blank=True,
-    null=True)
-  behindertengerecht = models.BooleanField(' behindertengerecht?')
-  duschmoeglichkeit = models.BooleanField('Duschmöglichkeit vorhanden?')
-  wickelmoeglichkeit = models.BooleanField('Wickelmöglichkeit vorhanden?')
-  zeiten = models.CharField(
+    null=True
+  )
+  behindertengerecht = BooleanField(' behindertengerecht?')
+  duschmoeglichkeit = BooleanField('Duschmöglichkeit vorhanden?')
+  wickelmoeglichkeit = BooleanField('Wickelmöglichkeit vorhanden?')
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  geometrie = models.PointField(
+    null=True
+  )
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"toiletten_hro'
     verbose_name = 'Toilette'
     verbose_name_plural = 'Toiletten'
@@ -5310,51 +5020,44 @@ class Toiletten(models.Model):
            + ((' mit Öffnungszeiten ' + self.zeiten + ']'
                if self.zeiten else ''))
 
-  def save(self, *args, **kwargs):
-    super(Toiletten, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Toiletten, self).delete(*args, **kwargs)
-
 
 # Trinkwassernotbrunnen
 
-class Trinkwassernotbrunnen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  nummer = models.CharField(
+class Trinkwassernotbrunnen(Model):
+  nummer = CharField(
     'Nummer',
     max_length=12,
     validators=[
       RegexValidator(
-        regex=constants_vars.twnb_nummer_regex,
-        message=constants_vars.twnb_nummer_message
+        regex=constants_vars.trinkwassernotbrunnen_nummer_regex,
+        message=constants_vars.trinkwassernotbrunnen_nummer_message
       )
     ]
   )
-  bezeichnung = models.CharField(
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  eigentuemer = models.ForeignKey(
+  eigentuemer = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='eigentuemer',
     to_field='uuid',
-    related_name='eigentuemer+',
+    related_name='%(app_label)s_%(class)s_eigentuemer',
     blank=True,
-    null=True)
-  betreiber = models.ForeignKey(
+    null=True
+  )
+  betreiber = ForeignKey(
     models_codelist.Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='betreiber',
     to_field='uuid',
-    related_name='betreiber+')
-  betriebsbereit = models.BooleanField(' betriebsbereit?')
-  bohrtiefe = models.DecimalField(
+    related_name='%(app_label)s_%(class)s_betreiber')
+  betriebsbereit = BooleanField(' betriebsbereit?')
+  bohrtiefe = DecimalField(
     'Bohrtiefe (in m)',
     max_digits=4,
     decimal_places=2,
@@ -5368,7 +5071,7 @@ class Trinkwassernotbrunnen(models.Model):
       )
     ]
   )
-  ausbautiefe = models.DecimalField(
+  ausbautiefe = DecimalField(
     'Ausbautiefe (in m)',
     max_digits=4,
     decimal_places=2,
@@ -5382,11 +5085,10 @@ class Trinkwassernotbrunnen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten\".\"trinkwassernotbrunnen_hro'
     verbose_name = 'Trinkwassernotbrunnen'
     verbose_name_plural = 'Trinkwassernotbrunnen'
@@ -5420,47 +5122,40 @@ class Trinkwassernotbrunnen(models.Model):
   def __str__(self):
     return self.nummer
 
-  def save(self, *args, **kwargs):
-    super(Trinkwassernotbrunnen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Trinkwassernotbrunnen, self).delete(*args, **kwargs)
-
 
 # Vereine
 
-class Vereine(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Vereine(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  vereinsregister_id = fields.PositiveSmallIntegerMinField(
+  vereinsregister_id = PositiveSmallIntegerMinField(
     'ID im Vereinsregister',
     min_value=1,
     blank=True,
     null=True
   )
-  vereinsregister_datum = models.DateField(
+  vereinsregister_datum = DateField(
     'Datum des Eintrags im Vereinsregister', blank=True, null=True)
-  schlagwoerter = fields.ChoiceArrayField(
-    models.CharField(
+  schlagwoerter = ChoiceArrayField(
+    CharField(
       'Schlagwörter',
       max_length=255,
       choices=()),
     verbose_name='Schlagwörter')
-  telefon_festnetz = models.CharField(
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -5472,7 +5167,7 @@ class Vereine(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -5484,7 +5179,7 @@ class Vereine(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -5495,7 +5190,7 @@ class Vereine(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -5506,11 +5201,10 @@ class Vereine(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"vereine_hro'
     verbose_name = 'Verein'
     verbose_name_plural = 'Vereine'
@@ -5540,47 +5234,42 @@ class Vereine(models.Model):
     return self.bezeichnung + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
-  def save(self, *args, **kwargs):
-    super(Vereine, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Vereine, self).delete(*args, **kwargs)
-
 
 # Verkaufstellen für Angelberechtigungen
 
-class Verkaufstellen_Angelberechtigungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  adresse = models.ForeignKey(
+class Verkaufstellen_Angelberechtigungen(Model):
+  adresse = ForeignKey(
     models_codelist.Adressen,
     verbose_name='Adresse',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='adresse',
     to_field='uuid',
-    related_name='adressen+',
+    related_name='%(app_label)s_%(class)s_adressen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
+    null=True
+  )
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     validators=constants_vars.standard_validators
   )
-  berechtigungen = fields.ChoiceArrayField(
-    models.CharField(
+  berechtigungen = ChoiceArrayField(
+    CharField(
       'verkaufte Berechtigung(en)',
       max_length=255,
       choices=()),
     verbose_name='verkaufte Berechtigung(en)',
     blank=True,
-    null=True)
-  barrierefrei = models.BooleanField(' barrierefrei?', blank=True, null=True)
-  zeiten = models.CharField(
+    null=True
+  )
+  barrierefrei = BooleanField(' barrierefrei?', blank=True, null=True)
+  zeiten = CharField(
     'Öffnungszeiten',
     max_length=255,
     blank=True,
-    null=True)
-  telefon_festnetz = models.CharField(
+    null=True
+  )
+  telefon_festnetz = CharField(
     'Telefon (Festnetz)',
     max_length=255,
     blank=True,
@@ -5592,7 +5281,7 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
       )
     ]
   )
-  telefon_mobil = models.CharField(
+  telefon_mobil = CharField(
     'Telefon (mobil)',
     max_length=255,
     blank=True,
@@ -5604,7 +5293,7 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
       )
     ]
   )
-  email = models.CharField(
+  email = CharField(
     'E-Mail-Adresse',
     max_length=255,
     blank=True,
@@ -5615,7 +5304,7 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
       )
     ]
   )
-  website = models.CharField(
+  website = CharField(
     'Website',
     max_length=255,
     blank=True,
@@ -5626,11 +5315,10 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
       )
     ]
   )
-  geometrie = models.PointField(
+  geometrie = PointField(
     'Geometrie', srid=25833, default='POINT(0 0)')
 
-  class Meta:
-    managed = False
+  class Meta(Model.Meta):
     db_table = 'fachdaten_adressbezug\".\"verkaufstellen_angelberechtigungen_hro'
     verbose_name = 'Verkaufstelle für Angelberechtigungen'
     verbose_name_plural = 'Verkaufstellen für Angelberechtigungen'
@@ -5660,9 +5348,3 @@ class Verkaufstellen_Angelberechtigungen(models.Model):
   def __str__(self):
     return self.bezeichnung + \
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
-
-  def save(self, *args, **kwargs):
-    super(Verkaufstellen_Angelberechtigungen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Verkaufstellen_Angelberechtigungen, self).delete(*args, **kwargs)

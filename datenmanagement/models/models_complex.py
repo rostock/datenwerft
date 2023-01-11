@@ -28,7 +28,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='strasse',
     to_field='uuid',
-    related_name='strassen+',
+    related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
     null=True)
   bezeichnung = models.CharField(
@@ -54,7 +54,7 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     on_delete=models.RESTRICT,
     db_column='auftraggeber',
     to_field='uuid',
-    related_name='auftraggeber+')
+    related_name='%(app_label)s_%(class)s_auftraggeber')
   ansprechpartner = models.CharField(
     'Ansprechpartner:in',
     max_length=255,
@@ -108,8 +108,6 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'Point'
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['bezeichnung']
 
   def __str__(self):
@@ -142,14 +140,14 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
     on_delete=models.CASCADE,
     db_column='baustellen_fotodokumentation_baustelle',
     to_field='uuid',
-    related_name='baustellen_fotodokumentation_baustellen+')
+    related_name='%(app_label)s_%(class)s_baustellen_fotodokumentation_baustellen')
   status = models.ForeignKey(
     models_codelist.Status_Baustellen_Fotodokumentation_Fotos,
     verbose_name='Status',
     on_delete=models.RESTRICT,
     db_column='status',
     to_field='uuid',
-    related_name='status+')
+    related_name='%(app_label)s_%(class)s_status')
   aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
   dateiname_original = models.CharField(
     'Original-Dateiname', max_length=255, default='ohne')
@@ -226,7 +224,7 @@ class Baustellen_geplant(models.Model):
     on_delete=models.SET_NULL,
     db_column='strasse',
     to_field='uuid',
-    related_name='strassen+',
+    related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
     null=True)
   projektbezeichnung = models.CharField(
@@ -275,7 +273,7 @@ class Baustellen_geplant(models.Model):
     on_delete=models.RESTRICT,
     db_column='auftraggeber',
     to_field='uuid',
-    related_name='auftraggeber+')
+    related_name='%(app_label)s_%(class)s_auftraggeber')
   ansprechpartner = models.CharField(
     'Ansprechpartner:in',
     max_length=255,
@@ -287,7 +285,7 @@ class Baustellen_geplant(models.Model):
     on_delete=models.RESTRICT,
     db_column='status',
     to_field='uuid',
-    related_name='status+')
+    related_name='%(app_label)s_%(class)s_status')
   konflikt = models.BooleanField(
     'Konflikt?',
     blank=True,
@@ -353,8 +351,6 @@ class Baustellen_geplant(models.Model):
     address_mandatory = False
     geometry_type = 'MultiPolygon'
     group_with_users_for_choice_field = 'baustellen_geplant_full'
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['bezeichnung']
     as_overlay = True
 
@@ -387,7 +383,7 @@ class Baustellen_geplant_Dokumente(models.Model):
     on_delete=models.CASCADE,
     db_column='baustelle_geplant',
     to_field='uuid',
-    related_name='baustellen_geplant+')
+    related_name='%(app_label)s_%(class)s_baustellen_geplant')
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -449,7 +445,7 @@ class Baustellen_geplant_Links(models.Model):
     on_delete=models.CASCADE,
     db_column='baustelle_geplant',
     to_field='uuid',
-    related_name='baustellen_geplant+')
+    related_name='%(app_label)s_%(class)s_baustellen_geplant')
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -507,7 +503,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     on_delete=models.SET_NULL,
     db_column='art',
     to_field='uuid',
-    related_name='arten+',
+    related_name='%(app_label)s_%(class)s_arten',
     blank=True,
     null=True)
   aktenzeichen = models.CharField(
@@ -527,7 +523,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     on_delete=models.SET_NULL,
     db_column='material',
     to_field='uuid',
-    related_name='materialien+',
+    related_name='%(app_label)s_%(class)s_materialien',
     blank=True,
     null=True)
   baujahr = fields.PositiveSmallIntegerRangeField(
@@ -567,7 +563,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     on_delete=models.SET_NULL,
     db_column='zustand_durchlass',
     to_field='uuid',
-    related_name='zustaende_durchlaesse+',
+    related_name='%(app_label)s_%(class)s_zustaende_durchlass',
     blank=True,
     null=True)
   zustand_nebenanlagen = models.ForeignKey(
@@ -576,7 +572,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     on_delete=models.SET_NULL,
     db_column='zustand_nebenanlagen',
     to_field='uuid',
-    related_name='zustaende_nebenanlagen+',
+    related_name='%(app_label)s_%(class)s_zustaende_nebenanlagen',
     blank=True,
     null=True)
   zustand_zubehoer = models.ForeignKey(
@@ -585,7 +581,7 @@ class Durchlaesse_Durchlaesse(models.Model):
     on_delete=models.SET_NULL,
     db_column='zustand_zubehoer',
     to_field='uuid',
-    related_name='zustaende_zubehoer+',
+    related_name='%(app_label)s_%(class)s_zustaende_zubehoer',
     blank=True,
     null=True)
   kontrolle = models.DateField('Kontrolle', blank=True, null=True)
@@ -645,8 +641,6 @@ class Durchlaesse_Durchlaesse(models.Model):
     }
     map_filter_fields_as_list = ['art', 'material']
     geometry_type = 'Point'
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['aktenzeichen']
     as_overlay = True
 
@@ -671,7 +665,7 @@ class Durchlaesse_Fotos(models.Model):
     on_delete=models.CASCADE,
     db_column='durchlaesse_durchlass',
     to_field='uuid',
-    related_name='durchlaesse_durchlaesse+')
+    related_name='%(app_label)s_%(class)s_durchlaesse_durchlaesse')
   aufnahmedatum = models.DateField(
     'Aufnahmedatum',
     default=date.today,
@@ -753,7 +747,7 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
     on_delete=models.RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
-    related_name='tierseuchen+')
+    related_name='%(app_label)s_%(class)s_tierseuchen')
   bezeichnung = models.CharField(
     'Bezeichnung',
     max_length=255,
@@ -786,8 +780,6 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
     map_filter_fields_as_list = [
       'tierseuche']
     geometry_type = 'Polygon'
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['bezeichnung']
     as_overlay = True
 
@@ -812,14 +804,14 @@ class Fallwildsuchen_Nachweise(models.Model):
     on_delete=models.CASCADE,
     db_column='kontrollgebiet',
     to_field='uuid',
-    related_name='kontrollgebiete+')
+    related_name='%(app_label)s_%(class)s_kontrollgebiete')
   art_kontrolle = models.ForeignKey(
     models_codelist.Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art der Kontrolle',
     on_delete=models.RESTRICT,
     db_column='art_kontrolle',
     to_field='uuid',
-    related_name='arten_kontrolle+')
+    related_name='%(app_label)s_%(class)s_arten_kontrolle')
   startzeitpunkt = models.DateTimeField('Startzeitpunkt')
   endzeitpunkt = models.DateTimeField('Endzeitpunkt')
   geometrie = models.MultiLineStringField('Geometrie', srid=25833)
@@ -994,7 +986,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='bau_typ',
     to_field='uuid',
-    related_name='bau_typen+',
+    related_name='%(app_label)s_%(class)s_bau_typen',
     blank=True,
     null=True)
   bau_wartebereich_laenge = models.DecimalField(
@@ -1029,7 +1021,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='bau_befestigungsart_aufstellflaeche_bus',
     to_field='uuid',
-    related_name='bau_befestigungsarten_aufstellflaeche_bus+',
+    related_name='%(app_label)s_%(class)s_bau_befestigungsarten_aufstellflaeche_bus',
     blank=True,
     null=True)
   bau_zustand_aufstellflaeche_bus = models.ForeignKey(
@@ -1038,7 +1030,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='bau_zustand_aufstellflaeche_bus',
     to_field='uuid',
-    related_name='bau_zustaende_aufstellflaeche_bus+',
+    related_name='%(app_label)s_%(class)s_bau_zustaende_aufstellflaeche_bus',
     blank=True,
     null=True)
   bau_befestigungsart_warteflaeche = models.ForeignKey(
@@ -1047,7 +1039,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='bau_befestigungsart_warteflaeche',
     to_field='uuid',
-    related_name='bau_befestigungsarten_warteflaeche+',
+    related_name='%(app_label)s_%(class)s_bau_befestigungsarten_warteflaeche',
     blank=True,
     null=True)
   bau_zustand_warteflaeche = models.ForeignKey(
@@ -1056,7 +1048,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='bau_zustand_warteflaeche',
     to_field='uuid',
-    related_name='bau_zustaende_warteflaeche+',
+    related_name='%(app_label)s_%(class)s_bau_zustaende_warteflaeche',
     blank=True,
     null=True)
   bf_einstieg = models.BooleanField(
@@ -1073,7 +1065,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='tl_auffindestreifen_ausfuehrung',
     to_field='uuid',
-    related_name='tl_auffindestreifen_ausfuehrungen+',
+    related_name='%(app_label)s_%(class)s_tl_auffindestreifen_ausfuehrungen',
     blank=True,
     null=True)
   tl_auffindestreifen_breite = fields.PositiveIntegerMinField(
@@ -1089,7 +1081,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='tl_einstiegsfeld_ausfuehrung',
     to_field='uuid',
-    related_name='tl_einstiegsfeld_ausfuehrungen+',
+    related_name='%(app_label)s_%(class)s_tl_einstiegsfeld_ausfuehrungen',
     blank=True,
     null=True)
   tl_einstiegsfeld_breite = fields.PositiveIntegerMinField(
@@ -1105,7 +1097,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='tl_leitstreifen_ausfuehrung',
     to_field='uuid',
-    related_name='tl_leitstreifen_ausfuehrungen+',
+    related_name='%(app_label)s_%(class)s_tl_leitstreifen_ausfuehrungen',
     blank=True,
     null=True)
   tl_leitstreifen_laenge = fields.PositiveIntegerMinField(
@@ -1125,7 +1117,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='as_zh_typ',
     to_field='uuid',
-    related_name='as_zh_typen+',
+    related_name='%(app_label)s_%(class)s_as_zh_typen',
     blank=True,
     null=True)
   as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
@@ -1135,7 +1127,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='as_h_masttyp',
     to_field='uuid',
-    related_name='as_h_masttypen+',
+    related_name='%(app_label)s_%(class)s_as_h_masttypen',
     blank=True,
     null=True)
   as_papierkorb = models.BooleanField(
@@ -1148,7 +1140,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='as_fahrgastunterstandstyp',
     to_field='uuid',
-    related_name='as_fahrgastunterstandstypen+',
+    related_name='%(app_label)s_%(class)s_as_fahrgastunterstandstypen',
     blank=True,
     null=True)
   as_sitzbank_mit_armlehne = models.BooleanField(
@@ -1161,7 +1153,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='as_sitzbanktyp',
     to_field='uuid',
-    related_name='as_sitzbanktypen+',
+    related_name='%(app_label)s_%(class)s_as_sitzbanktypen',
     blank=True,
     null=True)
   as_gelaender = models.BooleanField(
@@ -1174,7 +1166,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='as_fahrplanvitrinentyp',
     to_field='uuid',
-    related_name='as_fahrplanvitrinentypen+',
+    related_name='%(app_label)s_%(class)s_as_fahrplanvitrinentypen',
     blank=True,
     null=True)
   as_tarifinformation = models.BooleanField(
@@ -1197,7 +1189,7 @@ class Haltestellenkataster_Haltestellen(models.Model):
     on_delete=models.SET_NULL,
     db_column='as_dfi_typ',
     to_field='uuid',
-    related_name='as_dfi_typen+',
+    related_name='%(app_label)s_%(class)s_as_dfi_typen',
     blank=True,
     null=True)
   as_anfragetaster = models.BooleanField(
@@ -1268,8 +1260,6 @@ class Haltestellenkataster_Haltestellen(models.Model):
     readonly_fields = ['id']
     map_feature_tooltip_field = 'hst_bezeichnung'
     geometry_type = 'Point'
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['id']
     as_overlay = True
 
@@ -1299,14 +1289,14 @@ class Haltestellenkataster_Fotos(models.Model):
     on_delete=models.CASCADE,
     db_column='haltestellenkataster_haltestelle',
     to_field='uuid',
-    related_name='haltestellenkataster_haltestellen+')
+    related_name='%(app_label)s_%(class)s_haltestellenkataster_haltestellen')
   motiv = models.ForeignKey(
     models_codelist.Fotomotive_Haltestellenkataster,
     verbose_name='Motiv',
     on_delete=models.RESTRICT,
     db_column='motiv',
     to_field='uuid',
-    related_name='motive+')
+    related_name='%(app_label)s_%(class)s_motive')
   aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
   dateiname_original = models.CharField(
     'Original-Dateiname', max_length=255, default='ohne')
@@ -1391,7 +1381,7 @@ class Parkscheinautomaten_Tarife(models.Model):
     on_delete=models.RESTRICT,
     db_column='normaltarif_parkdauer_min_einheit',
     to_field='uuid',
-    related_name='normaltarif_parkdauer_min_einheiten+')
+    related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_min_einheiten')
   normaltarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
     'Maximalparkdauer Normaltarif', min_value=1)
   normaltarif_parkdauer_max_einheit = models.ForeignKey(
@@ -1400,7 +1390,7 @@ class Parkscheinautomaten_Tarife(models.Model):
     on_delete=models.RESTRICT,
     db_column='normaltarif_parkdauer_max_einheit',
     to_field='uuid',
-    related_name='normaltarif_parkdauer_max_einheiten+')
+    related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_max_einheiten')
   normaltarif_gebuehren_max = models.DecimalField(
     'Maximalgebühren Normaltarif (in €)',
     max_digits=4,
@@ -1441,7 +1431,7 @@ class Parkscheinautomaten_Tarife(models.Model):
     on_delete=models.SET_NULL,
     db_column='veranstaltungstarif_parkdauer_min_einheit',
     to_field='uuid',
-    related_name='veranstaltungstarif_parkdauer_min_einheiten+',
+    related_name='%(app_label)s_%(class)s_veranstaltungstarif_parkdauer_min_einheiten',
     blank=True,
     null=True)
   veranstaltungstarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
@@ -1452,7 +1442,7 @@ class Parkscheinautomaten_Tarife(models.Model):
     on_delete=models.SET_NULL,
     db_column='veranstaltungstarif_parkdauer_max_einheit',
     to_field='uuid',
-    related_name='veranstaltungstarif_parkdauer_max_einheiten+',
+    related_name='%(app_label)s_%(class)s_veranstaltungstarif_parkdauer_max_einheiten',
     blank=True,
     null=True)
   veranstaltungstarif_gebuehren_max = models.DecimalField(
@@ -1504,8 +1494,6 @@ class Parkscheinautomaten_Tarife(models.Model):
     }
     associated_models = {
       'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'}
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['bezeichnung']
     as_overlay = False
 
@@ -1530,7 +1518,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     on_delete=models.CASCADE,
     db_column='parkscheinautomaten_tarif',
     to_field='uuid',
-    related_name='parkscheinautomaten_tarife+')
+    related_name='%(app_label)s_%(class)s_parkscheinautomaten_tarife')
   nummer = models.PositiveSmallIntegerField('Nummer')
   bezeichnung = models.CharField(
     'Bezeichnung',
@@ -1543,7 +1531,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     on_delete=models.RESTRICT,
     db_column='zone',
     to_field='uuid',
-    related_name='zonen+')
+    related_name='%(app_label)s_%(class)s_zonen')
   handyparkzone = fields.PositiveIntegerRangeField(
     'Handyparkzone', min_value=100000, max_value=999999)
   bewohnerparkgebiet = models.CharField(
@@ -1553,8 +1541,8 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.psa_bewohnerparkgebiet_regex,
-        message=constants_vars.psa_bewohnerparkgebiet_message
+        regex=constants_vars.parkscheinautomaten_bewohnerparkgebiet_regex,
+        message=constants_vars.parkscheinautomaten_bewohnerparkgebiet_message
       )
     ]
   )
@@ -1563,8 +1551,8 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     max_length=8,
     validators=[
       RegexValidator(
-        regex=constants_vars.psa_geraetenummer_regex,
-        message=constants_vars.psa_geraetenummer_message
+        regex=constants_vars.parkscheinautomaten_geraetenummer_regex,
+        message=constants_vars.parkscheinautomaten_geraetenummer_message
       )
     ]
   )
@@ -1575,7 +1563,7 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
     on_delete=models.RESTRICT,
     db_column='e_anschluss',
     to_field='uuid',
-    related_name='e_anschluesse+')
+    related_name='%(app_label)s_%(class)s_e_anschluesse')
   stellplaetze_pkw = fields.PositiveSmallIntegerMinField(
     'Pkw-Stellplätze', min_value=1, blank=True, null=True)
   stellplaetze_bus = fields.PositiveSmallIntegerMinField(
@@ -1803,7 +1791,7 @@ class RSAG_Masten(models.Model):
     on_delete=models.RESTRICT,
     db_column='masttyp',
     to_field='uuid',
-    related_name='masttypen+')
+    related_name='%(app_label)s_%(class)s_masttypen')
   nennmass_ueber_so = fields.PositiveSmallIntegerRangeField(
     'Nennmaß über Schienenoberkante (in mm)',
     min_value=1,
@@ -1820,7 +1808,7 @@ class RSAG_Masten(models.Model):
     on_delete=models.SET_NULL,
     db_column='fundamenttyp',
     to_field='uuid',
-    related_name='fundamenttypen+',
+    related_name='%(app_label)s_%(class)s_fundamenttypen',
     blank=True,
     null=True)
   fundamentlaenge = models.DecimalField(
@@ -1864,7 +1852,7 @@ class RSAG_Masten(models.Model):
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_1',
     to_field='uuid',
-    related_name='mastkennzeichen_1+',
+    related_name='%(app_label)s_%(class)s_mastkennzeichen_1',
     blank=True,
     null=True)
   mastkennzeichen_2 = models.ForeignKey(
@@ -1873,7 +1861,7 @@ class RSAG_Masten(models.Model):
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_2',
     to_field='uuid',
-    related_name='mastkennzeichen_2+',
+    related_name='%(app_label)s_%(class)s_mastkennzeichen_2',
     blank=True,
     null=True)
   mastkennzeichen_3 = models.ForeignKey(
@@ -1882,7 +1870,7 @@ class RSAG_Masten(models.Model):
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_3',
     to_field='uuid',
-    related_name='mastkennzeichen_3+',
+    related_name='%(app_label)s_%(class)s_mastkennzeichen_3',
     blank=True,
     null=True)
   mastkennzeichen_4 = models.ForeignKey(
@@ -1891,7 +1879,7 @@ class RSAG_Masten(models.Model):
     on_delete=models.SET_NULL,
     db_column='mastkennzeichen_4',
     to_field='uuid',
-    related_name='mastkennzeichen_4+',
+    related_name='%(app_label)s_%(class)s_mastkennzeichen_4',
     blank=True,
     null=True)
   quelle = models.CharField(
@@ -1966,8 +1954,6 @@ class RSAG_Masten(models.Model):
       'RSAG_Quertraeger': 'mast',
       'RSAG_Spanndraehte': 'mast'
     }
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['mastnummer']
     geometry_type = 'Point'
     as_overlay = True
@@ -2029,7 +2015,7 @@ class RSAG_Quertraeger(models.Model):
     on_delete=models.RESTRICT,
     db_column='mast',
     to_field='uuid',
-    related_name='mast+')
+    related_name='%(app_label)s_%(class)s_masten')
   quelle = models.CharField(
     'Quelle',
     max_length=255,
@@ -2090,7 +2076,7 @@ class RSAG_Spanndraehte(models.Model):
     on_delete=models.SET_NULL,
     db_column='mast',
     to_field='uuid',
-    related_name='mast+',
+    related_name='%(app_label)s_%(class)s_masten',
     blank=True,
     null=True)
   quelle = models.CharField(
@@ -2162,14 +2148,14 @@ class UVP_Vorhaben(models.Model):
     on_delete=models.RESTRICT,
     db_column='vorgangsart',
     to_field='uuid',
-    related_name='vorgangsarten+')
+    related_name='%(app_label)s_%(class)s_vorgangsarten')
   genehmigungsbehoerde = models.ForeignKey(
     models_codelist.Genehmigungsbehoerden_UVP_Vorhaben,
     verbose_name='Genehmigungsbehörde',
     on_delete=models.RESTRICT,
     db_column='genehmigungsbehoerde',
     to_field='uuid',
-    related_name='genehmigungsbehoerden+')
+    related_name='%(app_label)s_%(class)s_genehmigungsbehoerden')
   datum_posteingang_genehmigungsbehoerde = models.DateField(
     'Datum des Posteingangs bei der Genehmigungsbehörde')
   registriernummer_bauamt = models.CharField(
@@ -2179,8 +2165,8 @@ class UVP_Vorhaben(models.Model):
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.uvp_vh_registriernummer_bauamt_regex,
-        message=constants_vars.uvp_vh_registriernummer_bauamt_message
+        regex=constants_vars.uvp_registriernummer_bauamt_regex,
+        message=constants_vars.uvp_registriernummer_bauamt_message
       )
     ]
   )
@@ -2197,14 +2183,14 @@ class UVP_Vorhaben(models.Model):
     on_delete=models.RESTRICT,
     db_column='rechtsgrundlage',
     to_field='uuid',
-    related_name='rechtsgrundlagen+')
+    related_name='%(app_label)s_%(class)s_rechtsgrundlagen')
   typ = models.ForeignKey(
     models_codelist.Typen_UVP_Vorhaben,
     verbose_name='Typ',
     on_delete=models.RESTRICT,
     db_column='typ',
     to_field='uuid',
-    related_name='typen+')
+    related_name='%(app_label)s_%(class)s_typen')
   geometrie = models.PolygonField('Geometrie', srid=25833)
 
   class Meta:
@@ -2249,8 +2235,6 @@ class UVP_Vorhaben(models.Model):
       'rechtsgrundlage',
       'typ']
     geometry_type = 'Polygon'
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
     ordering = ['bezeichnung']
     as_overlay = True
 
@@ -2275,14 +2259,14 @@ class UVP_Vorpruefungen(models.Model):
     on_delete=models.CASCADE,
     db_column='uvp_vorhaben',
     to_field='uuid',
-    related_name='uvp_vorhaben+')
+    related_name='%(app_label)s_%(class)s_uvp_vorhaben')
   art = models.ForeignKey(
     models_codelist.Arten_UVP_Vorpruefungen,
     verbose_name='Art',
     on_delete=models.RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='arten+')
+    related_name='%(app_label)s_%(class)s_arten')
   datum_posteingang = models.DateField('Datum des Posteingangs')
   datum = models.DateField('Datum', default=date.today)
   ergebnis = models.ForeignKey(
@@ -2291,7 +2275,7 @@ class UVP_Vorpruefungen(models.Model):
     on_delete=models.RESTRICT,
     db_column='ergebnis',
     to_field='uuid',
-    related_name='ergebnisse+')
+    related_name='%(app_label)s_%(class)s_ergebnisse')
   datum_bekanntmachung = models.DateField(
     'Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True)
   datum_veroeffentlichung = models.DateField(
