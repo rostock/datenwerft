@@ -182,10 +182,17 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
         python manage.py test toolbox
 
 -  Tests der App *Datenmanagement* durchführen:
+   -  Einzeltest (Beispiel):
 
-        source /usr/local/datenwerft/venv/bin/activate
-        cd /usr/local/datenwerft/datenwerft
-        python manage.py test datenmanagement
+          source /usr/local/datenwerft/venv/bin/activate
+          cd /usr/local/datenwerft/datenwerft
+          python manage.py test datenmanagement.tests.StrassenTest.test_create
+
+   -  alle Tests:
+
+          source /usr/local/datenwerft/venv/bin/activate
+          cd /usr/local/datenwerft/datenwerft
+          python manage.py test datenmanagement
 
 ## CI/CD
 

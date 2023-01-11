@@ -9,7 +9,106 @@ from . import constants_vars, fields
 
 
 #
+# Meta-Datenmodelle
+#
+
+# Adressen
+
+class Adressen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  adresse = models.CharField('Adresse', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    metamodel = True
+    editable = False
+    db_table = 'basisdaten\".\"adressenliste_datenwerft'
+    verbose_name = 'Adresse'
+    verbose_name_plural = 'Adressen'
+    description = 'Adressen in Mecklenburg-Vorpommern'
+    list_fields = {
+      'adresse': 'Adresse'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = ['adresse']
+
+  def __str__(self):
+    return self.adresse
+
+  def save(self, *args, **kwargs):
+    super(Adressen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Adressen, self).delete(*args, **kwargs)
+
+
+# Straßen
+
+class Strassen(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  strasse = models.CharField('Straße', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    metamodel = True
+    editable = False
+    db_table = 'basisdaten\".\"strassenliste_datenwerft'
+    verbose_name = 'Straße'
+    verbose_name_plural = 'Straßen'
+    description = 'Straßen in Mecklenburg-Vorpommern'
+    list_fields = {
+      'strasse': 'Straße'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = ['strasse']
+
+  def __str__(self):
+    return self.strasse
+
+  def save(self, *args, **kwargs):
+    super(Strassen, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Strassen, self).delete(*args, **kwargs)
+
+
+# Gemeindeteile
+
+class Gemeindeteile(models.Model):
+  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  gemeindeteil = models.CharField('Gemeindeteil', max_length=255, editable=False)
+
+  class Meta:
+    managed = False
+    metamodel = True
+    editable = False
+    db_table = 'basisdaten\".\"gemeindeteile_datenwerft_hro'
+    verbose_name = 'Gemeindeteil'
+    verbose_name_plural = 'Gemeindeteile'
+    description = 'Gemeindeteile in Mecklenburg-Vorpommern'
+    list_fields = {
+      'gemeindeteil': 'Gemeindeteil'
+    }
+    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
+    # Kindtabellen sortiert aufgelistet
+    ordering = ['gemeindeteil']
+    as_overlay = True
+
+  def __str__(self):
+    return self.gemeindeteil
+
+  def save(self, *args, **kwargs):
+    super(Gemeindeteile, self).save(*args, **kwargs)
+
+  def delete(self, *args, **kwargs):
+    super(Gemeindeteile, self).delete(*args, **kwargs)
+
+
+#
 # abstrakte Datenmodelle für Codelisten
+#
 #
 
 class Art(models.Model):
@@ -154,104 +253,6 @@ class Typ(models.Model):
 
   def __str__(self):
     return self.typ
-
-
-#
-# Meta-Datenmodelle
-#
-
-# Adressen
-
-class Adressen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  adresse = models.CharField('Adresse', max_length=255, editable=False)
-
-  class Meta:
-    managed = False
-    metamodel = True
-    editable = False
-    db_table = 'basisdaten\".\"adressenliste_datenwerft'
-    verbose_name = 'Adresse'
-    verbose_name_plural = 'Adressen'
-    description = 'Adressen in Mecklenburg-Vorpommern'
-    list_fields = {
-      'adresse': 'Adresse'
-    }
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
-    ordering = ['adresse']
-
-  def __str__(self):
-    return self.adresse
-
-  def save(self, *args, **kwargs):
-    super(Adressen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Adressen, self).delete(*args, **kwargs)
-
-
-# Straßen
-
-class Strassen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  strasse = models.CharField('Straße', max_length=255, editable=False)
-
-  class Meta:
-    managed = False
-    metamodel = True
-    editable = False
-    db_table = 'basisdaten\".\"strassenliste_datenwerft'
-    verbose_name = 'Straße'
-    verbose_name_plural = 'Straßen'
-    description = 'Straßen in Mecklenburg-Vorpommern'
-    list_fields = {
-      'strasse': 'Straße'
-    }
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
-    ordering = ['strasse']
-
-  def __str__(self):
-    return self.strasse
-
-  def save(self, *args, **kwargs):
-    super(Strassen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Strassen, self).delete(*args, **kwargs)
-
-
-# Gemeindeteile
-
-class Gemeindeteile(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  gemeindeteil = models.CharField('Gemeindeteil', max_length=255, editable=False)
-
-  class Meta:
-    managed = False
-    metamodel = True
-    editable = False
-    db_table = 'basisdaten\".\"gemeindeteile_datenwerft_hro'
-    verbose_name = 'Gemeindeteil'
-    verbose_name_plural = 'Gemeindeteile'
-    description = 'Gemeindeteile in Mecklenburg-Vorpommern'
-    list_fields = {
-      'gemeindeteil': 'Gemeindeteil'
-    }
-    # wichtig, denn nur so werden Drop-down-Einträge in Formularen von
-    # Kindtabellen sortiert aufgelistet
-    ordering = ['gemeindeteil']
-    as_overlay = True
-
-  def __str__(self):
-    return self.gemeindeteil
-
-  def save(self, *args, **kwargs):
-    super(Gemeindeteile, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Gemeindeteile, self).delete(*args, **kwargs)
 
 
 #

@@ -66,9 +66,9 @@
               {% if user|user_has_model_view_permission:model_name_lower or user|user_has_model_change_permission:model_name_lower %}
                 <th class="no-export"><i class="fas fa-eye" title="Datensätze ansehen"></i> oder <i class="fas fa-edit" title="Datensätze bearbeiten"></i></th>
               {% endif %}
-            {% endif %}
-            {% if user|user_has_model_delete_permission:model_name_lower %}
-              <th class="no-export"><i class="fas fa-trash" title="Datensätze löschen"></i></th>
+              {% if user|user_has_model_delete_permission:model_name_lower %}
+                <th class="no-export"><i class="fas fa-trash" title="Datensätze löschen"></i></th>
+              {% endif %}
             {% endif %}
           </tr>
         </thead>
@@ -125,17 +125,13 @@
               }
             ],
             colReorder: true,
-            columnDefs: [{
-              'orderable': false,
-              'targets': 0
-            }, {
-              'orderable': false,
-              'targets': -2
-            }, {
-              'orderable': false,
-              'targets': -1
-            }],
-            createdRow: function(row, data, dataIndex) {
+            columnDefs: determineColumnDefs(
+                '{{ editable }}',
+                '{{ user|user_has_model_view_permission:model_name_lower }}',
+                '{{ user|user_has_model_change_permission:model_name_lower }}',
+                '{{ user|user_has_model_delete_permission:model_name_lower }}'
+            ),
+            createdRow: function(row) {
               // inaktive Zeilen (= Datensätze) mit schwächerer Textfarbe versehen
               if ($(row).find('td:nth-child(2)').text() === 'nein') {
                 $(row).addClass('text-black-50');
@@ -150,7 +146,6 @@
               url: window.languageUrl
             },
             lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
-            order: [[ 1, 'asc' ]],
             orderCellsTop: true,
             orderClasses: false,
             orderMulti: false,
@@ -221,11 +216,53 @@
           else
             $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
         });
+
+        /**
+         * @function
+         * @name cloneObject
+         *
+         * legt die Spaltendefinition fest
+         *
+         * @param {String} editable - Datenmodell generell bearbeitbar?
+         * @param {String} viewPerm - Recht zum Ansehen von Datenobjekten im Datenmodell vorhanden?
+         * @param {String} changePerm - Recht zum Ändern von Datenobjekten im Datenmodell vorhanden?
+         * @param {String} deletePerm - Recht zum Löschen von Datenobjekten im Datenmodell vorhanden?
+         * @returns {Object[]} - Spaltendefinition
+         */
+        function determineColumnDefs(editable, viewPerm, changePerm, deletePerm) {
+          let columnDefs = [{
+            'orderable': false,
+            'targets': 0
+          }];
+          if (editable.toLowerCase() === 'true') {
+            let furtherColumnDefs = [];
+            if (viewPerm.toLowerCase() === 'true' || changePerm.toLowerCase() === 'true') {
+              if (deletePerm.toLowerCase() === 'true')
+                furtherColumnDefs = [{
+                  'orderable': false,
+                  'targets': -2
+                }, {
+                  'orderable': false,
+                  'targets': -1
+                }];
+              else
+                furtherColumnDefs = [{
+                    'orderable': false,
+                    'targets': -1
+                  }];
+            } else if (deletePerm.toLowerCase() === 'true')
+              furtherColumnDefs = [{
+                  'orderable': false,
+                  'targets': -1
+                }];
+            return columnDefs.concat(furtherColumnDefs);
+          }
+        }
       </script>
     </div>
-    {% if user|user_has_model_delete_permission:model_name_lower %}
+    {% if editable and user|user_has_model_delete_permission:model_name_lower %}
       <div class="d-grid mt-4">
-        <span id="action-count">kein Datensatz ausgwählt</span>
+        <span id="action-count">kein Datensatz ausgewählt</span>
       </div>
       <div class="d-grid mt-2 mb-3">
         <div class="input-group">

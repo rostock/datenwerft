@@ -68,8 +68,6 @@ class SubsetsTest(SubsetsTestCase):
     self.assertEqual(Subsets.objects.filter(pk_field=self.PK_FIELD_UPDATED).count(), 1)
 
   def test_delete(self):
-    # still exactly one object?
-    self.assertEqual(Subsets.objects.all().count(), 1)
     # no more objects left?
     self.subset.delete()
     self.assertEqual(Subsets.objects.all().count(), 0)

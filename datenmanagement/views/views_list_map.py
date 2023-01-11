@@ -204,7 +204,10 @@ class DataView(BaseDatatableView):
                 '_change',
                 args=[item_id]) +
             '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>')
-      if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
+      if (
+          self.editable
+          and self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
+      ):
         item_data.append(
             '<a href="' +
             reverse(
@@ -213,8 +216,6 @@ class DataView(BaseDatatableView):
                 '_delete',
                 args=[item_id]) +
             '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>')
-      else:
-        item_data.append('')
       json_data.append(item_data)
     return json_data
 
