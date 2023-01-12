@@ -1,9 +1,5 @@
-import decimal
-import json
-import re
-import time
-
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from django.conf import settings
 from django.core.serializers import serialize
 from django.db.models import Q
@@ -12,9 +8,13 @@ from django.utils.html import escape
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
+from json import dumps, loads
+from re import IGNORECASE, match, search, sub
+from time import time
 from zoneinfo import ZoneInfo
 
-from . import functions
+from .functions import get_data, get_model_objects, get_thumb_url, \
+  localize_number, set_model_related_context_elements
 
 
 class DataView(BaseDatatableView):
@@ -59,9 +59,9 @@ class DataView(BaseDatatableView):
 
   def get_initial_queryset(self):
     if self.kwargs and self.kwargs['subset_id']:
-      return functions.get_model_objects(self.model, int(self.kwargs['subset_id']))
+      return get_model_objects(self.model, int(self.kwargs['subset_id']))
     else:
-      return functions.get_model_objects(self.model)
+      return get_model_objects(self.model)
 
   def prepare_results(self, qs):
     """
@@ -112,7 +112,10 @@ class DataView(BaseDatatableView):
         elif (value is not None and
               self.columns_with_number is not None and
               column in self.columns_with_number):
-          data = value
+          if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
+            data = localize_number(Decimal(str(value)))
+          else:
+            data = value
         elif (value is not None and
               self.columns_with_date is not None and
               column in self.columns_with_date):
@@ -121,16 +124,10 @@ class DataView(BaseDatatableView):
         elif (value is not None and
               self.columns_with_datetime is not None and
               column in self.columns_with_datetime):
-          datetimestamp_str = re.sub(
-              r'([+-][0-9]{2}):', '\\1', str(value))
-          datetimestamp = datetime.strptime(
-              datetimestamp_str,
-              '%Y-%m-%d %H:%M:%S%z').replace(
-              tzinfo=timezone.utc).astimezone(
-              ZoneInfo(
-                  settings.TIME_ZONE))
-          datetimestamp_str = datetimestamp.strftime(
-              '%d.%m.%Y, %H:%M:%S Uhr')
+          datetimestamp_str = sub(r'([+-][0-9]{2}):', '\\1', str(value))
+          datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').\
+            replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+          datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
           data = datetimestamp_str
         elif (value is not None and
               value and
@@ -139,23 +136,22 @@ class DataView(BaseDatatableView):
           data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
         elif value is not None and column == 'foto':
           try:
-            data = ('<a href="' + value.url + '?' + str(time.time()) +
+            data = ('<a href="' + value.url + '?' + str(time()) +
                     '" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">')
             if self.thumbs is not None and self.thumbs:
-              data += '<img src="' + functions.get_thumb_url(
+              data += '<img src="' + get_thumb_url(
                   value.url) + '?' + str(
-                  time.time()) + '" alt="Vorschau" />'
+                  time()) + '" alt="Vorschau" />'
             else:
               data += '<img src="' + value.url + '?' + str(
-                  time.time()) + '" alt="Vorschau" width="70px" />'
+                  time()) + '" alt="Vorschau" width="70px" />'
             data += '</a>'
           except ValueError:
             pass
-        elif value is not None and (
-                column == 'dokument' or column == 'pdf'):
+        elif value is not None and (column == 'dokument' or column == 'pdf'):
           try:
             data = '<a href="' + value.url + '?' + str(
-                time.time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
+                time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
                 ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
                 ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
           except ValueError:
@@ -172,7 +168,7 @@ class DataView(BaseDatatableView):
                   value + '</a>')
         elif (value is not None and
               isinstance(value, str) and
-              re.match(r"^#[a-f0-9]{6}$", value, re.IGNORECASE)):
+              match(r"^#[a-f0-9]{6}$", value, IGNORECASE)):
           data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
                  + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
                  + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
@@ -226,10 +222,10 @@ class DataView(BaseDatatableView):
     :param qs: Datensatz
     :return: gefilterter Datensatz
     """
-    search = self.request.GET.get('search[value]', None)
-    if search:
+    current_search = self.request.GET.get('search[value]', None)
+    if current_search:
       qs_params = None
-      for search_element in search.lower().split():
+      for search_element in current_search.lower().split():
         qs_params_inner = None
         for column in self.columns:
           if self.columns_with_foreign_key:
@@ -237,9 +233,9 @@ class DataView(BaseDatatableView):
                 column)
             if column_with_foreign_key is not None:
               column = column + str('__') + column_with_foreign_key
-          case_a = re.search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
-          case_b = re.search('^[0-9]{2}\\.[0-9]{4}$', search_element)
-          case_c = re.search('^[0-9]{2}\\.[0-9]{2}$', search_element)
+          case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
+          case_b = search('^[0-9]{2}\\.[0-9]{4}$', search_element)
+          case_c = search('^[0-9]{2}\\.[0-9]{2}$', search_element)
           if case_a or case_b or case_c:
             search_element_splitted = search_element.split('.')
             kwargs = {
@@ -255,6 +251,10 @@ class DataView(BaseDatatableView):
           elif search_element == 'nein' or search_element == 'nei':
             kwargs = {
                 '{0}__{1}'.format(column, 'icontains'): 'false'
+            }
+          elif match(r"^[0-9]+\,[0-9]+$", search_element):
+            kwargs = {
+                '{0}__{1}'.format(column, 'icontains'): sub(',', '.', search_element)
             }
           else:
             kwargs = {
@@ -313,7 +313,7 @@ class DataListView(generic.ListView):
     :return: Dictionary mit Kontextelementen des Views
     """
     context = super(DataListView, self).get_context_data(**kwargs)
-    context = functions.set_model_related_context_elements(context, self.model, self.kwargs)
+    context = set_model_related_context_elements(context, self.model, self.kwargs)
     context['list_fields_labels'] = list(self.model._meta.list_fields.values())
     context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
     return context
@@ -357,9 +357,9 @@ class DataMapView(JsonView):
         'features': []
     }
     if self.kwargs and self.kwargs['subset_id']:
-      objects = functions.get_model_objects(self.model, int(self.kwargs['subset_id']))
+      objects = get_model_objects(self.model, int(self.kwargs['subset_id']))
     else:
-      objects = functions.get_model_objects(self.model)
+      objects = get_model_objects(self.model)
     if limit is not None and offset is not None:
       objects = objects[offset:(offset + limit)]
     elif limit is not None:
@@ -367,7 +367,7 @@ class DataMapView(JsonView):
     # über alle Objekte gehen...
     for curr_object in objects:
       # Objekt als GeoJSON serializieren
-      object_serialized = json.loads(
+      object_serialized = loads(
           serialize('geojson',
                     [curr_object],
                     srid=25833))
@@ -392,8 +392,8 @@ class DataMapView(JsonView):
               # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
               # aber nicht zwischen Hausnummer und Hausnummernzusatz
               tooltip_value + (
-                  '' if (re.match(r'^[a-z]$', field_value) and
-                         re.match(r'^[0-9]+$', previous_value)) else ' '
+                  '' if (match(r'^[a-z]$', field_value) and
+                         match(r'^[0-9]+$', previous_value)) else ' '
               ) + field_value if index > 0 else field_value
           )
           index += 1
@@ -465,12 +465,12 @@ class DataMapView(JsonView):
       # falls entsprechende Klausel in der Modelldefinition existiert
       if hasattr(self.model._meta, 'map_rangefilter_fields'):
         for field in self.model._meta.map_rangefilter_fields.keys():
-          feature['properties'][field] = str(functions.get_data(curr_object, field))
+          feature['properties'][field] = str(get_data(curr_object, field))
       # optional: sonstige Filter als Eigenschaften setzen,
       # falls entsprechende Klausel in der Modelldefinition existiert
       if hasattr(self.model._meta, 'map_filter_fields'):
         for field in self.model._meta.map_filter_fields.keys():
-          feature['properties'][field] = str(functions.get_data(curr_object, field))
+          feature['properties'][field] = str(get_data(curr_object, field))
       # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
       map_features['features'].append(feature)
     return map_features
@@ -558,7 +558,7 @@ class DataMapListView(generic.ListView):
         # da Dezimalzahlen nicht als JSON serialisiert werden können
         cleaned_value_list = []
         for value in value_list:
-          cleaned_value_list.append(str(value) if isinstance(value, decimal.Decimal) else value)
+          cleaned_value_list.append(str(value) if isinstance(value, Decimal) else value)
         # Liste in vorbereitetes Dictionary einfügen
         list_filter_lists[field_name] = cleaned_value_list
     # Dictionary für Filterfelder vorbereiten, die als Checkboxen-Set fungieren sollen
@@ -612,7 +612,7 @@ class DataMapListView(generic.ListView):
             cleaned_distinct_value_list = []
             for distinct_value in distinct_value_list:
               cleaned_distinct_value_list.append(str(distinct_value)
-                                                 if isinstance(distinct_value, decimal.Decimal)
+                                                 if isinstance(distinct_value, Decimal)
                                                  else distinct_value)
             # Liste in vorbereitetes Dictionary einfügen
             checkbox_filter_lists[field_name] = cleaned_distinct_value_list
@@ -622,7 +622,7 @@ class DataMapListView(generic.ListView):
             # direkt in vorbereitetes Dictionary einfügen
             checkbox_filter_lists[field_name] = values_list
     context = super(DataMapListView, self).get_context_data(**kwargs)
-    context = functions.set_model_related_context_elements(context, self.model, self.kwargs)
+    context = set_model_related_context_elements(context, self.model, self.kwargs)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['subset_id'] = (
         int(self.kwargs['subset_id']) if self.kwargs and self.kwargs['subset_id'] else None)
@@ -655,11 +655,11 @@ class DataMapListView(generic.ListView):
     context['map_filter_fields_as_checkbox'] = (
         self.model._meta.map_filter_fields_as_checkbox if hasattr(
             self.model._meta, 'map_filter_fields_as_checkbox') else None)
-    context['checkbox_filter_lists'] = json.dumps(checkbox_filter_lists)
+    context['checkbox_filter_lists'] = dumps(checkbox_filter_lists)
     context['map_filter_fields_as_list'] = (
         self.model._meta.map_filter_fields_as_list if hasattr(
             self.model._meta, 'map_filter_fields_as_list') else None)
-    context['list_filter_lists'] = json.dumps(list_filter_lists)
+    context['list_filter_lists'] = dumps(list_filter_lists)
     context['map_filter_boolean_fields_as_checkbox'] = (
         self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(
             self.model._meta,

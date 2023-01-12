@@ -629,6 +629,9 @@ class Durchlaesse_Durchlaesse(ComplexModel):
       'art': 'Art',
       'aktenzeichen': 'Aktenzeichen',
       'material': 'Material',
+      'baujahr': 'Baujahr',
+      'nennweite': 'Nennweite (in mm)',
+      'laenge': 'Länge (in m)',
       'zustaendigkeit': 'Zuständigkeit',
       'bearbeiter': 'Bearbeiter:in'
     }
@@ -2068,7 +2071,7 @@ class RSAG_Masten(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'mastnummer': 'Mastnummer',
-      'gesamtlaenge': 'Gesamtlänge L',
+      'gesamtlaenge': 'Gesamtlänge L (in m)',
       'masttyp': 'Masttyp',
       'fundamenttyp': 'Fundamenttyp',
       'mastkennzeichen_1': 'Mastkennzeichen 1',
@@ -2077,9 +2080,7 @@ class RSAG_Masten(ComplexModel):
       'mastkennzeichen_4': 'Mastkennzeichen 4',
       'quelle': 'Quelle'
     }
-    list_fields_with_number = [
-      'gesamtlaenge'
-    ]
+    list_fields_with_number = ['gesamtlaenge']
     list_fields_with_foreign_key = {
       'masttyp': 'typ',
       'fundamenttyp': 'typ',

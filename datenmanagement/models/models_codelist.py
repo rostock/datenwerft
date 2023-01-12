@@ -1312,6 +1312,7 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(Codelist):
     list_fields = {
       'raeumbreite': 'Räumbreite'
     }
+    list_fields_with_number = ['raeumbreite']
     ordering = ['raeumbreite']
 
   def __str__(self):
@@ -1888,6 +1889,7 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(Codelist):
     list_fields = {
       'wegebreite': 'Wegebreite'
     }
+    list_fields_with_number = ['wegebreite']
     ordering = ['wegebreite']
 
   def __str__(self):

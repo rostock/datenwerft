@@ -9,6 +9,7 @@ from django.forms import CheckboxSelectMultiple, TextInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from leaflet.forms.widgets import LeafletWidget
+from locale import LC_ALL, format_string, setlocale
 from toolbox.models import Subsets
 
 
@@ -159,6 +160,17 @@ def get_uuids_geometries_from_sql(rows):
     uuid_list.append(rows[i][0])
     geometry_list.append(str(rows[i][1]))
   return uuid_list, geometry_list
+
+
+def localize_number(value):
+  """
+  gibt den übergebenen numerischen Wert lokalisiert zurück
+
+  :param value: numerischer Wert
+  :return: lokalisierter numerischer Wert
+  """
+  setlocale(LC_ALL, 'de_DE.UTF-8')
+  return format_string('%.2f', value, grouping=True)
 
 
 def set_form_attributes(form):

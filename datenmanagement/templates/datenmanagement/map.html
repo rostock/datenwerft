@@ -572,9 +572,14 @@
               if (typeof $(this).data('boolean') == 'undefined') {
                 // Werteliste als Optionen im Listenfeld abbilden
                 for (let j = 0; j < listFilterLists[i].value.length; j++) {
+                  let value = listFilterLists[i].value[j];
+                  let text = value;
+                  // ggf. Dezimaltrenner behandeln
+                  if (/^([0-9]+\.[0-9]+)$/.test(value) === true)
+                    text = value.replace('.', ',');
                   $(this).append($('<option>', {
-                    value: listFilterLists[i].value[j],
-                    text: listFilterLists[i].value[j]
+                    value: value,
+                    text: text
                   }));
                 }
               }
@@ -929,12 +934,16 @@
                   stillVisible = false;
               }
             } else {
+               let value = filterAttributesList[i].value.toLowerCase();
+              // Dezimaltrenner behandeln, falls eine Dezimalzahl eingegeben wurde
+              if (/^([0-9]+,[0-9]+)$/.test(filterAttributesList[i].value) === true)
+                value = filterAttributesList[i].value.replace(',', '.');
               // negative oder positive Wirkungslogik?
               if (filterAttributesList[i].logic === 'negative') {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) !== -1)
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(value) !== -1)
                   stillVisible = false;
               } else {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value.toLowerCase()) === -1)
+                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(value) === -1)
                   stillVisible = false;
               }
             }

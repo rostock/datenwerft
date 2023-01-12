@@ -1639,7 +1639,7 @@ class Geh_Radwegereinigung(DefaultModel):
       'reinigungsrhythmus': 'reinigungsrhythmus',
       'breite': 'wegebreite'
     }
-    list_fields_with_number = ['id', 'laenge']
+    list_fields_with_number = ['id', 'laenge', 'breite']
     readonly_fields = ['id', 'gemeindeteil', 'laenge']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
@@ -3492,6 +3492,7 @@ class Schiffsliegeplaetze(DefaultModel):
       'hafen': 'Hafen',
       'liegeplatznummer': 'Liegeplatz',
       'bezeichnung': 'Bezeichnung',
+      'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)'
     }
     map_filter_fields_as_list = ['hafen']
     geometry_type = 'Polygon'
@@ -4723,7 +4724,9 @@ class Trinkwassernotbrunnen(DefaultModel):
       'bezeichnung': 'Bezeichnung',
       'eigentuemer': 'Eigentümer',
       'betreiber': 'Betreiber',
-      'betriebsbereit': 'betriebsbereit?'
+      'betriebsbereit': 'betriebsbereit?',
+      'bohrtiefe': 'Bohrtiefe (in m)',
+      'ausbautiefe': 'Ausbautiefe (in m)'
     }
     map_filter_fields_as_list = ['eigentuemer', 'betreiber']
     geometry_type = 'Point'
