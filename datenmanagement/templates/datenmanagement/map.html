@@ -817,7 +817,7 @@
         // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
         $('#subsetter').on('click', function() {
           // Filtermenge behandeln und übergeben
-          {% with tmp='foobar' %}
+          {% with tmp='worschdsupp' %}
             let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_list'|add:'_subset' tmp %}";
           {% endwith %}
           subsetting(

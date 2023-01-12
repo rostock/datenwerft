@@ -167,8 +167,8 @@
                 actionCheckboxes.each(function() {
                   // Zeile (= Datensatz) löschen
                   let id = $(this).val();
-                  {% with tmp='foobar' %}
-                    let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_deleteimmediately' tmp %}".replace(/foobar/, id.toString());
+                  {% with tmp='worschdsupp' %}
+                    let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_deleteimmediately' tmp %}".replace(/worschdsupp/, id.toString());
                   {% endwith %}
                   jQuery.get(url_mask);
                 });
@@ -191,7 +191,7 @@
               currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value="/, '').replace(/">/, ''));
             }
             // Filtermenge behandeln und übergeben
-            {% with tmp='foobar' %}
+            {% with tmp='worschdsupp' %}
               let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_map'|add:'_subset' tmp %}";
             {% endwith %}
             subsetting(

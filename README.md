@@ -199,8 +199,8 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 ### Ablauf
 
 1.  neuen Branch erstellen – Name des Branches:
-    - bei Features: `features/APPNAME_foobar` (Beispiel: `features/datenmanagement_fotos-bearbeiten`)
-    - bei Bugfixes: `bugfixes/APPNAME_foobar` (Beispiel: `features/accounts_emails`)
+    - bei Features: `features/APPNAME_worschdsupp` (Beispiel: `features/datenmanagement_fotos-bearbeiten`)
+    - bei Bugfixes: `bugfixes/APPNAME_worschdsupp` (Beispiel: `features/accounts_emails`)
 2.  Änderungen linten und testen (siehe oben)
 3.  Änderungen committen und Commit(s) pushen
 4.  Pull-Request erstellen

@@ -2,5 +2,5 @@ DATABASES = {
   'default',
   'datenmanagement'
 }
-USERNAME = 'foobar'
-PASSWORD = 'secret42'
+USERNAME = 'worschdsupp'
+PASSWORD = 'worschdsupp42'

@@ -32,7 +32,7 @@ function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL
     .then(response => response.json())
     .then(data => {
       let subset_id = JSON.parse(data).id;
-      window.open(successURL.replace(/foobar/, subset_id.toString()), '_blank', 'noopener,noreferrer');
+      window.open(successURL.replace(/worschdsupp/, subset_id.toString()), '_blank', 'noopener,noreferrer');
     })
     .catch(
       (error) => {

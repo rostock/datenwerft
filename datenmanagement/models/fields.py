@@ -11,6 +11,10 @@ from .constants_vars import standard_validators, personennamen_validators, email
   rufnummer_regex, rufnummer_message, url_message
 
 
+#
+# Erweiterungen bestehender Klassen für Felder
+#
+
 class ChoiceArrayField(ArrayField):
   """
   Multiple-Choice-Feld
@@ -150,6 +154,12 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
     return super(PositiveSmallIntegerRangeField, self).formfield(**defaults)
 
 
+#
+# Definition häufig genutzter Standardfelder
+#
+
+# allgemeine Felder
+
 barrierefrei_field = BooleanField(
   ' barrierefrei?',
   blank=True,
@@ -240,6 +250,8 @@ website_field = CharField(
     )
   ]
 )
+
+# Geometriefelder
 
 punkt_field = PointField(
   'Geometrie',

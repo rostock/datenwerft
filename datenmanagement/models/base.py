@@ -5,9 +5,13 @@ from django.db.models.fields import BooleanField, CharField, UUIDField
 from .constants_vars import standard_validators
 
 
-class DefaultModel(Model):
+#
+# Basisklassen für Datenmodelle
+#
+
+class Basemodel(Model):
   """
-  Datenmodell (abstrakt)
+  Basisdatenmodell (abstrakt)
   """
 
   uuid = UUIDField(
@@ -27,26 +31,30 @@ class DefaultModel(Model):
     super().delete(*args, **kwargs)
 
 
-class Metamodel(DefaultModel):
+class Metamodel(Basemodel):
   """
   Meta-Datenmodell (abstrakt)
   """
 
-  class Meta(DefaultModel.Meta):
+  class Meta(Basemodel.Meta):
     abstract = True
     metamodel = True
     editable = False
 
 
-class Codelist(DefaultModel):
+class Codelist(Basemodel):
   """
   Codeliste (abstrakt)
   """
 
-  class Meta(DefaultModel.Meta):
+  class Meta(Basemodel.Meta):
     abstract = True
     codelist = True
 
+
+#
+# Klassen für Codelisten
+#
 
 class Art(Codelist):
   """
@@ -186,7 +194,11 @@ class Typ(Codelist):
     return self.typ
 
 
-class Model(DefaultModel):
+#
+# Klassen für normale Datenmodelle
+#
+
+class DefaultModel(Basemodel):
   """
   Standard-Datenmodell (abstrakt)
   """
@@ -196,5 +208,15 @@ class Model(DefaultModel):
     default=True
   )
 
+  class Meta(Basemodel.Meta):
+    abstract = True
+
+
+class ComplexModel(DefaultModel):
+  """
+  komplexes Datenmodell (abstrakt)
+  """
+
   class Meta(DefaultModel.Meta):
     abstract = True
+    complex = True

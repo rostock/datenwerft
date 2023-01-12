@@ -4,13 +4,13 @@ from . import classes, functions
 
 
 class AdressenTest(classes.DefaultModelTestCase):
-  ADRESSE_INITIAL = 'Deppendorfer Str. 23a'
-  ADRESSE_UPDATED = 'Suppenkasperweg 42'
+  INITIAL = 'Deppendorfer Str. 23a'
+  UPDATED = 'Suppenkasperweg 42'
 
   @classmethod
   def setUpTestData(cls):
     functions.load_sql_schema()
-    cls.adresse = Adressen.objects.create(adresse=cls.ADRESSE_INITIAL)
+    cls.test_object = Adressen.objects.create(adresse=cls.INITIAL)
 
   def setUp(self):
     self.init()
@@ -31,38 +31,38 @@ class AdressenTest(classes.DefaultModelTestCase):
     # exactly one object created?
     self.assertEqual(Adressen.objects.all().count(), 1)
     # object created exactly as it should have been created?
-    adresse = Adressen.objects.get(adresse=self.ADRESSE_INITIAL)
-    self.assertEqual(adresse, self.adresse)
+    test_object = Adressen.objects.get(adresse=self.INITIAL)
+    self.assertEqual(test_object, self.test_object)
     # created object contains specific value in one of its fields?
-    self.assertEqual(Adressen.objects.filter(adresse=self.ADRESSE_INITIAL).count(), 1)
+    self.assertEqual(Adressen.objects.filter(adresse=self.INITIAL).count(), 1)
     # created object has UUID field which is defined as primary key?
-    self.assertEqual(adresse.pk, adresse.uuid)
+    self.assertEqual(test_object.pk, test_object.uuid)
 
   def test_update(self):
-    self.adresse.adresse = self.ADRESSE_UPDATED
-    self.adresse.save()
+    self.test_object.adresse = self.UPDATED
+    self.test_object.save()
     # still exactly one object?
     self.assertEqual(Adressen.objects.all().count(), 1)
     # object updated exactly as it should have been updated?
-    adresse = Adressen.objects.get(adresse=self.ADRESSE_UPDATED)
-    self.assertEqual(adresse, self.adresse)
+    test_object = Adressen.objects.get(adresse=self.UPDATED)
+    self.assertEqual(test_object, self.test_object)
     # exactly one (i.e. the updated) object contains specific value in one of its fields?
-    self.assertEqual(Adressen.objects.filter(adresse=self.ADRESSE_UPDATED).count(), 1)
+    self.assertEqual(Adressen.objects.filter(adresse=self.UPDATED).count(), 1)
 
   def test_delete(self):
     # no more objects left?
-    self.adresse.delete()
+    self.test_object.delete()
     self.assertEqual(Adressen.objects.all().count(), 0)
 
 
 class StrassenTest(classes.DefaultModelTestCase):
-  STRASSE_INITIAL = 'Deppendorfer Str.'
-  STRASSE_UPDATED = 'Suppenkasperweg'
+  INITIAL = 'Deppendorfer Str.'
+  UPDATED = 'Suppenkasperweg'
 
   @classmethod
   def setUpTestData(cls):
     functions.load_sql_schema()
-    cls.strasse = Strassen.objects.create(strasse=cls.STRASSE_INITIAL)
+    cls.test_object = Strassen.objects.create(strasse=cls.INITIAL)
 
   def setUp(self):
     self.init()
@@ -83,38 +83,38 @@ class StrassenTest(classes.DefaultModelTestCase):
     # exactly one object created?
     self.assertEqual(Strassen.objects.all().count(), 1)
     # object created exactly as it should have been created?
-    strasse = Strassen.objects.get(strasse=self.STRASSE_INITIAL)
-    self.assertEqual(strasse, self.strasse)
+    test_object = Strassen.objects.get(strasse=self.INITIAL)
+    self.assertEqual(test_object, self.test_object)
     # created object contains specific value in one of its fields?
-    self.assertEqual(Strassen.objects.filter(strasse=self.STRASSE_INITIAL).count(), 1)
+    self.assertEqual(Strassen.objects.filter(strasse=self.INITIAL).count(), 1)
     # created object has UUID field which is defined as primary key?
-    self.assertEqual(strasse.pk, strasse.uuid)
+    self.assertEqual(test_object.pk, test_object.uuid)
 
   def test_update(self):
-    self.strasse.strasse = self.STRASSE_UPDATED
-    self.strasse.save()
+    self.test_object.strasse = self.UPDATED
+    self.test_object.save()
     # still exactly one object?
     self.assertEqual(Strassen.objects.all().count(), 1)
     # object updated exactly as it should have been updated?
-    strasse = Strassen.objects.get(strasse=self.STRASSE_UPDATED)
-    self.assertEqual(strasse, self.strasse)
+    test_object = Strassen.objects.get(strasse=self.UPDATED)
+    self.assertEqual(test_object, self.test_object)
     # exactly one (i.e. the updated) object contains specific value in one of its fields?
-    self.assertEqual(Strassen.objects.filter(strasse=self.STRASSE_UPDATED).count(), 1)
+    self.assertEqual(Strassen.objects.filter(strasse=self.UPDATED).count(), 1)
 
   def test_delete(self):
     # no more objects left?
-    self.strasse.delete()
+    self.test_object.delete()
     self.assertEqual(Strassen.objects.all().count(), 0)
 
 
 class AnbieterCarsharingTest(classes.DefaultModelTestCase):
-  ANBIETER_INITIAL = 'Deppendorf GmbH & Co. KG'
-  ANBIETER_UPDATED = 'Suppenkasper AG'
+  INITIAL = 'Deppendorf GmbH & Co. KG'
+  UPDATED = 'Suppenkasper AG'
 
   @classmethod
   def setUpTestData(cls):
     functions.load_sql_schema()
-    cls.anbieter_carsharing = Anbieter_Carsharing.objects.create(anbieter=cls.ANBIETER_INITIAL)
+    cls.test_object = Anbieter_Carsharing.objects.create(anbieter=cls.INITIAL)
 
   def setUp(self):
     self.init()
@@ -130,25 +130,25 @@ class AnbieterCarsharingTest(classes.DefaultModelTestCase):
     # exactly one object created?
     self.assertEqual(Anbieter_Carsharing.objects.all().count(), 1)
     # object created exactly as it should have been created?
-    anbieter_carsharing = Anbieter_Carsharing.objects.get(anbieter=self.ANBIETER_INITIAL)
-    self.assertEqual(anbieter_carsharing, self.anbieter_carsharing)
+    test_object = Anbieter_Carsharing.objects.get(anbieter=self.INITIAL)
+    self.assertEqual(test_object, self.test_object)
     # created object contains specific value in one of its fields?
-    self.assertEqual(Anbieter_Carsharing.objects.filter(anbieter=self.ANBIETER_INITIAL).count(), 1)
+    self.assertEqual(Anbieter_Carsharing.objects.filter(anbieter=self.INITIAL).count(), 1)
     # created object has UUID field which is defined as primary key?
-    self.assertEqual(anbieter_carsharing.pk, anbieter_carsharing.uuid)
+    self.assertEqual(test_object.pk, test_object.uuid)
 
   def test_update(self):
-    self.anbieter_carsharing.anbieter = self.ANBIETER_UPDATED
-    self.anbieter_carsharing.save()
+    self.test_object.anbieter = self.UPDATED
+    self.test_object.save()
     # still exactly one object?
     self.assertEqual(Anbieter_Carsharing.objects.all().count(), 1)
     # object updated exactly as it should have been updated?
-    anbieter_carsharing = Anbieter_Carsharing.objects.get(anbieter=self.ANBIETER_UPDATED)
-    self.assertEqual(anbieter_carsharing, self.anbieter_carsharing)
+    test_object = Anbieter_Carsharing.objects.get(anbieter=self.UPDATED)
+    self.assertEqual(test_object, self.test_object)
     # exactly one (i.e. the updated) object contains specific value in one of its fields?
-    self.assertEqual(Anbieter_Carsharing.objects.filter(anbieter=self.ANBIETER_UPDATED).count(), 1)
+    self.assertEqual(Anbieter_Carsharing.objects.filter(anbieter=self.UPDATED).count(), 1)
 
   def test_delete(self):
     # no more objects left?
-    self.anbieter_carsharing.delete()
+    self.test_object.delete()
     self.assertEqual(Anbieter_Carsharing.objects.all().count(), 0)

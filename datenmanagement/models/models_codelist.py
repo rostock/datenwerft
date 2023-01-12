@@ -3,7 +3,7 @@ from django.core.validators import EmailValidator, MaxValueValidator, MinValueVa
   RegexValidator
 from django.db.models.fields import CharField, DecimalField
 
-from .classes import Metamodel, Codelist, Art, Befestigungsart, Material, Schlagwort, Status, Typ
+from .base import Metamodel, Codelist, Art, Befestigungsart, Material, Schlagwort, Status, Typ
 from .constants_vars import personennamen_validators, standard_validators, email_message, \
   fahrbahnwinterdienst_code_regex, fahrbahnwinterdienst_code_message, haefen_abkuerzung_regex, \
   haefen_abkuerzung_message, linien_linie_regex, linien_linie_message, \
@@ -11,6 +11,10 @@ from .constants_vars import personennamen_validators, standard_validators, email
   quartiere_code_message
 from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField
 
+
+#
+# Meta-Datenmodelle
+#
 
 class Adressen(Metamodel):
   """
@@ -112,6 +116,10 @@ class Gemeindeteile(Metamodel):
   def __str__(self):
     return self.gemeindeteil
 
+
+#
+# Codelisten
+#
 
 class Altersklassen_Kadaverfunde(Codelist):
   """

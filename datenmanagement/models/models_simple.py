@@ -4,14 +4,14 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, \
   URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
-from django.db.models.signals import post_delete, post_save, pre_save
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField
 from django.db.models.fields.files import FileField, ImageField
+from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
 
-from .classes import Model
+from .base import DefaultModel
 from .constants_vars import standard_validators, hausnummer_zusatz_regex, \
   hausnummer_zusatz_message, inventarnummer_regex, inventarnummer_message, url_message, \
   denksteine_nummer_regex, denksteine_nummer_message, hausnummern_antragsnummer_message, \
@@ -44,7 +44,7 @@ from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeinde
 from .storage import OverwriteStorage
 
 
-class Abfallbehaelter(Model):
+class Abfallbehaelter(DefaultModel):
   """
   Abfallbehälter
   """
@@ -218,7 +218,7 @@ class Abfallbehaelter(Model):
   bemerkungen = bemerkungen_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"abfallbehaelter_hro'
     verbose_name = 'Abfallbehälter'
     verbose_name_plural = 'Abfallbehälter'
@@ -258,7 +258,7 @@ class Abfallbehaelter(Model):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
 
-class Angelverbotsbereiche(Model):
+class Angelverbotsbereiche(DefaultModel):
   """
   Angelverbotsbereiche
   """
@@ -279,7 +279,7 @@ class Angelverbotsbereiche(Model):
   )
   geometrie = linie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"angelverbotsbereiche_hro'
     verbose_name = 'Angelverbotsbereich'
     verbose_name_plural = 'Angelverbotsbereiche'
@@ -298,7 +298,7 @@ class Angelverbotsbereiche(Model):
            (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
 
 
-class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
+class Aufteilungsplaene_Wohnungseigentumsgesetz(DefaultModel):
   """
   Aufteilungspläne nach Wohnungseigentumsgesetz
   """
@@ -341,7 +341,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"aufteilungsplaene_wohnungseigentumsgesetz_hro'
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
@@ -378,7 +378,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(Model):
 post_delete.connect(delete_pdf, sender=Aufteilungsplaene_Wohnungseigentumsgesetz)
 
 
-class Baudenkmale(Model):
+class Baudenkmale(DefaultModel):
   """
   Baudenkmale
   """
@@ -415,7 +415,7 @@ class Baudenkmale(Model):
   )
   geometrie = multiflaeche_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
     verbose_name = 'Baudenkmal'
     verbose_name_plural = 'Baudenkmale'
@@ -449,7 +449,7 @@ class Baudenkmale(Model):
       'Art: ' + str(self.art) + ']'
 
 
-class Behinderteneinrichtungen(Model):
+class Behinderteneinrichtungen(DefaultModel):
   """
   Behinderteneinrichtungen
   """
@@ -480,7 +480,7 @@ class Behinderteneinrichtungen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"behinderteneinrichtungen_hro'
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
@@ -511,7 +511,7 @@ class Behinderteneinrichtungen(Model):
       'Träger: ' + str(self.traeger) + ']'
 
 
-class Beschluesse_Bau_Planungsausschuss(Model):
+class Beschluesse_Bau_Planungsausschuss(DefaultModel):
   """
   Beschlüsse des Bau- und Planungsausschusses
   """
@@ -548,7 +548,7 @@ class Beschluesse_Bau_Planungsausschuss(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"beschluesse_bau_planungsausschuss_hro'
     verbose_name = 'Beschluss des Bau- und Planungsausschusses'
     verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
@@ -583,7 +583,7 @@ class Beschluesse_Bau_Planungsausschuss(Model):
 post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
 
 
-class Bildungstraeger(Model):
+class Bildungstraeger(DefaultModel):
   """
   Bildungsträger
   """
@@ -620,7 +620,7 @@ class Bildungstraeger(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"bildungstraeger_hro'
     verbose_name = 'Bildungsträger'
     verbose_name_plural = 'Bildungsträger'
@@ -650,7 +650,7 @@ class Bildungstraeger(Model):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-class Carsharing_Stationen(Model):
+class Carsharing_Stationen(DefaultModel):
   """
   Carsharing-Stationen
   """
@@ -693,7 +693,7 @@ class Carsharing_Stationen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"carsharing_stationen_hro'
     verbose_name = 'Carsharing-Station'
     verbose_name_plural = 'Carsharing-Stationen'
@@ -726,7 +726,7 @@ class Carsharing_Stationen(Model):
       'Anbieter: ' + str(self.anbieter) + ']'
 
 
-class Containerstellplaetze(Model):
+class Containerstellplaetze(DefaultModel):
   """
   Containerstellplätze
   """
@@ -959,7 +959,7 @@ class Containerstellplaetze(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"containerstellplaetze_hro'
     verbose_name = 'Containerstellplatz'
     verbose_name_plural = 'Containerstellplätze'
@@ -997,7 +997,7 @@ post_save.connect(delete_photo_after_emptied, sender=Containerstellplaetze)
 post_delete.connect(delete_photo, sender=Containerstellplaetze)
 
 
-class Denkmalbereiche(Model):
+class Denkmalbereiche(DefaultModel):
   """
   Denkmalbereiche
   """
@@ -1010,7 +1010,7 @@ class Denkmalbereiche(Model):
   )
   geometrie = multiflaeche_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"denkmalbereiche_hro'
     verbose_name = 'Denkmalbereich'
     verbose_name_plural = 'Denkmalbereiche'
@@ -1032,7 +1032,7 @@ class Denkmalbereiche(Model):
     return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
 
 
-class Denksteine(Model):
+class Denksteine(DefaultModel):
   """
   Denksteine
   """
@@ -1117,7 +1117,7 @@ class Denksteine(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"denksteine_hro'
     verbose_name = 'Denkstein'
     verbose_name_plural = 'Denksteine'
@@ -1158,7 +1158,7 @@ class Denksteine(Model):
       (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-class FairTrade(Model):
+class FairTrade(DefaultModel):
   """
   Fair Trade
   """
@@ -1197,7 +1197,7 @@ class FairTrade(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"fairtrade_hro'
     verbose_name = 'Fair Trade'
     verbose_name_plural = 'Fair Trade'
@@ -1228,7 +1228,7 @@ class FairTrade(Model):
       'Art: ' + str(self.art) + ']'
 
 
-class Feldsportanlagen(Model):
+class Feldsportanlagen(DefaultModel):
   """
   Feldsportanlagen
   """
@@ -1262,7 +1262,7 @@ class Feldsportanlagen(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"feldsportanlagen_hro'
     verbose_name = 'Feldsportanlage'
     verbose_name_plural = 'Feldsportanlagen'
@@ -1301,7 +1301,7 @@ post_save.connect(delete_photo_after_emptied, sender=Feldsportanlagen)
 post_delete.connect(delete_photo, sender=Feldsportanlagen)
 
 
-class Feuerwachen(Model):
+class Feuerwachen(DefaultModel):
   """
   Feuerwachen
   """
@@ -1331,7 +1331,7 @@ class Feuerwachen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"feuerwachen_hro'
     verbose_name = 'Feuerwache'
     verbose_name_plural = 'Feuerwachen'
@@ -1362,7 +1362,7 @@ class Feuerwachen(Model):
       'Art: ' + str(self.art) + ']'
 
 
-class Fliessgewaesser(Model):
+class Fliessgewaesser(DefaultModel):
   """
   Fließgewässer
   """
@@ -1414,7 +1414,7 @@ class Fliessgewaesser(Model):
   )
   geometrie = linie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"fliessgewaesser_hro'
     verbose_name = 'Fließgewässer'
     verbose_name_plural = 'Fließgewässer'
@@ -1451,7 +1451,7 @@ class Fliessgewaesser(Model):
       (', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
 
 
-class Geh_Radwegereinigung(Model):
+class Geh_Radwegereinigung(DefaultModel):
   """
   Geh- und Radwegereinigung
   """
@@ -1609,7 +1609,7 @@ class Geh_Radwegereinigung(Model):
   )
   geometrie = multilinie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
     verbose_name = 'Geh- und Radwegereinigung'
     verbose_name_plural = 'Geh- und Radwegereinigung'
@@ -1699,7 +1699,7 @@ class Geh_Radwegereinigung(Model):
                self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
 
-class Geraetespielanlagen(Model):
+class Geraetespielanlagen(DefaultModel):
   """
   Gerätespielanlagen
   """
@@ -1732,7 +1732,7 @@ class Geraetespielanlagen(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"geraetespielanlagen_hro'
     verbose_name = 'Gerätespielanlage'
     verbose_name_plural = 'Gerätespielanlagen'
@@ -1770,7 +1770,7 @@ post_save.connect(delete_photo_after_emptied, sender=Geraetespielanlagen)
 post_delete.connect(delete_photo, sender=Geraetespielanlagen)
 
 
-class Gutachterfotos(Model):
+class Gutachterfotos(DefaultModel):
   """
   Gutachterfotos
   """
@@ -1805,7 +1805,7 @@ class Gutachterfotos(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"gutachterfotos_hro'
     verbose_name = 'Gutachterfoto'
     verbose_name_plural = 'Gutachterfotos'
@@ -1844,7 +1844,7 @@ post_save.connect(photo_post_processing, sender=Gutachterfotos)
 post_delete.connect(delete_photo, sender=Gutachterfotos)
 
 
-class Hausnummern(Model):
+class Hausnummern(DefaultModel):
   """
   Hausnummern
   """
@@ -1964,7 +1964,7 @@ class Hausnummern(Model):
   bemerkungen = bemerkungen_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"hausnummern_hro'
     unique_together = ['strasse', 'hausnummer', 'hausnummer_zusatz']
     verbose_name = 'Hausnummer'
@@ -2026,7 +2026,7 @@ class Hausnummern(Model):
       ' [Postleitzahl: ' + self.postleitzahl + ']'
 
 
-class Hospize(Model):
+class Hospize(DefaultModel):
   """
   Hospize
   """
@@ -2057,7 +2057,7 @@ class Hospize(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"hospize_hro'
     verbose_name = 'Hospiz'
     verbose_name_plural = 'Hospize'
@@ -2088,7 +2088,7 @@ class Hospize(Model):
       'Träger: ' + str(self.traeger) + ']'
 
 
-class Hundetoiletten(Model):
+class Hundetoiletten(DefaultModel):
   """
   Hundetoiletten
   """
@@ -2163,7 +2163,7 @@ class Hundetoiletten(Model):
   bemerkungen = bemerkungen_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"hundetoiletten_hro'
     verbose_name = 'Hundetoilette'
     verbose_name_plural = 'Hundetoiletten'
@@ -2199,7 +2199,7 @@ class Hundetoiletten(Model):
     return self.id + ' [Art: ' + str(self.art) + ']'
 
 
-class Hydranten(Model):
+class Hydranten(DefaultModel):
   """
   Hydranten
   """
@@ -2256,7 +2256,7 @@ class Hydranten(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"hydranten_hro'
     verbose_name = 'Hydrant'
     verbose_name_plural = 'Hydranten'
@@ -2295,7 +2295,7 @@ class Hydranten(Model):
     return self.bezeichnung
 
 
-class Kadaverfunde(Model):
+class Kadaverfunde(DefaultModel):
   """
   Kadaverfunde
   """
@@ -2363,7 +2363,7 @@ class Kadaverfunde(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"kadaverfunde_hro'
     verbose_name = 'Kadaverfund'
     verbose_name_plural = 'Kadaverfunde'
@@ -2416,7 +2416,7 @@ class Kadaverfunde(Model):
     return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
 
 
-class Kindertagespflegeeinrichtungen(Model):
+class Kindertagespflegeeinrichtungen(DefaultModel):
   """
   Kindertagespflegeeinrichtungen
   """
@@ -2446,7 +2446,7 @@ class Kindertagespflegeeinrichtungen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"kindertagespflegeeinrichtungen_hro'
     verbose_name = 'Kindertagespflegeeinrichtung'
     verbose_name_plural = 'Kindertagespflegeeinrichtungen'
@@ -2479,7 +2479,7 @@ class Kindertagespflegeeinrichtungen(Model):
            (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-class Kinder_Jugendbetreuung(Model):
+class Kinder_Jugendbetreuung(DefaultModel):
   """
   Kinder- und Jugendbetreuung
   """
@@ -2509,7 +2509,7 @@ class Kinder_Jugendbetreuung(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"kinder_jugendbetreuung_hro'
     verbose_name = 'Kinder- und/oder Jugendbetreuung'
     verbose_name_plural = 'Kinder- und Jugendbetreuung'
@@ -2540,7 +2540,7 @@ class Kinder_Jugendbetreuung(Model):
       + 'Träger: ' + str(self.traeger) + ']'
 
 
-class Kunst_im_oeffentlichen_Raum(Model):
+class Kunst_im_oeffentlichen_Raum(DefaultModel):
   """
   Kunst im öffentlichen Raum
   """
@@ -2568,7 +2568,7 @@ class Kunst_im_oeffentlichen_Raum(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"kunst_im_oeffentlichen_raum_hro'
     verbose_name = 'Kunst im öffentlichen Raum'
     verbose_name_plural = 'Kunst im öffentlichen Raum'
@@ -2588,7 +2588,7 @@ class Kunst_im_oeffentlichen_Raum(Model):
     return self.bezeichnung
 
 
-class Ladestationen_Elektrofahrzeuge(Model):
+class Ladestationen_Elektrofahrzeuge(DefaultModel):
   """
   Ladestationen für Elektrofahrzeuge
   """
@@ -2667,7 +2667,7 @@ class Ladestationen_Elektrofahrzeuge(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"ladestationen_elektrofahrzeuge_hro'
     verbose_name = 'Ladestation für Elektrofahrzeuge'
     verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
@@ -2712,7 +2712,7 @@ class Ladestationen_Elektrofahrzeuge(Model):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-class Meldedienst_flaechenhaft(Model):
+class Meldedienst_flaechenhaft(DefaultModel):
   """
   Meldedienst (flächenhaft)
   """
@@ -2733,7 +2733,7 @@ class Meldedienst_flaechenhaft(Model):
   )
   geometrie = flaeche_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"meldedienst_flaechenhaft_hro'
     verbose_name = 'Meldedienst (flächenhaft)'
     verbose_name_plural = 'Meldedienst (flächenhaft)'
@@ -2763,7 +2763,7 @@ class Meldedienst_flaechenhaft(Model):
       ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
 
-class Meldedienst_punkthaft(Model):
+class Meldedienst_punkthaft(DefaultModel):
   """
   Meldedienst (punkthaft)
   """
@@ -2799,7 +2799,7 @@ class Meldedienst_punkthaft(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"meldedienst_punkthaft_hro'
     verbose_name = 'Meldedienst (punkthaft)'
     verbose_name_plural = 'Meldedienst (punkthaft)'
@@ -2839,7 +2839,7 @@ class Meldedienst_punkthaft(Model):
       (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
 
 
-class Mobilpunkte(Model):
+class Mobilpunkte(DefaultModel):
   """
   Mobilpunkte
   """
@@ -2856,7 +2856,7 @@ class Mobilpunkte(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"mobilpunkte_hro'
     verbose_name = 'Mobilpunkt'
     verbose_name_plural = 'Mobilpunkte'
@@ -2877,7 +2877,7 @@ class Mobilpunkte(Model):
     return self.bezeichnung
 
 
-class Parkmoeglichkeiten(Model):
+class Parkmoeglichkeiten(DefaultModel):
   """
   Parkmöglichkeiten
   """
@@ -3004,7 +3004,7 @@ class Parkmoeglichkeiten(Model):
   bemerkungen = bemerkungen_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"parkmoeglichkeiten_hro'
     verbose_name = 'Parkmöglichkeit'
     verbose_name_plural = 'Parkmöglichkeiten'
@@ -3037,7 +3037,7 @@ class Parkmoeglichkeiten(Model):
       (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-class Pflegeeinrichtungen(Model):
+class Pflegeeinrichtungen(DefaultModel):
   """
   Pflegeeinrichtungen
   """
@@ -3073,7 +3073,7 @@ class Pflegeeinrichtungen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"pflegeeinrichtungen_hro'
     verbose_name = 'Pflegeeinrichtung'
     verbose_name_plural = 'Pflegeeinrichtungen'
@@ -3106,7 +3106,7 @@ class Pflegeeinrichtungen(Model):
       'Art: ' + str(self.art) + ']'
 
 
-class Poller(Model):
+class Poller(DefaultModel):
   """
   Poller
   """
@@ -3183,7 +3183,7 @@ class Poller(Model):
   bemerkungen = bemerkungen_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"poller_hro'
     verbose_name = 'Poller'
     verbose_name_plural = 'Poller'
@@ -3229,7 +3229,7 @@ class Poller(Model):
       self.bezeichnung + ' [Status: ' + str(self.status) + ']'
 
 
-class Reinigungsreviere(Model):
+class Reinigungsreviere(DefaultModel):
   """
   Reinigungsreviere
   """
@@ -3254,7 +3254,7 @@ class Reinigungsreviere(Model):
   bezeichnung = bezeichnung_field
   geometrie = multiflaeche_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_gemeindeteilbezug\".\"reinigungsreviere_hro'
     verbose_name = 'Reinigungsreviere'
     verbose_name_plural = 'Reinigungsreviere'
@@ -3300,7 +3300,7 @@ class Reinigungsreviere(Model):
     return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
 
 
-class Rettungswachen(Model):
+class Rettungswachen(DefaultModel):
   """
   Rettungswachen
   """
@@ -3330,7 +3330,7 @@ class Rettungswachen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"rettungswachen_hro'
     verbose_name = 'Rettungswache'
     verbose_name_plural = 'Rettungswachen'
@@ -3361,7 +3361,7 @@ class Rettungswachen(Model):
       'Träger: ' + str(self.traeger) + ']'
 
 
-class Schiffsliegeplaetze(Model):
+class Schiffsliegeplaetze(DefaultModel):
   """
   Schiffsliegeplätze
   """
@@ -3471,7 +3471,7 @@ class Schiffsliegeplaetze(Model):
   )
   geometrie = flaeche_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"schiffsliegeplaetze_hro'
     verbose_name = 'Schiffsliegeplatz'
     verbose_name_plural = 'Schiffsliegeplätze'
@@ -3501,7 +3501,7 @@ class Schiffsliegeplaetze(Model):
     return self.liegeplatznummer + ', ' + self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
 
 
-class Schutzzaeune_Tierseuchen(Model):
+class Schutzzaeune_Tierseuchen(DefaultModel):
   """
   Schutzzäune gegen Tierseuchen
   """
@@ -3528,7 +3528,7 @@ class Schutzzaeune_Tierseuchen(Model):
   )
   geometrie = multilinie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"schutzzaeune_tierseuchen_hro'
     verbose_name = 'Schutzzaun gegen eine Tierseuche'
     verbose_name_plural = 'Schutzzäune gegen Tierseuchen'
@@ -3558,7 +3558,7 @@ class Schutzzaeune_Tierseuchen(Model):
     return str(self.tierseuche) + ', ' + str(self.zustand)
 
 
-class Sporthallen(Model):
+class Sporthallen(DefaultModel):
   """
   Sporthallen
   """
@@ -3604,7 +3604,7 @@ class Sporthallen(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"sporthallen_hro'
     verbose_name = 'Sporthalle'
     verbose_name_plural = 'Sporthallen'
@@ -3649,7 +3649,7 @@ post_save.connect(delete_photo_after_emptied, sender=Sporthallen)
 post_delete.connect(delete_photo, sender=Sporthallen)
 
 
-class Stadtteil_Begegnungszentren(Model):
+class Stadtteil_Begegnungszentren(DefaultModel):
   """
   Stadtteil- und Begegnungszentren
   """
@@ -3681,7 +3681,7 @@ class Stadtteil_Begegnungszentren(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"stadtteil_begegnungszentren_hro'
     verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
     verbose_name_plural = 'Stadtteil- und Begegnungszentren'
@@ -3712,7 +3712,7 @@ class Stadtteil_Begegnungszentren(Model):
       'Träger: ' + str(self.traeger) + ']'
 
 
-class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
+class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(DefaultModel):
   """
   Standortqualitäten von Geschäftslagen im Sanierungsgebiet
   """
@@ -3913,7 +3913,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro'
     verbose_name = 'Standortqualität einer Geschäftslage im Sanierungsgebiet'
     verbose_name_plural = 'Standortqualitäten von Geschäftslagen im Sanierungsgebiet'
@@ -3967,7 +3967,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(Model):
     return str(self.adresse)
 
 
-class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
+class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(DefaultModel):
   """
   Standortqualitäten von Wohnlagen im Sanierungsgebiet
   """
@@ -4168,7 +4168,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_wohnlagen_sanierungsgebiet_hro'
     verbose_name = 'Standortqualität einer Wohnlage im Sanierungsgebiet'
     verbose_name_plural = 'Standortqualitäten von Wohnlagen im Sanierungsgebiet'
@@ -4222,7 +4222,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(Model):
     return str(self.adresse)
 
 
-class Strassen_Simple(Model):
+class Strassen_Simple(DefaultModel):
   """
   Straßen
   """
@@ -4249,7 +4249,7 @@ class Strassen_Simple(Model):
   )
   geometrie = multilinie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"strassen_hro'
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
@@ -4339,7 +4339,7 @@ class Strassen_Simple(Model):
     return self.bezeichnung + ' (' + self.schluessel + ')'
 
 
-class Strassenreinigung(Model):
+class Strassenreinigung(DefaultModel):
   """
   Straßenreinigung
   """
@@ -4424,7 +4424,7 @@ class Strassenreinigung(Model):
   )
   geometrie = multilinie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
     verbose_name = 'Straßenreinigung'
     verbose_name_plural = 'Straßenreinigung'
@@ -4503,7 +4503,7 @@ class Strassenreinigung(Model):
        str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
 
 
-class Thalasso_Kurwege(Model):
+class Thalasso_Kurwege(DefaultModel):
   """
   Thalasso-Kurwege
   """
@@ -4537,7 +4537,7 @@ class Thalasso_Kurwege(Model):
   )
   geometrie = linie_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"thalasso_kurwege_hro'
     verbose_name = 'Thalasso-Kurweg'
     verbose_name_plural = 'Thalasso-Kurwege'
@@ -4565,7 +4565,7 @@ class Thalasso_Kurwege(Model):
     return self.bezeichnung
 
 
-class Toiletten(Model):
+class Toiletten(DefaultModel):
   """
   Toiletten
   """
@@ -4594,7 +4594,7 @@ class Toiletten(Model):
   zeiten = oeffnungszeiten_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"toiletten_hro'
     verbose_name = 'Toilette'
     verbose_name_plural = 'Toiletten'
@@ -4630,7 +4630,7 @@ class Toiletten(Model):
       (' mit Öffnungszeiten ' + self.zeiten + ']' if self.zeiten else '')
 
 
-class Trinkwassernotbrunnen(Model):
+class Trinkwassernotbrunnen(DefaultModel):
   """
   Trinkwassernotbrunnen
   """
@@ -4697,7 +4697,7 @@ class Trinkwassernotbrunnen(Model):
   )
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten\".\"trinkwassernotbrunnen_hro'
     verbose_name = 'Trinkwassernotbrunnen'
     verbose_name_plural = 'Trinkwassernotbrunnen'
@@ -4732,7 +4732,7 @@ class Trinkwassernotbrunnen(Model):
     return self.nummer
 
 
-class Vereine(Model):
+class Vereine(DefaultModel):
   """
   Vereine
   """
@@ -4773,7 +4773,7 @@ class Vereine(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"vereine_hro'
     verbose_name = 'Verein'
     verbose_name_plural = 'Vereine'
@@ -4803,7 +4803,7 @@ class Vereine(Model):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
-class Verkaufstellen_Angelberechtigungen(Model):
+class Verkaufstellen_Angelberechtigungen(DefaultModel):
   """
   Verkaufstellen für Angelberechtigungen
   """
@@ -4837,7 +4837,7 @@ class Verkaufstellen_Angelberechtigungen(Model):
   website = website_field
   geometrie = punkt_field
 
-  class Meta(Model.Meta):
+  class Meta(DefaultModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"verkaufstellen_angelberechtigungen_hro'
     verbose_name = 'Verkaufstelle für Angelberechtigungen'
     verbose_name_plural = 'Verkaufstellen für Angelberechtigungen'

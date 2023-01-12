@@ -9,9 +9,9 @@ from django.urls import reverse
 from .models import Subsets
 
 
-USERNAME = 'foobar'
-PASSWORD = 'secret42'
-INVALID_API_KEY = 'foobar'
+USERNAME = 'worschdsupp'
+PASSWORD = 'worschdsupp42'
+INVALID_API_KEY = 'worschdsupp'
 
 
 class SubsetsTestCase(TestCase):
@@ -21,8 +21,8 @@ class SubsetsTestCase(TestCase):
   PK_FIELD_UPDATED = 'oid'
   PK_VALUE_1 = '42'
   PK_VALUE_2 = '3e029807-86de-4ac0-aea3-9cd1c6db45a3'
-  PK_VALUE_3 = 'foobar'
-  PK_VALUES = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "foobar"]'
+  PK_VALUE_3 = 'worschdsupp23'
+  PK_VALUES = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "worschdsupp23"]'
 
   def init(self):
     self.test_user = User.objects.create_user(
@@ -120,7 +120,7 @@ class SubsetsTest(SubsetsTestCase):
 class OWSProxyTestCase(TestCase):
   OWS_URL_PATH_VALID = '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/' \
                        'GLOBAL_WEBMERCATOR/18/139921/84058.png'
-  OWS_URL_PATH_INVALID = '/foobar/wms'
+  OWS_URL_PATH_INVALID = '/worschdsupp/wms'
 
   def init(self):
     self.test_user = User.objects.create_user(

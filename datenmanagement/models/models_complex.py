@@ -1,83 +1,103 @@
-import re
-import uuid
-
 from datetime import date, datetime, timezone
-from decimal import *
+from decimal import Decimal
 from django.conf import settings
-from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
-from django.db.models import signals
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
+from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
+  DecimalField, PositiveIntegerField, PositiveSmallIntegerField
+from django.db.models.fields.files import FileField, ImageField
+from django.db.models.signals import post_delete, post_save
+from re import sub
 from zoneinfo import ZoneInfo
 
-from . import models_codelist, constants_vars, fields, functions, storage
+from .base import ComplexModel
+from .constants_vars import ansprechpartner_validators, standard_validators, url_message, \
+  durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
+  haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
+  parkscheinautomaten_bewohnerparkgebiet_regex, parkscheinautomaten_bewohnerparkgebiet_message, \
+  parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \
+  uvp_registriernummer_bauamt_regex, uvp_registriernummer_bauamt_message
+from .fields import bearbeiter_field, bemerkungen_field, bezeichnung_field, \
+  ChoiceArrayField, NullTextField, PositiveIntegerMinField, PositiveIntegerRangeField, \
+  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, punkt_field, linie_field, \
+  multilinie_field, flaeche_field, multiflaeche_field
+from .functions import current_year, delete_pdf, delete_photo, path_and_rename, \
+  photo_post_processing, sequence_id
+from .models_codelist import Strassen, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
+  Arten_UVP_Vorpruefungen, Auftraggeber_Baustellen, Ausfuehrungen_Haltestellenkataster, \
+  Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
+  Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
+  Ergebnisse_UVP_Vorpruefungen, Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, \
+  Genehmigungsbehoerden_UVP_Vorhaben, Mastkennzeichen_RSAG, Masttypen_RSAG, \
+  Masttypen_Haltestellenkataster, Materialien_Durchlaesse, Rechtsgrundlagen_UVP_Vorhaben, \
+  Schaeden_Haltestellenkataster, Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
+  Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, DFI_Typen_Haltestellenkataster, \
+  Fahrgastunterstandstypen_Haltestellenkataster, Fahrplanvitrinentypen_Haltestellenkataster, \
+  Typen_Haltestellen, Typen_UVP_Vorhaben, Vorgangsarten_UVP_Vorhaben, Zeiteinheiten, \
+  ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
+from .storage import OverwriteStorage
 
 
 #
 # Baustellen-Fotodokumentation
 #
 
-# Baustellen
+class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
+  """
+  Baustellen-Fotodokumentation:
+  Baustellen
+  """
 
-class Baustellen_Fotodokumentation_Baustellen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  strasse = models.ForeignKey(
-    models_codelist.Strassen,
+  strasse = ForeignKey(
+    Strassen,
     verbose_name='Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='strasse',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
-    null=True)
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    null=True
   )
-  verkehrliche_lagen = fields.ChoiceArrayField(
-    models.CharField(
+  bezeichnung = bezeichnung_field
+  verkehrliche_lagen = ChoiceArrayField(
+    CharField(
       ' verkehrliche Lage(n)',
       max_length=255,
-      choices=()),
-    verbose_name=' verkehrliche Lage(n)')
-  sparten = fields.ChoiceArrayField(
-    models.CharField(
+      choices=()
+    ),
+    verbose_name=' verkehrliche Lage(n)'
+  )
+  sparten = ChoiceArrayField(
+    CharField(
       'Sparte(n)',
       max_length=255,
-      choices=()),
-    verbose_name='Sparte(n)')
-  auftraggeber = models.ForeignKey(
-    models_codelist.Auftraggeber_Baustellen,
+      choices=()
+    ),
+    verbose_name='Sparte(n)'
+  )
+  auftraggeber = ForeignKey(
+    Auftraggeber_Baustellen,
     verbose_name='Auftraggeber',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='auftraggeber',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_auftraggeber')
-  ansprechpartner = models.CharField(
+    related_name='%(app_label)s_%(class)s_auftraggeber'
+  )
+  ansprechpartner = CharField(
     'Ansprechpartner:in',
     max_length=255,
-    validators=constants_vars.ansprechpartner_validators
+    validators=ansprechpartner_validators
   )
-  bemerkungen = models.CharField(
-    'Bemerkungen',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = models.PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bemerkungen = bemerkungen_field
+  geometrie = punkt_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"baustellen_fotodokumentation_baustellen_hro'
     verbose_name = 'Baustelle der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Baustellen der Baustellen-Fotodokumentation'
-    description = 'Baustellen der Baustellen-Fotodokumentation in der Hanse- und ' \
-                  'Universitätsstadt Rostock'
+    description = 'Baustellen der Baustellen-Fotodokumentation ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
       'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
       'sparten': 'Sparten_Baustellen'
@@ -97,7 +117,8 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
       'auftraggeber': 'auftraggeber'
     }
     associated_models = {
-      'Baustellen_Fotodokumentation_Fotos': 'baustellen_fotodokumentation_baustelle'}
+      'Baustellen_Fotodokumentation_Fotos': 'baustellen_fotodokumentation_baustelle'
+    }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -111,62 +132,55 @@ class Baustellen_Fotodokumentation_Baustellen(models.Model):
     ordering = ['bezeichnung']
 
   def __str__(self):
-    return self.bezeichnung + \
-           (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
-
-  def save(self, *args, **kwargs):
-    super(
-      Baustellen_Fotodokumentation_Baustellen,
-      self).save(
-      *args,
-      **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(
-      Baustellen_Fotodokumentation_Baustellen,
-      self).delete(
-      *args,
-      **kwargs)
+    return self.bezeichnung + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
 
 
-# Fotos
+class Baustellen_Fotodokumentation_Fotos(ComplexModel):
+  """
+  Baustellen-Fotodokumentation:
+  Fotos
+  """
 
-class Baustellen_Fotodokumentation_Fotos(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  baustellen_fotodokumentation_baustelle = models.ForeignKey(
+  baustellen_fotodokumentation_baustelle = ForeignKey(
     Baustellen_Fotodokumentation_Baustellen,
     verbose_name='Baustelle',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='baustellen_fotodokumentation_baustelle',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_baustellen_fotodokumentation_baustellen')
-  status = models.ForeignKey(
-    models_codelist.Status_Baustellen_Fotodokumentation_Fotos,
+    related_name='%(app_label)s_%(class)s_baustellen_fotodokumentation_baustellen'
+  )
+  status = ForeignKey(
+    Status_Baustellen_Fotodokumentation_Fotos,
     verbose_name='Status',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='status',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status')
-  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
-  dateiname_original = models.CharField(
-    'Original-Dateiname', max_length=255, default='ohne')
-  foto = models.ImageField(
+    related_name='%(app_label)s_%(class)s_status'
+  )
+  aufnahmedatum = DateField(
+    'Aufnahmedatum',
+    default=date.today
+  )
+  dateiname_original = CharField(
+    'Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  foto = ImageField(
     'Foto(s)',
-    storage=storage.OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PRIVATE +
-      'baustellen_fotodokumentation'),
-    max_length=255)
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'baustellen_fotodokumentation'
+    ),
+    max_length=255
+  )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"baustellen_fotodokumentation_fotos_hro'
     verbose_name = 'Foto der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Fotos der Baustellen-Fotodokumentation'
-    description = 'Fotos der Baustellen-Fotodokumentation in der Hanse- und Universitätsstadt ' \
-                  'Rostock'
+    description = 'Fotos der Baustellen-Fotodokumentation ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustellen_fotodokumentation_baustelle': 'Baustelle',
@@ -181,125 +195,118 @@ class Baustellen_Fotodokumentation_Fotos(models.Model):
       'baustellen_fotodokumentation_baustelle': 'bezeichnung',
       'status': 'status'
     }
-    fields_with_foreign_key_to_linkify = [
-      'baustellen_fotodokumentation_baustelle']
+    fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
     object_title = 'das Foto'
     foreign_key_label = 'Baustelle'
     thumbs = True
     multi_foto_field = True
 
   def __str__(self):
-    return str(self.baustellen_fotodokumentation_baustelle) + ' mit Status ' + str(self.status) + \
-           ' und Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
-      '%d.%m.%Y')
-
-  def save(self, *args, **kwargs):
-    super(Baustellen_Fotodokumentation_Fotos, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Baustellen_Fotodokumentation_Fotos, self).delete(*args, **kwargs)
+    return str(self.baustellen_fotodokumentation_baustelle) + \
+      ' mit Status ' + str(self.status) + ' und Aufnahmedatum ' + \
+      datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
 
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Baustellen_Fotodokumentation_Fotos)
+post_save.connect(photo_post_processing, sender=Baustellen_Fotodokumentation_Fotos)
 
-signals.post_delete.connect(
-  functions.delete_photo,
-  sender=Baustellen_Fotodokumentation_Fotos)
+post_delete.connect(delete_photo, sender=Baustellen_Fotodokumentation_Fotos)
 
 
 #
 # Baustellen (geplant)
 #
 
-# Baustellen
+class Baustellen_geplant(ComplexModel):
+  """
+  Baustellen (geplant):
+  Baustellen
+  """
 
-class Baustellen_geplant(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  strasse = models.ForeignKey(
-    models_codelist.Strassen,
+  strasse = ForeignKey(
+    Strassen,
     verbose_name='Straße',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='strasse',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_strassen',
     blank=True,
-    null=True)
-  projektbezeichnung = models.CharField(
+    null=True
+  )
+  projektbezeichnung = CharField(
     'Projektbezeichnung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
-  kurzbeschreibung = fields.NullTextField(
+  bezeichnung = bezeichnung_field
+  kurzbeschreibung = NullTextField(
     'Kurzbeschreibung',
     max_length=500,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  lagebeschreibung = models.CharField(
+  lagebeschreibung = CharField(
     'Lagebeschreibung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  verkehrliche_lagen = fields.ChoiceArrayField(
-    models.CharField(
+  verkehrliche_lagen = ChoiceArrayField(
+    CharField(
       ' verkehrliche Lage(n)',
       max_length=255,
-      choices=()),
-    verbose_name=' verkehrliche Lage(n)')
-  sparten = fields.ChoiceArrayField(
-    models.CharField(
+      choices=()
+    ),
+    verbose_name=' verkehrliche Lage(n)'
+  )
+  sparten = ChoiceArrayField(
+    CharField(
       'Sparte(n)',
       max_length=255,
-      choices=()),
-    verbose_name='Sparte(n)')
-  beginn = models.DateField('Beginn')
-  ende = models.DateField('Ende')
-  auftraggeber = models.ForeignKey(
-    models_codelist.Auftraggeber_Baustellen,
+      choices=()
+    ),
+    verbose_name='Sparte(n)'
+  )
+  beginn = DateField('Beginn')
+  ende = DateField('Ende')
+  auftraggeber = ForeignKey(
+    Auftraggeber_Baustellen,
     verbose_name='Auftraggeber',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='auftraggeber',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_auftraggeber')
-  ansprechpartner = models.CharField(
+    related_name='%(app_label)s_%(class)s_auftraggeber'
+  )
+  ansprechpartner = CharField(
     'Ansprechpartner:in',
     max_length=255,
-    validators=constants_vars.ansprechpartner_validators
+    validators=ansprechpartner_validators
   )
-  status = models.ForeignKey(
-    models_codelist.Status_Baustellen_geplant,
+  status = ForeignKey(
+    Status_Baustellen_geplant,
     verbose_name='Status',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='status',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_status')
-  konflikt = models.BooleanField(
+    related_name='%(app_label)s_%(class)s_status'
+  )
+  konflikt = BooleanField(
     'Konflikt?',
     blank=True,
     null=True,
-    editable=False)
-  konflikt_tolerieren = models.BooleanField(
+    editable=False
+  )
+  konflikt_tolerieren = BooleanField(
     ' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren?',
     blank=True,
-    null=True)
-  geometrie = models.MultiPolygonField('Geometrie', srid=25833)
+    null=True
+  )
+  geometrie = multiflaeche_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"baustellen_geplant'
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
@@ -355,56 +362,42 @@ class Baustellen_geplant(models.Model):
     as_overlay = True
 
   def __str__(self):
-    return self.bezeichnung \
-           + ' [' \
-           + ('Straße: '
-              + str(self.strasse)
-              + ', ' if self.strasse else '') \
-           + 'Beginn: ' \
-           + datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') \
-           + ', Ende: ' + datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y')\
-           + ']'
-
-  def save(self, *args, **kwargs):
-    super(Baustellen_geplant, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Baustellen_geplant, self).delete(*args, **kwargs)
+    return self.bezeichnung + ' [' + \
+      ('Straße: ' + str(self.strasse) + ', ' if self.strasse else '') + 'Beginn: ' + \
+      datetime.strptime(str(self.beginn), '%Y-%m-%d').strftime('%d.%m.%Y') + ', Ende: ' + \
+      datetime.strptime(str(self.ende), '%Y-%m-%d').strftime('%d.%m.%Y') + ']'
 
 
-# Dokumente
+class Baustellen_geplant_Dokumente(ComplexModel):
+  """
+  Baustellen (geplant):
+  Dokumente
+  """
 
-class Baustellen_geplant_Dokumente(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  baustelle_geplant = models.ForeignKey(
+  baustelle_geplant = ForeignKey(
     Baustellen_geplant,
     verbose_name='Baustelle (geplant)',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='baustelle_geplant',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_baustellen_geplant')
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_baustellen_geplant'
   )
-  dokument = models.FileField(
+  bezeichnung = bezeichnung_field
+  dokument = FileField(
     'Dokument',
-    storage=storage.OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PDF_PATH_PREFIX_PUBLIC +
-      'baustellen_geplant'),
-    max_length=255)
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PUBLIC + 'baustellen_geplant'
+    ),
+    max_length=255
+  )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"baustellen_geplant_dokumente'
     verbose_name = 'Dokument der Baustelle (geplant)'
     verbose_name_plural = 'Dokumente der Baustellen (geplant)'
-    description = 'Dokumente der Baustellen (geplant) in der Hanse- und Universitätsstadt ' \
-                  'Rostock und Umgebung'
+    description = 'Dokumente der Baustellen (geplant) ' \
+                  'in der Hanse- und Universitätsstadt Rostock und Umgebung'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
@@ -419,51 +412,43 @@ class Baustellen_geplant_Dokumente(models.Model):
     foreign_key_label = 'Baustelle (geplant)'
 
   def __str__(self):
-    return str(self.baustelle_geplant) + \
-           ' mit Bezeichnung ' + self.bezeichnung
-
-  def save(self, *args, **kwargs):
-    super(Baustellen_geplant_Dokumente, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Baustellen_geplant_Dokumente, self).delete(*args, **kwargs)
+    return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
 
 
-signals.post_delete.connect(
-  functions.delete_pdf,
-  sender=Baustellen_geplant_Dokumente)
+post_delete.connect(delete_pdf, sender=Baustellen_geplant_Dokumente)
 
 
-# Links
+class Baustellen_geplant_Links(ComplexModel):
+  """
+  Baustellen (geplant):
+  Links
+  """
 
-class Baustellen_geplant_Links(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  baustelle_geplant = models.ForeignKey(
+  baustelle_geplant = ForeignKey(
     Baustellen_geplant,
     verbose_name='Baustelle (geplant)',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='baustelle_geplant',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_baustellen_geplant')
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_baustellen_geplant'
   )
-  link = models.CharField(
-    'Link', max_length=255, validators=[
+  bezeichnung = bezeichnung_field
+  link = CharField(
+    'Link',
+    max_length=255,
+    validators=[
       URLValidator(
-        message=constants_vars.url_message)])
+        message=url_message
+      )
+    ]
+  )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"baustellen_geplant_links'
     verbose_name = 'Link der Baustelle (geplant)'
     verbose_name_plural = 'Links der Baustellen (geplant)'
-    description = 'Links der Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock ' \
-                  'und Umgebung'
+    description = 'Links der Baustellen (geplant) ' \
+                  'in der Hanse- und Universitätsstadt Rostock und Umgebung'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
@@ -478,136 +463,144 @@ class Baustellen_geplant_Links(models.Model):
     foreign_key_label = 'Baustelle (geplant)'
 
   def __str__(self):
-    return str(self.baustelle_geplant) + \
-           ' mit Bezeichnung ' + self.bezeichnung
-
-  def save(self, *args, **kwargs):
-    super(Baustellen_geplant_Links, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Baustellen_geplant_Links, self).delete(*args, **kwargs)
+    return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
 
 
 #
 # Durchlässe
 #
 
-# Durchlässe
+class Durchlaesse_Durchlaesse(ComplexModel):
+  """
+  Durchlässe:
+  Durchlässe
+  """
 
-class Durchlaesse_Durchlaesse(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  art = models.ForeignKey(
-    models_codelist.Arten_Durchlaesse,
+  art = ForeignKey(
+    Arten_Durchlaesse,
     verbose_name='Art',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='art',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten',
     blank=True,
-    null=True)
-  aktenzeichen = models.CharField(
+    null=True
+  )
+  aktenzeichen = CharField(
     'Aktenzeichen',
     max_length=255,
     unique=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.durchlaesse_aktenzeichen_regex,
-        message=constants_vars.durchlaesse_aktenzeichen_message
+        regex=durchlaesse_aktenzeichen_regex,
+        message=durchlaesse_aktenzeichen_message
       )
     ]
   )
-  material = models.ForeignKey(
-    models_codelist.Materialien_Durchlaesse,
+  material = ForeignKey(
+    Materialien_Durchlaesse,
     verbose_name='Material',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='material',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_materialien',
     blank=True,
-    null=True)
-  baujahr = fields.PositiveSmallIntegerRangeField(
-    'Baujahr', max_value=functions.current_year(), blank=True, null=True)
-  nennweite = fields.PositiveSmallIntegerMinField(
-    'Nennweite (in mm)', min_value=100, blank=True, null=True)
-  laenge = models.DecimalField(
+    null=True
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    'Baujahr',
+    max_value=current_year(),
+    blank=True,
+    null=True
+  )
+  nennweite = PositiveSmallIntegerMinField(
+    'Nennweite (in mm)',
+    min_value=100,
+    blank=True,
+    null=True
+  )
+  laenge = DecimalField(
     'Länge (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  nebenanlagen = fields.NullTextField(
+    null=True
+  )
+  nebenanlagen = NullTextField(
     'Nebenanlagen',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  zubehoer = fields.NullTextField(
+  zubehoer = NullTextField(
     'Zubehör',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  zustand_durchlass = models.ForeignKey(
-    models_codelist.Zustandsbewertungen,
+  zustand_durchlass = ForeignKey(
+    Zustandsbewertungen,
     verbose_name='Zustand des Durchlasses',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='zustand_durchlass',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_zustaende_durchlass',
     blank=True,
-    null=True)
-  zustand_nebenanlagen = models.ForeignKey(
-    models_codelist.Zustandsbewertungen,
+    null=True
+  )
+  zustand_nebenanlagen = ForeignKey(
+    Zustandsbewertungen,
     verbose_name='Zustand der Nebenanlagen',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='zustand_nebenanlagen',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_zustaende_nebenanlagen',
     blank=True,
-    null=True)
-  zustand_zubehoer = models.ForeignKey(
-    models_codelist.Zustandsbewertungen,
+    null=True
+  )
+  zustand_zubehoer = ForeignKey(
+    Zustandsbewertungen,
     verbose_name='Zustand des Zubehörs',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='zustand_zubehoer',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_zustaende_zubehoer',
     blank=True,
-    null=True)
-  kontrolle = models.DateField('Kontrolle', blank=True, null=True)
-  bemerkungen = fields.NullTextField(
+    null=True
+  )
+  kontrolle = DateField(
+    'Kontrolle',
+    blank=True,
+    null=True
+  )
+  bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  zustaendigkeit = models.CharField(
+  zustaendigkeit = CharField(
     'Zuständigkeit',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  bearbeiter = models.CharField(
-    'Bearbeiter:in',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
-  geometrie = models.PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  bearbeiter = bearbeiter_field
+  geometrie = punkt_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"durchlaesse_durchlaesse_hro'
     verbose_name = 'Durchlass'
     verbose_name_plural = 'Durchlässe'
@@ -647,50 +640,49 @@ class Durchlaesse_Durchlaesse(models.Model):
   def __str__(self):
     return self.aktenzeichen
 
-  def save(self, *args, **kwargs):
-    super(Durchlaesse_Durchlaesse, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(Durchlaesse_Durchlaesse, self).delete(*args, **kwargs)
+class Durchlaesse_Fotos(ComplexModel):
+  """
+  Durchlässe:
+  Fotos
+  """
 
-
-# Fotos
-
-class Durchlaesse_Fotos(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  durchlaesse_durchlass = models.ForeignKey(
+  durchlaesse_durchlass = ForeignKey(
     Durchlaesse_Durchlaesse,
     verbose_name='Durchlass',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='durchlaesse_durchlass',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_durchlaesse_durchlaesse')
-  aufnahmedatum = models.DateField(
+    related_name='%(app_label)s_%(class)s_durchlaesse_durchlaesse'
+  )
+  aufnahmedatum = DateField(
     'Aufnahmedatum',
     default=date.today,
     blank=True,
-    null=True)
-  bemerkungen = fields.NullTextField(
+    null=True
+  )
+  bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  dateiname_original = models.CharField(
-    'Original-Dateiname', max_length=255, default='ohne')
-  foto = models.ImageField(
+  dateiname_original = CharField(
+    'Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  foto = ImageField(
     'Foto(s)',
-    storage=storage.OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PUBLIC +
-      'durchlaesse'),
-    max_length=255)
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'durchlaesse'
+    ),
+    max_length=255
+  )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"durchlaesse_fotos_hro'
     verbose_name = 'Foto des Durchlasses'
     verbose_name_plural = 'Fotos der Durchlässe'
@@ -715,58 +707,49 @@ class Durchlaesse_Fotos(models.Model):
     multi_foto_field = True
 
   def __str__(self):
-    return str(self.durchlaesse_durchlass) + (' mit Aufnahmedatum ' + datetime.strptime(
-      str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y') if self.aufnahmedatum else '')
-
-  def save(self, *args, **kwargs):
-    super(Durchlaesse_Fotos, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Durchlaesse_Fotos, self).delete(*args, **kwargs)
+    return str(self.durchlaesse_durchlass) + \
+      (' mit Aufnahmedatum ' +
+       datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+       if self.aufnahmedatum else '')
 
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Durchlaesse_Fotos)
+post_save.connect(photo_post_processing, sender=Durchlaesse_Fotos)
 
-signals.post_delete.connect(functions.delete_photo, sender=Durchlaesse_Fotos)
+post_delete.connect(delete_photo, sender=Durchlaesse_Fotos)
 
 
 #
 # Fallwildsuchen
 #
 
-# Kontrollgebiete
+class Fallwildsuchen_Kontrollgebiete(ComplexModel):
+  """
+  Fallwildsuchen:
+  Kontrollgebiete
+  """
 
-class Fallwildsuchen_Kontrollgebiete(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  tierseuche = models.ForeignKey(
-    models_codelist.Tierseuchen,
+  tierseuche = ForeignKey(
+    Tierseuchen,
     verbose_name='Tierseuche',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='tierseuche',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_tierseuchen')
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_tierseuchen'
   )
-  geometrie = models.PolygonField('Geometrie', srid=25833)
+  bezeichnung = bezeichnung_field
+  geometrie = flaeche_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"fallwildsuchen_kontrollgebiete_hro'
     verbose_name = 'Kontrollgebiet im Rahmen einer Fallwildsuche'
     verbose_name_plural = 'Kontrollgebiete im Rahmen von Fallwildsuchen'
-    description = 'Kontrollgebiete im Rahmen von Fallwildsuchen in der Hanse- und ' \
-                  'Universitätsstadt Rostock'
+    description = 'Kontrollgebiete im Rahmen von Fallwildsuchen ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
       'tierseuche': 'Tierseuche',
-      'bezeichnung': 'Bezeichnung'}
+      'bezeichnung': 'Bezeichnung'
+    }
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung'
     }
@@ -776,9 +759,9 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
-      'bezeichnung': 'Bezeichnung'}
-    map_filter_fields_as_list = [
-      'tierseuche']
+      'bezeichnung': 'Bezeichnung'
+    }
+    map_filter_fields_as_list = ['tierseuche']
     geometry_type = 'Polygon'
     ordering = ['bezeichnung']
     as_overlay = True
@@ -786,50 +769,46 @@ class Fallwildsuchen_Kontrollgebiete(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Fallwildsuchen_Kontrollgebiete, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(Fallwildsuchen_Kontrollgebiete, self).delete(*args, **kwargs)
+class Fallwildsuchen_Nachweise(ComplexModel):
+  """
+  Fallwildsuchen:
+  Nachweise
+  """
 
-
-# Nachweise
-
-class Fallwildsuchen_Nachweise(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  kontrollgebiet = models.ForeignKey(
+  kontrollgebiet = ForeignKey(
     Fallwildsuchen_Kontrollgebiete,
     verbose_name='Kontrollgebiet',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='kontrollgebiet',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_kontrollgebiete')
-  art_kontrolle = models.ForeignKey(
-    models_codelist.Arten_Fallwildsuchen_Kontrollen,
+    related_name='%(app_label)s_%(class)s_kontrollgebiete'
+  )
+  art_kontrolle = ForeignKey(
+    Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art der Kontrolle',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art_kontrolle',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten_kontrolle')
-  startzeitpunkt = models.DateTimeField('Startzeitpunkt')
-  endzeitpunkt = models.DateTimeField('Endzeitpunkt')
-  geometrie = models.MultiLineStringField('Geometrie', srid=25833)
+    related_name='%(app_label)s_%(class)s_arten_kontrolle'
+  )
+  startzeitpunkt = DateTimeField('Startzeitpunkt')
+  endzeitpunkt = DateTimeField('Endzeitpunkt')
+  geometrie = multilinie_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"fallwildsuchen_nachweise_hro'
     verbose_name = 'Nachweis im Rahmen einer Fallwildsuche'
     verbose_name_plural = 'Nachweise im Rahmen von Fallwildsuchen'
-    description = 'Nachweise im Rahmen von Fallwildsuchen in der Hanse- und Universitätsstadt ' \
-                  'Rostock'
+    description = 'Nachweise im Rahmen von Fallwildsuchen ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
       'kontrollgebiet': 'Kontrollgebiet',
       'art_kontrolle': 'Art der Kontrolle',
       'startzeitpunkt': 'Startzeitpunkt',
-      'endzeitpunkt': 'Endzeitpunkt'}
+      'endzeitpunkt': 'Endzeitpunkt'
+    }
     list_fields_with_datetime = ['startzeitpunkt', 'endzeitpunkt']
     list_fields_with_foreign_key = {
       'kontrollgebiet': 'bezeichnung',
@@ -842,9 +821,9 @@ class Fallwildsuchen_Nachweise(models.Model):
     }
     map_filter_fields = {
       'kontrollgebiet': 'Kontrollgebiet',
-      'art_kontrolle': 'Art der Kontrolle'}
-    map_filter_fields_as_list = [
-      'kontrollgebiet', 'art_kontrolle']
+      'art_kontrolle': 'Art der Kontrolle'
+    }
+    map_filter_fields_as_list = ['kontrollgebiet', 'art_kontrolle']
     geometry_type = 'MultiLineString'
     fields_with_foreign_key_to_linkify = ['kontrollgebiet']
     object_title = 'der Nachweis im Rahmen einer Fallwildsuche'
@@ -854,388 +833,506 @@ class Fallwildsuchen_Nachweise(models.Model):
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
-    startzeitpunkt_str = re.sub(
-      r'([+-][0-9]{2}):',
-      '\\1',
-      str(self.startzeitpunkt)
-    )
-    startzeitpunkt = datetime.strptime(
-      startzeitpunkt_str,
-      '%Y-%m-%d %H:%M:%S%z'
-    ).replace(tzinfo=timezone.utc).astimezone(local_tz)
+    startzeitpunkt_str = sub(r'([+-][0-9]{2}):', '\\1', str(self.startzeitpunkt))
+    startzeitpunkt = datetime.strptime(startzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').\
+      replace(tzinfo=timezone.utc).astimezone(local_tz)
     startzeitpunkt_str = startzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr,')
-    endzeitpunkt_str = re.sub(
-      r'([+-][0-9]{2}):',
-      '\\1',
-      str(self.endzeitpunkt)
-    )
-    endzeitpunkt = datetime.strptime(
-      endzeitpunkt_str,
-      '%Y-%m-%d %H:%M:%S%z'
-    ).replace(tzinfo=timezone.utc).astimezone(local_tz)
+    endzeitpunkt_str = sub(r'([+-][0-9]{2}):', '\\1', str(self.endzeitpunkt))
+    endzeitpunkt = datetime.strptime(endzeitpunkt_str, '%Y-%m-%d %H:%M:%S%z').\
+      replace(tzinfo=timezone.utc).astimezone(local_tz)
     endzeitpunkt_str = endzeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-    return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' \
-                                    + startzeitpunkt_str \
-                                    + ' und Endzeitpunkt ' \
-                                    + endzeitpunkt_str \
-                                    + ' [Art der Kontrolle: ' \
-                                    + str(self.art_kontrolle) + ']'
-
-  def save(self, *args, **kwargs):
-    super(Fallwildsuchen_Nachweise, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Fallwildsuchen_Nachweise, self).delete(*args, **kwargs)
+    return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + \
+      ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' \
+      + str(self.art_kontrolle) + ']'
 
 
 #
 # Haltestellenkataster
 #
 
-# Haltestellen
+class Haltestellenkataster_Haltestellen(ComplexModel):
+  """
+  Haltestellenkataster:
+  Haltestellen
+  """
 
-class Haltestellenkataster_Haltestellen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  deaktiviert = models.DateField(
-    'Außerbetriebstellung', blank=True, null=True)
-  id = models.PositiveIntegerField('ID', default=functions.sequence_id(
-    'fachdaten.haltestellenkataster_haltestellen_hro_id_seq'))
-  hst_bezeichnung = models.CharField(
+  deaktiviert = DateField(
+    'Außerbetriebstellung',
+    blank=True,
+    null=True
+  )
+  id = PositiveIntegerField(
+    'ID',
+    default=sequence_id('fachdaten.haltestellenkataster_haltestellen_hro_id_seq')
+  )
+  hst_bezeichnung = CharField(
     'Haltestellenbezeichnung',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  hst_hafas_id = models.CharField(
+  hst_hafas_id = CharField(
     'HAFAS-ID',
     max_length=8,
     blank=True,
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.haltestellenkataster_hafas_id_regex,
-        message=constants_vars.haltestellenkataster_hafas_id_message
+        regex=haltestellenkataster_hafas_id_regex,
+        message=haltestellenkataster_hafas_id_message
       )
     ]
   )
-  hst_bus_bahnsteigbezeichnung = models.CharField(
+  hst_bus_bahnsteigbezeichnung = CharField(
     'Bus-/Bahnsteigbezeichnung',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  hst_richtung = models.CharField(
+  hst_richtung = CharField(
     'Richtungsinformation',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  hst_kategorie = models.CharField(
+  hst_kategorie = CharField(
     'Haltestellenkategorie',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  hst_linien = fields.ChoiceArrayField(
-    models.CharField(
+  hst_linien = ChoiceArrayField(
+    CharField(
       ' bedienende Linie(n)',
       max_length=4,
-      choices=()),
+      choices=()
+    ),
     verbose_name=' bedienende Linie(n)',
     blank=True,
-    null=True)
-  hst_rsag = models.BooleanField(
+    null=True
+  )
+  hst_rsag = BooleanField(
     ' bedient durch Rostocker Straßenbahn AG?',
     blank=True,
-    null=True)
-  hst_rebus = models.BooleanField(
+    null=True
+  )
+  hst_rebus = BooleanField(
     ' bedient durch rebus Regionalbus Rostock GmbH?',
     blank=True,
-    null=True)
-  hst_nur_ausstieg = models.BooleanField(
-    ' nur Ausstieg?', blank=True, null=True)
-  hst_nur_einstieg = models.BooleanField(
-    ' nur Einstieg?', blank=True, null=True)
-  hst_verkehrsmittelklassen = fields.ChoiceArrayField(
-    models.CharField(
+    null=True
+  )
+  hst_nur_ausstieg = BooleanField(
+    ' nur Ausstieg?',
+    blank=True,
+    null=True
+  )
+  hst_nur_einstieg = BooleanField(
+    ' nur Einstieg?',
+    blank=True,
+    null=True
+  )
+  hst_verkehrsmittelklassen = ChoiceArrayField(
+    CharField(
       'Verkehrsmittelklasse(n)',
       max_length=255,
-      choices=()),
-    verbose_name='Verkehrsmittelklasse(n)')
-  hst_abfahrten = fields.PositiveSmallIntegerMinField(
+      choices=()
+    ),
+    verbose_name='Verkehrsmittelklasse(n)'
+  )
+  hst_abfahrten = PositiveSmallIntegerMinField(
     ' durchschnittliche tägliche Zahl an Abfahrten',
     min_value=1,
     blank=True,
-    null=True)
-  hst_fahrgastzahl_einstieg = fields.PositiveSmallIntegerMinField(
+    null=True
+  )
+  hst_fahrgastzahl_einstieg = PositiveSmallIntegerMinField(
     ' durchschnittliche tägliche Fahrgastzahl (Einstieg)',
     min_value=1,
     blank=True,
-    null=True)
-  hst_fahrgastzahl_ausstieg = fields.PositiveSmallIntegerMinField(
+    null=True
+  )
+  hst_fahrgastzahl_ausstieg = PositiveSmallIntegerMinField(
     ' durchschnittliche tägliche Fahrgastzahl (Ausstieg)',
     min_value=1,
     blank=True,
-    null=True)
-  bau_typ = models.ForeignKey(
-    models_codelist.Typen_Haltestellen,
+    null=True
+  )
+  bau_typ = ForeignKey(
+    Typen_Haltestellen,
     verbose_name='Typ',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bau_typ',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bau_typen',
     blank=True,
-    null=True)
-  bau_wartebereich_laenge = models.DecimalField(
+    null=True
+  )
+  bau_wartebereich_laenge = DecimalField(
     'Länge des Wartebereichs (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Wartebereich</em></strong> muss mindestens 0,01 m lang sein.'),
+        'Der <strong><em>Wartebereich</em></strong> muss mindestens 0,01 m lang sein.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Der <strong><em>Wartebereich</em></strong> darf höchstens 999,99 m lang sein.')],
+        'Der <strong><em>Wartebereich</em></strong> darf höchstens 999,99 m lang sein.'
+      )
+    ],
     blank=True,
-    null=True)
-  bau_wartebereich_breite = models.DecimalField(
+    null=True
+  )
+  bau_wartebereich_breite = DecimalField(
     'Breite des Wartebereichs (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Wartebereich</em></strong> muss mindestens 0,01 m breit sein.'),
+        'Der <strong><em>Wartebereich</em></strong> muss mindestens 0,01 m breit sein.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Der <strong><em>Wartebereich</em></strong> darf höchstens 999,99 m breit sein.')],
+        'Der <strong><em>Wartebereich</em></strong> darf höchstens 999,99 m breit sein.'
+      )
+    ],
     blank=True,
-    null=True)
-  bau_befestigungsart_aufstellflaeche_bus = models.ForeignKey(
-    models_codelist.Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster,
+    null=True
+  )
+  bau_befestigungsart_aufstellflaeche_bus = ForeignKey(
+    Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster,
     verbose_name='Befestigungsart der Aufstellfläche Bus',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bau_befestigungsart_aufstellflaeche_bus',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bau_befestigungsarten_aufstellflaeche_bus',
     blank=True,
-    null=True)
-  bau_zustand_aufstellflaeche_bus = models.ForeignKey(
-    models_codelist.Schaeden_Haltestellenkataster,
+    null=True
+  )
+  bau_zustand_aufstellflaeche_bus = ForeignKey(
+    Schaeden_Haltestellenkataster,
     verbose_name='Zustand der Aufstellfläche Bus',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bau_zustand_aufstellflaeche_bus',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bau_zustaende_aufstellflaeche_bus',
     blank=True,
-    null=True)
-  bau_befestigungsart_warteflaeche = models.ForeignKey(
-    models_codelist.Befestigungsarten_Warteflaeche_Haltestellenkataster,
+    null=True
+  )
+  bau_befestigungsart_warteflaeche = ForeignKey(
+    Befestigungsarten_Warteflaeche_Haltestellenkataster,
     verbose_name='Befestigungsart der Wartefläche',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bau_befestigungsart_warteflaeche',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bau_befestigungsarten_warteflaeche',
     blank=True,
-    null=True)
-  bau_zustand_warteflaeche = models.ForeignKey(
-    models_codelist.Schaeden_Haltestellenkataster,
+    null=True
+  )
+  bau_zustand_warteflaeche = ForeignKey(
+    Schaeden_Haltestellenkataster,
     verbose_name='Zustand der Wartefläche',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='bau_zustand_warteflaeche',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bau_zustaende_warteflaeche',
     blank=True,
-    null=True)
-  bf_einstieg = models.BooleanField(
-    ' barrierefreier Einstieg vorhanden?', blank=True, null=True)
-  bf_zu_abgaenge = models.BooleanField(
-    ' barrierefreie Zu- und Abgänge vorhanden?', blank=True, null=True)
-  bf_bewegungsraum = models.BooleanField(
-    ' barrierefreier Bewegungsraum vorhanden?', blank=True, null=True)
-  tl_auffindestreifen = models.BooleanField(
-    'Taktiles Leitsystem: Auffindestreifen vorhanden?', blank=True, null=True)
-  tl_auffindestreifen_ausfuehrung = models.ForeignKey(
-    models_codelist.Ausfuehrungen_Haltestellenkataster,
+    null=True
+  )
+  bf_einstieg = BooleanField(
+    ' barrierefreier Einstieg vorhanden?',
+    blank=True,
+    null=True
+  )
+  bf_zu_abgaenge = BooleanField(
+    ' barrierefreie Zu- und Abgänge vorhanden?',
+    blank=True,
+    null=True
+  )
+  bf_bewegungsraum = BooleanField(
+    ' barrierefreier Bewegungsraum vorhanden?',
+    blank=True,
+    null=True
+  )
+  tl_auffindestreifen = BooleanField(
+    'Taktiles Leitsystem: Auffindestreifen vorhanden?',
+    blank=True,
+    null=True
+  )
+  tl_auffindestreifen_ausfuehrung = ForeignKey(
+    Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Auffindestreifen',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='tl_auffindestreifen_ausfuehrung',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_tl_auffindestreifen_ausfuehrungen',
     blank=True,
-    null=True)
-  tl_auffindestreifen_breite = fields.PositiveIntegerMinField(
+    null=True
+  )
+  tl_auffindestreifen_breite = PositiveIntegerMinField(
     'Taktiles Leitsystem: Breite des Auffindestreifens (in cm)',
     min_value=1,
     blank=True,
-    null=True)
-  tl_einstiegsfeld = models.BooleanField(
-    'Taktiles Leitsystem: Einstiegsfeld vorhanden?', blank=True, null=True)
-  tl_einstiegsfeld_ausfuehrung = models.ForeignKey(
-    models_codelist.Ausfuehrungen_Haltestellenkataster,
+    null=True
+  )
+  tl_einstiegsfeld = BooleanField(
+    'Taktiles Leitsystem: Einstiegsfeld vorhanden?',
+    blank=True,
+    null=True
+  )
+  tl_einstiegsfeld_ausfuehrung = ForeignKey(
+    Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Einstiegsfeld',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='tl_einstiegsfeld_ausfuehrung',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_tl_einstiegsfeld_ausfuehrungen',
     blank=True,
-    null=True)
-  tl_einstiegsfeld_breite = fields.PositiveIntegerMinField(
+    null=True
+  )
+  tl_einstiegsfeld_breite = PositiveIntegerMinField(
     'Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)',
     min_value=1,
     blank=True,
-    null=True)
-  tl_leitstreifen = models.BooleanField(
-    'Taktiles Leitsystem: Leitstreifen vorhanden?', blank=True, null=True)
-  tl_leitstreifen_ausfuehrung = models.ForeignKey(
-    models_codelist.Ausfuehrungen_Haltestellenkataster,
+    null=True
+  )
+  tl_leitstreifen = BooleanField(
+    'Taktiles Leitsystem: Leitstreifen vorhanden?',
+    blank=True,
+    null=True
+  )
+  tl_leitstreifen_ausfuehrung = ForeignKey(
+    Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Leitstreifen',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='tl_leitstreifen_ausfuehrung',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_tl_leitstreifen_ausfuehrungen',
     blank=True,
-    null=True)
-  tl_leitstreifen_laenge = fields.PositiveIntegerMinField(
+    null=True
+  )
+  tl_leitstreifen_laenge = PositiveIntegerMinField(
     'Taktiles Leitsystem: Länge des Leitstreifens (in cm)',
     min_value=1,
     blank=True,
-    null=True)
-  tl_aufmerksamkeitsfeld = models.BooleanField(
-    'Aufmerksamkeitsfeld (1. Tür) vorhanden?', blank=True, null=True)
-  tl_bahnsteigkante_visuell = models.BooleanField(
-    'Bahnsteigkante visuell erkennbar?', blank=True, null=True)
-  tl_bahnsteigkante_taktil = models.BooleanField(
-    'Bahnsteigkante taktil erkennbar?', blank=True, null=True)
-  as_zh_typ = models.ForeignKey(
-    models_codelist.ZH_Typen_Haltestellenkataster,
+    null=True
+  )
+  tl_aufmerksamkeitsfeld = BooleanField(
+    'Aufmerksamkeitsfeld (1. Tür) vorhanden?',
+    blank=True,
+    null=True
+  )
+  tl_bahnsteigkante_visuell = BooleanField(
+    'Bahnsteigkante visuell erkennbar?',
+    blank=True,
+    null=True
+  )
+  tl_bahnsteigkante_taktil = BooleanField(
+    'Bahnsteigkante taktil erkennbar?',
+    blank=True,
+    null=True
+  )
+  as_zh_typ = ForeignKey(
+    ZH_Typen_Haltestellenkataster,
     verbose_name='ZH-Typ',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='as_zh_typ',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_as_zh_typen',
     blank=True,
-    null=True)
-  as_h_mast = models.BooleanField('Mast vorhanden?', blank=True, null=True)
-  as_h_masttyp = models.ForeignKey(
-    models_codelist.Masttypen_Haltestellenkataster,
+    null=True
+  )
+  as_h_mast = BooleanField(
+    'Mast vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_h_masttyp = ForeignKey(
+    Masttypen_Haltestellenkataster,
     verbose_name='Masttyp',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='as_h_masttyp',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_as_h_masttypen',
     blank=True,
-    null=True)
-  as_papierkorb = models.BooleanField(
-    'Papierkorb vorhanden?', blank=True, null=True)
-  as_fahrgastunterstand = models.BooleanField(
-    'Fahrgastunterstand vorhanden?', blank=True, null=True)
-  as_fahrgastunterstandstyp = models.ForeignKey(
-    models_codelist.Fahrgastunterstandstypen_Haltestellenkataster,
+    null=True
+  )
+  as_papierkorb = BooleanField(
+    'Papierkorb vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_fahrgastunterstand = BooleanField(
+    'Fahrgastunterstand vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_fahrgastunterstandstyp = ForeignKey(
+    Fahrgastunterstandstypen_Haltestellenkataster,
     verbose_name='Typ des Fahrgastunterstand',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='as_fahrgastunterstandstyp',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_as_fahrgastunterstandstypen',
     blank=True,
-    null=True)
-  as_sitzbank_mit_armlehne = models.BooleanField(
-    'Sitzbank mit Armlehne vorhanden?', blank=True, null=True)
-  as_sitzbank_ohne_armlehne = models.BooleanField(
-    'Sitzbank ohne Armlehne vorhanden?', blank=True, null=True)
-  as_sitzbanktyp = models.ForeignKey(
-    models_codelist.Sitzbanktypen_Haltestellenkataster,
+    null=True
+  )
+  as_sitzbank_mit_armlehne = BooleanField(
+    'Sitzbank mit Armlehne vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_sitzbank_ohne_armlehne = BooleanField(
+    'Sitzbank ohne Armlehne vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_sitzbanktyp = ForeignKey(
+    Sitzbanktypen_Haltestellenkataster,
     verbose_name='Typ der Sitzbank',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='as_sitzbanktyp',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_as_sitzbanktypen',
     blank=True,
-    null=True)
-  as_gelaender = models.BooleanField(
-    'Geländer vorhanden?', blank=True, null=True)
-  as_fahrplanvitrine = models.BooleanField(
-    'Fahrplanvitrine vorhanden?', blank=True, null=True)
-  as_fahrplanvitrinentyp = models.ForeignKey(
-    models_codelist.Fahrplanvitrinentypen_Haltestellenkataster,
+    null=True
+  )
+  as_gelaender = BooleanField(
+    'Geländer vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_fahrplanvitrine = BooleanField(
+    'Fahrplanvitrine vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_fahrplanvitrinentyp = ForeignKey(
+    Fahrplanvitrinentypen_Haltestellenkataster,
     verbose_name='Typ der Fahrplanvitrine',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='as_fahrplanvitrinentyp',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_as_fahrplanvitrinentypen',
     blank=True,
-    null=True)
-  as_tarifinformation = models.BooleanField(
-    'Tarifinformation vorhanden?', blank=True, null=True)
-  as_liniennetzplan = models.BooleanField(
-    'Liniennetzplan vorhanden?', blank=True, null=True)
-  as_fahrplan = models.BooleanField(
-    'Fahrplan vorhanden?', blank=True, null=True)
-  as_fahrausweisautomat = models.BooleanField(
-    'Fahrausweisautomat vorhanden?', blank=True, null=True)
-  as_lautsprecher = models.BooleanField(
-    'Lautsprecher vorhanden?', blank=True, null=True)
-  as_dfi = models.BooleanField(
+    null=True
+  )
+  as_tarifinformation = BooleanField(
+    'Tarifinformation vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_liniennetzplan = BooleanField(
+    'Liniennetzplan vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_fahrplan = BooleanField(
+    'Fahrplan vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_fahrausweisautomat = BooleanField(
+    'Fahrausweisautomat vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_lautsprecher = BooleanField(
+    'Lautsprecher vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_dfi = BooleanField(
     'Dynamisches Fahrgastinformationssystem vorhanden?',
     blank=True,
-    null=True)
-  as_dfi_typ = models.ForeignKey(
-    models_codelist.DFI_Typen_Haltestellenkataster,
+    null=True
+  )
+  as_dfi_typ = ForeignKey(
+    DFI_Typen_Haltestellenkataster,
     verbose_name='Typ des Dynamischen Fahrgastinformationssystems',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='as_dfi_typ',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_as_dfi_typen',
     blank=True,
-    null=True)
-  as_anfragetaster = models.BooleanField(
-    'Anfragetaster vorhanden?', blank=True, null=True)
-  as_blindenschrift = models.BooleanField(
+    null=True
+  )
+  as_anfragetaster = BooleanField(
+    'Anfragetaster vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_blindenschrift = BooleanField(
     'Haltestellen-/Linieninformationen in Blindenschrift vorhanden?',
     blank=True,
-    null=True)
-  as_beleuchtung = models.BooleanField(
-    'Beleuchtung vorhanden?', blank=True, null=True)
-  as_hinweis_warnblinklicht_ein = models.BooleanField(
-    'Hinweis „Warnblinklicht ein“ vorhanden?', blank=True, null=True)
-  bfe_park_and_ride = models.BooleanField(
-    'P+R-Parkplatz in Umgebung vorhanden?', blank=True, null=True)
-  bfe_fahrradabstellmoeglichkeit = models.BooleanField(
-    'Fahrradabstellmöglichkeit in Umgebung vorhanden?', blank=True, null=True)
-  bfe_querungshilfe = models.BooleanField(
-    'Querungshilfe in Umgebung vorhanden?', blank=True, null=True)
-  bfe_fussgaengerueberweg = models.BooleanField(
-    'Fußgängerüberweg in Umgebung vorhanden?', blank=True, null=True)
-  bfe_seniorenheim = models.BooleanField(
-    'Seniorenheim in Umgebung vorhanden?', blank=True, null=True)
-  bfe_pflegeeinrichtung = models.BooleanField(
-    'Pflegeeinrichtung in Umgebung vorhanden?', blank=True, null=True)
-  bfe_medizinische_versorgungseinrichtung = models.BooleanField(
-    'Medizinische Versorgungseinrichtung in Umgebung vorhanden?', blank=True, null=True)
-  bearbeiter = models.CharField(
+    null=True
+  )
+  as_beleuchtung = BooleanField(
+    'Beleuchtung vorhanden?',
+    blank=True,
+    null=True
+  )
+  as_hinweis_warnblinklicht_ein = BooleanField(
+    'Hinweis „Warnblinklicht ein“ vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_park_and_ride = BooleanField(
+    'P+R-Parkplatz in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_fahrradabstellmoeglichkeit = BooleanField(
+    'Fahrradabstellmöglichkeit in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_querungshilfe = BooleanField(
+    'Querungshilfe in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_fussgaengerueberweg = BooleanField(
+    'Fußgängerüberweg in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_seniorenheim = BooleanField(
+    'Seniorenheim in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_pflegeeinrichtung = BooleanField(
+    'Pflegeeinrichtung in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bfe_medizinische_versorgungseinrichtung = BooleanField(
+    'Medizinische Versorgungseinrichtung in Umgebung vorhanden?',
+    blank=True,
+    null=True
+  )
+  bearbeiter = CharField(
     'Bearbeiter:in',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  bemerkungen = fields.NullTextField(
+  bemerkungen = NullTextField(
     'Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = models.PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+  geometrie = punkt_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"haltestellenkataster_haltestellen_hro'
     unique_together = ['hst_hafas_id', 'hst_bus_bahnsteigbezeichnung']
     verbose_name = 'Haltestelle des Haltestellenkatasters'
@@ -1264,53 +1361,53 @@ class Haltestellenkataster_Haltestellen(models.Model):
     as_overlay = True
 
   def __str__(self):
-    return self.hst_bezeichnung + ' [ID: ' + str(self.id) \
-           + (', HAFAS-ID: '
-              + self.hst_hafas_id if self.hst_hafas_id else '') \
-           + (', Bus-/Bahnsteig: '
-              + self.hst_bus_bahnsteigbezeichnung if self.hst_bus_bahnsteigbezeichnung else '') \
-           + ']'
-
-  def save(self, *args, **kwargs):
-    super(Haltestellenkataster_Haltestellen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Haltestellenkataster_Haltestellen, self).delete(*args, **kwargs)
+    return self.hst_bezeichnung + ' [ID: ' + str(self.id) + \
+      (', HAFAS-ID: ' + self.hst_hafas_id if self.hst_hafas_id else '') + \
+      (', Bus-/Bahnsteig: ' +
+       self.hst_bus_bahnsteigbezeichnung if self.hst_bus_bahnsteigbezeichnung else '') + ']'
 
 
-# Fotos
+class Haltestellenkataster_Fotos(ComplexModel):
+  """
+  Haltestellenkataster:
+  Fotos
+  """
 
-class Haltestellenkataster_Fotos(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  haltestellenkataster_haltestelle = models.ForeignKey(
+  haltestellenkataster_haltestelle = ForeignKey(
     Haltestellenkataster_Haltestellen,
     verbose_name='Haltestelle',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='haltestellenkataster_haltestelle',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_haltestellenkataster_haltestellen')
-  motiv = models.ForeignKey(
-    models_codelist.Fotomotive_Haltestellenkataster,
+    related_name='%(app_label)s_%(class)s_haltestellenkataster_haltestellen'
+  )
+  motiv = ForeignKey(
+    Fotomotive_Haltestellenkataster,
     verbose_name='Motiv',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='motiv',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_motive')
-  aufnahmedatum = models.DateField('Aufnahmedatum', default=date.today)
-  dateiname_original = models.CharField(
-    'Original-Dateiname', max_length=255, default='ohne')
-  foto = models.ImageField(
+    related_name='%(app_label)s_%(class)s_motive'
+  )
+  aufnahmedatum = DateField(
+    'Aufnahmedatum',
+    default=date.today
+  )
+  dateiname_original = CharField(
+    'Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  foto = ImageField(
     'Foto(s)',
-    storage=storage.OverwriteStorage(),
-    upload_to=functions.path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PRIVATE +
-      'haltestellenkataster'),
-    max_length=255)
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'
+    ),
+    max_length=255
+  )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"haltestellenkataster_fotos_hro'
     verbose_name = 'Foto des Haltestellenkatasters'
     verbose_name_plural = 'Fotos des Haltestellenkatasters'
@@ -1329,8 +1426,7 @@ class Haltestellenkataster_Fotos(models.Model):
       'haltestellenkataster_haltestelle': 'id',
       'motiv': 'fotomotiv'
     }
-    fields_with_foreign_key_to_linkify = [
-      'haltestellenkataster_haltestelle']
+    fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
     object_title = 'das Foto'
     foreign_key_label = 'Haltestelle'
     thumbs = True
@@ -1338,60 +1434,60 @@ class Haltestellenkataster_Fotos(models.Model):
 
   def __str__(self):
     return str(self.haltestellenkataster_haltestelle) + ' mit Motiv ' + str(self.motiv) + \
-           ' und Aufnahmedatum ' + datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime(
-      '%d.%m.%Y')
-
-  def save(self, *args, **kwargs):
-    super(Haltestellenkataster_Fotos, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(Haltestellenkataster_Fotos, self).delete(*args, **kwargs)
+      ' und Aufnahmedatum ' + \
+      datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
 
 
-signals.post_save.connect(
-  functions.photo_post_processing,
-  sender=Haltestellenkataster_Fotos)
+post_save.connect(photo_post_processing, sender=Haltestellenkataster_Fotos)
 
-signals.post_delete.connect(
-  functions.delete_photo,
-  sender=Haltestellenkataster_Fotos)
+post_delete.connect(delete_photo, sender=Haltestellenkataster_Fotos)
 
 
 #
 # Parkscheinautomaten
 #
 
-# Tarife
+class Parkscheinautomaten_Tarife(ComplexModel):
+  """
+  Parkscheinautomaten:
+  Tarife
+  """
 
-class Parkscheinautomaten_Tarife(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
+  bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
     unique=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  zeiten = models.CharField('Bewirtschaftungszeiten', max_length=255)
-  normaltarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
-    'Mindestparkdauer Normaltarif', min_value=1)
-  normaltarif_parkdauer_min_einheit = models.ForeignKey(
-    models_codelist.Zeiteinheiten,
+  zeiten = CharField(
+    'Bewirtschaftungszeiten',
+    max_length=255
+  )
+  normaltarif_parkdauer_min = PositiveSmallIntegerMinField(
+    'Mindestparkdauer Normaltarif',
+    min_value=1
+  )
+  normaltarif_parkdauer_min_einheit = ForeignKey(
+    Zeiteinheiten,
     verbose_name='Einheit der Mindestparkdauer Normaltarif',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='normaltarif_parkdauer_min_einheit',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_min_einheiten')
-  normaltarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
-    'Maximalparkdauer Normaltarif', min_value=1)
-  normaltarif_parkdauer_max_einheit = models.ForeignKey(
-    models_codelist.Zeiteinheiten,
+    related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_min_einheiten'
+  )
+  normaltarif_parkdauer_max = PositiveSmallIntegerMinField(
+    'Maximalparkdauer Normaltarif',
+    min_value=1
+  )
+  normaltarif_parkdauer_max_einheit = ForeignKey(
+    Zeiteinheiten,
     verbose_name='Einheit der Maximalparkdauer Normaltarif',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='normaltarif_parkdauer_max_einheit',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_max_einheiten')
-  normaltarif_gebuehren_max = models.DecimalField(
+    related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_max_einheiten'
+  )
+  normaltarif_gebuehren_max = DecimalField(
     'Maximalgebühren Normaltarif (in €)',
     max_digits=4,
     decimal_places=2,
@@ -1399,14 +1495,18 @@ class Parkscheinautomaten_Tarife(models.Model):
       MinValueValidator(
         Decimal('0.01'),
         'Die <strong><em>Maximalgebühren Normaltarif</strong></em> müssen mindestens 0,'
-        '01 € betragen.'),
+        '01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
         'Die <strong><em>Maximalgebühren Normaltarif</em></strong> dürfen höchstens 99,'
-        '99 € betragen.')],
+        '99 € betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  normaltarif_gebuehren_pro_stunde = models.DecimalField(
+    null=True
+  )
+  normaltarif_gebuehren_pro_stunde = DecimalField(
     'Gebühren pro Stunde Normaltarif (in €)',
     max_digits=3,
     decimal_places=2,
@@ -1414,38 +1514,53 @@ class Parkscheinautomaten_Tarife(models.Model):
       MinValueValidator(
         Decimal('0.01'),
         'Die <strong><em>Gebühren pro Stunde Normaltarif</strong></em> müssen mindestens 0,'
-        '01 € betragen.'),
+        '01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
         'Die <strong><em>Gebühren pro Stunde Normaltarif</em></strong> dürfen höchstens 9,'
-        '99 € betragen.')],
+        '99 € betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  normaltarif_gebuehrenschritte = models.CharField(
-    'Gebührenschritte Normaltarif', max_length=255, blank=True, null=True)
-  veranstaltungstarif_parkdauer_min = fields.PositiveSmallIntegerMinField(
-    'Mindestparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
-  veranstaltungstarif_parkdauer_min_einheit = models.ForeignKey(
-    models_codelist.Zeiteinheiten,
+    null=True
+  )
+  normaltarif_gebuehrenschritte = CharField(
+    'Gebührenschritte Normaltarif', max_length=255,
+    blank=True,
+    null=True
+  )
+  veranstaltungstarif_parkdauer_min = PositiveSmallIntegerMinField(
+    'Mindestparkdauer Veranstaltungstarif', min_value=1,
+    blank=True,
+    null=True
+  )
+  veranstaltungstarif_parkdauer_min_einheit = ForeignKey(
+    Zeiteinheiten,
     verbose_name='Einheit der Mindestparkdauer Veranstaltungstarif',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='veranstaltungstarif_parkdauer_min_einheit',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_veranstaltungstarif_parkdauer_min_einheiten',
     blank=True,
-    null=True)
-  veranstaltungstarif_parkdauer_max = fields.PositiveSmallIntegerMinField(
-    'Maximalparkdauer Veranstaltungstarif', min_value=1, blank=True, null=True)
-  veranstaltungstarif_parkdauer_max_einheit = models.ForeignKey(
-    models_codelist.Zeiteinheiten,
+    null=True
+  )
+  veranstaltungstarif_parkdauer_max = PositiveSmallIntegerMinField(
+    'Maximalparkdauer Veranstaltungstarif', min_value=1,
+    blank=True,
+    null=True
+  )
+  veranstaltungstarif_parkdauer_max_einheit = ForeignKey(
+    Zeiteinheiten,
     verbose_name='Einheit der Maximalparkdauer Veranstaltungstarif',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='veranstaltungstarif_parkdauer_max_einheit',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_veranstaltungstarif_parkdauer_max_einheiten',
     blank=True,
-    null=True)
-  veranstaltungstarif_gebuehren_max = models.DecimalField(
+    null=True
+  )
+  veranstaltungstarif_gebuehren_max = DecimalField(
     'Maximalgebühren Veranstaltungstarif (in €)',
     max_digits=4,
     decimal_places=2,
@@ -1453,14 +1568,18 @@ class Parkscheinautomaten_Tarife(models.Model):
       MinValueValidator(
         Decimal('0.01'),
         'Die <strong><em>Maximalgebühren Veranstaltungstarif</strong></em> müssen mindestens 0,'
-        '01 € betragen.'),
+        '01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
         'Die <strong><em>Maximalgebühren Veranstaltungstarif</em></strong> dürfen höchstens 99,'
-        '99 € betragen.')],
+        '99 € betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  veranstaltungstarif_gebuehren_pro_stunde = models.DecimalField(
+    null=True
+  )
+  veranstaltungstarif_gebuehren_pro_stunde = DecimalField(
     'Gebühren pro Stunde Veranstaltungstarif (in €)',
     max_digits=3,
     decimal_places=2,
@@ -1468,21 +1587,29 @@ class Parkscheinautomaten_Tarife(models.Model):
       MinValueValidator(
         Decimal('0.01'),
         'Die <strong><em>Gebühren pro Stunde Veranstaltungstarif</strong></em> müssen '
-        'mindestens 0,01 € betragen.'),
+        'mindestens 0,01 € betragen.'
+      ),
       MaxValueValidator(
         Decimal('9.99'),
         'Die <strong><em>Gebühren pro Stunde Veranstaltungstarif</em></strong> dürfen höchstens'
-        '9,99 € betragen.')],
+        '9,99 € betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  veranstaltungstarif_gebuehrenschritte = models.CharField(
-    'Gebührenschritte Veranstaltungstarif', max_length=255, blank=True, null=True)
-  zugelassene_muenzen = models.CharField(
-    ' zugelassene Münzen', max_length=255)
+    null=True
+  )
+  veranstaltungstarif_gebuehrenschritte = CharField(
+    'Gebührenschritte Veranstaltungstarif',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  zugelassene_muenzen = CharField(
+    ' zugelassene Münzen',
+    max_length=255
+  )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"parkscheinautomaten_tarife_hro'
     verbose_name = 'Tarif der Parkscheinautomaten'
     verbose_name_plural = 'Tarife der Parkscheinautomaten'
@@ -1493,95 +1620,104 @@ class Parkscheinautomaten_Tarife(models.Model):
       'zeiten': 'Bewirtschaftungszeiten'
     }
     associated_models = {
-      'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'}
+      'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'
+    }
     ordering = ['bezeichnung']
     as_overlay = False
 
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(Parkscheinautomaten_Tarife, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(Parkscheinautomaten_Tarife, self).delete(*args, **kwargs)
+class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
+  """
+  Parkscheinautomaten:
+  Parkscheinautomaten
+  """
 
-
-# Parkscheinautomaten
-
-class Parkscheinautomaten_Parkscheinautomaten(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  parkscheinautomaten_tarif = models.ForeignKey(
+  parkscheinautomaten_tarif = ForeignKey(
     Parkscheinautomaten_Tarife,
     verbose_name='Tarif',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='parkscheinautomaten_tarif',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_parkscheinautomaten_tarife')
-  nummer = models.PositiveSmallIntegerField('Nummer')
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
+    related_name='%(app_label)s_%(class)s_parkscheinautomaten_tarife'
   )
-  zone = models.ForeignKey(
-    models_codelist.Zonen_Parkscheinautomaten,
+  nummer = PositiveSmallIntegerField('Nummer')
+  bezeichnung = bezeichnung_field
+  zone = ForeignKey(
+    Zonen_Parkscheinautomaten,
     verbose_name='Zone',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='zone',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_zonen')
-  handyparkzone = fields.PositiveIntegerRangeField(
-    'Handyparkzone', min_value=100000, max_value=999999)
-  bewohnerparkgebiet = models.CharField(
+    related_name='%(app_label)s_%(class)s_zonen'
+  )
+  handyparkzone = PositiveIntegerRangeField(
+    'Handyparkzone',
+    min_value=100000,
+    max_value=999999
+  )
+  bewohnerparkgebiet = CharField(
     'Bewohnerparkgebiet',
     max_length=255,
     blank=True,
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.parkscheinautomaten_bewohnerparkgebiet_regex,
-        message=constants_vars.parkscheinautomaten_bewohnerparkgebiet_message
+        regex=parkscheinautomaten_bewohnerparkgebiet_regex,
+        message=parkscheinautomaten_bewohnerparkgebiet_message
       )
     ]
   )
-  geraetenummer = models.CharField(
+  geraetenummer = CharField(
     'Gerätenummer',
     max_length=8,
     validators=[
       RegexValidator(
-        regex=constants_vars.parkscheinautomaten_geraetenummer_regex,
-        message=constants_vars.parkscheinautomaten_geraetenummer_message
+        regex=parkscheinautomaten_geraetenummer_regex,
+        message=parkscheinautomaten_geraetenummer_message
       )
     ]
   )
-  inbetriebnahme = models.DateField('Inbetriebnahme', blank=True, null=True)
-  e_anschluss = models.ForeignKey(
-    models_codelist.E_Anschluesse_Parkscheinautomaten,
+  inbetriebnahme = DateField(
+    'Inbetriebnahme',
+    blank=True,
+    null=True
+  )
+  e_anschluss = ForeignKey(
+    E_Anschluesse_Parkscheinautomaten,
     verbose_name='E-Anschluss',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='e_anschluss',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_e_anschluesse')
-  stellplaetze_pkw = fields.PositiveSmallIntegerMinField(
-    'Pkw-Stellplätze', min_value=1, blank=True, null=True)
-  stellplaetze_bus = fields.PositiveSmallIntegerMinField(
-    'Bus-Stellplätze', min_value=1, blank=True, null=True)
-  haendlerkartennummer = fields.PositiveIntegerRangeField(
+    related_name='%(app_label)s_%(class)s_e_anschluesse'
+  )
+  stellplaetze_pkw = PositiveSmallIntegerMinField(
+    'Pkw-Stellplätze', min_value=1,
+    blank=True,
+    null=True
+  )
+  stellplaetze_bus = PositiveSmallIntegerMinField(
+    'Bus-Stellplätze', min_value=1,
+    blank=True,
+    null=True
+  )
+  haendlerkartennummer = PositiveIntegerRangeField(
     'Händlerkartennummer',
     min_value=1000000000,
     max_value=9999999999,
     blank=True,
-    null=True)
-  laufzeit_geldkarte = models.DateField(
-    'Laufzeit der Geldkarte', blank=True, null=True)
-  geometrie = models.PointField(
-    'Geometrie', srid=25833, default='POINT(0 0)')
+    null=True
+  )
+  laufzeit_geldkarte = DateField(
+    'Laufzeit der Geldkarte',
+    blank=True,
+    null=True
+  )
+  geometrie = punkt_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"parkscheinautomaten_parkscheinautomaten_hro'
     verbose_name = 'Parkscheinautomat'
     verbose_name_plural = 'Parkscheinautomaten'
@@ -1612,42 +1748,27 @@ class Parkscheinautomaten_Parkscheinautomaten(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(
-      Parkscheinautomaten_Parkscheinautomaten,
-      self).save(
-      *args,
-      **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(
-      Parkscheinautomaten_Parkscheinautomaten,
-      self).delete(
-      *args,
-      **kwargs)
-
 
 #
 # RSAG
 #
 
-# Gleise
+class RSAG_Gleise(ComplexModel):
+  """
+  RSAG:
+  Gleise
+  """
 
-class RSAG_Gleise(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  quelle = models.CharField(
+  quelle = CharField(
     'Quelle',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+  geometrie = linie_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_gleise_hro'
     verbose_name = 'RSAG-Gleis'
     verbose_name_plural = 'RSAG-Gleise'
@@ -1670,81 +1791,92 @@ class RSAG_Gleise(models.Model):
   def __str__(self):
     return self.uuid
 
-  def save(self, *args, **kwargs):
-    super(RSAG_Gleise, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(RSAG_Gleise, self).delete(*args, **kwargs)
+class RSAG_Masten(ComplexModel):
+  """
+  RSAG:
+  Masten
+  """
 
-
-# Masten
-
-class RSAG_Masten(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  mastnummer = models.CharField(
+  mastnummer = CharField(
     'Mastnummer',
     max_length=255,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  moment_am_fundament = fields.PositiveSmallIntegerRangeField(
+  moment_am_fundament = PositiveSmallIntegerRangeField(
     'Moment am Fundament (in kNm)',
     min_value=1,
     blank=True,
     null=True)
-  spitzenzug_errechnet = models.DecimalField(
+  spitzenzug_errechnet = DecimalField(
     'Spitzenzug P - Errechnet (in kN)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Spitzenzug P</em></strong> muss mindestens 0,01 kN betragen.'),
+        'Der <strong><em>Spitzenzug P</em></strong> muss mindestens 0,01 kN betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 999,99 kN betragen.')],
+        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 999,99 kN betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  spitzenzug_gewaehlt = models.DecimalField(
+    null=True
+  )
+  spitzenzug_gewaehlt = DecimalField(
     'Spitzenzug P - Gewählt (in kN)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Der <strong><em>Spitzenzug P</em></strong> muss mindestens 0,01 m betragen.'),
+        'Der <strong><em>Spitzenzug P</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 999,99 m betragen.')],
+        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  gesamtlaenge = models.DecimalField(
+    null=True
+  )
+  gesamtlaenge = DecimalField(
     'Gesamtlänge L (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Gesamtlänge L</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Gesamtlänge L</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Gesamtlänge L</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>Gesamtlänge L</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  einsatztiefe = models.DecimalField(
+    null=True
+  )
+  einsatztiefe = DecimalField(
     'Einsatztiefe T (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Einsatztiefe T</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Einsatztiefe T</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Einsatztiefe T</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>Einsatztiefe T</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  so_bis_fundament = models.DecimalField(
+    null=True
+  )
+  so_bis_fundament = DecimalField(
     'Schienenoberkante bis Fundament e (in m)',
     max_digits=4,
     decimal_places=2,
@@ -1752,86 +1884,106 @@ class RSAG_Masten(models.Model):
       MinValueValidator(
         Decimal('-1.00'),
         'Die <strong><em>Höhendifferenz zwischen Schienenoberkante und Fundament '
-        'e</em></strong> muss mindestens -1,00 m betragen.'),
+        'e</em></strong> muss mindestens -1,00 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
         'Die <strong><em>Höhendifferenz zwischen Schienenoberkante und Fundament '
-        'e</em></strong> darf höchstens 999,99 m betragen.')],
+        'e</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  boeschung = models.DecimalField(
+    null=True
+  )
+  boeschung = DecimalField(
     'Böschungshöhe z (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Böschungshöhe z</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Böschungshöhe z</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Böschungshöhe z</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>Böschungshöhe z</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  freie_laenge = models.DecimalField(
+    null=True
+  )
+  freie_laenge = DecimalField(
     'Freie Länge H (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>freie Länge H</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>freie Länge H</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>freie Länge H</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>freie Länge H</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  masttyp = models.ForeignKey(
-    models_codelist.Masttypen_RSAG,
+    null=True
+  )
+  masttyp = ForeignKey(
+    Masttypen_RSAG,
     verbose_name='Masttyp',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='masttyp',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_masttypen')
-  nennmass_ueber_so = fields.PositiveSmallIntegerRangeField(
+    related_name='%(app_label)s_%(class)s_masttypen'
+  )
+  nennmass_ueber_so = PositiveSmallIntegerRangeField(
     'Nennmaß über Schienenoberkante (in mm)',
     min_value=1,
     blank=True,
-    null=True)
-  mastgewicht = fields.PositiveSmallIntegerRangeField(
+    null=True
+  )
+  mastgewicht = PositiveSmallIntegerRangeField(
     'Mastgewicht (in kg)',
     min_value=1,
     blank=True,
-    null=True)
-  fundamenttyp = models.ForeignKey(
-    models_codelist.Fundamenttypen_RSAG,
+    null=True
+  )
+  fundamenttyp = ForeignKey(
+    Fundamenttypen_RSAG,
     verbose_name='Fundamenttyp',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='fundamenttyp',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_fundamenttypen',
     blank=True,
-    null=True)
-  fundamentlaenge = models.DecimalField(
+    null=True
+  )
+  fundamentlaenge = DecimalField(
     'Länge des Fundamentes t (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
       MinValueValidator(
         Decimal('0.01'),
-        'Die <strong><em>Länge des Fundaments t</em></strong> muss mindestens 0,01 m betragen.'),
+        'Die <strong><em>Länge des Fundaments t</em></strong> muss mindestens 0,01 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
-        'Die <strong><em>Länge des Fundaments t</em></strong> darf höchstens 999,99 m betragen.')],
+        'Die <strong><em>Länge des Fundaments t</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  fundamentdurchmesser = models.CharField(
+    null=True
+  )
+  fundamentdurchmesser = CharField(
     'Durchmesser des Fundaments',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  nicht_tragfaehiger_boden = models.DecimalField(
+  nicht_tragfaehiger_boden = DecimalField(
     'Tiefe des nicht tragfähiger Boden (in m)',
     max_digits=4,
     decimal_places=2,
@@ -1839,57 +1991,65 @@ class RSAG_Masten(models.Model):
       MinValueValidator(
         Decimal('0.00'),
         'Die <strong><em>Tiefe des nicht tragfähigen Bodens</em></strong> muss mindestens 0,'
-        '00 m betragen.'),
+        '00 m betragen.'
+      ),
       MaxValueValidator(
         Decimal('999.99'),
         'Die <strong><em>Tiefe des nicht tragfähigen Bodens</em></strong> darf höchstens 999,'
-        '99 m betragen.')],
+        '99 m betragen.'
+      )
+    ],
     blank=True,
-    null=True)
-  mastkennzeichen_1 = models.ForeignKey(
-    models_codelist.Mastkennzeichen_RSAG,
+    null=True
+  )
+  mastkennzeichen_1 = ForeignKey(
+    Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 1',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='mastkennzeichen_1',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_mastkennzeichen_1',
     blank=True,
-    null=True)
-  mastkennzeichen_2 = models.ForeignKey(
-    models_codelist.Mastkennzeichen_RSAG,
+    null=True
+  )
+  mastkennzeichen_2 = ForeignKey(
+    Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 2',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='mastkennzeichen_2',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_mastkennzeichen_2',
     blank=True,
-    null=True)
-  mastkennzeichen_3 = models.ForeignKey(
-    models_codelist.Mastkennzeichen_RSAG,
+    null=True
+  )
+  mastkennzeichen_3 = ForeignKey(
+    Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 3',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='mastkennzeichen_3',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_mastkennzeichen_3',
     blank=True,
-    null=True)
-  mastkennzeichen_4 = models.ForeignKey(
-    models_codelist.Mastkennzeichen_RSAG,
+    null=True
+  )
+  mastkennzeichen_4 = ForeignKey(
+    Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 4',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='mastkennzeichen_4',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_mastkennzeichen_4',
     blank=True,
-    null=True)
-  quelle = models.CharField(
+    null=True
+  )
+  quelle = CharField(
     'Quelle',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  dgm_hoehe = models.DecimalField(
+  dgm_hoehe = DecimalField(
     'Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
     max_digits=5,
     decimal_places=2,
@@ -1897,11 +2057,9 @@ class RSAG_Masten(models.Model):
     null=True,
     editable=False
   )
-  geometrie = models.PointField('Geometrie', srid=25833)
+  geometrie = punkt_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_masten_hro'
     verbose_name = 'RSAG-Mast'
     verbose_name_plural = 'RSAG-Masten'
@@ -1961,28 +2119,21 @@ class RSAG_Masten(models.Model):
   def __str__(self):
     return self.mastnummer
 
-  def save(self, *args, **kwargs):
-    super(RSAG_Masten, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(RSAG_Masten, self).delete(*args, **kwargs)
+class RSAG_Leitungen(ComplexModel):
+  """
+  RSAG:
+  Oberleitungen
+  """
 
+  geometrie = linie_field
 
-# Oberleitungen
-
-class RSAG_Leitungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  geometrie = models.LineStringField('Geometrie', srid=25833)
-
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_leitungen_hro'
     verbose_name = 'RSAG-Oberleitung'
     verbose_name_plural = 'RSAG-Oberleitungen'
-    description = 'Oberleitungen innerhalb der Straßenbahninfrastruktur der Rostocker ' \
-                  'Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
+    description = 'Oberleitungen innerhalb der Straßenbahninfrastruktur ' \
+                  'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?'
@@ -1997,42 +2148,36 @@ class RSAG_Leitungen(models.Model):
   def __str__(self):
     return self.uuid
 
-  def save(self, *args, **kwargs):
-    super(RSAG_Leitungen, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(RSAG_Leitungen, self).delete(*args, **kwargs)
+class RSAG_Quertraeger(ComplexModel):
+  """
+  RSAG:
+  Querträger
+  """
 
-
-# Querträger
-
-class RSAG_Quertraeger(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  mast = models.ForeignKey(
+  mast = ForeignKey(
     RSAG_Masten,
     verbose_name='Mast',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='mast',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_masten')
-  quelle = models.CharField(
+    related_name='%(app_label)s_%(class)s_masten'
+  )
+  quelle = CharField(
     'Quelle',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+  geometrie = linie_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_quertraeger_hro'
     verbose_name = 'RSAG-Querträger'
     verbose_name_plural = 'RSAG-Querträger'
-    description = 'Querträger innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn ' \
-                  'AG in der Hanse- und Universitätsstadt Rostock'
+    description = 'Querträger innerhalb der Straßenbahninfrastruktur ' \
+                  'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?',
@@ -2049,53 +2194,45 @@ class RSAG_Quertraeger(models.Model):
       'mast': 'Mast',
       'quelle': 'Quelle'
     }
-    map_filter_fields_as_list = [
-      'mast'
-    ]
+    map_filter_fields_as_list = ['mast']
     geometry_type = 'LineString'
     as_overlay = True
 
   def __str__(self):
     return str(self.uuid)
 
-  def save(self, *args, **kwargs):
-    super(RSAG_Quertraeger, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(RSAG_Quertraeger, self).delete(*args, **kwargs)
+class RSAG_Spanndraehte(ComplexModel):
+  """
+  RSAG:
+  Spanndrähte
+  """
 
-
-# Spanndrähte
-
-class RSAG_Spanndraehte(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  mast = models.ForeignKey(
+  mast = ForeignKey(
     RSAG_Masten,
     verbose_name='Mast',
-    on_delete=models.SET_NULL,
+    on_delete=SET_NULL,
     db_column='mast',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_masten',
     blank=True,
-    null=True)
-  quelle = models.CharField(
+    null=True
+  )
+  quelle = CharField(
     'Quelle',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  geometrie = models.LineStringField('Geometrie', srid=25833)
+  geometrie = linie_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_spanndraehte_hro'
     verbose_name = 'RSAG-Spanndraht'
     verbose_name_plural = 'RSAG-Spanndrähte'
-    description = 'Spanndrähte innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn' \
-                  ' AG in der Hanse- und Universitätsstadt Rostock'
+    description = 'Spanndrähte innerhalb der Straßenbahninfrastruktur ' \
+                  'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?',
@@ -2112,104 +2249,97 @@ class RSAG_Spanndraehte(models.Model):
       'mast': 'Mast',
       'quelle': 'Quelle'
     }
-    map_filter_fields_as_list = [
-      'mast'
-    ]
+    map_filter_fields_as_list = ['mast']
     geometry_type = 'LineString'
     as_overlay = True
 
   def __str__(self):
     return str(self.uuid)
-
-  def save(self, *args, **kwargs):
-    super(RSAG_Spanndraehte, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(RSAG_Spanndraehte, self).delete(*args, **kwargs)
 
 
 #
 # UVP
 #
 
-# Vorhaben
+class UVP_Vorhaben(ComplexModel):
+  """
+  UVP:
+  Vorhaben
+  """
 
-class UVP_Vorhaben(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  bezeichnung = models.CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=constants_vars.standard_validators
-  )
-  vorgangsart = models.ForeignKey(
-    models_codelist.Vorgangsarten_UVP_Vorhaben,
+  bezeichnung = bezeichnung_field
+  vorgangsart = ForeignKey(
+    Vorgangsarten_UVP_Vorhaben,
     verbose_name='Vorgangsart',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='vorgangsart',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_vorgangsarten')
-  genehmigungsbehoerde = models.ForeignKey(
-    models_codelist.Genehmigungsbehoerden_UVP_Vorhaben,
+    related_name='%(app_label)s_%(class)s_vorgangsarten'
+  )
+  genehmigungsbehoerde = ForeignKey(
+    Genehmigungsbehoerden_UVP_Vorhaben,
     verbose_name='Genehmigungsbehörde',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='genehmigungsbehoerde',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_genehmigungsbehoerden')
-  datum_posteingang_genehmigungsbehoerde = models.DateField(
-    'Datum des Posteingangs bei der Genehmigungsbehörde')
-  registriernummer_bauamt = models.CharField(
+    related_name='%(app_label)s_%(class)s_genehmigungsbehoerden'
+  )
+  datum_posteingang_genehmigungsbehoerde = DateField(
+    'Datum des Posteingangs bei der Genehmigungsbehörde'
+  )
+  registriernummer_bauamt = CharField(
     'Registriernummer des Bauamtes',
     max_length=8,
     blank=True,
     null=True,
     validators=[
       RegexValidator(
-        regex=constants_vars.uvp_registriernummer_bauamt_regex,
-        message=constants_vars.uvp_registriernummer_bauamt_message
+        regex=uvp_registriernummer_bauamt_regex,
+        message=uvp_registriernummer_bauamt_message
       )
     ]
   )
-  aktenzeichen = models.CharField(
+  aktenzeichen = CharField(
     'Aktenzeichen',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
-  rechtsgrundlage = models.ForeignKey(
-    models_codelist.Rechtsgrundlagen_UVP_Vorhaben,
+  rechtsgrundlage = ForeignKey(
+    Rechtsgrundlagen_UVP_Vorhaben,
     verbose_name='Rechtsgrundlage',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='rechtsgrundlage',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_rechtsgrundlagen')
-  typ = models.ForeignKey(
-    models_codelist.Typen_UVP_Vorhaben,
+    related_name='%(app_label)s_%(class)s_rechtsgrundlagen'
+  )
+  typ = ForeignKey(
+    Typen_UVP_Vorhaben,
     verbose_name='Typ',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='typ',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_typen')
-  geometrie = models.PolygonField('Geometrie', srid=25833)
+    related_name='%(app_label)s_%(class)s_typen'
+  )
+  geometrie = flaeche_field
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"uvp_vorhaben_hro'
     verbose_name = 'UVP-Vorhaben'
     verbose_name_plural = 'UVP-Vorhaben'
-    description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock' \
-                  ' zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
+    description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock ' \
+                  'zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
       'vorgangsart': 'Vorgangsart',
       'genehmigungsbehoerde': 'Genehmigungsbehörde',
-      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der '
-                                                'Genehmigungsbehörde',
+      'datum_posteingang_genehmigungsbehoerde':
+        'Datum des Posteingangs bei der Genehmigungsbehörde',
       'rechtsgrundlage': 'Rechtsgrundlage',
-      'typ': 'Typ'}
+      'typ': 'Typ'
+    }
     list_fields_with_foreign_key = {
       'vorgangsart': 'vorgangsart',
       'genehmigungsbehoerde': 'genehmigungsbehoerde',
@@ -2225,15 +2355,17 @@ class UVP_Vorhaben(models.Model):
       'bezeichnung': 'Bezeichnung',
       'vorgangsart': 'Vorgangsart',
       'genehmigungsbehoerde': 'Genehmigungsbehörde',
-      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der '
-                                                'Genehmigungsbehörde',
+      'datum_posteingang_genehmigungsbehoerde':
+        'Datum des Posteingangs bei der Genehmigungsbehörde',
       'rechtsgrundlage': 'Rechtsgrundlage',
-      'typ': 'Typ'}
+      'typ': 'Typ'
+    }
     map_filter_fields_as_list = [
       'vorgangsart',
       'genehmigungsbehoerde',
       'rechtsgrundlage',
-      'typ']
+      'typ'
+    ]
     geometry_type = 'Polygon'
     ordering = ['bezeichnung']
     as_overlay = True
@@ -2241,61 +2373,63 @@ class UVP_Vorhaben(models.Model):
   def __str__(self):
     return self.bezeichnung
 
-  def save(self, *args, **kwargs):
-    super(UVP_Vorhaben, self).save(*args, **kwargs)
 
-  def delete(self, *args, **kwargs):
-    super(UVP_Vorhaben, self).delete(*args, **kwargs)
+class UVP_Vorpruefungen(ComplexModel):
+  """
+  UVP:
+  Vorprüfungen
+  """
 
-
-# Vorprüfungen
-
-class UVP_Vorpruefungen(models.Model):
-  uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  aktiv = models.BooleanField(' aktiv?', default=True)
-  uvp_vorhaben = models.ForeignKey(
+  uvp_vorhaben = ForeignKey(
     UVP_Vorhaben,
     verbose_name='Vorhaben',
-    on_delete=models.CASCADE,
+    on_delete=CASCADE,
     db_column='uvp_vorhaben',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_uvp_vorhaben')
-  art = models.ForeignKey(
-    models_codelist.Arten_UVP_Vorpruefungen,
+    related_name='%(app_label)s_%(class)s_uvp_vorhaben'
+  )
+  art = ForeignKey(
+    Arten_UVP_Vorpruefungen,
     verbose_name='Art',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='art',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten')
-  datum_posteingang = models.DateField('Datum des Posteingangs')
-  datum = models.DateField('Datum', default=date.today)
-  ergebnis = models.ForeignKey(
-    models_codelist.Ergebnisse_UVP_Vorpruefungen,
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  datum_posteingang = DateField('Datum des Posteingangs')
+  datum = DateField('Datum', default=date.today)
+  ergebnis = ForeignKey(
+    Ergebnisse_UVP_Vorpruefungen,
     verbose_name='Ergebnis',
-    on_delete=models.RESTRICT,
+    on_delete=RESTRICT,
     db_column='ergebnis',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_ergebnisse')
-  datum_bekanntmachung = models.DateField(
-    'Datum Bekanntmachung „Städtischer Anzeiger“', blank=True, null=True)
-  datum_veroeffentlichung = models.DateField(
-    'Datum Veröffentlichung UVP-Portal', blank=True, null=True)
-  pruefprotokoll = models.CharField(
+    related_name='%(app_label)s_%(class)s_ergebnisse'
+  )
+  datum_bekanntmachung = DateField(
+    'Datum Bekanntmachung „Städtischer Anzeiger“',
+    blank=True,
+    null=True
+  )
+  datum_veroeffentlichung = DateField(
+    'Datum Veröffentlichung UVP-Portal',
+    blank=True,
+    null=True
+  )
+  pruefprotokoll = CharField(
     'Prüfprotokoll',
     max_length=255,
     blank=True,
     null=True,
-    validators=constants_vars.standard_validators
+    validators=standard_validators
   )
 
-  class Meta:
-    managed = False
-    complex = True
+  class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"uvp_vorpruefungen_hro'
     verbose_name = 'UVP-Vorprüfung'
     verbose_name_plural = 'UVP-Vorprüfungen'
-    description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock zur Feststellung der ' \
-                  'UVP-Pflicht gemäß UVPG und LUVPG M-V'
+    description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock ' \
+                  'zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
     list_fields = {
       'aktiv': 'aktiv?',
       'uvp_vorhaben': 'Vorhaben',
@@ -2315,13 +2449,6 @@ class UVP_Vorpruefungen(models.Model):
     foreign_key_label = 'Vorhaben'
 
   def __str__(self):
-    return str(self.uvp_vorhaben) + ' mit Datum ' + datetime.strptime(
-      str(self.datum),
-      '%Y-%m-%d'
-    ).strftime('%d.%m.%Y') + ' [Art: ' + str(self.art) + ']'
-
-  def save(self, *args, **kwargs):
-    super(UVP_Vorpruefungen, self).save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super(UVP_Vorpruefungen, self).delete(*args, **kwargs)
+    return str(self.uvp_vorhaben) + ' mit Datum ' + \
+      datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + \
+      ' [Art: ' + str(self.art) + ']'
