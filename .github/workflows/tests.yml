@@ -57,7 +57,7 @@ jobs:
           cache: 'pip'
       - name: Install prerequisites for Python dependencies
         run: |
-          sudo apt-get update
+          sudo apt-get --fix-missing update
           sudo apt-get install gdal-bin libgdal-dev libldap2-dev libpq-dev libsasl2-dev postgresql-client
       - name: Install Python dependencies
         run: |
