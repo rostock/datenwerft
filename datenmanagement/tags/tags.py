@@ -1,8 +1,10 @@
+import os
+
 from django import template
 from django.apps import apps
-from django.contrib.gis import forms
-import os
-import re
+from django.contrib.gis.forms import LineStringField, MultiLineStringField, MultiPolygonField, \
+  PointField, PolygonField
+from re import sub
 
 register = template.Library()
 
@@ -16,10 +18,12 @@ def customize_error_message(value):
   :return: bereinigte übergebene Formularfehlermeldung oder allgemeine Fehlermeldung
   """
   if 'mit diesem' in value and 'existiert bereits' in value:
-    value = re.sub(r' existiert bereits.*$', '!', value)
-    value = re.sub(r'^.* mit diesem',
-                   'Es existiert bereits ein Datensatz mit den angegebenen Werten '
-                   'in den Attributen', value)
+    value = sub(r' existiert bereits.*$', '!', value)
+    value = sub(
+      r'^.* mit diesem',
+      'Es existiert bereits ein Datensatz mit den angegebenen Werten in den Attributen',
+      value
+    )
     return value
   elif 'existiert bereits' in value:
     return value[:-1]
@@ -138,8 +142,8 @@ def get_type_of_field(field_name, model_name):
   :return: Klassenname des übergebenen Feldes des übergebenen Datenmodells
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)
-  type_of_field = re.sub(
-    r'\'>$', '', re.sub(
+  type_of_field = sub(
+    r'\'>$', '', sub(
       r'^.*\.', '', str(model._meta.get_field(field_name).__class__)))
   return type_of_field
 
@@ -184,11 +188,11 @@ def is_field_geometry_field(field):
   :param field: Feld
   :return: ist übergebenes Feld ein Geometriefeld?
   """
-  if (field.field.__class__ == forms.PointField or
-      field.field.__class__ == forms.LineStringField or
-      field.field.__class__ == forms.MultiLineStringField or
-      field.field.__class__ == forms.PolygonField or
-      field.field.__class__ == forms.MultiPolygonField):
+  if (field.field.__class__ == PointField or
+      field.field.__class__ == LineStringField or
+      field.field.__class__ == MultiLineStringField or
+      field.field.__class__ == PolygonField or
+      field.field.__class__ == MultiPolygonField):
     return True
   else:
     return False

@@ -87,8 +87,8 @@ options.DEFAULT_NAMES += (
   'highlight_flag',
   # optional;
   # Text;
-  # Name des Boolean-Feldes, dessen Wert als Flag zum Highlighten
-  # entsprechender Zeilen herangezogen werden soll
+  # Name des Boolean-Feldes, dessen Wert (falls ``True``) als Flag zum Highlighten
+  # entsprechender Zeilen in der Tabelle der Listenansicht herangezogen werden soll
   'readonly_fields',
   # optional;
   # Liste;
@@ -152,12 +152,12 @@ options.DEFAULT_NAMES += (
   # optional;
   # Dictionary;
   # Name des Feldes (als Key), dessen bestimmter Wert (als Value) dazu führen soll,
-  # dass Objekte initial nicht auf der Karte erscheinen, die in diesem Feld
+  # dass all jene Objekte initial nicht auf der Karte erscheinen, die in diesem Feld
   # genau diesen bestimmten Wert aufweisen
   'address_type',
   # optional;
   # Text;
-  # Typ des Adressenbezugs: Adresse (Adresse), Straße (Straße) oder Gemeindeteil (Gemeindeteil)
+  # Typ des Adressenbezugs: Adresse, Straße oder Gemeindeteil
   'address_mandatory',
   # optional;
   # Boolean;
@@ -181,31 +181,33 @@ options.DEFAULT_NAMES += (
   'group_with_users_for_choice_field',
   # optional;
   # Text;
-  # Name der Gruppe von Benutzern, die für das Feld Ansprechpartner:in/Bearbeiter:in
+  # Name einer Gruppe von Benutzerinnen und Benutzern,
+  # die für das Feld Ansprechpartner:in/Bearbeiter:in
   # in einer entsprechenden Auswahlliste genutzt werden sollen
   'additional_wms_layers',
   # optional;
   # Liste;
-  # Eigenschaften zusätzlicher WMS-Layer, die für dieses Modell
+  # Eigenschaften zusätzlicher WMS-Layer, die für dieses Datenmodell
   # in den Formularansichten zu den Overlay-Karten hinzugefügt werden
   'additional_wfs_featuretypes',
   # optional;
   # Liste;
-  # Eigenschaften zusätzlicher WFS-Feature-Types, die für dieses Modell
+  # Eigenschaften zusätzlicher WFS-Feature-Types, die für dieses Datenmodell
   # in den Formularansichten zum Zuschalten in der Karte angeboten werden
   'as_overlay',
   # optional;
   # Boolean;
-  # Soll dieses Datenmodell als zusätzlicher Overlay-Layer in der Karte auswählbar sein (True)?
+  # Soll dieses Datenmodell als zusätzlicher Overlay-Layer
+  # in den Karten der Formularansichten auswählbar sein (True)?
   'gpx_input',
   # optional;
   # Boolean;
-  # Soll ein GPX-Upload-Feld im Formular angezeigt werden (True)?
+  # Soll ein GPX-Upload-Feld in den Formularansichten angezeigt werden (True)?
   'postcode_assigner',
   # optional;
   # Text;
-  # Name des Feldes, das im Formular mit einer Funktion
-  #  zurautomatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
+  # Name des Feldes, das in den Formularansichten mit einer Funktion
+  # zur automatischen Zuweisung einer Postleitzahl ausgestattet werden soll.
   'heavy_load_limit',
   # optional;
   # Zahl;
@@ -213,7 +215,7 @@ options.DEFAULT_NAMES += (
   'forms_in_mobile_mode'
   # optional;
   # Boolean;
-  # Sollen die Formulare dieses Datenmodells immer in der mobilen Ansicht angezeigt werden (True)?
+  # Sollen die Formularansichten immer in der mobilen Ansicht angezeigt werden (True)?
 )
 
 #

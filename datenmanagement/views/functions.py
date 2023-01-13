@@ -1,5 +1,4 @@
 import os
-import re
 
 from datetime import date, datetime
 from django.apps import apps
@@ -10,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from leaflet.forms.widgets import LeafletWidget
 from locale import LC_ALL, format_string, setlocale
+from re import sub
 from toolbox.models import Subsets
 
 
@@ -75,10 +75,10 @@ def delete_object_immediately(request, pk):
   :param pk: Primärschlüssel des zu löschenden Datenbankobjekts
   :return: HTTP-Code 204 (No Content)
   """
-  model_name = re.sub(
+  model_name = sub(
     pattern='^.*\\/',
     repl='',
-    string=re.sub(
+    string=sub(
       pattern='\\/deleteimmediately.*$',
       repl='',
       string=request.path_info

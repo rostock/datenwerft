@@ -1,14 +1,14 @@
-import json
 import requests
 
 from datenwerft.secrets import FME_TOKEN, FME_URL
 from django.db import connections
 from django.http import JsonResponse
-from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+from json import dumps
 from jsonview.views import JsonView
 
-from . import functions
+from .functions import get_uuids_geometries_from_sql
 
 
 class GeometryView(JsonView):
@@ -66,7 +66,7 @@ class GeometryView(JsonView):
             'st_makepoint(%s, %s),4326)::geometry,25833),%s) && geometrie;',
             [lng, lat, rad]
         )
-        uuids_geometries = functions.get_uuids_geometries_from_sql(cursor.fetchall())
+        uuids_geometries = get_uuids_geometries_from_sql(cursor.fetchall())
         context['uuids'] = uuids_geometries[0]
         context['object_list'] = uuids_geometries[1]
     else:
@@ -78,7 +78,7 @@ class GeometryView(JsonView):
                 '') +
             ';',
             [])
-        uuids_geometries = functions.get_uuids_geometries_from_sql(cursor.fetchall())
+        uuids_geometries = get_uuids_geometries_from_sql(cursor.fetchall())
         context['uuids'] = uuids_geometries[0]
         context['object_list'] = uuids_geometries[1]
     context['model_name'] = self.model.__name__
@@ -86,7 +86,7 @@ class GeometryView(JsonView):
     return context
 
 
-class GPXtoGeoJSON(generic.View):
+class GPXtoGeoJSON(View):
   """
   Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
   """
@@ -119,17 +119,17 @@ class GPXtoGeoJSON(generic.View):
     x = requests.post(
         url=FME_URL,
         headers={
-            "Authorization": FME_TOKEN,
-            "Content-Type": "application/gpx+xml",
-            "Accept": "application/geo+json",
+          'Authorization': FME_TOKEN,
+          'Content-Type': 'application/gpx+xml',
+          'Accept': 'application/geo+json'
         },
         data=gpx_file,
     )
     if x.status_code != 200:
       response = {
-          "StatusCode": str(x.status_code),
-          "FMELog": str(x.text)
+        'status_code': str(x.status_code),
+        'error_log': str(x.text)
       }
-      return JsonResponse(data=json.dumps(response))
+      return JsonResponse(status=x.status_code, data=dumps(response), safe=False)
     else:
       return JsonResponse(data=x.json())

@@ -1,10 +1,9 @@
-import json
-import random
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from json import loads
+from random import choice
 
 from .models import Subsets
 
@@ -15,6 +14,10 @@ INVALID_API_KEY = 'worschdsupp'
 
 
 class SubsetsTestCase(TestCase):
+  """
+  abstract test class for subsets
+  """
+
   APP_LABEL = 'contenttypes'
   MODEL_NAME = 'contenttype'
   PK_FIELD_INITIAL = 'uuid'
@@ -30,7 +33,7 @@ class SubsetsTestCase(TestCase):
       password=PASSWORD
     )
     self.content_types = list(ContentType.objects.all())
-    self.random_content_type = random.choice(self.content_types)
+    self.random_content_type = choice(self.content_types)
     self.subset = Subsets.objects.create(
       model=self.random_content_type,
       pk_field=self.PK_FIELD_INITIAL,
@@ -43,6 +46,9 @@ class SubsetsTestCase(TestCase):
 
 
 class SubsetsTest(SubsetsTestCase):
+  """
+  test class for subsets
+  """
 
   def setUp(self):
     self.init()
@@ -90,8 +96,8 @@ class SubsetsTest(SubsetsTestCase):
     )
     # POST successful and thus object created?
     self.assertEqual(response.status_code, 200)
-    response_json = json.loads(response.content.decode('utf-8'))
-    response_dict = json.loads(response_json)
+    response_json = loads(response.content.decode('utf-8'))
+    response_dict = loads(response_json)
     # response contains ID of created object?
     self.assertIsNotNone(response_dict['id'])
     # ID of created object contained in response is numerical?
@@ -118,6 +124,10 @@ class SubsetsTest(SubsetsTestCase):
 
 
 class OWSProxyTestCase(TestCase):
+  """
+  abstract test class for proxy for OWS
+  """
+
   OWS_URL_PATH_VALID = '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/' \
                        'GLOBAL_WEBMERCATOR/18/139921/84058.png'
   OWS_URL_PATH_INVALID = '/worschdsupp/wms'
@@ -130,6 +140,9 @@ class OWSProxyTestCase(TestCase):
 
 
 class OWSProxyTest(OWSProxyTestCase):
+  """
+  test class for proxy for OWS
+  """
 
   def setUp(self):
     self.init()
@@ -165,6 +178,10 @@ class OWSProxyTest(OWSProxyTestCase):
 
 
 class SearchesTestCase(TestCase):
+  """
+  abstract test class for searches
+  """
+
   ADDRESS_SEARCH_PARAMS = {
     'query': 'Holbeinplatz 14'
   }
@@ -194,10 +211,14 @@ class SearchesTestCase(TestCase):
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), 'application/json')
     # specific string contained in response?
-    self.assertIn(string, str(json.loads(response.content)))
+    self.assertIn(string, str(loads(response.content)))
 
 
 class SearchesTest(SearchesTestCase):
+  """
+  test class for address search
+  and search for objects in specified radius around given coordinates
+  """
 
   def setUp(self):
     self.init()

@@ -1,9 +1,9 @@
 from django.apps import apps
 from django.conf import settings
-from django.views import generic
+from django.views.generic import ListView
 
 
-class IndexView(generic.ListView):
+class IndexView(ListView):
   """
   Liste der Datenthemen, die zur Verfügung stehen
   """
@@ -59,7 +59,7 @@ class IndexView(generic.ListView):
     return context
 
 
-class StartView(generic.ListView):
+class StartView(ListView):
   """
   Startansicht eines Datenthemas
 

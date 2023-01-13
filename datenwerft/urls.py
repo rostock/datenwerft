@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
+from django.contrib.admin import site as admin_site
 from django.urls import include, path
 
 from accounts import urls as accounts_urls
@@ -15,7 +15,7 @@ api_urlpatterns += datenmanagement_urls.api_urlpatterns
 # Routen der URLs zu Views
 urlpatterns = [
   # Routen der Django-Administration
-  path('admin/', view=admin.site.urls),
+  path('admin/', view=admin_site.urls),
 
   # Routen der API-URLs
   path('api/', include(api_urlpatterns)),

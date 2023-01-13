@@ -1810,7 +1810,8 @@ class RSAG_Masten(ComplexModel):
     'Moment am Fundament (in kNm)',
     min_value=1,
     blank=True,
-    null=True)
+    null=True
+  )
   spitzenzug_errechnet = DecimalField(
     'Spitzenzug P - Errechnet (in kN)',
     max_digits=4,
@@ -2398,7 +2399,10 @@ class UVP_Vorpruefungen(ComplexModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   datum_posteingang = DateField('Datum des Posteingangs')
-  datum = DateField('Datum', default=date.today)
+  datum = DateField(
+    'Datum',
+    default=date.today
+  )
   ergebnis = ForeignKey(
     Ergebnisse_UVP_Vorpruefungen,
     verbose_name='Ergebnis',

@@ -1,7 +1,8 @@
-from rest_framework import viewsets, serializers
+from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.viewsets import ModelViewSet
 
 
-class DatenmanagementViewSet(viewsets.ModelViewSet):
+class DatenmanagementViewSet(ModelViewSet):
   model = None
 
   @classmethod
@@ -16,7 +17,7 @@ class DatenmanagementViewSet(viewsets.ModelViewSet):
     if self.serializer_class is not None:
       return self.serializer_class
 
-    class DatenmanagementSerializer(serializers.HyperlinkedModelSerializer):
+    class DatenmanagementSerializer(HyperlinkedModelSerializer):
       class Meta:
         model = self.model
 

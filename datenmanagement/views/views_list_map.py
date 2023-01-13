@@ -252,7 +252,7 @@ class DataView(BaseDatatableView):
             kwargs = {
                 '{0}__{1}'.format(column, 'icontains'): 'false'
             }
-          elif match(r"^[0-9]+\,[0-9]+$", search_element):
+          elif match(r"^[0-9]+,[0-9]+$", search_element):
             kwargs = {
                 '{0}__{1}'.format(column, 'icontains'): sub(',', '.', search_element)
             }

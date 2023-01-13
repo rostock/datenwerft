@@ -1,24 +1,25 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db.models import CASCADE, ForeignKey, Model
+from django.db.models.fields import AutoField, CharField, DateTimeField
 
 
-class Subsets(models.Model):
-  id = models.AutoField(
+class Subsets(Model):
+  id = AutoField(
     primary_key=True
   )
-  created_at = models.DateTimeField(
+  created_at = DateTimeField(
     auto_now=True
   )
-  model = models.ForeignKey(
+  model = ForeignKey(
     ContentType,
-    on_delete=models.CASCADE
+    on_delete=CASCADE
   )
-  pk_field = models.CharField(
+  pk_field = CharField(
     max_length=255
   )
   pk_values = ArrayField(
-    models.CharField(
+    CharField(
       # normally model primary keys are UUIDs (36 chars in length)
       max_length=36
     )

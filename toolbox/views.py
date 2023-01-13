@@ -1,5 +1,3 @@
-import json
-import re
 import requests
 
 from django.conf import settings
@@ -7,13 +5,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseServerError, JsonResponse
-from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+from json import dumps, loads
+from re import sub
 
 from .models import Subsets
 
 
-class AddSubsetView(generic.View):
+class AddSubsetView(View):
   """
   Add a new subset
   """
@@ -40,7 +40,7 @@ class AddSubsetView(generic.View):
     self.model_name = request.POST.get('model_name', None)
     self.pk_field = request.POST.get('pk_field', None)
     pk_values = request.POST.get('pk_values', None)
-    self.pk_values = json.loads(pk_values)
+    self.pk_values = loads(pk_values)
     return super(AddSubsetView, self).dispatch(request, *args, **kwargs)
 
   @csrf_exempt
@@ -64,14 +64,14 @@ class AddSubsetView(generic.View):
       response = {
           'id': str(subset.pk)
       }
-      return JsonResponse(status=200, data=json.dumps(response), safe=False)
+      return JsonResponse(status=200, data=dumps(response), safe=False)
     except (IntegrityError, MultipleObjectsReturned):
       return HttpResponseServerError()
     except Exception:
       return HttpResponseServerError()
 
 
-class OWSProxyView(generic.View):
+class OWSProxyView(View):
   """
   proxy for OGC web services (OWS)
   """
@@ -91,7 +91,7 @@ class OWSProxyView(generic.View):
     :param kwargs:
     :return:
     """
-    self.destination_url = settings.OWS_BASE + re.sub(
+    self.destination_url = settings.OWS_BASE + sub(
         pattern='^.*owsproxy',
         repl='',
         string=str(request.get_full_path())
@@ -115,7 +115,7 @@ class OWSProxyView(generic.View):
       return HttpResponseServerError()
 
 
-class AddressSearchView(generic.View):
+class AddressSearchView(View):
   """
   address search
   """
@@ -175,7 +175,7 @@ class AddressSearchView(generic.View):
       return HttpResponseServerError()
 
 
-class ReverseSearchView(generic.View):
+class ReverseSearchView(View):
   """
   search for objects in specified radius around given coordinates
   """

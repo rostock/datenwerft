@@ -950,11 +950,11 @@
             }
         ).then(
             (data) => {
-              // falls Fehler bei der Kommunikation mit FME auftrat...
-              if (data.StatusCode) {
+              // falls Fehler bei der Kommunikation mit FME Server auftrat...
+              if (data.status_code) {
                 // Ausgabe der Fehlermeldung
-                console.log('Fehler bei Kommunikation mit FME');
-                console.log(data);
+                console.log('Fehler bei Kommunikation mit FME Server');
+                console.log(data.error_log);
                 // ansonsten...
               } else {
                 // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben

@@ -1,9 +1,6 @@
-import re
-import time
-
 from datenmanagement.models import Ansprechpartner_Baustellen
 from django.apps import apps
-from django.contrib import messages
+from django.contrib.messages import success
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
@@ -12,10 +9,14 @@ from django.db.models import F
 from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
-from django.views import generic
+from django.views.generic import CreateView, DeleteView, UpdateView
 from operator import itemgetter
+from re import sub
+from time import time
 
-from . import fields, functions
+from .fields import AddressUUIDField, QuarterUUIDField, StreetUUIDField
+from .functions import assign_widgets, get_thumb_url, set_form_attributes, \
+  set_form_context_elements, set_model_related_context_elements
 
 
 class DataForm(ModelForm):
@@ -127,21 +128,21 @@ class DataForm(ModelForm):
         required = self.address_mandatory
         if field.name == 'adresse':
           attrs['placeholder'] = 'Adresse eingeben…'
-          self.fields[field.name] = fields.AddressUUIDField(
+          self.fields[field.name] = AddressUUIDField(
               label=label,
               widget=TextInput(attrs=attrs),
               required=required
           )
         elif field.name == 'strasse':
           attrs['placeholder'] = 'Straße eingeben…'
-          self.fields[field.name] = fields.StreetUUIDField(
+          self.fields[field.name] = StreetUUIDField(
               label=label,
               widget=TextInput(attrs=attrs),
               required=required
           )
         else:
           attrs['placeholder'] = 'Gemeindeteil eingeben…'
-          self.fields[field.name] = fields.QuarterUUIDField(
+          self.fields[field.name] = QuarterUUIDField(
               label=label,
               widget=TextInput(attrs=attrs),
               required=required
@@ -252,7 +253,7 @@ class DataForm(ModelForm):
     return data
 
 
-class DataAddView(generic.CreateView):
+class DataAddView(CreateView):
   """
   erstellt ein neues Datenbankobjekt eines Datensatzes
 
@@ -269,7 +270,7 @@ class DataAddView(generic.CreateView):
         self.model,
         form=DataForm,
         fields='__all__',
-        formfield_callback=functions.assign_widgets)
+        formfield_callback=assign_widgets)
     self.multi_foto_field = None
     self.multi_files = None
     self.file = None
@@ -282,7 +283,7 @@ class DataAddView(generic.CreateView):
     :return: **kwargs als Dictionary mit Formularattributen
     """
     kwargs = super(DataAddView, self).get_form_kwargs()
-    self = functions.set_form_attributes(self)
+    self = set_form_attributes(self)
     if hasattr(self.model._meta, 'multi_foto_field'):
       self.multi_foto_field = self.model._meta.multi_foto_field
       if self.request.method == 'POST':
@@ -310,8 +311,8 @@ class DataAddView(generic.CreateView):
     :return: Dictionary mit Kontextelementen des Views
     """
     context = super(DataAddView, self).get_context_data(**kwargs)
-    context = functions.set_model_related_context_elements(context, self.model)
-    context = functions.set_form_context_elements(context, self.model)
+    context = set_model_related_context_elements(context, self.model)
+    context = set_form_context_elements(context, self.model)
     context['multi_foto_field'] = (
         self.model._meta.multi_foto_field if hasattr(
             self.model._meta, 'multi_foto_field') else None)
@@ -356,7 +357,7 @@ class DataAddView(generic.CreateView):
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
     form.instance.user = self.request.user
-    messages.success(
+    success(
       self.request,
       'Der neue Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich angelegt!' % str(form.instance)
@@ -364,7 +365,7 @@ class DataAddView(generic.CreateView):
     return super(DataAddView, self).form_valid(form)
 
 
-class DataChangeView(generic.UpdateView):
+class DataChangeView(UpdateView):
   """
   ändert ein vorhandenes Datenbankobjekt eines Datensatzes
 
@@ -381,7 +382,7 @@ class DataChangeView(generic.UpdateView):
       self.model,
       form=DataForm,
       fields='__all__',
-      formfield_callback=functions.assign_widgets)
+      formfield_callback=assign_widgets)
     self.associated_models = None
     self.file = None
     self.associated_new = None
@@ -395,7 +396,7 @@ class DataChangeView(generic.UpdateView):
     :return: **kwargs als Dictionary mit Formularattributen
     """
     kwargs = super(DataChangeView, self).get_form_kwargs()
-    self = functions.set_form_attributes(self)
+    self = set_form_attributes(self)
     self.associated_objects = None
     self.associated_new = None
     if hasattr(self.model._meta, 'associated_models'):
@@ -425,7 +426,7 @@ class DataChangeView(generic.UpdateView):
         associated_model_foreign_key_field = self.associated_models.get(
             associated_model)
         title = (
-            re.sub(
+            sub(
                 '^[a-z]{3} ',
                 '',
                 associated_model_model._meta.object_title) +
@@ -466,10 +467,10 @@ class DataChangeView(generic.UpdateView):
           preview_thumb_url = ''
           if foto:
             try:
-              preview_img_url = foto.url + '?' + str(time.time())
+              preview_img_url = foto.url + '?' + str(time())
               if thumbs is not None and thumbs:
-                preview_thumb_url = functions.get_thumb_url(
-                    foto.url) + '?' + str(time.time())
+                preview_thumb_url = get_thumb_url(
+                    foto.url) + '?' + str(time())
               else:
                 preview_thumb_url = ''
             except ValueError:
@@ -498,8 +499,8 @@ class DataChangeView(generic.UpdateView):
     :return: Dictionary mit Kontextelementen des Views
     """
     context = super(DataChangeView, self).get_context_data(**kwargs)
-    context = functions.set_model_related_context_elements(context, self.model)
-    context = functions.set_form_context_elements(context, self.model)
+    context = set_model_related_context_elements(context, self.model)
+    context = set_form_context_elements(context, self.model)
     context['associated_objects'] = (
         self.associated_objects if self.associated_objects else None)
     context['associated_new'] = (
@@ -563,7 +564,7 @@ class DataChangeView(generic.UpdateView):
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
     form.instance.user = self.request.user
-    messages.success(
+    success(
       self.request,
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich geändert!' % str(form.instance)
@@ -583,7 +584,7 @@ class DataChangeView(generic.UpdateView):
     return obj
 
 
-class DataDeleteView(SuccessMessageMixin, generic.DeleteView):
+class DataDeleteView(SuccessMessageMixin, DeleteView):
   """
   löscht ein vorhandenes Datenbankobjekt eines Datensatzes
   """
@@ -611,7 +612,7 @@ class DataDeleteView(SuccessMessageMixin, generic.DeleteView):
     :param form: Formular, das geprüft werden soll
     :return: Success-URL als HTTP-Response, falls Formular valide
     """
-    messages.success(
+    success(
       self.request,
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich gelöscht!' % str(self.object)
