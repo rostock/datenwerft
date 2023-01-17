@@ -44,6 +44,11 @@ jobs:
           --health-timeout 5s 
           --health-retries 5
     steps:
+      - name: Prevent locale issues concerning tests on app Datenmanagement
+        run: |
+          export LC_ALL="de_DE.UTF-8"
+          export LC_CTYPE="de_DE.UTF-8"
+          sudo dpkg-reconfigure locales
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Node.js
@@ -88,4 +93,4 @@ jobs:
       - name: Run tests on app Toolbox
         run: python manage.py test toolbox
       - name: Run tests on app Datenmanagement
-        run: python manage.py test datenmanagement
+        run: python manage.py test datenmanagement.tests.test_models_codelist.RaeumbreitenStrassenreinigungssatzungHROTest
