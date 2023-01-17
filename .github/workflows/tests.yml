@@ -61,9 +61,8 @@ jobs:
           sudo apt-get install gdal-bin libgdal-dev libldap2-dev libpq-dev libsasl2-dev postgresql-client
       - name: Prevent locale issues
         run: |
-          sudo locale-gen de_DE
           sudo locale-gen de_DE.UTF-8
-          sudo update-locale
+          sudo dpkg-reconfigure locales
           export LC_ALL="de_DE.UTF-8"
           export LC_CTYPE="de_DE.UTF-8"
       - name: Install Python dependencies
@@ -95,4 +94,4 @@ jobs:
       - name: Run tests on app Toolbox
         run: python manage.py test toolbox
       - name: Run tests on app Datenmanagement
-        run: python manage.py test datenmanagement.tests.test_models_codelist.RaeumbreitenStrassenreinigungssatzungHROTest
+        run: python manage.py test datenmanagement
