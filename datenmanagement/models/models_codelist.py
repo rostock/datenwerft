@@ -9,7 +9,8 @@ from .constants_vars import personennamen_validators, standard_validators, email
   haefen_abkuerzung_message, linien_linie_regex, linien_linie_message, \
   parkscheinautomaten_zone_regex, parkscheinautomaten_zone_message, quartiere_code_regex, \
   quartiere_code_message
-from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField
+from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
+  multiflaeche_field
 
 
 #
@@ -101,6 +102,7 @@ class Gemeindeteile(Metamodel):
     max_length=255,
     editable=False
   )
+  geometrie = multiflaeche_field
 
   class Meta(Metamodel.Meta):
     db_table = 'basisdaten\".\"gemeindeteile_datenwerft_hro'

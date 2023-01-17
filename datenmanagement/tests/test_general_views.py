@@ -14,30 +14,34 @@ class IndexViewTest(DefaultTestCase):
   def setUp(self):
     self.init()
 
+  def generic_view_test(self, login, string):
+    """
+    testet den View
+
+    :param self
+    :param login: mit Login?
+    :param string: bestimmter Wert, der in Antwort enthalten sein soll
+    """
+    if login:
+      self.client.login(
+        username=USERNAME,
+        password=PASSWORD
+      )
+    # Seite via GET aufrufen
+    response = self.client.get(reverse('datenmanagement:index'))
+    # Aufruf erfolgreich?
+    self.assertEqual(response.status_code, 200)
+    # Content-Type der Antwort wie erwartet?
+    self.assertEqual(response['content-type'].lower(), 'text/html; charset=utf-8')
+    # Antwort enthält bestimmten Wert?
+    self.assertIn(string, str(response.content))
+
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_logged_in(self):
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
-    # Seite via GET aufrufen
-    response = self.client.get(reverse('datenmanagement:index'))
-    # Aufruf erfolgreich?
-    self.assertEqual(response.status_code, 200)
-    # Content-Type der Antwort wie erwartet?
-    self.assertEqual(response['content-type'].lower(), 'text/html; charset=utf-8')
-    # Antwort enthält bestimmten Wert?
-    self.assertIn('keine Datenthemen', str(response.content))
+    self.generic_view_test(True, 'keine Datenthemen')
 
   def test_view_not_logged_in(self):
-    # Seite via GET aufrufen
-    response = self.client.get(reverse('datenmanagement:index'))
-    # Aufruf erfolgreich?
-    self.assertEqual(response.status_code, 200)
-    # Content-Type der Antwort wie erwartet?
-    self.assertEqual(response['content-type'].lower(), 'text/html; charset=utf-8')
-    # Antwort enthält bestimmten Wert?
-    self.assertIn('Willkommen bei', str(response.content))
+    self.generic_view_test(False, 'Willkommen bei')
 
 
 class GPXtoGeoJSONTest(DefaultTestCase):
@@ -51,44 +55,38 @@ class GPXtoGeoJSONTest(DefaultTestCase):
   def setUp(self):
     self.init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def test_view_success(self):
+  def generic_view_test(self, file, status_code, string):
+    """
+    testet den View
+
+    :param self
+    :param file: Datei
+    :param status_code: Status-Code, den die Antwort aufweisen soll
+    :param string: bestimmter Wert, der in Antwort enthalten sein soll
+    """
     self.client.login(
       username=USERNAME,
       password=PASSWORD
     )
     # Seite aufrufen und via POST notwendige Daten mitgeben
-    with open(self.GPX_FILE_SUCCESS, 'rb') as file:
+    with open(file, 'rb') as gpx:
       response = self.client.post(
         reverse('datenmanagement:gpxtogeojson'),
         data={
-          'gpx': file
+          'gpx': gpx
         }
       )
-    # Aufruf erfolgreich?
-    self.assertEqual(response.status_code, 200)
+    # Antwort mit erwartetem Status-Code?
+    self.assertEqual(response.status_code, status_code)
     # Content-Type der Antwort wie erwartet?
     self.assertEqual(response['content-type'].lower(), 'application/json')
     # Antwort enthält bestimmten Wert?
-    self.assertIn('Feature', str(loads(response.content)))
+    self.assertIn(string, str(loads(response.content)))
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def test_view_success(self):
+    self.generic_view_test(self.GPX_FILE_SUCCESS, 200, 'Feature')
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_error(self):
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
-    # Seite aufrufen und via POST notwendige Daten mitgeben
-    with open(self.GPX_FILE_ERROR, 'rb') as file:
-      response = self.client.post(
-        reverse('datenmanagement:gpxtogeojson'),
-        data={
-          'gpx': file
-        }
-      )
-    # Aufruf nicht erfolgreich?
-    self.assertEqual(response.status_code, 422)
-    # Content-Type der Antwort wie erwartet?
-    self.assertEqual(response['content-type'].lower(), 'application/json')
-    # Antwort enthält bestimmten Wert?
-    self.assertIn('error_log', str(loads(response.content)))
+    self.generic_view_test(self.GPX_FILE_ERROR, 422, 'error_log')

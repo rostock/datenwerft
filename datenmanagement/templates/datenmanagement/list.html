@@ -40,7 +40,7 @@
     <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
-    <div class="d-grid mt-5 gap-2 mx-auto">
+    <div class="d-grid mt-5{% if not editable or not user|user_has_model_delete_permission:model_name_lower %} mb-3{% endif %} gap-2 mx-auto">
       {% if subset_id %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
@@ -256,7 +256,8 @@
                   'targets': -1
                 }];
             return columnDefs.concat(furtherColumnDefs);
-          }
+          } else
+            return columnDefs;
         }
       </script>
     </div>

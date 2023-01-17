@@ -1,189 +1,376 @@
-from django.test import override_settings
-from django.urls import reverse
-from datenmanagement.models import Adressen, Strassen, Anbieter_Carsharing
+from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
+  Anbieter_Carsharing
 
-from .base import DefaultTestCase
+from .base import DefaultCodelistTestCase, DefaultMetaModelTestCase
 from .constants_vars import *
-from .functions import load_sql_schema
 
 
 #
 # Meta-Datenmodelle
 #
 
-class AdressenTest(DefaultTestCase):
+class AdressenTest(DefaultMetaModelTestCase):
   """
   Testklasse für Adressen
   """
 
   model = Adressen
-  INITIAL = 'Deppendorfer Str. 23a'
-  UPDATED = 'Suppenkasperweg 42'
-
-  @classmethod
-  def setUpTestData(cls):
-    load_sql_schema()
-    cls.test_object = cls.model.objects.create(adresse=cls.INITIAL)
+  attributes_values_db_initial = {
+    'adresse': 'Deppendorfer Str. 23a'
+  }
+  attributes_values_db_updated = {
+    'adresse': 'Suppenkasperweg 42'
+  }
 
   def setUp(self):
     self.init()
 
   def test_is_metamodel(self):
-    # Datenmodell als Meta-Datenmodell deklariert?
-    self.assertTrue(
-      hasattr(self.model._meta, 'metamodel')
-      and self.model._meta.metamodel is True
-    )
-    # Datenmodell nicht bearbeitbar?
-    self.assertTrue(
-      hasattr(self.model._meta, 'editable')
-      and self.model._meta.editable is False
-    )
+    self.generic_is_metamodel_test(self.model)
 
   def test_create(self):
-    # genau ein Objekt erstellt?
-    self.assertEqual(self.model.objects.all().count(), 1)
-    # erstelltes Objekt wie erwartet erstellt?
-    test_object = self.model.objects.get(adresse=self.INITIAL)
-    self.assertEqual(test_object, self.test_object)
-    # erstelltes Objekt umfasst in einem seiner Felder eine bestimmte Information?
-    self.assertEqual(self.model.objects.filter(adresse=self.INITIAL).count(), 1)
-    # erstelltes Objekt umfasst ein UUID-Feld, das als Primärschlüssel deklariert ist?
-    self.assertEqual(test_object.pk, test_object.uuid)
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
 
   def test_update(self):
-    self.test_object.adresse = self.UPDATED
-    self.test_object.save()
-    # existiert nach der Aktualisierung immer noch genau ein Objekt?
-    self.assertEqual(self.model.objects.all().count(), 1)
-    # aktualisiertes Objekt wie erwartet aktualisiert?
-    test_object = self.model.objects.get(adresse=self.UPDATED)
-    self.assertEqual(test_object, self.test_object)
-    # aktualisiertes Objekt umfasst in einem seiner Felder eine bestimmte Information?
-    self.assertEqual(self.model.objects.filter(adresse=self.UPDATED).count(), 1)
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
 
   def test_delete(self):
-    # keine Objekte mehr vorhanden?
-    self.test_object.delete()
-    self.assertEqual(self.model.objects.all().count(), 0)
+    self.generic_delete_test(self.model)
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def test_view_start_success(self):
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
     )
-    pass
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      "'recordsTotal': 1"
+    )
 
 
-class StrassenTest(DefaultTestCase):
+class StrassenTest(DefaultMetaModelTestCase):
   """
   Testklasse für Straßen
   """
 
   model = Strassen
-  INITIAL = 'Deppendorfer Str.'
-  UPDATED = 'Suppenkasperweg'
-
-  @classmethod
-  def setUpTestData(cls):
-    load_sql_schema()
-    cls.test_object = cls.model.objects.create(strasse=cls.INITIAL)
+  attributes_values_db_initial = {
+    'strasse': 'Deppendorfer Str.'
+  }
+  attributes_values_db_updated = {
+    'strasse': 'Suppenkasperweg'
+  }
 
   def setUp(self):
     self.init()
 
   def test_is_metamodel(self):
-    # Datenmodell als Meta-Datenmodell deklariert?
-    self.assertTrue(
-      hasattr(self.model._meta, 'metamodel')
-      and self.model._meta.metamodel is True
-    )
-    # Datenmodell nicht bearbeitbar?
-    self.assertTrue(
-      hasattr(self.model._meta, 'editable')
-      and self.model._meta.editable is False
-    )
+    self.generic_is_metamodel_test(self.model)
 
   def test_create(self):
-    # genau ein Objekt erstellt?
-    self.assertEqual(self.model.objects.all().count(), 1)
-    # erstelltes Objekt wie erwartet erstellt?
-    test_object = self.model.objects.get(strasse=self.INITIAL)
-    self.assertEqual(test_object, self.test_object)
-    # erstelltes Objekt umfasst in einem seiner Felder eine bestimmte Information?
-    self.assertEqual(self.model.objects.filter(strasse=self.INITIAL).count(), 1)
-    # erstelltes Objekt umfasst ein UUID-Feld, das als Primärschlüssel deklariert ist?
-    self.assertEqual(test_object.pk, test_object.uuid)
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
 
   def test_update(self):
-    self.test_object.strasse = self.UPDATED
-    self.test_object.save()
-    # existiert nach der Aktualisierung immer noch genau ein Objekt?
-    self.assertEqual(self.model.objects.all().count(), 1)
-    # aktualisiertes Objekt wie erwartet aktualisiert?
-    test_object = self.model.objects.get(strasse=self.UPDATED)
-    self.assertEqual(test_object, self.test_object)
-    # aktualisiertes Objekt umfasst in einem seiner Felder eine bestimmte Information?
-    self.assertEqual(self.model.objects.filter(strasse=self.UPDATED).count(), 1)
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
 
   def test_delete(self):
-    # keine Objekte mehr vorhanden?
-    self.test_object.delete()
-    self.assertEqual(self.model.objects.all().count(), 0)
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      "'recordsTotal': 1"
+    )
+
+
+class InoffizielleStrassenTest(DefaultMetaModelTestCase):
+  """
+  Testklasse für inoffizielle Straßen
+  """
+
+  model = Inoffizielle_Strassen
+  attributes_values_db_initial = {
+    'strasse': 'Deppendorfer Str.'
+  }
+  attributes_values_db_updated = {
+    'strasse': 'Suppenkasperweg'
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_metamodel(self):
+    self.generic_is_metamodel_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      "'recordsTotal': 1"
+    )
+
+
+class GemeindeteileTest(DefaultMetaModelTestCase):
+  """
+  Testklasse für Gemeindeteile
+  """
+
+  model = Gemeindeteile
+  attributes_values_db_initial = {
+    'gemeindeteil': 'Entenhausen',
+    'geometrie': VALID_MULTIPOLYGON
+  }
+  attributes_values_db_updated = {
+    'gemeindeteil': 'Katzensteige'
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_metamodel(self):
+    self.generic_is_metamodel_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      "'recordsTotal': 1"
+    )
 
 
 #
 # Codelisten
 #
 
-class AnbieterCarsharingTest(DefaultTestCase):
+class AnbieterCarsharingTest(DefaultCodelistTestCase):
   """
   Testklasse für Carsharing-Anbieter
   """
 
   model = Anbieter_Carsharing
-  INITIAL = 'Deppendorf GmbH & Co. KG'
-  UPDATED = 'Suppenkasper AG'
-
-  @classmethod
-  def setUpTestData(cls):
-    load_sql_schema()
-    cls.test_object = cls.model.objects.create(anbieter=cls.INITIAL)
+  attributes_values_db_initial = {
+    'anbieter': 'Deppendorf GmbH & Co. KG'
+  }
+  attributes_values_db_updated = {
+    'anbieter': 'Suppenkasper AG'
+  }
+  attributes_values_view_initial = {
+    'anbieter': 'Deppendorf AG'
+  }
+  attributes_values_view_updated = {
+    'anbieter': 'Suppenkasper GmbH & Co. KG'
+  }
+  attributes_values_view_invalid = {
+    'anbieter': INVALID_STRING
+  }
 
   def setUp(self):
     self.init()
 
   def test_is_codelist(self):
-    # Datenmodell als Codeliste deklariert?
-    self.assertTrue(
-      hasattr(self.model._meta, 'codelist')
-      and self.model._meta.codelist is True
-    )
+    self.generic_is_codelist_test(self.model)
 
   def test_create(self):
-    # genau ein Objekt erstellt?
-    self.assertEqual(self.model.objects.all().count(), 1)
-    # erstelltes Objekt wie erwartet erstellt?
-    test_object = self.model.objects.get(anbieter=self.INITIAL)
-    self.assertEqual(test_object, self.test_object)
-    # erstelltes Objekt umfasst in einem seiner Felder eine bestimmte Information?
-    self.assertEqual(self.model.objects.filter(anbieter=self.INITIAL).count(), 1)
-    # erstelltes Objekt umfasst ein UUID-Feld, das als Primärschlüssel deklariert ist?
-    self.assertEqual(test_object.pk, test_object.uuid)
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
 
   def test_update(self):
-    self.test_object.anbieter = self.UPDATED
-    self.test_object.save()
-    # existiert nach der Aktualisierung immer noch genau ein Objekt?
-    self.assertEqual(self.model.objects.all().count(), 1)
-    # aktualisiertes Objekt wie erwartet aktualisiert?
-    test_object = self.model.objects.get(anbieter=self.UPDATED)
-    self.assertEqual(test_object, self.test_object)
-    # aktualisiertes Objekt umfasst in einem seiner Felder eine bestimmte Information?
-    self.assertEqual(self.model.objects.filter(anbieter=self.UPDATED).count(), 1)
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
 
   def test_delete(self):
-    # keine Objekte mehr vorhanden?
-    self.test_object.delete()
-    self.assertEqual(self.model.objects.all().count(), 0)
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      "'recordsTotal': 1"
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )

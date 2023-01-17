@@ -76,7 +76,9 @@ class DataView(BaseDatatableView):
       item_data = []
       item_id = getattr(item, self.model._meta.pk.name)
       d = ''
-      if not self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
+      if (not self.editable or
+          not self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
+      ):
         d = ' disabled'
       cb = '<input class="action-checkbox" type="checkbox" value="' + str(item_id) + '"' + d + '>'
       item_data.append(cb)

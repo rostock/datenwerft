@@ -147,34 +147,36 @@ class OWSProxyTest(OWSProxyTestCase):
   def setUp(self):
     self.init()
 
-  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def test_ows_proxy_view_success(self):
+  def generic_view_test(self, url_path, content_type, string=None):
+    """
+    tests the view
+
+    :param self
+    :param url_path: URL path
+    :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
+    """
     self.client.login(
       username=USERNAME,
       password=PASSWORD
     )
     # try GETting an OWS via proxy
-    response = self.client.get(reverse('toolbox:owsproxy') + self.OWS_URL_PATH_VALID)
+    response = self.client.get(reverse('toolbox:owsproxy') + url_path)
     # GET successful?
     self.assertEqual(response.status_code, 200)
     # content type of response as expected?
-    self.assertEqual(response['content-type'].lower(), 'image/png')
+    self.assertEqual(response['content-type'].lower(), content_type)
+    if string is not None:
+      # specific string contained in response?
+      self.assertIn(string, str(response.content))
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def test_ows_proxy_view_success(self):
+    self.generic_view_test(self.OWS_URL_PATH_VALID, 'image/png')
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_ows_proxy_view_error(self):
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
-    # try GETting an OWS via proxy
-    # but using an invalid URL path
-    response = self.client.get(reverse('toolbox:owsproxy') + self.OWS_URL_PATH_INVALID)
-    # GET successful?
-    self.assertEqual(response.status_code, 200)
-    # content type of response as expected?
-    self.assertEqual(response['content-type'].lower(), 'text/html')
-    # specific string contained in response?
-    self.assertIn('nicht vorhanden', str(response.content))
+    self.generic_view_test(self.OWS_URL_PATH_INVALID, 'text/html', 'nicht vorhanden')
 
 
 class SearchesTestCase(TestCase):
@@ -199,7 +201,15 @@ class SearchesTestCase(TestCase):
       password=PASSWORD
     )
 
-  def generic_searches_test(self, url, params, string):
+  def generic_view_test(self, url, params, string):
+    """
+    tests the view
+
+    :param self
+    :param url: URL
+    :param params: URL parameters
+    :param string: specific string that should be contained in response
+    """
     self.client.login(
       username=USERNAME,
       password=PASSWORD
@@ -225,7 +235,7 @@ class SearchesTest(SearchesTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_address_search_view_success(self):
-    self.generic_searches_test(
+    self.generic_view_test(
       'toolbox:addresssearch',
       self.ADDRESS_SEARCH_PARAMS,
       self.CONTAINED_STRING_SUCCESS
@@ -234,7 +244,7 @@ class SearchesTest(SearchesTestCase):
   @override_settings(ADDRESS_SEARCH_KEY=INVALID_API_KEY)
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_address_search_view_error(self):
-    self.generic_searches_test(
+    self.generic_view_test(
       'toolbox:addresssearch',
       self.ADDRESS_SEARCH_PARAMS,
       self.CONTAINED_STRING_ERROR
@@ -242,7 +252,7 @@ class SearchesTest(SearchesTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_reverse_search_view_success(self):
-    self.generic_searches_test(
+    self.generic_view_test(
       'toolbox:reversesearch',
       self.REVERSE_SEARCH_PARAMS,
       self.CONTAINED_STRING_SUCCESS
@@ -251,7 +261,7 @@ class SearchesTest(SearchesTestCase):
   @override_settings(ADDRESS_SEARCH_KEY=INVALID_API_KEY)
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_reverse_search_view_error(self):
-    self.generic_searches_test(
+    self.generic_view_test(
       'toolbox:reversesearch',
       self.REVERSE_SEARCH_PARAMS,
       self.CONTAINED_STRING_ERROR
