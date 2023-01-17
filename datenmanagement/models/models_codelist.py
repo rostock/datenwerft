@@ -1353,7 +1353,11 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code', min_value=1, max_value=7, unique=True)
+    'Code',
+    min_value=1,
+    max_value=7,
+    unique=True
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"reinigungsklassen_strassenreinigungssatzung_hro'
@@ -1904,7 +1908,11 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code', min_value=1, max_value=7, unique=True)
+    'Code',
+    min_value=1,
+    max_value=7,
+    unique=True
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"wegereinigungsklassen_strassenreinigungssatzung_hro'
@@ -2150,7 +2158,10 @@ class Zustandsbewertungen(Codelist):
   """
 
   zustandsbewertung = PositiveSmallIntegerMinField(
-    'Zustandsbewertung', min_value=1, unique=True)
+    'Zustandsbewertung',
+    min_value=1,
+    unique=True
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"zustandsbewertungen'

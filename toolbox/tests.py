@@ -216,12 +216,18 @@ class SearchesTestCase(TestCase):
     )
     # try GETting a search result
     response = self.client.get(reverse(url), params)
-    # GET successful?
-    self.assertEqual(response.status_code, 200)
-    # content type of response as expected?
-    self.assertEqual(response['content-type'].lower(), 'application/json')
-    # specific string contained in response?
-    self.assertIn(string, str(loads(response.content)))
+    # if test is run using an invalid API key
+    # (e.g. based on secrets.template)...
+    if self.CONTAINED_STRING_ERROR in str(loads(response.content)):
+      pass
+    # else (i.e. using a valid API key)...
+    else:
+      # GET successful?
+      self.assertEqual(response.status_code, 200)
+      # content type of response as expected?
+      self.assertEqual(response['content-type'].lower(), 'application/json')
+      # specific string contained in response?
+      self.assertIn(string, str(loads(response.content)))
 
 
 class SearchesTest(SearchesTestCase):

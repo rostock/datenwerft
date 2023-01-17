@@ -76,7 +76,8 @@ class DataView(BaseDatatableView):
       item_data = []
       item_id = getattr(item, self.model._meta.pk.name)
       d = ''
-      if (not self.editable or
+      if (
+          not self.editable or
           not self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
       ):
         d = ' disabled'
