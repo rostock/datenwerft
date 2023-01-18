@@ -198,9 +198,9 @@ class Typ(Codelist):
 # Klassen für normale Datenmodelle
 #
 
-class DefaultModel(Basemodel):
+class SimpleModel(Basemodel):
   """
-  Standard-Datenmodell (abstrakt)
+  einfaches Datenmodell (abstrakt)
   """
 
   aktiv = BooleanField(
@@ -212,11 +212,11 @@ class DefaultModel(Basemodel):
     abstract = True
 
 
-class ComplexModel(DefaultModel):
+class ComplexModel(SimpleModel):
   """
   komplexes Datenmodell (abstrakt)
   """
 
-  class Meta(DefaultModel.Meta):
+  class Meta(SimpleModel.Meta):
     abstract = True
     complex = True

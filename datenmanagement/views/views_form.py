@@ -175,9 +175,11 @@ class DataForm(ModelForm):
       invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
       unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut ' \
                        '<strong><em>{label}</em></strong>!'.format(label=field.label)
-      field.error_messages = {'required': required_message,
-                              'invalid_image': invalid_image_message,
-                              'unique': unique_message}
+      field.error_messages = {
+        'required': required_message,
+        'invalid_image': invalid_image_message,
+        'unique': unique_message
+      }
 
   def clean_foto(self):
     """

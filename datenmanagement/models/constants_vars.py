@@ -92,7 +92,7 @@ options.DEFAULT_NAMES += (
   'readonly_fields',
   # optional;
   # Liste;
-  # Namen der Felder, die in der Hinzufügen-/Änderungsansicht nur lesbar erscheinen sollen
+  # Namen der Felder, die in den Formularansichten nur lesbar erscheinen sollen
   'object_title',
   # optional;
   # Text;

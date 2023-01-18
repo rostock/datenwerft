@@ -29,12 +29,14 @@ class DefaultModelTestCase(DefaultTestCase):
   """
 
   model = None
+  create_test_object_in_classmethod = True
   attributes_values_db_initial = {}
 
   @classmethod
   def setUpTestData(cls):
     load_sql_schema()
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    if cls.create_test_object_in_classmethod:
+      cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
   def init(self):
     super().init()
@@ -211,13 +213,25 @@ class DefaultModelTestCase(DefaultTestCase):
     self.assertEqual(response.status_code, status_code)
     # Content-Type der Antwort wie erwartet?
     self.assertEqual(response['content-type'].lower(), content_type)
+    cleaned_object_filter = object_filter.copy()
+    # falls eines der Attribute im Objektfilter unter jenen Attributen ist,
+    # die in den Formularansichten des Datenmodells nur lesbar erscheinen sollen...
+    if hasattr(model._meta, 'readonly_fields'):
+      for attribute in object_filter:
+        if attribute in model._meta.readonly_fields:
+          # Attribut aus Objektfilter entfernen, da es ansonsten passieren kann,
+          # dass das Objekt unten nicht gefunden wird
+          # (etwa bei Attributen, die nach dem Speichern auf Datenbankebene manipuliert werden)
+          cleaned_object_filter.pop(attribute)
+    # Geometrie immer aus Objektfilter entfernen
+    cleaned_object_filter.pop('geometrie', None)
     # Konstellation der Objekte wie erwartet?
     # bei Erfolg:
     # erstelltes oder aktualisiertes Objekt
     # umfasst in einem seiner Felder eine bestimmte Information?
     # bei Fehler:
     # fehlerhaftes Objekt erst gar nicht erstellt oder aktualisiert?
-    self.assertEqual(model.objects.filter(**object_filter).count(), object_count)
+    self.assertEqual(model.objects.filter(**cleaned_object_filter).count(), object_count)
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
@@ -315,4 +329,27 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
     self.assertTrue(
       hasattr(model._meta, 'codelist')
       and model._meta.codelist is True
+    )
+
+
+class DefaultSimpleModelTestCase(DefaultModelTestCase):
+  """
+  Standardtest für einfache Datenmodelle
+  """
+
+  def init(self):
+    super().init()
+
+  def generic_is_simplemodel_test(self, model):
+    """
+    testet, ob das Datenmodell ein einfaches Datenmodell ist
+
+    :param self
+    :param model: Datenmodell
+    """
+    # Datenmodell als einfaches Datenmodell deklariert?
+    self.assertTrue(
+      (not hasattr(model._meta, 'metamodel') or model._meta.codelist is False)
+      and (not hasattr(model._meta, 'codelist') or model._meta.codelist is False)
+      and (not hasattr(model._meta, 'complex') or model._meta.complex is False)
     )

@@ -92,7 +92,7 @@ class AdressenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
 
@@ -151,7 +151,7 @@ class StrassenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
 
@@ -210,7 +210,7 @@ class InoffizielleStrassenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
 
@@ -222,7 +222,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
   model = Gemeindeteile
   attributes_values_db_initial = {
     'gemeindeteil': 'Gemeindeteil1',
-    'geometrie': VALID_MULTIPOLYGON
+    'geometrie': VALID_MULTIPOLYGON_DB
   }
   attributes_values_db_updated = {
     'gemeindeteil': 'Gemeindeteil2'
@@ -270,7 +270,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
 
@@ -347,7 +347,7 @@ class AltersklassenKadaverfundeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -473,7 +473,7 @@ class AngeboteMobilpunkteTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -599,7 +599,7 @@ class AngelberechtigungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -735,7 +735,7 @@ class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -861,7 +861,7 @@ class ArtenBaudenkmaleTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -987,7 +987,7 @@ class ArtenDurchlaesseTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1113,7 +1113,7 @@ class ArtenFairTradeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1239,7 +1239,7 @@ class ArtenFeldsportanlagenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1365,7 +1365,7 @@ class ArtenFeuerwachenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1491,7 +1491,7 @@ class ArtenFliessgewaesserTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1617,7 +1617,7 @@ class ArtenHundetoilettenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1743,7 +1743,7 @@ class ArtenFallwildsuchenKontrollenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1869,7 +1869,7 @@ class ArtenMeldedienstflaechenhaftTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -1995,7 +1995,7 @@ class ArtenMeldedienstpunkthaftTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2121,7 +2121,7 @@ class ArtenParkmoeglichkeitenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2247,7 +2247,7 @@ class ArtenPflegeeinrichtungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2373,7 +2373,7 @@ class ArtenPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2499,7 +2499,7 @@ class ArtenToilettenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2625,7 +2625,7 @@ class ArtenUVPVorpruefungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2751,7 +2751,7 @@ class ArtenWegeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -2877,7 +2877,7 @@ class AuftraggeberBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3003,7 +3003,7 @@ class AusfuehrungenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3129,7 +3129,7 @@ class BefestigungsartenAufstellflaecheBusHaltestellenkatasterTest(DefaultCodelis
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3255,7 +3255,7 @@ class BefestigungsartenWarteflaecheHaltestellenkatasterTest(DefaultCodelistTestC
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3381,7 +3381,7 @@ class BetriebsartenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3507,7 +3507,7 @@ class BetriebszeitenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3638,7 +3638,7 @@ class BewirtschafterBetreiberTraegerEigentuemerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3764,7 +3764,7 @@ class AnbieterCarsharingTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -3890,7 +3890,7 @@ class EAnschluesseParkscheinautomatenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4016,7 +4016,7 @@ class ErgebnisseUVPVorpruefungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4142,7 +4142,7 @@ class FahrbahnwinterdienstStrassenreinigungssatzungHROTest(DefaultCodelistTestCa
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4268,7 +4268,7 @@ class FotomotiveHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4399,7 +4399,7 @@ class FundamenttypenRSAGTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4530,7 +4530,7 @@ class GebaeudebauweisenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4661,7 +4661,7 @@ class GebaeudefunktionenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4787,7 +4787,7 @@ class GenehmigungsbehoerdenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -4918,7 +4918,7 @@ class GeschlechterKadaverfundeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5054,7 +5054,7 @@ class HaefenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5180,7 +5180,7 @@ class HerstellerPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5316,7 +5316,7 @@ class KategorienStrassenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5442,7 +5442,7 @@ class LadekartenLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5568,7 +5568,7 @@ class LinienTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5699,7 +5699,7 @@ class MastkennzeichenRSAGTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5830,7 +5830,7 @@ class MasttypenRSAGTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -5956,7 +5956,7 @@ class MasttypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6082,7 +6082,7 @@ class MaterialienDenksteineTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6208,7 +6208,7 @@ class MaterialienDurchlaesseTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6334,7 +6334,7 @@ class OrdnungenFliessgewaesserTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6460,7 +6460,7 @@ class PersonentitelTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6586,7 +6586,7 @@ class QuartiereTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6712,7 +6712,7 @@ class RaeumbreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6838,7 +6838,7 @@ class RechtsgrundlagenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -6964,7 +6964,7 @@ class ReinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase)
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7095,7 +7095,7 @@ class ReinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7221,7 +7221,7 @@ class SchaedenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7347,7 +7347,7 @@ class SchlagwoerterBildungstraegerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7473,7 +7473,7 @@ class SchlagwoerterVereineTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7599,7 +7599,7 @@ class SchliessungenPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7725,7 +7725,7 @@ class SitzbanktypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7851,7 +7851,7 @@ class SpartenBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -7977,7 +7977,7 @@ class SportartenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8103,7 +8103,7 @@ class StatusBaustellengeplantTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8229,7 +8229,7 @@ class StatusBaustellenFotodokumentationFotosTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8355,7 +8355,7 @@ class StatusPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8481,7 +8481,7 @@ class TierseuchenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8607,7 +8607,7 @@ class TypenAbfallbehaelterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8733,7 +8733,7 @@ class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8859,7 +8859,7 @@ class FahrgastunterstandstypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -8985,7 +8985,7 @@ class FahrplanvitrinentypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9111,7 +9111,7 @@ class TypenHaltestellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9237,7 +9237,7 @@ class TypenPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9363,7 +9363,7 @@ class TypenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9489,7 +9489,7 @@ class VerbuendeLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9615,7 +9615,7 @@ class VerkehrlicheLagenBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9741,7 +9741,7 @@ class VerkehrsmittelklassenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9867,7 +9867,7 @@ class VorgangsartenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -9993,7 +9993,7 @@ class WegebreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10119,7 +10119,7 @@ class WegereinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestC
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10250,7 +10250,7 @@ class WegereinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTest
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10376,7 +10376,7 @@ class WegetypenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10507,7 +10507,7 @@ class ZeiteinheitenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10633,7 +10633,7 @@ class ZHTypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10759,7 +10759,7 @@ class ZonenParkscheinautomatenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -10890,7 +10890,7 @@ class ZustaendeKadaverfundeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -11021,7 +11021,7 @@ class ZustaendeSchutzzaeuneTierseuchenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
@@ -11147,7 +11147,7 @@ class ZustandsbewertungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      "'recordsTotal': 1"
+      DATA_VIEW_STRING
     )
 
   def test_view_add_success(self):
