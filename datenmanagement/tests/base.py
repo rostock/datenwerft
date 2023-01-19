@@ -1,12 +1,13 @@
 from django.contrib.auth.models import Permission, User
 from django.contrib.messages import storage
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse, reverse_lazy
 from json import loads
 from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
 
 from .constants_vars import *
-from .functions import load_sql_schema
+from .functions import clean_object_filter, create_test_subset, get_object, load_sql_schema
 
 
 class DefaultTestCase(TestCase):
@@ -30,28 +31,20 @@ class DefaultModelTestCase(DefaultTestCase):
 
   model = None
   create_test_object_in_classmethod = True
+  create_test_subset_in_classmethod = True
   attributes_values_db_initial = {}
+  test_object = None
 
   @classmethod
   def setUpTestData(cls):
     load_sql_schema()
     if cls.create_test_object_in_classmethod:
       cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    if cls.test_object and cls.create_test_subset_in_classmethod:
+      cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
   def init(self):
     super().init()
-
-  @staticmethod
-  def get_object(model, object_filter):
-    """
-    holt ein Objekt des übergebenen Datenmodells aus der Datenbank,
-    auf den der übergebene Objektfilter passt, und liefert dieses zurück
-
-    :param model: Datenmodell
-    :param object_filter: Objektfilter
-    :return: Objekt des übergebenen Datenmodells, auf den der übergebene Objektfilter passt
-    """
-    return model.objects.get(**object_filter)
 
   def generic_existance_test(self, model, test_object):
     """
@@ -68,6 +61,15 @@ class DefaultModelTestCase(DefaultTestCase):
     # bzw. aktualisiertes Objekt wie erwartet aktualisiert?
     self.assertEqual(test_object, self.test_object)
 
+  def generic_file_existance_test(self, path):
+    """
+    testet die generelle Existenz einer Datei
+
+    :param self
+    :param path: Pfad der Datei
+    """
+    self.assertTrue(Path(path).exists())
+
   def generic_create_test(self, model, object_filter):
     """
     testet die Erstellung eines Objekts des übergebenen Datenmodells
@@ -76,7 +78,9 @@ class DefaultModelTestCase(DefaultTestCase):
     :param model: Datenmodell
     :param object_filter: Objektfilter
     """
-    test_object = self.get_object(model, object_filter)
+    # Objektfilter bereinigen
+    object_filter = clean_object_filter(model, object_filter)
+    test_object = get_object(model, object_filter)
     self.generic_existance_test(model, test_object)
     # erstelltes Objekt umfasst in einem seiner Felder eine bestimmte Information?
     self.assertEqual(model.objects.filter(**object_filter).count(), 1)
@@ -94,7 +98,9 @@ class DefaultModelTestCase(DefaultTestCase):
     for key in object_filter:
       setattr(self.test_object, key, object_filter[key])
     self.test_object.save()
-    test_object = self.get_object(model, object_filter)
+    # Objektfilter bereinigen
+    object_filter = clean_object_filter(model, object_filter)
+    test_object = get_object(model, object_filter)
     self.generic_existance_test(model, test_object)
     # aktualisiertes Objekt umfasst in einem seiner Felder eine bestimmte Information?
     self.assertEqual(model.objects.filter(**object_filter).count(), 1)
@@ -151,7 +157,15 @@ class DefaultModelTestCase(DefaultTestCase):
     # Login durchführen und alle notwendigen Berechtigungen setzen
     self.login_assign_permissions(model)
     # Seite via GET aufrufen
-    response = self.client.get(reverse('datenmanagement:' + view_name), url_params)
+    if view_name.endswith('_subset'):
+      subset_id = url_params['subset_id']
+      url_params.pop('subset_id')
+      response = self.client.get(reverse(
+        'datenmanagement:' + view_name,
+        args=[subset_id]
+      ), url_params)
+    else:
+      response = self.client.get(reverse('datenmanagement:' + view_name), url_params)
     # Status-Code der Antwort wie erwartet?
     self.assertEqual(response.status_code, status_code)
     # Content-Type der Antwort wie erwartet?
@@ -165,7 +179,8 @@ class DefaultModelTestCase(DefaultTestCase):
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_add_update_view_test(self, update_mode, model, object_filter,
-                                   status_code, content_type, object_count):
+                                   status_code, content_type, object_count,
+                                   file=None, file_attribute=None, file_content_type=None):
     """
     testet den View zur Erstellung oder Aktualisierung
     eines (neuen) Objekts des übergebenen Datenmodells
@@ -177,6 +192,9 @@ class DefaultModelTestCase(DefaultTestCase):
     :param status_code: Status-Code, den die Antwort aufweisen soll
     :param content_type: Content-Type, den die Antwort aufweisen soll
     :param object_count: Anzahl der Objekte, die am Ende gefunden werden sollen
+    :param file: Datei
+    :param file_attribute: Attribut für Datei
+    :param file_content_type: Content-Type der Datei
     """
     # Login durchführen und alle notwendigen Berechtigungen setzen
     self.login_assign_permissions(model)
@@ -193,6 +211,11 @@ class DefaultModelTestCase(DefaultTestCase):
       url,
       data=object_filter
     )
+    # Dateien-Attribute korrekt in POST einfügen
+    if file and file_attribute:
+      with open(file, 'rb') as f:
+        file_upload = SimpleUploadedFile(file.name, f.read(), file_content_type)
+        request.FILES[file_attribute] = file_upload
     request.user = self.test_user
     request._messages = storage.default_storage(request)
     template_name = 'datenmanagement/form.html'
@@ -213,25 +236,15 @@ class DefaultModelTestCase(DefaultTestCase):
     self.assertEqual(response.status_code, status_code)
     # Content-Type der Antwort wie erwartet?
     self.assertEqual(response['content-type'].lower(), content_type)
-    cleaned_object_filter = object_filter.copy()
-    # falls eines der Attribute im Objektfilter unter jenen Attributen ist,
-    # die in den Formularansichten des Datenmodells nur lesbar erscheinen sollen...
-    if hasattr(model._meta, 'readonly_fields'):
-      for attribute in object_filter:
-        if attribute in model._meta.readonly_fields:
-          # Attribut aus Objektfilter entfernen, da es ansonsten passieren kann,
-          # dass das Objekt unten nicht gefunden wird
-          # (etwa bei Attributen, die nach dem Speichern auf Datenbankebene manipuliert werden)
-          cleaned_object_filter.pop(attribute)
-    # Geometrie immer aus Objektfilter entfernen
-    cleaned_object_filter.pop('geometrie', None)
+    # Objektfilter bereinigen
+    object_filter = clean_object_filter(model, object_filter)
     # Konstellation der Objekte wie erwartet?
     # bei Erfolg:
     # erstelltes oder aktualisiertes Objekt
     # umfasst in einem seiner Felder eine bestimmte Information?
     # bei Fehler:
     # fehlerhaftes Objekt erst gar nicht erstellt oder aktualisiert?
-    self.assertEqual(model.objects.filter(**cleaned_object_filter).count(), object_count)
+    self.assertEqual(model.objects.filter(**object_filter).count(), object_count)
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
@@ -249,8 +262,10 @@ class DefaultModelTestCase(DefaultTestCase):
     """
     # Login durchführen und alle notwendigen Berechtigungen setzen
     self.login_assign_permissions(model)
+    # Objektfilter bereinigen
+    object_filter = clean_object_filter(model, object_filter)
     # Seite aufrufen und via POST notwendige Daten mitgeben
-    deletion_object = self.get_object(model, object_filter)
+    deletion_object = get_object(model, object_filter)
     if immediately:
       response = self.client.get(
         reverse(

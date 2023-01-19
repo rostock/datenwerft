@@ -49,9 +49,6 @@ class GPXtoGeoJSONTest(DefaultTestCase):
   Testklasse für Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
   """
 
-  GPX_FILE_SUCCESS = TEST_DIR / 'data' / 'gpx_valid.gpx'
-  GPX_FILE_ERROR = TEST_DIR / 'data' / 'gpx_invalid.gpx'
-
   def setUp(self):
     self.init()
 
@@ -91,8 +88,8 @@ class GPXtoGeoJSONTest(DefaultTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_success(self):
-    self.generic_view_test(self.GPX_FILE_SUCCESS, 200, 'Feature')
+    self.generic_view_test(VALID_GPX_FILE, 200, 'Feature')
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_error(self):
-    self.generic_view_test(self.GPX_FILE_ERROR, 422, 'error_log')
+    self.generic_view_test(INVALID_GPX_FILE, 422, 'error_log')

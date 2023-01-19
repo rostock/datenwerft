@@ -43,6 +43,7 @@ class AdressenTest(DefaultMetaModelTestCase):
   """
 
   model = Adressen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'adresse': 'Adresse1'
   }
@@ -92,7 +93,7 @@ class AdressenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
 
@@ -102,6 +103,7 @@ class StrassenTest(DefaultMetaModelTestCase):
   """
 
   model = Strassen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'strasse': 'Straße1'
   }
@@ -151,7 +153,7 @@ class StrassenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
 
@@ -161,6 +163,7 @@ class InoffizielleStrassenTest(DefaultMetaModelTestCase):
   """
 
   model = Inoffizielle_Strassen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'strasse': 'Straße1'
   }
@@ -210,7 +213,7 @@ class InoffizielleStrassenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
 
@@ -220,6 +223,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
   """
 
   model = Gemeindeteile
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'gemeindeteil': 'Gemeindeteil1',
     'geometrie': VALID_MULTIPOLYGON_DB
@@ -270,7 +274,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
 
@@ -284,6 +288,7 @@ class AltersklassenKadaverfundeTest(DefaultCodelistTestCase):
   """
 
   model = Altersklassen_Kadaverfunde
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordinalzahl': 1,
     'bezeichnung': 'Bezeichnung1'
@@ -347,7 +352,7 @@ class AltersklassenKadaverfundeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -415,6 +420,7 @@ class AngeboteMobilpunkteTest(DefaultCodelistTestCase):
   """
 
   model = Angebote_Mobilpunkte
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'angebot': 'Angebot1'
   }
@@ -473,7 +479,7 @@ class AngeboteMobilpunkteTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -541,6 +547,7 @@ class AngelberechtigungenTest(DefaultCodelistTestCase):
   """
 
   model = Angelberechtigungen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'angelberechtigung': 'Angelberechtigung1'
   }
@@ -599,7 +606,7 @@ class AngelberechtigungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -667,6 +674,7 @@ class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
   """
 
   model = Ansprechpartner_Baustellen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'vorname': 'Vorname1',
     'nachname': 'Nachname1',
@@ -735,7 +743,7 @@ class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -803,6 +811,7 @@ class ArtenBaudenkmaleTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Baudenkmale
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -861,7 +870,7 @@ class ArtenBaudenkmaleTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -929,6 +938,7 @@ class ArtenDurchlaesseTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Durchlaesse
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -987,7 +997,7 @@ class ArtenDurchlaesseTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1055,6 +1065,7 @@ class ArtenFairTradeTest(DefaultCodelistTestCase):
   """
 
   model = Arten_FairTrade
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1113,7 +1124,7 @@ class ArtenFairTradeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1181,6 +1192,7 @@ class ArtenFeldsportanlagenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Feldsportanlagen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1239,7 +1251,7 @@ class ArtenFeldsportanlagenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1307,6 +1319,7 @@ class ArtenFeuerwachenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Feuerwachen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1365,7 +1378,7 @@ class ArtenFeuerwachenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1433,6 +1446,7 @@ class ArtenFliessgewaesserTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Fliessgewaesser
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1491,7 +1505,7 @@ class ArtenFliessgewaesserTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1559,6 +1573,7 @@ class ArtenHundetoilettenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Hundetoiletten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1617,7 +1632,7 @@ class ArtenHundetoilettenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1685,6 +1700,7 @@ class ArtenFallwildsuchenKontrollenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Fallwildsuchen_Kontrollen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1743,7 +1759,7 @@ class ArtenFallwildsuchenKontrollenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1811,6 +1827,7 @@ class ArtenMeldedienstflaechenhaftTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Meldedienst_flaechenhaft
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1869,7 +1886,7 @@ class ArtenMeldedienstflaechenhaftTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -1937,6 +1954,7 @@ class ArtenMeldedienstpunkthaftTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Meldedienst_punkthaft
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -1995,7 +2013,7 @@ class ArtenMeldedienstpunkthaftTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2063,6 +2081,7 @@ class ArtenParkmoeglichkeitenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Parkmoeglichkeiten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -2121,7 +2140,7 @@ class ArtenParkmoeglichkeitenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2189,6 +2208,7 @@ class ArtenPflegeeinrichtungenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Pflegeeinrichtungen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -2247,7 +2267,7 @@ class ArtenPflegeeinrichtungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2315,6 +2335,7 @@ class ArtenPollerTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Poller
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -2373,7 +2394,7 @@ class ArtenPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2441,6 +2462,7 @@ class ArtenToilettenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Toiletten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -2499,7 +2521,7 @@ class ArtenToilettenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2567,6 +2589,7 @@ class ArtenUVPVorpruefungenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_UVP_Vorpruefungen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -2625,7 +2648,7 @@ class ArtenUVPVorpruefungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2693,6 +2716,7 @@ class ArtenWegeTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Wege
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
   }
@@ -2751,7 +2775,7 @@ class ArtenWegeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2819,6 +2843,7 @@ class AuftraggeberBaustellenTest(DefaultCodelistTestCase):
   """
 
   model = Auftraggeber_Baustellen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'auftraggeber': 'Auftraggeber1'
   }
@@ -2877,7 +2902,7 @@ class AuftraggeberBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -2945,6 +2970,7 @@ class AusfuehrungenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Ausfuehrungen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ausfuehrung': 'Ausführung1'
   }
@@ -3003,7 +3029,7 @@ class AusfuehrungenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3071,6 +3097,7 @@ class BefestigungsartenAufstellflaecheBusHaltestellenkatasterTest(DefaultCodelis
   """
 
   model = Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'befestigungsart': 'Befestigungsart1'
   }
@@ -3129,7 +3156,7 @@ class BefestigungsartenAufstellflaecheBusHaltestellenkatasterTest(DefaultCodelis
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3197,6 +3224,7 @@ class BefestigungsartenWarteflaecheHaltestellenkatasterTest(DefaultCodelistTestC
   """
 
   model = Befestigungsarten_Warteflaeche_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'befestigungsart': 'Befestigungsart1'
   }
@@ -3255,7 +3283,7 @@ class BefestigungsartenWarteflaecheHaltestellenkatasterTest(DefaultCodelistTestC
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3323,6 +3351,7 @@ class BetriebsartenTest(DefaultCodelistTestCase):
   """
 
   model = Betriebsarten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'betriebsart': 'Betriebsart1'
   }
@@ -3381,7 +3410,7 @@ class BetriebsartenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3449,6 +3478,7 @@ class BetriebszeitenTest(DefaultCodelistTestCase):
   """
 
   model = Betriebszeiten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'betriebszeit': 'Betriebszeit1'
   }
@@ -3507,7 +3537,7 @@ class BetriebszeitenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3575,6 +3605,7 @@ class BewirtschafterBetreiberTraegerEigentuemerTest(DefaultCodelistTestCase):
   """
 
   model = Bewirtschafter_Betreiber_Traeger_Eigentuemer
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1',
     'art': 'Art1'
@@ -3638,7 +3669,7 @@ class BewirtschafterBetreiberTraegerEigentuemerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3706,6 +3737,7 @@ class AnbieterCarsharingTest(DefaultCodelistTestCase):
   """
 
   model = Anbieter_Carsharing
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'anbieter': 'Anbieter1'
   }
@@ -3764,7 +3796,7 @@ class AnbieterCarsharingTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3832,6 +3864,7 @@ class EAnschluesseParkscheinautomatenTest(DefaultCodelistTestCase):
   """
 
   model = E_Anschluesse_Parkscheinautomaten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'e_anschluss': 'E-Anschluss1'
   }
@@ -3890,7 +3923,7 @@ class EAnschluesseParkscheinautomatenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -3958,6 +3991,7 @@ class ErgebnisseUVPVorpruefungenTest(DefaultCodelistTestCase):
   """
 
   model = Ergebnisse_UVP_Vorpruefungen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ergebnis': 'Ergebnis1'
   }
@@ -4016,7 +4050,7 @@ class ErgebnisseUVPVorpruefungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4084,6 +4118,7 @@ class FahrbahnwinterdienstStrassenreinigungssatzungHROTest(DefaultCodelistTestCa
   """
 
   model = Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'code': 'A'
   }
@@ -4142,7 +4177,7 @@ class FahrbahnwinterdienstStrassenreinigungssatzungHROTest(DefaultCodelistTestCa
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4210,6 +4245,7 @@ class FotomotiveHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Fotomotive_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'fotomotiv': 'Fotomotiv1'
   }
@@ -4268,7 +4304,7 @@ class FotomotiveHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4336,6 +4372,7 @@ class FundamenttypenRSAGTest(DefaultCodelistTestCase):
   """
 
   model = Fundamenttypen_RSAG
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'typ': 'Typ1',
     'erlaeuterung': 'Erläuterung1'
@@ -4399,7 +4436,7 @@ class FundamenttypenRSAGTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4467,6 +4504,7 @@ class GebaeudebauweisenTest(DefaultCodelistTestCase):
   """
 
   model = Gebaeudebauweisen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1',
     'code': 1
@@ -4530,7 +4568,7 @@ class GebaeudebauweisenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4598,6 +4636,7 @@ class GebaeudefunktionenTest(DefaultCodelistTestCase):
   """
 
   model = Gebaeudefunktionen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1',
     'code': 1
@@ -4661,7 +4700,7 @@ class GebaeudefunktionenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4729,6 +4768,7 @@ class GenehmigungsbehoerdenUVPVorhabenTest(DefaultCodelistTestCase):
   """
 
   model = Genehmigungsbehoerden_UVP_Vorhaben
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'genehmigungsbehoerde': 'Genehmigungsbehörde1'
   }
@@ -4787,7 +4827,7 @@ class GenehmigungsbehoerdenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4855,6 +4895,7 @@ class GeschlechterKadaverfundeTest(DefaultCodelistTestCase):
   """
 
   model = Geschlechter_Kadaverfunde
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordinalzahl': 1,
     'bezeichnung': 'Bezeichnung1'
@@ -4918,7 +4959,7 @@ class GeschlechterKadaverfundeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -4986,6 +5027,7 @@ class HaefenTest(DefaultCodelistTestCase):
   """
 
   model = Haefen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1',
     'abkuerzung': 'A-BC',
@@ -5054,7 +5096,7 @@ class HaefenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5122,6 +5164,7 @@ class HerstellerPollerTest(DefaultCodelistTestCase):
   """
 
   model = Hersteller_Poller
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1'
   }
@@ -5180,7 +5223,7 @@ class HerstellerPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5248,6 +5291,7 @@ class KategorienStrassenTest(DefaultCodelistTestCase):
   """
 
   model = Kategorien_Strassen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'code': 1,
     'bezeichnung': 'Bezeichnung1',
@@ -5316,7 +5360,7 @@ class KategorienStrassenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5384,6 +5428,7 @@ class LadekartenLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
   """
 
   model = Ladekarten_Ladestationen_Elektrofahrzeuge
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ladekarte': 'Ladekarte1'
   }
@@ -5442,7 +5487,7 @@ class LadekartenLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5510,6 +5555,7 @@ class LinienTest(DefaultCodelistTestCase):
   """
 
   model = Linien
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'linie': '123'
   }
@@ -5568,7 +5614,7 @@ class LinienTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5636,6 +5682,7 @@ class MastkennzeichenRSAGTest(DefaultCodelistTestCase):
   """
 
   model = Mastkennzeichen_RSAG
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'kennzeichen': 'Kennzeichen1',
     'erlaeuterung': 'Erläuterung1'
@@ -5699,7 +5746,7 @@ class MastkennzeichenRSAGTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5767,6 +5814,7 @@ class MasttypenRSAGTest(DefaultCodelistTestCase):
   """
 
   model = Masttypen_RSAG
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'typ': 'Typ1',
     'erlaeuterung': 'Erläuterung1'
@@ -5830,7 +5878,7 @@ class MasttypenRSAGTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -5898,6 +5946,7 @@ class MasttypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Masttypen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'masttyp': 'Masttyp1'
   }
@@ -5956,7 +6005,7 @@ class MasttypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6024,6 +6073,7 @@ class MaterialienDenksteineTest(DefaultCodelistTestCase):
   """
 
   model = Materialien_Denksteine
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'material': 'Material1'
   }
@@ -6082,7 +6132,7 @@ class MaterialienDenksteineTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6150,6 +6200,7 @@ class MaterialienDurchlaesseTest(DefaultCodelistTestCase):
   """
 
   model = Materialien_Durchlaesse
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'material': 'Material1'
   }
@@ -6208,7 +6259,7 @@ class MaterialienDurchlaesseTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6276,6 +6327,7 @@ class OrdnungenFliessgewaesserTest(DefaultCodelistTestCase):
   """
 
   model = Ordnungen_Fliessgewaesser
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordnung': 1
   }
@@ -6334,7 +6386,7 @@ class OrdnungenFliessgewaesserTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6402,6 +6454,7 @@ class PersonentitelTest(DefaultCodelistTestCase):
   """
 
   model = Personentitel
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1'
   }
@@ -6460,7 +6513,7 @@ class PersonentitelTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6528,6 +6581,7 @@ class QuartiereTest(DefaultCodelistTestCase):
   """
 
   model = Quartiere
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'code': '123'
   }
@@ -6586,7 +6640,7 @@ class QuartiereTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6654,6 +6708,7 @@ class RaeumbreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
   """
 
   model = Raeumbreiten_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'raeumbreite': 2.34
   }
@@ -6712,7 +6767,7 @@ class RaeumbreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6780,6 +6835,7 @@ class RechtsgrundlagenUVPVorhabenTest(DefaultCodelistTestCase):
   """
 
   model = Rechtsgrundlagen_UVP_Vorhaben
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'rechtsgrundlage': 'Rechtsgrundlage1'
   }
@@ -6838,7 +6894,7 @@ class RechtsgrundlagenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -6906,6 +6962,7 @@ class ReinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase)
   """
 
   model = Reinigungsklassen_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'code': 1
   }
@@ -6964,7 +7021,7 @@ class ReinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase)
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7032,6 +7089,7 @@ class ReinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase
   """
 
   model = Reinigungsrhythmen_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordinalzahl': 1,
     'reinigungsrhythmus': 'Reinigungsrhythmus1'
@@ -7095,7 +7153,7 @@ class ReinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7163,6 +7221,7 @@ class SchaedenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Schaeden_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'schaden': 'Schaden1'
   }
@@ -7221,7 +7280,7 @@ class SchaedenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7289,6 +7348,7 @@ class SchlagwoerterBildungstraegerTest(DefaultCodelistTestCase):
   """
 
   model = Schlagwoerter_Bildungstraeger
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'schlagwort': 'Schlagwort1'
   }
@@ -7347,7 +7407,7 @@ class SchlagwoerterBildungstraegerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7415,6 +7475,7 @@ class SchlagwoerterVereineTest(DefaultCodelistTestCase):
   """
 
   model = Schlagwoerter_Vereine
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'schlagwort': 'Schlagwort1'
   }
@@ -7473,7 +7534,7 @@ class SchlagwoerterVereineTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7541,6 +7602,7 @@ class SchliessungenPollerTest(DefaultCodelistTestCase):
   """
 
   model = Schliessungen_Poller
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'schliessung': 'Schließung1'
   }
@@ -7599,7 +7661,7 @@ class SchliessungenPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7667,6 +7729,7 @@ class SitzbanktypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Sitzbanktypen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'sitzbanktyp': 'Sitzbanktyp1'
   }
@@ -7725,7 +7788,7 @@ class SitzbanktypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7793,6 +7856,7 @@ class SpartenBaustellenTest(DefaultCodelistTestCase):
   """
 
   model = Sparten_Baustellen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'sparte': 'Sparte1'
   }
@@ -7851,7 +7915,7 @@ class SpartenBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -7919,6 +7983,7 @@ class SportartenTest(DefaultCodelistTestCase):
   """
 
   model = Sportarten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1'
   }
@@ -7977,7 +8042,7 @@ class SportartenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8045,6 +8110,7 @@ class StatusBaustellengeplantTest(DefaultCodelistTestCase):
   """
 
   model = Status_Baustellen_geplant
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'status': 'Status1'
   }
@@ -8103,7 +8169,7 @@ class StatusBaustellengeplantTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8171,6 +8237,7 @@ class StatusBaustellenFotodokumentationFotosTest(DefaultCodelistTestCase):
   """
 
   model = Status_Baustellen_Fotodokumentation_Fotos
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'status': 'Status1'
   }
@@ -8229,7 +8296,7 @@ class StatusBaustellenFotodokumentationFotosTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8297,6 +8364,7 @@ class StatusPollerTest(DefaultCodelistTestCase):
   """
 
   model = Status_Poller
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'status': 'Status1'
   }
@@ -8355,7 +8423,7 @@ class StatusPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8423,6 +8491,7 @@ class TierseuchenTest(DefaultCodelistTestCase):
   """
 
   model = Tierseuchen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1'
   }
@@ -8481,7 +8550,7 @@ class TierseuchenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8549,6 +8618,7 @@ class TypenAbfallbehaelterTest(DefaultCodelistTestCase):
   """
 
   model = Typen_Abfallbehaelter
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'typ': 'Typ1'
   }
@@ -8607,7 +8677,7 @@ class TypenAbfallbehaelterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8675,6 +8745,7 @@ class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = DFI_Typen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'dfi_typ': 'DFI-Typ1'
   }
@@ -8733,7 +8804,7 @@ class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8801,6 +8872,7 @@ class FahrgastunterstandstypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Fahrgastunterstandstypen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'fahrgastunterstandstyp': 'Fahrgastunterstandstyp1'
   }
@@ -8859,7 +8931,7 @@ class FahrgastunterstandstypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -8927,6 +8999,7 @@ class FahrplanvitrinentypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = Fahrplanvitrinentypen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'fahrplanvitrinentyp': 'Fahrplanvitrinentyp1'
   }
@@ -8985,7 +9058,7 @@ class FahrplanvitrinentypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9053,6 +9126,7 @@ class TypenHaltestellenTest(DefaultCodelistTestCase):
   """
 
   model = Typen_Haltestellen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'typ': 'Typ1'
   }
@@ -9111,7 +9185,7 @@ class TypenHaltestellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9179,6 +9253,7 @@ class TypenPollerTest(DefaultCodelistTestCase):
   """
 
   model = Typen_Poller
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'typ': 'Typ1'
   }
@@ -9237,7 +9312,7 @@ class TypenPollerTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9305,6 +9380,7 @@ class TypenUVPVorhabenTest(DefaultCodelistTestCase):
   """
 
   model = Typen_UVP_Vorhaben
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'typ': 'Typ1'
   }
@@ -9363,7 +9439,7 @@ class TypenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9431,6 +9507,7 @@ class VerbuendeLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
   """
 
   model = Verbuende_Ladestationen_Elektrofahrzeuge
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'verbund': 'Verbund1'
   }
@@ -9489,7 +9566,7 @@ class VerbuendeLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9557,6 +9634,7 @@ class VerkehrlicheLagenBaustellenTest(DefaultCodelistTestCase):
   """
 
   model = Verkehrliche_Lagen_Baustellen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'verkehrliche_lage': 'verkehrliche Lage1'
   }
@@ -9615,7 +9693,7 @@ class VerkehrlicheLagenBaustellenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9683,6 +9761,7 @@ class VerkehrsmittelklassenTest(DefaultCodelistTestCase):
   """
 
   model = Verkehrsmittelklassen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'verkehrsmittelklasse': 'Verkehrsmittelklasse1'
   }
@@ -9741,7 +9820,7 @@ class VerkehrsmittelklassenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9809,6 +9888,7 @@ class VorgangsartenUVPVorhabenTest(DefaultCodelistTestCase):
   """
 
   model = Vorgangsarten_UVP_Vorhaben
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'vorgangsart': 'Vorgangsart1'
   }
@@ -9867,7 +9947,7 @@ class VorgangsartenUVPVorhabenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -9935,6 +10015,7 @@ class WegebreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
   """
 
   model = Wegebreiten_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'wegebreite': 23.21
   }
@@ -9993,7 +10074,7 @@ class WegebreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10061,6 +10142,7 @@ class WegereinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestC
   """
 
   model = Wegereinigungsklassen_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'code': 1
   }
@@ -10119,7 +10201,7 @@ class WegereinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestC
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10187,6 +10269,7 @@ class WegereinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTest
   """
 
   model = Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordinalzahl': 1,
     'reinigungsrhythmus': 'Reinigungsrhythmus1'
@@ -10250,7 +10333,7 @@ class WegereinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTest
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10318,6 +10401,7 @@ class WegetypenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
   """
 
   model = Wegetypen_Strassenreinigungssatzung_HRO
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'wegetyp': 'Wegetyp1'
   }
@@ -10376,7 +10460,7 @@ class WegetypenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10444,6 +10528,7 @@ class ZeiteinheitenTest(DefaultCodelistTestCase):
   """
 
   model = Zeiteinheiten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'zeiteinheit': 'Zeiteinheit1',
     'erlaeuterung': 'Erläuterung1'
@@ -10507,7 +10592,7 @@ class ZeiteinheitenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10575,6 +10660,7 @@ class ZHTypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
 
   model = ZH_Typen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'zh_typ': 'ZH-Typ1'
   }
@@ -10633,7 +10719,7 @@ class ZHTypenHaltestellenkatasterTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10701,6 +10787,7 @@ class ZonenParkscheinautomatenTest(DefaultCodelistTestCase):
   """
 
   model = Zonen_Parkscheinautomaten
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'zone': 'A'
   }
@@ -10759,7 +10846,7 @@ class ZonenParkscheinautomatenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10827,6 +10914,7 @@ class ZustaendeKadaverfundeTest(DefaultCodelistTestCase):
   """
 
   model = Zustaende_Kadaverfunde
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordinalzahl': 1,
     'zustand': 'Zustand1'
@@ -10890,7 +10978,7 @@ class ZustaendeKadaverfundeTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -10958,6 +11046,7 @@ class ZustaendeSchutzzaeuneTierseuchenTest(DefaultCodelistTestCase):
   """
 
   model = Zustaende_Schutzzaeune_Tierseuchen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'ordinalzahl': 1,
     'zustand': 'Zustand1'
@@ -11021,7 +11110,7 @@ class ZustaendeSchutzzaeuneTierseuchenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
@@ -11089,6 +11178,7 @@ class ZustandsbewertungenTest(DefaultCodelistTestCase):
   """
 
   model = Zustandsbewertungen
+  create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'zustandsbewertung': 1
   }
@@ -11147,7 +11237,7 @@ class ZustandsbewertungenTest(DefaultCodelistTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      DATA_VIEW_STRING
+      str(self.test_object.pk)
     )
 
   def test_view_add_success(self):
