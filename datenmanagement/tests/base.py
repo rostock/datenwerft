@@ -61,15 +61,6 @@ class DefaultModelTestCase(DefaultTestCase):
     # bzw. aktualisiertes Objekt wie erwartet aktualisiert?
     self.assertEqual(test_object, self.test_object)
 
-  def generic_file_existance_test(self, path):
-    """
-    testet die generelle Existenz einer Datei
-
-    :param self
-    :param path: Pfad der Datei
-    """
-    self.assertTrue(Path(path).exists())
-
   def generic_create_test(self, model, object_filter):
     """
     testet die Erstellung eines Objekts des übergebenen Datenmodells
