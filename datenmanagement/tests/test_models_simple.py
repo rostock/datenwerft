@@ -472,7 +472,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
     )
 
 
-@override_settings(MEDIA_ROOT=TEST_DIR / 'data' / 'temp')
+@override_settings(MEDIA_ROOT=TEST_MEDIA_DIR)
 class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
   """
   Aufteilungspläne nach Wohnungseigentumsgesetz

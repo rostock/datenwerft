@@ -2,6 +2,7 @@ from django.contrib.gis.geos import LinearRing, LineString, MultiPolygon, Point,
 from pathlib import Path
 
 TEST_DIR = Path(__file__).resolve().parent
+TEST_MEDIA_DIR = TEST_DIR / 'temp'
 
 DATABASES = {
   'default',
