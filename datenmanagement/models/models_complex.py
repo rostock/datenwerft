@@ -18,10 +18,9 @@ from .constants_vars import ansprechpartner_validators, standard_validators, url
   parkscheinautomaten_bewohnerparkgebiet_regex, parkscheinautomaten_bewohnerparkgebiet_message, \
   parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \
   uvp_registriernummer_bauamt_regex, uvp_registriernummer_bauamt_message
-from .fields import bearbeiter_field, bemerkungen_field, bezeichnung_field, \
-  ChoiceArrayField, NullTextField, PositiveIntegerMinField, PositiveIntegerRangeField, \
-  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, punkt_field, linie_field, \
-  multilinie_field, flaeche_field, multiflaeche_field
+from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
+  PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
+  point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, path_and_rename, \
   photo_post_processing, sequence_id
 from .models_codelist import Strassen, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
@@ -59,7 +58,11 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   verkehrliche_lagen = ChoiceArrayField(
     CharField(
       ' verkehrliche Lage(n)',
@@ -89,8 +92,14 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     max_length=255,
     validators=ansprechpartner_validators
   )
-  bemerkungen = bemerkungen_field
-  geometrie = punkt_field
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"baustellen_fotodokumentation_baustellen_hro'
@@ -239,7 +248,11 @@ class Baustellen_geplant(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   kurzbeschreibung = NullTextField(
     'Kurzbeschreibung',
     max_length=500,
@@ -304,7 +317,7 @@ class Baustellen_geplant(ComplexModel):
     blank=True,
     null=True
   )
-  geometrie = multiflaeche_field
+  geometrie = multipolygon_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"baustellen_geplant'
@@ -382,7 +395,11 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_baustellen_geplant'
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   dokument = FileField(
     'Dokument',
     storage=OverwriteStorage(),
@@ -432,7 +449,11 @@ class Baustellen_geplant_Links(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_baustellen_geplant'
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   link = CharField(
     'Link',
     max_length=255,
@@ -597,8 +618,12 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     max_length=255,
     validators=standard_validators
   )
-  bearbeiter = bearbeiter_field
-  geometrie = punkt_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"durchlaesse_durchlaesse_hro'
@@ -739,8 +764,12 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_tierseuchen'
   )
-  bezeichnung = bezeichnung_field
-  geometrie = flaeche_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  geometrie = polygon_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"fallwildsuchen_kontrollgebiete_hro'
@@ -797,7 +826,7 @@ class Fallwildsuchen_Nachweise(ComplexModel):
   )
   startzeitpunkt = DateTimeField('Startzeitpunkt')
   endzeitpunkt = DateTimeField('Endzeitpunkt')
-  geometrie = multilinie_field
+  geometrie = multiline_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"fallwildsuchen_nachweise_hro'
@@ -1333,7 +1362,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"haltestellenkataster_haltestellen_hro'
@@ -1647,7 +1676,11 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     related_name='%(app_label)s_%(class)s_parkscheinautomaten_tarife'
   )
   nummer = PositiveSmallIntegerField('Nummer')
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   zone = ForeignKey(
     Zonen_Parkscheinautomaten,
     verbose_name='Zone',
@@ -1718,7 +1751,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     blank=True,
     null=True
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"parkscheinautomaten_parkscheinautomaten_hro'
@@ -1769,7 +1802,7 @@ class RSAG_Gleise(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_gleise_hro'
@@ -2061,7 +2094,7 @@ class RSAG_Masten(ComplexModel):
     null=True,
     editable=False
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_masten_hro'
@@ -2128,7 +2161,7 @@ class RSAG_Leitungen(ComplexModel):
   Oberleitungen
   """
 
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_leitungen_hro'
@@ -2172,7 +2205,7 @@ class RSAG_Quertraeger(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_quertraeger_hro'
@@ -2227,7 +2260,7 @@ class RSAG_Spanndraehte(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_spanndraehte_hro'
@@ -2269,7 +2302,11 @@ class UVP_Vorhaben(ComplexModel):
   Vorhaben
   """
 
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   vorgangsart = ForeignKey(
     Vorgangsarten_UVP_Vorhaben,
     verbose_name='Vorgangsart',
@@ -2324,7 +2361,7 @@ class UVP_Vorhaben(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_typen'
   )
-  geometrie = flaeche_field
+  geometrie = polygon_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"uvp_vorhaben_hro'

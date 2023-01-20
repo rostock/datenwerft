@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -2885,7 +2885,7 @@ CREATE TABLE fachdaten_adressbezug.verkaufstellen_angelberechtigungen_hro (
     deaktiviert date,
     adresse uuid,
     bezeichnung character varying(255) NOT NULL,
-    berechtigungen character varying(255)[] NOT NULL,
+    berechtigungen character varying(255)[],
     barrierefrei boolean,
     zeiten character varying(255),
     telefon_festnetz character varying(255),

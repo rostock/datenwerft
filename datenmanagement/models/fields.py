@@ -2,13 +2,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.gis.db.models.fields import LineStringField, MultiLineStringField, \
   MultiPolygonField, PointField, PolygonField
 from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, RegexValidator, URLValidator
-from django.db.models.fields import BooleanField, CharField, PositiveIntegerField, \
-  PositiveSmallIntegerField, TextField
+from django.db.models.fields import PositiveIntegerField, PositiveSmallIntegerField, TextField
 from django.forms import Textarea, TypedMultipleChoiceField
-
-from .constants_vars import standard_validators, personennamen_validators, email_message, \
-  rufnummer_regex, rufnummer_message, url_message
 
 
 #
@@ -158,119 +153,26 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
 # Definition häufig genutzter Standardfelder
 #
 
-# allgemeine Felder
-
-barrierefrei_field = BooleanField(
-  ' barrierefrei?',
-  blank=True,
-  null=True
-)
-bearbeiter_field = CharField(
-  'Bearbeiter:in',
-  max_length=255,
-  validators=standard_validators
-)
-bemerkungen_field = CharField(
-  'Bemerkungen',
-  max_length=255,
-  blank=True,
-  null=True,
-  validators=standard_validators
-)
-bezeichnung_field = CharField(
-  'Bezeichnung',
-  max_length=255,
-  validators=standard_validators
-)
-email_field = CharField(
-  'E-Mail-Adresse',
-  max_length=255,
-  blank=True,
-  null=True,
-  validators=[
-    EmailValidator(
-      message=email_message
-    )
-  ]
-)
-nachname_field = CharField(
-  'Nachname',
-  max_length=255,
-  validators=personennamen_validators
-)
-oeffnungszeiten_field = CharField(
-  'Öffnungszeiten',
-  max_length=255,
-  blank=True,
-  null=True
-)
-plaetze_field = PositiveSmallIntegerMinField(
-  'Plätze',
-  min_value=1,
-  blank=True,
-  null=True
-)
-telefon_festnetz_field = CharField(
-  'Telefon (Festnetz)',
-  max_length=255,
-  blank=True,
-  null=True,
-  validators=[
-    RegexValidator(
-      regex=rufnummer_regex,
-      message=rufnummer_message
-    )
-  ]
-)
-telefon_mobil_field = CharField(
-  'Telefon (mobil)',
-  max_length=255,
-  blank=True,
-  null=True,
-  validators=[
-    RegexValidator(
-      regex=rufnummer_regex,
-      message=rufnummer_message
-    )
-  ]
-)
-vorname_field = CharField(
-  'Vorname',
-  max_length=255,
-  validators=personennamen_validators
-)
-website_field = CharField(
-  'Website',
-  max_length=255,
-  blank=True,
-  null=True,
-  validators=[
-    URLValidator(
-      message=url_message
-    )
-  ]
-)
-
 # Geometriefelder
 
-punkt_field = PointField(
+point_field = PointField(
   'Geometrie',
   srid=25833,
   default='POINT(0 0)'
 )
-linie_field = LineStringField(
+line_field = LineStringField(
   'Geometrie',
   srid=25833
 )
-multilinie_field = MultiLineStringField(
+multiline_field = MultiLineStringField(
   'Geometrie',
   srid=25833
 )
-flaeche_field = PolygonField(
+polygon_field = PolygonField(
   'Geometrie',
   srid=25833
 )
-multiflaeche_field = MultiPolygonField(
+multipolygon_field = MultiPolygonField(
   'Geometrie',
   srid=25833
 )

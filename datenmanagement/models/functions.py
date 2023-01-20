@@ -26,9 +26,10 @@ def delete_duplicate_photos_with_other_suffixes(path):
   pathname = Path(PurePath(path).parent)
   filename_ext = PurePath(filename).suffix
   filename_without_ext = PurePath(filename).stem
-  for file in pathname.iterdir():
-    if PurePath(file).stem == filename_without_ext and PurePath(file).suffix != filename_ext:
-      (pathname / file).unlink()
+  if pathname.exists():
+    for file in pathname.iterdir():
+      if PurePath(file).stem == filename_without_ext and PurePath(file).suffix != filename_ext:
+        (pathname / file).unlink()
 
 
 def delete_pdf(sender, instance, **kwargs):
@@ -76,8 +77,10 @@ def delete_photo_after_emptied(sender, instance, created, **kwargs):
   :param created: Datenobjekt neu hinzugefügt?
   :param **kwargs
   """
-  if not instance.foto and not created:
-    pre_save_instance = instance._pre_save_instance
+  pre_save_instance = instance._pre_save_instance
+  # nur ausführen, wenn zuvor ein Foto existiert hat, wenn nun kein Foto mehr übergeben wurde
+  # und wenn Datenobjekt nicht neu hinzugefügt, sondern aktualisiert wurde
+  if pre_save_instance.foto and not instance.foto and not created:
     path = get_path(pre_save_instance.foto.url)
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
       thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
@@ -169,7 +172,8 @@ def photo_post_processing(sender, instance, **kwargs):
     if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
       thumb_path = Path(PurePath(path).parent / 'thumbs')
       if not thumb_path.exists():
-        Path.mkdir(thumb_path)
+        if path.exists():
+          Path.mkdir(thumb_path)
       thumb_path = thumb_path / PurePath(path).name
       thumb_image(path, thumb_path)
       delete_duplicate_photos_with_other_suffixes(thumb_path)
@@ -182,20 +186,21 @@ def rotate_image(path):
   :param path: Pfad
   """
   try:
-    image = Image.open(path)
-    orientation = None
-    for orientation in list(ExifTags.TAGS.keys()):
-      if ExifTags.TAGS[orientation] == 'Orientation':
-        break
-    exif = dict(list(image._getexif().items()))
-    if exif[orientation] == 3:
-      image = image.rotate(180, expand=True)
-    elif exif[orientation] == 6:
-      image = image.rotate(270, expand=True)
-    elif exif[orientation] == 8:
-      image = image.rotate(90, expand=True)
-    image.save(path)
-    image.close()
+    if path.exists():
+      image = Image.open(path)
+      orientation = None
+      for orientation in list(ExifTags.TAGS.keys()):
+        if ExifTags.TAGS[orientation] == 'Orientation':
+          break
+      exif = dict(list(image._getexif().items()))
+      if exif[orientation] == 3:
+        image = image.rotate(180, expand=True)
+      elif exif[orientation] == 6:
+        image = image.rotate(270, expand=True)
+      elif exif[orientation] == 8:
+        image = image.rotate(90, expand=True)
+      image.save(path)
+      image.close()
   except (AttributeError, KeyError, IndexError):
     pass
 
@@ -220,9 +225,10 @@ def thumb_image(path, thumb_path):
   :param thumb_path: Thumbnail-Pfad
   """
   try:
-    image = Image.open(path)
-    image.thumbnail((70, 70), Image.ANTIALIAS)
-    image.save(thumb_path, optimize=True, quality=20)
-    image.close()
+    if path.exists():
+      image = Image.open(path)
+      image.thumbnail((70, 70), Image.ANTIALIAS)
+      image.save(thumb_path, optimize=True, quality=20)
+      image.close()
   except (AttributeError, KeyError, IndexError):
     pass

@@ -230,12 +230,20 @@ class DefaultModelTestCase(DefaultTestCase):
     # Objektfilter bereinigen
     object_filter = clean_object_filter(model, object_filter)
     # Konstellation der Objekte wie erwartet?
-    # bei Erfolg:
-    # erstelltes oder aktualisiertes Objekt
-    # umfasst in einem seiner Felder eine bestimmte Information?
-    # bei Fehler:
-    # fehlerhaftes Objekt erst gar nicht erstellt oder aktualisiert?
-    self.assertEqual(model.objects.filter(**object_filter).count(), object_count)
+    # bei Fehler...
+    if object_count == 0:
+      # fehlerhaftes Objekt erst gar nicht erstellt oder aktualisiert?
+      self.assertEqual(model.objects.filter(**object_filter).count(), object_count)
+    # bei Erfolg...
+    else:
+      if update_mode:
+        # aktualisiertes Objekt umfasst in einem seiner Felder eine bestimmte Information?
+        self.assertEqual(model.objects.filter(**object_filter).count(), object_count)
+      else:
+        # erstelltes Objekt umfasst in einem seiner Felder eine bestimmte Information?
+        # Anmerkung: Es können hier auch mehrere Objekt gefunden werden (daher assertGreaterEqual),
+        # zum Beispiel bei Datenmodellen, die ausschließlich Pflichtattribute aufweisen!
+        self.assertGreaterEqual(model.objects.filter(**object_filter).count(), object_count)
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')

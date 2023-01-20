@@ -1,8 +1,8 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, \
-  URLValidator
+from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, \
+  RegexValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField
@@ -12,18 +12,17 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from .base import SimpleModel
-from .constants_vars import standard_validators, hausnummer_zusatz_regex, \
-  hausnummer_zusatz_message, inventarnummer_regex, inventarnummer_message, url_message, \
+from .constants_vars import personennamen_validators, standard_validators, \
+  hausnummer_zusatz_regex, email_message, hausnummer_zusatz_message, inventarnummer_regex, \
+  inventarnummer_message, rufnummer_regex, rufnummer_message, url_message, \
   denksteine_nummer_regex, denksteine_nummer_message, hausnummern_antragsnummer_message, \
   hausnummern_antragsnummer_regex, hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
   poller_nummer_regex, poller_nummer_message, postleitzahl_message, postleitzahl_regex, \
   strassen_schluessel_regex, strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
   trinkwassernotbrunnen_nummer_message
-from .fields import barrierefrei_field, bearbeiter_field, bemerkungen_field, bezeichnung_field, \
-  email_field, nachname_field, oeffnungszeiten_field, plaetze_field, telefon_festnetz_field, \
-  telefon_mobil_field, vorname_field, website_field, ChoiceArrayField, NullTextField,\
-  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, punkt_field, linie_field, \
-  multilinie_field, flaeche_field, multiflaeche_field
+from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
+  PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
+  multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
   get_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
@@ -215,8 +214,14 @@ class Abfallbehaelter(SimpleModel):
     blank=True,
     null=True
   )
-  bemerkungen = bemerkungen_field
-  geometrie = punkt_field
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"abfallbehaelter_hro'
@@ -277,7 +282,7 @@ class Angelverbotsbereiche(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"angelverbotsbereiche_hro'
@@ -325,8 +330,18 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     blank=True,
     null=True
   )
-  bearbeiter = bearbeiter_field
-  bemerkungen = bemerkungen_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   datum = DateField(
     'Datum',
     default=date.today
@@ -339,7 +354,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     ),
     max_length=255
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"aufteilungsplaene_wohnungseigentumsgesetz_hro'
@@ -413,7 +428,7 @@ class Baudenkmale(SimpleModel):
     max_length=255,
     validators=standard_validators
   )
-  geometrie = multiflaeche_field
+  geometrie = multipolygon_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
@@ -464,7 +479,11 @@ class Behinderteneinrichtungen(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -473,12 +492,59 @@ class Behinderteneinrichtungen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_traeger'
   )
-  plaetze = plaetze_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  plaetze = PositiveSmallIntegerMinField(
+    'Plätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"behinderteneinrichtungen_hro'
@@ -537,7 +603,11 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
     max_length=255,
     validators=standard_validators
   )
-  bearbeiter = bearbeiter_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
   pdf = FileField(
     'PDF',
     storage=OverwriteStorage(),
@@ -546,7 +616,7 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
     ),
     max_length=255
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"beschluesse_bau_planungsausschuss_hro'
@@ -598,7 +668,11 @@ class Bildungstraeger(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   betreiber = CharField(
     'Betreiber:in',
     max_length=255,
@@ -612,13 +686,64 @@ class Bildungstraeger(SimpleModel):
     ),
     verbose_name='Schlagwörter'
   )
-  barrierefrei = barrierefrei_field
-  zeiten = oeffnungszeiten_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  barrierefrei = BooleanField(
+    ' barrierefrei?',
+    blank=True,
+    null=True
+  )
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"bildungstraeger_hro'
@@ -665,7 +790,11 @@ class Carsharing_Stationen(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   anbieter = ForeignKey(
     Anbieter_Carsharing,
     verbose_name='Anbieter',
@@ -687,11 +816,53 @@ class Carsharing_Stationen(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"carsharing_stationen_hro'
@@ -743,7 +914,11 @@ class Containerstellplaetze(SimpleModel):
     default='00-00'
   )
   privat = BooleanField(' privat?')
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   bewirtschafter_grundundboden = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Grund und Boden',
@@ -946,7 +1121,13 @@ class Containerstellplaetze(SimpleModel):
     blank=True,
     null=True
   )
-  bemerkungen = bemerkungen_field
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
@@ -957,7 +1138,7 @@ class Containerstellplaetze(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"containerstellplaetze_hro'
@@ -1002,13 +1183,17 @@ class Denkmalbereiche(SimpleModel):
   Denkmalbereiche
   """
 
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     validators=standard_validators
   )
-  geometrie = multiflaeche_field
+  geometrie = multipolygon_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"denkmalbereiche_hro'
@@ -1067,8 +1252,16 @@ class Denksteine(SimpleModel):
     blank=True,
     null=True
   )
-  vorname = vorname_field
-  nachname = nachname_field
+  vorname = CharField(
+    'Vorname',
+    max_length=255,
+    validators=personennamen_validators
+  )
+  nachname = CharField(
+    'Nachname',
+    max_length=255,
+    validators=personennamen_validators
+  )
   geburtsjahr = PositiveSmallIntegerRangeField(
     'Geburtsjahr',
     min_value=1850,
@@ -1115,7 +1308,7 @@ class Denksteine(SimpleModel):
       )
     ]
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"denksteine_hro'
@@ -1181,7 +1374,11 @@ class FairTrade(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   betreiber = CharField(
     'Betreiber:in',
     max_length=255,
@@ -1189,13 +1386,64 @@ class FairTrade(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  barrierefrei = barrierefrei_field
-  zeiten = oeffnungszeiten_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  barrierefrei = BooleanField(
+    ' barrierefrei?',
+    blank=True,
+    null=True
+  )
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"fairtrade_hro'
@@ -1241,7 +1489,11 @@ class Feldsportanlagen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -1260,7 +1512,7 @@ class Feldsportanlagen(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"feldsportanlagen_hro'
@@ -1324,12 +1576,58 @@ class Feuerwachen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bezeichnung = bezeichnung_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"feuerwachen_hro'
@@ -1412,7 +1710,7 @@ class Fliessgewaesser(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"fliessgewaesser_hro'
@@ -1607,7 +1905,7 @@ class Geh_Radwegereinigung(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = multilinie_field
+  geometrie = multiline_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
@@ -1704,7 +2002,11 @@ class Geraetespielanlagen(SimpleModel):
   Gerätespielanlagen
   """
 
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -1730,7 +2032,7 @@ class Geraetespielanlagen(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"geraetespielanlagen_hro'
@@ -1785,8 +2087,18 @@ class Gutachterfotos(SimpleModel):
     blank=True,
     null=True
   )
-  bearbeiter = bearbeiter_field
-  bemerkungen = bemerkungen_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   datum = DateField(
     'Datum',
     default=date.today
@@ -1803,7 +2115,7 @@ class Gutachterfotos(SimpleModel):
     ),
     max_length=255
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"gutachterfotos_hro'
@@ -1960,9 +2272,19 @@ class Hausnummern(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  bearbeiter = bearbeiter_field
-  bemerkungen = bemerkungen_field
-  geometrie = punkt_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"hausnummern_hro'
@@ -2041,7 +2363,11 @@ class Hospize(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -2050,12 +2376,59 @@ class Hospize(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_traeger'
   )
-  plaetze = plaetze_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  plaetze = PositiveSmallIntegerMinField(
+    'Plätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"hospize_hro'
@@ -2160,8 +2533,14 @@ class Hundetoiletten(SimpleModel):
     blank=True,
     null=True
   )
-  bemerkungen = bemerkungen_field
-  geometrie = punkt_field
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"hundetoiletten_hro'
@@ -2254,7 +2633,7 @@ class Hydranten(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"hydranten_hro'
@@ -2361,7 +2740,7 @@ class Kadaverfunde(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"kadaverfunde_hro'
@@ -2431,20 +2810,75 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     blank=True,
     null=True
   )
-  vorname = vorname_field
-  nachname = nachname_field
-  plaetze = plaetze_field
+  vorname = CharField(
+    'Vorname',
+    max_length=255,
+    validators=personennamen_validators
+  )
+  nachname = CharField(
+    'Nachname',
+    max_length=255,
+    validators=personennamen_validators
+  )
+  plaetze = PositiveSmallIntegerMinField(
+    'Plätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
   zeiten = CharField(
     'Betreuungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"kindertagespflegeeinrichtungen_hro'
@@ -2494,7 +2928,11 @@ class Kinder_Jugendbetreuung(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -2503,11 +2941,53 @@ class Kinder_Jugendbetreuung(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"kinder_jugendbetreuung_hro'
@@ -2545,7 +3025,11 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
   Kunst im öffentlichen Raum
   """
 
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   ausfuehrung = CharField(
     'Ausführung',
     max_length=255,
@@ -2566,7 +3050,7 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"kunst_im_oeffentlichen_raum_hro'
@@ -2604,7 +3088,11 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     null=True
   )
   geplant = BooleanField(' geplant?')
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   betreiber = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
@@ -2663,9 +3151,24 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  zeiten = oeffnungszeiten_field
-  website = website_field
-  geometrie = punkt_field
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"ladestationen_elektrofahrzeuge_hro'
@@ -2725,13 +3228,23 @@ class Meldedienst_flaechenhaft(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bearbeiter = bearbeiter_field
-  bemerkungen = bemerkungen_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   datum = DateField(
     'Datum',
     default=date.today
   )
-  geometrie = flaeche_field
+  geometrie = polygon_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"meldedienst_flaechenhaft_hro'
@@ -2791,13 +3304,23 @@ class Meldedienst_punkthaft(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bearbeiter = bearbeiter_field
-  bemerkungen = bemerkungen_field
+  bearbeiter = CharField(
+    'Bearbeiter:in',
+    max_length=255,
+    validators=standard_validators
+  )
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   datum = DateField(
     'Datum',
     default=date.today
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"meldedienst_punkthaft_hro'
@@ -2844,7 +3367,11 @@ class Mobilpunkte(SimpleModel):
   Mobilpunkte
   """
 
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   angebote = ChoiceArrayField(
     CharField(
       'Angebote',
@@ -2853,8 +3380,18 @@ class Mobilpunkte(SimpleModel):
     ),
     verbose_name='Angebote'
   )
-  website = website_field
-  geometrie = punkt_field
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"mobilpunkte_hro'
@@ -3001,8 +3538,14 @@ class Parkmoeglichkeiten(SimpleModel):
     blank=True,
     null=True
   )
-  bemerkungen = bemerkungen_field
-  geometrie = punkt_field
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"parkmoeglichkeiten_hro'
@@ -3060,18 +3603,69 @@ class Pflegeeinrichtungen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   betreiber = CharField(
     'Betreiber:in',
     max_length=255,
     validators=standard_validators
   )
-  plaetze = plaetze_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  plaetze = PositiveSmallIntegerMinField(
+    'Plätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"pflegeeinrichtungen_hro'
@@ -3131,7 +3725,11 @@ class Poller(SimpleModel):
       )
     ]
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   status = ForeignKey(
     Status_Poller,
     verbose_name='Status',
@@ -3180,8 +3778,14 @@ class Poller(SimpleModel):
     blank=True,
     null=True
   )
-  bemerkungen = bemerkungen_field
-  geometrie = punkt_field
+  bemerkungen = CharField(
+    'Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"poller_hro'
@@ -3251,8 +3855,12 @@ class Reinigungsreviere(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
-  geometrie = multiflaeche_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  geometrie = multipolygon_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_gemeindeteilbezug\".\"reinigungsreviere_hro'
@@ -3315,7 +3923,11 @@ class Rettungswachen(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -3324,11 +3936,53 @@ class Rettungswachen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_traeger'
   )
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"rettungswachen_hro'
@@ -3379,7 +4033,11 @@ class Schiffsliegeplaetze(SimpleModel):
     max_length=255,
     validators=standard_validators
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   liegeplatzlaenge = DecimalField(
     'Liegeplatzlänge (in m)',
     max_digits=5,
@@ -3469,7 +4127,7 @@ class Schiffsliegeplaetze(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = flaeche_field
+  geometrie = polygon_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"schiffsliegeplaetze_hro'
@@ -3527,7 +4185,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
     'Länge (in m)',
     default=0
   )
-  geometrie = multilinie_field
+  geometrie = multiline_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"schutzzaeune_tierseuchen_hro'
@@ -3574,7 +4232,11 @@ class Sporthallen(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -3591,8 +4253,17 @@ class Sporthallen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_sportarten'
   )
-  barrierefrei = barrierefrei_field
-  zeiten = oeffnungszeiten_field
+  barrierefrei = BooleanField(
+    ' barrierefrei?',
+    blank=True,
+    null=True
+  )
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
   foto = ImageField(
     'Foto',
     storage=OverwriteStorage(),
@@ -3603,7 +4274,7 @@ class Sporthallen(SimpleModel):
     blank=True,
     null=True
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"sporthallen_hro'
@@ -3665,7 +4336,11 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   traeger = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
@@ -3674,13 +4349,64 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_traeger'
   )
-  barrierefrei = barrierefrei_field
-  zeiten = oeffnungszeiten_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  barrierefrei = BooleanField(
+    ' barrierefrei?',
+    blank=True,
+    null=True
+  )
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"stadtteil_begegnungszentren_hro'
@@ -3912,7 +4638,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
       )
     ]
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro'
@@ -4167,7 +4893,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
       )
     ]
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_wohnlagen_sanierungsgebiet_hro'
@@ -4236,7 +4962,11 @@ class Strassen_Simple(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_kategorien'
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   schluessel = CharField(
     'Schlüssel',
     max_length=5,
@@ -4248,7 +4978,7 @@ class Strassen_Simple(SimpleModel):
       )
     ]
   )
-  geometrie = multilinie_field
+  geometrie = multiline_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"strassen_hro'
@@ -4423,7 +5153,7 @@ class Strassenreinigung(SimpleModel):
     decimal_places=2,
     default=0
   )
-  geometrie = multilinie_field
+  geometrie = multiline_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
@@ -4509,7 +5239,11 @@ class Thalasso_Kurwege(SimpleModel):
   Thalasso-Kurwege
   """
 
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   streckenbeschreibung = CharField(
     'Streckenbeschreibung',
     max_length=255,
@@ -4536,7 +5270,7 @@ class Thalasso_Kurwege(SimpleModel):
     'Länge (in m)',
     default=0
   )
-  geometrie = linie_field
+  geometrie = line_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"thalasso_kurwege_hro'
@@ -4592,8 +5326,13 @@ class Toiletten(SimpleModel):
   behindertengerecht = BooleanField(' behindertengerecht?')
   duschmoeglichkeit = BooleanField('Duschmöglichkeit vorhanden?')
   wickelmoeglichkeit = BooleanField('Wickelmöglichkeit vorhanden?')
-  zeiten = oeffnungszeiten_field
-  geometrie = punkt_field
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"toiletten_hro'
@@ -4646,7 +5385,11 @@ class Trinkwassernotbrunnen(SimpleModel):
       )
     ]
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   eigentuemer = ForeignKey(
     Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
@@ -4696,7 +5439,7 @@ class Trinkwassernotbrunnen(SimpleModel):
       )
     ]
   )
-  geometrie = punkt_field
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten\".\"trinkwassernotbrunnen_hro'
@@ -4750,7 +5493,11 @@ class Vereine(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   vereinsregister_id = PositiveSmallIntegerMinField(
     'ID im Vereinsregister',
     min_value=1,
@@ -4770,11 +5517,53 @@ class Vereine(SimpleModel):
     ),
     verbose_name='Schlagwörter'
   )
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"vereine_hro'
@@ -4821,24 +5610,79 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     blank=True,
     null=True
   )
-  bezeichnung = bezeichnung_field
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
   berechtigungen = ChoiceArrayField(
     CharField(
-      'verkaufte Berechtigung(en)',
+      ' verkaufte Berechtigung(en)',
       max_length=255,
       choices=()
     ),
-    verbose_name='verkaufte Berechtigung(en)',
+    verbose_name=' verkaufte Berechtigung(en)',
     blank=True,
     null=True
   )
-  barrierefrei = barrierefrei_field
-  zeiten = oeffnungszeiten_field
-  telefon_festnetz = telefon_festnetz_field
-  telefon_mobil = telefon_mobil_field
-  email = email_field
-  website = website_field
-  geometrie = punkt_field
+  barrierefrei = BooleanField(
+    ' barrierefrei?',
+    blank=True,
+    null=True
+  )
+  zeiten = CharField(
+    'Öffnungszeiten',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+  website = CharField(
+    'Website',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      URLValidator(
+        message=url_message
+      )
+    ]
+  )
+  geometrie = point_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"verkaufstellen_angelberechtigungen_hro'
