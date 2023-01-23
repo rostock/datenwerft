@@ -1,8 +1,6 @@
-from datetime import date
 from django.conf import settings
 from django.core.files import File
 from django.test import override_settings
-from django.utils import timezone
 from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kadaverfunde, \
   Anbieter_Carsharing, Angebote_Mobilpunkte, Angelverbotsbereiche, Arten_Baudenkmale, \
   Arten_FairTrade, Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
@@ -516,13 +514,13 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
   attributes_values_view_initial = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter3',
-    'datum': date.today(),
+    'datum': VALID_DATE,
     'geometrie': VALID_POINT_VIEW
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter4',
-    'datum': date.today(),
+    'datum': VALID_DATE,
     'geometrie': VALID_POINT_VIEW
   }
   attributes_values_view_invalid = {
@@ -4142,8 +4140,8 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
   foto = File(open(VALID_IMAGE_FILE, 'rb'))
   attributes_values_db_initial = {
     'bearbeiter': 'Bearbeiter1',
-    'datum': date.today(),
-    'aufnahmedatum': date.today(),
+    'datum': VALID_DATE,
+    'aufnahmedatum': VALID_DATE,
     'foto': foto,
     'geometrie': VALID_POINT_DB
   }
@@ -4153,15 +4151,15 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
   attributes_values_view_initial = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter3',
-    'datum': date.today(),
-    'aufnahmedatum': date.today(),
+    'datum': VALID_DATE,
+    'aufnahmedatum': VALID_DATE,
     'geometrie': VALID_POINT_VIEW
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter4',
-    'datum': date.today(),
-    'aufnahmedatum': date.today(),
+    'datum': VALID_DATE,
+    'aufnahmedatum': VALID_DATE,
     'geometrie': VALID_POINT_VIEW
   }
   attributes_values_view_invalid = {
@@ -4411,7 +4409,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       'strasse': strasse,
       'hausnummer': 1,
       'postleitzahl': '12345',
-      'vergabe_datum': date.today(),
+      'vergabe_datum': VALID_DATE,
       'bearbeiter': 'Bearbeiter1',
       'geometrie': VALID_POINT_DB
     }
@@ -4423,7 +4421,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       'strasse': str(strasse.pk),
       'hausnummer': 3,
       'postleitzahl': '12345',
-      'vergabe_datum': date.today(),
+      'vergabe_datum': VALID_DATE,
       'bearbeiter': 'Bearbeiter2',
       'geometrie': VALID_POINT_VIEW
     }
@@ -4432,7 +4430,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       'strasse': str(strasse.pk),
       'hausnummer': 4,
       'postleitzahl': '12345',
-      'vergabe_datum': date.today(),
+      'vergabe_datum': VALID_DATE,
       'bearbeiter': 'Bearbeiter3',
       'geometrie': VALID_POINT_VIEW
     }
@@ -5409,7 +5407,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
       art='Art'
     )
     cls.attributes_values_db_initial = {
-      'zeitpunkt': timezone.now().replace(second=0, microsecond=0),
+      'zeitpunkt': VALID_DATETIME,
       'tierseuche': tierseuche,
       'geschlecht': geschlecht,
       'altersklasse': altersklasse,
@@ -5423,7 +5421,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
-      'zeitpunkt': timezone.now().replace(second=0, microsecond=0),
+      'zeitpunkt': VALID_DATETIME,
       'tierseuche': str(tierseuche.pk),
       'geschlecht': str(geschlecht.pk),
       'altersklasse': str(altersklasse.pk),
@@ -5434,7 +5432,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
-      'zeitpunkt': timezone.now().replace(second=0, microsecond=0),
+      'zeitpunkt': VALID_DATETIME,
       'tierseuche': str(tierseuche.pk),
       'geschlecht': str(geschlecht.pk),
       'altersklasse': str(altersklasse.pk),
@@ -6616,7 +6614,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
     cls.attributes_values_db_initial = {
       'art': art,
       'bearbeiter': 'Bearbeiter1',
-      'datum': date.today(),
+      'datum': VALID_DATE,
       'geometrie': VALID_POLYGON_DB
     }
     cls.attributes_values_db_updated = {
@@ -6626,14 +6624,14 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter3',
-      'datum': date.today(),
+      'datum': VALID_DATE,
       'geometrie': VALID_POLYGON_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter4',
-      'datum': date.today(),
+      'datum': VALID_DATE,
       'geometrie': VALID_POLYGON_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -6856,7 +6854,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
     cls.attributes_values_db_initial = {
       'art': art,
       'bearbeiter': 'Bearbeiter1',
-      'datum': date.today(),
+      'datum': VALID_DATE,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
@@ -6866,14 +6864,14 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter3',
-      'datum': date.today(),
+      'datum': VALID_DATE,
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter4',
-      'datum': date.today(),
+      'datum': VALID_DATE,
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {

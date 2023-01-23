@@ -3,6 +3,7 @@ from django.contrib.messages import storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse, reverse_lazy
+from django.utils.datastructures import MultiValueDict
 from json import loads
 from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
 
@@ -171,7 +172,8 @@ class DefaultModelTestCase(DefaultTestCase):
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_add_update_view_test(self, update_mode, model, object_filter,
                                    status_code, content_type, object_count,
-                                   file=None, file_attribute=None, file_content_type=None):
+                                   file=None, file_attribute=None, file_content_type=None,
+                                   multiple_files=False):
     """
     testet den View zur Erstellung oder Aktualisierung
     eines (neuen) Objekts des übergebenen Datenmodells
@@ -186,6 +188,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param file: Datei
     :param file_attribute: Attribut für Datei
     :param file_content_type: Content-Type der Datei
+    :param multiple_files: mehrere Dateien behandeln?
     """
     # Login durchführen und alle notwendigen Berechtigungen setzen
     self.login_assign_permissions(model)
@@ -198,15 +201,26 @@ class DefaultModelTestCase(DefaultTestCase):
       )
     else:
       url = reverse('datenmanagement:' + self.model.__name__ + '_add')
-    request = factory.post(
-      url,
-      data=object_filter
-    )
+    data = object_filter
     # Dateien-Attribute korrekt in POST einfügen
     if file and file_attribute:
-      with open(file, 'rb') as f:
-        file_upload = SimpleUploadedFile(file.name, f.read(), file_content_type)
-        request.FILES[file_attribute] = file_upload
+      # falls mehrere Dateien behandelt werden sollen...
+      if multiple_files:
+        # ...erhöht sich die Anzahl der Objekte, die am Ende gefunden werden sollen, um zwei
+        object_count += 2
+        data[file_attribute] = [
+          SimpleUploadedFile(file.name, open(file, 'rb').read(), file_content_type),
+          SimpleUploadedFile(file.name, open(file, 'rb').read(), file_content_type),
+          SimpleUploadedFile(file.name, open(file, 'rb').read(), file_content_type)
+        ]
+      else:
+        with open(file, 'rb') as f:
+          file_upload = SimpleUploadedFile(file.name, f.read(), file_content_type)
+          data[file_attribute] = file_upload
+    request = factory.post(
+      url,
+      data=data
+    )
     request.user = self.test_user
     request._messages = storage.default_storage(request)
     template_name = 'datenmanagement/form.html'
@@ -233,7 +247,13 @@ class DefaultModelTestCase(DefaultTestCase):
     # bei Fehler...
     if object_count == 0:
       # fehlerhaftes Objekt erst gar nicht erstellt oder aktualisiert?
-      self.assertEqual(model.objects.filter(**object_filter).count(), object_count)
+      # Anmerkung: Bei einem leeren Objektfilter werden alle Objekte gefunden.
+      # Da aber bei einem leeren Objektfilter die Absicht zu unterstellen ist,
+      # dass nichts gefunden werden soll, wird in diesem Fall die Objektmenge auf 0 gesetzt.
+      num_objects = model.objects.filter(**object_filter).count()
+      if object_filter == {}:
+        num_objects = 0
+      self.assertEqual(num_objects, object_count)
     # bei Erfolg...
     else:
       if update_mode:
@@ -363,7 +383,31 @@ class DefaultSimpleModelTestCase(DefaultModelTestCase):
     """
     # Datenmodell als einfaches Datenmodell deklariert?
     self.assertTrue(
-      (not hasattr(model._meta, 'metamodel') or model._meta.codelist is False)
+      (not hasattr(model._meta, 'metamodel') or model._meta.metamodel is False)
       and (not hasattr(model._meta, 'codelist') or model._meta.codelist is False)
       and (not hasattr(model._meta, 'complex') or model._meta.complex is False)
+    )
+
+
+class DefaultComplexModelTestCase(DefaultModelTestCase):
+  """
+  Standardtest für komplexe Datenmodelle
+  """
+
+  def init(self):
+    super().init()
+
+  def generic_is_complexmodel_test(self, model):
+    """
+    testet, ob das Datenmodell ein komplexes Datenmodell ist
+
+    :param self
+    :param model: Datenmodell
+    """
+    # Datenmodell als komplexes Datenmodell deklariert?
+    self.assertTrue(
+      (not hasattr(model._meta, 'metamodel') or model._meta.metamodel is False)
+      and (not hasattr(model._meta, 'codelist') or model._meta.codelist is False)
+      and hasattr(model._meta, 'complex')
+      and model._meta.complex is True
     )

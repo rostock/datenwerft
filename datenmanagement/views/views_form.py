@@ -188,15 +188,18 @@ class DataForm(ModelForm):
 
     :return: bereinigtes Feld mit Foto
     """
-    if self.multi_foto_field and self.multi_foto_field:
-      # alle weiteren Operationen nur durchführen, wenn auch wirklich
-      # alle Pflichtfelder gefüllt sind – ansonsten klappt die Übernahme
-      # für die weiteren Foto-Datensätze nämlich nicht!
+    if self.multi_foto_field:
+      # alle weiteren Operationen nur dann durchführen,
+      # wenn auch wirklich alle Pflichtfelder gefüllt sind,
+      # da ansonsten die Übernahme für die weiteren Foto-Datensätze nicht funktioniert
       ok = True
       for field in self.model._meta.get_fields():
-        if field.name != self.model._meta.pk.name and field.name != 'foto' and \
-                self.fields[field.name].required and not \
-                self.data[field.name]:
+        if (
+            field.name != self.model._meta.pk.name
+            and field.name != 'foto'
+            and self.fields[field.name].required
+            and not self.data[field.name]
+        ):
           ok = False
           break
       if ok:
@@ -216,10 +219,10 @@ class DataForm(ModelForm):
                           self.cleaned_data[field.name])
               m.save()
               i += 1
-    # Hinweis: Das return-Statement passt in jedem Fall, das heißt bei
-    # normalem Dateifeld und bei Multi-Dateifeld, da hier immer die – in
-    # alphabetischer Reihenfolge des Dateinamens – letzte Datei behandelt
-    # wird.
+    # Hinweis: Das return-Statement passt in jedem Fall,
+    # also sowohl bei normalem Dateifeld als auch bei Multi-Dateifeld,
+    # da hier immer die (in alphabetischer Reihenfolge des Dateinamens)
+    # letzte Datei behandelt wird.
     return self.cleaned_data['foto']
 
   def clean_dateiname_original(self):
@@ -232,8 +235,7 @@ class DataForm(ModelForm):
     data = self.cleaned_data['dateiname_original']
     if self.multi_foto_field and self.multi_foto_field:
       if self.multi_files:
-        data = self.multi_files.getlist('foto')[
-            len(self.multi_files.getlist('foto')) - 1].name
+        data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
     else:
       if self.file:
         data = self.file.getlist('foto')[0].name

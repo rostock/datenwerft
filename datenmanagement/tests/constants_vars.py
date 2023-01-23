@@ -1,5 +1,7 @@
+from datetime import date
 from django.contrib.gis.geos import LinearRing, LineString, MultiLineString, \
   MultiPolygon, Point, Polygon
+from django.utils import timezone
 from pathlib import Path
 
 TEST_DIR = Path(__file__).resolve().parent
@@ -35,6 +37,8 @@ VALID_POLYGON_VIEW = 'POLYGON((12.057 54.158, 12.057 54.159, ' \
 VALID_MULTIPOLYGON_DB = MultiPolygon(VALID_POLYGON_DB)
 VALID_MULTIPOLYGON_VIEW = 'MULTIPOLYGON(' + VALID_POLYGON_VIEW.replace('POLYGON', '') + ')'
 
+VALID_DATE = date.today()
+VALID_DATETIME = timezone.now().replace(second=0, microsecond=0)
 INVALID_DECIMAL = -0.01
 INVALID_INTEGER = -1
 INVALID_EMAIL = 'worsch@supp'

@@ -14,6 +14,9 @@ def clean_object_filter(model, object_filter):
   :return: bereinigte Variante des übergebenen Objektfilters
   """
   cleaned_object_filter = object_filter.copy()
+  # "kritische" Attribute (Dateien, Geometrie) immer aus Objektfilter entfernen
+  cleaned_object_filter = remove_file_attributes_from_object_filter(cleaned_object_filter)
+  cleaned_object_filter.pop('geometrie', None)
   # falls eines der Attribute im Objektfilter unter jenen Attributen ist,
   # die in den Formularansichten des Datenmodells nur lesbar erscheinen sollen...
   if hasattr(model._meta, 'readonly_fields'):
@@ -23,9 +26,6 @@ def clean_object_filter(model, object_filter):
         # dass das Objekt unten nicht gefunden wird
         # (etwa bei Attributen, die nach dem Speichern auf Datenbankebene manipuliert werden)
         cleaned_object_filter.pop(attribute)
-  # "kritische" Attribute (Dateien, Geometrie) immer aus Objektfilter entfernen
-  cleaned_object_filter = remove_file_attributes_from_object_filter(cleaned_object_filter)
-  cleaned_object_filter.pop('geometrie', None)
   return cleaned_object_filter
 
 
