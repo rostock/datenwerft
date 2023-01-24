@@ -3,7 +3,6 @@ from django.contrib.messages import storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse, reverse_lazy
-from django.utils.datastructures import MultiValueDict
 from json import loads
 from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
 
@@ -411,3 +410,33 @@ class DefaultComplexModelTestCase(DefaultModelTestCase):
       and hasattr(model._meta, 'complex')
       and model._meta.complex is True
     )
+
+
+class GenericRSAGTestCase(DefaultComplexModelTestCase):
+  """
+  Standardtest für RSAG-Datenmodelle
+  """
+
+  attributes_values_db_initial = {
+    'quelle': 'Quelle1',
+    'geometrie': VALID_LINE_DB
+  }
+  attributes_values_db_updated = {
+    'quelle': 'Quelle2'
+  }
+  attributes_values_view_initial = {
+    'aktiv': True,
+    'quelle': 'Quelle3',
+    'geometrie': VALID_LINE_VIEW
+  }
+  attributes_values_view_updated = {
+    'aktiv': True,
+    'quelle': 'Quelle4',
+    'geometrie': VALID_LINE_VIEW
+  }
+  attributes_values_view_invalid = {
+    'quelle': INVALID_STRING
+  }
+
+  def init(self):
+    super().init()

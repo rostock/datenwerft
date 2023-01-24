@@ -3670,7 +3670,7 @@ class GehRadwegereinigungTest(DefaultSimpleModelTestCase):
       'geometrie': VALID_MULTILINE_DB
     }
     cls.attributes_values_db_updated = {
-      'beschreibung': 'Beschreibung2',
+      'beschreibung': 'Beschreibung2'
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -10306,7 +10306,7 @@ class StrassenreinigungTest(DefaultSimpleModelTestCase):
       'geometrie': VALID_MULTILINE_DB
     }
     cls.attributes_values_db_updated = {
-      'beschreibung': 'Beschreibung2',
+      'beschreibung': 'Beschreibung2'
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,

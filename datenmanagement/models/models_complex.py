@@ -1825,7 +1825,7 @@ class RSAG_Gleise(ComplexModel):
     heavy_load_limit = 800
 
   def __str__(self):
-    return self.uuid
+    return str(self.uuid)
 
 
 class RSAG_Masten(ComplexModel):
@@ -2181,7 +2181,7 @@ class RSAG_Leitungen(ComplexModel):
     as_overlay = True
 
   def __str__(self):
-    return self.uuid
+    return str(self.uuid)
 
 
 class RSAG_Quertraeger(ComplexModel):
