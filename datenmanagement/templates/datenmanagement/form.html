@@ -102,9 +102,14 @@
                       {{ field.label_tag }}<a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' foreign_model %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
+                  {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
+                    {% if geometry_type and foreign_model|has_model_geometry_field %}
+                      <span> <i id="{{ field.name }}-value-assigner" data-foreign-model="{{ foreign_model }}" data-field-title="{{ field.label }}" data-field-name="{{ field.name }}" class="fa-solid fa-map-location-dot text-primary enabled value-assigner" title="{{ field.label }} via Karte auswählen"></i></span>
+                    {% endif %}
+                  {% endwith %}
                 {% elif postcode_assigner and field.name == postcode_assigner %}
                   {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-                    {{ field.label_tag }} <span><i id="postcode-assigner" class="fas fa-gears text-{% if geometry %}success enabled{% else %}black-50{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
+                    {{ field.label_tag }} <span><i id="postcode-assigner" class="fas fa-gears text-{% if geometry %}primary enabled{% else %}secondary{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
                   {% endif %}
                 {% else %}
                   {{ field.label_tag }}
@@ -145,15 +150,15 @@
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
               {% if geometry_type == 'Point' %}
-                <button disabled id="addressToMap" class="btn btn-success" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
+                <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
               {% endif %}
               {% if not address_mandatory %}
                 {% if address_type == 'Adresse' %}
-                  <button disabled id="mapToAddress" class="btn btn-success" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
+                  <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
                 {% elif address_type == 'Straße' %}
-                  <button disabled id="mapToStreet" class="btn btn-success" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
+                  <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
                 {% elif address_type == 'Gemeindeteil' %}
-                  <button disabled id="mapToQuarter" class="btn btn-success" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
+                  <button disabled id="mapToQuarter" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
                 {% endif %}
               {% endif %}
             </div>
@@ -199,7 +204,7 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-success" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-primary" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
         {% if object and user|user_has_model_add_permission:model_name_lower %}
           <button class="btn btn-primary" type="submit" onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
@@ -260,17 +265,30 @@
 
       // globale Marker für Leaflet konfigurieren und auch in anderen Scopes
       // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
-      let defaultMarker = new L.Icon({
+      window.redMarker = new L.Icon({
         shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       });
-      defaultMarker.options.iconUrl = '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}';
-      window.redMarker = defaultMarker;
-      defaultMarker.options.iconUrl = '{% static "datenmanagement/img/leaflet-markers/marker-orange.svg" %}';
-      window.orangeMarker = defaultMarker;
+      window.orangeMarker = new L.Icon({
+        shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-orange.svg" %}',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      window.grayMarker = new L.Icon({
+        shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-gray.svg" %}',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
 
       // globale Variable für Feature-Geometrie auch in anderen Scopes
       // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
@@ -301,7 +319,13 @@
                 {% if foreign_model|has_model_geometry_field %}
                   let url = "{% url 'datenmanagement:'|add:foreign_model|add:'_geometry' %}" + '?pk=' + '{{ object|get_foreign_key_object_pk:field }}';
                   {% with field_title=field|get_field_verbose_name:model_name %}
-                    currMap.loadGeometryFromForeignKeyFieldObject(url, '{{ foreign_model }}', '{{ field_title }}', '{{ object|get_value_of_field:field }}');
+                    map.loadGeometryFromForeignKeyFieldObjects(
+                      url,
+                      '{{ foreign_model }}',
+                      '{{ field }}',
+                      '{{ field_title }}',
+                      '{{ object|get_value_of_field:field }}'
+                    );
                   {% endwith %}
                 {% endif %}
               {% endwith %}
@@ -683,7 +707,14 @@
                   if (value) {
                     let url = "{% url 'datenmanagement:'|add:foreign_model|add:'_geometry' %}" + '?pk=' + value;
                     {% with field_title=field|get_field_verbose_name:model_name %}
-                      currMap.loadGeometryFromForeignKeyFieldObject(url, '{{ foreign_model }}', '{{ field_title }}', text);
+                      currMap.loadGeometryFromForeignKeyFieldObjects(
+                        url,
+                        '{{ foreign_model }}',
+                        '{{ field }}',
+                        '{{ field_title }}',
+                        text
+                      );
+                      enableValueAssigner($('#{{ field }}-value-assigner'), '{{ field_title }} via Karte auswählen');
                     {% endwith %}
                   }
                 {% endif %}
@@ -720,13 +751,42 @@
 
     /**
      * @function
+     * @name disableValueAssigner
+     *
+     * @param {Object} valueAssigner - Auswählen-via-Karte-Icon
+     *
+     * deaktiviert Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
+     */
+    function disableValueAssigner(valueAssigner) {
+      valueAssigner.removeClass('text-primary enabled');
+      valueAssigner.addClass('text-secondary');
+      valueAssigner.attr('title', '');
+    }
+
+    /**
+     * @function
+     * @name enableValueAssigner
+     *
+     * @param {Object} valueAssigner - Auswählen-via-Karte-Icon
+     * @param {String} tooltip - Tooltip
+     *
+     * aktiviert Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
+     */
+    function enableValueAssigner(valueAssigner, tooltip) {
+      valueAssigner.removeClass('text-secondary');
+      valueAssigner.addClass('text-primary enabled');
+      valueAssigner.attr('title', tooltip);
+    }
+
+    /**
+     * @function
      * @name enablePostcodeAssigner
      *
-     * schaltet Postleitzahl-Auto-Zuweisung frei
+     * aktiviert Postleitzahl-Auto-Zuweisung
      */
     function enablePostcodeAssigner() {
-      $('#postcode-assigner').removeClass('text-black-50');
-      $('#postcode-assigner').addClass('text-success enabled');
+      $('#postcode-assigner').removeClass('text-secondary');
+      $('#postcode-assigner').addClass('text-primary enabled');
       $('#postcode-assigner').attr('title', 'Postleitzahl automatisch zuweisen');
     }
 
@@ -887,7 +947,6 @@
       {% endif %}
     }
 
-
     /**
      * @function
      * @name cloneObject
@@ -897,6 +956,30 @@
     function cloneObject() {
       $('form').attr('action', "{% url 'datenmanagement:'|add:model_name|add:'_add' %}");
     }
+
+    // beim Klick auf das Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
+    // werden alle Geometrien der Zielobjekte des Fremdschlüssels auf der Karte angezeigt
+    // (mit Ausnahme der Geometrie jenes Zielobjekts des Fremdschlüssels, das gerade ausgewählt ist
+    // und somit ohnehin schon auf der Karte angezeigt wird)
+    $('.value-assigner').parent('span').click(function () {
+      let valueAssigner = $(this).children();
+      let foreignModel = valueAssigner.data('foreign-model');
+      let fieldName = valueAssigner.data('field-name');
+      let url = "{% url 'datenmanagement:'|add:model_name|add:'_geometry' %}";
+      let modelName = '{{ model_name }}';
+      let pattern = new RegExp(modelName);
+      url = url.replace(pattern, foreignModel);
+      currMap.loadGeometryFromForeignKeyFieldObjects(
+        url,
+        foreignModel,
+        fieldName,
+        valueAssigner.data('field-title'),
+        '',
+        $('select[name=' + fieldName + ']').find(':selected').val(),
+        false
+      );
+      disableValueAssigner(valueAssigner);
+    });
 
     {% if gpx_input %}
       // bei Auswahl einer Datei im GPX-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben

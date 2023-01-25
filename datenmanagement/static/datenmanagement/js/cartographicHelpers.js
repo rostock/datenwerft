@@ -472,7 +472,7 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
       } else {
         // alle Objektgruppen berücksichtigen
         result = getAddressSearchResult(index, item.properties.uuid, titel, item.properties.gemeindeteil_abkuerzung);
-        result += '<small class="text-black-50"><em>' + item.properties.objektgruppe.replace(/ HRO/, '') + '</em></small></div>';
+        result += '<small class="text-secondary"><em>' + item.properties.objektgruppe.replace(/ HRO/, '') + '</em></small></div>';
       }
       if (result !== '')
         results.append(result);

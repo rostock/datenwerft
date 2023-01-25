@@ -134,7 +134,7 @@
             createdRow: function(row) {
               // inaktive Zeilen (= Datensätze) mit schwächerer Textfarbe versehen
               if ($(row).find('td:nth-child(2)').text() === 'nein') {
-                $(row).addClass('text-black-50');
+                $(row).addClass('text-secondary');
               // entsprechend markierte Zeilen (= Datensätze) mit besonderer Textfarbe hervorheben
               } else if ($(row).find('.text-danger').length) {
                 $(row).addClass('text-danger');

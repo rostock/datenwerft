@@ -28,7 +28,8 @@ input[name="strasse"] {
   height: 100%;
 }
 
-#postcode-assigner.enabled {
+#postcode-assigner.enabled,
+.value-assigner.enabled {
   cursor: pointer;
 }
 
@@ -78,7 +79,7 @@ input[name="strasse"] {
   background-color: #ddd;
 }
 
-.result-element .text-black-50 {
+.result-element .text-secondary {
   float: right;
   padding-right: 0.75rem;
 }

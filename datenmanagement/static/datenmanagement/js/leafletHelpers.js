@@ -137,16 +137,21 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
 
 /**
  * @function
- * @name loadGeometryFromForeignKeyFieldObject
+ * @name loadGeometryFromForeignKeyFieldObjects
  *
- * lädt Geometrie des Zielobjekts eines Fremdschlüsselfeldes in Karte
+ * lädt Geometrie(n) des/der Zielobjekts/Zielobjekte eines Fremdschlüsselfeldes in Karte
  *
- * @param {string} url - URL zum Laden der Geometrie des Zielobjekts eines Fremdschlüssels
+ * @param {string} url - URL zum Laden der Geometrie(n) des/der Zielobjekts/Zielobjekte eines Fremdschlüssels
  * @param {string} foreignModel - Name des Zieldatenmodells des Fremdschlüssels
+ * @param {string} fieldName - Name des Feldes mit dem Fremdschlüssel
  * @param {string} fieldTitle - Titel des Feldes mit dem Fremdschlüssel
- * @param {string} fieldValue - Wert des Feldes mit dem Fremdschlüssel
+ * @param {string} [fieldValue=''] - Wert des Feldes mit dem Fremdschlüssel
+ * @param {string} [targetObjectPrimaryKey=''] - Primärschlüssel des aktuellen Zielobjekts des Fremdschlüssels
+ * @param {boolean} [singleMode=true] - Soll nur eine Geometrie verarbeitet werden?
+ *
+ * @returns {this} modifizierte Karte
  */
-L.Map.prototype.loadGeometryFromForeignKeyFieldObject = function(url, foreignModel, fieldTitle, fieldValue) {
+L.Map.prototype.loadGeometryFromForeignKeyFieldObjects = function(url, foreignModel, fieldName, fieldTitle, fieldValue = '', targetObjectPrimaryKey = '', singleMode = true) {
   fetch(
     String(url)
   ).then(
@@ -156,41 +161,92 @@ L.Map.prototype.loadGeometryFromForeignKeyFieldObject = function(url, foreignMod
   ).then(
     (data) => {
       let wkt = new Wkt.Wkt();
-      let geom = data.geometry;
-      wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
-      let geoJsonFeature = {
-        type: 'Feature',
-        geometry: null,
-        properties: {
-          'uuid': data.uuid,
-          'datenthema': data.model_name,
-          'foreignkey': foreignModel
-        },
-        crs: {
-          type: 'name',
+      let features;
+      if (singleMode) {
+        let geom = data.geometry;
+        wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
+        // neues leeres GeoJSON-Feature definieren
+        let geoJsonFeature = {
+          type: 'Feature',
+          geometry: null,
           properties: {
-            'name': 'urn:ogc:def:crs:EPSG::4326'
+            'uuid': data.uuid,
+            'datenthema': data.model_name,
+            'foreignkey': foreignModel
+          },
+          crs: {
+            type: 'name',
+            properties: {
+              'name': 'urn:ogc:def:crs:EPSG::4326'
+            }
+          }
+        };
+        geoJsonFeature.geometry = wkt.toJson();
+        features = geoJsonFeature;
+      } else {
+        // neue leere GeoJSON-FeatureCollection definieren
+        let geoJsonFeatureCollection = {
+          type: 'FeatureCollection',
+          features: []
+        };
+        for (let i = 0; i < data.object_list.length; i++) {
+          let item = data.object_list[i];
+          wkt.read(item.substring(item.indexOf(';') + 1, item.length));
+          // falls Geometrie nicht bereits auf der Karte angezeigt wird...
+          if (data.uuids[i] !== targetObjectPrimaryKey) {
+            // neues leeres GeoJSON-Feature definieren
+            let geoJsonFeature = {
+              type: 'Feature',
+              geometry: null,
+              properties: {
+                'uuid': data.uuids[i],
+                'datenthema': data.model_name,
+                'foreignkey': foreignModel
+              },
+              crs: {
+                type: 'name',
+                properties: {
+                  'name': 'urn:ogc:def:crs:EPSG::4326'
+                }
+              }
+            };
+            geoJsonFeature.geometry = wkt.toJson();
+            geoJsonFeatureCollection.features.push(geoJsonFeature);
           }
         }
-      };
-      geoJsonFeature.geometry = wkt.toJson();
-      let foreignKeyLayer = new L.geoJSON(geoJsonFeature, {
+        features = geoJsonFeatureCollection;
+      }
+      let foreignKeyLayer = new L.geoJSON(features, {
         pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, {
-            icon: orangeMarker
+          return new L.Marker(latlng, {
+            icon: singleMode ? orangeMarker : grayMarker
           });
         },
-        color: 'orange',
-        fillColor: 'orange'
+        color: singleMode ? 'orange' : 'gray',
+        fillColor: singleMode ? 'orange' : 'gray',
+        onEachFeature: function (feature, layer) {
+          let tooltip = singleMode ? 'aktuell ausgewählt: ' + fieldTitle + ' ' + fieldValue : 'klicken, um ' + fieldTitle + ' auszuwählen';
+          layer.bindTooltip(tooltip);
+          if (!singleMode)
+            layer.on('click', function () {
+              $('select[name=' + fieldName + ']').val(feature.properties.uuid).trigger('change');
+            });
+        }
       });
-      foreignKeyLayer.bindTooltip(fieldTitle + ' ' + fieldValue);
-      foreignKeyLayer.addTo(window.currMap);
+      foreignKeyLayer.addTo(this);
+      foreignKeyLayer.eachLayer((layer) => {
+        if (layer instanceof L.Marker)
+          layer.setZIndexOffset(999);
+        else
+          layer.bringToFront();
+      });
     }
   ).catch(
     (error) => {
       console.error(error);
     }
   );
+  return this;
 }
 
 /**
@@ -202,7 +258,7 @@ L.Map.prototype.loadGeometryFromForeignKeyFieldObject = function(url, foreignMod
  * @param {string} name - Name des Datenthemas oder WFS-Feature-Types
  * @param {string} baseUrl - Basis-URL des Datenthemas oder WFS
  * @param {Object} layer - Layer des Datenthemas oder WFS-Feature-Types
- * @param {boolean} [isWFS=false] - handelt es sich um einen WFS?
+ * @param {boolean} [isWFS=false] - Handelt es sich um einen WFS?
  */
 L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false) {
   let url = baseUrl;
@@ -242,7 +298,7 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
             geometry: null,
             properties: {
               'uuid': data.uuids[i],
-              'datenthema': data.model_name,
+              'datenthema': data.model_name
             },
             crs: {
               type: 'name',
@@ -293,7 +349,7 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
  * und hebt aktive Layer in der Karte an
  *
  * @param {Object} layerControl - Layer-Control zum Zuschalten zusätzlicher Datenthemen oder WFS-Feature-Types
- * @param {boolean} [isWFS=false] - handelt es sich um einen WFS?
+ * @param {boolean} [isWFS=false] - Handelt es sich um einen WFS?
  *
  * @returns {this} modifizierte Karte
  */
