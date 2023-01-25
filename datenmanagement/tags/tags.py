@@ -94,18 +94,45 @@ def get_dict_value_by_key(arg_dict, key):
 
 
 @register.filter
-def get_foreign_key_field_class_name(field_name, model_name):
+def get_field_verbose_name(field_name, model_name):
   """
-  liefert Klassenname des vom übergebenen Datenmodells
-  im übergebenen Feld referenzierten Datenmodells zurück
+  liefert Titel des übergebenen Feldes des übergebenen Datenmodells zurück
 
   :param field_name: Feldname des Datenmodells
   :param model_name: Klassenname des Datenmodells
+  :return: Titel des übergebenen Feldes des übergebenen Datenmodells
+  """
+  model = apps.get_app_config('datenmanagement').get_model(model_name)
+  return model._meta.get_field(field_name).verbose_name
+
+
+@register.filter
+def get_foreign_key_field_class_name(field_name, model_name):
+  """
+  liefert Klassenname des vom übergebenen Datenmodell
+  im übergebenen Fremdschlüsselfeld referenzierten Datenmodells zurück
+
+  :param field_name: Name des Fremdschlüsselfelds des Datenmodells
+  :param model_name: Klassenname des Datenmodells
   :return: Klassenname des vom übergebenen Datenmodell
-  im übergebenen Feld referenzierten Datenmodells
+  im übergebenen Fremdschlüsselfeld referenzierten Datenmodells
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   return model._meta.get_field(field_name).remote_field.model.__name__
+
+
+@register.filter
+def get_foreign_key_object_pk(data_object, field_name):
+  """
+  liefert Primärschlüssel des im übergebenen Fremdschlüsselfeld
+  des übergebenen Datenobjektes abgelegten Zielobjekts zurück
+
+  :param data_object: Datenobjekt
+  :param field_name: Name des Fremdschlüsselfelds
+  :return: Primärschlüssel des im übergebenen Fremdschlüsselfeld
+  des übergebenen Datenobjektes abgelegten Zielobjekts
+  """
+  return getattr(data_object, field_name).pk
 
 
 @register.filter
@@ -149,19 +176,31 @@ def get_type_of_field(field_name, model_name):
 
 
 @register.filter
-def get_value_of_field(value, field):
+def get_value_of_field(data_object, field_name):
   """
   liefert Wert des übergebenen Feldes des übergebenen Datenobjektes zurück
 
-  :param value: Datenobjekt
-  :param field: Feld
+  :param data_object: Datenobjekt
+  :param field_name: Name des Feldes
   :return: Wert des übergebenen Feldes des übergebenen Datenobjektes
   """
-  return_value = getattr(value, field)
+  return_value = getattr(data_object, field_name)
   if isinstance(return_value, list):
     return ', '.join(return_value)
   else:
     return return_value
+
+
+@register.filter
+def has_model_geometry_field(model_name):
+  """
+  prüft, ob das übergebene Datenmodell ein Geometriefeld hat
+
+  :param model_name: Klassenname des Datenmodells
+  :return: hat übergebenes Datenmodell ein Geometriefeld?
+  """
+  model = apps.get_app_config('datenmanagement').get_model(model_name)
+  return True if hasattr(model._meta, 'geometry_type') else False
 
 
 @register.filter

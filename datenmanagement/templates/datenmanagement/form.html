@@ -37,6 +37,7 @@
     {% for field in form %}
       {% for error in field.errors %}
         <div class="alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
           {% autoescape off %}
             {{ error }}
           {% endautoescape %}
@@ -45,6 +46,7 @@
     {% endfor %}
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
         {{ error|customize_error_message }}
       </div>
     {% endfor %}
@@ -90,7 +92,7 @@
                 {% elif field|is_field_hours_related_field %}
                   {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
                 {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
-                  {% if object and user|user_has_model_change_permission:model_name_lower %}
+                  {% if object and user|user_has_model_change_permission:model_name_lower and object|get_value_of_field:field.name %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
                       {{ field.label_tag }}
                       <a href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
@@ -256,16 +258,19 @@
         enableMapLocate(map);
       {% endif %}
 
-      // globalen Marker für Leaflet konfigurieren und auch in anderen Scopes
+      // globale Marker für Leaflet konfigurieren und auch in anderen Scopes
       // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
-      window.redMarker = new L.Icon({
-        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+      let defaultMarker = new L.Icon({
         shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       });
+      defaultMarker.options.iconUrl = '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}';
+      window.redMarker = defaultMarker;
+      defaultMarker.options.iconUrl = '{% static "datenmanagement/img/leaflet-markers/marker-orange.svg" %}';
+      window.orangeMarker = defaultMarker;
 
       // globale Variable für Feature-Geometrie auch in anderen Scopes
       // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
@@ -288,6 +293,21 @@
       {% if geometry %}
         // vorhandene Geometrie auf Karte anzeigen
         map.loadGeometryFromField('#id_geometrie')
+        // ggf. Geometrien der Zielobjekte von Fremdschlüsseln auf Karte anzeigen
+        {% if fields_with_foreign_key_to_linkify %}
+          {% for field in fields_with_foreign_key_to_linkify %}
+            {% if object|get_value_of_field:field %}
+              {% with foreign_model=field|get_foreign_key_field_class_name:model_name %}
+                {% if foreign_model|has_model_geometry_field %}
+                  let url = "{% url 'datenmanagement:'|add:foreign_model|add:'_geometry' %}" + '?pk=' + '{{ object|get_foreign_key_object_pk:field }}';
+                  {% with field_title=field|get_field_verbose_name:model_name %}
+                    currMap.loadGeometryFromForeignKeyFieldObject(url, '{{ foreign_model }}', '{{ field_title }}', '{{ object|get_value_of_field:field }}');
+                  {% endwith %}
+                {% endif %}
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
       {% endif %}
 
       // ggf. zusätzliche Datenthemen definieren,
@@ -399,7 +419,6 @@
                 'Sie müssen zunächst ' + zoomDifference + ' in die Karte hineinzoomen, bevor die zusätzlichen WFS-Feature-Types sichtbar werden!'
               );
               window.showWFSZoomModal = false;
-              console.log(window.showWFSZoomModal);
             }
           });
         {% endfor %}
@@ -635,22 +654,42 @@
       // Labels für verpflichtende Boolean-Felder anpassen
       $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
 
-      // Fremdschlüssellinks dynamisch anpassen je nach aktueller Auswahl in entsprechenden Auswahlfeldern (bei leerer Auswahl Link verstecken)
-      {% if fields_with_foreign_key_to_linkify and user|user_has_model_change_permission:model_name_lower or not object %}
+      // Fremdschlüssel behandeln je nach aktueller Auswahl in entsprechendem Auswahlfeld:
+      // a) Link auf Zielobjekt dynamisch anpassen
+      //    (bei leerer Auswahl: Link verstecken)
+      // b) ggf. Geometrie des Zielobjekts dynamisch auf Karte anzeigen (mit Tooltip = Auswahltext)
+      //    (bei leerer Auswahl bzw. wenn Zieldatenmodell keine Geometrie aufweist: keine Geometrie anzeigen)
+      {% if fields_with_foreign_key_to_linkify %}
         {% for field in fields_with_foreign_key_to_linkify %}
-          $('select#id_' + '{{ field }}').each(function () {
-            $(this).on('change', function () {
-              let link = $('a#link_' + '{{ field }}');
-              let href = link.prop('href');
-              let value = $(this).find(':selected').val();
-              if (value) {
-                href = href.replace(/\/change\/.*/, '/change/' + value);
-                link.prop('href', href);
-                link.prop('hidden', false);
-              } else
-                link.prop('hidden', true);
+          {% with foreign_model=field|get_foreign_key_field_class_name:model_name %}
+            $('select#id_' + '{{ field }}').each(function () {
+              $(this).on('change', function () {
+                let link = $('a#link_' + '{{ field }}');
+                let href = link.prop('href');
+                let text = $(this).find(':selected').text();
+                let value = $(this).find(':selected').val();
+                if (value) {
+                  href = href.replace(/\/change\/.*/, '/change/' + value);
+                  link.prop('href', href);
+                  link.prop('hidden', false);
+                } else
+                  link.prop('hidden', true);
+                {% if geometry_type and foreign_model|has_model_geometry_field %}
+                  currMap.pm.getGeomanLayers().forEach((layer) => {
+                    if (layer.toGeoJSON().properties.foreignkey === '{{ foreign_model }}') {
+                      layer.remove();
+                    }
+                  });
+                  if (value) {
+                    let url = "{% url 'datenmanagement:'|add:foreign_model|add:'_geometry' %}" + '?pk=' + value;
+                    {% with field_title=field|get_field_verbose_name:model_name %}
+                      currMap.loadGeometryFromForeignKeyFieldObject(url, '{{ foreign_model }}', '{{ field_title }}', text);
+                    {% endwith %}
+                  }
+                {% endif %}
+              });
             });
-          });
+          {% endwith %}
         {% endfor %}
       {% endif %}
 
@@ -876,7 +915,7 @@
         formData.append('gpx', file);
         // Leaflet-Geoman-Layer von Karte entfernen (falls zuvor schon eine GPX-Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().properties.datenthema !== 'Fallwildsuchen_Kontrollgebiete') {
+          if (!layer.toGeoJSON().properties.foreignkey) {
             layer.remove();
           }
         });
@@ -972,53 +1011,6 @@
               'Fehler bei Zuweisung einer Postleitzahl',
               'Es ist ein Fehler bei der automatischen Zuweisung einer Postleitzahl aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie einen Administrator.'
             );
-          }
-        );
-      });
-    {% endif %}
-
-    {% if model_name == 'Fallwildsuchen_Nachweise' %}
-      // bei Zuweisung eines bzw. Änderung des Kontrollgebietes im Rahmen einer Fallwildsuche
-      // wird dessen Geometrie auf die Karte gezeichnet
-      $('#id_kontrollgebiet').change(function () {
-        let element = $('#id_kontrollgebiet option:selected')[0];
-        let url = "{% url 'datenmanagement:'|add:'Fallwildsuchen_Kontrollgebiete'|add:'_geometry' %}";
-        currMap.pm.getGeomanLayers().forEach((layer) => {
-          if (layer.toGeoJSON().properties.datenthema) {
-            layer.remove();
-          }
-        });
-        fetch(
-            String(url + '?pk=' + element.getAttribute('value'))
-        ).then(
-          (response) => {
-            return response.json();
-          }
-        ).then(
-          (data) => {
-            let wkt = new Wkt.Wkt();
-            let geom = data.geometry;
-            wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
-            let geoJsonFeature = {
-              type: 'Feature',
-              geometry: null,
-              properties: {
-                'uuid': data.uuid,
-                'datenthema': data.model_name,
-              },
-              crs: {
-                type: 'name',
-                properties: {
-                  'name': 'urn:ogc:def:crs:EPSG::4326'
-                }
-              }
-            };
-            geoJsonFeature.geometry = wkt.toJson();
-            new L.geoJSON(geoJsonFeature).addTo(currMap);
-          }
-        ).catch(
-          (error) => {
-            console.error(error);
           }
         );
       });

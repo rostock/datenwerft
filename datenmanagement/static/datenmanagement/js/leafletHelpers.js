@@ -1,4 +1,4 @@
-/* global $, interchangeRecursive, L, martinez, redMarker, toggleModal, Wkt */
+/* global $, interchangeRecursive, L, martinez, orangeMarker, redMarker, toggleModal, Wkt */
 /* eslint no-undef: "error" */
 
 /*
@@ -112,7 +112,9 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
   }
   let changeGeom = new L.geoJSON(geojson, {
     pointToLayer: function (feature, latlng) {
-      return L.marker(latlng, {icon: redMarker});
+      return L.marker(latlng, {
+        icon: redMarker
+      });
     },
     // Farbe während des Zeichnens
     templineStyle: {
@@ -131,6 +133,64 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
       layer.bringToFront();
   });
   return this;
+}
+
+/**
+ * @function
+ * @name loadGeometryFromForeignKeyFieldObject
+ *
+ * lädt Geometrie des Zielobjekts eines Fremdschlüsselfeldes in Karte
+ *
+ * @param {string} url - URL zum Laden der Geometrie des Zielobjekts eines Fremdschlüssels
+ * @param {string} foreignModel - Name des Zieldatenmodells des Fremdschlüssels
+ * @param {string} fieldTitle - Titel des Feldes mit dem Fremdschlüssel
+ * @param {string} fieldValue - Wert des Feldes mit dem Fremdschlüssel
+ */
+L.Map.prototype.loadGeometryFromForeignKeyFieldObject = function(url, foreignModel, fieldTitle, fieldValue) {
+  fetch(
+    String(url)
+  ).then(
+    (response) => {
+      return response.json();
+    }
+  ).then(
+    (data) => {
+      let wkt = new Wkt.Wkt();
+      let geom = data.geometry;
+      wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
+      let geoJsonFeature = {
+        type: 'Feature',
+        geometry: null,
+        properties: {
+          'uuid': data.uuid,
+          'datenthema': data.model_name,
+          'foreignkey': foreignModel
+        },
+        crs: {
+          type: 'name',
+          properties: {
+            'name': 'urn:ogc:def:crs:EPSG::4326'
+          }
+        }
+      };
+      geoJsonFeature.geometry = wkt.toJson();
+      let foreignKeyLayer = new L.geoJSON(geoJsonFeature, {
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {
+            icon: orangeMarker
+          });
+        },
+        color: 'orange',
+        fillColor: 'orange'
+      });
+      foreignKeyLayer.bindTooltip(fieldTitle + ' ' + fieldValue);
+      foreignKeyLayer.addTo(window.currMap);
+    }
+  ).catch(
+    (error) => {
+      console.error(error);
+    }
+  );
 }
 
 /**
