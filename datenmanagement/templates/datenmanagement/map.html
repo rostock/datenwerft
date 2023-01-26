@@ -903,13 +903,16 @@
                   stillVisible = false;
               }
             } else {
-              stillVisible = false;
+              // mit Hilfsvariable arbeiten, um dem exklusiven Charakter (ODER) gerecht zu werden
+              let tempStillVisible = false;
               for (let k = 0; k < filterAttributesList[i].value.length; k++) {
                 if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[k].toLowerCase()) !== -1) {
-                  stillVisible = true;
+                  tempStillVisible = true;
                   break;
                 }
               }
+              if (!tempStillVisible)
+                stillVisible = false;
             }
           // ansonsten einen Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
           } else if (filterAttributesList[i].type !== 'checkbox-set') {
