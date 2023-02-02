@@ -6,15 +6,15 @@
 
 {% block style %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'datatables/datatables.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/list.css' %}">
 {% endblock %}
 
 {% block scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'datatables/datatables.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
+  <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -74,7 +74,7 @@
         </thead>
       </table>
       <!-- eslint-disable-next-script -->
-      <script type="text/javascript">
+      <script>
         {% if subset_id %}
           window.dataUrl = "{% url 'datenmanagement:'|add:model_name|add:'_data'|add:'_subset' subset_id %}";
         {% else %}
@@ -82,7 +82,7 @@
         {% endif %}
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
-      <script type="text/javascript">
+      <script>
         /* global $, jQuery, subsetting */
         /* eslint no-undef: "error" */
 

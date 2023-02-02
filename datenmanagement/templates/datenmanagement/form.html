@@ -8,27 +8,27 @@
 {% block style %}
   {{ block.super }}
   {% leaflet_css plugins="geoman,locatecontrol" %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
   {% if forms_in_mobile_mode or request.user_agent.is_mobile or request.user_agent.is_tablet %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
     {% if forms_in_mobile_mode %}
-      <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}"/>
+      <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}">
     {% endif %}
   {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
   {% endif %}
 {% endblock %}
 
 {% block scripts %}
   {{ block.super }}
   {% leaflet_js plugins="geoman,locatecontrol" %}
-  <script type="text/javascript" src="{% static 'proj4/proj4.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket/wicket.js' %}"></script>
-  <script type="text/javascript" src="{% static 'wicket/wicket-leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'wicket/wicket.js' %}"></script>
+  <script src="{% static 'wicket/wicket-leaflet.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
   <script type="module" src="{% static 'martinez-polygon-clipping/martinez.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
-  <script type="text/javascript" src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
 {% endblock %}
 
@@ -60,7 +60,9 @@
           {% for associated_object in associated_objects %}
             <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
             {% if associated_object.preview_img_url %}
-              <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…"><img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px"/></a>
+              <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">
+                <img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px">
+              </a>
             {% endif %}
           {% endfor %}
         </ul>
@@ -68,7 +70,7 @@
         (noch) keine assoziierten Datensätze vorhanden
       {% endif %}
       {% if user|user_has_model_change_permission:model_name_lower %}
-        <hr/>
+        <hr>
         {% for associated_new_entry in associated_new %}
           <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
             <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
@@ -78,7 +80,7 @@
     </div>
     <div class="mb-4"></div>
   {% endif %}
-  <form class="form" role="form" method="post" enctype="multipart/form-data" action="">
+  <form class="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div {% if geometry_type %}id="custom-form"{% endif %}>
       <table class="table">
@@ -130,7 +132,7 @@
             </td>
             <td>
               <div class="custom-file">
-                <input class="form-control" type="file" id="id_gpx" name="gpx" accept=".gpx"/>
+                <input class="form-control" type="file" id="id_gpx" name="gpx" accept=".gpx">
               </div>
             </td>
           </tr>
@@ -172,27 +174,27 @@
                 {{ form.adresse }}
                 <label for="id_adresse">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}"/>
+              <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
             {% elif address_type == 'Straße' %}
               <label for="id_strasse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.strasse }}
                 <label for="id_strasse">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}"/>
+              <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
             {% elif address_type == 'Gemeindeteil' %}
               <label for="id_gemeindeteil" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
                 {{ form.gemeindeteil }}
                 <label for="id_gemeindeteil">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_quarter %}{{ current_quarter }}{% endif %}"/>
+              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_quarter %}{{ current_quarter }}{% endif %}">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
               <label for="address-search" class="form-label">Adressensuche</label>
               <div class="form-floating">
-                <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…"/>
+                <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
                 <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
               </div>
             {% endif %}
@@ -220,7 +222,7 @@
       {% include "modal-loading.html" %}
     {% endif %}
   </form>
-  <script type="text/javascript">
+  <script>
     /**
      * @function
      * @name mapCallbackFunction

@@ -27,10 +27,10 @@
         <i class="fa-solid fa-circle-exclamation"></i> Sie haben soeben eine E-Mail erhalten mit einem Login-Code. Diesen müssen Sie unten eingeben, um sich final anzumelden.
       </div>
     {% endif %}
-      <form class="form-signin" role="form" method="post">
+      <form class="form-signin" method="post">
       {% csrf_token %}
       <div class="form-floating mb-3">
-        <input id="id_email_token" type="text" required class="form-control" name="email_token" placeholder="Login-Code"/>
+        <input id="id_email_token" type="text" required class="form-control" name="email_token" placeholder="Login-Code">
         <label for="id_email_token">Login-Code</label>
       </div>
       <div class="d-grid">
