@@ -2,10 +2,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Anwendungsdefinition
+
+# Datenwerft.HRO:
+# globale Anwendungsdefinition
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 DJANGO_APPS = [
   'django.contrib.admin',
   'django.contrib.auth',
@@ -15,7 +16,6 @@ DJANGO_APPS = [
   'django.contrib.staticfiles',
   'django.contrib.gis',
 ]
-
 THIRD_PARTY_APPS = [
   'django_user_agents',
   'leaflet',
@@ -23,17 +23,13 @@ THIRD_PARTY_APPS = [
   'rest_framework',
   'jsonview',
 ]
-
 LOCAL_APPS = [
   'accounts',
   'toolbox',
   'datenmanagement'
 ]
-
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
 LOGIN_URL = '/datenwerft/accounts/login'
-
 MIDDLEWARE = [
   'django.middleware.security.SecurityMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
@@ -45,11 +41,8 @@ MIDDLEWARE = [
   'django.middleware.gzip.GZipMiddleware',
   'django_user_agents.middleware.UserAgentMiddleware',
 ]
-
 ROOT_URLCONF = 'datenwerft.urls'
-
 WSGI_APPLICATION = 'datenwerft.wsgi.application'
-
 TEMPLATES = [
   {
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -74,12 +67,16 @@ TEMPLATES = [
   },
 ]
 
+
+# Datenwerft.HRO:
 # Datenbanken
 
 DATABASE_ROUTERS = [
   'datenwerft.db_routers.DatenmanagementRouter'
 ]
 
+
+# Datenwerft.HRO:
 # Authentisierung
 
 AUTHENTICATION_BACKENDS = (
@@ -87,16 +84,17 @@ AUTHENTICATION_BACKENDS = (
   'django.contrib.auth.backends.ModelBackend',
 )
 
+
+# Datenwerft.HRO:
 # Sicherheit
 
 CSRF_COOKIE_SECURE = False
-
 SECURE_BROWSER_XSS_FILTER = True
-
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
 X_FRAME_OPTIONS = 'DENY'
 
+
+# Datenwerft.HRO:
 # Leaflet
 
 LEAFLET_CONFIG = {
@@ -134,6 +132,8 @@ LEAFLET_CONFIG = {
   }
 }
 
+
+# Datenwerft.HRO:
 # REST-Framework
 
 REST_FRAMEWORK = {
@@ -149,7 +149,9 @@ REST_FRAMEWORK = {
   ),
 }
 
-# statische Dateien (CSS, JavaScript, Bilder)
+
+# Datenwerft.HRO:
+# statische Dateien externer Bibliotheken sowie der Hilfe
 
 STATICFILES_DIRS = (
   BASE_DIR / 'vendor/',
@@ -170,20 +172,18 @@ STATICFILES_DIRS = (
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
 )
 
-# Internationalisierung (I18N) und Lokalisierung (L10N)
+
+# Datenwerft.HRO:
+# Internationalisierung (i18n) und Lokalisierung (L10n)
 
 LANGUAGE_CODE = 'de'
-
 TIME_ZONE = 'Europe/Berlin'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-# Link auf Konfigurationsdatei mit weiteren Parametern,
-# die nicht unter Git-Versionskontrolle fallen sollen
+
+# Konfigurationsdatei mit weiteren Parametern, die nicht unter Git-Versionskontrolle fallen sollen
 
 try:
   from datenwerft.secrets import *
