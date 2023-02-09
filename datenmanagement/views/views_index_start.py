@@ -51,7 +51,6 @@ class IndexView(ListView):
         else:
           models_simple.append(list_model)
     context = super(IndexView, self).get_context_data(**kwargs)
-    context['LOGIN_URL'] = settings.LOGIN_URL
     context['models_meta'] = models_meta
     context['models_codelist'] = models_codelist
     context['models_complex'] = models_complex

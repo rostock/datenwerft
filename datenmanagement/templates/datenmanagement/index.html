@@ -5,70 +5,53 @@
 {% block title %}Datenmanagement | {% endblock %}
 
 {% block content %}
-  {% if user.is_authenticated %}
-    {% if models_meta or models_codelist or models_complex or models_simple %}
-      <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
-      {% if models_meta %}
-        <h3 class="mt-3">Meta-Datenthemen</h3>
-        <div class="list-group mb-3">
-          {% for model in models_meta %}
-            <a class="list-group-item list-group-item-action list-group-item-info" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
-              <h4>{{ model.verbose_name_plural }}</h4>
-              <h5><small>{{ model.description }}</small></h5>
-            </a>
-          {% endfor %}
-        </div>
-      {% endif %}
-      {% if models_codelist %}
-        <h3 class="mt-3">Codelisten</h3>
-        <div class="list-group mb-3">
-          {% for model in models_codelist %}
-            <a class="list-group-item list-group-item-action list-group-item-secondary" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
-              <h4>{{ model.verbose_name_plural }}</h4>
-              <h5><small>{{ model.description }}</small></h5>
-            </a>
-          {% endfor %}
-        </div>
-      {% endif %}
-      {% if models_complex %}
-        <h3 class="mt-3">Komplexe Datenthemen</h3>
-        <div class="list-group mb-3">
-          {% for model in models_complex %}
-            <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
-              <h4>{{ model.verbose_name_plural }}</h4>
-              <h5><small>{{ model.description }}</small></h5>
-            </a>
-          {% endfor %}
-        </div>
-      {% endif %}
-      {% if models_simple %}
-        <h3 class="mt-3">Einfache Datenthemen</h3>
-        <div class="list-group mb-3">
-          {% for model in models_simple %}
-            <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
-              <h4>{{ model.verbose_name_plural }}</h4>
-              <h5><small>{{ model.description }}</small></h5>
-            </a>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% else %}
-      <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
+  {% if models_meta or models_codelist or models_complex or models_simple %}
+    <h2>Datenthemen, die Ihnen zur Verfügung stehen:</h2>
+    {% if models_meta %}
+      <h3 class="mt-3">Meta-Datenthemen</h3>
+      <div class="list-group mb-3">
+        {% for model in models_meta %}
+          <a class="list-group-item list-group-item-action list-group-item-info" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
+            <h4>{{ model.verbose_name_plural }}</h4>
+            <h5><small>{{ model.description }}</small></h5>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if models_codelist %}
+      <h3 class="mt-3">Codelisten</h3>
+      <div class="list-group mb-3">
+        {% for model in models_codelist %}
+          <a class="list-group-item list-group-item-action list-group-item-secondary" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
+            <h4>{{ model.verbose_name_plural }}</h4>
+            <h5><small>{{ model.description }}</small></h5>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if models_complex %}
+      <h3 class="mt-3">Komplexe Datenthemen</h3>
+      <div class="list-group mb-3">
+        {% for model in models_complex %}
+          <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
+            <h4>{{ model.verbose_name_plural }}</h4>
+            <h5><small>{{ model.description }}</small></h5>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if models_simple %}
+      <h3 class="mt-3">Einfache Datenthemen</h3>
+      <div class="list-group mb-3">
+        {% for model in models_simple %}
+          <a class="list-group-item list-group-item-action list-group-item-primary" href="{% url 'datenmanagement:'|add:model.name|add:'_start' %}">
+            <h4>{{ model.verbose_name_plural }}</h4>
+            <h5><small>{{ model.description }}</small></h5>
+          </a>
+        {% endfor %}
+      </div>
     {% endif %}
   {% else %}
-      <div class="mt-4 text-center">
-        <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} me-2 main-logo" src="{% static 'datenmanagement/img/logo.svg' %}" alt="Logo">
-        <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} ms-2 main-logo" src="{% static 'datenmanagement/img/rostock.svg' %}" alt="Rostock">
-      </div>
-      <div class="d-grid mt-4 mx-auto">
-        <h2 class="text-center">
-          Willkommen bei <em><strong>Datenwerft.HRO,</strong></em><br>
-          der Web-Anwendung zur Datenerfassung<br>
-          der Hanse- und Universitätsstadt Rostock!
-        </h2>
-      </div>
-      <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}3{% endif %} mt-4 mx-auto">
-        <a class="btn btn-lg btn-primary" role="button" href="{{ LOGIN_URL }}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
-      </div>
+    <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
   {% endif %}
 {% endblock %}

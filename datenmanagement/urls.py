@@ -44,7 +44,7 @@ urlpatterns = [
   # Liste der Datenthemen, die zur Verfügung stehen
   path(
     '',
-    view=IndexView.as_view(),
+    view=login_required(IndexView.as_view()),
     name='index'
   ),
   # GPXtoGeoJSON:
@@ -88,14 +88,18 @@ for model in app_models:
   urlpatterns.append(
     path(
       model_name + '/data',
-      view=login_required(DataView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataView.as_view(model=model)),
       name=model_name + '_data'
     )
   )
   urlpatterns.append(
     path(
       model_name + '/data/subset/<subset_id>',
-      view=login_required(DataView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataView.as_view(model=model)),
       name=model_name + '_data_subset'
     )
   )
@@ -136,14 +140,18 @@ for model in app_models:
   urlpatterns.append(
     path(
       model_name + '/mapdata',
-      view=login_required(DataMapView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataMapView.as_view(model=model)),
       name=model_name + '_mapdata'
     )
   )
   urlpatterns.append(
     path(
       model_name + '/mapdata/subset/<subset_id>',
-      view=login_required(DataMapView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataMapView.as_view(model=model)),
       name=model_name + '_mapdata_subset'
     )
   )
@@ -245,7 +253,9 @@ for model in app_models:
   urlpatterns.append(
     path(
       model_name + '/geometry',
-      view=login_required(GeometryView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(GeometryView.as_view(model=model)),
       name=model_name + '_geometry'
     )
   )

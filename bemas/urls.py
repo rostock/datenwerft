@@ -18,11 +18,13 @@ def is_bemas_user():
 
   :return: user is a BEMAS user (or an admin)?
   """
-  return user_passes_test(lambda u: u.groups.filter(name__in=[settings.BEMAS_ADMIN_GROUP_NAME,
-                                                              settings.BEMAS_USERS_GROUP_NAME])
-                          or u.is_superuser,
-                          login_url='/datenmanagement/',
-                          redirect_field_name=None)
+  return user_passes_test(
+    lambda u: u.groups.filter(
+      name__in=[settings.BEMAS_ADMIN_GROUP_NAME, settings.BEMAS_USERS_GROUP_NAME]
+    ) or u.is_superuser,
+    login_url='/',
+    redirect_field_name=None
+  )
 
 
 urlpatterns = [

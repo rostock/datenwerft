@@ -30,7 +30,7 @@ LOCAL_APPS = [
   'bemas'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-LOGIN_URL = '/datenwerft/accounts/login'
+LOGIN_REDIRECT_URL = '/'
 MIDDLEWARE = [
   'django.middleware.security.SecurityMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
@@ -172,6 +172,8 @@ STATICFILES_DIRS = (
   ('proj4leaflet', BASE_DIR / 'node_modules/proj4leaflet/src'),
   ('wicket', BASE_DIR / 'node_modules/wicket'),
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
+  ('css', BASE_DIR / 'css'),
+  ('img', BASE_DIR / 'img')
 )
 
 
