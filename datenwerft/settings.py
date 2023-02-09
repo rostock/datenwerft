@@ -26,7 +26,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
   'accounts',
   'toolbox',
-  'datenmanagement'
+  'datenmanagement',
+  'bemas'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_URL = '/datenwerft/accounts/login'
@@ -49,6 +50,7 @@ TEMPLATES = [
     'DIRS': [
       BASE_DIR / 'templates',
       BASE_DIR / 'accounts/templates',
+      BASE_DIR / 'bemas/templates',
       BASE_DIR / 'datenmanagement/templates'
     ],
     'APP_DIRS': True,

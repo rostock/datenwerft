@@ -194,6 +194,12 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
           cd /usr/local/datenwerft/datenwerft
           python manage.py test datenmanagement
 
+-  Tests der App *BEMAS* durchführen:
+
+        source /usr/local/datenwerft/venv/bin/activate
+        cd /usr/local/datenwerft/datenwerft
+        python manage.py test bemas
+
 ## CI/CD
 
 ### Ablauf

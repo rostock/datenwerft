@@ -10,31 +10,32 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import viewsets
 
-from accounts import serializers
-from accounts.forms import ExternalAuthenticationForm
+from .serializers import ContentTypeSerializer, GroupSerializer, PermissionSerializer, \
+  UserSerializer
 from .emails import send_login_code
+from .forms import ExternalAuthenticationForm
 from .models import UserAuthToken
 from .utils import get_client_ip, ip_in_array
 
 
 class PermissionViewSet(viewsets.ModelViewSet):
   queryset = Permission.objects.all()
-  serializer_class = serializers.PermissionSerializer
+  serializer_class = PermissionSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
   queryset = User.objects.all()
-  serializer_class = serializers.UserSerializer
+  serializer_class = UserSerializer
 
 
 class GroupViewSet(viewsets.ModelViewSet):
   queryset = Group.objects.all()
-  serializer_class = serializers.GroupSerializer
+  serializer_class = GroupSerializer
 
 
 class ContentTypeViewSet(viewsets.ModelViewSet):
   queryset = ContentType.objects.all()
-  serializer_class = serializers.ContentTypeSerializer
+  serializer_class = ContentTypeSerializer
   # lookup_field = 'model'
 
 

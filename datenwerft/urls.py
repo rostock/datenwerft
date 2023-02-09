@@ -6,11 +6,13 @@ from django.urls import include, path
 from accounts import urls as accounts_urls
 from toolbox import urls as toolbox_urls
 from datenmanagement import urls as datenmanagement_urls
+from bemas import urls as bemas_urls
 
 api_urlpatterns = []
 api_urlpatterns += accounts_urls.api_urlpatterns
 api_urlpatterns += toolbox_urls.api_urlpatterns
 api_urlpatterns += datenmanagement_urls.api_urlpatterns
+api_urlpatterns += bemas_urls.api_urlpatterns
 
 # Routen der URLs zu Views
 urlpatterns = [
@@ -30,7 +32,10 @@ urlpatterns = [
   path('toolbox/', view=include('toolbox.urls')),
 
   # Routen der App Datenmanagement
-  path('datenmanagement/', view=include('datenmanagement.urls'))
+  path('datenmanagement/', view=include('datenmanagement.urls')),
+
+  # Routen der App BEMAS
+  path('bemas/', view=include('bemas.urls'))
 ]
 
 if settings.DEBUG:

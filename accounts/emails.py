@@ -2,7 +2,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import UserAuthToken
+from .models import UserAuthToken
 
 
 def send_login_code(user):
