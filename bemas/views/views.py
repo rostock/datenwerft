@@ -1,6 +1,6 @@
 from django.views.generic.base import TemplateView
 
-from .functions import is_bemas_user
+from bemas.utils import is_bemas_user
 
 
 class IndexView(TemplateView):
@@ -18,5 +18,8 @@ class IndexView(TemplateView):
     :return: dictionary with all context elements for this view
     """
     context = super().get_context_data(**kwargs)
-    context['is_bemas_user'] = is_bemas_user(self.request.user)
+    if self.request.user.is_superuser or is_bemas_user(self.request.user):
+      context['is_bemas_user'] = True
+    else:
+      context['is_bemas_user'] = False
     return context

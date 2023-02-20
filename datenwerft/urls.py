@@ -2,12 +2,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.admin import site as admin_site
 from django.urls import include, path
-from django.views.generic.base import TemplateView
 
 from accounts import urls as accounts_urls
 from toolbox import urls as toolbox_urls
 from datenmanagement import urls as datenmanagement_urls
 from bemas import urls as bemas_urls
+
+from .views import IndexView
 
 api_urlpatterns = []
 api_urlpatterns += accounts_urls.api_urlpatterns
@@ -40,7 +41,7 @@ urlpatterns = [
   path('bemas/', view=include('bemas.urls')),
 
   # ...main page
-  path('', view=TemplateView.as_view(template_name='index.html'), name='index')
+  path('', view=IndexView.as_view(), name='index')
 ]
 
 if settings.DEBUG:
