@@ -153,7 +153,8 @@ REST_FRAMEWORK = {
 
 
 # Datenwerft.HRO:
-# statische Dateien externer Bibliotheken sowie der Hilfe
+# globale statische Dateien, statische Dateien externer Bibliotheken
+# und statische Dateien der Hilfe
 
 STATICFILES_DIRS = (
   BASE_DIR / 'vendor/',
@@ -172,8 +173,8 @@ STATICFILES_DIRS = (
   ('proj4leaflet', BASE_DIR / 'node_modules/proj4leaflet/src'),
   ('wicket', BASE_DIR / 'node_modules/wicket'),
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
-  ('css', BASE_DIR / 'css'),
-  ('img', BASE_DIR / 'img')
+  ('css', BASE_DIR / 'datenwerft/static/css'),
+  ('img', BASE_DIR / 'datenwerft/static/img')
 )
 
 
