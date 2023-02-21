@@ -1,6 +1,6 @@
 from django.views.generic.base import TemplateView
 
-from bemas.utils import is_bemas_user
+from bemas.utils import is_bemas_admin, is_bemas_user
 
 
 class IndexView(TemplateView):
@@ -22,4 +22,5 @@ class IndexView(TemplateView):
       context['is_bemas_user'] = True
     else:
       context['is_bemas_user'] = False
+    context['is_bemas_admin'] = is_bemas_admin(self.request.user)
     return context

@@ -95,3 +95,5 @@ jobs:
         run: python manage.py test toolbox
       - name: Run tests on app Datenmanagement
         run: python manage.py test datenmanagement
+      - name: Run tests on app BEMAS
+        run: python manage.py test bemas

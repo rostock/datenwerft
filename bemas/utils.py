@@ -1,6 +1,16 @@
 from django.conf import settings
 
 
+def is_bemas_admin(user):
+  """
+  checks if given user is a BEMAS admin
+
+  :param user: user
+  :return: given user is a BEMAS admin?
+  """
+  return user.groups.filter(name=settings.BEMAS_ADMIN_GROUP_NAME)
+
+
 def is_bemas_user(user, only_bemas_user_check=False):
   """
   checks if given user is a BEMAS user
