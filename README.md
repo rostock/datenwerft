@@ -87,8 +87,6 @@ Wenn das Deployment mittels *Apache HTTP Server* realisiert werden soll, **muss*
 
 Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle *Python*-Umgebung einen *Python*-Interpreter der Version 3.6):
 
-        RewriteCond         %{REQUEST_URI} ^/datenwerft/?$
-        RewriteRule         ^.*$ %{REQUEST_URI}/datenmanagement/ [R=301,L]
         Alias               /datenwerft/static /usr/local/datenwerft/datenwerft/static
         Alias               /datenwerft/uploads /usr/local/datenwerft/datenwerft/uploads
         WSGIDaemonProcess   datenwerft processes=2 threads=128 python-path=/usr/local/datenwerft/datenwerft:/usr/local/datenwerft/venv/lib/python3.10/site-packages
