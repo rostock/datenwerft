@@ -1,0 +1,46 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 450 !important;
+}
+
+a,
+a:hover {
+  text-decoration: none;
+}
+
+span.nav-link:focus,
+span.nav-link:hover {
+  color: var(--bs-nav-link-color);
+  cursor: default;
+}
+
+.container-fluid:not(nav > .container-fluid) {
+  width: 90%;
+}
+
+.main-logo {
+  height: 80px;
+}
+
+.modal-footer {
+  justify-content: center !important;
+}
+
+.navbar-logo {
+  height: 30px;
+  margin-bottom: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+.required {
+  font-weight: bold;
+}
