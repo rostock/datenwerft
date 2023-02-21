@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 echo "Checking Django rules via djLint..."
-djlint templates/*.html accounts/templates/accounts/log*.html datenmanagement/templates/datenmanagement/*.html
+djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html

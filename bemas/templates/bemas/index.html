@@ -1,0 +1,12 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}BEMAS | {% endblock %}
+
+{% block content %}
+  {% if is_bemas_user %}
+    <h2 class="text-center"><em>BEMAS</em></h2>
+  {% else %}
+    <h2 class="text-center">Sie haben leider (noch) keine Rechte für <em>BEMAS.</em></h2>
+  {% endif %}
+{% endblock %}

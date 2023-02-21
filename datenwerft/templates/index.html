@@ -1,0 +1,53 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}{% if user.is_authenticated %}Start{% else %}Willkommen{% endif %} | {% endblock %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title"><em>BEMAS</em></h5>
+            <p class="card-text">Beschwerdemanagementsystem für 73.30</p>
+            <a class="btn btn-lg btn-warning" role="button" href="{% url 'bemas:index' %}"><em>BEMAS</em> öffnen</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title">Datenmanagement</h5>
+            <p class="card-text">System zur Bearbeitung von Daten im Rahmen der GDI.HRO</p>
+            <a class="btn btn-lg btn-warning" role="button" href="{% url 'datenmanagement:index' %}">Datenmanagement öffnen</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title">Metadatenpflege</h5>
+            <p class="card-text">System zur Pflege von Metadaten im Rahmen der GDI.HRO</p>
+            <a class="btn btn-lg btn-warning" role="button" href="#">Metadatenpflege öffnen</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+      <div class="mt-4 text-center">
+        <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} me-2 main-logo" src="{% static 'img/logo.svg' %}" alt="Logo">
+        <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} ms-2 main-logo" src="{% static 'img/rostock.svg' %}" alt="Rostock">
+      </div>
+      <div class="d-grid mt-4 mx-auto">
+        <h2 class="text-center">
+          Willkommen bei <em><strong>Datenwerft.HRO,</strong></em><br>
+          der Web-Anwendung zur Datenerfassung<br>
+          der Hanse- und Universitätsstadt Rostock!
+        </h2>
+      </div>
+      <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}3{% endif %} mt-4 mx-auto">
+        <a class="btn btn-lg btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
+      </div>
+  {% endif %}
+{% endblock %}

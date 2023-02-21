@@ -6,31 +6,42 @@ from django.urls import include, path
 from accounts import urls as accounts_urls
 from toolbox import urls as toolbox_urls
 from datenmanagement import urls as datenmanagement_urls
+from bemas import urls as bemas_urls
+
+from .views import IndexView
 
 api_urlpatterns = []
 api_urlpatterns += accounts_urls.api_urlpatterns
 api_urlpatterns += toolbox_urls.api_urlpatterns
 api_urlpatterns += datenmanagement_urls.api_urlpatterns
+api_urlpatterns += bemas_urls.api_urlpatterns
 
-# Routen der URLs zu Views
+
+# routing...
 urlpatterns = [
-  # Routen der Django-Administration
+  # ...Django administration
   path('admin/', view=admin_site.urls),
 
-  # Routen der API-URLs
+  # ...API
   path('api/', include(api_urlpatterns)),
 
-  # Routen der API-Authentifizierung
+  # ...API auth
   path('api-auth/', view=include('rest_framework.urls')),
 
-  # Routen der App Accounts
+  # ...App Accounts
   path('accounts/', view=include('accounts.urls')),
 
-  # Routen der App Toolbox
+  # ...App Toolbox
   path('toolbox/', view=include('toolbox.urls')),
 
-  # Routen der App Datenmanagement
-  path('datenmanagement/', view=include('datenmanagement.urls'))
+  # ...App Datenmanagement
+  path('datenmanagement/', view=include('datenmanagement.urls')),
+
+  # ...App BEMAS
+  path('bemas/', view=include('bemas.urls')),
+
+  # ...main page
+  path('', view=IndexView.as_view(), name='index')
 ]
 
 if settings.DEBUG:

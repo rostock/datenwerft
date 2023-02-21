@@ -593,6 +593,17 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
   löscht ein vorhandenes Datenbankobjekt eines Datensatzes
   """
 
+  def get_context_data(self, **kwargs):
+    """
+    liefert Dictionary mit Kontextelementen des Views
+
+    :param kwargs:
+    :return: Dictionary mit Kontextelementen des Views
+    """
+    context = super(DataDeleteView, self).get_context_data(**kwargs)
+    context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
+    return context
+
   def get_object(self, *args, **kwargs):
     """
     liefert Objekt zurück, das gelöscht werden soll;

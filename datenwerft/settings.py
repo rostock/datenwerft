@@ -26,10 +26,11 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
   'accounts',
   'toolbox',
-  'datenmanagement'
+  'datenmanagement',
+  'bemas'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-LOGIN_URL = '/datenwerft/accounts/login'
+LOGIN_REDIRECT_URL = '/'
 MIDDLEWARE = [
   'django.middleware.security.SecurityMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
@@ -47,8 +48,9 @@ TEMPLATES = [
   {
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
     'DIRS': [
-      BASE_DIR / 'templates',
+      BASE_DIR / 'datenwerft/templates',
       BASE_DIR / 'accounts/templates',
+      BASE_DIR / 'bemas/templates',
       BASE_DIR / 'datenmanagement/templates'
     ],
     'APP_DIRS': True,
@@ -151,7 +153,8 @@ REST_FRAMEWORK = {
 
 
 # Datenwerft.HRO:
-# statische Dateien externer Bibliotheken sowie der Hilfe
+# globale statische Dateien, statische Dateien externer Bibliotheken
+# und statische Dateien der Hilfe
 
 STATICFILES_DIRS = (
   BASE_DIR / 'vendor/',
@@ -170,6 +173,8 @@ STATICFILES_DIRS = (
   ('proj4leaflet', BASE_DIR / 'node_modules/proj4leaflet/src'),
   ('wicket', BASE_DIR / 'node_modules/wicket'),
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
+  ('css', BASE_DIR / 'datenwerft/static/css'),
+  ('img', BASE_DIR / 'datenwerft/static/img')
 )
 
 

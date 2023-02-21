@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import UserAuthToken
+from .models import UserAuthToken
 
 
 class ExternalAuthenticationForm(forms.Form):

@@ -3,13 +3,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import path, reverse_lazy
 from rest_framework.routers import DefaultRouter
 
-from datenmanagement.views.functions import delete_object_immediately
-from datenmanagement.views.api import DatenmanagementViewSet
-from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
-from datenmanagement.views.views_helpers import GeometryView, GPXtoGeoJSON
-from datenmanagement.views.views_index_start import IndexView, StartView
-from datenmanagement.views.views_list_map import DataListView, DataMapListView, \
-  DataMapView, DataView
+from .views.functions import delete_object_immediately
+from .views.api import DatenmanagementViewSet
+from .views.views_form import DataAddView, DataChangeView, DataDeleteView
+from .views.views_helpers import GeometryView, GPXtoGeoJSON
+from .views.views_index_start import IndexView, StartView
+from .views.views_list_map import DataListView, DataMapListView, DataMapView, DataView
 
 
 router = DefaultRouter()
@@ -43,11 +42,18 @@ app_name = 'datenmanagement'
 urlpatterns = [
   # IndexView:
   # Liste der Datenthemen, die zur Verfügung stehen
-  path('', view=IndexView.as_view(), name='index'),
-
+  path(
+    '',
+    view=login_required(IndexView.as_view()),
+    name='index'
+  ),
   # GPXtoGeoJSON:
   # Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
-  path('gpxtogeojson', view=login_required()(GPXtoGeoJSON.as_view()), name='gpxtogeojson')
+  path(
+    'gpxtogeojson',
+    view=login_required(GPXtoGeoJSON.as_view()),
+    name='gpxtogeojson'
+  )
 ]
 
 #
@@ -82,14 +88,18 @@ for model in app_models:
   urlpatterns.append(
     path(
       model_name + '/data',
-      view=login_required(DataView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataView.as_view(model=model)),
       name=model_name + '_data'
     )
   )
   urlpatterns.append(
     path(
       model_name + '/data/subset/<subset_id>',
-      view=login_required(DataView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataView.as_view(model=model)),
       name=model_name + '_data_subset'
     )
   )
@@ -130,14 +140,18 @@ for model in app_models:
   urlpatterns.append(
     path(
       model_name + '/mapdata',
-      view=login_required(DataMapView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataMapView.as_view(model=model)),
       name=model_name + '_mapdata'
     )
   )
   urlpatterns.append(
     path(
       model_name + '/mapdata/subset/<subset_id>',
-      view=login_required(DataMapView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(DataMapView.as_view(model=model)),
       name=model_name + '_mapdata_subset'
     )
   )
@@ -239,7 +253,9 @@ for model in app_models:
   urlpatterns.append(
     path(
       model_name + '/geometry',
-      view=login_required(GeometryView.as_view(model=model)),
+      view=permission_required(
+        'datenmanagement.view_' + model_name_lower
+      )(GeometryView.as_view(model=model)),
       name=model_name + '_geometry'
     )
   )
