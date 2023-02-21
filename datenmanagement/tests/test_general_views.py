@@ -14,12 +14,13 @@ class IndexViewTest(DefaultTestCase):
   def setUp(self):
     self.init()
 
-  def generic_view_test(self, login, string):
+  def generic_view_test(self, login, status_code, string=''):
     """
     testet den View
 
     :param self
     :param login: mit Login?
+    :param status_code: : Status-Code, den die Antwort aufweisen soll
     :param string: bestimmter Wert, der in Antwort enthalten sein soll
     """
     if login:
@@ -29,19 +30,20 @@ class IndexViewTest(DefaultTestCase):
       )
     # Seite via GET aufrufen
     response = self.client.get(reverse('datenmanagement:index'))
-    # Aufruf erfolgreich?
-    self.assertEqual(response.status_code, 200)
+    # Status-Code der Antwort wie erwartet?
+    self.assertEqual(response.status_code, status_code)
     # Content-Type der Antwort wie erwartet?
     self.assertEqual(response['content-type'].lower(), 'text/html; charset=utf-8')
-    # Antwort enthält bestimmten Wert?
-    self.assertIn(string, str(response.content))
+    if string:
+      # Antwort enthält bestimmten Wert?
+      self.assertIn(string, str(response.content))
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_logged_in(self):
-    self.generic_view_test(True, 'keine Datenthemen')
+    self.generic_view_test(True, 200, 'keine Datenthemen')
 
   def test_view_not_logged_in(self):
-    self.generic_view_test(False, 'Willkommen bei')
+    self.generic_view_test(False, 302)
 
 
 class GPXtoGeoJSONTest(DefaultTestCase):
