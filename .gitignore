@@ -7,8 +7,6 @@ db.sqlite3
 
 # Datenwerft.HRO
 datenwerft/secrets.py
-datenwerft/static
-datenwerft/uploads
 datenmanagement/migrations
 hilfe/build
 /static
