@@ -24,7 +24,7 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
-  get_pre_save_instance, path_and_rename, photo_post_processing
+  get_pre_save_instance, path_and_rename, photo_post_processing, sequence_id
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
   Altersklassen_Kadaverfunde, Arten_Baudenkmale, Arten_FairTrade, Arten_Feldsportanlagen, \
   Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
@@ -35,8 +35,9 @@ from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeinde
   Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
   Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
   Raeumbreiten_Strassenreinigungssatzung_HRO, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
-  Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Sportarten, Status_Poller, Tierseuchen, \
-  Typen_Abfallbehaelter, Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, \
+  Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Sportarten, \
+  Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
+  Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, \
   Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
@@ -398,6 +399,23 @@ class Baudenkmale(SimpleModel):
   Baudenkmale
   """
 
+  deaktiviert = DateField(
+    ' gestrichen am',
+    blank=True,
+    null=True
+  )
+  id = PositiveIntegerField(
+    'ID',
+    default=sequence_id('fachdaten_adressbezug.baudenkmale_hro_id_seq')
+  )
+  status = ForeignKey(
+    Status_Baudenkmale_Denkmalbereiche,
+    verbose_name='Status',
+    on_delete=RESTRICT,
+    db_column='status',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_status'
+  )
   adresse = ForeignKey(
     Adressen,
     verbose_name='Adresse',
@@ -428,6 +446,7 @@ class Baudenkmale(SimpleModel):
     max_length=255,
     validators=standard_validators
   )
+  landschaftsdenkmal = BooleanField(' Landschaftsdenkmal?')
   geometrie = multipolygon_field
 
   class Meta(SimpleModel.Meta):
@@ -437,22 +456,35 @@ class Baudenkmale(SimpleModel):
     description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
+      'deaktiviert': 'gestrichen am',
+      'id': 'ID',
+      'status': 'Status',
       'adresse': 'Adresse',
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung'
+      'beschreibung': 'Beschreibung',
+      'landschaftsdenkmal': 'Landschaftsdenkmal?'
     }
+    list_fields_with_date = ['deaktiviert']
+    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
+      'status': 'Status',
       'adresse': 'adresse',
       'art': 'art'
     }
-    map_feature_tooltip_field = 'beschreibung'
+    readonly_fields = ['deaktiviert', 'id']
+    map_feature_tooltip_field = 'id'
     map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'deaktiviert': 'gestrichen am',
+      'id': 'ID',
+      'status': 'Status',
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung'
+      'beschreibung': 'Beschreibung',
+      'landschaftsdenkmal': 'Landschaftsdenkmal?'
     }
-    map_filter_fields_as_list = ['art']
+    map_filter_fields_as_list = ['art', 'status']
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'MultiPolygon'
@@ -1183,6 +1215,23 @@ class Denkmalbereiche(SimpleModel):
   Denkmalbereiche
   """
 
+  deaktiviert = DateField(
+    ' gestrichen am',
+    blank=True,
+    null=True
+  )
+  id = PositiveIntegerField(
+    'ID',
+    default=sequence_id('fachdaten.denkmalbereiche_hro_id_seq')
+  )
+  status = ForeignKey(
+    Status_Baudenkmale_Denkmalbereiche,
+    verbose_name='Status',
+    on_delete=RESTRICT,
+    db_column='status',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_status'
+  )
   bezeichnung = CharField(
     'Bezeichnung',
     max_length=255,
@@ -1202,14 +1251,28 @@ class Denkmalbereiche(SimpleModel):
     description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
+      'deaktiviert': 'gestrichen am',
+      'id': 'ID',
+      'status': 'Status',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    list_fields_with_date = ['deaktiviert']
+    list_fields_with_number = ['id']
+    list_fields_with_foreign_key = {
+      'status': 'Status'
+    }
+    readonly_fields = ['deaktiviert', 'id']
+    map_feature_tooltip_field = 'id'
     map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'deaktiviert': 'gestrichen am',
+      'id': 'ID',
+      'status': 'Status',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung'
     }
+    map_filter_fields_as_list = ['status']
     geometry_type = 'MultiPolygon'
     as_overlay = True
 

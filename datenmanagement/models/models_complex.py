@@ -1382,6 +1382,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
       'hst_hafas_id': 'HAFAS-ID',
       'hst_bus_bahnsteigbezeichnung': 'Bus-/Bahnsteigbezeichnung'
     }
+    list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     associated_models = {
       'Haltestellenkataster_Fotos': 'haltestellenkataster_haltestelle'

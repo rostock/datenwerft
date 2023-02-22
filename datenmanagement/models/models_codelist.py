@@ -1567,6 +1567,18 @@ class Sportarten(Codelist):
     return self.bezeichnung
 
 
+class Status_Baudenkmale_Denkmalbereiche(Status):
+  """
+  Status von Pollern
+  """
+
+  class Meta(Status.Meta):
+    db_table = 'codelisten\".\"status_baudenkmale_denkmalbereiche'
+    verbose_name = 'Status eines Baudenkmals oder Denkmalbereichs'
+    verbose_name_plural = 'Status von Baudenkmalen und Denkmalbereichen'
+    description = 'Status von Baudenkmalen und Denkmalbereichen'
+
+
 class Status_Baustellen_geplant(Status):
   """
   Status von Baustellen (geplant)
