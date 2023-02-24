@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -1063,6 +1063,19 @@ CREATE TABLE codelisten.sportarten (
 
 
 --
+-- Name: status_baudenkmale_denkmalbereiche; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.status_baudenkmale_denkmalbereiche (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    status character varying(255) NOT NULL,
+    CONSTRAINT status_check CHECK ((((status)::text !~ '^ '::text) AND ((status)::text !~ ' $'::text) AND ((status)::text !~ '´'::text) AND ((status)::text !~ '`'::text) AND ((status)::text !~ '  '::text) AND ((status)::text !~ '"'::text) AND ((status)::text !~ ''''::text)))
+);
+
+
+--
 -- Name: status_baustellen_fotodokumentation_fotos; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1511,8 +1524,35 @@ CREATE TABLE fachdaten.denkmalbereiche_hro (
     deaktiviert date,
     bezeichnung character varying(255),
     beschreibung character varying(255) NOT NULL,
-    geometrie public.geometry(MultiPolygon,25833) NOT NULL
+    geometrie public.geometry(MultiPolygon,25833) NOT NULL,
+    id integer NOT NULL,
+    status uuid NOT NULL,
+    unterschutzstellungen date[],
+    hinweise character varying(500),
+    aenderungen character varying(500),
+    veroeffentlichungen date[],
+    denkmalnummern character varying(255)[]
 );
+
+
+--
+-- Name: denkmalbereiche_hro_id_seq; Type: SEQUENCE; Schema: fachdaten; Owner: -
+--
+
+CREATE SEQUENCE fachdaten.denkmalbereiche_hro_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: denkmalbereiche_hro_id_seq; Type: SEQUENCE OWNED BY; Schema: fachdaten; Owner: -
+--
+
+ALTER SEQUENCE fachdaten.denkmalbereiche_hro_id_seq OWNED BY fachdaten.denkmalbereiche_hro.id;
 
 
 --
@@ -2340,8 +2380,37 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     art uuid NOT NULL,
     bezeichnung character varying(255),
     beschreibung character varying(255) NOT NULL,
-    geometrie public.geometry(MultiPolygon,25833) NOT NULL
+    geometrie public.geometry(MultiPolygon,25833) NOT NULL,
+    id integer NOT NULL,
+    status uuid NOT NULL,
+    landschaftsdenkmal boolean NOT NULL,
+    vorherige_beschreibung character varying(255),
+    hinweise character varying(500),
+    aenderungen character varying(500),
+    unterschutzstellungen date[],
+    veroeffentlichungen date[],
+    denkmalnummern character varying(255)[]
 );
+
+
+--
+-- Name: baudenkmale_hro_id_seq; Type: SEQUENCE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE SEQUENCE fachdaten_adressbezug.baudenkmale_hro_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: baudenkmale_hro_id_seq; Type: SEQUENCE OWNED BY; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER SEQUENCE fachdaten_adressbezug.baudenkmale_hro_id_seq OWNED BY fachdaten_adressbezug.baudenkmale_hro.id;
 
 
 --
@@ -3057,10 +3126,24 @@ CREATE TABLE fachdaten_strassenbezug.strassenreinigung_hro (
 
 
 --
+-- Name: denkmalbereiche_hro id; Type: DEFAULT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.denkmalbereiche_hro ALTER COLUMN id SET DEFAULT nextval('fachdaten.denkmalbereiche_hro_id_seq'::regclass);
+
+
+--
 -- Name: haltestellenkataster_haltestellen_hro id; Type: DEFAULT; Schema: fachdaten; Owner: -
 --
 
 ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro ALTER COLUMN id SET DEFAULT nextval('fachdaten.haltestellenkataster_haltestellen_hro_id_seq'::regclass);
+
+
+--
+-- Name: baudenkmale_hro id; Type: DEFAULT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro ALTER COLUMN id SET DEFAULT nextval('fachdaten_adressbezug.baudenkmale_hro_id_seq'::regclass);
 
 
 --
@@ -4125,6 +4208,22 @@ ALTER TABLE ONLY codelisten.sportarten
 
 ALTER TABLE ONLY codelisten.sportarten
     ADD CONSTRAINT sportarten_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: status_baudenkmale_denkmalbereiche status_baudenkmale_denkmalbereiche_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.status_baudenkmale_denkmalbereiche
+    ADD CONSTRAINT status_baudenkmale_denkmalbereiche_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: status_baudenkmale_denkmalbereiche status_baudenkmale_denkmalbereiche_status_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.status_baudenkmale_denkmalbereiche
+    ADD CONSTRAINT status_baudenkmale_denkmalbereiche_status_unique UNIQUE (status);
 
 
 --
@@ -5497,6 +5596,14 @@ ALTER TABLE ONLY fachdaten.containerstellplaetze_hro
 
 
 --
+-- Name: denkmalbereiche_hro denkmalbereiche_hro_status_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.denkmalbereiche_hro
+    ADD CONSTRAINT denkmalbereiche_hro_status_fk FOREIGN KEY (status) REFERENCES codelisten.status_baudenkmale_denkmalbereiche(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: durchlaesse_durchlaesse_hro durchlaesse_durchlaesse_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6094,6 +6201,14 @@ ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro
     ADD CONSTRAINT baudenkmale_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_baudenkmale(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: baudenkmale_hro baudenkmale_hro_status_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro
+    ADD CONSTRAINT baudenkmale_hro_status_fk FOREIGN KEY (status) REFERENCES codelisten.status_baudenkmale_denkmalbereiche(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

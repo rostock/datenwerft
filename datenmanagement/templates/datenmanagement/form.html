@@ -593,6 +593,65 @@
         });
       {% endif %}
 
+      // Array-Felder behandeln
+      $('[is_array_field="true"]').each(function () {
+        // Werte behandeln, falls das Feld nicht leer ist
+        let values = $(this).val();
+        console.log(values);
+        let lastField = $(this);
+        if (values) {
+          // Werte in JavaScript-Array parsen
+          values = values.replace(/'/g, '"');
+          let valuesParsed = JSON.parse(values);
+          // ersten Wert in erstes (ursprüngliches) Feld schreiben
+          $(this).attr('value', valuesParsed[0]);
+          $(this).val(valuesParsed[0]);
+          // für jeden weiteren Wert...
+          if (valuesParsed.length > 1) {
+            for (let i = 1; i < valuesParsed.length; i++) {
+              // erstes (ursprüngliches) klonen und als neues Feld definieren
+              let newField = $(this).clone();
+              newField.attr('id', $(this).attr('id') + '_' + i);
+              newField.attr('name', $(this).attr('name') + '_' + i);
+              newField.attr('style', 'margin-top:0.5rem');
+              newField.removeAttr('is_array_field');
+              // passenden Wert in neues Feld schreiben
+              newField.attr('value', valuesParsed[i]);
+              newField.val(valuesParsed[i]);
+              // neues Feld an richtiger Stelle einfügen
+              if (i === 1)
+                newField.insertAfter($(this));
+              else
+                newField.insertAfter($('#' + $(this).attr('id') + '_' + i));
+              lastField = newField;
+            }
+          }
+        }
+        // Button zum Hinzufügen eines weiteren Feldes ergänzen
+        let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
+        addAnotherField.insertAfter(lastField);
+        addAnotherField.click(function () {
+          // vorheriges Feld klonen und als neues, leeres Feld definieren
+          let lastField = $(this).prev();
+          let newField = lastField.clone();
+          let i = 1;
+          if (/_[0-9]*$/.test(lastField.attr('name'))) {
+            i = Number(lastField.attr('name').replace(/.*_/, '')) + 1;
+            newField.attr('id', lastField.attr('id').replace(/_[0-9]*$/, '') + '_' + i);
+            newField.attr('name', lastField.attr('name').replace(/_[0-9]*$/, '') + '_' + i);
+          } else {
+            newField.attr('id', lastField.attr('id') + '_' + i);
+            newField.attr('name', lastField.attr('name') + '_' + i);
+          }
+          newField.attr('style', 'margin-top:0.5rem');
+          newField.removeAttr('is_array_field');
+          newField.removeAttr('value');
+          newField.val('');
+          // neues Feld an richtiger Stelle einfügen
+          newField.insertAfter(lastField);
+        });
+      });
+
       // Multi-Foto-Upload-Feld behandeln
       let fotoField = $('input#id_foto');
       if (fotoField.length) {

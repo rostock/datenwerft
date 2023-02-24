@@ -64,8 +64,8 @@ class DataForm(ModelForm):
             self.instance._meta, 'address_mandatory') else None)
 
     for field in self.model._meta.get_fields():
+      # Textfelder gegebenenfalls in Auswahllisten umwandeln
       if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-        # Textfelder gegebenenfalls in Auswahllisten umwandeln
         if (
             self.group_with_users_for_choice_field
             and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()

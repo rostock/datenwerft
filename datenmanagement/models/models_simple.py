@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
@@ -434,19 +435,65 @@ class Baudenkmale(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_arten'
   )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
-  )
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
     validators=standard_validators
   )
+  vorherige_beschreibung = CharField(
+    ' vorherige Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  unterschutzstellungen = ArrayField(
+    DateField(
+      verbose_name='Unterschutzstellungen',
+      blank=True,
+      null=True
+    ),
+    verbose_name='Unterschutzstellungen',
+    blank=True,
+    null=True
+  )
+  veroeffentlichungen = ArrayField(
+    DateField(
+      verbose_name='Veröffentlichungen',
+      blank=True,
+      null=True
+    ),
+    verbose_name='Veröffentlichungen',
+    blank=True,
+    null=True
+  )
+  denkmalnummern = ArrayField(
+    CharField(
+      verbose_name='Denkmalnummern',
+      blank=True,
+      null=True,
+      max_length=255,
+      validators=standard_validators
+    ),
+    verbose_name='Denkmalnummern',
+    blank=True,
+    null=True
+  )
   landschaftsdenkmal = BooleanField(' Landschaftsdenkmal?')
+  hinweise = NullTextField(
+    'Hinweise',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  aenderungen = NullTextField(
+    'Änderungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   geometrie = multipolygon_field
 
   class Meta(SimpleModel.Meta):
@@ -461,14 +508,13 @@ class Baudenkmale(SimpleModel):
       'status': 'Status',
       'adresse': 'Adresse',
       'art': 'Art',
-      'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
       'landschaftsdenkmal': 'Landschaftsdenkmal?'
     }
     list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
-      'status': 'Status',
+      'status': 'status',
       'adresse': 'adresse',
       'art': 'art'
     }
@@ -480,7 +526,6 @@ class Baudenkmale(SimpleModel):
       'id': 'ID',
       'status': 'Status',
       'art': 'Art',
-      'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
       'landschaftsdenkmal': 'Landschaftsdenkmal?'
     }
@@ -1242,6 +1287,52 @@ class Denkmalbereiche(SimpleModel):
     max_length=255,
     validators=standard_validators
   )
+  unterschutzstellungen = ArrayField(
+    DateField(
+      verbose_name='Unterschutzstellungen',
+      blank=True,
+      null=True
+    ),
+    verbose_name='Unterschutzstellungen',
+    blank=True,
+    null=True
+  )
+  veroeffentlichungen = ArrayField(
+    DateField(
+      verbose_name='Veröffentlichungen',
+      blank=True,
+      null=True
+    ),
+    verbose_name='Veröffentlichungen',
+    blank=True,
+    null=True
+  )
+  denkmalnummern = ArrayField(
+    CharField(
+      verbose_name='Denkmalnummern',
+      blank=True,
+      null=True,
+      max_length=255,
+      validators=standard_validators
+    ),
+    verbose_name='Denkmalnummern',
+    blank=True,
+    null=True
+  )
+  hinweise = NullTextField(
+    'Hinweise',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  aenderungen = NullTextField(
+    'Änderungen',
+    max_length=500,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   geometrie = multipolygon_field
 
   class Meta(SimpleModel.Meta):
@@ -1260,7 +1351,7 @@ class Denkmalbereiche(SimpleModel):
     list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
-      'status': 'Status'
+      'status': 'status'
     }
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'

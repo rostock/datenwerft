@@ -1569,7 +1569,7 @@ class Sportarten(Codelist):
 
 class Status_Baudenkmale_Denkmalbereiche(Status):
   """
-  Status von Pollern
+  Status von Baudenkmalen und Denkmalbereichen
   """
 
   class Meta(Status.Meta):

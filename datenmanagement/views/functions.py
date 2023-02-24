@@ -20,39 +20,42 @@ def assign_widgets(field):
   :param field: Feld
   :return: Formularelement (Widget) zu übergebenem Feld
   """
+  # Array-Felder als solche markieren,
+  # ihre Klasse jedoch mit jener ihres Basisfeldes überschreiben
+  is_array_field = False
+  if field.__class__.__name__ == 'ArrayField':
+    field = field.base_field
+    is_array_field = True
   form_field = field.formfield()
   if (
       form_field.widget.__class__.__name__ == 'Select'
       or form_field.widget.__class__.__name__ == 'NullBooleanSelect'
   ):
     form_field.widget.attrs['class'] = 'form-select'
-    return form_field
   elif form_field.widget.__class__.__name__ == 'Textarea':
     form_field.widget.attrs['class'] = 'form-control'
-    return form_field
   elif field.name == 'geometrie':
-    return field.formfield(widget=LeafletWidget())
+    form_field = field.formfield(widget=LeafletWidget())
   elif field.__class__.__name__ == 'CharField' and field.name == 'farbe':
-    return field.formfield(widget=TextInput(attrs={
+    form_field = field.formfield(widget=TextInput(attrs={
       'type': 'color',
       'class': 'form-control-color'
     }))
   elif field.__class__.__name__ == 'ChoiceArrayField':
-    return field.formfield(empty_value=None,
-                           widget=CheckboxSelectMultiple())
+    form_field = field.formfield(empty_value=None, widget=CheckboxSelectMultiple())
   elif field.__class__.__name__ == 'DateField':
-    return field.formfield(widget=TextInput(attrs={
+    form_field = field.formfield(widget=TextInput(attrs={
       'type': 'date',
       'class': 'form-control'
     }))
   elif field.__class__.__name__ == 'DateTimeField':
-    return field.formfield(widget=TextInput(attrs={
+    form_field = field.formfield(widget=TextInput(attrs={
       'type': 'datetime-local',
       'class': 'form-control',
       'step': '1'
     }))
   elif field.__class__.__name__ == 'TimeField':
-    return field.formfield(widget=TextInput(attrs={
+    form_field = field.formfield(widget=TextInput(attrs={
       'type': 'time',
       'class': 'form-control',
       'step': '1'
@@ -63,7 +66,10 @@ def assign_widgets(field):
         form_field.widget.attrs['class'] = 'form-check-input'
       else:
         form_field.widget.attrs['class'] = 'form-control'
-    return form_field
+  # Markierung als Array-Feld als HTML-Attribut in Formularfeld übertragen, falls vorhanden
+  if is_array_field:
+    form_field.widget.attrs['is_array_field'] = 'true'
+  return form_field
 
 
 def delete_object_immediately(request, pk):

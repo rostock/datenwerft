@@ -29,8 +29,13 @@ input[name="strasse"] {
 }
 
 #postcode-assigner.enabled,
+.add-another-field,
 .value-assigner.enabled {
   cursor: pointer;
+}
+
+.add-another-field {
+  margin-top: 0.5rem;
 }
 
 .label-with-margin {

@@ -19,9 +19,10 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Schiffsliegeplaetze, Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, \
   Schutzzaeune_Tierseuchen, Sportarten, Sporthallen, Stadtteil_Begegnungszentren, \
   Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
-  Standortqualitaeten_Wohnlagen_Sanierungsgebiet, Status_Poller, Strassen, Strassen_Simple, \
-  Strassenreinigung, Thalasso_Kurwege, Tierseuchen, Toiletten, Trinkwassernotbrunnen, Vereine, \
-  Verkaufstellen_Angelberechtigungen, Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
+  Standortqualitaeten_Wohnlagen_Sanierungsgebiet, Status_Baudenkmale_Denkmalbereiche, \
+  Status_Poller, Strassen, Strassen_Simple, Strassenreinigung, Thalasso_Kurwege, Tierseuchen, \
+  Toiletten, Trinkwassernotbrunnen, Vereine, Verkaufstellen_Angelberechtigungen, \
+  Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
 from datenmanagement.models.functions import current_year
 
 from .base import DefaultSimpleModelTestCase
@@ -763,12 +764,17 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
+    status_baudenkmal = Status_Baudenkmale_Denkmalbereiche.objects.create(
+      status='Status'
+    )
     art_baudenkmal = Arten_Baudenkmale.objects.create(
       art='Art'
     )
     cls.attributes_values_db_initial = {
+      'status': status_baudenkmal,
       'art': art_baudenkmal,
       'beschreibung': 'Beschreibung1',
+      'landschaftsdenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_DB
     }
     cls.attributes_values_db_updated = {
@@ -776,14 +782,20 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
+      'id': 2,
+      'status': str(status_baudenkmal.pk),
       'art': str(art_baudenkmal.pk),
       'beschreibung': 'Beschreibung3',
+      'landschaftsdenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
+      'id': 3,
+      'status': str(status_baudenkmal.pk),
       'art': str(art_baudenkmal.pk),
       'beschreibung': 'Beschreibung4',
+      'landschaftsdenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -2195,28 +2207,46 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
   """
 
   model = Denkmalbereiche
-  attributes_values_db_initial = {
-    'bezeichnung': 'Bezeichnung1',
-    'beschreibung': 'Beschreibung1',
-    'geometrie': VALID_MULTIPOLYGON_DB
-  }
-  attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2',
-    'beschreibung': 'Beschreibung2'
-  }
-  attributes_values_view_initial = {
-    'bezeichnung': 'Bezeichnung3',
-    'beschreibung': 'Beschreibung3',
-    'geometrie': VALID_MULTIPOLYGON_VIEW
-  }
-  attributes_values_view_updated = {
-    'bezeichnung': 'Bezeichnung4',
-    'beschreibung': 'Beschreibung4',
-    'geometrie': VALID_MULTIPOLYGON_VIEW
-  }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    status_denkmalbereich = Status_Baudenkmale_Denkmalbereiche.objects.create(
+      status='Status'
+    )
+    cls.attributes_values_db_initial = {
+      'status': status_denkmalbereich,
+      'bezeichnung': 'Bezeichnung1',
+      'beschreibung': 'Beschreibung1',
+      'geometrie': VALID_MULTIPOLYGON_DB
+    }
+    cls.attributes_values_db_updated = {
+      'bezeichnung': 'Bezeichnung2',
+      'beschreibung': 'Beschreibung2'
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'id': 2,
+      'status': str(status_denkmalbereich.pk),
+      'bezeichnung': 'Bezeichnung3',
+      'beschreibung': 'Beschreibung3',
+      'geometrie': VALID_MULTIPOLYGON_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'id': 3,
+      'status': str(status_denkmalbereich.pk),
+      'bezeichnung': 'Bezeichnung4',
+      'beschreibung': 'Beschreibung4',
+      'geometrie': VALID_MULTIPOLYGON_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'beschreibung': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
   def setUp(self):
     self.init()
