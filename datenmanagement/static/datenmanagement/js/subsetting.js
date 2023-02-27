@@ -7,12 +7,12 @@
  *
  * behandelt und übergibt eine Filtermenge
  *
- * @param {String[]} keys - Liste mit Primärschlüsseln von Objekten einer Filtermenge
- * @param {String} subsetURL - URL des Toolbox-Views zum Erstellen eines neuen Subsets
- * @param {String} modelName - Name des Datenmodells mit den Objekten
- * @param {String} modelPrimaryKeyField - Feld mit Primärschlüsseln im Datenmodell mit den Objekten
- * @param {String} successURL - URL zum Öffnen im Erfolgsfall
- * @param {String} errorText - Text für Fehlermeldung
+ * @param {string[]} keys - Liste mit Primärschlüsseln von Objekten einer Filtermenge
+ * @param {string} subsetURL - URL des Toolbox-Views zum Erstellen eines neuen Subsets
+ * @param {string} modelName - Name des Datenmodells mit den Objekten
+ * @param {string} modelPrimaryKeyField - Feld mit Primärschlüsseln im Datenmodell mit den Objekten
+ * @param {string} successURL - URL zum Öffnen im Erfolgsfall
+ * @param {string} errorText - Text für Fehlermeldung
  */
 function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL, errorText) {
   let errorModalTitle = 'Keine Übernahme der aktuellen Filtermenge möglich!';

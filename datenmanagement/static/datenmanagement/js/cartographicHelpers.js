@@ -8,7 +8,7 @@
  * konfiguriert Leaflet-Geoman in der übergebenen Karte
  *
  * @param {Object} map - Karte
- * @param {String} [geometryType=''] - Geometrietyp des aktuellen Datenthemas im Formular
+ * @param {string} [geometryType=''] - Geometrietyp des aktuellen Datenthemas im Formular
  */
 function configureLeafletGeoman(map, geometryType = '') {
   // eigene Übersetzungen definieren

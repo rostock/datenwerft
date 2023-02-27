@@ -206,10 +206,10 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
         {% if object and user|user_has_model_add_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
           <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
@@ -514,6 +514,9 @@
      * Hauptfunktion
      */
     $(document).ready(function () {
+      // Variable definieren für Array-Felder und deren Inhalte, die als Inhalt mehr als einen Wert umfassen
+      let arrayFieldsValues = {{ array_fields_values|safe }};
+
       // globale Variablen für die Anzeige des Hinweis-Modals
       // in Bezug auf das Zuschalten zusätzlicher Datenthemen und/oder WFS-Feature-Types
       window.showWFSZoomModal = true;
@@ -595,60 +598,48 @@
 
       // Array-Felder behandeln
       $('[is_array_field="true"]').each(function () {
-        // Werte behandeln, falls das Feld nicht leer ist
-        let values = $(this).val();
-        console.log(values);
-        let lastField = $(this);
-        if (values) {
-          // Werte in JavaScript-Array parsen
-          values = values.replace(/'/g, '"');
-          let valuesParsed = JSON.parse(values);
-          // ersten Wert in erstes (ursprüngliches) Feld schreiben
-          $(this).attr('value', valuesParsed[0]);
-          $(this).val(valuesParsed[0]);
-          // für jeden weiteren Wert...
-          if (valuesParsed.length > 1) {
-            for (let i = 1; i < valuesParsed.length; i++) {
-              // erstes (ursprüngliches) klonen und als neues Feld definieren
-              let newField = $(this).clone();
-              newField.attr('id', $(this).attr('id') + '_' + i);
-              newField.attr('name', $(this).attr('name') + '_' + i);
-              newField.attr('style', 'margin-top:0.5rem');
-              newField.removeAttr('is_array_field');
-              // passenden Wert in neues Feld schreiben
-              newField.attr('value', valuesParsed[i]);
-              newField.val(valuesParsed[i]);
-              // neues Feld an richtiger Stelle einfügen
-              if (i === 1)
-                newField.insertAfter($(this));
-              else
-                newField.insertAfter($('#' + $(this).attr('id') + '_' + i));
-              lastField = newField;
-            }
+        let currentField = $(this);
+        let currentFieldId = currentField.attr('id');
+        let currentFieldName = currentField.attr('name');
+        // sofern Array-Feld mehr als einen Wert umfasst
+        // (und damit in der Variable für Array-Felder und deren Inhalte existiert,
+        // die als Inhalt mehr als einen Wert umfassen)...
+        if (arrayFieldsValues[currentFieldName]) {
+          let valuesParsed = arrayFieldsValues[currentFieldName];
+          // für jeden Wert...
+          for (let i = 0; i < valuesParsed.length; i++) {
+            // erstes (ursprüngliches) Feld klonen und als neues Feld definieren
+            let newField = currentField.clone();
+            cleanField(newField, i + 1, currentFieldId, currentFieldName);
+            // passenden Wert in neues Feld schreiben
+            newField.attr('value', valuesParsed[i]);
+            newField.val(valuesParsed[i]);
+            // neues Feld an richtiger Stelle einfügen
+            newField.insertAfter(i === 0 ? currentField : $('#' + currentFieldId + '_' + i));
+            currentField = newField;
+            // Button zum Löschen des zuvor eingefügten Feldes definieren
+            addDeleteFieldButton(currentField)
           }
         }
         // Button zum Hinzufügen eines weiteren Feldes ergänzen
         let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
-        addAnotherField.insertAfter(lastField);
+        addAnotherField.insertAfter(currentField);
+        // bei Klick auf zuvor ergänzten Button...
         addAnotherField.click(function () {
           // vorheriges Feld klonen und als neues, leeres Feld definieren
-          let lastField = $(this).prev();
-          let newField = lastField.clone();
+          let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
+          let newField = currentField.clone();
           let i = 1;
-          if (/_[0-9]*$/.test(lastField.attr('name'))) {
-            i = Number(lastField.attr('name').replace(/.*_/, '')) + 1;
-            newField.attr('id', lastField.attr('id').replace(/_[0-9]*$/, '') + '_' + i);
-            newField.attr('name', lastField.attr('name').replace(/_[0-9]*$/, '') + '_' + i);
-          } else {
-            newField.attr('id', lastField.attr('id') + '_' + i);
-            newField.attr('name', lastField.attr('name') + '_' + i);
-          }
-          newField.attr('style', 'margin-top:0.5rem');
-          newField.removeAttr('is_array_field');
+          if (/_[0-9]*$/.test(currentField.attr('name')))
+            i = Number(currentField.attr('name').replace(/.*_/, '')) + 1;
+          cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
           newField.removeAttr('value');
           newField.val('');
-          // neues Feld an richtiger Stelle einfügen
-          newField.insertAfter(lastField);
+          // neues Feld an richtiger Stelle einfügen und mit Button zum Löschen des Feldes versehen
+          let wrapper = $('<div/>', { class: 'input-group' });
+          wrapper.append(newField);
+          wrapper.insertAfter(currentField);
+          addDeleteFieldButton(newField);
         });
       });
 
@@ -812,6 +803,44 @@
 
     /**
      * @function
+     * @name cleanField
+     *
+     * @param {Object} field - Feld
+     * @param {number} i - laufende Nummer für Attribute id und name des Feldes
+     * @param {string} id - Basistext für Attribut id des Feldes
+     * @param {string} name - Basistext für Attribut name des Feldes
+     *
+     * bereinigt ein Einzelfeld innerhalb eines Array-Feld-Komplexes
+     */
+    function cleanField(field, i, id, name) {
+      field.children('input:nth-child(1)').attr('id', id + '_' + i);
+      field.children('input:nth-child(1)').attr('name', name + '_' + i);
+      field.children('input:nth-child(1)').attr('style', 'margin-top:0.5rem');
+      field.children('input:nth-child(1)').removeAttr('is_array_field');
+    }
+
+    /**
+     * @function
+     * @name addDeleteFieldButton
+     *
+     * @param {Object} field - Feld
+     *
+     * ergänzt einen Button zum Löschen eines Einzelfeldes innerhalb eines Array-Feld-Komplexes
+     */
+    function addDeleteFieldButton(field) {
+      // Button erzeugen
+      let deleteFieldButton = $('<button class="input-reset btn btn-warning"><i class="fas fa-trash" title="Wert löschen"></i></button></div>');
+      // Button nach dem übergebenen Feld einfügen
+      deleteFieldButton.insertAfter(field);
+      // bei Klick auf Button...
+      deleteFieldButton.click(function () {
+        // übergebenes Feld sowie Button selbst löschen
+        field.parent().remove();
+      });
+    }
+
+    /**
+     * @function
      * @name disableValueAssigner
      *
      * @param {Object} valueAssigner - Auswählen-via-Karte-Icon
@@ -829,7 +858,7 @@
      * @name enableValueAssigner
      *
      * @param {Object} valueAssigner - Auswählen-via-Karte-Icon
-     * @param {String} tooltip - Tooltip
+     * @param {string} tooltip - Tooltip
      *
      * aktiviert Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
      */
@@ -954,6 +983,37 @@
           'Keine automatische Zuordnung ' + (addressType === 'Gemeindeteil' ? 'eines ' : 'einer ') + addressType + (addressType === 'Gemeindeteil' ? 's' : '') + ' möglich!',
           'Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an ' + (addressType === 'Gemeindeteil' ? 'den nächsten ' : 'die nächste ') + addressType +  ' heran.'
         );
+    }
+
+    /**
+     * @function
+     * @name setFinalArrayFields
+     *
+     * übernimmt auf mehrere Formularfelder verteilte Werte final in Array-Felder
+     */
+    function setFinalArrayFields() {
+      // alle Array-Felder durchgehen...
+      $('[is_array_field="true"]').each(function () {
+        let parentField = $(this);
+        let parentFieldId = parentField.attr('id');
+        // Array für Werte anlegen
+        let values = [];
+        // Werte aus allen zugehörigen Formularfeldern in Array einfügen
+        // (dabei leere Formularfelder ignorieren)
+        $('[id^=' + parentFieldId + ']').each(function () {
+          if ($(this).val())
+            values.push($(this).val());
+        });
+        // sofern Werte vorhanden sind...
+        if (values.length > 0) {
+          // bei Datumsfeld zunächst Typ des Hauptformularfelds anpassen,
+          // damit keine JavaScript-Fehler auftreten
+          if (parentField.attr('type') === 'date')
+            parentField.attr('type', 'text');
+          // Wert des Hauptformularfeldes direkt auf Array mit allen Werten setzen
+          parentField.val(JSON.stringify(values));
+        }
+      });
     }
 
     /**

@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.forms import UUIDField
+from django.forms import DateField, UUIDField
 
 
 class AddressUUIDField(UUIDField):
@@ -57,3 +57,21 @@ class QuarterUUIDField(UUIDField):
       return None
     gemeindeteile = apps.get_app_config('datenmanagement').get_model('Gemeindeteile')
     return gemeindeteile.objects.get(pk=value)
+
+
+class ArrayDateField(DateField):
+  """
+  Input-Feld für ein Datum innerhalb eines Array-Feld-Komplexes
+
+  Verwendung in Klasse DataForm
+  """
+
+  def to_python(self, value):
+    """
+
+    :param value: Datum
+    :return: Datum
+    """
+    if not value:
+      return None
+    return value

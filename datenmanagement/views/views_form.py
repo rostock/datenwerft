@@ -10,6 +10,7 @@ from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, UpdateView
+from json import dumps
 from operator import itemgetter
 from re import sub
 from time import time
@@ -324,9 +325,9 @@ class DataAddView(CreateView):
 
   def get_initial(self):
     """
-    initialisiert View
+    setzt initiale Feldwerte im View
 
-    :return:
+    :return: Dictionary mit initialen Feldwerten im View
     """
     ansprechpartner = None
     bearbeiter = None
@@ -538,27 +539,64 @@ class DataChangeView(UpdateView):
         )
         and self.model._meta.address_type == 'Gemeindeteil'
         and self.object.gemeindeteil else None)
+    # Dictionary für alle Array-Felder und deren Inhalte vorbereiten,
+    # die als Inhalt mehr als einen Wert umfassen
+    array_fields_values = {}
+    for field in self.model._meta.get_fields():
+      # bei Array-Feld...
+      if field.__class__.__name__ == 'ArrayField':
+        values = getattr(self.object, field.name)
+        # sofern dieses mehr als einen Wert umfasst...
+        if values is not None and len(values) > 1:
+          # Liste für dieses Feld aus allen Array-Inhalten ab dem zweiten zusammenstellen
+          array_field_values = values[1:]
+          # falls Basisfeld des Array-Felds vom Typ Datum ist...
+          if field.base_field.__class__.__name__ == 'DateField':
+            # Listeninhalte formatieren
+            cleaned_array_field_values = []
+            for array_field_value in array_field_values:
+              cleaned_array_field_values.append(array_field_value.strftime('%Y-%m-%d'))
+            array_field_values = cleaned_array_field_values
+          # Liste in vorbereitetes Dictionary einfügen
+          array_fields_values[field.name] = array_field_values
+    # neuen Kontext anlegen und Dictionary für alle Array-Felder und deren Inhalte
+    # dort JSON-serialisiert einfügen, die als Inhalt mehr als einen Wert umfassen
+    context['array_fields_values'] = dumps(array_fields_values)
     return context
 
   def get_initial(self):
     """
-    initialisiert View; liefert entweder Dictionary mit Adresse, Straße oder Gemeindeteil
-    des Objektes zurück, falls Adresse, Straße oder Gemeindeteil existiert;
-    falls nicht, wird leeres Dictionary zurückgeliefert
+    setzt initiale Feldwerte im View
 
-    :return: Dictionary mit Adresse, Straße oder Gemeindeteil oder leeres Dictionary
+    :return: Dictionary mit initialen Feldwerten im View
     """
+    # leeres Dictionary für initiale Feldwerte im View definieren
+    curr_dict = {}
+    # falls Adresse, Straße oder Gemeindeteil existiert...
     if hasattr(self.model._meta, 'address_type'):
+      # Dictionary um entsprechenden initialen Feldwert
+      # für Adresse, Straße oder Gemeindeteil ergänzen
       if self.model._meta.address_type == 'Adresse' and self.object.adresse:
-        return {'adresse': self.object.adresse}
+        curr_dict['adresse'] = self.object.adresse
       elif self.model._meta.address_type == 'Straße' and self.object.strasse:
-        return {'strasse': self.object.strasse}
+        curr_dict['strasse'] = self.object.strasse
       elif self.model._meta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
-        return {'gemeindeteil': self.object.gemeindeteil}
-      else:
-        return {}
-    else:
-      return {}
+        curr_dict['gemeindeteil'] = self.object.gemeindeteil
+    for field in self.model._meta.get_fields():
+      # bei Array-Feld...
+      if field.__class__.__name__ == 'ArrayField':
+        values = getattr(self.object, field.name)
+        # sofern dieses nicht leer ist...
+        if values is not None and len(values) > 0 and values[0] is not None:
+          # initialen Wert für dieses Feld auf ersten Wert des Arrays des Objektes setzen
+          initial_value = values[0]
+          # falls Basisfeld des Array-Felds vom Typ Datum ist...
+          if field.base_field.__class__.__name__ == 'ArrayDateField':
+            # Datum formatieren
+            initial_value.strftime('%Y-%m-%d')
+          # Dictionary um den initialen Wert für dieses Feld ergänzen
+          curr_dict[field.name] = initial_value
+    return curr_dict
 
   def form_valid(self, form):
     """

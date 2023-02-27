@@ -9,7 +9,7 @@
  * gibt das Zentrum eines übergebenen GeoJSON-Features zurück
  *
  * @param {JSON} geoJson - GeoJSON-Feature
- * @param {String} [geometryType=''] - Geometrietyp des GeoJSON-Features
+ * @param {string} [geometryType=''] - Geometrietyp des GeoJSON-Features
  * @returns {Array} - Array mit x- und y-Koordinate
  */
 function getFeatureCenter(geoJson, geometryType = '') {
@@ -104,8 +104,8 @@ function interchangeRecursive(arr, polygon = false) {
  * aktualisiert den Inhalt des übergebenen Bootstrap-Modals
  *
  * @param {Object} modal - Bootstrap-Modal
- * @param {String} [title=''] - Titel des Bootstrap-Modals
- * @param {String} [body=''] - Body des Bootstrap-Modals
+ * @param {string} [title=''] - Titel des Bootstrap-Modals
+ * @param {string} [body=''] - Body des Bootstrap-Modals
  * @param {Boolean} [addFooter=false] - Footer zum Bootstrap-Modal hinzufügen?
  * @returns {Object} - aktualisierter Bootstrap-Modal
  */
@@ -133,13 +133,13 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
  * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
  *
  * @param {Object} modal - Bootstrap-Modal
- * @param {String} [title=''] - Titel des Bootstrap-Modals
- * @param {String} [body=''] - Body des Bootstrap-Modals
- * @param {String} [customLoadingContent=null] - zusätzlichen Inhalt für Ladeansicht anzeigen
+ * @param {string} [title=''] - Titel des Bootstrap-Modals
+ * @param {string} [body=''] - Body des Bootstrap-Modals
+ * @param {string} [customLoadingContent=null] - zusätzlichen Inhalt für Ladeansicht anzeigen
  */
-function toggleModal(modal, title = '', body = '', customLoadingContent = null) {
+function toggleModal(modal, title = '', body = '', customLoadingContent = '') {
   refreshModal(modal, title, body);
-  if (customLoadingContent !== null)
+  if (customLoadingContent)
     modal.find(customLoadingContent).prop('hidden', false);
   modal.modal('toggle');
 }

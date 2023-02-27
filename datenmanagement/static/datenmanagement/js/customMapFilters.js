@@ -8,7 +8,7 @@
  * behandelt Ein-Klick- sowie andere individuelle Kartenfilter
  * und gibt Liste für Filterobjekte zurück
  *
- * @param {String} filterId - ID des Filters
+ * @param {string} filterId - ID des Filters
  * @returns {Object[]} - Liste für Filterobjekte
  */
 function customMapFilters(filterId) {
@@ -42,10 +42,10 @@ function customMapFilters(filterId) {
  *
  * erstellt ein Filterobjekt
  *
- * @param {String} name - Name
- * @param {String} type - Typ
- * @param {String} intervalside - "Intervallseite"
- * @param {String} logic - Wirkungslogik
+ * @param {string} name - Name
+ * @param {string} type - Typ
+ * @param {string} intervalside - "Intervallseite"
+ * @param {string} logic - Wirkungslogik
  * @param {*} value - Wert
  * @returns {Object} - Filterobjekt
  */

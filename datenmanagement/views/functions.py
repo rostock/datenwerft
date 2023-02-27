@@ -12,6 +12,8 @@ from locale import LC_ALL, format_string, setlocale
 from re import sub
 from toolbox.models import Subsets
 
+from .fields import ArrayDateField
+
 
 def assign_widgets(field):
   """
@@ -44,10 +46,23 @@ def assign_widgets(field):
   elif field.__class__.__name__ == 'ChoiceArrayField':
     form_field = field.formfield(empty_value=None, widget=CheckboxSelectMultiple())
   elif field.__class__.__name__ == 'DateField':
-    form_field = field.formfield(widget=TextInput(attrs={
-      'type': 'date',
-      'class': 'form-control'
-    }))
+    if is_array_field:
+      label = form_field.label
+      form_field = ArrayDateField(
+        label=label,
+        widget=TextInput(
+          attrs={
+            'type': 'date',
+            'class': 'form-control'
+          }
+        )
+      )
+      form_field.required = False
+    else:
+      form_field = field.formfield(widget=TextInput(attrs={
+        'type': 'date',
+        'class': 'form-control'
+      }))
   elif field.__class__.__name__ == 'DateTimeField':
     form_field = field.formfield(widget=TextInput(attrs={
       'type': 'datetime-local',
