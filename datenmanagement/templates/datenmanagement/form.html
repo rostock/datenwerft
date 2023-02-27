@@ -515,7 +515,10 @@
      */
     $(document).ready(function () {
       // Variable definieren für Array-Felder und deren Inhalte, die als Inhalt mehr als einen Wert umfassen
-      let arrayFieldsValues = {{ array_fields_values|safe }};
+      let arrayFieldsValues = [];
+      {% if object and array_fields_values %}
+        arrayFieldsValues = {{ array_fields_values|safe }};
+      {% endif %}
 
       // globale Variablen für die Anzeige des Hinweis-Modals
       // in Bezug auf das Zuschalten zusätzlicher Datenthemen und/oder WFS-Feature-Types
@@ -614,33 +617,31 @@
             // passenden Wert in neues Feld schreiben
             newField.attr('value', valuesParsed[i]);
             newField.val(valuesParsed[i]);
-            // neues Feld an richtiger Stelle einfügen
-            newField.insertAfter(i === 0 ? currentField : $('#' + currentFieldId + '_' + i));
+            // neues Feld an richtiger Stelle einfügen und mit Button zum Löschen des Feldes versehen
+            addField(newField, currentField);
             currentField = newField;
-            // Button zum Löschen des zuvor eingefügten Feldes definieren
-            addDeleteFieldButton(currentField)
           }
         }
-        // Button zum Hinzufügen eines weiteren Feldes ergänzen
-        let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
-        addAnotherField.insertAfter(currentField);
-        // bei Klick auf zuvor ergänzten Button...
-        addAnotherField.click(function () {
-          // vorheriges Feld klonen und als neues, leeres Feld definieren
-          let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
-          let newField = currentField.clone();
-          let i = 1;
-          if (/_[0-9]*$/.test(currentField.attr('name')))
-            i = Number(currentField.attr('name').replace(/.*_/, '')) + 1;
-          cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
-          newField.removeAttr('value');
-          newField.val('');
-          // neues Feld an richtiger Stelle einfügen und mit Button zum Löschen des Feldes versehen
-          let wrapper = $('<div/>', { class: 'input-group' });
-          wrapper.append(newField);
-          wrapper.insertAfter(currentField);
-          addDeleteFieldButton(newField);
-        });
+        // falls Benutzer Änderungsrecht am Datenmodell hat...
+        {% if user|user_has_model_change_permission:model_name_lower %}
+          // Button zum Hinzufügen eines weiteren Feldes ergänzen
+          let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
+          addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
+          // bei Klick auf zuvor ergänzten Button...
+          addAnotherField.click(function () {
+            // vorheriges Feld klonen und als neues, leeres Feld definieren
+            let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
+            let newField = currentField.clone();
+            let i = 1;
+            if (/_[0-9]*$/.test(currentField.attr('name')))
+              i = Number(currentField.attr('name').replace(/.*_/, '')) + 1;
+            cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
+            newField.removeAttr('value');
+            newField.val('');
+            // neues Feld an richtiger Stelle einfügen und mit Button zum Löschen des Feldes versehen
+            addField(newField, currentField);
+          });
+        {% endif %}
       });
 
       // Multi-Foto-Upload-Feld behandeln
@@ -721,10 +722,7 @@
       // bei Desktop und bei vorhandener Karte:
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
       {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
-        let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
-        $('#buttons').offset({
-          top: top
-        });
+        setButtonsPosition();
       {% endif %}
 
       // Labels für verpflichtende Boolean-Felder anpassen
@@ -803,6 +801,20 @@
 
     /**
      * @function
+     * @name setButtonsPosition
+     *
+     * setzt vertikale Position der Buttons dynamisch anhand von Position und Größe des Formulars
+     * (plus „Puffer“ von 20 Pixeln)
+     */
+    function setButtonsPosition() {
+      let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
+      $('#buttons').offset({
+        top: top
+      });
+    }
+
+    /**
+     * @function
      * @name cleanField
      *
      * @param {Object} field - Feld
@@ -813,10 +825,34 @@
      * bereinigt ein Einzelfeld innerhalb eines Array-Feld-Komplexes
      */
     function cleanField(field, i, id, name) {
-      field.children('input:nth-child(1)').attr('id', id + '_' + i);
-      field.children('input:nth-child(1)').attr('name', name + '_' + i);
-      field.children('input:nth-child(1)').attr('style', 'margin-top:0.5rem');
-      field.children('input:nth-child(1)').removeAttr('is_array_field');
+      field.attr('id', id + '_' + i);
+      field.attr('name', name + '_' + i);
+      field.removeAttr('is_array_field');
+    }
+
+    /**
+     * @function
+     * @name addField
+     *
+     * @param {Object} field - einzufügendes Feld
+     * @param {Object} fieldToInsertAfter - Feld, nach dem der Wrapper mit dem einzufügenden Feld eingefügt werden soll
+     *
+     * fügt ein Feld an richtiger Stelle innerhalb eines Array-Feld-Komplexes ein
+     */
+    function addField(field, fieldToInsertAfter) {
+      // Wrapper bauen
+      let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
+      // übergebenes, einzufügendes Feld in Wrapper einfügen
+      wrapper.append(field);
+      // Wrapper nach übergebenem Feld einfügen, nach dem er eingefügt werden soll
+      wrapper.insertAfter(fieldToInsertAfter.parent().is('.input-group') ? fieldToInsertAfter.parent() : fieldToInsertAfter);
+      // Button zum Löschen des Feldes ergänzen
+      addDeleteFieldButton(field);
+      // bei Desktop und bei vorhandener Karte:
+      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
+      {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
+        setButtonsPosition();
+      {% endif %}
     }
 
     /**
@@ -829,7 +865,7 @@
      */
     function addDeleteFieldButton(field) {
       // Button erzeugen
-      let deleteFieldButton = $('<button class="input-reset btn btn-warning"><i class="fas fa-trash" title="Wert löschen"></i></button></div>');
+      let deleteFieldButton = $('<button class="input-reset btn btn-warning" title="Wert löschen"{% if not user|user_has_model_change_permission:model_name_lower %} disabled{% endif %}><i class="fas fa-trash"></i></button></div>');
       // Button nach dem übergebenen Feld einfügen
       deleteFieldButton.insertAfter(field);
       // bei Klick auf Button...

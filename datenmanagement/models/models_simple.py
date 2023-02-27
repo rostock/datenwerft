@@ -472,8 +472,7 @@ class Baudenkmale(SimpleModel):
       verbose_name='Denkmalnummern',
       blank=True,
       null=True,
-      max_length=255,
-      validators=standard_validators
+      max_length=255
     ),
     verbose_name='Denkmalnummern',
     blank=True,
@@ -1312,8 +1311,7 @@ class Denkmalbereiche(SimpleModel):
       verbose_name='Denkmalnummern',
       blank=True,
       null=True,
-      max_length=255,
-      validators=standard_validators
+      max_length=255
     ),
     verbose_name='Denkmalnummern',
     blank=True,
