@@ -27,8 +27,8 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
   get_pre_save_instance, path_and_rename, photo_post_processing, sequence_id
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
-  Altersklassen_Kadaverfunde, Arten_Baudenkmale, Arten_FairTrade, Arten_Feldsportanlagen, \
-  Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
+  Altersklassen_Kadaverfunde, Arten_Baudenkmale, Arten_Erdwaermesonden, Arten_FairTrade, \
+  Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
   Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Arten_Wege, \
   Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
@@ -38,7 +38,7 @@ from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeinde
   Raeumbreiten_Strassenreinigungssatzung_HRO, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Sportarten, \
   Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
-  Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, \
+  Typen_Erdwaermesonden, Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, \
   Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
@@ -470,9 +470,10 @@ class Baudenkmale(SimpleModel):
   denkmalnummern = ArrayField(
     CharField(
       verbose_name='Denkmalnummern',
+      max_length=255,
       blank=True,
       null=True,
-      max_length=255
+      validators=standard_validators
     ),
     verbose_name='Denkmalnummern',
     blank=True,
@@ -1309,9 +1310,10 @@ class Denkmalbereiche(SimpleModel):
   denkmalnummern = ArrayField(
     CharField(
       verbose_name='Denkmalnummern',
+      max_length=255,
       blank=True,
       null=True,
-      max_length=255
+      validators=standard_validators
     ),
     verbose_name='Denkmalnummern',
     blank=True,

@@ -1,10 +1,10 @@
 from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
   Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, Angelberechtigungen, \
-  Ansprechpartner_Baustellen, Arten_Baudenkmale, Arten_Durchlaesse, Arten_FairTrade, \
-  Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
-  Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
-  Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
+  Ansprechpartner_Baustellen, Arten_Baudenkmale, Arten_Durchlaesse, Arten_Erdwaermesonden, \
+  Arten_FairTrade, Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
+  Arten_Hundetoiletten, Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, \
+  Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, \
+  Arten_Toiletten, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
   Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
   Befestigungsarten_Warteflaeche_Haltestellenkataster, Betriebsarten, Betriebszeiten, \
   Bewirtschafter_Betreiber_Traeger_Eigentuemer, E_Anschluesse_Parkscheinautomaten, \
@@ -21,11 +21,11 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Sitzbanktypen_Haltestellenkataster, Sparten_Baustellen, Sportarten, \
   Status_Baudenkmale_Denkmalbereiche, Status_Baustellen_geplant, Status_Poller, \
   Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, Typen_Abfallbehaelter, \
-  DFI_Typen_Haltestellenkataster, Fahrgastunterstandstypen_Haltestellenkataster, \
-  Fahrplanvitrinentypen_Haltestellenkataster, Typen_Haltestellen, Typen_Poller, \
-  Typen_UVP_Vorhaben, Verkehrliche_Lagen_Baustellen, Verbuende_Ladestationen_Elektrofahrzeuge, \
-  Verkehrsmittelklassen, Vorgangsarten_UVP_Vorhaben, Wegebreiten_Strassenreinigungssatzung_HRO, \
-  Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
+  DFI_Typen_Haltestellenkataster, Typen_Erdwaermesonden, \
+  Fahrgastunterstandstypen_Haltestellenkataster, Fahrplanvitrinentypen_Haltestellenkataster, \
+  Typen_Haltestellen, Typen_Poller, Typen_UVP_Vorhaben, Verkehrliche_Lagen_Baustellen, \
+  Verbuende_Ladestationen_Elektrofahrzeuge, Verkehrsmittelklassen, Vorgangsarten_UVP_Vorhaben, \
+  Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, \
   Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen, Zustandsbewertungen
@@ -939,6 +939,133 @@ class ArtenDurchlaesseTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Durchlaesse
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'art': 'Art1'
+  }
+  attributes_values_db_updated = {
+    'art': 'Art2'
+  }
+  attributes_values_view_initial = {
+    'art': 'Art3'
+  }
+  attributes_values_view_updated = {
+    'art': 'Art4'
+  }
+  attributes_values_view_invalid = {
+    'art': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class ArtenErdwaermesondenTest(DefaultCodelistTestCase):
+  """
+  Arten von Erdwärmesonden
+  """
+
+  model = Arten_Erdwaermesonden
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
@@ -8888,6 +9015,133 @@ class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'dfi_typ': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class TypenErdwaermesondenTest(DefaultCodelistTestCase):
+  """
+  Typen von Erdwärmesonden
+  """
+
+  model = Typen_Erdwaermesonden
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'typ': 'Typ1'
+  }
+  attributes_values_db_updated = {
+    'typ': 'Typ2'
+  }
+  attributes_values_view_initial = {
+    'typ': 'Typ3'
+  }
+  attributes_values_view_updated = {
+    'typ': 'Typ4'
+  }
+  attributes_values_view_invalid = {
+    'typ': INVALID_STRING
   }
 
   def setUp(self):

@@ -284,6 +284,18 @@ class Arten_Durchlaesse(Art):
     description = 'Arten von Durchlässen'
 
 
+class Arten_Erdwaermesonden(Art):
+  """
+  Arten von Erdwärmesonden
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_erdwaermesonden'
+    verbose_name = 'Art einer Erdwärmesonde'
+    verbose_name_plural = 'Arten von Erdwärmesonden'
+    description = 'Arten von Erdwärmesonden'
+
+
 class Arten_FairTrade(Art):
   """
   Arten von Fair-Trade-Einrichtungen
@@ -1680,6 +1692,18 @@ class DFI_Typen_Haltestellenkataster(Codelist):
 
   def __str__(self):
     return self.dfi_typ
+
+
+class Typen_Erdwaermesonden(Typ):
+  """
+  Typen von Erdwärmesonden
+  """
+
+  class Meta(Typ.Meta):
+    db_table = 'codelisten\".\"typen_erdwaermesonden'
+    verbose_name = 'Typ einer Erdwärmesonde'
+    verbose_name_plural = 'Typen von Erdwärmesonden'
+    description = 'Typen von Erdwärmesonden'
 
 
 class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):

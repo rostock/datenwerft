@@ -174,11 +174,15 @@ class DataForm(ModelForm):
         required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(
             label=field.label)
       invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
+      item_invalid = 'Der Wert an Stelle %(nth)s im Attribut <strong><em>{label}</em></strong> ' \
+                     'wies ungültige Zeichen auf und wurde daher auf den ursprünglichen Wert ' \
+                     'zurückgesetzt!'.format(label=field.label)
       unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut ' \
                        '<strong><em>{label}</em></strong>!'.format(label=field.label)
       field.error_messages = {
         'required': required_message,
         'invalid_image': invalid_image_message,
+        'item_invalid': item_invalid,
         'unique': unique_message
       }
 
@@ -545,7 +549,8 @@ class DataChangeView(UpdateView):
     for field in self.model._meta.get_fields():
       # bei Array-Feld...
       if field.__class__.__name__ == 'ArrayField':
-        values = getattr(self.object, field.name)
+        # Werte auslesen
+        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
         # sofern dieses mehr als einen Wert umfasst...
         if values is not None and len(values) > 1:
           # Liste für dieses Feld aus allen Array-Inhalten ab dem zweiten zusammenstellen
@@ -585,15 +590,11 @@ class DataChangeView(UpdateView):
     for field in self.model._meta.get_fields():
       # bei Array-Feld...
       if field.__class__.__name__ == 'ArrayField':
-        values = getattr(self.object, field.name)
+        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
         # sofern dieses nicht leer ist...
         if values is not None and len(values) > 0 and values[0] is not None:
           # initialen Wert für dieses Feld auf ersten Wert des Arrays des Objektes setzen
           initial_value = values[0]
-          # falls Basisfeld des Array-Felds vom Typ Datum ist...
-          if field.base_field.__class__.__name__ == 'ArrayDateField':
-            # Datum formatieren
-            initial_value.strftime('%Y-%m-%d')
           # Dictionary um den initialen Wert für dieses Feld ergänzen
           curr_dict[field.name] = initial_value
     return curr_dict
@@ -612,6 +613,28 @@ class DataChangeView(UpdateView):
       'wurde erfolgreich geändert!' % str(form.instance)
     )
     return super(DataChangeView, self).form_valid(form)
+
+  def form_invalid(self, form, **kwargs):
+    """
+    öffnet Formular erneut, wenn Formular nicht valide ist;
+    Definition nur zu dem Zweck, dass nicht valide befüllte Array-Felder
+    wieder auf ihren ursprünglichen Zustand zurückgesetzt werden
+
+    :param form: Formular, das geprüft werden soll
+    :return: Formular, falls Formular nicht valide
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    # alle Array-Felder wieder auf ihren ursprünglichen Zustand zurücksetzen
+    for field in self.model._meta.get_fields():
+      if field.__class__.__name__ == 'ArrayField':
+        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        if values is not None and len(values) > 0 and values[0] is not None:
+          form.data[field.name] = values[0]
+        else:
+          form.data[field.name] = values
+    context_data['form'] = form
+    return self.render_to_response(context_data)
 
   def get_object(self, *args, **kwargs):
     """
