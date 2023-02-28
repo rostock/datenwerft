@@ -367,6 +367,18 @@ CREATE TABLE codelisten.arten_durchlaesse (
 
 
 --
+-- Name: arten_erdwaermesonden; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_erdwaermesonden (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_fairtrade; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1136,6 +1148,18 @@ CREATE TABLE codelisten.typen_abfallbehaelter (
 
 
 --
+-- Name: typen_erdwaermesonden; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.typen_erdwaermesonden (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    typ character varying(255) NOT NULL
+);
+
+
+--
 -- Name: typen_haltestellen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1603,6 +1627,31 @@ CREATE TABLE fachdaten.durchlaesse_fotos_hro (
     foto character varying(255) NOT NULL,
     aufnahmedatum date,
     bemerkungen character varying(255)
+);
+
+
+--
+-- Name: erdwaermesonden_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.erdwaermesonden_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    d3 character(16),
+    aktenzeichen character varying(18) NOT NULL,
+    art uuid NOT NULL,
+    typ uuid,
+    awsv_anlage boolean,
+    anzahl_sonden smallint,
+    sondenfeldgroesse smallint,
+    endteufe numeric(5,2),
+    hinweis character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -3291,6 +3340,22 @@ ALTER TABLE ONLY codelisten.arten_durchlaesse
 
 
 --
+-- Name: arten_erdwaermesonden arten_erdwaermesonden_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_erdwaermesonden
+    ADD CONSTRAINT arten_erdwaermesonden_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_erdwaermesonden arten_erdwaermesonden_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_erdwaermesonden
+    ADD CONSTRAINT arten_erdwaermesonden_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_fairtrade arten_fairtrade_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4307,6 +4372,22 @@ ALTER TABLE ONLY codelisten.typen_abfallbehaelter
 
 
 --
+-- Name: typen_erdwaermesonden typen_erdwaermesonden_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_erdwaermesonden
+    ADD CONSTRAINT typen_erdwaermesonden_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: typen_erdwaermesonden typen_erdwaermesonden_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_erdwaermesonden
+    ADD CONSTRAINT typen_erdwaermesonden_typ_unique UNIQUE (typ);
+
+
+--
 -- Name: typen_haltestellen typen_haltestellen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4672,6 +4753,14 @@ ALTER TABLE ONLY fachdaten.durchlaesse_durchlaesse_hro
 
 ALTER TABLE ONLY fachdaten.durchlaesse_fotos_hro
     ADD CONSTRAINT durchlaesse_fotos_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: erdwaermesonden_hro erdwaermesonden_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
+    ADD CONSTRAINT erdwaermesonden_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5649,6 +5738,22 @@ ALTER TABLE ONLY fachdaten.durchlaesse_durchlaesse_hro
 
 ALTER TABLE ONLY fachdaten.durchlaesse_fotos_hro
     ADD CONSTRAINT durchlaesse_fotos_hro_durchlaesse_fk FOREIGN KEY (durchlaesse_durchlass) REFERENCES fachdaten.durchlaesse_durchlaesse_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: erdwaermesonden_hro erdwaermesonden_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
+    ADD CONSTRAINT erdwaermesonden_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: erdwaermesonden_hro erdwaermesonden_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
+    ADD CONSTRAINT erdwaermesonden_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

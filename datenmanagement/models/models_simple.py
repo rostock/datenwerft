@@ -14,12 +14,14 @@ from zoneinfo import ZoneInfo
 
 from .base import SimpleModel
 from .constants_vars import personennamen_validators, standard_validators, \
-  hausnummer_zusatz_regex, email_message, hausnummer_zusatz_message, inventarnummer_regex, \
-  inventarnummer_message, rufnummer_regex, rufnummer_message, url_message, \
-  denksteine_nummer_regex, denksteine_nummer_message, hausnummern_antragsnummer_message, \
-  hausnummern_antragsnummer_regex, hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
-  poller_nummer_regex, poller_nummer_message, postleitzahl_message, postleitzahl_regex, \
-  strassen_schluessel_regex, strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
+  hausnummer_zusatz_regex, email_message, erdwaermesonden_aktenzeichen_regex, \
+  erdwaermesonden_aktenzeichen_message, erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
+  hausnummer_zusatz_message, inventarnummer_regex, inventarnummer_message, rufnummer_regex, \
+  rufnummer_message, url_message, denksteine_nummer_regex, denksteine_nummer_message, \
+  hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
+  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, poller_nummer_regex, \
+  poller_nummer_message, postleitzahl_message, postleitzahl_regex, strassen_schluessel_regex, \
+  strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
   trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
@@ -1503,6 +1505,137 @@ class Denksteine(SimpleModel):
       self.vorname + ' ' + self.nachname + ' (* ' + str(self.geburtsjahr) + \
       (', † ' + str(self.sterbejahr) if self.sterbejahr else '') + ')' + \
       (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+
+class Erdwaermesonden(SimpleModel):
+  """
+  Erdwärmesonden
+  """
+
+  aktenzeichen = CharField(
+    'Aktenzeichen',
+    max_length=18,
+    validators=[
+      RegexValidator(
+        regex=erdwaermesonden_aktenzeichen_regex,
+        message=erdwaermesonden_aktenzeichen_message
+      )
+    ]
+  )
+  d3 = CharField(
+    ' d.3',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=erdwaermesonden_d3_regex,
+        message=erdwaermesonden_d3_message
+      )
+    ]
+  )
+  art = ForeignKey(
+    Arten_Erdwaermesonden,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  typ = ForeignKey(
+    Typen_Erdwaermesonden,
+    verbose_name='Typ',
+    on_delete=SET_NULL,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+    blank=True,
+    null=True
+  )
+  awsv_anlage = BooleanField(
+    'AwSV-Anlage?',
+    blank=True,
+    null=True
+  )
+  anzahl_sonden = PositiveSmallIntegerMinField(
+    'Anzahl der Sonden',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  sondenfeldgroesse = PositiveSmallIntegerMinField(
+    'Sondenfeldgröße (in m²)',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  endteufe = DecimalField(
+    'Endteufe (in m)',
+    max_digits=5,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Endteufe</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('999.99'),
+        'Die <strong><em>Endteufe</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  hinweis = CharField(
+    'Hinweis',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"erdwaermesonden_hro'
+    verbose_name = 'Erdwärmesonde'
+    verbose_name_plural = 'Erdwärmesonden'
+    description = 'Erdwärmesonden in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'aktenzeichen': 'Aktenzeichen',
+      'art': 'Art',
+      'typ': 'Typ',
+      'awsv_anlage': 'AwSV-Anlage?',
+      'anzahl_sonden': 'Anzahl der Sonden',
+      'sondenfeldgroesse': 'Sondenfeldgröße (in m²)',
+      'endteufe': 'Endteufe (in m)',
+      'hinweis': 'Hinweis'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art',
+      'typ': 'typ'
+    }
+    list_fields_with_number = ['anzahl_sonden', 'sondenfeldgroesse', 'sondenfeldgroesse']
+    map_feature_tooltip_field = 'aktenzeichen'
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'aktenzeichen': 'Aktenzeichen',
+      'art': 'Art',
+      'typ': 'Typ',
+      'awsv_anlage': 'AwSV-Anlage?',
+      'anzahl_sonden': 'Anzahl der Sonden',
+      'sondenfeldgroesse': 'Sondenfeldgröße (in m²)',
+      'endteufe': 'Endteufe (in m)',
+      'hinweis': 'Hinweis'
+    }
+    map_filter_fields_as_list = ['art', 'typ']
+    geometry_type = 'Point'
+    as_overlay = True
+
+  def __str__(self):
+    return self.aktenzeichen
 
 
 class FairTrade(SimpleModel):

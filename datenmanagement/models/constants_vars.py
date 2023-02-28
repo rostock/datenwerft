@@ -250,7 +250,7 @@ doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen ' \
                             'und/oder Zeilenumbrüche enthalten.'
 email_message = 'Die <strong><em>E-Mail-Adresse</em></strong> muss ' \
                 'syntaktisch korrekt sein und daher folgendes Format ' \
-                'aufweisen: abc-123.098_zyx@xyz-567.def.abc'
+                'aufweisen (Beispiel): abc-123.098_zyx@xyz-567.def.abc'
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen ' \
                  'muss der typographisch korrekte Apostroph (’) ' \
@@ -272,11 +272,11 @@ rufnummer_regex = r'^\+(1 )?([0-9]{1,3}) [1-9][0-9]{1,5} [0-9]{1,13}$'
 rufnummer_message = 'Die Schreibweise von ' \
                     '<strong><em>Rufnummern</em></strong> muss der ' \
                     'Empfehlung E.123 der Internationalen Fernmeldeunion ' \
-                    'entsprechen und daher folgendes Format aufweisen: ' \
+                    'entsprechen und daher folgendes Format aufweisen (Beispiel): ' \
                     '+49 381 3816256'
 url_message = 'Die Adresse der <strong><em>Website</em></strong> muss ' \
               'syntaktisch korrekt sein und daher folgendes Format ' \
-              'aufweisen: http[s]://abc-123.098_zyx.xyz-567/def/abc'
+              'aufweisen (Beispiel): http[s]://abc-123.098_zyx.xyz-567/def/abc'
 standard_validators = [
   RegexValidator(regex=akut_regex, message=akut_message),
   RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message),
@@ -316,6 +316,18 @@ durchlaesse_aktenzeichen_message = 'Das <strong><em>Aktenzeichen' \
                                    'Bindestrich sowie ' \
                                    'abermals eine oder zwei ' \
                                    'Ziffern folgen.'
+erdwaermesonden_aktenzeichen_regex = r'^B\/EW\/[0-9]{2}\/[0-9]{4}$|' \
+                                     r'^WST\/[0-9]{2}\/[0-9]{4}$|' \
+                                     r'^73\.40\.[0-9]{2}\.[0-9]{2}-[0-9]*$|' \
+                                     r'^73\.40\.[0-9]{2}\.[0-9]{2}-[0-9]*-Ä$'
+erdwaermesonden_aktenzeichen_message = 'Das <strong><em>Aktenzeichen</em></strong> muss ' \
+                                       'eines der folgenden Formate aufweisen (Beispiele): ' \
+                                       'B/EW/02/2005, WST/20/2015, 73.40.01.05-2001 oder ' \
+                                       '73.40.01.05-2102-Ä'
+erdwaermesonden_d3_regex = r'^[0-9]{3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
+erdwaermesonden_d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss ' \
+                             'folgendes Format aufweisen (Beispiel): ' \
+                             '552.6#04-004/008'
 fahrbahnwinterdienst_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
                                     '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'
