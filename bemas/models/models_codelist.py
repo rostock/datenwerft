@@ -33,6 +33,7 @@ class Status(Codelist):
       )
     ]
     db_table = 'codelist_status'
+    description = 'Bearbeitungsstatus von Beschwerden'
     ordering = ['ordinal']
     verbose_name = 'Bearbeitungsstatus'
     verbose_name_plural = 'Bearbeitungsstatus'
@@ -55,6 +56,7 @@ class Sector(Codelist):
   class Meta:
     codelist = True
     db_table = 'codelist_sector'
+    description = 'definiert Verursacher näher'
     ordering = ['title']
     verbose_name = 'Branche'
     verbose_name_plural = 'Branchen'
@@ -82,6 +84,7 @@ class TypeOfEvent(Codelist):
   class Meta:
     codelist = True
     db_table = 'codelist_typeofevent'
+    description = 'definiert Journalereignisse näher'
     ordering = ['title']
     verbose_name = 'Ereignisart'
     verbose_name_plural = 'Ereignisarten'
@@ -109,6 +112,7 @@ class TypeOfImmission(Codelist):
   class Meta:
     codelist = True
     db_table = 'codelist_typeofimmission'
+    description = 'definiert Immissionen näher'
     ordering = ['title']
     verbose_name = 'Immissionsart'
     verbose_name_plural = 'Immissionsarten'

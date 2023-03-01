@@ -5,31 +5,37 @@
 
 {% block content %}
   {% if user.is_authenticated %}
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="card text-white bg-primary">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
           <div class="card-body">
             <h5 class="card-title"><em>BEMAS</em></h5>
             <p class="card-text">Beschwerdemanagementsystem für 73.30</p>
-            <a class="btn btn-lg btn-warning" role="button" href="{% url 'bemas:index' %}"><em>BEMAS</em> öffnen</a>
+            <a class="btn btn-lg btn-warning" role="button" href="{% url 'bemas:index' %}">
+              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}<em>BEMAS</em> {% endif %}öffnen
+            </a>
           </div>
         </div>
       </div>
-      <div class="col-sm-4">
-        <div class="card text-white bg-primary">
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
           <div class="card-body">
             <h5 class="card-title">Datenmanagement</h5>
             <p class="card-text">System zur Bearbeitung von Daten im Rahmen der GDI.HRO</p>
-            <a class="btn btn-lg btn-warning" role="button" href="{% url 'datenmanagement:index' %}">Datenmanagement öffnen</a>
+            <a class="btn btn-lg btn-warning" role="button" href="{% url 'datenmanagement:index' %}">
+              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datenmanagement {% endif %}öffnen
+            </a>
           </div>
         </div>
       </div>
-      <div class="col-sm-4">
-        <div class="card text-white bg-primary">
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
           <div class="card-body">
             <h5 class="card-title">Metadatenpflege</h5>
             <p class="card-text">System zur Pflege von Metadaten im Rahmen der GDI.HRO</p>
-            <a class="btn btn-lg btn-warning" role="button" href="#">Metadatenpflege öffnen</a>
+            <a class="btn btn-lg btn-warning" role="button" href="#">
+              {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Metadatenpflege {% endif %}öffnen
+            </a>
           </div>
         </div>
       </div>

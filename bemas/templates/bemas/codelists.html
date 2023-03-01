@@ -1,0 +1,22 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}Codelisten | {% endblock %}
+
+{% block content %}
+  {% if is_bemas_user %}
+    {% if codelists %}
+      <h2>Codelisten</h2>
+      <div class="list-group mb-3">
+        {% for codelist in codelists %}
+          <a class="list-group-item list-group-item-action list-group-item-primary" href="#">
+            <h4>{{ codelist.verbose_name_plural }}</h4>
+            <h5><small>{{ codelist.description }}</small></h5>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    <h2 class="text-center">Sie haben leider (noch) keine Rechte für <em>BEMAS.</em></h2>
+  {% endif %}
+{% endblock %}
