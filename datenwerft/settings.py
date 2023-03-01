@@ -74,7 +74,7 @@ TEMPLATES = [
 # Datenbanken
 
 DATABASE_ROUTERS = [
-  'datenwerft.db_routers.DatenmanagementRouter'
+  'datenwerft.db_routers.DatabaseRouter'
 ]
 
 

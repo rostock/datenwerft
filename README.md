@@ -29,6 +29,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
         pip install -r /usr/local/datenwerft/datenwerft/requirements.txt
 
 5.  leere *PostgreSQL*-Datenbank für die Anwendungsadministration anlegen
+6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *BEMAS* anlegen
 6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
 
 ## Konfiguration
@@ -58,6 +59,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 4.  Anwendung initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
+        python manage.py migrate --database=bemas bemas
         python manage.py migrate
 
 5.  Administrator initialisieren:
