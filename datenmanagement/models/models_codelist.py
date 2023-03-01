@@ -260,6 +260,18 @@ class Ansprechpartner_Baustellen(Codelist):
       return self.vorname + ' ' + self.nachname + ' (' + self.email + ')'
 
 
+class Arten_Adressunsicherheiten(Art):
+  """
+  Arten von Adressunsicherheiten
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_adressunsicherheiten'
+    verbose_name = 'Art einer Adressunsicherheit'
+    verbose_name_plural = 'Arten von Adressunsicherheiten'
+    description = 'Arten von Adressunsicherheiten'
+
+
 class Arten_Baudenkmale(Art):
   """
   Arten von Baudenkmalen

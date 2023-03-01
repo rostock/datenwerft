@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -339,6 +339,18 @@ CREATE TABLE codelisten.ansprechpartner_baustellen (
     vorname character varying(255),
     nachname character varying(255),
     email character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_adressunsicherheiten; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_adressunsicherheiten (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
 );
 
 
@@ -2391,6 +2403,25 @@ CREATE TABLE fachdaten.uvp_vorpruefungen_hro (
 
 
 --
+-- Name: adressunsicherheiten_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.adressunsicherheiten_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    art uuid NOT NULL,
+    beschreibung character varying(255) NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: aufteilungsplaene_wohnungseigentumsgesetz_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -3305,6 +3336,22 @@ ALTER TABLE ONLY codelisten.ansprechpartner_baustellen
 
 ALTER TABLE ONLY codelisten.ansprechpartner_baustellen
     ADD CONSTRAINT ansprechpartner_baustellen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_adressunsicherheiten arten_adressunsicherheiten_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
+    ADD CONSTRAINT arten_adressunsicherheiten_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_adressunsicherheiten arten_adressunsicherheiten_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
+    ADD CONSTRAINT arten_adressunsicherheiten_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5036,6 +5083,14 @@ ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
 
 
 --
+-- Name: adressunsicherheiten_hro adressunsicherheiten_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.adressunsicherheiten_hro
+    ADD CONSTRAINT adressunsicherheiten_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: aufteilungsplaene_wohnungseigentumsgesetz_hro aufteilungsplaene_wohnungseigentumsgesetz_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -6298,6 +6353,14 @@ ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
 
 ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
     ADD CONSTRAINT uvp_vorpruefungen_hro_uvp_vorhaben_fk FOREIGN KEY (uvp_vorhaben) REFERENCES fachdaten.uvp_vorhaben_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: adressunsicherheiten_hro adressunsicherheiten_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.adressunsicherheiten_hro
+    ADD CONSTRAINT adressunsicherheiten_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_adressunsicherheiten(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
