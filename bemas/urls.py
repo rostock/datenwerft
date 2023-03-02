@@ -1,9 +1,9 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
-from django.urls import path
+from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from .views.views import CodelistIndexView, CodelistsIndexView, IndexView
+from .views.views import CodelistCreateView, CodelistIndexView, CodelistsIndexView, IndexView
 
 router = routers.DefaultRouter()
 
@@ -48,7 +48,22 @@ for model in models:
     urlpatterns.append(
       path(
         'codelists/' + codelist_name_lower,
-        view=login_required(CodelistIndexView.as_view(codelist=model)),
+        view=login_required(CodelistIndexView.as_view(
+          model=model
+        )),
         name='codelists_' + codelist_name_lower
+      )
+    )
+
+    # CodelistCreateView:
+    # form page for creating a codelist
+    urlpatterns.append(
+      path(
+        'codelists/' + codelist_name_lower + '/create',
+        view=login_required(CodelistCreateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
+        )),
+        name='codelists_' + codelist_name_lower + '_create'
       )
     )

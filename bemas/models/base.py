@@ -8,13 +8,16 @@ class Basemodel(Model):
   """
 
   id = BigAutoField(
-    primary_key=True
+    primary_key=True,
+    editable=False
   )
   created_at = DateTimeField(
-    auto_now_add=True
+    auto_now_add=True,
+    editable=False
   )
   updated_at = DateTimeField(
-    auto_now=True
+    auto_now=True,
+    editable=False
   )
 
   class Meta:

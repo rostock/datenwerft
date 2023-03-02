@@ -11,14 +11,17 @@ class Status(Codelist):
   """
 
   ordinal = SmallIntegerField(
+    'Ordinalzahl',
     unique=True
   )
   title = CharField(
+    'Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   icon = CharField(
+    'Icon',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -34,6 +37,9 @@ class Status(Codelist):
     ]
     db_table = 'codelist_status'
     description = 'Bearbeitungsstatus von Beschwerden'
+    min_numbers = {
+      'ordinal': 1
+    }
     ordering = ['ordinal']
     verbose_name = 'Bearbeitungsstatus'
     verbose_name_plural = 'Bearbeitungsstatus'
@@ -48,6 +54,7 @@ class Sector(Codelist):
   """
 
   title = CharField(
+    'Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -71,11 +78,13 @@ class TypeOfEvent(Codelist):
   """
 
   title = CharField(
+    'Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   icon = CharField(
+    'Icon',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -99,11 +108,13 @@ class TypeOfImmission(Codelist):
   """
 
   title = CharField(
+    'Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   icon = CharField(
+    'Icon',
     max_length=255,
     unique=True,
     validators=standard_validators

@@ -197,8 +197,12 @@ BEMAS_ICONS = {
   'add': 'circle-plus',
   'anonymous_complaint': 'link-slash',
   'back': 'backward',
+  'cancel': 'hand',
+  'clone': 'clone',
   'codelist': 'list',
   'complaint': 'folder-open',
+  'delete': 'trash',
+  'error': 'circle-exclamation',
   'event': 'paperclip',
   'log': 'clock-rotate-left',
   'map': 'map',
@@ -209,6 +213,7 @@ BEMAS_ICONS = {
   'orphaned_data': 'ghost',
   'person': 'address-card',
   'places_map': 'map-location-dot',
+  'save': 'floppy-disk',
   'statistics': 'chart-simple',
   'table': 'table'
 }

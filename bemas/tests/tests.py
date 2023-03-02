@@ -8,9 +8,9 @@ from .base import DefaultCodelistTestCase, DefaultViewTestCase
 # codelists
 #
 
-class StatusTest(DefaultCodelistTestCase):
+class StatusModelTest(DefaultCodelistTestCase):
   """
-  test class for codelist status (Bearbeitungsstatus)
+  model test class for codelist status (Bearbeitungsstatus)
   """
 
   model = Status
@@ -19,13 +19,13 @@ class StatusTest(DefaultCodelistTestCase):
   ordinal_max = Status.objects.aggregate(Max('ordinal')).get('ordinal__max', 0)
   attributes_values_db_initial = {
     'ordinal': ordinal_max + 1,
-    'title': 'title1',
-    'icon': 'icon1'
+    'title': 'I0JBAMtz',
+    'icon': '3jw5UCfJ'
   }
   attributes_values_db_updated = {
     'ordinal': ordinal_max + 2,
-    'title': 'title2',
-    'icon': 'icon2'
+    'title': '4Ke2ZalC',
+    'icon': '3ZtNGShd'
   }
 
   def setUp(self):
@@ -44,18 +44,45 @@ class StatusTest(DefaultCodelistTestCase):
     self.generic_delete_test(self.model)
 
 
-class SectorTest(DefaultCodelistTestCase):
+class StatusViewsTest(DefaultViewTestCase):
   """
-  test class for codelist sector (Branche)
+  views test class for codelist status (Bearbeitungsstatus)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_index_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_status', 200,
+      'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_index_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_status', 200,
+      'text/html; charset=utf-8', 'auflisten'
+    )
+
+  def test_index_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_status', 200,
+      'text/html; charset=utf-8', 'anlegen'
+    )
+
+
+class SectorModelTest(DefaultCodelistTestCase):
+  """
+  model test class for codelist sector (Branche)
   """
 
   model = Sector
   count = Sector.objects.count()
   attributes_values_db_initial = {
-    'title': 'title1'
+    'title': 'hFxVbEb2'
   }
   attributes_values_db_updated = {
-    'title': 'title2'
+    'title': 'HFGXNmxC'
   }
 
   def setUp(self):
@@ -74,20 +101,47 @@ class SectorTest(DefaultCodelistTestCase):
     self.generic_delete_test(self.model)
 
 
-class TypeOfEventTest(DefaultCodelistTestCase):
+class SectorViewsTest(DefaultViewTestCase):
   """
-  test class for codelist type of event (Ereignisart)
+  views test class for codelist sector (Branche)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_index_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_sector', 200,
+      'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_index_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_sector', 200,
+      'text/html; charset=utf-8', 'auflisten'
+    )
+
+  def test_index_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_sector', 200,
+      'text/html; charset=utf-8', 'anlegen'
+    )
+
+
+class TypeOfEventModelTest(DefaultCodelistTestCase):
+  """
+  model test class for codelist type of event (Ereignisart)
   """
 
   model = TypeOfEvent
   count = TypeOfEvent.objects.count()
   attributes_values_db_initial = {
-    'title': 'title1',
-    'icon': 'icon1'
+    'title': 'UIO0F3n8',
+    'icon': 'qgzUK9gf'
   }
   attributes_values_db_updated = {
-    'title': 'title2',
-    'icon': 'icon2'
+    'title': 'o3XwyDzw',
+    'icon': 'svNUGQAd'
   }
 
   def setUp(self):
@@ -106,20 +160,47 @@ class TypeOfEventTest(DefaultCodelistTestCase):
     self.generic_delete_test(self.model)
 
 
-class TypeOfImmissionTest(DefaultCodelistTestCase):
+class TypeOfEventViewsTest(DefaultViewTestCase):
   """
-  test class for codelist type of immission (Immissionsart)
+  views test class for codelist type of event (Ereignisart)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_index_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_typeofevent', 200,
+      'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_index_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_typeofevent', 200,
+      'text/html; charset=utf-8', 'auflisten'
+    )
+
+  def test_index_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_typeofevent', 200,
+      'text/html; charset=utf-8', 'anlegen'
+    )
+
+
+class TypeOfImmissionModelTest(DefaultCodelistTestCase):
+  """
+  model test class for codelist type of immission (Immissionsart)
   """
 
   model = TypeOfImmission
   count = TypeOfImmission.objects.count()
   attributes_values_db_initial = {
-    'title': 'title1',
-    'icon': 'icon1'
+    'title': 'eaDUeltd',
+    'icon': 'wLIe5cDw'
   }
   attributes_values_db_updated = {
-    'title': 'title2',
-    'icon': 'icon2'
+    'title': 'mNyvaDBE',
+    'icon': 'WMEmWR5M'
   }
 
   def setUp(self):
@@ -136,6 +217,33 @@ class TypeOfImmissionTest(DefaultCodelistTestCase):
 
   def test_delete(self):
     self.generic_delete_test(self.model)
+
+
+class TypeOfImmissionViewsTest(DefaultViewTestCase):
+  """
+  views test class for codelist type of immission (Immissionsart)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_index_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_typeofimmission', 200,
+      'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_index_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_typeofimmission', 200,
+      'text/html; charset=utf-8', 'auflisten'
+    )
+
+  def test_index_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_typeofimmission', 200,
+      'text/html; charset=utf-8', 'anlegen'
+    )
 
 
 #
@@ -152,12 +260,14 @@ class IndexViewTest(DefaultViewTestCase):
 
   def test_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'index', 200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'index', 200,
+      'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'index', 200, 'text/html; charset=utf-8', 'Codelisten'
+      True, False, 'index', 200,
+      'text/html; charset=utf-8', 'Codelisten'
     )
 
 
@@ -171,10 +281,12 @@ class CodelistsIndexViewTest(DefaultViewTestCase):
 
   def test_view_no_rights(self):
     self.generic_view_test(
-      False, False, 'codelists', 200, 'text/html; charset=utf-8', 'keine Rechte'
+      False, False, 'codelists', 200,
+      'text/html; charset=utf-8', 'keine Rechte'
     )
 
   def test_view_standard_rights(self):
     self.generic_view_test(
-      True, False, 'codelists', 200, 'text/html; charset=utf-8', 'Ereignisarten'
+      True, False, 'codelists', 200,
+      'text/html; charset=utf-8', 'Codelisten'
     )
