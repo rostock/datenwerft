@@ -63,7 +63,8 @@ TEMPLATES = [
         'datenwerft.context_processors.include_login_form',
       ],
       'libraries': {
-        'datenmanagement_tags': 'datenmanagement.tags.tags'
+        'datenmanagement_tags': 'datenmanagement.tags.tags',
+        'bemas_tags': 'bemas.tags'
       },
     },
   },
@@ -186,6 +187,31 @@ TIME_ZONE = 'Europe/Berlin'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+
+# App BEMAS:
+# Icons
+
+BEMAS_ICONS = {
+  'activity': 'bell',
+  'add': 'circle-plus',
+  'anonymous_complaint': 'link-slash',
+  'back': 'backward',
+  'codelist': 'list',
+  'complaint': 'folder-open',
+  'event': 'paperclip',
+  'log': 'clock-rotate-left',
+  'map': 'map',
+  'new': 'plus',
+  'ok': 'circle-check',
+  'organization': 'building',
+  'originator': 'industry',
+  'orphaned_data': 'ghost',
+  'person': 'address-card',
+  'places_map': 'map-location-dot',
+  'statistics': 'chart-simple',
+  'table': 'table'
+}
 
 
 # Konfigurationsdatei mit weiteren Parametern, die nicht unter Git-Versionskontrolle fallen sollen

@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from rest_framework import routers
 
-from bemas.utils import permission_required
 from .views.views import CodelistIndexView, CodelistsIndexView, IndexView
 
 router = routers.DefaultRouter()
@@ -44,17 +43,12 @@ for model in models:
     codelist_name = model.__name__
     codelist_name_lower = codelist_name.lower()
 
-  # CodelistIndexView:
-  # entry page for a codelist
-  urlpatterns.append(
-    path(
-      'codelists/' + codelist_name_lower,
-      view=permission_required(
-        'datenmanagement.add_' + codelist_name_lower,
-        'datenmanagement.change_' + codelist_name_lower,
-        'datenmanagement.delete_' + codelist_name_lower,
-        'datenmanagement.view_' + codelist_name_lower
-      )(CodelistIndexView.as_view(codelist=model)),
-      name='codelists_' + codelist_name_lower
+    # CodelistIndexView:
+    # entry page for a codelist
+    urlpatterns.append(
+      path(
+        'codelists/' + codelist_name_lower,
+        view=login_required(CodelistIndexView.as_view(codelist=model)),
+        name='codelists_' + codelist_name_lower
+      )
     )
-  )

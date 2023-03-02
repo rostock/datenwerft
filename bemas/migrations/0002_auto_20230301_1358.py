@@ -11,7 +11,7 @@ def load_initial_data(apps, schema_editor):
   status.objects.create(
     ordinal=2,
     title='abgeschlossen',
-    icon='circle-check'
+    icon='check'
   )
   sector = apps.get_model('bemas', 'Sector')
   sector.objects.create(
