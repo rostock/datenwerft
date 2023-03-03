@@ -24,6 +24,9 @@ class Basemodel(Model):
     abstract = True
     get_latest_by = 'updated_at'
 
+  class BasemodelMeta:
+    description = None
+
   def save(self, *args, **kwargs):
     super().save(*args, **kwargs)
 
@@ -38,4 +41,6 @@ class Codelist(Basemodel):
 
   class Meta(Basemodel.Meta):
     abstract = True
+
+  class CodelistMeta:
     codelist = True

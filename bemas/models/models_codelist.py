@@ -27,8 +27,7 @@ class Status(Codelist):
     validators=standard_validators
   )
 
-  class Meta:
-    codelist = True
+  class Meta(Codelist.Meta):
     constraints = [
       CheckConstraint(
         check=Q(ordinal__gte=1),
@@ -36,13 +35,17 @@ class Status(Codelist):
       )
     ]
     db_table = 'codelist_status'
-    description = 'Bearbeitungsstatus von Beschwerden'
-    min_numbers = {
-      'ordinal': 1
-    }
     ordering = ['ordinal']
     verbose_name = 'Bearbeitungsstatus'
     verbose_name_plural = 'Bearbeitungsstatus'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Bearbeitungsstatus von Beschwerden'
+
+  class CustomMeta:
+    min_numbers = {
+      'ordinal': 1
+    }
 
   def __str__(self):
     return self.title
@@ -60,13 +63,14 @@ class Sector(Codelist):
     validators=standard_validators
   )
 
-  class Meta:
-    codelist = True
+  class Meta(Codelist.Meta):
     db_table = 'codelist_sector'
-    description = 'definiert Verursacher näher'
     ordering = ['title']
     verbose_name = 'Branche'
     verbose_name_plural = 'Branchen'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'definiert Verursacher näher'
 
   def __str__(self):
     return self.title
@@ -90,13 +94,14 @@ class TypeOfEvent(Codelist):
     validators=standard_validators
   )
 
-  class Meta:
-    codelist = True
+  class Meta(Codelist.Meta):
     db_table = 'codelist_typeofevent'
-    description = 'definiert Journalereignisse näher'
     ordering = ['title']
     verbose_name = 'Ereignisart'
     verbose_name_plural = 'Ereignisarten'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'definiert Journalereignisse näher'
 
   def __str__(self):
     return self.title
@@ -120,13 +125,14 @@ class TypeOfImmission(Codelist):
     validators=standard_validators
   )
 
-  class Meta:
-    codelist = True
+  class Meta(Codelist.Meta):
     db_table = 'codelist_typeofimmission'
-    description = 'definiert Immissionen näher'
     ordering = ['title']
     verbose_name = 'Immissionsart'
     verbose_name_plural = 'Immissionsarten'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'definiert Immissionen näher'
 
   def __str__(self):
     return self.title

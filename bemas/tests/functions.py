@@ -1,3 +1,6 @@
+from .constants_vars import USERNAME, PASSWORD
+
+
 def clean_object_filter(object_filter):
   """
   cleans given object filter and returns it
@@ -20,3 +23,22 @@ def get_object(model, object_filter):
   :return: object of given model from the database according to given object filter
   """
   return model.objects.get(**object_filter)
+
+
+def login(test, bemas_user=False, bemas_admin=False):
+  """
+  logs test user in
+  (and assigns standard and/or admin rights)
+
+  :param test: current test case
+  :param bemas_user: assign standard rights to user?
+  :param bemas_admin: assign admin rights to user?
+  """
+  if bemas_user:
+    test.test_bemas_user_group.user_set.add(test.test_user)
+  if bemas_admin:
+    test.test_bemas_admin_group.user_set.add(test.test_user)
+  test.client.login(
+    username=USERNAME,
+    password=PASSWORD
+  )

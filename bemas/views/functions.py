@@ -1,3 +1,5 @@
+from django_user_agents.utils import get_user_agent
+
 from bemas.utils import is_bemas_admin, is_bemas_user
 
 
@@ -19,14 +21,15 @@ def add_default_context_elements(context, user):
   return context
 
 
-def add_user_agent_context_elements(context, user_agent):
+def add_user_agent_context_elements(context, request):
   """
   adds user agent related elements to a context and returns it
 
   :param context: context
-  :param user_agent: user agent
+  :param request: request
   :return: context with user agent related elements added
   """
+  user_agent = get_user_agent(request)
   if user_agent.is_mobile or user_agent.is_tablet:
     context['is_mobile'] = True
   else:
@@ -34,21 +37,25 @@ def add_user_agent_context_elements(context, user_agent):
   return context
 
 
-def assign_widget(field, min_numbers=None):
+def assign_widget(field):
   """
   creates corresponding form field (widget) to given model field and returns it
 
   :param field: model field
-  :param min_numbers: dictionary with numeric model fields (as keys) and their minimum legal values
   :return: corresponding form field (widget) to given model field
   """
   form_field = field.formfield()
-  print(field.name)
+  # get dictionary with numeric model fields (as keys) and their minimum legal values
+  model = field.model
+  min_numbers = {}
+  if hasattr(model, 'CustomMeta') and hasattr(model.CustomMeta, 'min_numbers'):
+    min_numbers = model.CustomMeta.min_numbers
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
     else:
       form_field.widget.attrs['class'] = 'form-control'
+    # set minimum legal values for numeric model fields
     if form_field.widget.input_type == 'number' and min_numbers is not None:
-      form_field.widget.attrs['min'] = min_numbers.get('a', 0)
+      form_field.widget.attrs['min'] = min_numbers.get(field.name, 0)
   return form_field

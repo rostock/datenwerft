@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from .views.views import CodelistCreateView, CodelistIndexView, CodelistsIndexView, IndexView
+from .views.views import CodelistCreateView, CodelistIndexView, CodelistsIndexView, \
+  CodelistUpdateView, IndexView
 
 router = routers.DefaultRouter()
 
@@ -39,7 +40,11 @@ urlpatterns = [
 
 models = apps.get_app_config(app_name).get_models()
 for model in models:
-  if hasattr(model._meta, 'codelist') and model._meta.codelist is True:
+  if (
+      hasattr(model, 'CodelistMeta')
+      and hasattr(model.CodelistMeta, 'codelist')
+      and model.CodelistMeta.codelist is True
+  ):
     codelist_name = model.__name__
     codelist_name_lower = codelist_name.lower()
 
@@ -65,5 +70,18 @@ for model in models:
           success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
         )),
         name='codelists_' + codelist_name_lower + '_create'
+      )
+    )
+
+    # CodelistUpdateView:
+    # form page for updating a codelist
+    urlpatterns.append(
+      path(
+        'codelists/' + codelist_name_lower + '/update/<pk>',
+        view=login_required(CodelistUpdateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
+        )),
+        name='codelists_' + codelist_name_lower + '_update'
       )
     )

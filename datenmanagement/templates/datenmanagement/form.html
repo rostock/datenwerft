@@ -87,7 +87,7 @@
         {% for field in form %}
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
             <tr>
-              <td>
+              <td class="cell-label">
                 {% if field.name in catalog_link_fields_names %}
                   {{ field.label_tag }}
                   <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
@@ -118,7 +118,7 @@
                 {% endif %}
               </td>
               {% autoescape off %}
-                <td>
+                <td class="cell-field">
                   {{ field }}
                 </td>
               {% endautoescape %}
@@ -127,10 +127,10 @@
         {% endfor %}
         {% if gpx_input %}
           <tr>
-            <td>
+            <td class="cell-label">
               <label for="id_gpx" class="required">GPX-Datei</label>
             </td>
-            <td>
+            <td class="cell-field">
               <div class="custom-file">
                 <input class="form-control" type="file" id="id_gpx" name="gpx" accept=".gpx">
               </div>
