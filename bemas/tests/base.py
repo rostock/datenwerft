@@ -115,9 +115,11 @@ class DefaultModelTestCase(DefaultTestCase):
     """
     # log test user in
     login(self, bemas_user, bemas_admin)
+    # for update mode: get primary key of last object
+    last_pk = self.model.objects.last().pk
     # prepare the POST
     if update_mode:
-      url = reverse('bemas:' + view_name, args=[self.model.objects.last().pk])
+      url = reverse('bemas:' + view_name, args=[last_pk])
     else:
       url = reverse('bemas:' + view_name)
     data = object_filter
@@ -130,7 +132,10 @@ class DefaultModelTestCase(DefaultTestCase):
     # clean object filter
     object_filter = clean_object_filter(object_filter)
     # number of objects passing the object filter as expected?
-    self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
+    if update_mode:
+      self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)
+    else:
+      self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):

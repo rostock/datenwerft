@@ -1,11 +1,13 @@
 from django.apps import apps
 from django.contrib.messages import success
+from django.contrib.messages.views import SuccessMessageMixin
 from django.forms.models import modelform_factory
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, DeleteView, UpdateView
 from django.views.generic.base import TemplateView
 
 from .forms import CodelistForm
-from .functions import add_default_context_elements, add_user_agent_context_elements, assign_widget
+from .functions import add_codelist_context_elements, add_default_context_elements, \
+  add_user_agent_context_elements, assign_widget
 
 
 class IndexView(TemplateView):
@@ -85,9 +87,7 @@ class CodelistIndexView(TemplateView):
     # add default elements to context
     context = add_default_context_elements(context, self.request.user)
     # add other necessary elements to context
-    context['codelist_name'] = self.model.__name__
-    context['codelist_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['codelist_description'] = self.model.BasemodelMeta.description
+    context = add_codelist_context_elements(context, self.model)
     return context
 
 
@@ -121,8 +121,7 @@ class CodelistCreateView(CreateView):
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add other necessary elements to context
-    context['codelist_name'] = self.model.__name__
-    context['codelist_verbose_name'] = self.model._meta.verbose_name
+    context = add_codelist_context_elements(context, self.model)
     return context
 
   def form_valid(self, form):
@@ -170,8 +169,7 @@ class CodelistUpdateView(UpdateView):
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add other necessary elements to context
-    context['codelist_name'] = self.model.__name__
-    context['codelist_verbose_name'] = self.model._meta.verbose_name
+    context = add_codelist_context_elements(context, self.model)
     return context
 
   def form_valid(self, form):
@@ -185,5 +183,43 @@ class CodelistUpdateView(UpdateView):
       self.request,
       'Der Codelisteneintrag <strong><em>%s</em></strong> '
       'wurde erfolgreich geändert!' % str(form.instance)
+    )
+    return super().form_valid(form)
+
+
+class CodelistDeleteView(SuccessMessageMixin, DeleteView):
+  """
+  form page for deleting a codelist view
+  """
+
+  template_name = 'bemas/codelist-delete.html'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add default elements to context
+    context = add_default_context_elements(context, self.request.user)
+    # add user agent related elements to context
+    context = add_user_agent_context_elements(context, self.request)
+    # add other necessary elements to context
+    context = add_codelist_context_elements(context, self.model)
+    return context
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if given form is valid
+
+    :param form: form
+    :return: HTTP response if given form is valid
+    """
+    success(
+      self.request,
+      'Der Codelisteneintrag <strong><em>%s</em></strong> '
+      'wurde erfolgreich gelöscht!' % str(self.object)
     )
     return super().form_valid(form)

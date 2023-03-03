@@ -3,6 +3,21 @@ from django_user_agents.utils import get_user_agent
 from bemas.utils import is_bemas_admin, is_bemas_user
 
 
+def add_codelist_context_elements(context, model):
+  """
+  adds codelist related elements to a context and returns it
+
+  :param context: context
+  :param model: codelist model
+  :return: context with codelist related elements added
+  """
+  context['codelist_name'] = model.__name__
+  context['codelist_verbose_name'] = model._meta.verbose_name
+  context['codelist_verbose_name_plural'] = model._meta.verbose_name_plural
+  context['codelist_description'] = model.BasemodelMeta.description
+  return context
+
+
 def add_default_context_elements(context, user):
   """
   adds default elements to a context and returns it

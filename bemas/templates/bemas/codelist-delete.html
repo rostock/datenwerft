@@ -1,0 +1,24 @@
+{% extends "navbar.html" %}
+{% load bemas_tags %}
+{% load static %}
+
+{% block title %}{{ codelist_verbose_name }} – Löschung | {% endblock %}
+
+{% block content %}
+  {% if is_bemas_admin %}
+    <form class="form" method="post" action="">
+      {% csrf_token %}
+      <h5>
+        <small>
+          Möchten Sie den Eintrag <strong><em>{{ object }}</em></strong> der Codeliste <strong>{{ codelist_verbose_name_plural }}</strong> wirklich löschen?
+        </small>
+      </h5>
+      <div class="d-grid mt-4 mb-3 gap-2 d-md-block">
+        <button class="btn btn-danger" type="submit"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</button>
+        <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower %}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+      </div>
+    </form>
+  {% else %}
+    {% include "bemas/notice-norights.html" %}
+  {% endif %}
+{% endblock %}

@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from .views.views import CodelistCreateView, CodelistIndexView, CodelistsIndexView, \
-  CodelistUpdateView, IndexView
+from .views.views import CodelistCreateView, CodelistDeleteView, CodelistIndexView, \
+  CodelistsIndexView, CodelistUpdateView, IndexView
 
 router = routers.DefaultRouter()
 
@@ -83,5 +83,18 @@ for model in models:
           success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
         )),
         name='codelists_' + codelist_name_lower + '_update'
+      )
+    )
+
+    # CodelistDeleteView:
+    # form page for deleting a codelist
+    urlpatterns.append(
+      path(
+        'codelists/' + codelist_name_lower + '/delete/<pk>',
+        view=login_required(CodelistDeleteView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
+        )),
+        name='codelists_' + codelist_name_lower + '_delete'
       )
     )

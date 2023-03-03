@@ -58,7 +58,7 @@
           <button class="btn btn-primary" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
           {% if object %}
             <button class="btn btn-primary" type="submit" onclick="cloneObject();"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als neuen Codelisteneintrag {% endif %}klonen</button>
-            <a class="btn btn-danger" role="button" href="#"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
+            <a class="btn btn-danger" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_delete' object.pk %}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
           {% endif %}
           <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower %}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
         </div>
