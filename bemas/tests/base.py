@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from json import loads
 
+from bemas.models import Codelist
 from .constants_vars import DATABASES, USERNAME, PASSWORD
 from .functions import clean_object_filter, get_object, login
 
@@ -98,8 +99,8 @@ class DefaultModelTestCase(DefaultTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_create_update_view_test(self, update_mode, bemas_user, bemas_admin, view_name,
-                                      object_filter, status_code, content_type, count):
+  def generic_crud_view_test(self, update_mode, bemas_user, bemas_admin, view_name,
+                             object_filter, status_code, content_type, string, count):
     """
     tests a view for creating or updating an object via POST
 
@@ -111,6 +112,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param object_filter: object filter
     :param status_code: expected status code of response
     :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
     :param count: expected number of objects passing the object filter
     """
     # log test user in
@@ -136,6 +138,12 @@ class DefaultModelTestCase(DefaultTestCase):
       self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)
     else:
       self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
+    # specific string contained in response?
+    if string:
+      if 'json' in response['content-type'].lower():
+        self.assertIn(string, str(loads(response.content)))
+      else:
+        self.assertIn(string, str(response.content))
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
@@ -153,11 +161,7 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
     :param self
     """
     # model declared as codelist?
-    self.assertTrue(
-      hasattr(self.model, 'CodelistMeta')
-      and hasattr(self.model.CodelistMeta, 'codelist')
-      and self.model.CodelistMeta.codelist is True
-    )
+    self.assertTrue(issubclass(self.model, Codelist))
 
 
 class DefaultViewTestCase(DefaultTestCase):

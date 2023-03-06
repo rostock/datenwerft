@@ -5,6 +5,7 @@ from django.forms.models import modelform_factory
 from django.views.generic import CreateView, DeleteView, UpdateView
 from django.views.generic.base import TemplateView
 
+from bemas.models import Codelist
 from .forms import CodelistForm
 from .functions import add_codelist_context_elements, add_default_context_elements, \
   add_user_agent_context_elements, assign_widget
@@ -51,17 +52,12 @@ class CodelistsIndexView(TemplateView):
     codelists = []
     models = apps.get_app_config('bemas').get_models()
     for model in models:
-        codelist = {
+      if issubclass(model, Codelist):
+        codelists.append({
           'name': model.__name__,
           'verbose_name_plural': model._meta.verbose_name_plural,
           'description': model.BasemodelMeta.description
-        }
-        if (
-            hasattr(model, 'CodelistMeta')
-            and hasattr(model.CodelistMeta, 'codelist')
-            and model.CodelistMeta.codelist is True
-        ):
-          codelists.append(codelist)
+        })
     context['codelists'] = codelists
     return context
 

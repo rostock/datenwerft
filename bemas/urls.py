@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
+from bemas.models import Codelist
 from .views.views import CodelistCreateView, CodelistDeleteView, CodelistIndexView, \
   CodelistsIndexView, CodelistUpdateView, IndexView
 
@@ -40,11 +41,7 @@ urlpatterns = [
 
 models = apps.get_app_config(app_name).get_models()
 for model in models:
-  if (
-      hasattr(model, 'CodelistMeta')
-      and hasattr(model.CodelistMeta, 'codelist')
-      and model.CodelistMeta.codelist is True
-  ):
+  if issubclass(model, Codelist):
     codelist_name = model.__name__
     codelist_name_lower = codelist_name.lower()
 

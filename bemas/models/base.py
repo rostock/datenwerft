@@ -41,6 +41,3 @@ class Codelist(Basemodel):
 
   class Meta(Basemodel.Meta):
     abstract = True
-
-  class CodelistMeta:
-    codelist = True
