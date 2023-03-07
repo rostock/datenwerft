@@ -4,8 +4,9 @@ from django.urls import path, reverse_lazy
 from rest_framework import routers
 
 from bemas.models import Codelist
-from .views.views import CodelistCreateView, CodelistDeleteView, CodelistIndexView, \
-  CodelistsIndexView, CodelistUpdateView, IndexView
+from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistIndexView, \
+  CodelistTableDataView, CodelistUpdateView
+from .views.views_general import CodelistsIndexView, IndexView
 
 router = routers.DefaultRouter()
 
@@ -54,6 +55,18 @@ for model in models:
           model=model
         )),
         name='codelists_' + codelist_name_lower
+      )
+    )
+
+    # CodelistTableDataView:
+    # table data composition for a codelist
+    urlpatterns.append(
+      path(
+        'codelists/' + codelist_name_lower + '/tabledata',
+        view=login_required(CodelistTableDataView.as_view(
+          model=model
+        )),
+        name='codelists_' + codelist_name_lower + '_tabledata'
       )
     )
 

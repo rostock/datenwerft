@@ -203,6 +203,7 @@ BEMAS_ICONS = {
   # 'complaint': 'folder-open',
   # 'contact': 'address-card',
   'delete': 'trash',
+  'edit': 'pencil',
   'error': 'circle-exclamation',
   # 'event': 'paperclip',
   # 'log': 'clock-rotate-left',

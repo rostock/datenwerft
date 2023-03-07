@@ -1,66 +1,18 @@
-from django.apps import apps
 from django.contrib.messages import error, success
 from django.db.models import ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.utils.html import escape
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from bemas.models import Codelist
+from bemas.utils import get_icon_from_settings, is_bemas_admin
 from .forms import CodelistForm
 from .functions import add_codelist_context_elements, add_default_context_elements, \
   add_user_agent_context_elements, assign_widget
-
-
-class IndexView(TemplateView):
-  """
-  main page view
-  """
-
-  template_name = 'bemas/index.html'
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    return context
-
-
-class CodelistsIndexView(TemplateView):
-  """
-  codelists entry page view
-  """
-
-  template_name = 'bemas/codelists.html'
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    # add list of codelists to context
-    codelists = []
-    models = apps.get_app_config('bemas').get_models()
-    for model in models:
-      if issubclass(model, Codelist):
-        codelists.append({
-          'name': model.__name__,
-          'verbose_name_plural': model._meta.verbose_name_plural,
-          'description': model.BasemodelMeta.description
-        })
-    context['codelists'] = codelists
-    return context
 
 
 class CodelistIndexView(TemplateView):
@@ -86,6 +38,58 @@ class CodelistIndexView(TemplateView):
     # add other necessary elements to context
     context = add_codelist_context_elements(context, self.model)
     return context
+
+
+class CodelistTableDataView(BaseDatatableView):
+  """
+  table data composition for a codelist view
+  """
+
+  def __init__(self, model=None, *args, **kwargs):
+    self.model = model
+    self.columns = self.model._meta.fields
+    self.pk_name = self.model._meta.pk.name
+    super().__init__(*args, **kwargs)
+
+  def prepare_results(self, qs):
+    """
+    loops given queryset, creates cleaned-up JSON representation of the queryset and returns it
+
+    :param qs: queryset
+    :return: cleaned-up JSON representation of the queryset
+    """
+    json_data = []
+    for item in qs:
+      item_data = []
+      item_pk = getattr(item, self.pk_name)
+      for column in self.columns:
+        data = None
+        value = getattr(item, column.name)
+        if value is not None:
+          # replace Python Booleans
+          if value is True:
+            data = 'ja'
+          elif value is False:
+            data = 'nein'
+          else:
+            data = escape(value)
+        item_data.append(data)
+      # append links for updating and deleting
+      if is_bemas_admin(self.request.user) or self.request.user.is_superuser:
+        item_data.append(
+          '<a href="' +
+          reverse('bemas:codelists_' + self.model.__name__ + '_update', args=[item_pk]) +
+          '"><i class="fas fa-' + get_icon_from_settings('edit') +
+          '" title="Codelisteneintrag bearbeiten"></i></a>'
+        )
+        item_data.append(
+          '<a href="' +
+          reverse('bemas:codelists_' + self.model.__name__ + '_delete', args=[item_pk]) +
+          '"><i class="fas fa-' + get_icon_from_settings('delete') +
+          '" title="Codelisteneintrag löschen"></i></a>'
+        )
+      json_data.append(item_data)
+    return json_data
 
 
 class CodelistCreateView(CreateView):
