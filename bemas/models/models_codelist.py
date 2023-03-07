@@ -1,4 +1,5 @@
 from django.db.models import CheckConstraint, Q
+from django.db.models import PROTECT, ForeignKey
 from django.db.models.fields import CharField, SmallIntegerField
 
 from datenmanagement.models.constants_vars import standard_validators

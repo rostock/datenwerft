@@ -27,6 +27,10 @@ span.nav-link:hover {
   width: 90%;
 }
 
+.error_object_list {
+  margin-bottom: 0 !important;
+}
+
 .main-logo {
   height: 80px;
 }

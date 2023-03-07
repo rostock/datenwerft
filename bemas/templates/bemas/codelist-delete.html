@@ -6,6 +6,16 @@
 
 {% block content %}
   {% if is_bemas_admin %}
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags and message.tags == 'error' %}
+          <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
+            {{ message|safe }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
     <form class="form" method="post" action="">
       {% csrf_token %}
       <h5>

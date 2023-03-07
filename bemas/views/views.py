@@ -1,9 +1,10 @@
 from django.apps import apps
-from django.contrib.messages import success
-from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.messages import error, success
+from django.db.models import ProtectedError
 from django.forms.models import modelform_factory
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from bemas.models import Codelist
 from .forms import CodelistForm
@@ -183,7 +184,7 @@ class CodelistUpdateView(UpdateView):
     return super().form_valid(form)
 
 
-class CodelistDeleteView(SuccessMessageMixin, DeleteView):
+class CodelistDeleteView(DeleteView):
   """
   form page for deleting a codelist view
   """
@@ -213,9 +214,35 @@ class CodelistDeleteView(SuccessMessageMixin, DeleteView):
     :param form: form
     :return: HTTP response if given form is valid
     """
-    success(
-      self.request,
-      'Der Codelisteneintrag <strong><em>%s</em></strong> '
-      'wurde erfolgreich gelöscht!' % str(self.object)
-    )
-    return super().form_valid(form)
+    success_url = self.get_success_url()
+    try:
+      self.object.delete()
+      success(
+        self.request,
+        'Der Codelisteneintrag <strong><em>%s</em></strong> '
+        'wurde erfolgreich gelöscht!' % str(self.object)
+      )
+      return HttpResponseRedirect(success_url)
+    except ProtectedError as exception:
+      object_list = ''
+      for protected_object in exception.protected_objects:
+        object_list += ('<li>' if len(exception.protected_objects) > 1 else '')
+        object_list += '<strong><em>' + str(protected_object) + '</em></strong> '
+        if issubclass(protected_object.__class__, Codelist):
+          object_list += 'aus Codeliste '
+        else:
+          object_list += 'aus Objektklasse '
+        object_list += '<strong>' + protected_object._meta.verbose_name_plural + '</strong>'
+        object_list += ('</li>' if len(exception.protected_objects) > 1 else '')
+      if len(exception.protected_objects) > 1:
+        object_reference_text = 'Folgende Objekte verweisen '
+        object_list = '<ul class="error_object_list">' + object_list + '</ul>'
+      else:
+        object_reference_text = 'Folgendes Objekt verweist '
+      error(
+        self.request,
+        'Der Codelisteneintrag <strong><em>' + str(self.object) + '</em></strong> '
+        'kann nicht gelöscht werden! ' + object_reference_text + ' noch auf ihn:' +
+        '<br><br>' + object_list
+      )
+      return self.render_to_response(self.get_context_data(form=form))
