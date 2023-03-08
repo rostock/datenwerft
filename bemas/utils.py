@@ -1,4 +1,15 @@
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
+
+
+def get_icon_from_settings(key):
+  """
+  returns icon (i.e. value) of given key in icon dictionary
+
+  :param key: key in icon dictionary
+  :return: icon (i.e. value) of given key in icon dictionary
+  """
+  return settings.BEMAS_ICONS.get(key, 'poo')
 
 
 def is_bemas_admin(user):
@@ -31,3 +42,13 @@ def is_bemas_user(user, only_bemas_user_check=False):
       return True
   else:
     return False
+
+
+def permission_required(*perms):
+  """
+  checks given permission(s)
+
+  :param perms: permission(s)
+  :return: check result of given permission(s)
+  """
+  return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))

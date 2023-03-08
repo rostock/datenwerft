@@ -1,4 +1,4 @@
-class DatenmanagementRouter:
+class DatabaseRouter:
   """
   Router zur Steuerung aller Datenbankoperationen
   auf Datenmodellen der Apps BEMAS und Datenmanagement
@@ -47,5 +47,5 @@ class DatenmanagementRouter:
       if app_label == 'datenmanagement' or db == 'datenmanagement':
         return False
       else:
-        return True
+        return db == app_label
     return None

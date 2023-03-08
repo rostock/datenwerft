@@ -38,6 +38,14 @@ input[name="strasse"] {
   margin-top: 0.5rem;
 }
 
+.cell-field {
+  padding-right: 0 !important;
+}
+
+.cell-label {
+  padding-left: 0 !important;
+}
+
 .label-with-margin {
   margin-left: 0.3rem;
 }

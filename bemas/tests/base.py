@@ -4,7 +4,9 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from json import loads
 
-from .constants_vars import *
+from bemas.models import Codelist
+from .constants_vars import DATABASES, USERNAME, PASSWORD
+from .functions import clean_object_filter, get_object, login
 
 
 class DefaultTestCase(TestCase):
@@ -20,6 +22,145 @@ class DefaultTestCase(TestCase):
     self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
+class DefaultModelTestCase(DefaultTestCase):
+  """
+  abstract test class for models
+  """
+
+  model = None
+  count = 0
+  create_test_object_in_classmethod = True
+  attributes_values_db_initial, attributes_values_db_updated = {}, {}
+  test_object = None
+
+  @classmethod
+  def setUpTestData(cls):
+    if cls.create_test_object_in_classmethod:
+      cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def init(self):
+    super().init()
+
+  def generic_existance_test(self, test_object):
+    """
+    tests general existance of given test object
+
+    :param self
+    :param test_object: test object
+    """
+    # actual number of objects equals expected number of objects?
+    self.assertEqual(self.model.objects.all().count(), self.count + 1)
+    # on creation: object created exactly as it should have been created?
+    # on update: object updated exactly as it should have been updated?
+    self.assertEqual(test_object, self.test_object)
+
+  def generic_create_test(self):
+    """
+    tests creation of test object of given model
+
+    :param self
+    """
+    # clean object filter
+    object_filter = clean_object_filter(self.attributes_values_db_initial)
+    # get object by object filter
+    test_object = get_object(self.model, object_filter)
+    # test general existance of object
+    self.generic_existance_test(test_object)
+    # created object contains specific value in one of its fields?
+    self.assertEqual(self.model.objects.filter(**object_filter).count(), 1)
+
+  def generic_update_test(self):
+    """
+    tests update of test object of given model
+
+    :param self
+    """
+    for key in self.attributes_values_db_updated:
+      setattr(self.test_object, key, self.attributes_values_db_updated[key])
+    self.test_object.save()
+    # clean object filter
+    object_filter = clean_object_filter(self.attributes_values_db_updated)
+    # get object by object filter
+    test_object = get_object(self.model, object_filter)
+    # test general existance of object
+    self.generic_existance_test(test_object)
+    # updated object contains specific value in one of its fields?
+    self.assertEqual(self.model.objects.filter(**object_filter).count(), 1)
+
+  def generic_delete_test(self):
+    """
+    tests deletion of test object of given model
+
+    :param self
+    """
+    # no more test objects left?
+    self.test_object.delete()
+    self.assertEqual(self.model.objects.all().count(), self.count)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+  def generic_crud_view_test(self, update_mode, bemas_user, bemas_admin, view_name,
+                             object_filter, status_code, content_type, string, count):
+    """
+    tests a view for creating or updating an object via POST
+
+    :param self
+    :param update_mode: update mode?
+    :param bemas_user: assign standard rights to user?
+    :param bemas_admin: assign admin rights to user?
+    :param view_name: name of the view
+    :param object_filter: object filter
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
+    :param count: expected number of objects passing the object filter
+    """
+    # log test user in
+    login(self, bemas_user, bemas_admin)
+    # for update mode: get primary key of last object
+    last_pk = self.model.objects.last().pk
+    # prepare the POST
+    if update_mode:
+      url = reverse('bemas:' + view_name, args=[last_pk])
+    else:
+      url = reverse('bemas:' + view_name)
+    data = object_filter
+    # try POSTing the view
+    response = self.client.post(url, data)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # clean object filter
+    object_filter = clean_object_filter(object_filter)
+    # number of objects passing the object filter as expected?
+    if update_mode:
+      self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)
+    else:
+      self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
+    # specific string contained in response?
+    if string:
+      self.assertIn(string, str(response.content))
+
+
+class DefaultCodelistTestCase(DefaultModelTestCase):
+  """
+  abstract test class for codelists
+  """
+
+  def init(self):
+    super().init()
+
+  def generic_is_codelist_test(self):
+    """
+    tests if model is codelist
+
+    :param self
+    """
+    # model declared as codelist?
+    self.assertTrue(issubclass(self.model, Codelist))
+
+
 class DefaultViewTestCase(DefaultTestCase):
   """
   abstract test class for views
@@ -28,27 +169,9 @@ class DefaultViewTestCase(DefaultTestCase):
   def init(self):
     super().init()
 
-  def login(self, bemas_user=False, bemas_admin=False):
-    """
-    logs test user in
-    (and assigns standard and/or admin rights)
-
-    :param self
-    :param bemas_user: assign standard rights to user?
-    :param bemas_admin: assign admin rights to user?
-    """
-    if bemas_user:
-      self.test_bemas_user_group.user_set.add(self.test_user)
-    if bemas_admin:
-      self.test_bemas_admin_group.user_set.add(self.test_user)
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
-
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(self, bemas_user, bemas_admin, view_name,
-                        status_code, content_type, string):
+                        view_args, status_code, content_type, string):
     """
     tests a view via GET
 
@@ -56,14 +179,23 @@ class DefaultViewTestCase(DefaultTestCase):
     :param bemas_user: assign standard rights to user?
     :param bemas_admin: assign admin rights to user?
     :param view_name: name of the view
+    :param view_args: arguments passed to the view
     :param status_code: expected status code of response
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     """
     # log test user in
-    self.login(bemas_user, bemas_admin)
+    login(self, bemas_user, bemas_admin)
+    # prepare the GET
+    if view_args and type(view_args) is list:
+      url = reverse('bemas:' + view_name, args=view_args)
+    else:
+      url = reverse('bemas:' + view_name)
     # try GETting the view
-    response = self.client.get(reverse('bemas:' + view_name))
+    if view_args and type(view_args) is dict:
+      response = self.client.get(url, view_args)
+    else:
+      response = self.client.get(url)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?

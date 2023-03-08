@@ -225,10 +225,10 @@ options.DEFAULT_NAMES += (
 # allgemein
 
 akut_regex = r'^(?!.*´).*$'
-akut_message = 'Der Text darf keine Akute (´) enthalten. Stattdessen muss ' \
+akut_message = 'Texte dürfen keine Akute (´) enthalten. Stattdessen muss ' \
                'der typographisch korrekte Apostroph (’) verwendet werden.'
 anfuehrungszeichen_regex = r'^(?!.*\").*$'
-anfuehrungszeichen_message = 'Der Text darf keine doppelten ' \
+anfuehrungszeichen_message = 'Texte dürfen keine doppelten ' \
                              'Schreibmaschinensatz-Anführungszeichen (") ' \
                              'enthalten. Stattdessen müssen die ' \
                              'typographisch korrekten Anführungszeichen ' \
@@ -238,7 +238,7 @@ ansprechpartner_message = 'Die E-Mail-Adresse der <strong><em>Ansprechpartnerin<
                           'oder des <strong><em>Ansprechpartners</em></strong> ' \
                           'darf keine Großbuchstaben enthalten.'
 apostroph_regex = r'^(?!.*\').*$'
-apostroph_message = 'Der Text darf keine einfachen ' \
+apostroph_message = 'Texte dürfen keine einfachen ' \
                     'Schreibmaschinensatz-Anführungszeichen (\') enthalten. ' \
                     'Stattdessen muss der typographisch korrekte Apostroph' \
                     '(’) verwendet werden.'
@@ -246,15 +246,14 @@ bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
 bindestrich_leerzeichen_message = 'Im Text darf nach einen Bindestrich kein ' \
                                   'Leerzeichen stehen.'
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
-doppelleerzeichen_message = 'Der Text darf keine doppelten Leerzeichen ' \
+doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen ' \
                             'und/oder Zeilenumbrüche enthalten.'
 email_message = 'Die <strong><em>E-Mail-Adresse</em></strong> muss ' \
                 'syntaktisch korrekt sein und daher folgendes Format ' \
                 'aufweisen (Beispiel): abc-123.098_zyx@xyz-567.def.abc'
 gravis_regex = r'^(?!.*`).*$'
-gravis_message = 'Der Text darf keine Gravis (`) enthalten. Stattdessen ' \
-                 'muss der typographisch korrekte Apostroph (’) ' \
-                 'verwendet werden.'
+gravis_message = 'Texte dürfen keine Gravis (`) enthalten. Stattdessen ' \
+                 'muss der typographisch korrekte Apostroph (’) verwendet werden.'
 hausnummer_zusatz_regex = r'^[a-z]$'
 hausnummer_zusatz_message = 'Der <strong><em>Hausnummernzusatz</em>' \
                             '</strong>muss aus genau einem ' \

@@ -18,10 +18,7 @@ class DefaultTestCase(TestCase):
   databases = DATABASES
 
   def init(self):
-    self.test_user = User.objects.create_user(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class DefaultModelTestCase(DefaultTestCase):
@@ -345,7 +342,7 @@ class DefaultMetaModelTestCase(DefaultModelTestCase):
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
   """
-  Standardtest für Meta-Datenmodelle
+  Standardtest für Codelisten
   """
 
   def init(self):

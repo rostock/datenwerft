@@ -1,4 +1,5 @@
 {% extends "navbar.html" %}
+{% load bemas_tags %}
 {% load static %}
 
 {% block title %}BEMAS | {% endblock %}
@@ -6,7 +7,8 @@
 {% block content %}
   {% if is_bemas_user %}
     <h2 class="text-center"><em>BEMAS</em></h2>
+    <a href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codelisten</a>
   {% else %}
-    <h2 class="text-center">Sie haben leider (noch) keine Rechte für <em>BEMAS.</em></h2>
+    {% include "bemas/notice-norights.html" %}
   {% endif %}
 {% endblock %}

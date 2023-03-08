@@ -1,5 +1,4 @@
 from django.apps import apps
-from django.conf import settings
 from django.views.generic import ListView
 
 
@@ -38,9 +37,9 @@ class IndexView(ListView):
               'datenmanagement.view_' +
               model.__name__.lower())):
         list_model = {
-            'name': model.__name__,
-            'verbose_name_plural': model._meta.verbose_name_plural,
-            'description': model._meta.description
+          'name': model.__name__,
+          'verbose_name_plural': model._meta.verbose_name_plural,
+          'description': model._meta.description
         }
         if hasattr(model._meta, 'metamodel') and model._meta.metamodel is True:
           models_meta.append(list_model)

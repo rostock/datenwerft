@@ -48,7 +48,7 @@
         </div>
       {% endif %}
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze unten links steuerbar
+        <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze <strong><em>unten links</em></strong> steuerbar
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <table id="datasets" class="table table-bordered table-striped">
@@ -219,7 +219,7 @@
 
         /**
          * @function
-         * @name cloneObject
+         * @name determineColumnDefs
          *
          * legt die Spaltendefinition fest
          *
