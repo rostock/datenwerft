@@ -1,6 +1,6 @@
 from bemas.models import Sector, Status, TypeOfEvent, TypeOfImmission
 from .base import DefaultCodelistTestCase, DefaultViewTestCase
-from .constants_vars import INVALID_STRING
+from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS
 
 
 #
@@ -110,6 +110,36 @@ class StatusViewsTest(DefaultViewTestCase):
     self.generic_view_test(
       True, True, 'codelists_status', None, 200,
       'text/html; charset=utf-8', 'anlegen'
+    )
+
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_status_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'in Bearbeitung'
+    )
+
+  def test_tabledata_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_status_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'bearbeiten'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_status_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_status_table', None,
+      200, 'text/html; charset=utf-8', 'Titel'
+    )
+
+  def test_table_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_status_table', None,
+      200, 'text/html; charset=utf-8', 'Aktionen'
     )
 
   def test_create_view_no_rights(self):
@@ -260,6 +290,36 @@ class SectorViewsTest(DefaultViewTestCase):
     self.generic_view_test(
       True, True, 'codelists_sector', None, 200,
       'text/html; charset=utf-8', 'anlegen'
+    )
+
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_sector_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'Baubetrieb'
+    )
+
+  def test_tabledata_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_sector_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'bearbeiten'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_sector_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_sector_table', None,
+      200, 'text/html; charset=utf-8', 'Titel'
+    )
+
+  def test_table_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_sector_table', None,
+      200, 'text/html; charset=utf-8', 'Aktionen'
     )
 
   def test_create_view_no_rights(self):
@@ -417,6 +477,36 @@ class TypeOfEventViewsTest(DefaultViewTestCase):
       'text/html; charset=utf-8', 'anlegen'
     )
 
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_typeofevent_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'Telefonat'
+    )
+
+  def test_tabledata_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_typeofevent_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'bearbeiten'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_typeofevent_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_typeofevent_table', None,
+      200, 'text/html; charset=utf-8', 'Titel'
+    )
+
+  def test_table_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_typeofevent_table', None,
+      200, 'text/html; charset=utf-8', 'Aktionen'
+    )
+
   def test_create_view_no_rights(self):
     self.generic_view_test(
       False, False, 'codelists_typeofevent_create', None,
@@ -570,6 +660,36 @@ class TypeOfImmissionViewsTest(DefaultViewTestCase):
     self.generic_view_test(
       True, True, 'codelists_typeofimmission', None, 200,
       'text/html; charset=utf-8', 'anlegen'
+    )
+
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_typeofimmission_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'Geruch'
+    )
+
+  def test_tabledata_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_typeofimmission_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'bearbeiten'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'codelists_typeofimmission_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'codelists_typeofimmission_table', None,
+      200, 'text/html; charset=utf-8', 'Titel'
+    )
+
+  def test_table_view_admin_rights(self):
+    self.generic_view_test(
+      True, True, 'codelists_typeofimmission_table', None,
+      200, 'text/html; charset=utf-8', 'Aktionen'
     )
 
   def test_create_view_no_rights(self):

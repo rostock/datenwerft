@@ -140,10 +140,7 @@ class DefaultModelTestCase(DefaultTestCase):
       self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
     # specific string contained in response?
     if string:
-      if 'json' in response['content-type'].lower():
-        self.assertIn(string, str(loads(response.content)))
-      else:
-        self.assertIn(string, str(response.content))
+      self.assertIn(string, str(response.content))
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
@@ -190,12 +187,15 @@ class DefaultViewTestCase(DefaultTestCase):
     # log test user in
     login(self, bemas_user, bemas_admin)
     # prepare the GET
-    if view_args:
+    if view_args and type(view_args) is list:
       url = reverse('bemas:' + view_name, args=view_args)
     else:
       url = reverse('bemas:' + view_name)
     # try GETting the view
-    response = self.client.get(url)
+    if view_args and type(view_args) is dict:
+      response = self.client.get(url, view_args)
+    else:
+      response = self.client.get(url)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?

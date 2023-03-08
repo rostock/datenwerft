@@ -18,6 +18,41 @@ def add_codelist_context_elements(context, model):
   return context
 
 
+def add_table_context_elements(context, model):
+  """
+  adds table related elements to a context and returns it
+
+  :param context: context
+  :param model: model
+  :return: context with table related elements added
+  """
+  context['objects_count'] = model.objects.count()
+  column_titles = []
+  for field in model._meta.fields:
+    column_titles.append(field.verbose_name)
+  context['column_titles'] = column_titles
+  # determine initial order
+  initial_order = []
+  if model._meta.ordering:
+    for field_name in model._meta.ordering:
+      # determine order direction and clean field name
+      if field_name.startswith('-'):
+        order_direction = 'desc'
+        cleaned_field_name = field_name[1:]
+      else:
+        order_direction = 'asc'
+        cleaned_field_name = field_name
+      # determine index of field
+      order_index = 0
+      for index, field in enumerate(model._meta.fields):
+        if field.name == cleaned_field_name:
+          order_index = index
+          break
+      initial_order.append([order_index, order_direction])
+  context['initial_order'] = initial_order
+  return context
+
+
 def add_default_context_elements(context, user):
   """
   adds default elements to a context and returns it

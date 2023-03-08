@@ -5,7 +5,7 @@ from rest_framework import routers
 
 from bemas.models import Codelist
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistIndexView, \
-  CodelistTableDataView, CodelistUpdateView
+  CodelistTableDataView, CodelistTableView, CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView
 
 router = routers.DefaultRouter()
@@ -67,6 +67,18 @@ for model in models:
           model=model
         )),
         name='codelists_' + codelist_name_lower + '_tabledata'
+      )
+    )
+
+    # CodelistTableView:
+    # table page for a codelist
+    urlpatterns.append(
+      path(
+        'codelists/' + codelist_name_lower + '/table',
+        view=login_required(CodelistTableView.as_view(
+          model=model
+        )),
+        name='codelists_' + codelist_name_lower + '_table'
       )
     )
 

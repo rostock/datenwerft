@@ -217,7 +217,8 @@ BEMAS_ICONS = {
   # 'places_map': 'map-location-dot',
   'save': 'floppy-disk',
   # 'statistics': 'chart-simple',
-  'table': 'table'
+  'table': 'table',
+  'warning': 'triangle-exclamation'
 }
 
 

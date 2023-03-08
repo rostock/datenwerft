@@ -8,14 +8,17 @@ class Basemodel(Model):
   """
 
   id = BigAutoField(
+    'ID',
     primary_key=True,
     editable=False
   )
   created_at = DateTimeField(
+    'Erstellung',
     auto_now_add=True,
     editable=False
   )
   updated_at = DateTimeField(
+    'letzte Änderung',
     auto_now=True,
     editable=False
   )
@@ -26,12 +29,6 @@ class Basemodel(Model):
 
   class BasemodelMeta:
     description = None
-
-  def save(self, *args, **kwargs):
-    super().save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super().delete(*args, **kwargs)
 
 
 class Codelist(Basemodel):

@@ -22,7 +22,7 @@
       {% if is_bemas_admin %}
         <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_create' %}"><i class="fas fa-{{ 'add'|get_icon }}"></i> neuen Datensatz anlegen</a>
       {% endif %}
-      <a class="btn btn-lg btn-secondary" role="button" href="#"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Codelisteneinträge in Tabelle auflisten</a>
+      <a class="btn btn-lg btn-secondary" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Codelisteneinträge in Tabelle auflisten</a>
       <a class="btn btn-lg btn-warning" role="button" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     <script>
