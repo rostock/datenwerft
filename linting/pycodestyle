@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 echo "Checking Python rules via pycodestyle..."
-pycodestyle *.py datenwerft/*.py accounts/*.py accounts/*/*.py bemas/*.py bemas/*/*.py datenmanagement/*.py datenmanagement/*/*.py toolbox/*.py toolbox/*/*.py
+pycodestyle *.py datenwerft/*.py accounts/*.py accounts/*/*.py bemas/*.py bemas/models/*.py bemas/tests/*.py bemas/views/*.py datenmanagement/*.py datenmanagement/*/*.py toolbox/*.py toolbox/*/*.py

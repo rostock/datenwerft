@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
       - name: Check Python rules via pycodestyle
-        run: pycodestyle *.py datenwerft/*.py accounts/*.py accounts/*/*.py bemas/*.py bemas/*/*.py datenmanagement/*.py datenmanagement/*/*.py toolbox/*.py toolbox/*/*.py
+        run: pycodestyle *.py datenwerft/*.py accounts/*.py accounts/*/*.py bemas/*.py bemas/models/*.py bemas/tests/*.py bemas/views/*.py datenmanagement/*.py datenmanagement/*/*.py toolbox/*.py toolbox/*/*.py
       - name: Check Django rules via djLint
         run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html
   linting_js_css:
