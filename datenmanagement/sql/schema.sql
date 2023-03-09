@@ -2469,7 +2469,8 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     aenderungen character varying(500),
     unterschutzstellungen date[],
     veroeffentlichungen date[],
-    denkmalnummern character varying(255)[]
+    denkmalnummern character varying(255)[],
+    lage character varying(255)
 );
 
 
