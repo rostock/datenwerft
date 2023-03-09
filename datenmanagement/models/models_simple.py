@@ -511,6 +511,13 @@ class Baudenkmale(SimpleModel):
     null=True,
     validators=standard_validators
   )
+  lage = CharField(
+    'Lage',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   unterschutzstellungen = ArrayField(
     DateField(
       verbose_name='Unterschutzstellungen',
@@ -573,7 +580,7 @@ class Baudenkmale(SimpleModel):
       'adresse': 'Adresse',
       'art': 'Art',
       'beschreibung': 'Beschreibung',
-      'landschaftsdenkmal': 'Landschaftsdenkmal?'
+      'lage': 'Lage'
     }
     list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
@@ -591,6 +598,7 @@ class Baudenkmale(SimpleModel):
       'status': 'Status',
       'art': 'Art',
       'beschreibung': 'Beschreibung',
+      'lage': 'Lage',
       'landschaftsdenkmal': 'Landschaftsdenkmal?'
     }
     map_filter_fields_as_list = ['art', 'status']
