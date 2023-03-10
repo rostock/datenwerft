@@ -29,7 +29,7 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
   get_pre_save_instance, path_and_rename, photo_post_processing, sequence_id
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
-  Altersklassen_Kadaverfunde, Arten_Adressunsicherheiten, Arten_Baudenkmale, \
+  Altersklassen_Kadaverfunde, Arten_Adressunsicherheiten, \
   Arten_Erdwaermesonden, Arten_FairTrade, Arten_Feldsportanlagen, Arten_Feuerwachen, \
   Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Fallwildsuchen_Kontrollen, \
   Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
@@ -491,14 +491,6 @@ class Baudenkmale(SimpleModel):
     blank=True,
     null=True
   )
-  art = ForeignKey(
-    Arten_Baudenkmale,
-    verbose_name='Art',
-    on_delete=RESTRICT,
-    db_column='art',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten'
-  )
   beschreibung = CharField(
     'Beschreibung',
     max_length=255,
@@ -578,7 +570,6 @@ class Baudenkmale(SimpleModel):
       'id': 'ID',
       'status': 'Status',
       'adresse': 'Adresse',
-      'art': 'Art',
       'beschreibung': 'Beschreibung',
       'lage': 'Lage'
     }
@@ -586,8 +577,7 @@ class Baudenkmale(SimpleModel):
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'status': 'status',
-      'adresse': 'adresse',
-      'art': 'art'
+      'adresse': 'adresse'
     }
     readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
@@ -596,21 +586,18 @@ class Baudenkmale(SimpleModel):
       'deaktiviert': 'gestrichen am',
       'id': 'ID',
       'status': 'Status',
-      'art': 'Art',
       'beschreibung': 'Beschreibung',
       'lage': 'Lage',
       'landschaftsdenkmal': 'Landschaftsdenkmal?'
     }
-    map_filter_fields_as_list = ['art', 'status']
+    map_filter_fields_as_list = ['status']
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'MultiPolygon'
     as_overlay = True
 
   def __str__(self):
-    return self.beschreibung + \
-      ' [' + ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
-      'Art: ' + str(self.art) + ']'
+    return self.beschreibung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
 class Behinderteneinrichtungen(SimpleModel):

@@ -3,7 +3,7 @@ from django.core.files import File
 from django.test import override_settings
 from datenmanagement.models import Abfallbehaelter, Adressen, Adressunsicherheiten, \
   Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, Angelverbotsbereiche, \
-  Arten_Adressunsicherheiten, Arten_Baudenkmale, Arten_Erdwaermesonden, Arten_FairTrade, \
+  Arten_Adressunsicherheiten, Arten_Erdwaermesonden, Arten_FairTrade, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
   Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Meldedienst_flaechenhaft, \
   Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, \
@@ -1011,12 +1011,8 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
     status_baudenkmal = Status_Baudenkmale_Denkmalbereiche.objects.create(
       status='Status'
     )
-    art_baudenkmal = Arten_Baudenkmale.objects.create(
-      art='Art'
-    )
     cls.attributes_values_db_initial = {
       'status': status_baudenkmal,
-      'art': art_baudenkmal,
       'beschreibung': 'Beschreibung1',
       'landschaftsdenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_DB
@@ -1028,7 +1024,6 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'id': 2,
       'status': str(status_baudenkmal.pk),
-      'art': str(art_baudenkmal.pk),
       'beschreibung': 'Beschreibung3',
       'landschaftsdenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
@@ -1037,7 +1032,6 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'id': 3,
       'status': str(status_baudenkmal.pk),
-      'art': str(art_baudenkmal.pk),
       'beschreibung': 'Beschreibung4',
       'landschaftsdenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW

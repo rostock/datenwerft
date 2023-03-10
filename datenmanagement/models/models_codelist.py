@@ -272,18 +272,6 @@ class Arten_Adressunsicherheiten(Art):
     description = 'Arten von Adressunsicherheiten'
 
 
-class Arten_Baudenkmale(Art):
-  """
-  Arten von Baudenkmalen
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_baudenkmale'
-    verbose_name = 'Art eines Baudenkmals'
-    verbose_name_plural = 'Arten von Baudenkmalen'
-    description = 'Arten von Baudenkmalen'
-
-
 class Arten_Durchlaesse(Art):
   """
   Arten von Durchlässen

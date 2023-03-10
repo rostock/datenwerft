@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -347,18 +347,6 @@ CREATE TABLE codelisten.ansprechpartner_baustellen (
 --
 
 CREATE TABLE codelisten.arten_adressunsicherheiten (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    art character varying(255) NOT NULL
-);
-
-
---
--- Name: arten_baudenkmale; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.arten_baudenkmale (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -2457,8 +2445,6 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     adresse uuid,
-    art uuid NOT NULL,
-    bezeichnung character varying(255),
     beschreibung character varying(255) NOT NULL,
     geometrie public.geometry(MultiPolygon,25833) NOT NULL,
     id integer NOT NULL,
@@ -3353,22 +3339,6 @@ ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
 
 ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
     ADD CONSTRAINT arten_adressunsicherheiten_pk PRIMARY KEY (uuid);
-
-
---
--- Name: arten_baudenkmale arten_baudenkmale_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_baudenkmale
-    ADD CONSTRAINT arten_baudenkmale_art_unique UNIQUE (art);
-
-
---
--- Name: arten_baudenkmale arten_baudenkmale_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_baudenkmale
-    ADD CONSTRAINT arten_baudenkmale_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6362,14 +6332,6 @@ ALTER TABLE ONLY fachdaten.uvp_vorpruefungen_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.adressunsicherheiten_hro
     ADD CONSTRAINT adressunsicherheiten_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_adressunsicherheiten(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: baudenkmale_hro baudenkmale_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro
-    ADD CONSTRAINT baudenkmale_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_baudenkmale(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
