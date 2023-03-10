@@ -22,7 +22,7 @@ from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, path_and_rename, \
-  photo_post_processing, sequence_id
+  photo_post_processing
 from .models_codelist import Strassen, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
   Arten_UVP_Vorpruefungen, Auftraggeber_Baustellen, Ausfuehrungen_Haltestellenkataster, \
   Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
@@ -895,7 +895,8 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   )
   id = PositiveIntegerField(
     'ID',
-    default=sequence_id('fachdaten.haltestellenkataster_haltestellen_hro_id_seq')
+    unique=True,
+    default=0
   )
   hst_bezeichnung = CharField(
     'Haltestellenbezeichnung',

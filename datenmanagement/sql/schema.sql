@@ -153,6 +153,40 @@ $$;
 
 
 --
+-- Name: id_denkmalbereiche(); Type: FUNCTION; Schema: fachdaten; Owner: -
+--
+
+CREATE FUNCTION fachdaten.id_denkmalbereiche() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _id integer;
+BEGIN
+   EXECUTE 'SELECT CASE WHEN max(id) IS NULL THEN 0 ELSE max(id) END FROM fachdaten.denkmalbereiche_hro' INTO _id;
+   NEW.id := _id + 1;
+   RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: id_haltestellen(); Type: FUNCTION; Schema: fachdaten; Owner: -
+--
+
+CREATE FUNCTION fachdaten.id_haltestellen() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _id integer;
+BEGIN
+   EXECUTE 'SELECT CASE WHEN max(id) IS NULL THEN 0 ELSE max(id) END FROM fachdaten.haltestellenkataster_haltestellen_hro' INTO _id;
+   NEW.id := _id + 1;
+   RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: id_hundetoiletten(); Type: FUNCTION; Schema: fachdaten; Owner: -
 --
 
@@ -194,6 +228,23 @@ BEGIN
    IF (TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NOT ST_Equals(NEW.geometrie ,OLD.geometrie))) AND ST_GeometryType(NEW.geometrie) ~ 'LineString' THEN
    NEW.laenge_in_hro := floor(random() * 32767);
     END IF;
+   RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: id_baudenkmale(); Type: FUNCTION; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE FUNCTION fachdaten_adressbezug.id_baudenkmale() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _id integer;
+BEGIN
+   EXECUTE 'SELECT CASE WHEN max(id) IS NULL THEN 0 ELSE max(id) END FROM fachdaten_adressbezug.baudenkmale_hro' INTO _id;
+   NEW.id := _id + 1;
    RETURN NEW;
 END;
 $$;
@@ -1560,26 +1611,6 @@ CREATE TABLE fachdaten.denkmalbereiche_hro (
 
 
 --
--- Name: denkmalbereiche_hro_id_seq; Type: SEQUENCE; Schema: fachdaten; Owner: -
---
-
-CREATE SEQUENCE fachdaten.denkmalbereiche_hro_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: denkmalbereiche_hro_id_seq; Type: SEQUENCE OWNED BY; Schema: fachdaten; Owner: -
---
-
-ALTER SEQUENCE fachdaten.denkmalbereiche_hro_id_seq OWNED BY fachdaten.denkmalbereiche_hro.id;
-
-
---
 -- Name: durchlaesse_durchlaesse_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -1859,25 +1890,6 @@ CREATE TABLE fachdaten.haltestellenkataster_haltestellen_hro (
     hst_fahrgastzahl_einstieg smallint,
     hst_fahrgastzahl_ausstieg smallint
 );
-
-
---
--- Name: haltestellenkataster_haltestellen_hro_id_seq; Type: SEQUENCE; Schema: fachdaten; Owner: -
---
-
-CREATE SEQUENCE fachdaten.haltestellenkataster_haltestellen_hro_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: haltestellenkataster_haltestellen_hro_id_seq; Type: SEQUENCE OWNED BY; Schema: fachdaten; Owner: -
---
-
-ALTER SEQUENCE fachdaten.haltestellenkataster_haltestellen_hro_id_seq OWNED BY fachdaten.haltestellenkataster_haltestellen_hro.id;
 
 
 --
@@ -2458,26 +2470,6 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     denkmalnummern character varying(255)[],
     lage character varying(255)
 );
-
-
---
--- Name: baudenkmale_hro_id_seq; Type: SEQUENCE; Schema: fachdaten_adressbezug; Owner: -
---
-
-CREATE SEQUENCE fachdaten_adressbezug.baudenkmale_hro_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: baudenkmale_hro_id_seq; Type: SEQUENCE OWNED BY; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER SEQUENCE fachdaten_adressbezug.baudenkmale_hro_id_seq OWNED BY fachdaten_adressbezug.baudenkmale_hro.id;
 
 
 --
@@ -3190,27 +3182,6 @@ CREATE TABLE fachdaten_strassenbezug.strassenreinigung_hro (
     reinigungsrhythmus uuid,
     gemeindeteil uuid NOT NULL
 );
-
-
---
--- Name: denkmalbereiche_hro id; Type: DEFAULT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.denkmalbereiche_hro ALTER COLUMN id SET DEFAULT nextval('fachdaten.denkmalbereiche_hro_id_seq'::regclass);
-
-
---
--- Name: haltestellenkataster_haltestellen_hro id; Type: DEFAULT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro ALTER COLUMN id SET DEFAULT nextval('fachdaten.haltestellenkataster_haltestellen_hro_id_seq'::regclass);
-
-
---
--- Name: baudenkmale_hro id; Type: DEFAULT; Schema: fachdaten_adressbezug; Owner: -
---
-
-ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro ALTER COLUMN id SET DEFAULT nextval('fachdaten_adressbezug.baudenkmale_hro_id_seq'::regclass);
 
 
 --
@@ -4742,6 +4713,14 @@ ALTER TABLE ONLY fachdaten.containerstellplaetze_hro
 
 
 --
+-- Name: denkmalbereiche_hro denkmalbereiche_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.denkmalbereiche_hro
+    ADD CONSTRAINT denkmalbereiche_hro_id_unique UNIQUE (id);
+
+
+--
 -- Name: denkmalbereiche_hro denkmalbereiche_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -4835,6 +4814,14 @@ ALTER TABLE ONLY fachdaten.haltestellenkataster_fotos_hro
 
 ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
     ADD CONSTRAINT haltestellenkataster_haltestellen_hro_haltestelle_unique UNIQUE (hst_hafas_id, hst_bus_bahnsteigbezeichnung);
+
+
+--
+-- Name: haltestellenkataster_haltestellen_hro haltestellenkataster_haltestellen_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.haltestellenkataster_haltestellen_hro
+    ADD CONSTRAINT haltestellenkataster_haltestellen_hro_id_unique UNIQUE (id);
 
 
 --
@@ -5067,6 +5054,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.adressunsicherheiten_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.aufteilungsplaene_wohnungseigentumsgesetz_hro
     ADD CONSTRAINT aufteilungsplaene_wohnungseigentumsgesetz_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: baudenkmale_hro baudenkmale_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro
+    ADD CONSTRAINT baudenkmale_hro_id_unique UNIQUE (id);
 
 
 --
@@ -5469,6 +5464,20 @@ CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.abfallbehaelter_hr
 
 
 --
+-- Name: denkmalbereiche_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.denkmalbereiche_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_denkmalbereiche();
+
+
+--
+-- Name: haltestellenkataster_haltestellen_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten.haltestellenkataster_haltestellen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_haltestellen();
+
+
+--
 -- Name: hundetoiletten_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -5543,6 +5552,13 @@ CREATE TRIGGER tr_before_update_98_deaktiviert BEFORE UPDATE OF aktiv ON fachdat
 --
 
 CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_adressbezug.sporthallen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
+-- Name: baudenkmale_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_adressbezug.baudenkmale_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_adressbezug.id_baudenkmale();
 
 
 --

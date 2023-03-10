@@ -27,7 +27,7 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
-  get_pre_save_instance, path_and_rename, photo_post_processing, sequence_id
+  get_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
   Altersklassen_Kadaverfunde, Arten_Adressunsicherheiten, \
   Arten_Erdwaermesonden, Arten_FairTrade, Arten_Feldsportanlagen, Arten_Feuerwachen, \
@@ -471,7 +471,8 @@ class Baudenkmale(SimpleModel):
   )
   id = PositiveIntegerField(
     'ID',
-    default=sequence_id('fachdaten_adressbezug.baudenkmale_hro_id_seq')
+    unique=True,
+    default=0
   )
   status = ForeignKey(
     Status_Baudenkmale_Denkmalbereiche,
@@ -1326,7 +1327,8 @@ class Denkmalbereiche(SimpleModel):
   )
   id = PositiveIntegerField(
     'ID',
-    default=sequence_id('fachdaten.denkmalbereiche_hro_id_seq')
+    unique=True,
+    default=0
   )
   status = ForeignKey(
     Status_Baudenkmale_Denkmalbereiche,

@@ -205,18 +205,6 @@ def rotate_image(path):
     pass
 
 
-def sequence_id(sequence_name):
-  """
-  liefert den nächsten Wert der seriellen Datenbank-ID mit dem übergebenen Namen zurück
-
-  :param sequence_name: Name der seriellen Datenbank-ID
-  :return: nächster Wert der seriellen Datenbank-ID mit dem übergebenen Namen
-  """
-  with connections['datenmanagement'].cursor() as cursor:
-    cursor.execute("""SELECT nextval('""" + sequence_name + """')""")
-    return cursor.fetchone()[0]
-
-
 def thumb_image(path, thumb_path):
   """
   erstellt Thumbnail unter dem übergebenenem Thumbnail-Pfad zum Foto unter dem übergebenenen Pfad
