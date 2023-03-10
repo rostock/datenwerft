@@ -225,7 +225,7 @@ class ReverseSearchView(View):
         + "&query=" + self.reversesearch_x + "," + self.reversesearch_y
         + "&in_epsg=" + self.reversesearch_in_epsg
         + "&radius=" + str(settings.REVERSE_SEARCH_RADIUS),
-        timeout=3
+        timeout=10
       )
       return HttpResponse(response, content_type='application/json')
     except Exception:
