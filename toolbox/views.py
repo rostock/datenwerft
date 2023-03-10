@@ -168,7 +168,7 @@ class AddressSearchView(View):
         + "&out_epsg=" + self.addresssearch_out_epsg
         + "&shape=" + self.addresssearch_shape
         + "&limit=" + self.addresssearch_limit,
-        timeout=3
+        timeout=10
       )
       return HttpResponse(response, content_type='application/json')
     except Exception:
