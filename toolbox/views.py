@@ -125,7 +125,6 @@ class AddressSearchView(View):
     self.addresssearch_type = None
     self.addresssearch_class = None
     self.addresssearch_query = None
-    self.addresssearch_out_epsg = None
     self.addresssearch_shape = None
     self.addresssearch_limit = None
     super().__init__()
@@ -143,7 +142,6 @@ class AddressSearchView(View):
     self.addresssearch_type = 'search'
     self.addresssearch_class = 'address_hro'
     self.addresssearch_query = request.GET.get('query', '')
-    self.addresssearch_out_epsg = '4326'
     self.addresssearch_shape = 'bbox'
     self.addresssearch_limit = '5'
     return super(AddressSearchView, self).dispatch(request, *args, **kwargs)
@@ -165,10 +163,9 @@ class AddressSearchView(View):
         + "&type=" + self.addresssearch_type
         + "&class=" + self.addresssearch_class
         + "&query=" + self.addresssearch_query
-        + "&out_epsg=" + self.addresssearch_out_epsg
         + "&shape=" + self.addresssearch_shape
         + "&limit=" + self.addresssearch_limit,
-        timeout=10
+        timeout=4
       )
       return HttpResponse(response, content_type='application/json')
     except Exception:

@@ -501,8 +501,10 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
       searchField.val($(this).children('strong').text());
     }
     // Karte auf Resultat zoomen
-    window.featureGeometry = json.features[$(this).data('feature')].geometry;
-    if (featureGeometry.type === 'Point') {
+    let resultingFeatureGeometry = json.features[$(this).data('feature')].geometry;
+    if (resultingFeatureGeometry.type === 'Point') {
+      resultingFeatureGeometry.coordinates = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates);
+      window.featureGeometry = resultingFeatureGeometry;
       currMap.fitBounds([
         [
           featureGeometry.coordinates[1],
@@ -514,6 +516,10 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
         ]
       ]);
     } else {
+      for (let i = 0; i < resultingFeatureGeometry.coordinates[0].length; i++) {
+        resultingFeatureGeometry.coordinates[0][i] = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates[0][i]);
+      }
+      window.featureGeometry = resultingFeatureGeometry;
       currMap.fitBounds([
         [
           featureGeometry.coordinates[0][0][1],
