@@ -176,3 +176,9 @@ multipolygon_field = MultiPolygonField(
   'Geometrie',
   srid=25833
 )
+nullable_multipolygon_field = MultiPolygonField(
+  'Geometrie',
+  srid=25833,
+  blank=True,
+  null=True
+)

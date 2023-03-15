@@ -2458,7 +2458,7 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     deaktiviert date,
     adresse uuid,
     beschreibung character varying(255) NOT NULL,
-    geometrie public.geometry(MultiPolygon,25833) NOT NULL,
+    geometrie public.geometry(MultiPolygon,25833),
     id integer NOT NULL,
     status uuid NOT NULL,
     landschaftsdenkmal boolean NOT NULL,

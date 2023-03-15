@@ -257,9 +257,20 @@ class DataForm(ModelForm):
     error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche ' \
                  'gezeichnet werden, falls es sich um Daten linien- oder flächenhafter ' \
                  'Repräsentation handelt!'
-    if 'EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data):
+    if (
+        not self.model._meta.get_field('geometrie').blank
+        and not self.model._meta.get_field('geometrie').null
+        and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
+    ):
       raise ValidationError(error_text)
-    return data
+    elif (
+        self.model._meta.get_field('geometrie').blank
+        and self.model._meta.get_field('geometrie').null
+        and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
+    ):
+      return None
+    else:
+      return data
 
 
 class DataAddView(CreateView):

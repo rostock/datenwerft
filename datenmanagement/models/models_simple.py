@@ -25,7 +25,7 @@ from .constants_vars import personennamen_validators, standard_validators, \
   trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
-  multipolygon_field
+  multipolygon_field, nullable_multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
   get_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
@@ -558,7 +558,7 @@ class Baudenkmale(SimpleModel):
     null=True,
     validators=standard_validators
   )
-  geometrie = multipolygon_field
+  geometrie = nullable_multipolygon_field
 
   class Meta(SimpleModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
