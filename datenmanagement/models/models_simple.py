@@ -464,11 +464,6 @@ class Baudenkmale(SimpleModel):
   Baudenkmale
   """
 
-  deaktiviert = DateField(
-    ' gestrichen am',
-    blank=True,
-    null=True
-  )
   id = PositiveIntegerField(
     'ID',
     unique=True,
@@ -567,24 +562,21 @@ class Baudenkmale(SimpleModel):
     description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
-      'deaktiviert': 'gestrichen am',
       'id': 'ID',
       'status': 'Status',
       'adresse': 'Adresse',
       'beschreibung': 'Beschreibung',
       'lage': 'Lage'
     }
-    list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'status': 'status',
       'adresse': 'adresse'
     }
-    readonly_fields = ['deaktiviert', 'id']
+    readonly_fields = ['id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'deaktiviert': 'gestrichen am',
       'id': 'ID',
       'status': 'Status',
       'beschreibung': 'Beschreibung',
@@ -1320,11 +1312,6 @@ class Denkmalbereiche(SimpleModel):
   Denkmalbereiche
   """
 
-  deaktiviert = DateField(
-    ' gestrichen am',
-    blank=True,
-    null=True
-  )
   id = PositiveIntegerField(
     'ID',
     unique=True,
@@ -1403,22 +1390,19 @@ class Denkmalbereiche(SimpleModel):
     description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
-      'deaktiviert': 'gestrichen am',
       'id': 'ID',
       'status': 'Status',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung'
     }
-    list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'status': 'status'
     }
-    readonly_fields = ['deaktiviert', 'id']
+    readonly_fields = ['id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'deaktiviert': 'gestrichen am',
       'id': 'ID',
       'status': 'Status',
       'bezeichnung': 'Bezeichnung',
