@@ -284,6 +284,18 @@ class Arten_Durchlaesse(Art):
     description = 'Arten von Durchlässen'
 
 
+class Arten_Fahrradabstellanlagen(Art):
+  """
+  Arten von Fahrradabstellanlagen
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_fahrradabstellanlagen'
+    verbose_name = 'Art einer Fahrradabstellanlage'
+    verbose_name_plural = 'Arten von Fahrradabstellanlagen'
+    description = 'Arten von Fahrradabstellanlagen'
+
+
 class Arten_Erdwaermesonden(Art):
   """
   Arten von Erdwärmesonden

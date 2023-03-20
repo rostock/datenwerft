@@ -430,6 +430,18 @@ CREATE TABLE codelisten.arten_erdwaermesonden (
 
 
 --
+-- Name: arten_fahrradabstellanlagen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_fahrradabstellanlagen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_fairtrade; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1682,6 +1694,26 @@ CREATE TABLE fachdaten.erdwaermesonden_hro (
     sondenfeldgroesse smallint,
     endteufe numeric(5,2),
     hinweis character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: fahrradabstellanlagen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.fahrradabstellanlagen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    art uuid NOT NULL,
+    stellplaetze smallint,
+    gebuehren boolean NOT NULL,
+    ueberdacht boolean NOT NULL,
     geometrie public.geometry(Point,25833) NOT NULL
 );
 
@@ -3345,6 +3377,22 @@ ALTER TABLE ONLY codelisten.arten_erdwaermesonden
 
 
 --
+-- Name: arten_fahrradabstellanlagen arten_fahrradabstellanlagen_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_fahrradabstellanlagen
+    ADD CONSTRAINT arten_fahrradabstellanlagen_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_fahrradabstellanlagen arten_fahrradabstellanlagen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_fahrradabstellanlagen
+    ADD CONSTRAINT arten_fahrradabstellanlagen_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_fairtrade arten_fairtrade_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4761,6 +4809,14 @@ ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
 
 
 --
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: fallwildsuchen_kontrollgebiete_hro fallwildsuchen_kontrollgebiete_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5796,6 +5852,14 @@ ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
 
 ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
     ADD CONSTRAINT erdwaermesonden_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_fahrradabstellanlagen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

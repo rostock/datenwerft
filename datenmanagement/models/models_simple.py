@@ -30,10 +30,10 @@ from .functions import current_year, delete_pdf, delete_photo, delete_photo_afte
   get_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
   Altersklassen_Kadaverfunde, Arten_Adressunsicherheiten, \
-  Arten_Erdwaermesonden, Arten_FairTrade, Arten_Feldsportanlagen, Arten_Feuerwachen, \
-  Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Fallwildsuchen_Kontrollen, \
-  Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
-  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Arten_Wege, \
+  Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, Arten_Feldsportanlagen, \
+  Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
+  Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Arten_Wege, \
   Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
   Anbieter_Carsharing, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Gebaeudebauweisen, \
   Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
@@ -1679,6 +1679,65 @@ class Erdwaermesonden(SimpleModel):
 
   def __str__(self):
     return self.aktenzeichen
+
+
+class Fahrradabstellanlagen(SimpleModel):
+  """
+  Fahrradabstellanlagen
+  """
+
+  art = ForeignKey(
+    Arten_Fahrradabstellanlagen,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  stellplaetze = PositiveSmallIntegerMinField(
+    'Stellplätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  gebuehren = BooleanField(
+    'Gebühren?'
+  )
+  ueberdacht = BooleanField(
+    ' überdacht?'
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"fahrradabstellanlagen_hro'
+    verbose_name = 'Fahrradabstellanlage'
+    verbose_name_plural = 'Fahrradabstellanlagen'
+    description = 'Fahrradabstellanlagen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'stellplaetze': 'Stellplätze',
+      'gebuehren': 'Gebühren?',
+      'ueberdacht': 'überdacht?'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art'
+    }
+    list_fields_with_number = ['stellplaetze']
+    map_feature_tooltip_field = 'uuid'
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'stellplaetze': 'Stellplätze',
+      'gebuehren': 'Gebühren?',
+      'ueberdacht': 'überdacht?'
+    }
+    map_filter_fields_as_list = ['art']
+    geometry_type = 'Point'
+    as_overlay = True
+
+  def __str__(self):
+    return str(self.uuid)
 
 
 class FairTrade(SimpleModel):
