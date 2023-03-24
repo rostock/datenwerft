@@ -1382,6 +1382,10 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
     max_value=7,
     unique=True
   )
+  reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
+    'Reinigungshäufigkeit pro Jahr',
+    min_value=1
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"reinigungsklassen_strassenreinigungssatzung_hro'
@@ -1392,9 +1396,10 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
     description = 'Reinigungsklassen gemäß Straßenreinigungssatzung ' \
                   'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
-      'code': 'Code'
+      'code': 'Code',
+      'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['code']
+    list_fields_with_number = ['code', 'reinigungshaeufigkeit_pro_jahr']
     ordering = ['code']
 
   def __str__(self):
@@ -1416,6 +1421,12 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
     max_length=255,
     validators=standard_validators
   )
+  reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
+    'Reinigungshäufigkeit pro Jahr',
+    min_value=1,
+    blank=True,
+    null=True
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"reinigungsrhythmen_strassenreinigungssatzung_hro'
@@ -1427,9 +1438,10 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
                   'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'ordinalzahl': 'Ordinalzahl',
-      'reinigungsrhythmus': 'Reinigungsrhythmus'
+      'reinigungsrhythmus': 'Reinigungsrhythmus',
+      'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['ordinalzahl']
+    list_fields_with_number = ['ordinalzahl', 'reinigungshaeufigkeit_pro_jahr']
     ordering = ['ordinalzahl']
     naming = 'reinigungsrhythmus'
 
@@ -1961,6 +1973,10 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
     max_value=7,
     unique=True
   )
+  reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
+    'Reinigungshäufigkeit pro Jahr',
+    min_value=1
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"wegereinigungsklassen_strassenreinigungssatzung_hro'
@@ -1971,9 +1987,10 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
     description = 'Wegereinigungsklassen gemäß Straßenreinigungssatzung ' \
                   'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
-      'code': 'Code'
+      'code': 'Code',
+      'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['code']
+    list_fields_with_number = ['code', 'reinigungshaeufigkeit_pro_jahr']
     ordering = ['code']
 
   def __str__(self):
@@ -1995,6 +2012,12 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
     max_length=255,
     validators=standard_validators
   )
+  reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
+    'Reinigungshäufigkeit pro Jahr',
+    min_value=1,
+    blank=True,
+    null=True
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"wegereinigungsrhythmen_strassenreinigungssatzung_hro'
@@ -2006,9 +2029,10 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
                   'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'ordinalzahl': 'Ordinalzahl',
-      'reinigungsrhythmus': 'Reinigungsrhythmus'
+      'reinigungsrhythmus': 'Reinigungsrhythmus',
+      'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['ordinalzahl']
+    list_fields_with_number = ['ordinalzahl', 'reinigungshaeufigkeit_pro_jahr']
     ordering = ['ordinalzahl']
     naming = 'reinigungsrhythmus'
 

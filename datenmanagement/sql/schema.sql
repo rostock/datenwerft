@@ -1036,7 +1036,8 @@ CREATE TABLE codelisten.reinigungsklassen_strassenreinigungssatzung_hro (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
-    code smallint NOT NULL
+    code smallint NOT NULL,
+    reinigungshaeufigkeit_pro_jahr smallint NOT NULL
 );
 
 
@@ -1049,7 +1050,8 @@ CREATE TABLE codelisten.reinigungsrhythmen_strassenreinigungssatzung_hro (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     ordinalzahl smallint NOT NULL,
-    reinigungsrhythmus character varying(255) NOT NULL
+    reinigungsrhythmus character varying(255) NOT NULL,
+    reinigungshaeufigkeit_pro_jahr smallint
 );
 
 
@@ -1326,7 +1328,8 @@ CREATE TABLE codelisten.wegereinigungsklassen_strassenreinigungssatzung_hro (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
-    code smallint NOT NULL
+    code smallint NOT NULL,
+    reinigungshaeufigkeit_pro_jahr smallint NOT NULL
 );
 
 
@@ -1339,7 +1342,8 @@ CREATE TABLE codelisten.wegereinigungsrhythmen_strassenreinigungssatzung_hro (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     ordinalzahl smallint NOT NULL,
-    reinigungsrhythmus character varying(255) NOT NULL
+    reinigungsrhythmus character varying(255) NOT NULL,
+    reinigungshaeufigkeit_pro_jahr smallint
 );
 
 

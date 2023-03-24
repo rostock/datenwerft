@@ -7220,16 +7220,20 @@ class ReinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase)
   model = Reinigungsklassen_Strassenreinigungssatzung_HRO
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
-    'code': 1
+    'code': 1,
+    'reinigungshaeufigkeit_pro_jahr': 12
   }
   attributes_values_db_updated = {
-    'code': 2
+    'code': 2,
+    'reinigungshaeufigkeit_pro_jahr': 24
   }
   attributes_values_view_initial = {
-    'code': 3
+    'code': 3,
+    'reinigungshaeufigkeit_pro_jahr': 6
   }
   attributes_values_view_updated = {
-    'code': 4
+    'code': 4,
+    'reinigungshaeufigkeit_pro_jahr': 3
   }
   attributes_values_view_invalid = {
     'code': INVALID_INTEGER
@@ -10654,16 +10658,20 @@ class WegereinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestC
   model = Wegereinigungsklassen_Strassenreinigungssatzung_HRO
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
-    'code': 1
+    'code': 1,
+    'reinigungshaeufigkeit_pro_jahr': 12
   }
   attributes_values_db_updated = {
-    'code': 2
+    'code': 2,
+    'reinigungshaeufigkeit_pro_jahr': 24
   }
   attributes_values_view_initial = {
-    'code': 3
+    'code': 3,
+    'reinigungshaeufigkeit_pro_jahr': 6
   }
   attributes_values_view_updated = {
-    'code': 4
+    'code': 4,
+    'reinigungshaeufigkeit_pro_jahr': 3
   }
   attributes_values_view_invalid = {
     'code': INVALID_INTEGER
