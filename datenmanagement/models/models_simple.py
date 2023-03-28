@@ -586,6 +586,15 @@ class Baudenkmale(SimpleModel):
     map_filter_fields_as_list = ['status']
     address_type = 'Adresse'
     address_mandatory = False
+    additional_wfs_featuretypes = [
+      {
+        'name': 'flurstuecke',
+        'title': 'Flurstücke',
+        'url': '/flurstuecke_hro/wfs',
+        'featuretypes': 'hro.flurstuecke.flurstuecke',
+        'proxy': True
+      }
+    ]
     geometry_type = 'MultiPolygon'
     as_overlay = True
 
