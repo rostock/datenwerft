@@ -38,3 +38,12 @@ class Codelist(Basemodel):
 
   class Meta(Basemodel.Meta):
     abstract = True
+
+
+class Objectclass(Basemodel):
+  """
+  abstract model class for object classes
+  """
+
+  class Meta(Basemodel.Meta):
+    abstract = True
