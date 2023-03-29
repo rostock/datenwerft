@@ -243,13 +243,11 @@ apostroph_message = 'Texte dürfen keine einfachen ' \
                     'Stattdessen muss der typographisch korrekte Apostroph' \
                     '(’) verwendet werden.'
 bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
-bindestrich_leerzeichen_message = 'Im Text darf nach einen Bindestrich kein ' \
-                                  'Leerzeichen stehen.'
+bindestrich_leerzeichen_message = 'Im Text darf nach einem Bindestrich kein Leerzeichen stehen.'
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen ' \
                             'und/oder Zeilenumbrüche enthalten.'
-email_message = 'Die <strong><em>E-Mail-Adresse</em></strong> muss ' \
-                'syntaktisch korrekt sein und daher folgendes Format ' \
+email_message = 'E-Mail-Adressen müssen syntaktisch korrekt sein und daher folgendes Format ' \
                 'aufweisen (Beispiel): abc-123.098_zyx@xyz-567.def.abc'
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Texte dürfen keine Gravis (`) enthalten. Stattdessen ' \
@@ -268,14 +266,13 @@ postleitzahl_regex = r'^[0-9]{5}$'
 postleitzahl_message = 'Die <strong><em>Postleitzahl</em></strong> ' \
                        'muss aus genau fünf Ziffern bestehen.'
 rufnummer_regex = r'^\+(1 )?([0-9]{1,3}) [1-9][0-9]{1,5} [0-9]{1,13}$'
-rufnummer_message = 'Die Schreibweise von ' \
-                    '<strong><em>Rufnummern</em></strong> muss der ' \
-                    'Empfehlung E.123 der Internationalen Fernmeldeunion ' \
-                    'entsprechen und daher folgendes Format aufweisen (Beispiel): ' \
+rufnummer_message = 'Die Schreibweise von Telefonnummern müssen ' \
+                    'der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen ' \
+                    'und daher folgendes Format aufweisen (Beispiel): ' \
                     '+49 381 3816256'
-url_message = 'Die Adresse der <strong><em>Website</em></strong> muss ' \
-              'syntaktisch korrekt sein und daher folgendes Format ' \
-              'aufweisen (Beispiel): http[s]://abc-123.098_zyx.xyz-567/def/abc'
+url_message = 'Die Adressen von Websites müssen syntaktisch korrekt sein ' \
+              'und daher folgendes Format aufweisen (Beispiel): ' \
+              'http[s]://abc-123.098_zyx.xyz-567/def/abc'
 standard_validators = [
   RegexValidator(regex=akut_regex, message=akut_message),
   RegexValidator(regex=anfuehrungszeichen_regex, message=anfuehrungszeichen_message),

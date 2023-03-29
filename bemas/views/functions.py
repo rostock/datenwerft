@@ -18,6 +18,24 @@ def add_codelist_context_elements(context, model):
   return context
 
 
+def add_default_context_elements(context, user):
+  """
+  adds default elements to a context and returns it
+
+  :param context: context
+  :param user: user
+  :return: context with default elements added
+  """
+  context['is_bemas_user'], context['is_bemas_admin'] = False, False
+  if user.is_superuser:
+    context['is_bemas_user'], context['is_bemas_admin'] = True, True
+  elif is_bemas_user(user) or is_bemas_admin(user):
+    context['is_bemas_user'] = True
+    if is_bemas_admin(user):
+      context['is_bemas_admin'] = True
+  return context
+
+
 def add_table_context_elements(context, model):
   """
   adds table related elements to a context and returns it
@@ -53,24 +71,6 @@ def add_table_context_elements(context, model):
   return context
 
 
-def add_default_context_elements(context, user):
-  """
-  adds default elements to a context and returns it
-
-  :param context: context
-  :param user: user
-  :return: context with default elements added
-  """
-  context['is_bemas_user'], context['is_bemas_admin'] = False, False
-  if user.is_superuser:
-    context['is_bemas_user'], context['is_bemas_admin'] = True, True
-  elif is_bemas_user(user) or is_bemas_admin(user):
-    context['is_bemas_user'] = True
-    if is_bemas_admin(user):
-      context['is_bemas_admin'] = True
-  return context
-
-
 def add_user_agent_context_elements(context, request):
   """
   adds user agent related elements to a context and returns it
@@ -97,15 +97,21 @@ def assign_widget(field):
   form_field = field.formfield()
   # get dictionary with numeric model fields (as keys) and their minimum legal values
   model = field.model
-  min_numbers = {}
-  if hasattr(model, 'CustomMeta') and hasattr(model.CustomMeta, 'min_numbers'):
-    min_numbers = model.CustomMeta.min_numbers
+  min_numbers, max_numbers = {}, {}
+  if hasattr(model, 'CustomMeta'):
+    if hasattr(model.CustomMeta, 'min_numbers'):
+      min_numbers = model.CustomMeta.min_numbers
+    if hasattr(model.CustomMeta, 'max_numbers'):
+      max_numbers = model.CustomMeta.max_numbers
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
     else:
       form_field.widget.attrs['class'] = 'form-control'
-    # set minimum legal values for numeric model fields
-    if form_field.widget.input_type == 'number' and min_numbers is not None:
-      form_field.widget.attrs['min'] = min_numbers.get(field.name, 0)
+    # set minimum and maximum values for numeric model fields
+    if form_field.widget.input_type == 'number':
+      if min_numbers is not None:
+        form_field.widget.attrs['min'] = min_numbers.get(field.name, 0)
+      if max_numbers is not None:
+        form_field.widget.attrs['max'] = max_numbers.get(field.name, 0)
   return form_field
