@@ -2240,7 +2240,7 @@ class Geh_Radwegereinigung(SimpleModel):
   )
   laenge = DecimalField(
     'Länge (in m)',
-    max_digits=6,
+    max_digits=7,
     decimal_places=2,
     default=0
   )
@@ -5547,7 +5547,7 @@ class Strassenreinigung(SimpleModel):
   )
   laenge = DecimalField(
     'Länge (in m)',
-    max_digits=6,
+    max_digits=7,
     decimal_places=2,
     default=0
   )
