@@ -1,5 +1,6 @@
 from django_user_agents.utils import get_user_agent
 
+from bemas.models import Codelist
 from bemas.utils import is_bemas_admin, is_bemas_user
 
 
@@ -36,6 +37,21 @@ def add_default_context_elements(context, user):
   return context
 
 
+def add_generic_objectclass_context_elements(context, model):
+  """
+  adds generic object class related elements to a context and returns it
+
+  :param context: context
+  :param model: object class model
+  :return: context with generic object class related elements added
+  """
+  context['objectclass_name'] = model.__name__
+  context['objectclass_verbose_name'] = model._meta.verbose_name
+  context['objectclass_verbose_name_plural'] = model._meta.verbose_name_plural
+  context['objectclass_description'] = model.BasemodelMeta.description
+  return context
+
+
 def add_table_context_elements(context, model):
   """
   adds table related elements to a context and returns it
@@ -46,8 +62,16 @@ def add_table_context_elements(context, model):
   """
   context['objects_count'] = model.objects.count()
   column_titles = []
+  address_handled = False
   for field in model._meta.fields:
-    column_titles.append(field.verbose_name)
+    if not field.name.startswith('address_'):
+      column_titles.append(field.verbose_name)
+    # handle addresses
+    elif field.name.startswith('address_') and not address_handled:
+      # return one column for address string
+      # instead of returning columns for all address related values
+      column_titles.append('Anschrift')
+      address_handled = True
   context['column_titles'] = column_titles
   # determine initial order
   initial_order = []
@@ -115,3 +139,26 @@ def assign_widget(field):
       if max_numbers is not None:
         form_field.widget.attrs['max'] = max_numbers.get(field.name, 0)
   return form_field
+
+
+def generate_protected_objects_list(protected_objects):
+  """
+  generates an HTML list of given protected objects and returns it
+
+  :param protected_objects: protected objects
+  :return: HTML list of given protected objects
+  """
+  object_list = ''
+  for protected_object in protected_objects:
+    object_list += ('<li>' if len(protected_objects) > 1 else '')
+    object_list += '<strong><em>' + str(protected_object) + '</em></strong> '
+    if issubclass(protected_object.__class__, Codelist):
+      object_list += 'aus Codeliste '
+    else:
+      object_list += 'aus Objektklasse '
+    object_list += '<strong>' + protected_object._meta.verbose_name_plural + '</strong>'
+    object_list += ('</li>' if len(protected_objects) > 1 else '')
+  if len(protected_objects) > 1:
+    return '<ul class="error_object_list">' + object_list + '</ul>'
+  else:
+    return object_list

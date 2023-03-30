@@ -6,53 +6,21 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from .base import GenericTableDataView
-from .forms import CodelistForm
-from .functions import add_codelist_context_elements, add_default_context_elements, \
+from .forms import GenericObjectclassForm
+from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, add_user_agent_context_elements, assign_widget, \
   generate_protected_objects_list
 
 
-class CodelistIndexView(TemplateView):
+class GenericObjectclassTableView(TemplateView):
   """
-  entry page for a codelist view
+  generic table page for an object class view
 
-  :param model: codelist model
-  """
-
-  model = None
-  template_name = 'bemas/codelist.html'
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
-    return context
-
-
-class CodelistTableDataView(GenericTableDataView):
-  """
-  table data composition for a codelist view
-  """
-  pass
-
-
-class CodelistTableView(TemplateView):
-  """
-  table page for a codelist view
-
-  :param model: codelist model
+  :param model: object class model
   """
 
   model = None
-  template_name = 'bemas/codelist-table.html'
+  template_name = 'bemas/generic-objectclass-table.html'
 
   def get_context_data(self, **kwargs):
     """
@@ -67,22 +35,22 @@ class CodelistTableView(TemplateView):
     # add table related elements to context
     context = add_table_context_elements(context, self.model)
     # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
+    context = add_generic_objectclass_context_elements(context, self.model)
     return context
 
 
-class CodelistCreateView(CreateView):
+class GenericObjectclassCreateView(CreateView):
   """
-  form page for creating a codelist instance view
+  generic form page for creating an instance of an object class view
   """
 
-  template_name = 'bemas/codelist-form.html'
+  template_name = 'bemas/generic-objectclass-form.html'
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
       self.model,
-      form=CodelistForm,
+      form=GenericObjectclassForm,
       fields='__all__',
       formfield_callback=assign_widget
     )
@@ -101,7 +69,7 @@ class CodelistCreateView(CreateView):
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
+    context = add_generic_objectclass_context_elements(context, self.model)
     return context
 
   def form_valid(self, form):
@@ -113,24 +81,24 @@ class CodelistCreateView(CreateView):
     """
     success(
       self.request,
-      'Der neue Codelisteneintrag <strong><em>%s</em></strong> '
+      'Die/der neue ' + self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
       'wurde erfolgreich angelegt!' % str(form.instance)
     )
     return super().form_valid(form)
 
 
-class CodelistUpdateView(UpdateView):
+class GenericObjectclassUpdateView(UpdateView):
   """
-  form page for updating a codelist instance view
+  generic form page for updating an instance of an object class view
   """
 
-  template_name = 'bemas/codelist-form.html'
+  template_name = 'bemas/generic-objectclass-form.html'
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
       self.model,
-      form=CodelistForm,
+      form=GenericObjectclassForm,
       fields='__all__',
       formfield_callback=assign_widget
     )
@@ -149,7 +117,7 @@ class CodelistUpdateView(UpdateView):
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
+    context = add_generic_objectclass_context_elements(context, self.model)
     return context
 
   def form_valid(self, form):
@@ -161,18 +129,18 @@ class CodelistUpdateView(UpdateView):
     """
     success(
       self.request,
-      'Der Codelisteneintrag <strong><em>%s</em></strong> '
+      'Die/der ' + self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
       'wurde erfolgreich geändert!' % str(form.instance)
     )
     return super().form_valid(form)
 
 
-class CodelistDeleteView(DeleteView):
+class GenericObjectclassDeleteView(DeleteView):
   """
-  form page for deleting a codelist instance view
+  generic form page for deleting an instance of an object class view
   """
 
-  template_name = 'bemas/codelist-delete.html'
+  template_name = 'bemas/generic-objectclass-delete.html'
 
   def get_context_data(self, **kwargs):
     """
@@ -187,7 +155,7 @@ class CodelistDeleteView(DeleteView):
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
+    context = add_generic_objectclass_context_elements(context, self.model)
     return context
 
   def form_valid(self, form):
@@ -202,7 +170,7 @@ class CodelistDeleteView(DeleteView):
       self.object.delete()
       success(
         self.request,
-        'Der Codelisteneintrag <strong><em>%s</em></strong> '
+        'Die/der ' + self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
         'wurde erfolgreich gelöscht!' % str(self.object)
       )
       return HttpResponseRedirect(success_url)
@@ -214,3 +182,73 @@ class CodelistDeleteView(DeleteView):
         'noch auf ihn:<br><br>' + generate_protected_objects_list(exception.protected_objects)
       )
       return self.render_to_response(self.get_context_data(form=form))
+
+
+class OrganizationTableDataView(GenericTableDataView):
+  """
+  table data composition for an object class view
+  """
+  pass
+
+
+class OrganizationTableView(GenericObjectclassTableView):
+  """
+  table data composition for an object class view
+  """
+  pass
+
+
+class OrganizationCreateView(GenericObjectclassCreateView):
+  """
+  form page for creating an instance of object class organization view
+  """
+  pass
+
+
+class OrganizationUpdateView(GenericObjectclassUpdateView):
+  """
+  form page for updating an instance of object class organization view
+  """
+  pass
+
+
+class OrganizationDeleteView(GenericObjectclassDeleteView):
+  """
+  form page for deleting an instance of object class organization view
+  """
+  pass
+
+
+class PersonTableDataView(GenericTableDataView):
+  """
+  table data composition for an object class view
+  """
+  pass
+
+
+class PersonTableView(GenericObjectclassTableView):
+  """
+  table data composition for an object class view
+  """
+  pass
+
+
+class PersonCreateView(GenericObjectclassCreateView):
+  """
+  form page for creating an instance of object class person view
+  """
+  pass
+
+
+class PersonUpdateView(GenericObjectclassUpdateView):
+  """
+  form page for updating an instance of object class person view
+  """
+  pass
+
+
+class PersonDeleteView(GenericObjectclassDeleteView):
+  """
+  form page for deleting an instance of object class person view
+  """
+  pass

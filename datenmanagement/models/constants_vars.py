@@ -244,6 +244,9 @@ apostroph_message = 'Texte dürfen keine einfachen ' \
                     '(’) verwendet werden.'
 bindestrich_leerzeichen_regex = r'^(?!.*- ).*$'
 bindestrich_leerzeichen_message = 'Im Text darf nach einem Bindestrich kein Leerzeichen stehen.'
+d3_regex = r'^[0-9]{3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
+d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss folgendes Format aufweisen ' \
+             '(Beispiel): 552.6#04-004/008'
 doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen ' \
                             'und/oder Zeilenumbrüche enthalten.'
@@ -252,9 +255,12 @@ email_message = 'E-Mail-Adressen müssen syntaktisch korrekt sein und daher folg
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Texte dürfen keine Gravis (`) enthalten. Stattdessen ' \
                  'muss der typographisch korrekte Apostroph (’) verwendet werden.'
+hausnummer_regex = r'^[1-9][0-9]{0,2}[a-z]?$'
+hausnummer_message = 'Die <strong><em>Hausnummer</em></strong> muss eine Zahl ' \
+                     'zwischen 1 und 999 sein, optional gefolgt von einem Kleinbuchstaben.'
 hausnummer_zusatz_regex = r'^[a-z]$'
 hausnummer_zusatz_message = 'Der <strong><em>Hausnummernzusatz</em>' \
-                            '</strong>muss aus genau einem ' \
+                            '</strong> muss aus genau einem ' \
                             'Kleinbuchstaben bestehen.'
 inventarnummer_regex = r'^[0-9]{8}$'
 inventarnummer_message = 'Die <strong><em>Inventarnummer</em></strong> muss ' \
@@ -320,10 +326,6 @@ erdwaermesonden_aktenzeichen_message = 'Das <strong><em>Aktenzeichen</em></stron
                                        'eines der folgenden Formate aufweisen (Beispiele): ' \
                                        'B/EW/02/2005, WST/20/2015, 73.40.01.05-2001 oder ' \
                                        '73.40.01.05-2102-Ä'
-erdwaermesonden_d3_regex = r'^[0-9]{3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
-erdwaermesonden_d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss ' \
-                             'folgendes Format aufweisen (Beispiel): ' \
-                             '552.6#04-004/008'
 fahrbahnwinterdienst_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
                                     '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'

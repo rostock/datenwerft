@@ -3,20 +3,17 @@ from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import escape
-from django.views.generic.base import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
 from bemas.models import Codelist
 from bemas.utils import get_icon_from_settings, is_bemas_admin, is_bemas_user
-from .functions import add_codelist_context_elements, add_default_context_elements, \
-  add_table_context_elements
 
 
-class TableDataView(BaseDatatableView):
+class GenericTableDataView(BaseDatatableView):
   """
-  table data composition view
+  generic table data composition view
   """
 
   def __init__(self, model=None, *args, **kwargs):
@@ -40,34 +37,53 @@ class TableDataView(BaseDatatableView):
       for item in qs:
         item_data = []
         item_pk = getattr(item, self.model._meta.pk.name)
+        address_handled = False
         for column in self.columns:
           data = None
           value = getattr(item, column.name)
-          if value is not None:
-            # format Booleans
-            if isinstance(value, bool):
-              data = ('ja' if value is True else 'nein')
-            # format timestamps
-            elif isinstance(value, datetime):
-              value_tz = value.replace(tzinfo=timezone.utc).astimezone(
-                ZoneInfo(settings.TIME_ZONE))
-              data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
-            else:
-              data = escape(value)
-          item_data.append(data)
+          if not column.name.startswith('address_'):
+            if value is not None:
+              # format Booleans
+              if isinstance(value, bool):
+                data = ('ja' if value is True else 'nein')
+              # format timestamps
+              elif isinstance(value, datetime):
+                value_tz = value.replace(tzinfo=timezone.utc).astimezone(
+                  ZoneInfo(settings.TIME_ZONE))
+                data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+              # format lists
+              elif type(value) is list:
+                data = '<br>'.join(value)
+              else:
+                data = escape(value)
+            item_data.append(data)
+          # handle addresses
+          elif column.name.startswith('address_') and not address_handled:
+            # return address string once
+            # instead of returning all address related values
+            data = self.model.objects.get(pk=item_pk).address()
+            address_handled = True
+            item_data.append(data)
         # append links for updating and deleting
-        if is_bemas_admin(self.request.user) or self.request.user.is_superuser:
-          view_name_prefix = ('codelists_' if issubclass(self.model, Codelist) else '') + \
-                             self.model.__name__.lower()
+        if (
+            not issubclass(self.model, Codelist)
+            or is_bemas_admin(self.request.user)
+            or self.request.user.is_superuser
+        ):
+          view_name_prefix = self.model.__name__.lower()
+          title = self.model._meta.verbose_name
+          if issubclass(self.model, Codelist):
+            view_name_prefix = 'codelists_' + view_name_prefix
+            title = 'Codelisteneintrag'
           item_data.append(
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('edit') +
-            '" title="' + self.model._meta.verbose_name + ' bearbeiten"></i></a>' +
+            '" title="' + title + ' bearbeiten"></i></a>' +
             '<a class="ms-3" href="' +
             reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('delete') +
-            '" title="' + self.model._meta.verbose_name + ' löschen"></i></a>'
+            '" title="' + title + ' löschen"></i></a>'
           )
         json_data.append(item_data)
     return json_data
@@ -137,30 +153,3 @@ class TableDataView(BaseDatatableView):
       column_name = column_names[int(order_column)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)
-
-
-class BaseTableView(TemplateView):
-  """
-  table page view
-
-  :param model: model
-  """
-
-  model = None
-  template_name = 'bemas/codelist-table.html'
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    # add table related elements to context
-    context = add_table_context_elements(context, self.model)
-    # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
-    return context
