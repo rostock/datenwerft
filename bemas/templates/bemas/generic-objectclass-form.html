@@ -15,66 +15,80 @@
 {% endblock %}
 
 {% block content %}
-  {% if form.errors %}
-    {% for field in form %}
-      {% for error in field.errors %}
+  {% if is_bemas_user %}
+    {% if form.errors %}
+      {% for field in form %}
+        {% for error in field.errors %}
+          <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
+            {% autoescape off %}
+              {{ error }}
+            {% endautoescape %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
         <div class="alert alert-danger" role="alert">
           <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
-          {% autoescape off %}
-            {{ error }}
-          {% endautoescape %}
+          {{ error }}
         </div>
       {% endfor %}
-    {% endfor %}
-    {% for error in form.non_field_errors %}
-      <div class="alert alert-danger" role="alert">
-        <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
-        {{ error }}
-      </div>
-    {% endfor %}
-    <div class="mb-4"></div>
-  {% endif %}
-  <form class="form" method="post" action="">
-    {% csrf_token %}
-    <div>
-      <table class="table">
-        {% for field in form %}
-          <tr>
-            <td class="cell-label">
-              {{ field.label_tag }}
-            </td>
-            {% autoescape off %}
-              <td class="cell-field">
-                {{ field }}
+      <div class="mb-4"></div>
+    {% endif %}
+    <form class="form" method="post" action="">
+      {% csrf_token %}
+      <div>
+        <table class="table">
+          {% for field in form %}
+            <tr>
+              <td class="cell-label">
+                {{ field.label_tag }}
               </td>
-            {% endautoescape %}
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-    <div id="buttons">
-      <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
-        <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neue(n) {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
-        {% if object %}
-          <button class="btn btn-primary" type="submit" onclick="cloneObject();"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als neue(n) {{ objectclass_verbose_name }} {% endif %}klonen</button>
-          <a class="btn btn-danger" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_delete' object.pk %}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</a>
-        {% endif %}
-        <a class="btn btn-warning" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_table' %}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+              {% autoescape off %}
+                <td class="cell-field">
+                  {{ field }}
+                </td>
+              {% endautoescape %}
+            </tr>
+          {% endfor %}
+        </table>
       </div>
-    </div>
-  </form>
-  <script>
-    /* global $ */
-    /* eslint no-undef: "error" */
+      <div id="buttons">
+        <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
+          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neue(n) {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
+          {% if object %}
+            <button class="btn btn-primary" type="submit" onclick="cloneObject();"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als neue(n) {{ objectclass_verbose_name }} {% endif %}klonen</button>
+            <a class="btn btn-danger" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_delete' object.pk %}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</a>
+          {% endif %}
+          <a class="btn btn-warning" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_table' %}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+        </div>
+      </div>
+    </form>
+    <script>
+      /* global $ */
+      /* eslint no-undef: "error" */
 
-    /**
-     * @function
-     * @name cloneObject
-     *
-     * clones whole object as new object
-     */
-    function cloneObject() {
-      $('form').attr('action', "{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}");
-    }
-  </script>
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function () {
+        // prevent HTML5/jQuery required messages from overriding Django required messages
+        $('[required]').removeAttr('required');
+      });
+
+      /**
+       * @function
+       * @name cloneObject
+       *
+       * clones whole object as new object
+       */
+      function cloneObject() {
+        $('form').attr('action', "{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}");
+      }
+    </script>
+  {% else %}
+    {% include "bemas/notice-norights.html" %}
+  {% endif %}
 {% endblock %}

@@ -70,6 +70,16 @@
 
       /**
        * @function
+       *
+       * main function
+       */
+      $(document).ready(function () {
+        // prevent HTML5/jQuery required messages from overriding Django required messages
+        $('[required]').removeAttr('required');
+      });
+
+      /**
+       * @function
        * @name cloneObject
        *
        * clones whole object as new object

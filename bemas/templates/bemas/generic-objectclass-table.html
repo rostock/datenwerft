@@ -17,6 +17,16 @@
 
 {% block content %}
   {% if is_bemas_user %}
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags and message.tags == 'success' %}
+          <div class="alert alert-success" role="alert">
+            <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
+            {{ message|safe }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name_plural }}</em></h2>
     <h4><small>{{ objectclass_description }}</small></h4>
     {% if objects_count == 0 %}
