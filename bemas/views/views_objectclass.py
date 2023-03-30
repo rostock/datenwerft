@@ -6,7 +6,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from .base import GenericTableDataView
-from .forms import GenericObjectclassForm
+from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, add_user_agent_context_elements, assign_widget, \
   generate_protected_objects_list
@@ -50,7 +50,7 @@ class GenericObjectclassCreateView(CreateView):
     self.model = model
     self.form_class = modelform_factory(
       self.model,
-      form=GenericObjectclassForm,
+      form=GenericForm,
       fields='__all__',
       formfield_callback=assign_widget
     )
@@ -98,7 +98,7 @@ class GenericObjectclassUpdateView(UpdateView):
     self.model = model
     self.form_class = modelform_factory(
       self.model,
-      form=GenericObjectclassForm,
+      form=GenericForm,
       fields='__all__',
       formfield_callback=assign_widget
     )

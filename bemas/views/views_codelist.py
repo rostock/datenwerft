@@ -6,7 +6,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from .base import GenericTableDataView
-from .forms import CodelistForm
+from .forms import GenericForm
 from .functions import add_codelist_context_elements, add_default_context_elements, \
   add_table_context_elements, add_user_agent_context_elements, assign_widget, \
   generate_protected_objects_list
@@ -82,7 +82,7 @@ class CodelistCreateView(CreateView):
     self.model = model
     self.form_class = modelform_factory(
       self.model,
-      form=CodelistForm,
+      form=GenericForm,
       fields='__all__',
       formfield_callback=assign_widget
     )
@@ -130,7 +130,7 @@ class CodelistUpdateView(UpdateView):
     self.model = model
     self.form_class = modelform_factory(
       self.model,
-      form=CodelistForm,
+      form=GenericForm,
       fields='__all__',
       formfield_callback=assign_widget
     )
