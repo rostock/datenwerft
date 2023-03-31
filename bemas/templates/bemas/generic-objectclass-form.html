@@ -72,7 +72,7 @@
       </div>
     </form>
     <script>
-      /* global $, keepDjangoRequiredMessages */
+      /* global $, addField, cleanField, keepDjangoRequiredMessages */
       /* eslint no-undef: "error" */
 
       /**
@@ -87,7 +87,7 @@
         // (i.e. for those array fields containing more than one value)
         let arrayFieldsValues = [];
         {% if object and array_fields_values %}
-          arrayFieldsValues = {{ array_fields_values|safe }};
+          arrayFieldsValues = {{ array_fields_values|safe }}
         {% endif %}
 
         // handle array fields
