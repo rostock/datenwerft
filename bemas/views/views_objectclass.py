@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from .base import GenericTableDataView
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, add_user_agent_context_elements, assign_widget, \
@@ -81,7 +80,8 @@ class GenericObjectclassCreateView(CreateView):
     """
     success(
       self.request,
-      'Die/der neue ' + self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
+      self.model.BasemodelMeta.definite_article.capitalize() + ' neue ' +
+      self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
       'wurde erfolgreich angelegt!' % str(form.instance)
     )
     return super().form_valid(form)
@@ -129,7 +129,8 @@ class GenericObjectclassUpdateView(UpdateView):
     """
     success(
       self.request,
-      'Die/der ' + self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
+      self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
+      self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
       'wurde erfolgreich geändert!' % str(form.instance)
     )
     return super().form_valid(form)
@@ -170,85 +171,18 @@ class GenericObjectclassDeleteView(DeleteView):
       self.object.delete()
       success(
         self.request,
-        'Die/der ' + self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
+        self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
+        self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
         'wurde erfolgreich gelöscht!' % str(self.object)
       )
       return HttpResponseRedirect(success_url)
     except ProtectedError as exception:
       error(
         self.request,
-        'Die/der ' + self.model._meta.verbose_name + ' <strong><em>' + str(self.object) +
+        self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
+        self.model._meta.verbose_name + ' <strong><em>' + str(self.object) +
         '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
-        'noch auf ihn:<br><br>' + generate_protected_objects_list(exception.protected_objects)
+        'noch auf ' + self.model.BasemodelMeta.personal_pronoun + ':<br><br>' +
+        generate_protected_objects_list(exception.protected_objects)
       )
       return self.render_to_response(self.get_context_data(form=form))
-
-
-class OrganizationTableDataView(GenericTableDataView):
-  """
-  table data composition for an object class view
-  """
-  pass
-
-
-class OrganizationTableView(GenericObjectclassTableView):
-  """
-  table data composition for an object class view
-  """
-  pass
-
-
-class OrganizationCreateView(GenericObjectclassCreateView):
-  """
-  form page for creating an instance of object class organization view
-  """
-  pass
-
-
-class OrganizationUpdateView(GenericObjectclassUpdateView):
-  """
-  form page for updating an instance of object class organization view
-  """
-  pass
-
-
-class OrganizationDeleteView(GenericObjectclassDeleteView):
-  """
-  form page for deleting an instance of object class organization view
-  """
-  pass
-
-
-class PersonTableDataView(GenericTableDataView):
-  """
-  table data composition for an object class view
-  """
-  pass
-
-
-class PersonTableView(GenericObjectclassTableView):
-  """
-  table data composition for an object class view
-  """
-  pass
-
-
-class PersonCreateView(GenericObjectclassCreateView):
-  """
-  form page for creating an instance of object class person view
-  """
-  pass
-
-
-class PersonUpdateView(GenericObjectclassUpdateView):
-  """
-  form page for updating an instance of object class person view
-  """
-  pass
-
-
-class PersonDeleteView(GenericObjectclassDeleteView):
-  """
-  form page for deleting an instance of object class person view
-  """
-  pass

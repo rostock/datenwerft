@@ -59,8 +59,8 @@ class GenericTableDataView(BaseDatatableView):
             item_data.append(data)
           # handle addresses
           elif column.name.startswith('address_') and not address_handled:
-            # return address string once
-            # instead of returning all address related values
+            # append address string once
+            # instead of appending individual strings for all address related values
             data = self.model.objects.get(pk=item_pk).address()
             address_handled = True
             item_data.append(data)

@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 
 from bemas.models import Codelist
@@ -16,6 +17,7 @@ def add_codelist_context_elements(context, model):
   context['codelist_verbose_name'] = model._meta.verbose_name
   context['codelist_verbose_name_plural'] = model._meta.verbose_name_plural
   context['codelist_description'] = model.BasemodelMeta.description
+  context['codelist_clone_url'] = reverse('bemas:codelists_' + model.__name__.lower() + '_create')
   return context
 
 
@@ -49,6 +51,8 @@ def add_generic_objectclass_context_elements(context, model):
   context['objectclass_verbose_name'] = model._meta.verbose_name
   context['objectclass_verbose_name_plural'] = model._meta.verbose_name_plural
   context['objectclass_description'] = model.BasemodelMeta.description
+  context['objectclass_definite_article'] = model.BasemodelMeta.definite_article
+  context['objectclass_clone_url'] = reverse('bemas:' + model.__name__.lower() + '_create')
   return context
 
 
@@ -68,8 +72,8 @@ def add_table_context_elements(context, model):
       column_titles.append(field.verbose_name)
     # handle addresses
     elif field.name.startswith('address_') and not address_handled:
-      # return one column for address string
-      # instead of returning columns for all address related values
+      # append one column for address string
+      # instead of appending individual columns for all address related values
       column_titles.append('Anschrift')
       address_handled = True
   context['column_titles'] = column_titles

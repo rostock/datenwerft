@@ -1,4 +1,3 @@
-from django.db.models import CheckConstraint, Q
 from django.db.models.fields import CharField, SmallIntegerField
 
 from datenmanagement.models.constants_vars import standard_validators
@@ -28,12 +27,6 @@ class Status(Codelist):
   )
 
   class Meta(Codelist.Meta):
-    constraints = [
-      CheckConstraint(
-        check=Q(ordinal__gte=1),
-        name='status_ordinal_gte_1'
-      )
-    ]
     db_table = 'codelist_status'
     ordering = ['ordinal']
     verbose_name = 'Bearbeitungsstatus'

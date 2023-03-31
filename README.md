@@ -152,15 +152,15 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
         cd /usr/local/datenwerft/datenwerft
         sh linting/djlint
 
--  JavaScript-Prüfungen mittels [*ESLint*](https://eslint.org/):
-
-        cd /usr/local/datenwerft/datenwerft
-        sh linting/eslint
-
 -  CSS-Prüfungen mittels [*Stylelint*](https://stylelint.io/):
 
         cd /usr/local/datenwerft/datenwerft
         sh linting/stylelint
+
+-  JavaScript-Prüfungen mittels [*ESLint*](https://eslint.org/):
+
+        cd /usr/local/datenwerft/datenwerft
+        sh linting/eslint
 
 -  alle vorgenannten Prüfungen nacheinander:
 

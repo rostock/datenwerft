@@ -13,6 +13,7 @@
 {% block scripts %}
   {{ block.super }}
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'bemas/js/table.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -64,77 +65,8 @@
          * main function
          */
         $(document).ready(function() {
-          $('#datasets').DataTable({
-            ajax: window.dataUrl,
-            buttons: [
-              {
-                extend: 'csvHtml5',
-                fieldSeparator: ';',
-                exportOptions: {
-                  // no export of columns marked respectively
-                  columns: ':visible:not(.no-export)'
-                }
-              }, {
-                extend: 'excelHtml5',
-                title: '',
-                exportOptions: {
-                  columns: ':visible:not(.no-export)'
-                }
-              }, {
-                extend: 'pdfHtml5',
-                exportOptions: {
-                  columns: ':visible:not(.no-export)'
-                },
-                orientation: 'landscape',
-                pageSize: 'A4',
-                customize: function(doc) {
-                  doc.defaultStyle.fontSize = 7;
-                  doc.pageMargins = [20, 20, 20, 20];
-                  doc.styles.tableHeader.fontSize = 7;
-                }
-              }
-            ],
-            colReorder: true,
-            columnDefs: determineColumnDefs('{{ is_bemas_admin }}'),
-            dom: '<Bfr<t>ilp>',
-            fixedHeader: true,
-            language: {
-              url: window.languageUrl
-            },
-            lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
-            // initial order
-            order: {{ initial_order|safe }},
-            orderCellsTop: true,
-            orderClasses: false,
-            orderMulti: false,
-            pageLength: 25,
-            processing: true,
-            searchDelay: 500,
-            searching: true,
-            serverSide: true,
-            stateSave: true
-          });
+          initDataTable(window.dataUrl, window.languageUrl, '{{ is_bemas_admin }}' === 'True', {{ initial_order|safe }});
         });
-
-        /**
-         * @function
-         * @name determineColumnDefs
-         *
-         * determines column definitions
-         *
-         * @param {string} actionLinksColumn - column with action links present?
-         * @returns {Object[]} - column definitions
-         */
-        function determineColumnDefs(actionLinksColumn) {
-          let columnDefs = [];
-          if (actionLinksColumn === 'True') {
-            columnDefs = [{
-              'orderable': false,
-              'targets': -1
-            }];
-          }
-          return columnDefs;
-        }
       </script>
     {% endif %}
   {% else %}

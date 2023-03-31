@@ -1,6 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
-from django.db.models import CheckConstraint, Q
 from django.db.models.fields import CharField
 
 from datenmanagement.models.constants_vars import standard_validators, personennamen_validators, \
@@ -106,16 +105,6 @@ class Organization(Objectclass):
   )
 
   class Meta(Objectclass.Meta):
-    constraints = [
-      CheckConstraint(
-        check=Q(address_house_number__gte=1),
-        name='organization_address_house_number_gte_1'
-      ),
-      CheckConstraint(
-        check=Q(address_house_number__lte=999),
-        name='organization_address_house_number_lte_999'
-      )
-    ]
     db_table = 'organization'
     ordering = ['name']
     verbose_name = 'Organisation'
@@ -123,14 +112,9 @@ class Organization(Objectclass):
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
     description = 'Betreiberinnen oder Beschwerdeführerinnen'
-
-  class CustomMeta:
-    min_numbers = {
-      'address_house_number': 1
-    }
-    max_numbers = {
-      'address_house_number': 999
-    }
+    definite_article = 'die'
+    indefinite_article = 'eine'
+    personal_pronoun = 'sie'
 
   def __str__(self):
     return self.name
@@ -230,16 +214,6 @@ class Person(Objectclass):
   )
 
   class Meta(Objectclass.Meta):
-    constraints = [
-      CheckConstraint(
-        check=Q(address_house_number__gte=1),
-        name='person_address_house_number_gte_1'
-      ),
-      CheckConstraint(
-        check=Q(address_house_number__lte=999),
-        name='person_address_house_number_lte_999'
-      )
-    ]
     db_table = 'person'
     ordering = ['last_name', 'first_name']
     verbose_name = 'Person'
@@ -247,14 +221,9 @@ class Person(Objectclass):
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
     description = 'Beschwerdeführer:innen'
-
-  class CustomMeta:
-    min_numbers = {
-      'address_house_number': 1
-    }
-    max_numbers = {
-      'address_house_number': 999
-    }
+    definite_article = 'die'
+    indefinite_article = 'eine'
+    personal_pronoun = 'sie'
 
   def __str__(self):
     return (self.first_name + ' ' if self.first_name else '') + self.last_name

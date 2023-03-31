@@ -5,7 +5,6 @@ from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from .base import GenericTableDataView
 from .forms import GenericForm
 from .functions import add_codelist_context_elements, add_default_context_elements, \
   add_table_context_elements, add_user_agent_context_elements, assign_widget, \
@@ -35,13 +34,6 @@ class CodelistIndexView(TemplateView):
     # add other necessary elements to context
     context = add_codelist_context_elements(context, self.model)
     return context
-
-
-class CodelistTableDataView(GenericTableDataView):
-  """
-  table data composition for a codelist view
-  """
-  pass
 
 
 class CodelistTableView(TemplateView):
@@ -209,7 +201,8 @@ class CodelistDeleteView(DeleteView):
     except ProtectedError as exception:
       error(
         self.request,
-        'Die/der ' + self.model._meta.verbose_name + ' <strong><em>' + str(self.object) +
+        'Der Codelisteneintrag ' + self.model._meta.verbose_name +
+        ' <strong><em>' + str(self.object) +
         '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
         'noch auf ihn:<br><br>' + generate_protected_objects_list(exception.protected_objects)
       )
