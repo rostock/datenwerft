@@ -123,6 +123,12 @@ def assign_widget(field):
   :param field: model field
   :return: corresponding form field (widget) to given model field
   """
+  is_array_field = False
+  # field is array field?
+  if field.__class__.__name__ == 'ArrayField':
+    # override the class of the field by the class of its base field
+    field = field.base_field
+    is_array_field = True
   form_field = field.formfield()
   # get dictionary with numeric model fields (as keys) and their minimum legal values
   model = field.model
@@ -143,6 +149,10 @@ def assign_widget(field):
         form_field.widget.attrs['min'] = min_numbers.get(field.name, 0)
       if max_numbers is not None:
         form_field.widget.attrs['max'] = max_numbers.get(field.name, 0)
+  # field is array field?
+  if is_array_field:
+    # highlight corresponding form field as array field via custom HTML attribute
+    form_field.widget.attrs['is_array_field'] = 'true'
   return form_field
 
 

@@ -174,15 +174,16 @@ class DataForm(ModelForm):
         required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(
             label=field.label)
       invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
-      item_invalid = 'Der Wert an Stelle %(nth)s im Attribut <strong><em>{label}</em></strong> ' \
-                     'wies ungültige Zeichen auf und wurde daher auf den ursprünglichen Wert ' \
-                     'zurückgesetzt!'.format(label=field.label)
+      item_invalid_message = 'Der Wert an Stelle %(nth)s im Attribut ' \
+                             '<strong><em>{label}</em></strong> wies ungültige Zeichen auf ' \
+                             'und wurde daher auf den ursprünglichen Wert ' \
+                             'zurückgesetzt!'.format(label=field.label)
       unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut ' \
                        '<strong><em>{label}</em></strong>!'.format(label=field.label)
       field.error_messages = {
-        'required': required_message,
         'invalid_image': invalid_image_message,
-        'item_invalid': item_invalid,
+        'item_invalid': item_invalid_message,
+        'required': required_message,
         'unique': unique_message
       }
 

@@ -251,7 +251,7 @@ doppelleerzeichen_regex = r'^(?!.*  ).*$'
 doppelleerzeichen_message = 'Texte dürfen keine doppelten Leerzeichen ' \
                             'und/oder Zeilenumbrüche enthalten.'
 email_message = 'E-Mail-Adressen müssen syntaktisch korrekt sein und daher folgendes Format ' \
-                'aufweisen (Beispiel): abc-123.098_zyx@xyz-567.def.abc'
+                'aufweisen (Beispiele): abc@def.xyz oder 1cba_mno.asff@xy.a23c.zy'
 gravis_regex = r'^(?!.*`).*$'
 gravis_message = 'Texte dürfen keine Gravis (`) enthalten. Stattdessen ' \
                  'muss der typographisch korrekte Apostroph (’) verwendet werden.'

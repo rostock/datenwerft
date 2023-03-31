@@ -22,9 +22,14 @@ class GenericForm(ModelForm):
       else:
         title = self._meta.model.BasemodelMeta.indefinite_article + ' ' + \
                 self._meta.model._meta.verbose_name
+      item_invalid_message = 'Der Wert an Stelle %(nth)s im Attribut ' \
+                             '<strong><em>{label}</em></strong> wies ungültige Zeichen auf ' \
+                             'und wurde daher auf den ursprünglichen Wert ' \
+                             'zurückgesetzt!'.format(label=field.label)
       unique_message = 'Es existiert bereits ' + title + ' mit dem angegebenen Wert im Attribut' \
                        ' <strong><em>{label}</em></strong>!'.format(label=field.label)
       field.error_messages = {
+        'item_invalid': item_invalid_message,
         'required': required_message,
         'unique': unique_message
       }

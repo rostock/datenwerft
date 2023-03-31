@@ -61,9 +61,9 @@
       </div>
       <div id="buttons">
         <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
-          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-success" type="submit" onclick="setFinalArrayFields();"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
           {% if object %}
-            <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ objectclass_clone_url }}');"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als {{ objectclass_new }} {{ objectclass_verbose_name }} {% endif %}klonen</button>
+            <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); cloneObject('{{ objectclass_clone_url }}');"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als {{ objectclass_new }} {{ objectclass_verbose_name }} {% endif %}klonen</button>
             <a class="btn btn-danger" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_delete' object.pk %}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</a>
           {% endif %}
           <a class="btn btn-warning" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_table' %}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
@@ -81,6 +81,53 @@
        */
       $(document).ready(function () {
         keepDjangoRequiredMessages();
+
+        // define variable for array fields and their values
+        // (i.e. for those array fields containing more than one value)
+        let arrayFieldsValues = [];
+        {% if object and array_fields_values %}
+          arrayFieldsValues = {{ array_fields_values|safe }};
+        {% endif %}
+
+        // handle array fields
+        $('[is_array_field="true"]').each(function () {
+          let currentField = $(this);
+          let currentFieldId = currentField.attr('id');
+          let currentFieldName = currentField.attr('name');
+          // if array field contains more than one value
+          // (and therefore is contained in variable for array fields and their values defined above)...
+          if (arrayFieldsValues[currentFieldName]) {
+            let valuesParsed = arrayFieldsValues[currentFieldName];
+            for (let i = 0; i < valuesParsed.length; i++) {
+              // clone first (initial) field and define it as new field
+              let newField = currentField.clone();
+              cleanField(newField, i + 1, currentFieldId, currentFieldName);
+              // write corresponding value to new field
+              newField.attr('value', valuesParsed[i]);
+              newField.val(valuesParsed[i]);
+              // insert new field into DOM and add a deletion button
+              addField(newField, currentField);
+              currentField = newField;
+            }
+          }
+          // create button for adding another field
+          let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
+          addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
+          // on clicking the created button for adding another field...
+          addAnotherField.click(function () {
+            // clone previous field and define it as new empty field
+            let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
+            let newField = currentField.clone();
+            let i = 1;
+            if (/_[0-9]*$/.test(currentField.attr('name')))
+              i = Number(currentField.attr('name').replace(/.*_/, '')) + 1;
+            cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
+            newField.removeAttr('value');
+            newField.val('');
+            // insert new field into DOM and add a deletion button
+            addField(newField, currentField);
+          });
+        });
       });
     </script>
   {% else %}
