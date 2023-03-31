@@ -36,7 +36,7 @@
       </h4>
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-primary" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}"><i class="fas fa-{{ 'add'|get_icon }}"></i> neue(n) {{ objectclass_verbose_name }} anlegen</a>
+      <a class="btn btn-primary" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}"><i class="fas fa-{{ 'add'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     {% if objects_count > 0 %}
@@ -62,7 +62,7 @@
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script>
-        /* global $, jQuery, subsetting */
+        /* global $, initDataTable */
         /* eslint no-undef: "error" */
 
         setTimeout(function () {

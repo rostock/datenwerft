@@ -52,6 +52,7 @@ def add_generic_objectclass_context_elements(context, model):
   context['objectclass_verbose_name_plural'] = model._meta.verbose_name_plural
   context['objectclass_description'] = model.BasemodelMeta.description
   context['objectclass_definite_article'] = model.BasemodelMeta.definite_article
+  context['objectclass_new'] = model.BasemodelMeta.new
   context['objectclass_clone_url'] = reverse('bemas:' + model.__name__.lower() + '_create')
   return context
 

@@ -61,9 +61,9 @@
       </div>
       <div id="buttons">
         <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
-          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neue(n) {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
           {% if object %}
-            <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ objectclass_clone_url }}');"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als neue(n) {{ objectclass_verbose_name }} {% endif %}klonen</button>
+            <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ objectclass_clone_url }}');"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als {{ objectclass_new }} {{ objectclass_verbose_name }} {% endif %}klonen</button>
             <a class="btn btn-danger" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_delete' object.pk %}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</a>
           {% endif %}
           <a class="btn btn-warning" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_table' %}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
@@ -71,7 +71,7 @@
       </div>
     </form>
     <script>
-      /* global $ */
+      /* global $, keepDjangoRequiredMessages */
       /* eslint no-undef: "error" */
 
       /**

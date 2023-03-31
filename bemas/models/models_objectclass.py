@@ -115,6 +115,7 @@ class Organization(Objectclass):
     definite_article = 'die'
     indefinite_article = 'eine'
     personal_pronoun = 'sie'
+    new = 'neue'
 
   def __str__(self):
     return self.name
@@ -224,6 +225,7 @@ class Person(Objectclass):
     definite_article = 'die'
     indefinite_article = 'eine'
     personal_pronoun = 'sie'
+    new = 'neue'
 
   def __str__(self):
     return (self.first_name + ' ' if self.first_name else '') + self.last_name

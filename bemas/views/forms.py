@@ -17,12 +17,12 @@ class GenericForm(ModelForm):
     for field in self.fields.values():
       required_message = 'Das Attribut <strong><em>{label}</em></strong> ' \
                          'ist Pflicht!'.format(label=field.label)
-      if isinstance(self._meta.model, Codelist):
+      if issubclass(self._meta.model, Codelist):
         title = 'ein Codelisteneintrag'
       else:
-        title = 'ein(e) ' + self._meta.model._meta.verbose_name
-      unique_message = 'Es existiert bereits ein(e) ' + title + \
-                       ' mit dem angegebenen Wert im Attribut' \
+        title = self._meta.model.BasemodelMeta.indefinite_article + ' ' + \
+                self._meta.model._meta.verbose_name
+      unique_message = 'Es existiert bereits ' + title + ' mit dem angegebenen Wert im Attribut' \
                        ' <strong><em>{label}</em></strong>!'.format(label=field.label)
       field.error_messages = {
         'required': required_message,
