@@ -1,8 +1,9 @@
 from datenmanagement.models import Ansprechpartner_Baustellen
 from django.apps import apps
+from django.contrib.auth.models import Group, User
 from django.contrib.messages import success
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.models import Group, User
+from django.contrib.postgres.fields.array import ArrayField
 from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.db.models import F
@@ -175,14 +176,13 @@ class DataForm(ModelForm):
             label=field.label)
       invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
       item_invalid_message = 'Der Wert an Stelle %(nth)s im Attribut ' \
-                             '<strong><em>{label}</em></strong> wies ungültige Zeichen auf ' \
-                             'und wurde daher auf den ursprünglichen Wert ' \
-                             'zurückgesetzt!'.format(label=field.label)
+                             '<strong><em>ATTRIBUTE</em></strong> war ungültig! ' \
+                             'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
+      ArrayField.default_error_messages['item_invalid'] = item_invalid_message
       unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut ' \
                        '<strong><em>{label}</em></strong>!'.format(label=field.label)
       field.error_messages = {
         'invalid_image': invalid_image_message,
-        'item_invalid': item_invalid_message,
         'required': required_message,
         'unique': unique_message
       }
@@ -384,6 +384,23 @@ class DataAddView(CreateView):
       'wurde erfolgreich angelegt!' % str(form.instance)
     )
     return super(DataAddView, self).form_valid(form)
+
+  def form_invalid(self, form, **kwargs):
+    """
+    öffnet Formular erneut, wenn Formular nicht valide ist;
+    Definition nur zu dem Zweck, dass nicht valide befüllte Array-Felder wieder geleert werden
+
+    :param form: Formular, das geprüft werden soll
+    :return: Formular, falls Formular nicht valide
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    # alle Array-Felder wieder leeren
+    for field in self.model._meta.get_fields():
+      if field.__class__.__name__ == 'ArrayField':
+        form.data[field.name] = None
+    context_data['form'] = form
+    return self.render_to_response(context_data)
 
 
 class DataChangeView(UpdateView):
@@ -640,6 +657,7 @@ class DataChangeView(UpdateView):
     # alle Array-Felder wieder auf ihren ursprünglichen Zustand zurücksetzen
     for field in self.model._meta.get_fields():
       if field.__class__.__name__ == 'ArrayField':
+        print(field.name)
         values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
         if values is not None and len(values) > 0 and values[0] is not None:
           form.data[field.name] = values[0]

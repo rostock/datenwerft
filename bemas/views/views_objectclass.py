@@ -87,6 +87,23 @@ class GenericObjectclassCreateView(CreateView):
     )
     return super().form_valid(form)
 
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens given form if it is not valid
+    (purpose: empty non-valid array fields)
+
+    :param form: form
+    :return: given form if it is not valid
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    # empty all array fields
+    for field in self.model._meta.get_fields():
+      if field.__class__.__name__ == 'ArrayField':
+        form.data[field.name] = None
+    context_data['form'] = form
+    return self.render_to_response(context_data)
+
 
 class GenericObjectclassUpdateView(UpdateView):
   """

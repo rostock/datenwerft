@@ -254,24 +254,39 @@ def is_field_hours_related_field(field):
 @register.filter
 def is_field_nullable(field_name, model_name):
   """
-  prüft, ob das übergebenene Feld des übergebenen Datenmodells NULL-Werte enthalten darf
+  prüft, ob das übergebene Feld des übergebenen Datenmodells NULL-Werte enthalten darf
 
   :param field_name: Feldname des Datenmodells
   :param model_name: Klassenname des Datenmodells
-  :return: darf das übergebenene Feld des übergebenen Datenmodells NULL-Werte enthalten?
+  :return: darf das übergebene Feld des übergebenen Datenmodells NULL-Werte enthalten?
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   return model._meta.get_field(field_name).null
 
 
 @register.filter
+def replace(value, arg):
+  """
+  ersetzt Zeichenkette in übergebenem Wert
+
+  :param value: Wert
+  :param arg: Quell- und Zielzeichenkette
+  :return: Wert mit ersetzter Zeichenkette
+  """
+  if len(arg.split('|')) != 2:
+    return value
+  source, target = arg.split('|')
+  return value.replace(source, target)
+
+
+@register.filter
 def user_has_model_permission(user, obj):
   """
-  prüft, ob der übergebenene Nutzer generell Rechte am Datenmodell des übergebenen Datenobjekts hat
+  prüft, ob der übergebene Nutzer generell Rechte am Datenmodell des übergebenen Datenobjekts hat
 
   :param user: Nutzer
   :param obj: Datenobjekt
-  :return: hat der übergebenene Nutzer generell Rechte am Datenmodell des übergebenen Datenobjekts?
+  :return: hat der übergebene Nutzer generell Rechte am Datenmodell des übergebenen Datenobjekts?
   """
   permission_add = user.has_perm(
     'datenmanagement.add_' + obj.__class__.__name__.lower())
@@ -291,12 +306,12 @@ def user_has_model_permission(user, obj):
 @register.filter
 def user_has_model_add_permission(user, model_name_lower):
   """
-  prüft, ob der übergebenene Nutzer Rechte zum Hinzufügen von Datenobjekten
+  prüft, ob der übergebene Nutzer Rechte zum Hinzufügen von Datenobjekten
   im übergebenen Datenmodell hat
 
   :param user: Nutzer
   :param model_name_lower: Name des Datenmodells
-  :return: hat der übergebenene Nutzer Rechte zum Hinzufügen von Datenobjekten
+  :return: hat der übergebene Nutzer Rechte zum Hinzufügen von Datenobjekten
   im übergebenen Datenmodell?
   """
   if user.has_perm('datenmanagement.add_' + model_name_lower):
@@ -308,12 +323,12 @@ def user_has_model_add_permission(user, model_name_lower):
 @register.filter
 def user_has_model_change_permission(user, model_name_lower):
   """
-  prüft, ob der übergebenene Nutzer Rechte zum Ändern von Datenobjekten
+  prüft, ob der übergebene Nutzer Rechte zum Ändern von Datenobjekten
   im übergebenen Datenmodell hat
 
   :param user: Nutzer
   :param model_name_lower: Name des Datenmodells
-  :return: hat der übergebenene Nutzer Rechte zum Ändern von Datenobjekten
+  :return: hat der übergebene Nutzer Rechte zum Ändern von Datenobjekten
   im übergebenen Datenmodell?
   """
   if user.has_perm('datenmanagement.change_' + model_name_lower):
@@ -325,12 +340,12 @@ def user_has_model_change_permission(user, model_name_lower):
 @register.filter
 def user_has_model_delete_permission(user, model_name_lower):
   """
-  prüft, ob der übergebenene Nutzer Rechte zum Löschen von Datenobjekten
+  prüft, ob der übergebene Nutzer Rechte zum Löschen von Datenobjekten
   im übergebenen Datenmodell hat
 
   :param user: Nutzer
   :param model_name_lower: Name des Datenmodells
-  :return: hat der übergebenene Nutzer Rechte zum Löschen von Datenobjekten
+  :return: hat der übergebene Nutzer Rechte zum Löschen von Datenobjekten
   im übergebenen Datenmodell?
   """
   if user.has_perm('datenmanagement.delete_' + model_name_lower):
@@ -342,12 +357,12 @@ def user_has_model_delete_permission(user, model_name_lower):
 @register.filter
 def user_has_model_view_permission(user, model_name_lower):
   """
-  prüft, ob der übergebenene Nutzer Rechte zum Ansehen von Datenobjekten
+  prüft, ob der übergebene Nutzer Rechte zum Ansehen von Datenobjekten
   im übergebenen Datenmodell hat
 
   :param user: Nutzer
   :param model_name_lower: Name des Datenmodells
-  :return: hat der übergebenene Nutzer Rechte zum Ansehen von Datenobjekten
+  :return: hat der übergebene Nutzer Rechte zum Ansehen von Datenobjekten
   im übergebenen Datenmodell?
   """
   if user.has_perm('datenmanagement.view_' + model_name_lower):
