@@ -39,7 +39,9 @@
         <div class="alert alert-danger" role="alert">
           <i class="fa-solid fa-circle-exclamation"></i>
           {% autoescape off %}
-            {{ error }}
+            {% with replace_string='ATTRIBUTE|'|add:field.label %}
+              {{ error|replace:replace_string }}
+            {% endwith %}
           {% endautoescape %}
         </div>
       {% endfor %}

@@ -13,15 +13,14 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from .base import SimpleModel
-from .constants_vars import personennamen_validators, standard_validators, \
-  hausnummer_zusatz_regex, email_message, erdwaermesonden_aktenzeichen_regex, \
-  erdwaermesonden_aktenzeichen_message, erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
-  hausnummer_zusatz_message, inventarnummer_regex, inventarnummer_message, rufnummer_regex, \
-  rufnummer_message, url_message, denksteine_nummer_regex, denksteine_nummer_message, \
-  hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
-  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, poller_nummer_regex, \
-  poller_nummer_message, postleitzahl_message, postleitzahl_regex, strassen_schluessel_regex, \
-  strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
+from .constants_vars import personennamen_validators, standard_validators, d3_regex, d3_message, \
+  email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, inventarnummer_regex, \
+  inventarnummer_message, rufnummer_regex, rufnummer_message, url_message, \
+  denksteine_nummer_regex, denksteine_nummer_message, erdwaermesonden_aktenzeichen_regex, \
+  erdwaermesonden_aktenzeichen_message, hausnummern_antragsnummer_message, \
+  hausnummern_antragsnummer_regex, hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
+  poller_nummer_regex, poller_nummer_message, postleitzahl_message, postleitzahl_regex, \
+  strassen_schluessel_regex, strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
   trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
@@ -1581,8 +1580,8 @@ class Erdwaermesonden(SimpleModel):
     null=True,
     validators=[
       RegexValidator(
-        regex=erdwaermesonden_d3_regex,
-        message=erdwaermesonden_d3_message
+        regex=d3_regex,
+        message=d3_message
       )
     ]
   )
