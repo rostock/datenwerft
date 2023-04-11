@@ -94,24 +94,6 @@ class StatusViewsTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_index_view_no_rights(self):
-    self.generic_view_test(
-      False, False, 'codelists_status', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
-    )
-
-  def test_index_view_standard_rights(self):
-    self.generic_view_test(
-      True, False, 'codelists_status', None, 200,
-      'text/html; charset=utf-8', 'auflisten'
-    )
-
-  def test_index_view_admin_rights(self):
-    self.generic_view_test(
-      True, True, 'codelists_status', None, 200,
-      'text/html; charset=utf-8', 'anlegen'
-    )
-
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'codelists_status_tabledata', TABLEDATA_VIEW_PARAMS, 200,
@@ -273,24 +255,6 @@ class SectorViewsTest(DefaultViewTestCase):
 
   def setUp(self):
     self.init()
-
-  def test_index_view_no_rights(self):
-    self.generic_view_test(
-      False, False, 'codelists_sector', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
-    )
-
-  def test_index_view_standard_rights(self):
-    self.generic_view_test(
-      True, False, 'codelists_sector', None, 200,
-      'text/html; charset=utf-8', 'auflisten'
-    )
-
-  def test_index_view_admin_rights(self):
-    self.generic_view_test(
-      True, True, 'codelists_sector', None, 200,
-      'text/html; charset=utf-8', 'anlegen'
-    )
 
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
@@ -459,24 +423,6 @@ class TypeOfEventViewsTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_index_view_no_rights(self):
-    self.generic_view_test(
-      False, False, 'codelists_typeofevent', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
-    )
-
-  def test_index_view_standard_rights(self):
-    self.generic_view_test(
-      True, False, 'codelists_typeofevent', None, 200,
-      'text/html; charset=utf-8', 'auflisten'
-    )
-
-  def test_index_view_admin_rights(self):
-    self.generic_view_test(
-      True, True, 'codelists_typeofevent', None, 200,
-      'text/html; charset=utf-8', 'anlegen'
-    )
-
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'codelists_typeofevent_tabledata', TABLEDATA_VIEW_PARAMS, 200,
@@ -643,24 +589,6 @@ class TypeOfImmissionViewsTest(DefaultViewTestCase):
 
   def setUp(self):
     self.init()
-
-  def test_index_view_no_rights(self):
-    self.generic_view_test(
-      False, False, 'codelists_typeofimmission', None, 200,
-      'text/html; charset=utf-8', 'keine Rechte'
-    )
-
-  def test_index_view_standard_rights(self):
-    self.generic_view_test(
-      True, False, 'codelists_typeofimmission', None, 200,
-      'text/html; charset=utf-8', 'auflisten'
-    )
-
-  def test_index_view_admin_rights(self):
-    self.generic_view_test(
-      True, True, 'codelists_typeofimmission', None, 200,
-      'text/html; charset=utf-8', 'anlegen'
-    )
 
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(

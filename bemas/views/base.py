@@ -7,7 +7,7 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist
+from bemas.models import Codelist, Contact, Organization
 from bemas.utils import get_icon_from_settings, is_bemas_admin, is_bemas_user
 
 
@@ -64,6 +64,20 @@ class GenericTableDataView(BaseDatatableView):
             data = self.model.objects.get(pk=item_pk).address()
             address_handled = True
             item_data.append(data)
+        # object class organization:
+        # add column which lists contact(s)
+        if issubclass(self.model, Organization):
+          data = ''
+          contacts = Contact.objects.filter(organization=item_pk)
+          if contacts:
+            for index, contact in enumerate(contacts):
+              data += '<br>' if index > 0 else ''
+              data += '<a href="' + reverse('bemas:contact_update', args=[contact.pk]) + '"'
+              data += ' title="' + Contact._meta.verbose_name + ' bearbeiten">'
+              data += str(contact.person)
+              data += ' (Funktion: ' + contact.function + ')' if contact.function else ''
+              data += '</a>'
+          item_data.append(data)
         # append links for updating and deleting
         if (
             not issubclass(self.model, Codelist)
@@ -78,7 +92,7 @@ class GenericTableDataView(BaseDatatableView):
           item_data.append(
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
-            '"><i class="fas fa-' + get_icon_from_settings('edit') +
+            '"><i class="fas fa-' + get_icon_from_settings('update') +
             '" title="' + title + ' bearbeiten"></i></a>' +
             '<a class="ms-3" href="' +
             reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +

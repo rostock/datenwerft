@@ -18,6 +18,16 @@
 
 {% block content %}
   {% if is_bemas_user %}
+    {% if messages and is_bemas_admin %}
+      {% for message in messages %}
+        {% if message.tags and message.tags == 'success' %}
+          <div class="alert alert-success" role="alert">
+            <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
+            {{ message|safe }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
     <h2><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codeliste <em>{{ codelist_verbose_name_plural }}</em></h2>
     <h4><small>{{ codelist_description }}</small></h4>
     {% if objects_count == 0 %}
@@ -27,9 +37,9 @@
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
       {% if is_bemas_admin %}
-        <a class="btn btn-primary" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_create' %}"><i class="fas fa-{{ 'add'|get_icon }}"></i> neuen Codelisteneintrag anlegen</a>
+        <a class="btn btn-primary" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neuen Codelisteneintrag anlegen</a>
       {% endif %}
-      <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
@@ -58,6 +68,10 @@
       <script>
         /* global $, initDataTable */
         /* eslint no-undef: "error" */
+
+        setTimeout(function () {
+          $('.alert-success').alert('close');
+        }, 3000);
 
         /**
          * @function

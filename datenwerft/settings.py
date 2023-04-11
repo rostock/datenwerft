@@ -194,16 +194,15 @@ USE_TZ = True
 
 BEMAS_ICONS = {
   # 'activity': 'bell',
-  'add': 'circle-plus',
   # 'anonymous_complaint': 'link-slash',
   'back': 'backward',
   'cancel': 'hand',
   'clone': 'clone',
   'codelist': 'list',
   # 'complaint': 'folder-open',
-  # 'contact': 'address-card',
+  'contact': 'address-card',
+  'create': 'circle-plus',
   'delete': 'trash',
-  'edit': 'pencil',
   'error': 'circle-exclamation',
   # 'event': 'paperclip',
   # 'log': 'clock-rotate-left',
@@ -218,6 +217,7 @@ BEMAS_ICONS = {
   'save': 'floppy-disk',
   # 'statistics': 'chart-simple',
   'table': 'table',
+  'update': 'pencil',
   'warning': 'triangle-exclamation'
 }
 

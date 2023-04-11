@@ -146,9 +146,11 @@ def assign_widget(field):
     # set minimum and maximum values for numeric model fields
     if form_field.widget.input_type == 'number':
       if min_numbers is not None:
-        form_field.widget.attrs['min'] = min_numbers.get(field.name, 0)
+        form_field.widget.attrs['min'] = min_numbers.get(field.name)
+        print(form_field.widget.attrs['min'])
       if max_numbers is not None:
-        form_field.widget.attrs['max'] = max_numbers.get(field.name, 0)
+        form_field.widget.attrs['max'] = max_numbers.get(field.name)
+        print(form_field.widget.attrs['max'])
   # field is array field?
   if is_array_field:
     # highlight corresponding form field as array field via custom HTML attribute

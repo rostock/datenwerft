@@ -36,7 +36,10 @@
       </h4>
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-primary" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}"><i class="fas fa-{{ 'add'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
+      <a class="btn btn-primary" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
+      {% if further_objectclass_name and further_objectclass_button_text %}
+        <a class="btn btn-primary" role="button" href="{% url 'bemas:'|add:further_objectclass_name|lower|add:'_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ further_objectclass_button_text }}</a>
+      {% endif %}
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     {% if objects_count > 0 %}
@@ -51,6 +54,9 @@
               {% for column_title in column_titles %}
                 <th>{{ column_title }}</th>
               {% endfor %}
+              {% if objectclass_name == 'Organization' %}
+                <th>Ansprechpartner:in(nen)</th>
+              {% endif %}
               <th class="no-export">Aktionen</th>
             </tr>
           </thead>

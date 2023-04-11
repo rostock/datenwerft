@@ -27,8 +27,8 @@ class GenericForm(ModelForm):
                              '<strong><em>ATTRIBUTE</em></strong> war ungültig! ' \
                              'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
       ArrayField.default_error_messages['item_invalid'] = item_invalid_message
-      unique_message = 'Es existiert bereits ' + title + ' mit dem angegebenen Wert im Attribut' \
-                       ' <strong><em>{label}</em></strong>!'.format(label=field.label)
+      unique_message = 'Es existiert bereits ' + title + ' mit dem angegebenen Wert im Attribut ' \
+                       '<strong><em>{label}</em></strong>!'.format(label=field.label)
       field.error_messages = {
         'required': required_message,
         'unique': unique_message

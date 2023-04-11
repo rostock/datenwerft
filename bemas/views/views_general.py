@@ -7,7 +7,7 @@ from .functions import add_default_context_elements
 
 class IndexView(TemplateView):
   """
-  main page view
+  view for main page
   """
 
   template_name = 'bemas/index.html'
@@ -27,7 +27,7 @@ class IndexView(TemplateView):
 
 class CodelistsIndexView(TemplateView):
   """
-  codelists entry page view
+  view for codelists entry page
   """
 
   template_name = 'bemas/codelists.html'

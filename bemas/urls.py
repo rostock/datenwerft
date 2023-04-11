@@ -5,11 +5,12 @@ from rest_framework import routers
 
 from bemas.models import Codelist
 from .views.base import GenericTableDataView
-from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistIndexView, \
-  CodelistTableView, CodelistUpdateView
+from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
+  CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView
-from .views.views_objectclass import GenericObjectclassCreateView, GenericObjectclassDeleteView, \
-  GenericObjectclassTableView, GenericObjectclassUpdateView
+from .views.views_objectclass import ContactDeleteView, GenericObjectclassCreateView, \
+  GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
+  OrganizationTableView, PersonDeleteView, ContactCreateView, ContactUpdateView
 
 router = routers.DefaultRouter()
 
@@ -47,17 +48,6 @@ for model in models:
     codelist_name = model.__name__
     codelist_name_lower = codelist_name.lower()
 
-    # entry page for a codelist
-    urlpatterns.append(
-      path(
-        'codelists/' + codelist_name_lower,
-        view=login_required(CodelistIndexView.as_view(
-          model=model
-        )),
-        name='codelists_' + codelist_name_lower
-      )
-    )
-
     # table data composition for a codelist
     urlpatterns.append(
       path(
@@ -86,7 +76,7 @@ for model in models:
         'codelists/' + codelist_name_lower + '/create',
         view=login_required(CodelistCreateView.as_view(
           model=model,
-          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
+          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower + '_table')
         )),
         name='codelists_' + codelist_name_lower + '_create'
       )
@@ -98,7 +88,7 @@ for model in models:
         'codelists/' + codelist_name_lower + '/update/<pk>',
         view=login_required(CodelistUpdateView.as_view(
           model=model,
-          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
+          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower + '_table')
         )),
         name='codelists_' + codelist_name_lower + '_update'
       )
@@ -110,7 +100,7 @@ for model in models:
         'codelists/' + codelist_name_lower + '/delete/<pk>',
         view=login_required(CodelistDeleteView.as_view(
           model=model,
-          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower)
+          success_url=reverse_lazy('bemas:' + 'codelists_' + codelist_name_lower + '_table')
         )),
         name='codelists_' + codelist_name_lower + '_delete'
       )
@@ -136,7 +126,7 @@ for model in models:
     urlpatterns.append(
       path(
         'organization/table',
-        view=login_required(GenericObjectclassTableView.as_view(
+        view=login_required(OrganizationTableView.as_view(
           model=model
         )),
         name='organization_table'
@@ -171,7 +161,7 @@ for model in models:
     urlpatterns.append(
       path(
         'organization/delete/<pk>',
-        view=login_required(GenericObjectclassDeleteView.as_view(
+        view=login_required(OrganizationDeleteView.as_view(
           model=model,
           success_url=reverse_lazy('bemas:organization_table')
         )),
@@ -234,10 +224,51 @@ for model in models:
     urlpatterns.append(
       path(
         'person/delete/<pk>',
-        view=login_required(GenericObjectclassDeleteView.as_view(
+        view=login_required(PersonDeleteView.as_view(
           model=model,
           success_url=reverse_lazy('bemas:person_table')
         )),
         name='person_delete'
+      )
+    )
+
+  #
+  # views for object class contact
+  #
+  elif model.__name__ == 'Contact':
+
+    # form page for creating an instance of object class contact
+    urlpatterns.append(
+      path(
+        'contact/create',
+        view=login_required(ContactCreateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:organization_table')
+        )),
+        name='contact_create'
+      )
+    )
+
+    # form page for updating an instance of object class contact
+    urlpatterns.append(
+      path(
+        'contact/update/<pk>',
+        view=login_required(ContactUpdateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:organization_table')
+        )),
+        name='contact_update'
+      )
+    )
+
+    # form page for deleting an instance of object class contact
+    urlpatterns.append(
+      path(
+        'contact/delete/<pk>',
+        view=login_required(ContactDeleteView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:organization_table')
+        )),
+        name='contact_delete'
       )
     )

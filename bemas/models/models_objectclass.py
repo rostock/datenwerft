@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
+from django.db.models import ForeignKey, CASCADE
 from django.db.models.fields import CharField
 
 from datenmanagement.models.constants_vars import standard_validators, personennamen_validators, \
@@ -233,3 +234,44 @@ class Person(Objectclass):
   def address(self):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
+
+
+class Contact(Objectclass):
+  """
+  model class for object class contact (Ansprechpartner:in)
+  """
+
+  organization = ForeignKey(
+    Organization,
+    verbose_name='Organisation',
+    on_delete=CASCADE
+  )
+  person = ForeignKey(
+    Person,
+    verbose_name='Person',
+    on_delete=CASCADE
+  )
+  function = CharField(
+    'Funktion',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+
+  class Meta(Objectclass.Meta):
+    db_table = 'contact'
+    ordering = ['organization__name', 'person__last_name', 'person__first_name']
+    verbose_name = 'Ansprechpartner:in'
+    verbose_name_plural = 'Ansprechpartner:innen'
+
+  class BasemodelMeta(Objectclass.BasemodelMeta):
+    description = 'Kontaktpersonen in Organisationen'
+    definite_article = 'die/der'
+    indefinite_article = 'ein:e'
+    personal_pronoun = 'sie/ihn'
+    new = 'neue:n'
+
+  def __str__(self):
+    return str(self.person) + ' in der Organisation ' + str(self.organization) + \
+           (' (Funktion: ' + self.function + ')' if self.function else '')
