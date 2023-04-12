@@ -10,7 +10,7 @@ from .views.views_codelist import CodelistCreateView, CodelistDeleteView, Codeli
 from .views.views_general import CodelistsIndexView, IndexView
 from .views.views_objectclass import ContactDeleteView, GenericObjectclassCreateView, \
   GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
-  OrganizationTableView, PersonDeleteView, ContactCreateView, ContactUpdateView
+  PersonDeleteView, ContactCreateView, ContactUpdateView
 
 router = routers.DefaultRouter()
 
@@ -126,7 +126,7 @@ for model in models:
     urlpatterns.append(
       path(
         'organization/table',
-        view=login_required(OrganizationTableView.as_view(
+        view=login_required(GenericObjectclassTableView.as_view(
           model=model
         )),
         name='organization_table'

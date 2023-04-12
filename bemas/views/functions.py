@@ -141,16 +141,16 @@ def assign_widget(field):
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
+    elif form_field.widget.input_type == 'select':
+      form_field.widget.attrs['class'] = 'form-select'
     else:
       form_field.widget.attrs['class'] = 'form-control'
     # set minimum and maximum values for numeric model fields
     if form_field.widget.input_type == 'number':
       if min_numbers is not None:
         form_field.widget.attrs['min'] = min_numbers.get(field.name)
-        print(form_field.widget.attrs['min'])
       if max_numbers is not None:
         form_field.widget.attrs['max'] = max_numbers.get(field.name)
-        print(form_field.widget.attrs['max'])
   # field is array field?
   if is_array_field:
     # highlight corresponding form field as array field via custom HTML attribute
@@ -179,3 +179,26 @@ def generate_protected_objects_list(protected_objects):
     return '<ul class="error_object_list">' + object_list + '</ul>'
   else:
     return object_list
+
+
+def set_generic_objectclass_create_update_delete_context(context, request, model, cancel_url):
+  """
+  sets generic object class context for create, update and/or delete views and returns it
+
+  :param context: context
+  :param request: request
+  :param model: object class model
+  :param cancel_url: custom cancel URL
+  :return: generic object class context for create, update and/or delete views
+  """
+  # add default elements to context
+  context = add_default_context_elements(context, request.user)
+  # add user agent related elements to context
+  context = add_user_agent_context_elements(context, request)
+  # add other necessary elements to context
+  context = add_generic_objectclass_context_elements(context, model)
+  # optionally add custom cancel URL (called when cancel button is clicked) to context
+  context['cancel_url'] = (
+    cancel_url if cancel_url else reverse('bemas:' + model.__name__.lower() + '_table')
+  )
+  return context

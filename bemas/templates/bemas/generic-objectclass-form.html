@@ -49,15 +49,15 @@
           <ul>
             {% for contact in contacts %}
               <li>
-                <a href="{{ contact.link }}" target="_blank" rel="noopener noreferrer" title="Ansprechpartner:in bearbeiten">{{ contact.text }}</a>
+                <a href="{{ contact.link }}" title="Ansprechpartner:in bearbeiten">{{ contact.text }}</a>
               </li>
             {% endfor %}
           </ul>
         {% else %}
-          (noch) keine Person als Ansprechpartner:in verknüpft
+          (noch) keine:r vorhanden
         {% endif %}
         <hr>
-        <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}" target="_blank" rel="noopener noreferrer"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
+        <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}?organization={{ object.pk }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       </div>
       <div class="mb-4"></div>
     {% endif %}

@@ -10,8 +10,8 @@ from json import dumps
 from bemas.models import Contact, Organization
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
-  add_table_context_elements, add_user_agent_context_elements, assign_widget, \
-  generate_protected_objects_list
+  add_table_context_elements, assign_widget, generate_protected_objects_list, \
+  set_generic_objectclass_create_update_delete_context
 
 
 class GenericObjectclassTableView(TemplateView):
@@ -19,14 +19,10 @@ class GenericObjectclassTableView(TemplateView):
   view for generic table page for an object class
 
   :param model: object class model
-  :param further_objectclass_name: name of further object class accessible via creation button
-  :param further_objectclass_button_text: text for creation button of further object class
   """
 
   model = None
   template_name = 'bemas/generic-objectclass-table.html'
-  further_objectclass_name = None
-  further_objectclass_button_text = None
 
   def get_context_data(self, **kwargs):
     """
@@ -42,11 +38,6 @@ class GenericObjectclassTableView(TemplateView):
     context = add_table_context_elements(context, self.model)
     # add other necessary elements to context
     context = add_generic_objectclass_context_elements(context, self.model)
-    # optionally add name of object class additionally addable via button
-    # and the corresponding button text to context
-    if self.further_objectclass_name and self.further_objectclass_button_text:
-      context['further_objectclass_name'] = self.further_objectclass_name
-      context['further_objectclass_button_text'] = self.further_objectclass_button_text
     return context
 
 
@@ -77,19 +68,27 @@ class GenericObjectclassCreateView(CreateView):
     :param kwargs:
     :return: dictionary with all context elements for this view
     """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    # add user agent related elements to context
-    context = add_user_agent_context_elements(context, self.request)
-    # add other necessary elements to context
-    context = add_generic_objectclass_context_elements(context, self.model)
-    # optionally add custom cancel URL (called when cancel button is clicked) to context
-    if self.cancel_url:
-      context['cancel_url'] = self.cancel_url
-    else:
-      context['cancel_url'] = reverse('bemas:' + self.model.__name__.lower() + '_table')
+    # set generic object class context for create, update and/or delete views
+    context = set_generic_objectclass_create_update_delete_context(
+      super().get_context_data(**kwargs),
+      self.request,
+      self.model,
+      self.cancel_url
+    )
     return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    # object class contact:
+    # optionally set initial value for organization field
+    if issubclass(self.model, Contact) and self.request.GET.get('organization', None):
+      return {
+        'organization': self.request.GET.get('organization')
+      }
 
   def form_valid(self, form):
     """
@@ -151,18 +150,13 @@ class GenericObjectclassUpdateView(UpdateView):
     :param kwargs:
     :return: dictionary with all context elements for this view
     """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    # add user agent related elements to context
-    context = add_user_agent_context_elements(context, self.request)
-    # add other necessary elements to context
-    context = add_generic_objectclass_context_elements(context, self.model)
-    # optionally add custom cancel URL (called when cancel button is clicked) to context
-    if self.cancel_url:
-      context['cancel_url'] = self.cancel_url
-    else:
-      context['cancel_url'] = reverse('bemas:' + self.model.__name__.lower() + '_table')
+    # set generic object class context for create, update and/or delete views
+    context = set_generic_objectclass_create_update_delete_context(
+      super().get_context_data(**kwargs),
+      self.request,
+      self.model,
+      self.cancel_url
+    )
     # object class organization:
     # optionally add list of contacts to context
     if issubclass(self.model, Organization):
@@ -271,18 +265,13 @@ class GenericObjectclassDeleteView(DeleteView):
     :param kwargs:
     :return: dictionary with all context elements for this view
     """
-    context = super().get_context_data(**kwargs)
-    # add default elements to context
-    context = add_default_context_elements(context, self.request.user)
-    # add user agent related elements to context
-    context = add_user_agent_context_elements(context, self.request)
-    # add other necessary elements to context
-    context = add_generic_objectclass_context_elements(context, self.model)
-    # optionally add custom cancel URL (called when cancel button is clicked) to context
-    if self.cancel_url:
-      context['cancel_url'] = self.cancel_url
-    else:
-      context['cancel_url'] = reverse('bemas:' + self.model.__name__.lower() + '_table')
+    # set generic object class context for create, update and/or delete views
+    context = set_generic_objectclass_create_update_delete_context(
+      super().get_context_data(**kwargs),
+      self.request,
+      self.model,
+      self.cancel_url
+    )
     # optionally add custom deletion hints (shown as text to user) to context
     if self.deletion_hints:
       context['deletion_hints'] = self.deletion_hints
@@ -317,18 +306,6 @@ class GenericObjectclassDeleteView(DeleteView):
       return self.render_to_response(self.get_context_data(form=form))
 
 
-class OrganizationTableView(GenericObjectclassTableView):
-  """
-  view for table page for object class organization
-
-  :param further_objectclass_name: name of further object class accessible via creation button
-  :param further_objectclass_button_text: text for creation button of further object class
-  """
-
-  further_objectclass_name = 'contact'
-  further_objectclass_button_text = 'neue:n Ansprechpartner:in anlegen'
-
-
 class OrganizationDeleteView(GenericObjectclassDeleteView):
   """
   view for form page for deleting an instance of object class organization
@@ -336,8 +313,7 @@ class OrganizationDeleteView(GenericObjectclassDeleteView):
   :param deletion_hints: custom deletion hints
   """
 
-  deletion_hints = 'Es werden automatisch auch alle ' \
-                   'Ansprechpartner:innen-Verknüpfungen mit Personen gelöscht.'
+  deletion_hints = 'Es werden automatisch auch alle Ansprechpartner:innen gelöscht.'
 
 
 class PersonDeleteView(GenericObjectclassDeleteView):
@@ -347,8 +323,7 @@ class PersonDeleteView(GenericObjectclassDeleteView):
   :param deletion_hints: custom deletion hints
   """
 
-  deletion_hints = 'Es werden automatisch auch alle ' \
-                   'Ansprechpartner:innen-Verknüpfungen mit Organisationen gelöscht.'
+  deletion_hints = 'Es werden automatisch auch alle Ansprechpartner:innen gelöscht.'
 
 
 class ContactCreateView(GenericObjectclassCreateView):
