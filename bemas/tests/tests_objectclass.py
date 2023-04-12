@@ -1,6 +1,7 @@
-from bemas.models import Contact, Organization, Person
+from bemas.models import Complaint, Contact, Organization, Originator, Person, Sector, \
+  TypeOfImmission
 from .base import DefaultModelTestCase, DefaultViewTestCase
-from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS
+from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS, VALID_POINT_DB, VALID_POINT_VIEW
 
 
 #
@@ -315,3 +316,116 @@ class ContactViewsTest(DefaultViewTestCase):
       True, False, 'contact_create', None,
       200, 'text/html; charset=utf-8', 'neue'
     )
+
+
+class OriginatorModelTest(DefaultModelTestCase):
+  """
+  model test class for object class originator (Verursacher)
+  """
+
+  model = Originator
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    sector = Sector.objects.first()
+    organization = Organization.objects.create(
+      name='OqEGVai4'
+    )
+    cls.attributes_values_db_initial = {
+      'denotation': 'd1ZpOwn8',
+      'sector': sector,
+      'licensee': organization,
+      'emission_point': VALID_POINT_DB
+    }
+    cls.attributes_values_db_updated = {
+      'denotation': 'WhPxUQik'
+    }
+    cls.attributes_values_view_initial = {
+      'denotation': 's2fpbQ9n',
+      'sector': str(sector.pk),
+      'licensee': str(organization.pk),
+      'emission_point': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'denotation': 'x4O4uocT',
+      'sector': str(sector.pk),
+      'licensee': str(organization.pk),
+      'emission_point': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'denotation': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class ComplaintModelTest(DefaultModelTestCase):
+  """
+  model test class for object class complaint (Beschwerde)
+  """
+
+  model = Complaint
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    type_of_immission = TypeOfImmission.objects.first()
+    sector = Sector.objects.first()
+    organization = Organization.objects.create(
+      name='PUAlDiMq'
+    )
+    originator = Originator.objects.create(
+      denotation='PEbwEh9H',
+      sector=sector,
+      licensee=organization,
+      emission_point=VALID_POINT_DB
+    )
+    cls.attributes_values_db_initial = {
+      'type_of_immission': type_of_immission,
+      'immission_point': VALID_POINT_DB,
+      'originator': originator,
+      'description': 'qut1URs0'
+    }
+    cls.attributes_values_db_updated = {
+      'description': 'zt9auXPa'
+    }
+    cls.attributes_values_view_initial = {
+      'type_of_immission': str(type_of_immission.pk),
+      'immission_point': VALID_POINT_VIEW,
+      'originator': str(originator.pk),
+      'description': 'kUcRCEq7'
+    }
+    cls.attributes_values_view_updated = {
+      'type_of_immission': str(type_of_immission.pk),
+      'immission_point': VALID_POINT_VIEW,
+      'originator': str(originator.pk),
+      'description': 'TRLfDH9k'
+    }
+    cls.attributes_values_view_invalid = {
+      'description': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()

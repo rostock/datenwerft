@@ -74,9 +74,7 @@ class GenericTableDataView(BaseDatatableView):
               data += '<br>' if index > 0 else ''
               data += '<a href="' + reverse('bemas:contact_update', args=[contact.pk]) + '"'
               data += ' title="' + Contact._meta.verbose_name + ' bearbeiten">'
-              data += str(contact.person)
-              data += ' (Funktion: ' + contact.function + ')' if contact.function else ''
-              data += '</a>'
+              data += contact.name_and_function() + '</a>'
           item_data.append(data)
         # append links for updating and deleting
         if (

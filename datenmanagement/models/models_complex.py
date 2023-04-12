@@ -11,9 +11,9 @@ from django.db.models.signals import post_delete, post_save
 from re import sub
 from zoneinfo import ZoneInfo
 
+from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from .base import ComplexModel
-from .constants_vars import ansprechpartner_validators, standard_validators, url_message, \
-  durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
+from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
   haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
   parkscheinautomaten_bewohnerparkgebiet_regex, parkscheinautomaten_bewohnerparkgebiet_message, \
   parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \

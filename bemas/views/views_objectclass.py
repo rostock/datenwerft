@@ -166,9 +166,7 @@ class GenericObjectclassUpdateView(UpdateView):
         for contact in contacts:
           contact_dict = {
             'link': reverse('bemas:contact_update', args=[contact.pk]),
-            'text': str(contact.person) + (
-              ' (Funktion: ' + contact.function + ')' if contact.function else ''
-            )
+            'text': contact.name_and_function()
           }
           contacts_list.append(contact_dict)
         context['contacts'] = contacts_list

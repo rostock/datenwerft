@@ -4,6 +4,7 @@ from django.contrib.gis.geos import LinearRing, LineString, MultiLineString, \
 from django.utils import timezone
 from pathlib import Path
 
+
 TEST_DIR = Path(__file__).resolve().parent
 TEST_MEDIA_DIR = TEST_DIR / 'temp'
 

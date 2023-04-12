@@ -3,10 +3,10 @@ from django.core.validators import EmailValidator, MaxValueValidator, MinValueVa
   RegexValidator
 from django.db.models.fields import CharField, DecimalField
 
+from toolbox.constants_vars import personennamen_validators, standard_validators, email_message
 from .base import Metamodel, Codelist, Art, Befestigungsart, Material, Schlagwort, Status, Typ
-from .constants_vars import personennamen_validators, standard_validators, email_message, \
-  fahrbahnwinterdienst_code_regex, fahrbahnwinterdienst_code_message, haefen_abkuerzung_regex, \
-  haefen_abkuerzung_message, linien_linie_regex, linien_linie_message, \
+from .constants_vars import fahrbahnwinterdienst_code_regex, fahrbahnwinterdienst_code_message, \
+  haefen_abkuerzung_regex, haefen_abkuerzung_message, linien_linie_regex, linien_linie_message, \
   parkscheinautomaten_zone_regex, parkscheinautomaten_zone_message, quartiere_code_regex, \
   quartiere_code_message
 from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
