@@ -472,3 +472,52 @@ class ComplaintOrganizationManyToManyTest(DefaultManyToManyTestCase):
 
   def test_create(self):
     self.generic_create_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class ComplaintPersonManyToManyTest(DefaultManyToManyTestCase):
+  """
+  test class for many-to-many-relationship
+  between complaint (Beschwerde) and person (Person)
+  """
+
+  model_from = Complaint
+  model_to = Person
+
+  @classmethod
+  def setUpTestData(cls):
+    type_of_immission = TypeOfImmission.objects.first()
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='NXtnFe8H'
+    )
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=operator,
+      description='i7g3qten',
+      emission_point=VALID_POINT_DB
+    )
+    cls.model_from_attributes_values_db = {
+      'type_of_immission': type_of_immission,
+      'immission_point': VALID_POINT_DB,
+      'originator': originator,
+      'description': '7JXQtscq'
+    }
+    cls.model_to_attributes_values_db = {
+      'last_name': 'qRPUyrLI'
+    }
+    cls.test_object_from = cls.model_from.objects.create(**cls.model_from_attributes_values_db)
+    cls.test_object_to = cls.model_to.objects.create(**cls.model_to_attributes_values_db)
+    cls.test_object_from.complainers_persons.add(cls.test_object_to)
+    cls.relationship = cls.test_object_from.complainers_persons
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_delete(self):
+    self.generic_delete_test()

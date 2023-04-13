@@ -207,9 +207,19 @@ class DefaultManyToManyTestCase(DefaultTestCase):
     test_object_to = get_object(self.model_to, object_filter_to)
     # test general existance of many-to-many-relationship of objects
     self.generic_existance_test(test_object_from, test_object_to, self.relationship)
-    # created objects contain specific values in one of their fields?
+    # created objects contain specific values in one of their respective fields?
     self.assertEqual(self.model_from.objects.filter(**object_filter_from).count(), 1)
     self.assertEqual(self.model_to.objects.filter(**object_filter_to).count(), 1)
+
+  def generic_delete_test(self):
+    """
+    tests deletion of many-to-many-relationship of test objects of given models
+
+    :param self
+    """
+    # no more many-to-many-relationship left?
+    self.test_object_to.delete()
+    self.assertEqual(self.relationship.all().count(), self.count)
 
 
 class DefaultViewTestCase(DefaultTestCase):
