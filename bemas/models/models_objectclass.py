@@ -355,8 +355,7 @@ class Complaint(Objectclass):
   status = ForeignKey(
     Status,
     verbose_name='Bearbeitungsstatus',
-    on_delete=PROTECT,
-    default=Status.get_default_status_pk()
+    on_delete=PROTECT
   )
   status_updated_at = DateTimeField(
     'letzte Änderung Bearbeitungsstatus',
@@ -433,9 +432,13 @@ class Complaint(Objectclass):
     return str(self.id)
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # on creation:
+    # store default status in designated field
+    if not self.pk and Status.get_default_status():
+      self.status = Status.get_default_status()
     # on status update:
     # store timestamp of status update in designated field
-    if self.pk and self.status != Complaint.objects.get(pk=self.pk).status:
+    elif self.pk and self.status != Complaint.objects.get(pk=self.pk).status:
       self.status_updated_at = timezone.now()
     if update_fields is not None and 'status' in update_fields:
       update_fields = {'status_updated_at'}.union(update_fields)

@@ -44,8 +44,8 @@ class Status(Codelist):
     return self.title
 
   @staticmethod
-  def get_default_status_pk():
-    return Status.objects.get(ordinal=1).pk
+  def get_default_status():
+    return Status.objects.get(ordinal=1) if Status.objects.filter(ordinal=1).exists() else None
 
 
 class Sector(Codelist):
