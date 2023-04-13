@@ -329,32 +329,32 @@ class OriginatorModelTest(DefaultModelTestCase):
   @classmethod
   def setUpTestData(cls):
     sector = Sector.objects.first()
-    organization = Organization.objects.create(
+    operator = Organization.objects.create(
       name='OqEGVai4'
     )
     cls.attributes_values_db_initial = {
-      'denotation': 'd1ZpOwn8',
       'sector': sector,
-      'licensee': organization,
+      'operator': operator,
+      'description': 'd1ZpOwn8',
       'emission_point': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'denotation': 'WhPxUQik'
+      'description': 'WhPxUQik'
     }
     cls.attributes_values_view_initial = {
-      'denotation': 's2fpbQ9n',
       'sector': str(sector.pk),
-      'licensee': str(organization.pk),
+      'operator': str(operator.pk),
+      'description': 's2fpbQ9n',
       'emission_point': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
-      'denotation': 'x4O4uocT',
       'sector': str(sector.pk),
-      'licensee': str(organization.pk),
+      'operator': str(operator.pk),
+      'description': 'x4O4uocT',
       'emission_point': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
-      'denotation': INVALID_STRING
+      'description': INVALID_STRING
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
 
@@ -387,9 +387,9 @@ class ComplaintModelTest(DefaultModelTestCase):
       name='PUAlDiMq'
     )
     originator = Originator.objects.create(
-      denotation='PEbwEh9H',
       sector=sector,
-      licensee=organization,
+      operator=organization,
+      description='PEbwEh9H',
       emission_point=VALID_POINT_DB
     )
     cls.attributes_values_db_initial = {

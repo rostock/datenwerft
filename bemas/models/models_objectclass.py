@@ -9,7 +9,7 @@ from django.utils import timezone
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
-from bemas.utils import concat_address
+from bemas.utils import concat_address, shorten_string
 from .base import Objectclass
 from .models_codelist import Sector, Status, TypeOfImmission
 
@@ -289,20 +289,19 @@ class Originator(Objectclass):
   model class for object class originator (Verursacher)
   """
 
-  denotation = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=standard_validators
-  )
   sector = ForeignKey(
     Sector,
     verbose_name='Branche',
     on_delete=PROTECT
   )
-  licensee = ForeignKey(
+  operator = ForeignKey(
     Organization,
     verbose_name='Betreiberin',
     on_delete=PROTECT
+  )
+  description = TextField(
+    'Beschreibung',
+    validators=standard_validators
   )
   emission_point = PointField(
     'Emissionsort',
@@ -312,12 +311,6 @@ class Originator(Objectclass):
     'Adresse',
     blank=True,
     null=True
-  )
-  description = TextField(
-    'Beschreibung',
-    blank=True,
-    null=True,
-    validators=standard_validators
   )
   dms_link = CharField(
     ' d.3',
@@ -334,7 +327,7 @@ class Originator(Objectclass):
 
   class Meta(Objectclass.Meta):
     db_table = 'originator'
-    ordering = ['denotation']
+    ordering = ['sector__title', 'operator__name', 'description']
     verbose_name = 'Verursacher'
     verbose_name_plural = 'Verursacher'
 
@@ -346,7 +339,8 @@ class Originator(Objectclass):
     new = 'neuer'
 
   def __str__(self):
-    return self.denotation
+    return str(self.sector) + ' mit der Betreiberin ' + str(self.operator) + \
+           ' (Beschreibung: ' + shorten_string(self.description) + ')'
 
 
 class Complaint(Objectclass):
@@ -390,11 +384,13 @@ class Complaint(Objectclass):
   )
   complainers_organizations = ManyToManyField(
     Organization,
-    db_table='complainers_organizations'
+    db_table='complainers_organizations',
+    verbose_name='Beschwerdeführerin'
   )
   complainers_persons = ManyToManyField(
     Person,
-    db_table='complainers_persons'
+    db_table='complainers_persons',
+    verbose_name='Beschwerdeführer:in'
   )
   description = TextField(
     'Beschreibung',
@@ -437,6 +433,8 @@ class Complaint(Objectclass):
     return str(self.id)
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # on status update:
+    # store timestamp of status update in designated field
     if self.pk and self.status != Complaint.objects.get(pk=self.pk).status:
       self.status_updated_at = timezone.now()
     if update_fields is not None and 'status' in update_fields:

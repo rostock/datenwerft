@@ -74,3 +74,22 @@ def permission_required(*perms):
   :return: check result of given permission(s)
   """
   return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
+
+
+def shorten_string(string, max_chars=20, suspension_point=True):
+  """
+  shortens given string and returns it
+
+  :param string: string to be shortened
+  :param max_chars: maximum number of characters
+  :param suspension_point: add ellipsis at the end?
+  :return: shortened string
+  """
+  if len(string) <= max_chars:
+    return string
+  else:
+    string = string[0:20].strip()
+    if suspension_point:
+      return string + '…' if len(string) < max_chars else string[:-1] + '…'
+    else:
+      return string
