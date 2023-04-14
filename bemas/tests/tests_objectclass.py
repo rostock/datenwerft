@@ -1,5 +1,5 @@
-from bemas.models import Complaint, Contact, Organization, Originator, Person, Sector, \
-  TypeOfImmission
+from bemas.models import Complaint, Contact, Event, Organization, Originator, Person, Sector, \
+  TypeOfEvent, TypeOfImmission
 from .base import DefaultManyToManyTestCase, DefaultModelTestCase, DefaultViewTestCase
 from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS, VALID_POINT_DB, VALID_POINT_VIEW
 
@@ -518,6 +518,70 @@ class ComplaintPersonManyToManyTest(DefaultManyToManyTestCase):
 
   def test_create(self):
     self.generic_create_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class EventModelTest(DefaultModelTestCase):
+  """
+  model test class for object class event (Journalereignis)
+  """
+
+  model = Event
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='szWLszDf'
+    )
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=operator,
+      description='amPaaSKF',
+      emission_point=VALID_POINT_DB
+    )
+    type_of_immission = TypeOfImmission.objects.first()
+    complaint = Complaint.objects.create(
+      type_of_immission=type_of_immission,
+      immission_point=VALID_POINT_DB,
+      originator=originator,
+      description='miDkPXSW'
+    )
+    type_of_event = TypeOfEvent.objects.first()
+    cls.attributes_values_db_initial = {
+      'complaint': complaint,
+      'type_of_event': type_of_event,
+      'user': 'DEg7UdpI'
+    }
+    cls.attributes_values_db_updated = {
+      'user': 'eoSqXfg4'
+    }
+    cls.attributes_values_view_initial = {
+      'complaint': str(complaint.pk),
+      'type_of_event': str(type_of_event.pk),
+      'user': '0tzYPl8C'
+    }
+    cls.attributes_values_view_updated = {
+      'complaint': str(complaint.pk),
+      'type_of_event': str(type_of_event.pk),
+      'user': 'PYSZQDSu'
+    }
+    cls.attributes_values_view_invalid = {
+      'user': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
 
   def test_delete(self):
     self.generic_delete_test()
