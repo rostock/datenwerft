@@ -4,7 +4,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from json import loads
 
-from bemas.models import Codelist
+from bemas.models import Codelist, LogEntry
 from .constants_vars import DATABASES, USERNAME, PASSWORD
 from .functions import clean_object_filter, get_object, login
 
@@ -100,7 +100,8 @@ class DefaultModelTestCase(DefaultTestCase):
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_crud_view_test(self, update_mode, bemas_user, bemas_admin, view_name,
-                             object_filter, status_code, content_type, string, count):
+                             object_filter, status_code, content_type, string, count,
+                             log_entry_action=None):
     """
     tests a view for creating or updating an object via POST
 
@@ -114,6 +115,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     :param count: expected number of objects passing the object filter
+    :param log_entry_action: log entry action (i.e. test log entry if present)
     """
     # log test user in
     login(self, bemas_user, bemas_admin)
@@ -141,6 +143,14 @@ class DefaultModelTestCase(DefaultTestCase):
     # specific string contained in response?
     if string:
       self.assertIn(string, str(response.content))
+    # log entry created as expected?
+    if log_entry_action:
+      self.assertEqual(
+        LogEntry.objects.filter(
+          model=self.model.__name__,
+          action=log_entry_action
+        ).count(), 1
+      )
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
@@ -159,6 +169,67 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
     """
     # model declared as codelist?
     self.assertTrue(issubclass(self.model, Codelist))
+
+
+class DefaultManyToManyTestCase(DefaultTestCase):
+  """
+  abstract test class for many-to-many-relationships
+  """
+
+  model_from = None
+  model_to = None
+  model_from_attributes_values_db, model_to_attributes_values_db = {}, {}
+  test_object_from = None
+  test_object_to = None
+  relationship = None
+  count = 0
+
+  def init(self):
+    super().init()
+
+  def generic_existance_test(self, test_object_from, test_object_to, relationship):
+    """
+    tests general existance of many-to-many-relationship of given test objects
+
+    :param self
+    :param test_object_from: test object (from)
+    :param test_object_to: test object (to)
+    :param relationship: many-to-many-relationship itself
+    """
+    # actual number of many-to-many-relationships
+    # equals expected number of many-to-many-relationships?
+    self.assertEqual(relationship.all().count(), self.count + 1)
+    # objects created exactly as they should have been created?
+    self.assertEqual(test_object_from, self.test_object_from)
+    self.assertEqual(test_object_to, self.test_object_to)
+
+  def generic_create_test(self):
+    """
+    tests creation of many-to-many-relationship of test objects of given models
+
+    :param self
+    """
+    # clean object filters
+    object_filter_from = clean_object_filter(self.model_from_attributes_values_db)
+    object_filter_to = clean_object_filter(self.model_to_attributes_values_db)
+    # get objects by object filters
+    test_object_from = get_object(self.model_from, object_filter_from)
+    test_object_to = get_object(self.model_to, object_filter_to)
+    # test general existance of many-to-many-relationship of objects
+    self.generic_existance_test(test_object_from, test_object_to, self.relationship)
+    # created objects contain specific values in one of their respective fields?
+    self.assertEqual(self.model_from.objects.filter(**object_filter_from).count(), 1)
+    self.assertEqual(self.model_to.objects.filter(**object_filter_to).count(), 1)
+
+  def generic_delete_test(self):
+    """
+    tests deletion of many-to-many-relationship of test objects of given models
+
+    :param self
+    """
+    # no more many-to-many-relationship left?
+    self.test_object_to.delete()
+    self.assertEqual(self.relationship.all().count(), self.count)
 
 
 class DefaultViewTestCase(DefaultTestCase):

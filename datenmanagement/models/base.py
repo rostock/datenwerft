@@ -2,7 +2,7 @@ from uuid import uuid4
 from django.contrib.gis.db.models import Model
 from django.db.models.fields import BooleanField, CharField, UUIDField
 
-from .constants_vars import standard_validators
+from toolbox.constants_vars import standard_validators
 
 
 #

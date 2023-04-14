@@ -1,6 +1,5 @@
 from datetime import date
 from django.conf import settings
-from django.db import connections
 from pathlib import Path, PurePath
 from PIL import ExifTags, Image
 from uuid import uuid4

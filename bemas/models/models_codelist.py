@@ -1,6 +1,6 @@
 from django.db.models.fields import CharField, SmallIntegerField
 
-from datenmanagement.models.constants_vars import standard_validators
+from toolbox.constants_vars import standard_validators
 from .base import Codelist
 
 
@@ -42,6 +42,10 @@ class Status(Codelist):
 
   def __str__(self):
     return self.title
+
+  @staticmethod
+  def get_default_status():
+    return Status.objects.get(ordinal=1) if Status.objects.filter(ordinal=1).exists() else None
 
 
 class Sector(Codelist):

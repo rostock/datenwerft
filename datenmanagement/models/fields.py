@@ -1,6 +1,6 @@
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.gis.db.models.fields import LineStringField, MultiLineStringField, \
   MultiPolygonField, PointField, PolygonField
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db.models.fields import PositiveIntegerField, PositiveSmallIntegerField, TextField
 from django.forms import Textarea, TypedMultipleChoiceField
@@ -150,10 +150,8 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
 
 
 #
-# Definition häufig genutzter Standardfelder
-#
-
 # Geometriefelder
+#
 
 point_field = PointField(
   'Geometrie',

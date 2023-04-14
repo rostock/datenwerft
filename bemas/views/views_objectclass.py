@@ -7,10 +7,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import Contact, Organization
+from bemas.models import Contact, Organization, Person
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
-  add_table_context_elements, assign_widget, generate_protected_objects_list, \
+  add_table_context_elements, assign_widget, create_log_entry, generate_protected_objects_list, \
   set_generic_objectclass_create_update_delete_context
 
 
@@ -99,10 +99,28 @@ class GenericObjectclassCreateView(CreateView):
     """
     success(
       self.request,
-      self.model.BasemodelMeta.definite_article.capitalize() + ' neue ' +
-      self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
-      'wurde erfolgreich angelegt!' % str(form.instance)
+      '{} neue {} <strong><em>{}</em></strong> wurde erfolgreich angelegt!'.format(
+        self.model.BasemodelMeta.definite_article.capitalize(),
+        self.model._meta.verbose_name,
+        str(form.instance)
+      )
     )
+    # create new log entry for the following object classes:
+    # Complaint, Contact, Organization, Originator, Person
+    if (
+        issubclass(self.model, Contact)
+        or issubclass(self.model, Organization)
+        or issubclass(self.model, Person)
+    ):
+      curr_object = form.save(commit=False)
+      curr_object.save()
+      create_log_entry(
+        self.model,
+        curr_object.pk,
+        str(curr_object),
+        'created',
+        self.request.user
+      )
     return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
@@ -166,9 +184,7 @@ class GenericObjectclassUpdateView(UpdateView):
         for contact in contacts:
           contact_dict = {
             'link': reverse('bemas:contact_update', args=[contact.pk]),
-            'text': str(contact.person) + (
-              ' (Funktion: ' + contact.function + ')' if contact.function else ''
-            )
+            'text': contact.name_and_function()
           }
           contacts_list.append(contact_dict)
         context['contacts'] = contacts_list
@@ -218,9 +234,11 @@ class GenericObjectclassUpdateView(UpdateView):
     """
     success(
       self.request,
-      self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
-      self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
-      'wurde erfolgreich geändert!' % str(form.instance)
+      '{} {} <strong><em>{}</em></strong> wurde erfolgreich geändert!'.format(
+        self.model.BasemodelMeta.definite_article.capitalize(),
+        self.model._meta.verbose_name,
+        str(form.instance)
+      )
     )
     return super().form_valid(form)
 
@@ -286,13 +304,30 @@ class GenericObjectclassDeleteView(DeleteView):
     """
     success_url = self.get_success_url()
     try:
+      object_pk, object_str = self.object.pk, str(self.object)
       self.object.delete()
       success(
         self.request,
-        self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
-        self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
-        'wurde erfolgreich gelöscht!' % str(self.object)
+        '{} {} <strong><em>{}</em></strong> wurde erfolgreich gelöscht!'.format(
+          self.model.BasemodelMeta.definite_article.capitalize(),
+          self.model._meta.verbose_name,
+          str(self.object)
+        )
       )
+      # create new log entry for the following object classes:
+      # Complaint, Contact, Organization, Originator, Person
+      if (
+          issubclass(self.model, Contact)
+          or issubclass(self.model, Organization)
+          or issubclass(self.model, Person)
+      ):
+        create_log_entry(
+          self.model,
+          object_pk,
+          object_str,
+          'deleted',
+          self.request.user
+        )
       return HttpResponseRedirect(success_url)
     except ProtectedError as exception:
       error(

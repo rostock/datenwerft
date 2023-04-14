@@ -1,6 +1,7 @@
-from bemas.models import Contact, Organization, Person
-from .base import DefaultModelTestCase, DefaultViewTestCase
-from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS
+from bemas.models import Complaint, Contact, Event, Organization, Originator, Person, Sector, \
+  TypeOfEvent, TypeOfImmission
+from .base import DefaultManyToManyTestCase, DefaultModelTestCase, DefaultViewTestCase
+from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS, VALID_POINT_DB, VALID_POINT_VIEW
 
 
 #
@@ -45,7 +46,7 @@ class OrganizationModelTest(DefaultModelTestCase):
   def test_view_create_success(self):
     self.generic_crud_view_test(
       False, True, False, 'organization_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      302, 'text/html; charset=utf-8', '', 1, 'created'
     )
 
   def test_view_create_error(self):
@@ -69,7 +70,7 @@ class OrganizationModelTest(DefaultModelTestCase):
   def test_view_delete(self):
     self.generic_crud_view_test(
       True, True, False, 'organization_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
     )
 
 
@@ -149,7 +150,7 @@ class PersonModelTest(DefaultModelTestCase):
   def test_view_create_success(self):
     self.generic_crud_view_test(
       False, True, False, 'person_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      302, 'text/html; charset=utf-8', '', 1, 'created'
     )
 
   def test_view_create_error(self):
@@ -173,7 +174,7 @@ class PersonModelTest(DefaultModelTestCase):
   def test_view_delete(self):
     self.generic_crud_view_test(
       True, True, False, 'person_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
     )
 
 
@@ -268,7 +269,7 @@ class ContactModelTest(DefaultModelTestCase):
   def test_view_create_success(self):
     self.generic_crud_view_test(
       False, True, False, 'contact_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 2
+      302, 'text/html; charset=utf-8', '', 2, 'created'
     )
 
   def test_view_create_error(self):
@@ -292,7 +293,7 @@ class ContactModelTest(DefaultModelTestCase):
   def test_view_delete(self):
     self.generic_crud_view_test(
       True, True, False, 'contact_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
     )
 
 
@@ -315,3 +316,272 @@ class ContactViewsTest(DefaultViewTestCase):
       True, False, 'contact_create', None,
       200, 'text/html; charset=utf-8', 'neue'
     )
+
+
+class OriginatorModelTest(DefaultModelTestCase):
+  """
+  model test class for object class originator (Verursacher)
+  """
+
+  model = Originator
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='OqEGVai4'
+    )
+    cls.attributes_values_db_initial = {
+      'sector': sector,
+      'operator': operator,
+      'description': 'd1ZpOwn8',
+      'emission_point': VALID_POINT_DB
+    }
+    cls.attributes_values_db_updated = {
+      'description': 'WhPxUQik'
+    }
+    cls.attributes_values_view_initial = {
+      'sector': str(sector.pk),
+      'operator': str(operator.pk),
+      'description': 's2fpbQ9n',
+      'emission_point': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'sector': str(sector.pk),
+      'operator': str(operator.pk),
+      'description': 'x4O4uocT',
+      'emission_point': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'description': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class ComplaintModelTest(DefaultModelTestCase):
+  """
+  model test class for object class complaint (Beschwerde)
+  """
+
+  model = Complaint
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    type_of_immission = TypeOfImmission.objects.first()
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='PUAlDiMq'
+    )
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=operator,
+      description='PEbwEh9H',
+      emission_point=VALID_POINT_DB
+    )
+    cls.attributes_values_db_initial = {
+      'type_of_immission': type_of_immission,
+      'immission_point': VALID_POINT_DB,
+      'originator': originator,
+      'description': 'qut1URs0'
+    }
+    cls.attributes_values_db_updated = {
+      'description': 'zt9auXPa'
+    }
+    cls.attributes_values_view_initial = {
+      'type_of_immission': str(type_of_immission.pk),
+      'immission_point': VALID_POINT_VIEW,
+      'originator': str(originator.pk),
+      'description': 'kUcRCEq7'
+    }
+    cls.attributes_values_view_updated = {
+      'type_of_immission': str(type_of_immission.pk),
+      'immission_point': VALID_POINT_VIEW,
+      'originator': str(originator.pk),
+      'description': 'TRLfDH9k'
+    }
+    cls.attributes_values_view_invalid = {
+      'description': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class ComplaintOrganizationManyToManyTest(DefaultManyToManyTestCase):
+  """
+  test class for many-to-many-relationship
+  between complaint (Beschwerde) and organization (Organisation)
+  """
+
+  model_from = Complaint
+  model_to = Organization
+
+  @classmethod
+  def setUpTestData(cls):
+    type_of_immission = TypeOfImmission.objects.first()
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='sklAapDM'
+    )
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=operator,
+      description='fiqgCONB',
+      emission_point=VALID_POINT_DB
+    )
+    cls.model_from_attributes_values_db = {
+      'type_of_immission': type_of_immission,
+      'immission_point': VALID_POINT_DB,
+      'originator': originator,
+      'description': 'aBkb453M'
+    }
+    cls.model_to_attributes_values_db = {
+      'name': 'CCykCmTx'
+    }
+    cls.test_object_from = cls.model_from.objects.create(**cls.model_from_attributes_values_db)
+    cls.test_object_to = cls.model_to.objects.create(**cls.model_to_attributes_values_db)
+    cls.test_object_from.complainers_organizations.add(cls.test_object_to)
+    cls.relationship = cls.test_object_from.complainers_organizations
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class ComplaintPersonManyToManyTest(DefaultManyToManyTestCase):
+  """
+  test class for many-to-many-relationship
+  between complaint (Beschwerde) and person (Person)
+  """
+
+  model_from = Complaint
+  model_to = Person
+
+  @classmethod
+  def setUpTestData(cls):
+    type_of_immission = TypeOfImmission.objects.first()
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='NXtnFe8H'
+    )
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=operator,
+      description='i7g3qten',
+      emission_point=VALID_POINT_DB
+    )
+    cls.model_from_attributes_values_db = {
+      'type_of_immission': type_of_immission,
+      'immission_point': VALID_POINT_DB,
+      'originator': originator,
+      'description': '7JXQtscq'
+    }
+    cls.model_to_attributes_values_db = {
+      'last_name': 'qRPUyrLI'
+    }
+    cls.test_object_from = cls.model_from.objects.create(**cls.model_from_attributes_values_db)
+    cls.test_object_to = cls.model_to.objects.create(**cls.model_to_attributes_values_db)
+    cls.test_object_from.complainers_persons.add(cls.test_object_to)
+    cls.relationship = cls.test_object_from.complainers_persons
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class EventModelTest(DefaultModelTestCase):
+  """
+  model test class for object class event (Journalereignis)
+  """
+
+  model = Event
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    sector = Sector.objects.first()
+    operator = Organization.objects.create(
+      name='szWLszDf'
+    )
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=operator,
+      description='amPaaSKF',
+      emission_point=VALID_POINT_DB
+    )
+    type_of_immission = TypeOfImmission.objects.first()
+    complaint = Complaint.objects.create(
+      type_of_immission=type_of_immission,
+      immission_point=VALID_POINT_DB,
+      originator=originator,
+      description='miDkPXSW'
+    )
+    type_of_event = TypeOfEvent.objects.first()
+    cls.attributes_values_db_initial = {
+      'complaint': complaint,
+      'type_of_event': type_of_event,
+      'user': 'DEg7UdpI'
+    }
+    cls.attributes_values_db_updated = {
+      'user': 'eoSqXfg4'
+    }
+    cls.attributes_values_view_initial = {
+      'complaint': str(complaint.pk),
+      'type_of_event': str(type_of_event.pk),
+      'user': '0tzYPl8C'
+    }
+    cls.attributes_values_view_updated = {
+      'complaint': str(complaint.pk),
+      'type_of_event': str(type_of_event.pk),
+      'user': 'PYSZQDSu'
+    }
+    cls.attributes_values_view_invalid = {
+      'user': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
