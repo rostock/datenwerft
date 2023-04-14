@@ -46,7 +46,7 @@ class OrganizationModelTest(DefaultModelTestCase):
   def test_view_create_success(self):
     self.generic_crud_view_test(
       False, True, False, 'organization_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      302, 'text/html; charset=utf-8', '', 1, 'created'
     )
 
   def test_view_create_error(self):
@@ -70,7 +70,7 @@ class OrganizationModelTest(DefaultModelTestCase):
   def test_view_delete(self):
     self.generic_crud_view_test(
       True, True, False, 'organization_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
     )
 
 
@@ -150,7 +150,7 @@ class PersonModelTest(DefaultModelTestCase):
   def test_view_create_success(self):
     self.generic_crud_view_test(
       False, True, False, 'person_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 1
+      302, 'text/html; charset=utf-8', '', 1, 'created'
     )
 
   def test_view_create_error(self):
@@ -174,7 +174,7 @@ class PersonModelTest(DefaultModelTestCase):
   def test_view_delete(self):
     self.generic_crud_view_test(
       True, True, False, 'person_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
     )
 
 
@@ -269,7 +269,7 @@ class ContactModelTest(DefaultModelTestCase):
   def test_view_create_success(self):
     self.generic_crud_view_test(
       False, True, False, 'contact_create', self.attributes_values_view_initial,
-      302, 'text/html; charset=utf-8', '', 2
+      302, 'text/html; charset=utf-8', '', 2, 'created'
     )
 
   def test_view_create_error(self):
@@ -293,7 +293,7 @@ class ContactModelTest(DefaultModelTestCase):
   def test_view_delete(self):
     self.generic_crud_view_test(
       True, True, False, 'contact_delete', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 0
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
     )
 
 

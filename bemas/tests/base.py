@@ -4,7 +4,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from json import loads
 
-from bemas.models import Codelist
+from bemas.models import Codelist, LogEntry
 from .constants_vars import DATABASES, USERNAME, PASSWORD
 from .functions import clean_object_filter, get_object, login
 
@@ -100,7 +100,8 @@ class DefaultModelTestCase(DefaultTestCase):
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_crud_view_test(self, update_mode, bemas_user, bemas_admin, view_name,
-                             object_filter, status_code, content_type, string, count):
+                             object_filter, status_code, content_type, string, count,
+                             log_entry_action=None):
     """
     tests a view for creating or updating an object via POST
 
@@ -114,6 +115,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     :param count: expected number of objects passing the object filter
+    :param log_entry_action: log entry action (i.e. test log entry if present)
     """
     # log test user in
     login(self, bemas_user, bemas_admin)
@@ -141,6 +143,14 @@ class DefaultModelTestCase(DefaultTestCase):
     # specific string contained in response?
     if string:
       self.assertIn(string, str(response.content))
+    # log entry created as expected?
+    if log_entry_action:
+      self.assertEqual(
+        LogEntry.objects.filter(
+          model=self.model.__name__,
+          action=log_entry_action
+        ).count(), 1
+      )
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):

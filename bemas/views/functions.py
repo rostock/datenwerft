@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 
-from bemas.models import Codelist
+from bemas.models import Codelist, LogEntry
 from bemas.utils import is_bemas_admin, is_bemas_user
 
 
@@ -156,6 +156,28 @@ def assign_widget(field):
     # highlight corresponding form field as array field via custom HTML attribute
     form_field.widget.attrs['is_array_field'] = 'true'
   return form_field
+
+
+def create_log_entry(model, object_pk, object_str, action, user):
+  """
+  creates new log entry based on given model, object, action and user
+
+  :param model: model
+  :param object_pk: object id
+  :param object_str: string representation of object
+  :param action: action
+  :param user: user
+  """
+  user_string = (
+    user.first_name + ' ' + user.last_name if user.first_name and user.last_name else user.username
+  )
+  LogEntry.objects.create(
+    model=model.__name__,
+    object_pk=object_pk,
+    object_str=object_str,
+    action=action,
+    user=user_string
+  )
 
 
 def generate_protected_objects_list(protected_objects):

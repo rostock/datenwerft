@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.decorators import user_passes_test
 
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
@@ -64,16 +63,6 @@ def is_bemas_user(user, only_bemas_user_check=False):
       return True
   else:
     return False
-
-
-def permission_required(*perms):
-  """
-  checks given permission(s)
-
-  :param perms: permission(s)
-  :return: check result of given permission(s)
-  """
-  return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
 
 def shorten_string(string, max_chars=20, suspension_point=True):
