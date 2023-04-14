@@ -80,8 +80,9 @@ class CodelistCreateView(CreateView):
     """
     success(
       self.request,
-      'Der neue Codelisteneintrag <strong><em>%s</em></strong> '
-      'wurde erfolgreich angelegt!' % str(form.instance)
+      'Der neue Codelisteneintrag <strong><em>{}</em></strong> wurde erfolgreich angelegt!'.format(
+        str(form.instance)
+      )
     )
     return super().form_valid(form)
 
@@ -128,8 +129,9 @@ class CodelistUpdateView(UpdateView):
     """
     success(
       self.request,
-      'Der Codelisteneintrag <strong><em>%s</em></strong> '
-      'wurde erfolgreich geändert!' % str(form.instance)
+      'Der Codelisteneintrag <strong><em>{}</em></strong> wurde erfolgreich geändert!'.format(
+        str(form.instance)
+      )
     )
     return super().form_valid(form)
 
@@ -169,8 +171,9 @@ class CodelistDeleteView(DeleteView):
       self.object.delete()
       success(
         self.request,
-        'Der Codelisteneintrag <strong><em>%s</em></strong> '
-        'wurde erfolgreich gelöscht!' % str(self.object)
+        'Der Codelisteneintrag <strong><em>{}</em></strong> wurde erfolgreich gelöscht!'.format(
+          str(self.object)
+        )
       )
       return HttpResponseRedirect(success_url)
     except ProtectedError as exception:

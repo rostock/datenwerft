@@ -99,9 +99,11 @@ class GenericObjectclassCreateView(CreateView):
     """
     success(
       self.request,
-      self.model.BasemodelMeta.definite_article.capitalize() + ' neue ' +
-      self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
-      'wurde erfolgreich angelegt!' % str(form.instance)
+      '{} neue {} <strong><em>{}</em></strong> wurde erfolgreich angelegt!'.format(
+        self.model.BasemodelMeta.definite_article.capitalize(),
+        self.model._meta.verbose_name,
+        str(form.instance)
+      )
     )
     return super().form_valid(form)
 
@@ -216,9 +218,11 @@ class GenericObjectclassUpdateView(UpdateView):
     """
     success(
       self.request,
-      self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
-      self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
-      'wurde erfolgreich geändert!' % str(form.instance)
+      '{} {} <strong><em>{}</em></strong> wurde erfolgreich geändert!'.format(
+        self.model.BasemodelMeta.definite_article.capitalize(),
+        self.model._meta.verbose_name,
+        str(form.instance)
+      )
     )
     return super().form_valid(form)
 
@@ -287,9 +291,11 @@ class GenericObjectclassDeleteView(DeleteView):
       self.object.delete()
       success(
         self.request,
-        self.model.BasemodelMeta.definite_article.capitalize() + ' ' +
-        self.model._meta.verbose_name + ' <strong><em>%s</em></strong> '
-        'wurde erfolgreich gelöscht!' % str(self.object)
+        '{} {} <strong><em>{}</em></strong> wurde erfolgreich gelöscht!'.format(
+          self.model.BasemodelMeta.definite_article.capitalize(),
+          self.model._meta.verbose_name,
+          str(self.object)
+        )
       )
       return HttpResponseRedirect(success_url)
     except ProtectedError as exception:

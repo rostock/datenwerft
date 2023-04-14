@@ -3,7 +3,8 @@ from django.contrib.gis.db.models.fields import PointField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
-from django.db.models.fields import CharField, DateField, DateTimeField, TextField, UUIDField
+from django.db.models.fields import BigIntegerField, CharField, DateField, DateTimeField, \
+  TextField, UUIDField
 from django.utils import timezone
 
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
@@ -11,7 +12,7 @@ from toolbox.constants_vars import standard_validators, personennamen_validators
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
 from bemas.utils import concat_address, shorten_string
 from .base import Objectclass
-from .models_codelist import Sector, Status, TypeOfImmission
+from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission
 
 
 class Organization(Objectclass):
@@ -226,7 +227,7 @@ class Person(Objectclass):
     verbose_name_plural = 'Personen'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
-    description = 'Beschwerdeführer:innen'
+    description = 'Beschwerdeführer:innen oder Ansprechpartner:innen'
     definite_article = 'die'
     indefinite_article = 'eine'
     personal_pronoun = 'sie'
@@ -340,7 +341,7 @@ class Originator(Objectclass):
 
   def __str__(self):
     return str(self.sector) + ' mit der Betreiberin ' + str(self.operator) + \
-           ' (Beschreibung: ' + shorten_string(self.description) + ')'
+           ' (' + shorten_string(self.description) + ')'
 
 
 class Complaint(Objectclass):
@@ -448,3 +449,107 @@ class Complaint(Objectclass):
       using=using,
       update_fields=update_fields
     )
+
+
+class Event(Objectclass):
+  """
+  model class for object class event (Journalereignis)
+  """
+
+  complaint = ForeignKey(
+    Complaint,
+    verbose_name='Beschwerde',
+    on_delete=CASCADE
+  )
+  type_of_event = ForeignKey(
+    TypeOfEvent,
+    verbose_name='Ereignisart',
+    on_delete=PROTECT
+  )
+  user = CharField(
+    'Benutzer:in',
+    max_length=255,
+    editable=False
+  )
+  description = TextField(
+    'Beschreibung',
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  dms_link = CharField(
+    ' d.3',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=d3_regex,
+        message=d3_message
+      )
+    ]
+  )
+
+  class Meta(Objectclass.Meta):
+    db_table = 'event'
+    ordering = ['complaint__id', 'created_at']
+    verbose_name = 'Journalereignis'
+    verbose_name_plural = 'Journalereignisse'
+
+  class BasemodelMeta(Objectclass.BasemodelMeta):
+    description = 'Ereignisse im Journal zu einer Beschwerde'
+    definite_article = 'das'
+    indefinite_article = 'ein'
+    personal_pronoun = 'es'
+    new = 'neues'
+
+  def __str__(self):
+    return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + \
+           (' (' + shorten_string(self.description) + ')' if self.description else '')
+
+
+class LogEntry(Objectclass):
+  """
+  model class for object class log entry (Eintrag im Bearbeitungsverlauf)
+  """
+
+  model = CharField(
+    'Objektklasse',
+    max_length=255,
+    editable=False
+  )
+  object_pk = BigIntegerField(
+    'ID des Objekts',
+    editable=False
+  )
+  object_str = CharField(
+    'Objekt',
+    max_length=255,
+    editable=False
+  )
+  action = CharField(
+    'Aktion',
+    max_length=255,
+    editable=False
+  )
+  user = CharField(
+    'Benutzer:in',
+    max_length=255,
+    editable=False
+  )
+
+  class Meta(Objectclass.Meta):
+    db_table = 'logentry'
+    ordering = ['id']
+    verbose_name = 'Eintrag im Bearbeitungsverlauf'
+    verbose_name_plural = 'Einträge im Bearbeitungsverlauf'
+
+  class BasemodelMeta(Objectclass.BasemodelMeta):
+    description = 'Logbucheinträge, die durch ausgewählte Ereignisse ausgelöst werden'
+    definite_article = 'der'
+    indefinite_article = 'ein'
+    personal_pronoun = 'er'
+    new = 'neuer'
+
+  def __str__(self):
+    return str(self.id)
