@@ -369,113 +369,115 @@ class DataMapView(JsonView):
       objects = objects[:limit]
     # über alle Objekte gehen...
     for curr_object in objects:
-      # Objekt als GeoJSON serializieren
-      object_serialized = loads(
-          serialize('geojson',
-                    [curr_object],
-                    srid=25833))
-      # Tooltip erzeugen
-      if hasattr(self.model._meta, 'map_feature_tooltip_field'):
-        data = getattr(
-            curr_object, self.model._meta.map_feature_tooltip_field)
-        if isinstance(data, date):
-          data = data.strftime('%d.%m.%Y')
-        elif isinstance(data, datetime):
-          data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-        tooltip = str(data)
-      elif hasattr(self.model._meta, 'map_feature_tooltip_fields'):
-        previous_value = ''
-        tooltip_value = ''
-        index = 0
-        for field in self.model._meta.map_feature_tooltip_fields:
-          field_value = ''
-          if field and getattr(curr_object, field) is not None:
-            field_value = str(getattr(curr_object, field))
-          tooltip_value = (
-              # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
-              # aber nicht zwischen Hausnummer und Hausnummernzusatz
-              tooltip_value + (
-                  '' if (match(r'^[a-z]$', field_value) and
-                         match(r'^[0-9]+$', previous_value)) else ' '
-              ) + field_value if index > 0 else field_value
-          )
-          index += 1
-          previous_value = field_value
-        tooltip = tooltip_value.strip()
-      else:
-        tooltip = str(curr_object.pk)
-      # GeoJSON-Feature definieren:
-      # * Geometrie aus serialisiertem GeoJSON holen
-      # * Eigenschaften aus den zuvor befüllten Variablen holen
-      feature = {
-          'type': 'Feature',
-          'geometry': object_serialized['features'][0]['geometry'],
-          'properties': {
-              self.model_pk_field: str(curr_object.pk),
-              'tooltip': tooltip
-          },
-          'crs': {
-              'type': 'name',
-              'properties': {
-                  'name': 'urn:ogc:def:crs:EPSG::25833'
-              }
-          }
-      }
-      # falls Datenmodell generell bearbeitet werden darf...
-      if self.editable:
-        # Link auf Objekt als Eigenschaft setzen
-        feature['properties']['link'] = (
-            reverse(
-                'datenmanagement:' +
-                self.model_name +
-                '_change',
-                args=[curr_object.pk]))
-      # optional: Objekt als inaktiv kennzeichnen
-      if curr_object.aktiv is False:
-        feature['properties']['inaktiv'] = True
-      # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
-      # falls entsprechende Klausel in der Modelldefinition existiert
-      if hasattr(self.model._meta, 'map_filter_hide_initial'):
-        if str(
-            getattr(
-                curr_object, list(
-                    self.model._meta.map_filter_hide_initial.keys())[0])) == str(
-            list(
-                self.model._meta.map_filter_hide_initial.values())[0]):
-          feature['properties']['hide_initial'] = True
-      # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
-      # falls entsprechende Klausel in der Modelldefinition existiert
-      if hasattr(self.model._meta, 'highlight_flag'):
-        data = getattr(
-            curr_object, self.model._meta.highlight_flag)
-        if data:
-          feature['properties']['highlight'] = data
-      # optional: Stichtagsfilter als Eigenschaften setzen,
-      # falls entsprechende Klausel in der Modelldefinition existiert
-      if hasattr(self.model._meta, 'map_deadlinefilter_fields'):
-        for index, field in enumerate(
-                self.model._meta.map_deadlinefilter_fields):
-          data = getattr(curr_object, field)
+      # nur, falls Geometrie nicht leer ist...
+      if curr_object.geometrie:
+        # Objekt als GeoJSON serializieren
+        object_serialized = loads(
+            serialize('geojson',
+                      [curr_object],
+                      srid=25833))
+        # Tooltip erzeugen
+        if hasattr(self.model._meta, 'map_feature_tooltip_field'):
+          data = getattr(
+              curr_object, self.model._meta.map_feature_tooltip_field)
           if isinstance(data, date):
-            data = data.strftime('%Y-%m-%d')
+            data = data.strftime('%d.%m.%Y')
           elif isinstance(data, datetime):
-            data = data.strftime('%Y-%m-%d %H:%M:%S')
-          feature['properties']['deadline_' +
-                                str(index)] = str(data)
-          # zusätzlich Feld auch als "normale" Filtereigenschaft setzen
-          feature['properties'][field] = str(data)
-      # optional: Intervallfilter als Eigenschaften setzen,
-      # falls entsprechende Klausel in der Modelldefinition existiert
-      if hasattr(self.model._meta, 'map_rangefilter_fields'):
-        for field in self.model._meta.map_rangefilter_fields.keys():
-          feature['properties'][field] = str(get_data(curr_object, field))
-      # optional: sonstige Filter als Eigenschaften setzen,
-      # falls entsprechende Klausel in der Modelldefinition existiert
-      if hasattr(self.model._meta, 'map_filter_fields'):
-        for field in self.model._meta.map_filter_fields.keys():
-          feature['properties'][field] = str(get_data(curr_object, field))
-      # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
-      map_features['features'].append(feature)
+            data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+          tooltip = str(data)
+        elif hasattr(self.model._meta, 'map_feature_tooltip_fields'):
+          previous_value = ''
+          tooltip_value = ''
+          index = 0
+          for field in self.model._meta.map_feature_tooltip_fields:
+            field_value = ''
+            if field and getattr(curr_object, field) is not None:
+              field_value = str(getattr(curr_object, field))
+            tooltip_value = (
+                # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
+                # aber nicht zwischen Hausnummer und Hausnummernzusatz
+                tooltip_value + (
+                    '' if (match(r'^[a-z]$', field_value) and
+                           match(r'^[0-9]+$', previous_value)) else ' '
+                ) + field_value if index > 0 else field_value
+            )
+            index += 1
+            previous_value = field_value
+          tooltip = tooltip_value.strip()
+        else:
+          tooltip = str(curr_object.pk)
+        # GeoJSON-Feature definieren:
+        # * Geometrie aus serialisiertem GeoJSON holen
+        # * Eigenschaften aus den zuvor befüllten Variablen holen
+        feature = {
+            'type': 'Feature',
+            'geometry': object_serialized['features'][0]['geometry'],
+            'properties': {
+                self.model_pk_field: str(curr_object.pk),
+                'tooltip': tooltip
+            },
+            'crs': {
+                'type': 'name',
+                'properties': {
+                    'name': 'urn:ogc:def:crs:EPSG::25833'
+                }
+            }
+        }
+        # falls Datenmodell generell bearbeitet werden darf...
+        if self.editable:
+          # Link auf Objekt als Eigenschaft setzen
+          feature['properties']['link'] = (
+              reverse(
+                  'datenmanagement:' +
+                  self.model_name +
+                  '_change',
+                  args=[curr_object.pk]))
+        # optional: Objekt als inaktiv kennzeichnen
+        if curr_object.aktiv is False:
+          feature['properties']['inaktiv'] = True
+        # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
+        # falls entsprechende Klausel in der Modelldefinition existiert
+        if hasattr(self.model._meta, 'map_filter_hide_initial'):
+          if str(
+              getattr(
+                  curr_object, list(
+                      self.model._meta.map_filter_hide_initial.keys())[0])) == str(
+              list(
+                  self.model._meta.map_filter_hide_initial.values())[0]):
+            feature['properties']['hide_initial'] = True
+        # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
+        # falls entsprechende Klausel in der Modelldefinition existiert
+        if hasattr(self.model._meta, 'highlight_flag'):
+          data = getattr(
+              curr_object, self.model._meta.highlight_flag)
+          if data:
+            feature['properties']['highlight'] = data
+        # optional: Stichtagsfilter als Eigenschaften setzen,
+        # falls entsprechende Klausel in der Modelldefinition existiert
+        if hasattr(self.model._meta, 'map_deadlinefilter_fields'):
+          for index, field in enumerate(
+                  self.model._meta.map_deadlinefilter_fields):
+            data = getattr(curr_object, field)
+            if isinstance(data, date):
+              data = data.strftime('%Y-%m-%d')
+            elif isinstance(data, datetime):
+              data = data.strftime('%Y-%m-%d %H:%M:%S')
+            feature['properties']['deadline_' +
+                                  str(index)] = str(data)
+            # zusätzlich Feld auch als "normale" Filtereigenschaft setzen
+            feature['properties'][field] = str(data)
+        # optional: Intervallfilter als Eigenschaften setzen,
+        # falls entsprechende Klausel in der Modelldefinition existiert
+        if hasattr(self.model._meta, 'map_rangefilter_fields'):
+          for field in self.model._meta.map_rangefilter_fields.keys():
+            feature['properties'][field] = str(get_data(curr_object, field))
+        # optional: sonstige Filter als Eigenschaften setzen,
+        # falls entsprechende Klausel in der Modelldefinition existiert
+        if hasattr(self.model._meta, 'map_filter_fields'):
+          for field in self.model._meta.map_filter_fields.keys():
+            feature['properties'][field] = str(get_data(curr_object, field))
+        # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
+        map_features['features'].append(feature)
     return map_features
 
 

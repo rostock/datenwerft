@@ -1014,7 +1014,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
     cls.attributes_values_db_initial = {
       'status': status_baudenkmal,
       'beschreibung': 'Beschreibung1',
-      'landschaftsdenkmal': False,
+      'gartendenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_DB
     }
     cls.attributes_values_db_updated = {
@@ -1025,7 +1025,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       'id': 2,
       'status': str(status_baudenkmal.pk),
       'beschreibung': 'Beschreibung3',
-      'landschaftsdenkmal': False,
+      'gartendenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
     }
     cls.attributes_values_view_updated = {
@@ -1033,7 +1033,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       'id': 3,
       'status': str(status_baudenkmal.pk),
       'beschreibung': 'Beschreibung4',
-      'landschaftsdenkmal': False,
+      'gartendenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
     }
     cls.attributes_values_view_invalid = {

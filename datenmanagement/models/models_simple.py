@@ -539,7 +539,7 @@ class Baudenkmale(SimpleModel):
     blank=True,
     null=True
   )
-  landschaftsdenkmal = BooleanField(' Landschaftsdenkmal?')
+  gartendenkmal = BooleanField(' Gartendenkmal?')
   hinweise = NullTextField(
     'Hinweise',
     max_length=500,
@@ -566,8 +566,8 @@ class Baudenkmale(SimpleModel):
       'id': 'ID',
       'status': 'Status',
       'adresse': 'Adresse',
-      'beschreibung': 'Beschreibung',
-      'lage': 'Lage'
+      'lage': 'Lage',
+      'beschreibung': 'Beschreibung'
     }
     list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
@@ -580,9 +580,9 @@ class Baudenkmale(SimpleModel):
       'aktiv': 'aktiv?',
       'id': 'ID',
       'status': 'Status',
-      'beschreibung': 'Beschreibung',
       'lage': 'Lage',
-      'landschaftsdenkmal': 'Landschaftsdenkmal?'
+      'beschreibung': 'Beschreibung',
+      'gartendenkmal': 'Gartendenkmal?'
     }
     map_filter_fields_as_list = ['status']
     address_type = 'Adresse'
@@ -593,6 +593,13 @@ class Baudenkmale(SimpleModel):
         'title': 'Flurstücke',
         'url': '/flurstuecke_hro/wfs',
         'featuretypes': 'hro.flurstuecke.flurstuecke',
+        'proxy': True
+      },
+      {
+        'name': 'gebaeude',
+        'title': 'Gebäude',
+        'url': '/gebaeude/wfs',
+        'featuretypes': 'hro.gebaeude.gebaeude',
         'proxy': True
       }
     ]

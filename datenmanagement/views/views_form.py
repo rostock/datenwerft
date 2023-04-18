@@ -657,7 +657,6 @@ class DataChangeView(UpdateView):
     # alle Array-Felder wieder auf ihren ursprünglichen Zustand zurücksetzen
     for field in self.model._meta.get_fields():
       if field.__class__.__name__ == 'ArrayField':
-        print(field.name)
         values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
         if values is not None and len(values) > 0 and values[0] is not None:
           form.data[field.name] = values[0]

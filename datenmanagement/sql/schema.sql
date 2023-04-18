@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -2497,7 +2497,7 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     geometrie public.geometry(MultiPolygon,25833),
     id integer NOT NULL,
     status uuid NOT NULL,
-    landschaftsdenkmal boolean NOT NULL,
+    gartendenkmal boolean NOT NULL,
     vorherige_beschreibung character varying(255),
     hinweise character varying(500),
     aenderungen character varying(500),
