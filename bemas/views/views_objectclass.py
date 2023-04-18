@@ -389,3 +389,13 @@ class ContactDeleteView(GenericObjectclassDeleteView):
   """
 
   cancel_url = reverse_lazy('bemas:organization_table')
+
+
+class OriginatorDeleteView(GenericObjectclassDeleteView):
+  """
+  view for form page for deleting an instance of object class originator
+
+  :param deletion_hints: custom deletion hints
+  """
+
+  pass

@@ -210,7 +210,7 @@ BEMAS_ICONS = {
   # 'new': 'plus',
   'ok': 'circle-check',
   'organization': 'building',
-  # 'originator': 'industry',
+  'originator': 'industry',
   # 'orphaned_data': 'ghost',
   'person': 'user',
   # 'places_map': 'map-location-dot',

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.gis.db.models.fields import PointField
 
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
@@ -63,6 +64,16 @@ def is_bemas_user(user, only_bemas_user_check=False):
       return True
   else:
     return False
+
+
+def is_gis_field(field):
+  """
+  checks if given field is a GIS related field
+
+  :param field: field
+  :return: given field is a GIS related field?
+  """
+  return issubclass(field, PointField)
 
 
 def shorten_string(string, max_chars=20, suspension_point=True):

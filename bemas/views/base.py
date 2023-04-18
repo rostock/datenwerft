@@ -7,8 +7,8 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Contact, Organization
-from bemas.utils import get_icon_from_settings, is_bemas_admin, is_bemas_user
+from bemas.models import Codelist, Contact, Organization, Originator
+from bemas.utils import get_icon_from_settings, is_bemas_admin, is_bemas_user, is_gis_field
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -39,31 +39,42 @@ class GenericTableDataView(BaseDatatableView):
         item_pk = getattr(item, self.model._meta.pk.name)
         address_handled = False
         for column in self.columns:
-          data = None
-          value = getattr(item, column.name)
-          if not column.name.startswith('address_'):
-            if value is not None:
-              # format Booleans
-              if isinstance(value, bool):
-                data = ('ja' if value is True else 'nein')
-              # format timestamps
-              elif isinstance(value, datetime):
-                value_tz = value.replace(tzinfo=timezone.utc).astimezone(
-                  ZoneInfo(settings.TIME_ZONE))
-                data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
-              # format lists
-              elif type(value) is list:
-                data = '<br>'.join(value)
-              else:
-                data = escape(value)
-            item_data.append(data)
-          # handle addresses
-          elif column.name.startswith('address_') and not address_handled:
-            # append address string once
-            # instead of appending individual strings for all address related values
-            data = self.model.objects.get(pk=item_pk).address()
-            address_handled = True
-            item_data.append(data)
+          # handle non-GIS related fields only!
+          if not is_gis_field(column.__class__):
+            data = None
+            value = getattr(item, column.name)
+            # different object classes:
+            # generate appropriate foreign key links
+            if issubclass(column.model, Originator) and column.name == 'operator':
+              # here util which takes model, col and pk => returns <a>
+              # data = '<a href="' + reverse('bemas:originator_update', args=[contact.pk]) + '"'
+              print(value)
+              data = escape(value)
+              item_data.append(data)
+            # ordinary columns
+            elif not column.name.startswith('address_'):
+              if value is not None:
+                # format Booleans
+                if isinstance(value, bool):
+                  data = ('ja' if value is True else 'nein')
+                # format timestamps
+                elif isinstance(value, datetime):
+                  value_tz = value.replace(tzinfo=timezone.utc).astimezone(
+                    ZoneInfo(settings.TIME_ZONE))
+                  data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+                # format lists
+                elif type(value) is list:
+                  data = '<br>'.join(value)
+                else:
+                  data = escape(value)
+              item_data.append(data)
+            # handle addresses
+            elif column.name.startswith('address_') and not address_handled:
+              # append address string once
+              # instead of appending individual strings for all address related values
+              data = self.model.objects.get(pk=item_pk).address()
+              address_handled = True
+              item_data.append(data)
         # object class organization:
         # add column which lists contact(s)
         if issubclass(self.model, Organization):

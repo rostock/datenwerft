@@ -337,7 +337,7 @@ class Originator(Objectclass):
     definite_article = 'der'
     indefinite_article = 'ein'
     personal_pronoun = 'er'
-    new = 'neuer'
+    new = 'neuen'
 
   def __str__(self):
     return str(self.sector) + ' mit der Betreiberin ' + str(self.operator) + \
@@ -549,7 +549,7 @@ class LogEntry(Objectclass):
     definite_article = 'der'
     indefinite_article = 'ein'
     personal_pronoun = 'er'
-    new = 'neuer'
+    new = 'neuen'
 
   def __str__(self):
     return str(self.id)

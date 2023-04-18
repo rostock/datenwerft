@@ -1,8 +1,9 @@
+from django.forms import Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 
 from bemas.models import Codelist, LogEntry
-from bemas.utils import is_bemas_admin, is_bemas_user
+from bemas.utils import is_bemas_admin, is_bemas_user, is_gis_field
 
 
 def add_codelist_context_elements(context, model):
@@ -70,7 +71,9 @@ def add_table_context_elements(context, model):
   address_handled = False
   for field in model._meta.fields:
     if not field.name.startswith('address_'):
-      column_titles.append(field.verbose_name)
+      # handle non-GIS related fields only!
+      if not is_gis_field(field.__class__):
+        column_titles.append(field.verbose_name)
     # handle addresses
     elif field.name.startswith('address_') and not address_handled:
       # append one column for address string
@@ -151,6 +154,8 @@ def assign_widget(field):
         form_field.widget.attrs['min'] = min_numbers.get(field.name)
       if max_numbers is not None:
         form_field.widget.attrs['max'] = max_numbers.get(field.name)
+  elif issubclass(form_field.widget.__class__, Textarea):
+    form_field.widget.attrs['class'] = 'form-control'
   # field is array field?
   if is_array_field:
     # highlight corresponding form field as array field via custom HTML attribute
