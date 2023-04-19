@@ -1,7 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 
-from bemas.utils import get_icon_from_settings
+from bemas.utils import get_icon_from_settings, is_gis_field
 
 register = template.Library()
 
@@ -16,6 +16,17 @@ def get_icon(key):
   :return: icon (i.e. value) of given key in icon dictionary
   """
   return get_icon_from_settings(key)
+
+
+@register.filter
+def is_field_gis_field(field):
+  """
+  checks if given field is a GIS related field
+
+  :param field: field
+  :return: given field is a GIS related field?
+  """
+  return is_gis_field(field.field.__class__)
 
 
 @register.filter

@@ -194,6 +194,8 @@ USE_TZ = True
 
 BEMAS_ICONS = {
   # 'activity': 'bell',
+  'address': 'house',
+  'address_to_map': 'location-dot',
   # 'anonymous_complaint': 'link-slash',
   'back': 'backward',
   'cancel': 'hand',

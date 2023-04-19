@@ -1,14 +1,16 @@
 from datetime import datetime, timezone
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import ForeignKey, Q
 from django.urls import reverse
 from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Contact, Organization, Originator
-from bemas.utils import get_icon_from_settings, is_bemas_admin, is_bemas_user, is_gis_field
+from bemas.models import Codelist, Contact, Organization
+from bemas.utils import get_foreign_key_target_model, get_icon_from_settings, is_bemas_admin, \
+  is_bemas_user, is_gis_field
+from .functions import generate_foreign_key_link
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -43,14 +45,14 @@ class GenericTableDataView(BaseDatatableView):
           if not is_gis_field(column.__class__):
             data = None
             value = getattr(item, column.name)
-            # different object classes:
+            # foreign key columns (between object classes only):
             # generate appropriate foreign key links
-            if issubclass(column.model, Originator) and column.name == 'operator':
-              # here util which takes model, col and pk => returns <a>
-              # data = '<a href="' + reverse('bemas:originator_update', args=[contact.pk]) + '"'
-              print(value)
-              data = escape(value)
-              item_data.append(data)
+            if (
+                not issubclass(self.model, Codelist)
+                and issubclass(column.__class__, ForeignKey)
+                and not issubclass(get_foreign_key_target_model(column), Codelist)
+            ):
+              item_data.append(generate_foreign_key_link(column, item))
             # ordinary columns
             elif not column.name.startswith('address_'):
               if value is not None:

@@ -2,6 +2,7 @@ from django.contrib.postgres.fields.array import ArrayField
 from django.forms import ModelForm
 
 from bemas.models import Codelist
+from bemas.utils import is_gis_field
 
 
 class GenericForm(ModelForm):
@@ -16,8 +17,12 @@ class GenericForm(ModelForm):
     super().__init__(*args, **kwargs)
     # customize messages
     for field in self.fields.values():
-      required_message = 'Das Attribut <strong><em>{label}</em></strong> ' \
-                         'ist Pflicht!'.format(label=field.label)
+      if is_gis_field(field.__class__):
+        required_message = 'Es muss ein Marker in der Karte gesetzt werden ' \
+                           'für das Attribut <strong><em>{}!</em></strong>'.format(field.label)
+      else:
+        required_message = 'Das Attribut <strong><em>{}</em></strong> ' \
+                           'ist Pflicht!'.format(field.label)
       if issubclass(self._meta.model, Codelist):
         title = 'ein Codelisteneintrag'
       else:
@@ -28,7 +33,7 @@ class GenericForm(ModelForm):
                              'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
       ArrayField.default_error_messages['item_invalid'] = item_invalid_message
       unique_message = 'Es existiert bereits ' + title + ' mit dem angegebenen Wert im Attribut ' \
-                       '<strong><em>{label}</em></strong>!'.format(label=field.label)
+                       '<strong><em>{}!</em></strong>'.format(field.label)
       field.error_messages = {
         'required': required_message,
         'unique': unique_message

@@ -3,15 +3,14 @@ from django.contrib.gis.db.models.fields import PointField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
-from django.db.models.fields import BigIntegerField, CharField, DateField, DateTimeField, \
-  TextField, UUIDField
+from django.db.models.fields import BigIntegerField, CharField, DateField, DateTimeField, TextField
 from django.utils import timezone
 
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
 from bemas.utils import concat_address, shorten_string
-from .base import Objectclass
+from .base import GISObjectclass, Objectclass
 from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission
 
 
@@ -285,9 +284,9 @@ class Contact(Objectclass):
     return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
 
 
-class Originator(Objectclass):
+class Originator(GISObjectclass):
   """
-  model class for object class originator (Verursacher)
+  model class for GIS object class originator (Verursacher)
   """
 
   sector = ForeignKey(
@@ -308,8 +307,9 @@ class Originator(Objectclass):
     'Emissionsort',
     srid=25833
   )
-  address = UUIDField(
+  address = CharField(
     'Adresse',
+    max_length=255,
     blank=True,
     null=True
   )
@@ -333,6 +333,7 @@ class Originator(Objectclass):
     verbose_name_plural = 'Verursacher'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
+    gis_field = 'emission_point'
     description = 'Verursacher von Emissionen'
     definite_article = 'der'
     indefinite_article = 'ein'
@@ -344,9 +345,9 @@ class Originator(Objectclass):
            ' (' + shorten_string(self.description) + ')'
 
 
-class Complaint(Objectclass):
+class Complaint(GISObjectclass):
   """
-  model class for object class complaint (Beschwerde)
+  model class for GIS object class complaint (Beschwerde)
   """
 
   date_of_receipt = DateField(
@@ -372,8 +373,9 @@ class Complaint(Objectclass):
     'Immissionsort',
     srid=25833
   )
-  address = UUIDField(
+  address = CharField(
     'Adresse',
+    max_length=255,
     blank=True,
     null=True
   )
@@ -423,6 +425,7 @@ class Complaint(Objectclass):
     verbose_name_plural = 'Beschwerden'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
+    gis_field = 'immission_point'
     description = 'Folgen von Immissionen'
     definite_article = 'die'
     indefinite_article = 'eine'

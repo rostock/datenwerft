@@ -134,7 +134,7 @@ class DefaultModelTestCase(DefaultTestCase):
     # content type of response
     self.assertEqual(response['content-type'].lower(), content_type)
     # clean object filter
-    object_filter = clean_object_filter(object_filter)
+    object_filter = clean_object_filter(object_filter, self.model)
     # number of objects passing the object filter as expected?
     if update_mode:
       self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)

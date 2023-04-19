@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 
 from bemas.models import Codelist
@@ -48,7 +49,7 @@ class CodelistsIndexView(TemplateView):
     for model in models:
       if issubclass(model, Codelist):
         codelists.append({
-          'name': model.__name__,
+          'table_url': reverse('bemas:codelists_' + model.__name__.lower() + '_table'),
           'verbose_name_plural': model._meta.verbose_name_plural,
           'description': model.BasemodelMeta.description
         })

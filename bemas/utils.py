@@ -1,5 +1,19 @@
 from django.conf import settings
-from django.contrib.gis.db.models.fields import PointField
+from django.contrib.gis.db.models.fields import PointField as ModelPointField
+from django.contrib.gis.forms.fields import PointField as FormPointField
+
+
+LOG_ACTIONS = {
+  'created': 'neu angelegt',
+  'deleted': 'gelöscht',
+  'created_complainer_organization': 'mit Beschwerdeführerin {} verknüpft',
+  'deleted_complainer_organization': 'Verknüpfung mit Beschwerdeführerin {} gelöst',
+  'created_complainer_person': 'mit Beschwerdeführer:in {} verknüpft',
+  'deleted_complainer_person': 'Verknüpfung mit Beschwerdeführer:in {} gelöst',
+  'updated_operator': 'Betreiberin auf {} gesetzt',
+  'updated_originator': 'Verursacher auf {} gesetzt',
+  'updated_status': 'Bearbeitungsstatus auf {} gesetzt'
+}
 
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
@@ -22,6 +36,27 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return second_part.strip()
   else:
     return None
+
+
+def get_foreign_key_target_model(foreign_key_field):
+  """
+  returns target model of given foreign key field
+
+  :param foreign_key_field: foreign key field
+  :return: target model of given foreign key field
+  """
+  return foreign_key_field.remote_field.model
+
+
+def get_foreign_key_target_object(source_object, foreign_key_field):
+  """
+  returns target object of given foreign key field of given source object
+
+  :param source_object: source object
+  :param foreign_key_field: foreign key field
+  :return: target object of given foreign key field of given source object
+  """
+  return getattr(source_object, foreign_key_field.name)
 
 
 def get_icon_from_settings(key):
@@ -73,7 +108,10 @@ def is_gis_field(field):
   :param field: field
   :return: given field is a GIS related field?
   """
-  return issubclass(field, PointField)
+  if issubclass(field, FormPointField) or issubclass(field, ModelPointField):
+    return True
+  else:
+    return False
 
 
 def shorten_string(string, max_chars=20, suspension_point=True):

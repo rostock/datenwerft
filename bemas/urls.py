@@ -9,8 +9,8 @@ from .views.views_codelist import CodelistCreateView, CodelistDeleteView, Codeli
   CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView
 from .views.views_objectclass import ContactDeleteView, ContactCreateView, ContactUpdateView, \
-  GenericObjectclassCreateView, GenericObjectclassTableView, GenericObjectclassUpdateView, \
-  OrganizationDeleteView, OriginatorDeleteView, PersonDeleteView
+  GenericObjectclassCreateView, GenericObjectclassDeleteView, GenericObjectclassTableView, \
+  GenericObjectclassUpdateView, OrganizationDeleteView, PersonDeleteView
 
 router = routers.DefaultRouter()
 
@@ -328,7 +328,7 @@ for model in models:
     urlpatterns.append(
       path(
         'originator/delete/<pk>',
-        view=login_required(OriginatorDeleteView.as_view(
+        view=login_required(GenericObjectclassDeleteView.as_view(
           model=model,
           success_url=reverse_lazy('bemas:originator_table')
         )),

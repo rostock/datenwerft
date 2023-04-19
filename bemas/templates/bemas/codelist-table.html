@@ -37,7 +37,7 @@
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
       {% if is_bemas_admin %}
-        <a class="btn btn-primary" role="button" href="{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neuen Codelisteneintrag anlegen</a>
+        <a class="btn btn-primary" role="button" href="{{ codelist_creation_url }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neuen Codelisteneintrag anlegen</a>
       {% endif %}
       <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
@@ -62,7 +62,7 @@
       </div>
       <!-- eslint-disable-next-script -->
       <script>
-        window.dataUrl = "{% url 'bemas:codelists_'|add:codelist_name|lower|add:'_tabledata' %}";
+        window.dataUrl = '{{ tabledata_url }}';
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script>

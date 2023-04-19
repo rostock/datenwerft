@@ -27,10 +27,11 @@ function addDeleteFieldButton(field) {
  *
  * @param {Object} field - field
  * @param {Object} fieldToInsertAfter - field after which the given single field (i.e. its wrapper) shall be inserted
+ * @param {boolean} [buttonsPosition=false] - dynamically set vertical positions of buttons?
  *
  * inserts the given single field into an array field complex
  */
-function addField(field, fieldToInsertAfter) {
+function addField(field, fieldToInsertAfter, buttonsPosition= false) {
   // create wrapper
   let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
   // insert given single field into created wrapper
@@ -39,6 +40,9 @@ function addField(field, fieldToInsertAfter) {
   wrapper.insertAfter(fieldToInsertAfter.parent().is('.input-group') ? fieldToInsertAfter.parent() : fieldToInsertAfter);
   // add a deletion button
   addDeleteFieldButton(field);
+  // dynamically set vertical positions of buttons
+  if (buttonsPosition)
+    setButtonsPosition();
 }
 
 /**
@@ -72,12 +76,35 @@ function cloneObject(targetUrl) {
 
 /**
  * @function
+ * @name enableAddressReferenceButton
+ *
+ * enables address reference (i.e. map to address) button
+ */
+function enableAddressReferenceButton() {
+  $('#mapToAddress').prop('disabled', false);
+}
+
+/**
+ * @function
  * @name keepDjangoRequiredMessages
  *
  * prevent HTML5/jQuery required messages from overriding Django required messages
  */
 function keepDjangoRequiredMessages() {
   $('[required]').removeAttr('required');
+}
+
+/**
+ * @function
+ * @name setButtonsPosition
+ *
+ * dynamically set vertical positions of buttons by means of position and size of the form element (plus 20 pixels extra "buffer")
+ */
+function setButtonsPosition() {
+  let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
+  $('#buttons').offset({
+    top: top
+  });
 }
 
 /**

@@ -1,3 +1,4 @@
+from django.contrib.gis.db.models.functions import AsGeoJSON, Transform
 from django.contrib.messages import error, success
 from django.db.models import ProtectedError
 from django.forms.models import modelform_factory
@@ -7,11 +8,11 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import Contact, Organization, Person
+from bemas.models import Complaint, Contact, Organization, Originator, Person
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, assign_widget, create_log_entry, generate_protected_objects_list, \
-  set_generic_objectclass_create_update_delete_context
+  set_generic_objectclass_create_update_delete_context, set_log_action_and_object_str
 
 
 class GenericObjectclassTableView(TemplateView):
@@ -108,8 +109,10 @@ class GenericObjectclassCreateView(CreateView):
     # create new log entry for the following object classes:
     # Complaint, Contact, Organization, Originator, Person
     if (
-        issubclass(self.model, Contact)
+        issubclass(self.model, Complaint)
+        or issubclass(self.model, Contact)
         or issubclass(self.model, Organization)
+        or issubclass(self.model, Originator)
         or issubclass(self.model, Person)
     ):
       curr_object = form.save(commit=False)
@@ -173,7 +176,8 @@ class GenericObjectclassUpdateView(UpdateView):
       super().get_context_data(**kwargs),
       self.request,
       self.model,
-      self.cancel_url
+      self.cancel_url,
+      self.object
     )
     # object class organization:
     # optionally add list of contacts to context
@@ -204,6 +208,17 @@ class GenericObjectclassUpdateView(UpdateView):
     # and add it to context
     if array_fields_values:
       context['array_fields_values'] = dumps(array_fields_values)
+    # if object class contains GIS data:
+    # add GIS data (i.e. geometry) to context
+    if context['objectclass_is_gis_model']:
+      geometry = getattr(self.object, self.model.BasemodelMeta.gis_field)
+      transformed_geometry = self.model.objects.annotate(
+        transformed_geometry=Transform(geometry, 4326)
+      ).get(pk=self.object.pk).transformed_geometry
+      transformed_geometry_as_geojson = self.model.objects.annotate(
+        geojson=AsGeoJSON(transformed_geometry)
+      ).get(pk=self.object.pk).geojson
+      context['geometry'] = transformed_geometry_as_geojson
     return context
 
   def get_initial(self):
@@ -240,6 +255,25 @@ class GenericObjectclassUpdateView(UpdateView):
         str(form.instance)
       )
     )
+    if form.has_changed():
+      # create new log entry for the following object classes:
+      # Complaint, Originator
+      if (
+          issubclass(self.model, Complaint)
+          or issubclass(self.model, Originator)
+      ):
+        curr_object = form.save(commit=False)
+        curr_object.save()
+        log_action, object_str = set_log_action_and_object_str(
+          self.model, curr_object, form.changed_data)
+        if log_action and object_str:
+          create_log_entry(
+            self.model,
+            curr_object.pk,
+            object_str,
+            log_action,
+            self.request.user
+          )
     return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
@@ -317,8 +351,10 @@ class GenericObjectclassDeleteView(DeleteView):
       # create new log entry for the following object classes:
       # Complaint, Contact, Organization, Originator, Person
       if (
-          issubclass(self.model, Contact)
+          issubclass(self.model, Complaint)
+          or issubclass(self.model, Contact)
           or issubclass(self.model, Organization)
+          or issubclass(self.model, Originator)
           or issubclass(self.model, Person)
       ):
         create_log_entry(
@@ -389,13 +425,3 @@ class ContactDeleteView(GenericObjectclassDeleteView):
   """
 
   cancel_url = reverse_lazy('bemas:organization_table')
-
-
-class OriginatorDeleteView(GenericObjectclassDeleteView):
-  """
-  view for form page for deleting an instance of object class originator
-
-  :param deletion_hints: custom deletion hints
-  """
-
-  pass
