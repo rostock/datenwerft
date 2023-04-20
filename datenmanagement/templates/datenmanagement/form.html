@@ -142,14 +142,14 @@
       </table>
     </div>
     {% if geometry_type %}
-      <div id="map-adresssearch-container-form">
+      <div id="map-addresssearch-container-form">
         <label hidden for="id_geometrie" class="form-label">Geometrie</label>
         {% if geometry %}
           <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
         {% else %}
           <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [] }</textarea>
         {% endif %}
-        {% leaflet_map "id-geometrie-map" callback="window.mapCallbackFunction" %}
+        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           {% if geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
@@ -1094,6 +1094,7 @@
           {% endif %}
         }
         $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
+        alert($('#id_geometrie').val());
         // setzt Referenz aus Feld mit UUID der referenzierten Adresse,
         // der referenzierten Straße oder des referenzierten Gemeindeteils
         if (addressUuidField && $.trim(searchField.val()).length)

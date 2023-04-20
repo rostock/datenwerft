@@ -1,10 +1,12 @@
+from django.conf import settings
 from django.forms import Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
+from leaflet.forms.widgets import LeafletWidget
 
-from bemas.models import Codelist, GISObjectclass, Complaint, LogEntry, Originator
+from bemas.models import Codelist, GeometryObjectclass, Complaint, LogEntry, Originator
 from bemas.utils import get_foreign_key_target_model, get_foreign_key_target_object, \
-  is_bemas_admin, is_bemas_user, is_gis_field
+  is_bemas_admin, is_bemas_user, is_geometry_field
 
 
 def add_codelist_context_elements(context, model, curr_object=None):
@@ -80,14 +82,14 @@ def add_table_context_elements(context, model):
   address_handled = False
   for field in model._meta.fields:
     if not field.name.startswith('address_'):
-      # handle non-GIS related fields only!
-      if not is_gis_field(field.__class__):
+      # handle non-geometry related fields only!
+      if not is_geometry_field(field.__class__):
         column_titles.append(field.verbose_name)
     # handle addresses
     elif field.name.startswith('address_') and not address_handled:
       # append one column for address string
       # instead of appending individual columns for all address related values
-      column_titles.append('Adresse')
+      column_titles.append('Anschrift')
       address_handled = True
   context['column_titles'] = column_titles
   # determine initial order
@@ -146,14 +148,15 @@ def assign_widget(field):
     field = field.base_field
     is_array_field = True
   form_field = field.formfield()
-  # get dictionary with numeric model fields (as keys) and their minimum legal values
   model = field.model
+  # get dictionary with numeric model fields (as keys) and their minimum legal values
   min_numbers, max_numbers = {}, {}
   if hasattr(model, 'CustomMeta'):
     if hasattr(model.CustomMeta, 'min_numbers'):
       min_numbers = model.CustomMeta.min_numbers
     if hasattr(model.CustomMeta, 'max_numbers'):
       max_numbers = model.CustomMeta.max_numbers
+  # handle inputs
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
@@ -167,8 +170,14 @@ def assign_widget(field):
         form_field.widget.attrs['min'] = min_numbers.get(field.name)
       if max_numbers is not None:
         form_field.widget.attrs['max'] = max_numbers.get(field.name)
+  # handle text areas
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
+  # handle geometry related fields
+  elif is_geometry_field(field.__class__):
+    form_field = field.formfield(
+      widget=LeafletWidget()
+    )
   # field is array field?
   if is_array_field:
     # highlight corresponding form field as array field via custom HTML attribute
@@ -263,8 +272,13 @@ def set_generic_objectclass_create_update_delete_context(context, request, model
     context['objectclass_deletion_url'] = reverse(
       'bemas:' + model.__name__.lower() + '_delete', args=[curr_object.pk]
     )
-  # add information if object class contains GIS data or not to context
-  context['objectclass_is_gis_model'] = issubclass(model, GISObjectclass)
+  # if object class contains geometry:
+  # add geometry related information to context
+  if issubclass(model, GeometryObjectclass):
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
+    context['objectclass_is_geometry_model'] = True
+    context['objectclass_geometry_field'] = model.BasemodelMeta.geometry_field
   return context
 
 

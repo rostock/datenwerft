@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 
 from bemas.models import Codelist, Contact, Organization
 from bemas.utils import get_foreign_key_target_model, get_icon_from_settings, is_bemas_admin, \
-  is_bemas_user, is_gis_field
+  is_bemas_user, is_geometry_field
 from .functions import generate_foreign_key_link
 
 
@@ -41,8 +41,8 @@ class GenericTableDataView(BaseDatatableView):
         item_pk = getattr(item, self.model._meta.pk.name)
         address_handled = False
         for column in self.columns:
-          # handle non-GIS related fields only!
-          if not is_gis_field(column.__class__):
+          # handle non-geometry related fields only!
+          if not is_geometry_field(column.__class__):
             data = None
             value = getattr(item, column.name)
             # foreign key columns (between object classes only):

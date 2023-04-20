@@ -10,7 +10,7 @@ from toolbox.constants_vars import standard_validators, personennamen_validators
   d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
 from bemas.utils import concat_address, shorten_string
-from .base import GISObjectclass, Objectclass
+from .base import GeometryObjectclass, Objectclass
 from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission
 
 
@@ -284,9 +284,9 @@ class Contact(Objectclass):
     return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
 
 
-class Originator(GISObjectclass):
+class Originator(GeometryObjectclass):
   """
-  model class for GIS object class originator (Verursacher)
+  model class for geometry object class originator (Verursacher)
   """
 
   sector = ForeignKey(
@@ -304,8 +304,7 @@ class Originator(GISObjectclass):
     validators=standard_validators
   )
   emission_point = PointField(
-    'Emissionsort',
-    srid=25833
+    'Emissionsort'
   )
   address = CharField(
     'Adresse',
@@ -333,7 +332,7 @@ class Originator(GISObjectclass):
     verbose_name_plural = 'Verursacher'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
-    gis_field = 'emission_point'
+    geometry_field = 'emission_point'
     description = 'Verursacher von Emissionen'
     definite_article = 'der'
     indefinite_article = 'ein'
@@ -345,9 +344,9 @@ class Originator(GISObjectclass):
            ' (' + shorten_string(self.description) + ')'
 
 
-class Complaint(GISObjectclass):
+class Complaint(GeometryObjectclass):
   """
-  model class for GIS object class complaint (Beschwerde)
+  model class for geometry object class complaint (Beschwerde)
   """
 
   date_of_receipt = DateField(
@@ -370,8 +369,7 @@ class Complaint(GISObjectclass):
     on_delete=PROTECT
   )
   immission_point = PointField(
-    'Immissionsort',
-    srid=25833
+    'Immissionsort'
   )
   address = CharField(
     'Adresse',
@@ -425,7 +423,7 @@ class Complaint(GISObjectclass):
     verbose_name_plural = 'Beschwerden'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
-    gis_field = 'immission_point'
+    geometry_field = 'immission_point'
     description = 'Folgen von Immissionen'
     definite_article = 'die'
     indefinite_article = 'eine'

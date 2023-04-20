@@ -28,7 +28,7 @@ class Basemodel(Model):
     get_latest_by = 'updated_at'
 
   class BasemodelMeta:
-    gis_field = None
+    geometry_field = None
     description = None
     definite_article = None
     indefinite_article = None
@@ -54,9 +54,9 @@ class Objectclass(Basemodel):
     abstract = True
 
 
-class GISObjectclass(Basemodel):
+class GeometryObjectclass(Basemodel):
   """
-  abstract model class for object classes containing GIS data
+  abstract model class for object classes with geometry related fields
   """
 
   class Meta(Basemodel.Meta):

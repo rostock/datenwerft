@@ -101,12 +101,12 @@ def is_bemas_user(user, only_bemas_user_check=False):
     return False
 
 
-def is_gis_field(field):
+def is_geometry_field(field):
   """
-  checks if given field is a GIS related field
+  checks if given field is a geometry related field
 
   :param field: field
-  :return: given field is a GIS related field?
+  :return: given field is a geometry related field?
   """
   if issubclass(field, FormPointField) or issubclass(field, ModelPointField):
     return True

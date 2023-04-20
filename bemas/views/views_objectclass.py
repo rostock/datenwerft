@@ -1,4 +1,4 @@
-from django.contrib.gis.db.models.functions import AsGeoJSON, Transform
+from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.contrib.messages import error, success
 from django.db.models import ProtectedError
 from django.forms.models import modelform_factory
@@ -8,7 +8,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import Complaint, Contact, Organization, Originator, Person
+from bemas.models import GeometryObjectclass, Complaint, Contact, Organization, Originator, Person
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, assign_widget, create_log_entry, generate_protected_objects_list, \
@@ -208,17 +208,15 @@ class GenericObjectclassUpdateView(UpdateView):
     # and add it to context
     if array_fields_values:
       context['array_fields_values'] = dumps(array_fields_values)
-    # if object class contains GIS data:
-    # add GIS data (i.e. geometry) to context
-    if context['objectclass_is_gis_model']:
-      geometry = getattr(self.object, self.model.BasemodelMeta.gis_field)
-      transformed_geometry = self.model.objects.annotate(
-        transformed_geometry=Transform(geometry, 4326)
-      ).get(pk=self.object.pk).transformed_geometry
-      transformed_geometry_as_geojson = self.model.objects.annotate(
-        geojson=AsGeoJSON(transformed_geometry)
-      ).get(pk=self.object.pk).geojson
-      context['geometry'] = transformed_geometry_as_geojson
+    # if object class contains geometry:
+    # GeoJSONify geometry and add it to context
+    if issubclass(self.model, GeometryObjectclass):
+      geometry = getattr(self.object, self.model.BasemodelMeta.geometry_field)
+      if geometry:
+        geometry = self.model.objects.annotate(
+          geojson=AsGeoJSON(geometry)
+        ).get(pk=self.object.pk).geojson
+      context['geometry'] = geometry
     return context
 
   def get_initial(self):

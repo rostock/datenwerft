@@ -1,6 +1,6 @@
 {% extends "navbar.html" %}
 {% load bemas_tags %}
-{% if objectclass_is_gis_model %}
+{% if objectclass_is_geometry_model %}
   {% load leaflet_tags %}
 {% endif %}
 {% load static %}
@@ -9,7 +9,7 @@
 
 {% block style %}
   {{ block.super }}
-  {% if objectclass_is_gis_model %}
+  {% if objectclass_is_geometry_model %}
     {% leaflet_css plugins="geoman,locatecontrol" %}
   {% endif %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
@@ -22,7 +22,7 @@
 
 {% block scripts %}
   {{ block.super }}
-  {% if objectclass_is_gis_model %}
+  {% if objectclass_is_geometry_model %}
     {% leaflet_js plugins="geoman,locatecontrol" %}
     <script src="{% static 'proj4/proj4.js' %}"></script>
     <script src="{% static 'wicket/wicket.js' %}"></script>
@@ -79,10 +79,10 @@
     {% endif %}
     <form class="form" method="post" action="">
       {% csrf_token %}
-      <div {% if objectclass_is_gis_model %}id="custom-form"{% endif %}>
+      <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
         <table class="table">
           {% for field in form %}
-            {% if not field|is_field_gis_field and not field.name == 'address' %}
+            {% if not field|is_field_geometry_field and not field.name == 'address' %}
               <tr>
                 <td class="cell-label">
                   {{ field.label_tag }}
@@ -97,15 +97,15 @@
           {% endfor %}
         </table>
       </div>
-      {% if objectclass_is_gis_model %}
-        <div id="map-adresssearch-container-form">
-          <label hidden for="id_geometry" class="form-label">Geometrie</label>
+      {% if objectclass_is_geometry_model %}
+        <div id="map-addresssearch-container-form">
+          <label hidden for="id_{{ objectclass_geometry_field }}" class="form-label">Geometrie</label>
           {% if geometry %}
-            <textarea hidden id="id_geometry" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
+            <textarea hidden id="id_{{ objectclass_geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ objectclass_geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
           {% else %}
-            <textarea hidden id="id_geometry" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
+            <textarea hidden id="id_{{ objectclass_geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ objectclass_geometry_field }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
           {% endif %}
-          {% leaflet_map "id-geometrie-map" callback="window.mapCallbackFunction" %}
+          {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
           <div class="d-grid mt-3 gap-2 d-md-block">
             <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address_to_map'|get_icon }}"></i> Marker auf aktuelle Adresse setzen</button>
             <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address'|get_icon }}"></i> Adresse des aktuellen Markers übernehmen</button>
@@ -113,7 +113,7 @@
           <div class="mt-3">
             <label for="id_address" class="form-label">Adresse</label>
             <div class="form-floating">
-              <input id="id_address" type="text" class="form-control" name="adresse" autocapitalize="off" autocomplete="off" placeholder="Adresse suchen…">
+              <input id="id_address" type="text" class="form-control" name="address"{% if form.address.value %} value="{{ form.address.value }}"{% endif %} autocapitalize="off" autocomplete="off" placeholder="Adresse suchen…">
               <label for="id_address">Adresse suchen…</label>
             </div>
             <div id="results-container" class="results"></div>
@@ -122,9 +122,9 @@
       {% endif %}
       <div id="buttons">
         <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
-          <button class="btn btn-success" type="submit" onclick="setFinalArrayFields();"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} {% endif %}speichern</button>
           {% if object %}
-            <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); cloneObject('{{ objectclass_creation_url }}');"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als {{ objectclass_new }} {{ objectclass_verbose_name }} {% endif %}klonen</button>
+            <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}'); cloneObject('{{ objectclass_creation_url }}');"><i class="fas fa-{{ 'clone'|get_icon }}"></i> {% if not is_mobile %}als {{ objectclass_new }} {{ objectclass_verbose_name }} {% endif %}klonen</button>
             <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</a>
           {% endif %}
           <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
@@ -133,7 +133,7 @@
       {% include "modal-error.html" %}
     </form>
     <script>
-      /* global $, addField, cleanField, keepDjangoRequiredMessages */
+      /* global $, addField, addressType, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, searchField, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
       /* eslint no-undef: "error" */
       /**
        * @function
@@ -144,19 +144,14 @@
        * @param {Object} map - map
        */
       function mapCallbackFunction(map) {
-        // set map constants
         setMapConstants(map);
-
-        // configure map
         configureMap(map, '{% url "toolbox:owsproxy" %}');
 
         // make map globally available
         window.currMap = map;
 
-        // on mobile devices:
-        // enable map locate
         {% if is_mobile %}
-          enableMapLocate(map);
+          enableMapLocate(map)
         {% endif %}
 
         // configure globally available markers for Leaflet
@@ -169,16 +164,16 @@
           shadowSize: [41, 41]
         });
 
-        // define globally available variable for feature geometry
+        // define several globally available variables
         window.featureGeometry = [];
+        window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }};
 
-        // configure Leaflet-Geoman
         configureLeafletGeoman(map, 'Point');
 
         // if geometry already exists...
         {% if geometry %}
           // show existing geometry on map
-          map.loadGeometryFromField('#id_geometry')
+          map.loadGeometryFromField('#id_{{ objectclass_geometry_field }}')
         {% endif %}
 
         /**
@@ -216,8 +211,8 @@
 
         // define available variable for the necessity of dynamically setting vertical positions of buttons
         let buttonsPosition = false;
-        {% if not is_mobile and objectclass_is_gis_model %}
-          buttonsPosition = true;
+        {% if not is_mobile and objectclass_is_geometry_model %}
+          buttonsPosition = true
         {% endif %}
 
         // define variable for array fields and their values
@@ -281,11 +276,10 @@
 
         // on clicking the address reference (i.e. map to address) button...
         $('#mapToAddress').on('click', function () {
-          setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
+          setAddressToMarkerAddress(window.currMap.pm.getGeomanLayers()[0], '{% url "toolbox:reversesearch" %}');
           $('#addressToMap').prop('disabled', false);
         });
 
-        // dynamically set vertical positions of buttons
         if (buttonsPosition)
           setButtonsPosition();
       });
