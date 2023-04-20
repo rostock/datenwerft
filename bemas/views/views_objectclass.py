@@ -90,6 +90,13 @@ class GenericObjectclassCreateView(CreateView):
       return {
         'organization': self.request.GET.get('organization')
       }
+    else:
+      initial_field_values = {}
+      for field in self.model._meta.get_fields():
+        # handle date fields and their values
+        if field.__class__.__name__ == 'DateField':
+          initial_field_values[field.name] = field.get_default().strftime('%Y-%m-%d')
+      return initial_field_values
 
   def form_valid(self, form):
     """
@@ -236,6 +243,10 @@ class GenericObjectclassUpdateView(UpdateView):
           # and add it to prepared dictionary
           initial_field_value = values[0]
           initial_field_values[field.name] = initial_field_value
+      # handle date fields and their values
+      elif field.__class__.__name__ == 'DateField':
+        value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        initial_field_values[field.name] = value.strftime('%Y-%m-%d')
     return initial_field_values
 
   def form_valid(self, form):

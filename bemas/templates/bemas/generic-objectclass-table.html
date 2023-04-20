@@ -56,6 +56,8 @@
               {% endfor %}
               {% if objectclass_name == 'Organization' %}
                 <th>Ansprechpartner:in(nen)</th>
+              {% elif objectclass_name == 'Complaint' %}
+                <th>Beschwerdeführung</th>
               {% endif %}
               <th class="no-export">Aktionen</th>
             </tr>

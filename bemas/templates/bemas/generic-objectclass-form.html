@@ -133,7 +133,7 @@
       {% include "modal-error.html" %}
     </form>
     <script>
-      /* global $, addField, addressType, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, searchField, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
+      /* global $, addEmptyFieldButton, addField, addressType, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, searchField, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
       /* eslint no-undef: "error" */
       /**
        * @function
@@ -166,7 +166,9 @@
 
         // define several globally available variables
         window.featureGeometry = [];
-        window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }};
+        {% if REVERSE_SEARCH_RADIUS %}
+          window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }}
+        {% endif %}
 
         configureLeafletGeoman(map, 'Point');
 
@@ -262,11 +264,18 @@
           });
         });
 
+        // handle multiple select fields
+        $('select[multiple]').each(function () {
+          addEmptyFieldButton($(this));
+        });
+
         // initialize address search (and make its results globally available)
         window.results = $('div.results');
         window.addressType = 'Adresse';
         window.searchField = $('#id_address');
-        initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType);
+        {% if objectclass_is_geometry_model %}
+          initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType)
+        {% endif %}
 
         // on clicking the map reference (i.e. address to map) button...
         $('#addressToMap').on('click', function () {

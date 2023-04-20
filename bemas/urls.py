@@ -335,3 +335,66 @@ for model in models:
         name='originator_delete'
       )
     )
+
+  #
+  # views for object class complaint
+  #
+  elif model.__name__ == 'Complaint':
+
+    # table data composition for object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/tabledata',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='complaint_tabledata'
+      )
+    )
+
+    # table page for object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/table',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='complaint_table'
+      )
+    )
+
+    # form page for creating an instance of object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/create',
+        view=login_required(GenericObjectclassCreateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:complaint_table')
+        )),
+        name='complaint_create'
+      )
+    )
+
+    # form page for updating an instance of object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/update/<pk>',
+        view=login_required(GenericObjectclassUpdateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:complaint_table')
+        )),
+        name='complaint_update'
+      )
+    )
+
+    # form page for deleting an instance of object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/delete/<pk>',
+        view=login_required(GenericObjectclassDeleteView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:complaint_table')
+        )),
+        name='complaint_delete'
+      )
+    )

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from django.conf import settings
 from django.db.models import ForeignKey, Q
 from django.urls import reverse
@@ -7,10 +7,10 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Contact, Organization
+from bemas.models import Codelist, Complaint, Contact, Organization, Originator, Person
 from bemas.utils import get_foreign_key_target_model, get_icon_from_settings, is_bemas_admin, \
   is_bemas_user, is_geometry_field
-from .functions import generate_foreign_key_link
+from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -59,6 +59,9 @@ class GenericTableDataView(BaseDatatableView):
                 # format Booleans
                 if isinstance(value, bool):
                   data = ('ja' if value is True else 'nein')
+                # format dates
+                elif isinstance(value, date):
+                  data = value.strftime('%d.%m.%Y')
                 # format timestamps
                 elif isinstance(value, datetime):
                   value_tz = value.replace(tzinfo=timezone.utc).astimezone(
@@ -85,9 +88,25 @@ class GenericTableDataView(BaseDatatableView):
           if contacts:
             for index, contact in enumerate(contacts):
               data += '<br>' if index > 0 else ''
-              data += '<a href="' + reverse('bemas:contact_update', args=[contact.pk]) + '"'
-              data += ' title="' + Contact._meta.verbose_name + ' bearbeiten">'
-              data += contact.name_and_function() + '</a>'
+              data += generate_foreign_key_link_simplified(
+                Contact, contact, contact.name_and_function()
+              )
+          item_data.append(data)
+        # object class complaint:
+        # add column which lists complainer(s)
+        elif issubclass(self.model, Complaint):
+          data = ''
+          complainers_organizations = Complaint.objects.get(
+            pk=item_pk).complainers_organizations.all()
+          if complainers_organizations:
+            for index, organization in enumerate(complainers_organizations):
+              data += '<br>' if index > 0 else ''
+              data += generate_foreign_key_link_simplified(Organization, organization)
+          complainers_persons = Complaint.objects.get(pk=item_pk).complainers_persons.all()
+          if complainers_persons:
+            for index, person in enumerate(complainers_persons):
+              data += '<br>' if index > 0 or complainers_organizations else ''
+              data += generate_foreign_key_link_simplified(Person, person)
           item_data.append(data)
         # append links for updating and deleting
         if (
@@ -126,32 +145,47 @@ class GenericTableDataView(BaseDatatableView):
       for search_element in current_search.lower().split():
         qs_params_inner = None
         for column in self.columns:
+          search_column = column.name
+          # take care of foreign key columns
+          if issubclass(column.__class__, ForeignKey):
+            # object class complaint
+            if issubclass(self.model, Complaint):
+              if issubclass(get_foreign_key_target_model(column), Originator):
+                search_column += '__description'
+              else:
+                search_column += '__title'
+            # object class originator
+            elif issubclass(self.model, Originator):
+              if issubclass(get_foreign_key_target_model(column), Organization):
+                search_column += '__name'
+              else:
+                search_column += '__title'
           case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
           case_b = search('^[0-9]{2}\\.[0-9]{4}$', search_element)
           case_c = search('^[0-9]{2}\\.[0-9]{2}$', search_element)
           if case_a or case_b or case_c:
             search_element_splitted = search_element.split('.')
             kwargs = {
-                '{0}__{1}'.format(column.name, 'icontains'): (search_element_splitted[
+                '{0}__{1}'.format(search_column, 'icontains'): (search_element_splitted[
                     2] + '-' if case_a else '') +
                 search_element_splitted[1] + '-' +
                 search_element_splitted[0]
             }
           elif search_element == 'ja':
             kwargs = {
-                '{0}__{1}'.format(column.name, 'icontains'): 'true'
+                '{0}__{1}'.format(search_column, 'icontains'): 'true'
             }
           elif search_element == 'nein' or search_element == 'nei':
             kwargs = {
-                '{0}__{1}'.format(column.name, 'icontains'): 'false'
+                '{0}__{1}'.format(search_column, 'icontains'): 'false'
             }
           elif match(r"^[0-9]+,[0-9]+$", search_element):
             kwargs = {
-                '{0}__{1}'.format(column.name, 'icontains'): sub(',', '.', search_element)
+                '{0}__{1}'.format(search_column, 'icontains'): sub(',', '.', search_element)
             }
           else:
             kwargs = {
-                '{0}__{1}'.format(column.name, 'icontains'): search_element
+                '{0}__{1}'.format(search_column, 'icontains'): search_element
             }
           q = Q(**kwargs)
           qs_params_inner = qs_params_inner | q if qs_params_inner else q

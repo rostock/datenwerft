@@ -201,7 +201,7 @@ BEMAS_ICONS = {
   'cancel': 'hand',
   'clone': 'clone',
   'codelist': 'list',
-  # 'complaint': 'folder-open',
+  'complaint': 'folder-open',
   'contact': 'address-card',
   'create': 'circle-plus',
   'delete': 'trash',

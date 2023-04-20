@@ -385,12 +385,14 @@ class Complaint(GeometryObjectclass):
   complainers_organizations = ManyToManyField(
     Organization,
     db_table='complainers_organizations',
-    verbose_name='Beschwerdeführerin'
+    verbose_name='Organisation(en) als Beschwerdeführerin(nen)',
+    blank=True
   )
   complainers_persons = ManyToManyField(
     Person,
     db_table='complainers_persons',
-    verbose_name='Beschwerdeführer:in'
+    verbose_name='Person(en) als Beschwerdeführer:in(nen)',
+    blank=True
   )
   description = TextField(
     'Beschreibung',
@@ -431,7 +433,7 @@ class Complaint(GeometryObjectclass):
     new = 'neue'
 
   def __str__(self):
-    return str(self.id)
+    return '#' + str(self.id)
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # on creation:
