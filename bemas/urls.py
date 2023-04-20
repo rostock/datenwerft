@@ -8,9 +8,9 @@ from .views.base import GenericTableDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView
-from .views.views_objectclass import ContactDeleteView, GenericObjectclassCreateView, \
-  GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
-  PersonDeleteView, ContactCreateView, ContactUpdateView
+from .views.views_objectclass import ContactDeleteView, ContactCreateView, ContactUpdateView, \
+  GenericObjectclassCreateView, GenericObjectclassDeleteView, GenericObjectclassTableView, \
+  GenericObjectclassUpdateView, OrganizationDeleteView, PersonDeleteView
 
 router = routers.DefaultRouter()
 
@@ -270,5 +270,68 @@ for model in models:
           success_url=reverse_lazy('bemas:organization_table')
         )),
         name='contact_delete'
+      )
+    )
+
+  #
+  # views for object class originator
+  #
+  elif model.__name__ == 'Originator':
+
+    # table data composition for object class originator
+    urlpatterns.append(
+      path(
+        'originator/tabledata',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='originator_tabledata'
+      )
+    )
+
+    # table page for object class originator
+    urlpatterns.append(
+      path(
+        'originator/table',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='originator_table'
+      )
+    )
+
+    # form page for creating an instance of object class originator
+    urlpatterns.append(
+      path(
+        'originator/create',
+        view=login_required(GenericObjectclassCreateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:originator_table')
+        )),
+        name='originator_create'
+      )
+    )
+
+    # form page for updating an instance of object class originator
+    urlpatterns.append(
+      path(
+        'originator/update/<pk>',
+        view=login_required(GenericObjectclassUpdateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:originator_table')
+        )),
+        name='originator_update'
+      )
+    )
+
+    # form page for deleting an instance of object class originator
+    urlpatterns.append(
+      path(
+        'originator/delete/<pk>',
+        view=login_required(GenericObjectclassDeleteView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:originator_table')
+        )),
+        name='originator_delete'
       )
     )

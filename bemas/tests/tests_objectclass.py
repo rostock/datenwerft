@@ -370,6 +370,75 @@ class OriginatorModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_view_create_success(self):
+    self.generic_crud_view_test(
+      False, True, False, 'originator_create', self.attributes_values_view_initial,
+      302, 'text/html; charset=utf-8', '', 1, 'created'
+    )
+
+  def test_view_create_error(self):
+    self.generic_crud_view_test(
+      False, True, False, 'originator_create', self.attributes_values_view_invalid,
+      200, 'text/html; charset=utf-8', 'neue', 0
+    )
+
+  def test_view_update_success(self):
+    self.generic_crud_view_test(
+      True, True, False, 'originator_update', self.attributes_values_view_updated,
+      302, 'text/html; charset=utf-8', '', 1
+    )
+
+  def test_view_update_error(self):
+    self.generic_crud_view_test(
+      True, True, False, 'originator_update', self.attributes_values_view_invalid,
+      200, 'text/html; charset=utf-8', 'nderungen', 1
+    )
+
+  def test_view_delete(self):
+    self.generic_crud_view_test(
+      True, True, False, 'originator_delete', self.attributes_values_view_updated,
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
+    )
+
+
+class OriginatorViewsTest(DefaultViewTestCase):
+  """
+  views test class for object class originator (Verursacher)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'ok'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'originator_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_table', None,
+      200, 'text/html; charset=utf-8', 'vorhanden'
+    )
+
+  def test_create_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'originator_create', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_create_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_create', None,
+      200, 'text/html; charset=utf-8', 'neue'
+    )
+
 
 class ComplaintModelTest(DefaultModelTestCase):
   """

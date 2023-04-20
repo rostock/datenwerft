@@ -494,7 +494,8 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
       if ($(this).children('small'))
         text += ' ' + $(this).children('small').text();
       searchField.val(text);
-      addressUuidField.val($(this).data('uuid'));
+      if (addressUuidField)
+        addressUuidField.val($(this).data('uuid'));
     // ansonsten...
     } else {
       // Text des Resultats in Suchfeld übernehmen

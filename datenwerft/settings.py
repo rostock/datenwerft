@@ -194,6 +194,8 @@ USE_TZ = True
 
 BEMAS_ICONS = {
   # 'activity': 'bell',
+  'address': 'house',
+  'address_to_map': 'location-dot',
   # 'anonymous_complaint': 'link-slash',
   'back': 'backward',
   'cancel': 'hand',
@@ -210,7 +212,7 @@ BEMAS_ICONS = {
   # 'new': 'plus',
   'ok': 'circle-check',
   'organization': 'building',
-  # 'originator': 'industry',
+  'originator': 'industry',
   # 'orphaned_data': 'ghost',
   'person': 'user',
   # 'places_map': 'map-location-dot',

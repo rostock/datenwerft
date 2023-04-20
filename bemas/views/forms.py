@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields.array import ArrayField
-from django.forms import ModelForm
+from django.forms import ModelForm, ValidationError
 
-from bemas.models import Codelist
+from bemas.models import Codelist, GeometryObjectclass
 
 
 class GenericForm(ModelForm):
@@ -16,8 +16,8 @@ class GenericForm(ModelForm):
     super().__init__(*args, **kwargs)
     # customize messages
     for field in self.fields.values():
-      required_message = 'Das Attribut <strong><em>{label}</em></strong> ' \
-                         'ist Pflicht!'.format(label=field.label)
+      required_message = 'Das Attribut <strong><em>{}</em></strong> ' \
+                         'ist Pflicht!'.format(field.label)
       if issubclass(self._meta.model, Codelist):
         title = 'ein Codelisteneintrag'
       else:
@@ -28,8 +28,24 @@ class GenericForm(ModelForm):
                              'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
       ArrayField.default_error_messages['item_invalid'] = item_invalid_message
       unique_message = 'Es existiert bereits ' + title + ' mit dem angegebenen Wert im Attribut ' \
-                       '<strong><em>{label}</em></strong>!'.format(label=field.label)
+                       '<strong><em>{}!</em></strong>'.format(field.label)
       field.error_messages = {
         'required': required_message,
         'unique': unique_message
       }
+
+  def clean(self):
+    """
+    cleans fields
+    """
+    cleaned_data = super().clean()
+    # if object class contains geometry:
+    # clean geometry fields
+    if issubclass(self._meta.model, GeometryObjectclass):
+      geometry_field = self._meta.model.BasemodelMeta.geometry_field
+      geometry = cleaned_data.get(geometry_field)
+      error_text = 'Es muss ein Marker in der Karte gesetzt werden!'
+      if '(0 0)' in str(geometry):
+        raise ValidationError(error_text)
+      else:
+        cleaned_data[geometry_field] = geometry

@@ -41,9 +41,12 @@ class CodelistTableView(TemplateView):
 class CodelistCreateView(CreateView):
   """
   view for form page for creating a codelist instance
+
+  :param cancel_url: custom cancel URL
   """
 
   template_name = 'bemas/codelist-form.html'
+  cancel_url = None
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
@@ -90,9 +93,12 @@ class CodelistCreateView(CreateView):
 class CodelistUpdateView(UpdateView):
   """
   view for form page for updating a codelist instance
+
+  :param cancel_url: custom cancel URL
   """
 
   template_name = 'bemas/codelist-form.html'
+  cancel_url = None
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
@@ -117,7 +123,7 @@ class CodelistUpdateView(UpdateView):
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
     # add other necessary elements to context
-    context = add_codelist_context_elements(context, self.model)
+    context = add_codelist_context_elements(context, self.model, self.object)
     return context
 
   def form_valid(self, form):
@@ -139,9 +145,12 @@ class CodelistUpdateView(UpdateView):
 class CodelistDeleteView(DeleteView):
   """
   view for form page for deleting a codelist instance
+
+  :param cancel_url: custom cancel URL
   """
 
   template_name = 'bemas/codelist-delete.html'
+  cancel_url = None
 
   def get_context_data(self, **kwargs):
     """

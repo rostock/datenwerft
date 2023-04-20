@@ -7,11 +7,13 @@
 {% block content %}
   {% if is_bemas_user %}
     <h2 class="text-center"><em>BEMAS</em></h2>
+    <a href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
+    <a href="{% url 'bemas:originator_create' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
+    <a href="{% url 'bemas:person_table' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
+    <a href="{% url 'bemas:person_create' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Person <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:organization_table' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:organization_create' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisation <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
-    <a href="{% url 'bemas:person_table' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
-    <a href="{% url 'bemas:person_create' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Person <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codelisten</a>
   {% else %}
     {% include "bemas/notice-norights.html" %}

@@ -28,7 +28,12 @@ class Basemodel(Model):
     get_latest_by = 'updated_at'
 
   class BasemodelMeta:
+    geometry_field = None
     description = None
+    definite_article = None
+    indefinite_article = None
+    personal_pronoun = None
+    new = None
 
 
 class Codelist(Basemodel):
@@ -43,6 +48,15 @@ class Codelist(Basemodel):
 class Objectclass(Basemodel):
   """
   abstract model class for object classes
+  """
+
+  class Meta(Basemodel.Meta):
+    abstract = True
+
+
+class GeometryObjectclass(Basemodel):
+  """
+  abstract model class for object classes with geometry related fields
   """
 
   class Meta(Basemodel.Meta):

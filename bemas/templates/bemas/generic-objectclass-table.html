@@ -36,7 +36,7 @@
       </h4>
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-primary" role="button" href="{% url 'bemas:'|add:objectclass_name|lower|add:'_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
+      <a class="btn btn-primary" role="button" href="{{ objectclass_creation_url }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
       {% if objectclass_name == 'Organization' %}
         <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       {% endif %}
@@ -64,7 +64,7 @@
       </div>
       <!-- eslint-disable-next-script -->
       <script>
-        window.dataUrl = "{% url 'bemas:'|add:objectclass_name|lower|add:'_tabledata' %}";
+        window.dataUrl = '{{ tabledata_url }}';
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script>

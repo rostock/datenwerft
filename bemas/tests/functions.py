@@ -1,16 +1,19 @@
+from bemas.models import GeometryObjectclass
 from .constants_vars import USERNAME, PASSWORD
 
 
-def clean_object_filter(object_filter):
+def clean_object_filter(object_filter, model=None):
   """
   cleans given object filter and returns it
 
   :param object_filter: object filter
+  :param model: model
   :return: cleaned version of given object filter
   """
   cleaned_object_filter = object_filter.copy()
-  # remove GIS attribute(s) from object filter
-  cleaned_object_filter.pop('location', None)
+  # remove geometry field from object filter
+  if model and issubclass(model, GeometryObjectclass):
+    cleaned_object_filter.pop(model.BasemodelMeta.geometry_field, None)
   return cleaned_object_filter
 
 
