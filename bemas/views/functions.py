@@ -307,23 +307,43 @@ def set_generic_objectclass_create_update_delete_context(context, request, model
   return context
 
 
-def set_log_action_and_object_str(model, curr_object, changed_data):
+def set_log_action_and_object_str(model, curr_object, changed_attribute, cleaned_data=None):
   """
   sets action and string representation of affected object (target object in some cases)
-  for a new log entry, based on given model, object and changed data, and returns them
+  for a new log entry, based on given model, object and changed data attribute, and returns them
 
   :param model: model
   :param curr_object: object
-  :param changed_data: changed data
+  :param changed_attribute: changed data attribute
+  :param cleaned_data: cleaned form data
+  (if many-to-many-relationships where changed, the new data is only found in here)
   :return: action and string representation of affected object (target object in some cases)
-  for a new log entry, based on given model, object and changed data
+  for a new log entry, based on given model, object and changed data attribute
   """
   if issubclass(model, Complaint):
-    if 'originator' in changed_data:
+    if changed_attribute == 'originator':
       return 'updated_originator', str(curr_object.originator)
-    elif 'status' in changed_data:
+    elif changed_attribute == 'status':
       return 'updated_status', str(curr_object.status)
+    elif changed_attribute == 'complainers_organizations':
+      string = ''
+      for index, organization in enumerate(cleaned_data['complainers_organizations'].all()):
+        string += ', ' if index > 0 else ''
+        string += str(organization)
+      if string:
+        return 'updated_complainers_organizations', string
+      else:
+        return 'cleared_complainers_organizations', '/'
+    elif changed_attribute == 'complainers_persons':
+      string = ''
+      for index, person in enumerate(cleaned_data['complainers_persons'].all()):
+        string += ', ' if index > 0 else ''
+        string += str(person)
+      if string:
+        return 'updated_complainers_persons', string
+      else:
+        return 'cleared_complainers_persons', '/'
   elif issubclass(model, Originator):
-    if 'operator' in changed_data:
+    if changed_attribute == 'operator':
       return 'updated_operator', str(curr_object.operator)
   return None, None

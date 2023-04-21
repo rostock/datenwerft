@@ -138,11 +138,12 @@ class Organization(Objectclass):
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field
     contacts_str = ''
-    contacts = self.contact_set.all()
-    if contacts:
-      for index, contact in enumerate(contacts):
-        contacts_str += ' || ' if index > 0 else ''
-        contacts_str += contact.name_and_function()
+    if self.pk:
+      contacts = self.contact_set.all()
+      if contacts:
+        for index, contact in enumerate(contacts):
+          contacts_str += ' || ' if index > 0 else ''
+          contacts_str += contact.name_and_function()
     self.search_content = str(self) + (' || ' + contacts_str if contacts_str else '')
     super().save(
       force_insert=force_insert,
@@ -328,6 +329,8 @@ class Contact(Objectclass):
     return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field of object class organization
+    organization = Organization.objects.get(pk=self.organization.pk)
     # store search content in designated field
     self.search_content = self.name_and_function()
     super().save(
@@ -336,6 +339,13 @@ class Contact(Objectclass):
       using=using,
       update_fields=update_fields
     )
+    organization.save()
+
+  def delete(self, **kwargs):
+    # store search content in designated field of object class organization
+    organization = Organization.objects.get(pk=self.organization.pk)
+    super().delete()
+    organization.save()
 
 
 class Originator(GeometryObjectclass):
@@ -515,20 +525,6 @@ class Complaint(GeometryObjectclass):
     return '#' + str(self.id)
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-    # store search content in designated field
-    complainers_str = ''
-    complainers_organizations = self.complainers_organizations.all()
-    if complainers_organizations:
-      for index, complainer_organization in enumerate(complainers_organizations):
-        complainers_str += ' || ' if index > 0 else ''
-        complainers_str += str(complainer_organization)
-    complainers_persons = self.complainers_persons.all()
-    if complainers_persons:
-      for index, complainer_person in enumerate(complainers_persons):
-        complainers_str += ' || ' if index > 0 or complainers_organizations else ''
-        complainers_str += str(complainer_person)
-    self.search_content = str(self) + ' || ' + (
-      complainers_str if complainers_str else 'anonyme Beschwerde')
     # on creation:
     # store default status in designated field
     if not self.pk and Status.get_default_status():
@@ -545,6 +541,22 @@ class Complaint(GeometryObjectclass):
       using=using,
       update_fields=update_fields
     )
+    # store search content in designated field
+    complainers_str = ''
+    complaint = Complaint.objects.latest()
+    complainers_organizations = complaint.complainers_organizations.all()
+    if complainers_organizations:
+      for index, complainer_organization in enumerate(complainers_organizations):
+        complainers_str += ' || ' if index > 0 else ''
+        complainers_str += str(complainer_organization)
+    complainers_persons = complaint.complainers_persons.all()
+    if complainers_persons:
+      for index, complainer_person in enumerate(complainers_persons):
+        complainers_str += ' || ' if index > 0 or complainers_organizations else ''
+        complainers_str += str(complainer_person)
+    complaint.search_content = str(complaint) + ' || ' + (
+      complainers_str if complainers_str else 'anonyme Beschwerde')
+    complaint.save()
 
 
 class Event(Objectclass):

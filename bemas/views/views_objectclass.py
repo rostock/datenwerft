@@ -273,16 +273,18 @@ class GenericObjectclassUpdateView(UpdateView):
       ):
         curr_object = form.save(commit=False)
         curr_object.save()
-        log_action, object_str = set_log_action_and_object_str(
-          self.model, curr_object, form.changed_data)
-        if log_action and object_str:
-          create_log_entry(
-            self.model,
-            curr_object.pk,
-            object_str,
-            log_action,
-            self.request.user
-          )
+        # loop changed data in order to create individual log entries
+        for changed_attribute in form.changed_data:
+          log_action, object_str = set_log_action_and_object_str(
+            self.model, curr_object, changed_attribute, form.cleaned_data)
+          if log_action and object_str:
+            create_log_entry(
+              self.model,
+              curr_object.pk,
+              object_str,
+              log_action,
+              self.request.user
+            )
     return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):

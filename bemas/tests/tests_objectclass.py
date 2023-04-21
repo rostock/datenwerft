@@ -499,6 +499,36 @@ class ComplaintModelTest(DefaultModelTestCase):
   def test_delete(self):
     self.generic_delete_test()
 
+  def test_view_create_success(self):
+    self.generic_crud_view_test(
+      False, True, False, 'complaint_create', self.attributes_values_view_initial,
+      302, 'text/html; charset=utf-8', '', 1, 'created'
+    )
+
+  def test_view_create_error(self):
+    self.generic_crud_view_test(
+      False, True, False, 'complaint_create', self.attributes_values_view_invalid,
+      200, 'text/html; charset=utf-8', 'neue', 0
+    )
+
+  def test_view_update_success(self):
+    self.generic_crud_view_test(
+      True, True, False, 'complaint_update', self.attributes_values_view_updated,
+      302, 'text/html; charset=utf-8', '', 1
+    )
+
+  def test_view_update_error(self):
+    self.generic_crud_view_test(
+      True, True, False, 'complaint_update', self.attributes_values_view_invalid,
+      200, 'text/html; charset=utf-8', 'nderungen', 1
+    )
+
+  def test_view_delete(self):
+    self.generic_crud_view_test(
+      True, True, False, 'complaint_delete', self.attributes_values_view_updated,
+      302, 'text/html; charset=utf-8', '', 0, 'deleted'
+    )
+
 
 class ComplaintOrganizationManyToManyTest(DefaultManyToManyTestCase):
   """
