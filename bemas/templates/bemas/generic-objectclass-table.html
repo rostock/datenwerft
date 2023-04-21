@@ -52,14 +52,14 @@
           <thead>
             <tr>
               {% for column_title in column_titles %}
-                <th>{{ column_title }}</th>
+                <th{% if column_title == 'Betreiberin' or column_title == 'E-Mail-Adresse(n)' or column_title == 'Telefonnummer(n)' or column_title == 'Verursacher' %} class="no-sort"{% endif %}>{{ column_title }}</th>
               {% endfor %}
               {% if objectclass_name == 'Organization' %}
-                <th>Ansprechpartner:in(nen)</th>
+                <th class="no-sort">Ansprechpartner:in(nen)</th>
               {% elif objectclass_name == 'Complaint' %}
-                <th>Beschwerdeführung</th>
+                <th class="no-sort">Beschwerdeführung</th>
               {% endif %}
-              <th class="no-export">Aktionen</th>
+              <th class="no-sort no-export">Aktionen</th>
             </tr>
           </thead>
         </table>
@@ -83,7 +83,7 @@
          * main function
          */
         $(document).ready(function() {
-          initDataTable(window.dataUrl, window.languageUrl, true, {{ initial_order|safe }});
+          initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }});
         });
       </script>
     {% endif %}

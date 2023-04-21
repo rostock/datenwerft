@@ -31,7 +31,7 @@ function addDeleteFieldButton(field) {
  */
 function addEmptyFieldButton(field) {
   // create button
-  let emptyFieldButton = $('<span><i class="clear-field fas fa-eraser text-primary" title="alle Selektionen entfernen"></i></span>');
+  let emptyFieldButton = $('<span><i class="clear-field fas fa-circle-minus text-primary" title="alle Selektionen entfernen"></i></span>');
   // insert created button after given field
   emptyFieldButton.insertAfter(field);
   // on clicking the created button...

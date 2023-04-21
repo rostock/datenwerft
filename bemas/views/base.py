@@ -41,8 +41,8 @@ class GenericTableDataView(BaseDatatableView):
         item_pk = getattr(item, self.model._meta.pk.name)
         address_handled = False
         for column in self.columns:
-          # handle non-geometry related fields only!
-          if not is_geometry_field(column.__class__):
+          # handle non-geometry related fields and non-search content fields only!
+          if not is_geometry_field(column.__class__) and not column.name == 'search_content':
             data = None
             value = getattr(item, column.name)
             # foreign key columns (between object classes only):
@@ -84,7 +84,7 @@ class GenericTableDataView(BaseDatatableView):
         # add column which lists contact(s)
         if issubclass(self.model, Organization):
           data = ''
-          contacts = Contact.objects.filter(organization=item_pk)
+          contacts = Organization.objects.get(pk=item_pk).contact_set.all()
           if contacts:
             for index, contact in enumerate(contacts):
               data += '<br>' if index > 0 else ''
@@ -107,6 +107,10 @@ class GenericTableDataView(BaseDatatableView):
             for index, person in enumerate(complainers_persons):
               data += '<br>' if index > 0 or complainers_organizations else ''
               data += generate_foreign_key_link_simplified(Person, person)
+          # designate anonymous complaint
+          if not data:
+            data = '<em><i class="fas fa-' + get_icon_from_settings('anonymous_complaint') + \
+                   '"></i> anonyme Beschwerde</em>'
           item_data.append(data)
         # append links for updating and deleting
         if (
@@ -148,18 +152,12 @@ class GenericTableDataView(BaseDatatableView):
           search_column = column.name
           # take care of foreign key columns
           if issubclass(column.__class__, ForeignKey):
-            # object class complaint
-            if issubclass(self.model, Complaint):
-              if issubclass(get_foreign_key_target_model(column), Originator):
-                search_column += '__description'
-              else:
-                search_column += '__title'
-            # object class originator
-            elif issubclass(self.model, Originator):
-              if issubclass(get_foreign_key_target_model(column), Organization):
-                search_column += '__name'
-              else:
-                search_column += '__title'
+            # foreign key target model is codelist
+            if issubclass(get_foreign_key_target_model(column), Codelist):
+              search_column += '__title'
+            # foreign key target model is object class
+            else:
+              search_column += '__search_content'
           case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
           case_b = search('^[0-9]{2}\\.[0-9]{4}$', search_element)
           case_c = search('^[0-9]{2}\\.[0-9]{2}$', search_element)

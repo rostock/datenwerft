@@ -19,6 +19,12 @@ class Organization(Objectclass):
   model class for object class organization (Organisation)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   name = CharField(
     'Name',
     max_length=255,
@@ -129,12 +135,34 @@ class Organization(Objectclass):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
 
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    contacts_str = ''
+    contacts = self.contact_set.all()
+    if contacts:
+      for index, contact in enumerate(contacts):
+        contacts_str += ' || ' if index > 0 else ''
+        contacts_str += contact.name_and_function()
+    self.search_content = str(self) + (' || ' + contacts_str if contacts_str else '')
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
 
 class Person(Objectclass):
   """
   model class for object class person (Person)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   first_name = CharField(
     'Vorname',
     max_length=255,
@@ -239,12 +267,28 @@ class Person(Objectclass):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
 
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    self.search_content = str(self)
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
 
 class Contact(Objectclass):
   """
   model class for object class contact (Ansprechpartner:in)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   organization = ForeignKey(
     Organization,
     verbose_name='Organisation',
@@ -283,12 +327,28 @@ class Contact(Objectclass):
   def name_and_function(self):
     return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
 
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    self.search_content = self.name_and_function()
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
 
 class Originator(GeometryObjectclass):
   """
   model class for geometry object class originator (Verursacher)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   sector = ForeignKey(
     Sector,
     verbose_name='Branche',
@@ -325,13 +385,13 @@ class Originator(GeometryObjectclass):
     ]
   )
 
-  class Meta(Objectclass.Meta):
+  class Meta(GeometryObjectclass.Meta):
     db_table = 'originator'
     ordering = ['sector__title', 'operator__name', 'description']
     verbose_name = 'Verursacher'
     verbose_name_plural = 'Verursacher'
 
-  class BasemodelMeta(Objectclass.BasemodelMeta):
+  class BasemodelMeta(GeometryObjectclass.BasemodelMeta):
     geometry_field = 'emission_point'
     description = 'Verursacher von Emissionen'
     definite_article = 'der'
@@ -343,12 +403,31 @@ class Originator(GeometryObjectclass):
     return str(self.sector) + ' mit der Betreiberin ' + str(self.operator) + \
            ' (' + shorten_string(self.description) + ')'
 
+  def sector_and_operator(self):
+    return str(self.sector) + ' (Betreiberin: ' + str(self.operator) + ')'
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    self.search_content = self.sector_and_operator()
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
 
 class Complaint(GeometryObjectclass):
   """
   model class for geometry object class complaint (Beschwerde)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   date_of_receipt = DateField(
     'Eingangsdatum',
     default=date.today
@@ -418,13 +497,13 @@ class Complaint(GeometryObjectclass):
     validators=standard_validators
   )
 
-  class Meta(Objectclass.Meta):
+  class Meta(GeometryObjectclass.Meta):
     db_table = 'complaint'
     ordering = ['id']
     verbose_name = 'Beschwerde'
     verbose_name_plural = 'Beschwerden'
 
-  class BasemodelMeta(Objectclass.BasemodelMeta):
+  class BasemodelMeta(GeometryObjectclass.BasemodelMeta):
     geometry_field = 'immission_point'
     description = 'Folgen von Immissionen'
     definite_article = 'die'
@@ -436,6 +515,20 @@ class Complaint(GeometryObjectclass):
     return '#' + str(self.id)
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    complainers_str = ''
+    complainers_organizations = self.complainers_organizations.all()
+    if complainers_organizations:
+      for index, complainer_organization in enumerate(complainers_organizations):
+        complainers_str += ' || ' if index > 0 else ''
+        complainers_str += str(complainer_organization)
+    complainers_persons = self.complainers_persons.all()
+    if complainers_persons:
+      for index, complainer_person in enumerate(complainers_persons):
+        complainers_str += ' || ' if index > 0 or complainers_organizations else ''
+        complainers_str += str(complainer_person)
+    self.search_content = str(self) + ' || ' + (
+      complainers_str if complainers_str else 'anonyme Beschwerde')
     # on creation:
     # store default status in designated field
     if not self.pk and Status.get_default_status():
@@ -459,6 +552,12 @@ class Event(Objectclass):
   model class for object class event (Journalereignis)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   complaint = ForeignKey(
     Complaint,
     verbose_name='Beschwerde',
@@ -510,6 +609,16 @@ class Event(Objectclass):
     return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + \
            (' (' + shorten_string(self.description) + ')' if self.description else '')
 
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    self.search_content = str(self)
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
 
 class LogEntry(Objectclass):
   """
@@ -555,4 +664,4 @@ class LogEntry(Objectclass):
     new = 'neuen'
 
   def __str__(self):
-    return str(self.id)
+    return '#' + str(self.id)

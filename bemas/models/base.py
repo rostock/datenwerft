@@ -54,10 +54,10 @@ class Objectclass(Basemodel):
     abstract = True
 
 
-class GeometryObjectclass(Basemodel):
+class GeometryObjectclass(Objectclass):
   """
   abstract model class for object classes with geometry related fields
   """
 
-  class Meta(Basemodel.Meta):
+  class Meta(Objectclass.Meta):
     abstract = True

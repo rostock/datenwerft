@@ -189,7 +189,7 @@ class GenericObjectclassUpdateView(UpdateView):
     # object class organization:
     # optionally add list of contacts to context
     if issubclass(self.model, Organization):
-      contacts = Contact.objects.filter(organization=self.object.pk)
+      contacts = Organization.objects.get(pk=self.object.pk).contact_set.all()
       if contacts:
         contacts_list = []
         for contact in contacts:
