@@ -64,6 +64,7 @@ def delete_photo(sender, instance, **kwargs):
         pass
       delete_duplicate_photos_with_other_suffixes(path)
     instance.foto.delete()
+    instance.delete()
 
 
 def delete_photo_after_emptied(sender, instance, created, **kwargs):
