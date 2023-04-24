@@ -41,8 +41,10 @@ def delete_pdf(sender, instance, **kwargs):
   """
   if hasattr(instance, 'pdf') and instance.pdf:
     instance.pdf.delete()
+    instance.delete()
   elif hasattr(instance, 'dokument') and instance.dokument:
     instance.dokument.delete()
+    instance.delete()
 
 
 def delete_photo(sender, instance, **kwargs):
