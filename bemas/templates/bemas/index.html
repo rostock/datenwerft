@@ -9,6 +9,8 @@
     <h2 class="text-center"><em>BEMAS</em></h2>
     <a href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:originator_create' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
+    <a href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
+    <a href="{% url 'bemas:complaint_create' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerde <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:person_table' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:person_create' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Person <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:organization_table' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>

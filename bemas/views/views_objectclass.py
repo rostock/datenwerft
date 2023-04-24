@@ -8,11 +8,13 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import GeometryObjectclass, Complaint, Contact, Organization, Originator, Person
+from bemas.models import GeometryObjectclass, Complaint, Contact, Organization, Originator, \
+  Person, Status
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, assign_widget, create_log_entry, generate_protected_objects_list, \
   set_generic_objectclass_create_update_delete_context, set_log_action_and_object_str
+from bemas.utils import shorten_string
 
 
 class GenericObjectclassTableView(TemplateView):
@@ -90,6 +92,16 @@ class GenericObjectclassCreateView(CreateView):
       return {
         'organization': self.request.GET.get('organization')
       }
+    else:
+      initial_field_values = {}
+      for field in self.model._meta.get_fields():
+        # handle date fields and their values
+        if field.__class__.__name__ == 'DateField':
+          initial_field_values[field.name] = field.get_default().strftime('%Y-%m-%d')
+        # set default status for a new complaint
+        elif issubclass(self.model, Complaint) and field.name == 'status':
+          initial_field_values['status'] = Status.get_default_status()
+      return initial_field_values
 
   def form_valid(self, form):
     """
@@ -98,12 +110,18 @@ class GenericObjectclassCreateView(CreateView):
     :param form: form
     :return: HTTP response if given form is valid
     """
+    # string representation of new complaint equals its primary key
+    # (which is not yet available) and thus use its description here
+    if issubclass(self.model, Complaint):
+      obj_str = shorten_string(form.instance.description)
+    else:
+      obj_str = str(form.instance)
     success(
       self.request,
       '{} neue {} <strong><em>{}</em></strong> wurde erfolgreich angelegt!'.format(
         self.model.BasemodelMeta.definite_article.capitalize(),
         self.model._meta.verbose_name,
-        str(form.instance)
+        obj_str
       )
     )
     # create new log entry for the following object classes:
@@ -182,7 +200,7 @@ class GenericObjectclassUpdateView(UpdateView):
     # object class organization:
     # optionally add list of contacts to context
     if issubclass(self.model, Organization):
-      contacts = Contact.objects.filter(organization=self.object.pk)
+      contacts = Organization.objects.get(pk=self.object.pk).contact_set.all()
       if contacts:
         contacts_list = []
         for contact in contacts:
@@ -236,6 +254,10 @@ class GenericObjectclassUpdateView(UpdateView):
           # and add it to prepared dictionary
           initial_field_value = values[0]
           initial_field_values[field.name] = initial_field_value
+      # handle date fields and their values
+      elif field.__class__.__name__ == 'DateField':
+        value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        initial_field_values[field.name] = value.strftime('%Y-%m-%d')
     return initial_field_values
 
   def form_valid(self, form):
@@ -262,16 +284,18 @@ class GenericObjectclassUpdateView(UpdateView):
       ):
         curr_object = form.save(commit=False)
         curr_object.save()
-        log_action, object_str = set_log_action_and_object_str(
-          self.model, curr_object, form.changed_data)
-        if log_action and object_str:
-          create_log_entry(
-            self.model,
-            curr_object.pk,
-            object_str,
-            log_action,
-            self.request.user
-          )
+        # loop changed data in order to create individual log entries
+        for changed_attribute in form.changed_data:
+          log_action, object_str = set_log_action_and_object_str(
+            self.model, curr_object, changed_attribute, form.cleaned_data)
+          if log_action and object_str:
+            create_log_entry(
+              self.model,
+              curr_object.pk,
+              object_str,
+              log_action,
+              self.request.user
+            )
     return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
@@ -382,7 +406,8 @@ class OrganizationDeleteView(GenericObjectclassDeleteView):
   :param deletion_hints: custom deletion hints
   """
 
-  deletion_hints = 'Es werden automatisch auch alle Ansprechpartner:innen gelöscht.'
+  deletion_hints = 'Es werden automatisch auch alle Ansprechpartner:innen-Verknüpfungen ' \
+                   'gelöscht und alle Verbindungen als Beschwerdeführerin mit Beschwerden gelöst.'
 
 
 class PersonDeleteView(GenericObjectclassDeleteView):
@@ -392,7 +417,18 @@ class PersonDeleteView(GenericObjectclassDeleteView):
   :param deletion_hints: custom deletion hints
   """
 
-  deletion_hints = 'Es werden automatisch auch alle Ansprechpartner:innen gelöscht.'
+  deletion_hints = 'Es werden automatisch auch alle Ansprechpartner:innen-Verknüpfungen ' \
+                   'gelöscht und alle Verbindungen als Beschwerdeführer:in mit Beschwerden gelöst.'
+
+
+class ComplaintDeleteView(GenericObjectclassDeleteView):
+  """
+  view for form page for deleting an instance of object class complaint
+
+  :param deletion_hints: custom deletion hints
+  """
+
+  deletion_hints = 'Es werden automatisch auch alle verknüpften Journalereignisse gelöscht.'
 
 
 class ContactCreateView(GenericObjectclassCreateView):

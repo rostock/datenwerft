@@ -3,22 +3,24 @@
 
 /**
  * @function
- * @name determineColumnDefinitions
+ * @name formatData
  *
- * determines column definitions
+ * @param {string} data - data
+ * @param {string} brReplacement - replacement character for HTML element <br>
  *
- * @param {boolean} actionLinksColumn - column with action links present?
- * @returns {Object[]} - column definitions
+ * format data for export
  */
-function determineColumnDefinitions(actionLinksColumn) {
-  let columnDefs = [];
-  if (actionLinksColumn) {
-    columnDefs = [{
-      'orderable': false,
-      'targets': -1
-    }];
+function formatData(data, brReplacement) {
+  if (data) {
+    data = data.replaceAll(/amp;/g, '');
+    // replace HTML element <br>
+    data = data.replaceAll(/<br>/g, brReplacement);
+    // strip all HTML elements
+    data = data.replace( /(<([^>]+)>)/ig, '');
+    // replace multiple whitespaces by one whitespace
+    data = data.replaceAll(/ +/g, ' ');
   }
-  return columnDefs;
+  return data.trim(); // remove any remaining whitespaces from both sides
 }
 
 /**
@@ -27,12 +29,11 @@ function determineColumnDefinitions(actionLinksColumn) {
  *
  * @param {string} dataUrl - data URL
  * @param {string} languageUrl - language URL
- * @param {boolean} actionLinksColumn - column with action links present?
  * @param {Object[]} initialOrder - initial order
  *
  * initialize data table
  */
-function initDataTable(dataUrl, languageUrl, actionLinksColumn, initialOrder) {
+function initDataTable(dataUrl, languageUrl, initialOrder) {
   $('#datasets').DataTable({
     ajax: dataUrl,
     buttons: [
@@ -40,19 +41,33 @@ function initDataTable(dataUrl, languageUrl, actionLinksColumn, initialOrder) {
         extend: 'csvHtml5',
         fieldSeparator: ';',
         exportOptions: {
-          // no export of columns marked respectively
-          columns: ':visible:not(.no-export)'
+          columns: ':visible:not(.no-export)',
+          format: {
+            body: function (data) {
+              return formatData(data, ', ' );
+            }
+          }
         }
       }, {
         extend: 'excelHtml5',
         title: '',
         exportOptions: {
-          columns: ':visible:not(.no-export)'
+          columns: ':visible:not(.no-export)',
+          format: {
+            body: function (data) {
+              return formatData(data, ', ' );
+            }
+          }
         }
       }, {
         extend: 'pdfHtml5',
         exportOptions: {
-          columns: ':visible:not(.no-export)'
+          columns: ':visible:not(.no-export)',
+          format: {
+            body: function (data) {
+              return formatData(data, '\n' );
+            }
+          }
         },
         orientation: 'landscape',
         pageSize: 'A4',
@@ -64,7 +79,10 @@ function initDataTable(dataUrl, languageUrl, actionLinksColumn, initialOrder) {
       }
     ],
     colReorder: true,
-    columnDefs: determineColumnDefinitions(actionLinksColumn),
+    columnDefs: [{
+      'orderable': false,
+      'targets': 'no-sort'
+    }],
     dom: '<Bfr<t>ilp>',
     fixedHeader: true,
     language: {

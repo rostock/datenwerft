@@ -40,9 +40,9 @@ def delete_pdf(sender, instance, **kwargs):
   :param **kwargs
   """
   if hasattr(instance, 'pdf') and instance.pdf:
-    instance.pdf.delete(False)
+    instance.pdf.delete()
   elif hasattr(instance, 'dokument') and instance.dokument:
-    instance.dokument.delete(False)
+    instance.dokument.delete()
 
 
 def delete_photo(sender, instance, **kwargs):
@@ -63,7 +63,7 @@ def delete_photo(sender, instance, **kwargs):
       except OSError:
         pass
       delete_duplicate_photos_with_other_suffixes(path)
-    instance.foto.delete(False)
+    instance.foto.delete()
 
 
 def delete_photo_after_emptied(sender, instance, created, **kwargs):

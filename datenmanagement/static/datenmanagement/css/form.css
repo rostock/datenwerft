@@ -31,6 +31,7 @@ input[name="strasse"] {
 
 #postcode-assigner.enabled,
 .add-another-field,
+.clear-field,
 .value-assigner.enabled {
   cursor: pointer;
 }

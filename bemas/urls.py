@@ -8,9 +8,10 @@ from .views.base import GenericTableDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView
-from .views.views_objectclass import ContactDeleteView, ContactCreateView, ContactUpdateView, \
-  GenericObjectclassCreateView, GenericObjectclassDeleteView, GenericObjectclassTableView, \
-  GenericObjectclassUpdateView, OrganizationDeleteView, PersonDeleteView
+from .views.views_objectclass import ComplaintDeleteView, ContactDeleteView, ContactCreateView, \
+  ContactUpdateView, GenericObjectclassCreateView, GenericObjectclassDeleteView, \
+  GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
+  PersonDeleteView
 
 router = routers.DefaultRouter()
 
@@ -333,5 +334,68 @@ for model in models:
           success_url=reverse_lazy('bemas:originator_table')
         )),
         name='originator_delete'
+      )
+    )
+
+  #
+  # views for object class complaint
+  #
+  elif model.__name__ == 'Complaint':
+
+    # table data composition for object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/tabledata',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='complaint_tabledata'
+      )
+    )
+
+    # table page for object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/table',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='complaint_table'
+      )
+    )
+
+    # form page for creating an instance of object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/create',
+        view=login_required(GenericObjectclassCreateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:complaint_table')
+        )),
+        name='complaint_create'
+      )
+    )
+
+    # form page for updating an instance of object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/update/<pk>',
+        view=login_required(GenericObjectclassUpdateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:complaint_table')
+        )),
+        name='complaint_update'
+      )
+    )
+
+    # form page for deleting an instance of object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/delete/<pk>',
+        view=login_required(ComplaintDeleteView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:complaint_table')
+        )),
+        name='complaint_delete'
       )
     )
