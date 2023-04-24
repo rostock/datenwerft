@@ -24,11 +24,10 @@
         </small>
       </h5>
       {% if deletion_hints %}
-        <h5>
-          <small>
-            <strong>Hinweis:</strong> {{ deletion_hints }}
-          </small>
-        </h5>
+        <div class="alert alert-warning" role="alert">
+          <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i>
+          {{ deletion_hints|safe }}
+        </div>
       {% endif %}
       <div class="d-grid mt-4 mb-3 gap-2 d-md-block">
         <button class="btn btn-danger" type="submit"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</button>

@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
 from django.db.models.fields import BigIntegerField, CharField, DateField, DateTimeField, TextField
+from django.db.models.signals import m2m_changed
 from django.utils import timezone
 
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
@@ -11,6 +12,7 @@ from toolbox.constants_vars import standard_validators, personennamen_validators
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
 from bemas.utils import concat_address, shorten_string
 from .base import GeometryObjectclass, Objectclass
+from .functions import store_complaint_search_content
 from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission
 
 
@@ -137,20 +139,34 @@ class Organization(Objectclass):
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field
-    contacts_str = ''
+    self.search_content = str(self)
+    # add contacts to search content if organization already exists
+    # (since before, there can be no contacts for this organization, of course)
     if self.pk:
+      contacts_str = ''
       contacts = self.contact_set.all()
       if contacts:
         for index, contact in enumerate(contacts):
-          contacts_str += ' || ' if index > 0 else ''
+          contacts_str += ' | ' if index > 0 else ''
           contacts_str += contact.name_and_function()
-    self.search_content = str(self) + (' || ' + contacts_str if contacts_str else '')
+        self.search_content += ' || ' + contacts_str
     super().save(
       force_insert=force_insert,
       force_update=force_update,
       using=using,
       update_fields=update_fields
     )
+
+  def delete(self, **kwargs):
+    # update search content in designated field of object class complaint:
+    # first, get all corresponding complaints
+    # second, remove many-to-many-relationship between each complaint and organization-to-remove
+    # (which triggers signal to update search content)
+    complaints = Complaint.objects.filter(complainers_organizations__pk=self.pk)
+    if complaints:
+      for complaint in complaints:
+        complaint.complainers_organizations.remove(self)
+    super().delete()
 
 
 class Person(Objectclass):
@@ -278,6 +294,17 @@ class Person(Objectclass):
       update_fields=update_fields
     )
 
+  def delete(self, **kwargs):
+    # update search content in designated field of object class complaint:
+    # first, get all corresponding complaints
+    # second, remove many-to-many-relationship between each complaint and person-to-remove
+    # (which triggers signal to update search content)
+    complaints = Complaint.objects.filter(complainers_persons__pk=self.pk)
+    if complaints:
+      for complaint in complaints:
+        complaint.complainers_persons.remove(self)
+    super().delete()
+
 
 class Contact(Objectclass):
   """
@@ -329,7 +356,8 @@ class Contact(Objectclass):
     return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-    # store search content in designated field of object class organization
+    # (1/2) store search content in designated field of object class organization:
+    # first get organization...
     organization = Organization.objects.get(pk=self.organization.pk)
     # store search content in designated field
     self.search_content = self.name_and_function()
@@ -339,12 +367,17 @@ class Contact(Objectclass):
       using=using,
       update_fields=update_fields
     )
+    # (2/2) store search content in designated field of object class organization:
+    # ...and then save organization since now, its contact is referenced
     organization.save()
 
   def delete(self, **kwargs):
-    # store search content in designated field of object class organization
+    # (1/2) store search content in designated field of object class organization:
+    # first get organization...
     organization = Organization.objects.get(pk=self.organization.pk)
     super().delete()
+    # (2/2) store search content in designated field of object class organization:
+    # ...and then save organization since now, its contact is unreferenced
     organization.save()
 
 
@@ -529,6 +562,8 @@ class Complaint(GeometryObjectclass):
     # store default status in designated field
     if not self.pk and Status.get_default_status():
       self.status = Status.get_default_status()
+      # store search content in designated field
+      self.search_content = 'anonyme Beschwerde'
     # on status update:
     # store timestamp of status update in designated field
     elif self.pk and self.status != Complaint.objects.get(pk=self.pk).status:
@@ -541,22 +576,14 @@ class Complaint(GeometryObjectclass):
       using=using,
       update_fields=update_fields
     )
-    # store search content in designated field
-    complainers_str = ''
-    complaint = Complaint.objects.latest()
-    complainers_organizations = complaint.complainers_organizations.all()
-    if complainers_organizations:
-      for index, complainer_organization in enumerate(complainers_organizations):
-        complainers_str += ' || ' if index > 0 else ''
-        complainers_str += str(complainer_organization)
-    complainers_persons = complaint.complainers_persons.all()
-    if complainers_persons:
-      for index, complainer_person in enumerate(complainers_persons):
-        complainers_str += ' || ' if index > 0 or complainers_organizations else ''
-        complainers_str += str(complainer_person)
-    complaint.search_content = str(complaint) + ' || ' + (
-      complainers_str if complainers_str else 'anonyme Beschwerde')
-    complaint.save()
+
+
+# extend search content in designated field
+# (via signal since the many-to-many-relationship is needed here)
+m2m_changed.connect(
+  store_complaint_search_content, sender=Complaint.complainers_organizations.through)
+m2m_changed.connect(
+  store_complaint_search_content, sender=Complaint.complainers_persons.through)
 
 
 class Event(Objectclass):
@@ -621,9 +648,12 @@ class Event(Objectclass):
     return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + \
            (' (' + shorten_string(self.description) + ')' if self.description else '')
 
+  def type_of_event_and_complaint(self):
+    return str(self.type_of_event) + ' (Beschwerde: ' + str(self.complaint) + ')'
+
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field
-    self.search_content = str(self)
+    self.search_content = self.type_of_event_and_complaint()
     super().save(
       force_insert=force_insert,
       force_update=force_update,
@@ -649,6 +679,8 @@ class LogEntry(Objectclass):
   object_str = CharField(
     'Objekt',
     max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   action = CharField(
@@ -677,3 +709,14 @@ class LogEntry(Objectclass):
 
   def __str__(self):
     return '#' + str(self.id)
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # force object string to be NULL
+    if self.object_str == '/':
+      self.object_str = None
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )

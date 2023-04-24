@@ -8,9 +8,10 @@ from .views.base import GenericTableDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView
-from .views.views_objectclass import ContactDeleteView, ContactCreateView, ContactUpdateView, \
-  GenericObjectclassCreateView, GenericObjectclassDeleteView, GenericObjectclassTableView, \
-  GenericObjectclassUpdateView, OrganizationDeleteView, PersonDeleteView
+from .views.views_objectclass import ComplaintDeleteView, ContactDeleteView, ContactCreateView, \
+  ContactUpdateView, GenericObjectclassCreateView, GenericObjectclassDeleteView, \
+  GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
+  PersonDeleteView
 
 router = routers.DefaultRouter()
 
@@ -391,7 +392,7 @@ for model in models:
     urlpatterns.append(
       path(
         'complaint/delete/<pk>',
-        view=login_required(GenericObjectclassDeleteView.as_view(
+        view=login_required(ComplaintDeleteView.as_view(
           model=model,
           success_url=reverse_lazy('bemas:complaint_table')
         )),

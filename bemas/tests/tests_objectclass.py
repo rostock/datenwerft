@@ -1,7 +1,8 @@
 from bemas.models import Complaint, Contact, Event, Organization, Originator, Person, Sector, \
-  TypeOfEvent, TypeOfImmission
+  Status, TypeOfEvent, TypeOfImmission
 from .base import DefaultManyToManyTestCase, DefaultModelTestCase, DefaultViewTestCase
-from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS, VALID_POINT_DB, VALID_POINT_VIEW
+from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS, VALID_DATE, VALID_POINT_DB, \
+  VALID_POINT_VIEW
 
 
 #
@@ -329,12 +330,15 @@ class OriginatorModelTest(DefaultModelTestCase):
   @classmethod
   def setUpTestData(cls):
     sector = Sector.objects.first()
-    operator = Organization.objects.create(
+    operator1 = Organization.objects.create(
       name='OqEGVai4'
+    )
+    operator2 = Organization.objects.create(
+      name='PFqzwRF9'
     )
     cls.attributes_values_db_initial = {
       'sector': sector,
-      'operator': operator,
+      'operator': operator1,
       'description': 'd1ZpOwn8',
       'emission_point': VALID_POINT_DB
     }
@@ -343,13 +347,13 @@ class OriginatorModelTest(DefaultModelTestCase):
     }
     cls.attributes_values_view_initial = {
       'sector': str(sector.pk),
-      'operator': str(operator.pk),
+      'operator': str(operator1.pk),
       'description': 's2fpbQ9n',
       'emission_point': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'sector': str(sector.pk),
-      'operator': str(operator.pk),
+      'operator': str(operator2.pk),
       'description': 'x4O4uocT',
       'emission_point': VALID_POINT_VIEW
     }
@@ -385,7 +389,7 @@ class OriginatorModelTest(DefaultModelTestCase):
   def test_view_update_success(self):
     self.generic_crud_view_test(
       True, True, False, 'originator_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1
+      302, 'text/html; charset=utf-8', '', 1, 'updated_operator'
     )
 
   def test_view_update_error(self):
@@ -450,6 +454,8 @@ class ComplaintModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
+    status1 = Status.objects.first()
+    status2 = Status.objects.latest()
     type_of_immission = TypeOfImmission.objects.first()
     sector = Sector.objects.first()
     operator = Organization.objects.create(
@@ -462,6 +468,7 @@ class ComplaintModelTest(DefaultModelTestCase):
       emission_point=VALID_POINT_DB
     )
     cls.attributes_values_db_initial = {
+      'status': status1,
       'type_of_immission': type_of_immission,
       'immission_point': VALID_POINT_DB,
       'originator': originator,
@@ -471,12 +478,16 @@ class ComplaintModelTest(DefaultModelTestCase):
       'description': 'zt9auXPa'
     }
     cls.attributes_values_view_initial = {
+      'date_of_receipt': VALID_DATE,
+      'status': str(status1.pk),
       'type_of_immission': str(type_of_immission.pk),
       'immission_point': VALID_POINT_VIEW,
       'originator': str(originator.pk),
       'description': 'kUcRCEq7'
     }
     cls.attributes_values_view_updated = {
+      'date_of_receipt': VALID_DATE,
+      'status': str(status2.pk),
       'type_of_immission': str(type_of_immission.pk),
       'immission_point': VALID_POINT_VIEW,
       'originator': str(originator.pk),
@@ -514,7 +525,7 @@ class ComplaintModelTest(DefaultModelTestCase):
   def test_view_update_success(self):
     self.generic_crud_view_test(
       True, True, False, 'complaint_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1
+      302, 'text/html; charset=utf-8', '', 1, 'updated_status'
     )
 
   def test_view_update_error(self):
@@ -527,6 +538,45 @@ class ComplaintModelTest(DefaultModelTestCase):
     self.generic_crud_view_test(
       True, True, False, 'complaint_delete', self.attributes_values_view_updated,
       302, 'text/html; charset=utf-8', '', 0, 'deleted'
+    )
+
+
+class ComplaintViewsTest(DefaultViewTestCase):
+  """
+  views test class for object class complaint (Beschwerde)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'ok'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'complaint_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_table', None,
+      200, 'text/html; charset=utf-8', 'vorhanden'
+    )
+
+  def test_create_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'complaint_create', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_create_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_create', None,
+      200, 'text/html; charset=utf-8', 'neue'
     )
 
 
