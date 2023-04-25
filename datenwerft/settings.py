@@ -207,6 +207,7 @@ BEMAS_ICONS = {
   'delete': 'trash',
   'error': 'circle-exclamation',
   # 'event': 'paperclip',
+  'info': 'circle-info',
   # 'log': 'clock-rotate-left',
   # 'map': 'map',
   # 'new': 'plus',

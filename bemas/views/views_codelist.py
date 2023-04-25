@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .forms import GenericForm
 from .functions import add_codelist_context_elements, add_default_context_elements, \
   add_table_context_elements, add_user_agent_context_elements, assign_widget, \
-  generate_protected_objects_list
+  generate_foreign_key_objects_list
 
 
 class CodelistTableView(TemplateView):
@@ -191,6 +191,7 @@ class CodelistDeleteView(DeleteView):
         'Der Codelisteneintrag ' + self.model._meta.verbose_name +
         ' <strong><em>' + str(self.object) +
         '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
-        'noch auf ihn:<br><br>' + generate_protected_objects_list(exception.protected_objects)
+        'noch auf ihn:<br><br>' +
+        generate_foreign_key_objects_list(exception.protected_objects, True)
       )
       return self.render_to_response(self.get_context_data(form=form))

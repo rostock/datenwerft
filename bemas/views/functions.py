@@ -4,7 +4,7 @@ from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
-from bemas.models import Codelist, GeometryObjectclass, Complaint, LogEntry, Originator
+from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, LogEntry, Originator
 from bemas.utils import get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
 
@@ -212,6 +212,40 @@ def create_log_entry(model, object_pk, object_str, action, user):
   )
 
 
+def generate_foreign_key_objects_list(foreign_key_objects, with_target_model=False,
+                                      formation_hint=None):
+  """
+  generates an HTML list of given foreign key objects and returns it
+
+  :param foreign_key_objects: foreign key objects
+  :param with_target_model: include target model in list entries?
+  :param formation_hint: formation hint
+  :return: HTML list of given foreign key objects
+  """
+  object_list = ''
+  for foreign_key_object in foreign_key_objects:
+    object_list += ('<li>' if len(foreign_key_objects) > 1 else '')
+    object_list += '<strong><em>'
+    if issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'person':
+      object_list += foreign_key_object.name_and_function()
+    elif issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'organization':
+      object_list += str(foreign_key_object.organization)
+    else:
+      object_list += str(foreign_key_object)
+    object_list += '</em></strong>'
+    if with_target_model:
+      if issubclass(foreign_key_object.__class__, Codelist):
+        object_list += ' aus Codeliste '
+      else:
+        object_list += ' aus Objektklasse '
+      object_list += '<strong>' + foreign_key_object._meta.verbose_name_plural + '</strong>'
+    object_list += ('</li>' if len(foreign_key_objects) > 1 else '')
+  if len(foreign_key_objects) > 1:
+    return '<ul class="object_list">' + object_list + '</ul>'
+  else:
+    return object_list
+
+
 def generate_foreign_key_link(foreign_key_field, source_object, link_text=None):
   """
   generates a foreign key link by means of given foreign key field and source object and returns it
@@ -245,29 +279,6 @@ def generate_foreign_key_link_simplified(target_model, target_object, link_text=
     reverse('bemas:' + target_model_name + '_update', args=[target_object.pk]) + \
     '" title="' + target_model._meta.verbose_name + ' bearbeiten">' + \
     icon + ' ' + link_text + '</a>'
-
-
-def generate_protected_objects_list(protected_objects):
-  """
-  generates an HTML list of given protected objects and returns it
-
-  :param protected_objects: protected objects
-  :return: HTML list of given protected objects
-  """
-  object_list = ''
-  for protected_object in protected_objects:
-    object_list += ('<li>' if len(protected_objects) > 1 else '')
-    object_list += '<strong><em>' + str(protected_object) + '</em></strong> '
-    if issubclass(protected_object.__class__, Codelist):
-      object_list += 'aus Codeliste '
-    else:
-      object_list += 'aus Objektklasse '
-    object_list += '<strong>' + protected_object._meta.verbose_name_plural + '</strong>'
-    object_list += ('</li>' if len(protected_objects) > 1 else '')
-  if len(protected_objects) > 1:
-    return '<ul class="error_object_list">' + object_list + '</ul>'
-  else:
-    return object_list
 
 
 def set_generic_objectclass_create_update_delete_context(context, request, model, cancel_url,
