@@ -555,7 +555,7 @@ class Complaint(GeometryObjectclass):
     new = 'neue'
 
   def __str__(self):
-    return '#' + str(self.id)
+    return '#' + str(self.id) + ' (Status: ' + str(self.status) + ')'
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # on creation:

@@ -7,7 +7,7 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Complaint, Contact, Organization, Originator, Person
+from bemas.models import Codelist, Complaint, Contact, Organization, Person
 from bemas.utils import get_foreign_key_target_model, get_icon_from_settings, is_bemas_admin, \
   is_bemas_user, is_geometry_field
 from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified

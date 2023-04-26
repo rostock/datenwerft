@@ -60,7 +60,7 @@
     {% endif %}
     {% if objectclass_name == 'Organization' and object %}
       <div class="alert alert-primary" role="alert">
-        <h5 class="alert-heading">Ansprechpartner:in(nen)</h5>
+        <h5 class="alert-heading"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in(nen)</h5>
         {% if contacts %}
           <ul>
             {% for contact in contacts %}
