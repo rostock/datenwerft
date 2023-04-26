@@ -200,9 +200,13 @@ def create_log_entry(model, object_pk, object_str, action, user):
   :param action: action
   :param user: user
   """
-  user_string = (
-    user.first_name + ' ' + user.last_name if user.first_name and user.last_name else user.username
-  )
+  if isinstance(user, str):
+    user_string = user
+  else:
+    if user.first_name and user.last_name:
+      user_string = user.first_name + ' ' + user.last_name
+    else:
+      user_string = user.username
   LogEntry.objects.create(
     model=model.__name__,
     object_pk=object_pk,
