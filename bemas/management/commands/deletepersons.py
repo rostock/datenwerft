@@ -29,9 +29,9 @@ class Command(BaseCommand):
       id__in=con_ps_ids).exclude(id__in=act_cpls_ps_ids)
     num_deleted = 0
     for person_delete in persons_delete:
-      object_pk, object_str = person_delete.pk, str(person_delete)
+      object_pk, content = person_delete.pk, str(person_delete)
       person_delete.delete()
-      create_log_entry(Person, object_pk, object_str, 'deleted', 'System')
+      create_log_entry(Person, object_pk, 'deleted', content, 'System')
       num_deleted += 1
     self.stdout.write(
       self.style.SUCCESS(

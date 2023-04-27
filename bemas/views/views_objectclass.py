@@ -8,12 +8,12 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import GeometryObjectclass, Complaint, Contact, Organization, Originator, \
-  Person, Status
+from bemas.models import GeometryObjectclass, Complaint, Contact, LogEntry, Organization, \
+  Originator, Person, Status
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, assign_widget, create_log_entry, generate_foreign_key_objects_list, \
-  set_generic_objectclass_create_update_delete_context, set_log_action_and_object_str
+  set_generic_objectclass_create_update_delete_context, set_log_action_and_content
 from bemas.utils import shorten_string
 
 
@@ -38,7 +38,7 @@ class GenericObjectclassTableView(TemplateView):
     # add default elements to context
     context = add_default_context_elements(context, self.request.user)
     # add table related elements to context
-    context = add_table_context_elements(context, self.model)
+    context = add_table_context_elements(context, self.model, self.kwargs)
     # add other necessary elements to context
     context = add_generic_objectclass_context_elements(context, self.model)
     return context
@@ -138,8 +138,8 @@ class GenericObjectclassCreateView(CreateView):
       create_log_entry(
         self.model,
         curr_object.pk,
-        str(curr_object),
         'created',
+        str(curr_object),
         self.request.user
       )
     return super().form_valid(form)
@@ -197,6 +197,12 @@ class GenericObjectclassUpdateView(UpdateView):
       self.cancel_url,
       self.object
     )
+    # optionally add log entries link
+    if not issubclass(self.model, LogEntry):
+      context['objectclass_logentry_url'] = reverse(
+        'bemas:logentry_table_model_object',
+        args=[self.model.__name__, self.object.pk]
+      )
     # object class organization:
     # optionally add list of contacts to context
     if issubclass(self.model, Organization):
@@ -286,14 +292,14 @@ class GenericObjectclassUpdateView(UpdateView):
         curr_object.save()
         # loop changed data in order to create individual log entries
         for changed_attribute in form.changed_data:
-          log_action, object_str = set_log_action_and_object_str(
+          log_action, content = set_log_action_and_content(
             self.model, curr_object, changed_attribute, form.cleaned_data)
-          if log_action and object_str:
+          if log_action and content:
             create_log_entry(
               self.model,
               curr_object.pk,
-              object_str,
               log_action,
+              content,
               self.request.user
             )
     return super().form_valid(form)
@@ -346,6 +352,12 @@ class GenericObjectclassDeleteView(DeleteView):
       self.model,
       self.cancel_url
     )
+    # optionally add log entries link
+    if not issubclass(self.model, LogEntry):
+      context['objectclass_logentry_url'] = reverse(
+        'bemas:logentry_table_model_object',
+        args=[self.model.__name__, self.object.pk]
+      )
     # optionally add custom deletion hints (shown as text to user) to context
     if self.deletion_hints:
       context['deletion_hints'] = self.deletion_hints
@@ -360,7 +372,7 @@ class GenericObjectclassDeleteView(DeleteView):
     """
     success_url = self.get_success_url()
     try:
-      object_pk, object_str = self.object.pk, str(self.object)
+      object_pk, content = self.object.pk, str(self.object)
       self.object.delete()
       success(
         self.request,
@@ -382,8 +394,8 @@ class GenericObjectclassDeleteView(DeleteView):
         create_log_entry(
           self.model,
           object_pk,
-          object_str,
           'deleted',
+          content,
           self.request.user
         )
       return HttpResponseRedirect(success_url)
