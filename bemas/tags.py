@@ -1,9 +1,24 @@
 from django import template
+from django.apps import apps
 from django.template.defaultfilters import stringfilter
 
 from bemas.utils import get_icon_from_settings, is_geometry_field
 
 register = template.Library()
+
+
+@register.filter
+def beautify_model_string(model_name):
+  """
+  checks if given field is a geometry related field
+
+  :param model_name: model name
+  :return: given field is a geometry related field?
+  """
+  icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model_name.lower()))
+  model = apps.get_app_config('bemas').get_model(model_name)
+  model_title = model._meta.verbose_name_plural
+  return icon + ' ' + model_title
 
 
 @register.filter

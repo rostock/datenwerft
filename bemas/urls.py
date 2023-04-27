@@ -399,3 +399,78 @@ for model in models:
         name='complaint_delete'
       )
     )
+
+  #
+  # views for object class log entry
+  #
+  elif model.__name__ == 'LogEntry':
+
+    # table data composition for object class log entry
+    urlpatterns.append(
+      path(
+        'logentry/tabledata',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='logentry_tabledata'
+      )
+    )
+
+    # table data composition for object class log entry:
+    # filter by model
+    urlpatterns.append(
+      path(
+        'logentry/tabledata/<model>',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='logentry_tabledata_model'
+      )
+    )
+
+    # table data composition for object class log entry:
+    # filter by model and object
+    urlpatterns.append(
+      path(
+        'logentry/tabledata/<model>/<object_pk>',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='logentry_tabledata_model_object'
+      )
+    )
+
+    # table page for object class log entry
+    urlpatterns.append(
+      path(
+        'logentry/table',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='logentry_table'
+      )
+    )
+
+    # table page for object class log entry:
+    # filter by model
+    urlpatterns.append(
+      path(
+        'logentry/table/<model>',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='logentry_table_model'
+      )
+    )
+
+    # table page for object class log entry:
+    # filter by model and object
+    urlpatterns.append(
+      path(
+        'logentry/table/<model>/<object_pk>',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='logentry_table_model_object'
+      )
+    )

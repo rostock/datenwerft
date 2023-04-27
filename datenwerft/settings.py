@@ -208,7 +208,7 @@ BEMAS_ICONS = {
   'error': 'circle-exclamation',
   # 'event': 'paperclip',
   'info': 'circle-info',
-  # 'log': 'clock-rotate-left',
+  'logentry': 'clock-rotate-left',
   # 'map': 'map',
   # 'new': 'plus',
   'ok': 'circle-check',

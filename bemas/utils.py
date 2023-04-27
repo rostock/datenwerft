@@ -6,13 +6,13 @@ from django.contrib.gis.forms.fields import PointField as FormPointField
 LOG_ACTIONS = {
   'created': 'neu angelegt',
   'deleted': 'gelöscht',
-  'updated_complainers_organizations': 'Beschwerdeführerin(nen) geändert auf: <em>{}</em>',
+  'updated_complainers_organizations': 'Beschwerdeführerin(nen) geändert',
   'cleared_complainers_organizations': 'alle Beschwerdeführerin(nen) entfernt',
-  'updated_complainers_persons': 'Beschwerdeführer:in(nen) geändert auf: <em>{}</em>',
+  'updated_complainers_persons': 'Beschwerdeführer:in(nen) geändert',
   'cleared_complainers_persons': 'alle Beschwerdeführer:in(nen) entfernt',
-  'updated_operator': 'Betreiberin geändert auf: <em>{}</em>',
-  'updated_originator': 'Verursacher geändert auf: <em>{}</em>',
-  'updated_status': 'Bearbeitungsstatus geändert auf: <em>{}</em>'
+  'updated_operator': 'Betreiberin geändert',
+  'updated_originator': 'Verursacher geändert',
+  'updated_status': 'Bearbeitungsstatus geändert'
 }
 
 

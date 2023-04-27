@@ -1,4 +1,5 @@
 from datetime import date
+from django.apps import apps
 from django.contrib.gis.db.models.fields import PointField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
@@ -10,7 +11,7 @@ from django.utils import timezone
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
-from bemas.utils import concat_address, shorten_string
+from bemas.utils import LOG_ACTIONS, concat_address, shorten_string
 from .base import GeometryObjectclass, Objectclass
 from .functions import store_complaint_search_content
 from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission
@@ -668,6 +669,12 @@ class LogEntry(Objectclass):
   model class for object class log entry (Eintrag im Bearbeitungsverlauf)
   """
 
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   model = CharField(
     'Objektklasse',
     max_length=255,
@@ -677,16 +684,16 @@ class LogEntry(Objectclass):
     'ID des Objekts',
     editable=False
   )
-  object_str = CharField(
-    'Objekt',
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   action = CharField(
     'Aktion',
     max_length=255,
+    editable=False
+  )
+  content = CharField(
+    'Inhalt',
+    max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   user = CharField(
@@ -697,7 +704,7 @@ class LogEntry(Objectclass):
 
   class Meta(Objectclass.Meta):
     db_table = 'logentry'
-    ordering = ['id']
+    ordering = ['-id']
     verbose_name = 'Eintrag im Bearbeitungsverlauf'
     verbose_name_plural = 'Einträge im Bearbeitungsverlauf'
 
@@ -713,8 +720,11 @@ class LogEntry(Objectclass):
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # force object string to be NULL
-    if self.object_str == '/':
-      self.object_str = None
+    if self.content == '/':
+      self.content = None
+    # store search content in designated field
+    model_title = apps.get_app_config('bemas').get_model(self.model)._meta.verbose_name_plural
+    self.search_content = model_title + ' || ' + LOG_ACTIONS[self.action]
     super().save(
       force_insert=force_insert,
       force_update=force_update,

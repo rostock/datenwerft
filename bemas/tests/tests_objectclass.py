@@ -734,3 +734,30 @@ class EventModelTest(DefaultModelTestCase):
 
   def test_delete(self):
     self.generic_delete_test()
+
+
+class LogEntryViewsTest(DefaultViewTestCase):
+  """
+  views test class for object class log entry (Eintrag im Bearbeitungsverlauf)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_tabledata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'logentry_tabledata', TABLEDATA_VIEW_PARAMS, 200,
+      'application/json', 'ok'
+    )
+
+  def test_table_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'logentry_table', None,
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_table_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'logentry_table', None,
+      200, 'text/html; charset=utf-8', 'vorhanden'
+    )

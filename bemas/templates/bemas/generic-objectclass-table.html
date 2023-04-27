@@ -30,13 +30,18 @@
     {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name_plural }}</em></h2>
     <h4><small>{{ objectclass_description }}</small></h4>
+    {% if logentry_url %}
+      <a href="{{ logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
+    {% endif %}
     {% if objects_count == 0 %}
       <h4 class="mt-3">
         <em>Keine {{ objectclass_verbose_name_plural }} vorhanden!</em>
       </h4>
     {% endif %}
     <div class="d-grid mt-5 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-      <a class="btn btn-primary" role="button" href="{{ objectclass_creation_url }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
+      {% if objectclass_creation_url %}
+        <a class="btn btn-primary" role="button" href="{{ objectclass_creation_url }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> {{ objectclass_new }} {{ objectclass_verbose_name }} anlegen</a>
+      {% endif %}
       {% if objectclass_name == 'Organization' %}
         <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       {% endif %}
@@ -44,6 +49,12 @@
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
+        {% if objectclass_name == 'LogEntry' and model %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Es werden <strong><em>nicht alle</em></strong> {{ objectclass_verbose_name_plural }} in der Tabelle gelistet, sondern nur diejenigen{% if object_pk %} des Objektes mit der ID <strong><em>{{ object_pk }}</em></strong>{% endif %} der Objektklasse <strong><em>{{ model|beautify_model_string|safe }}!</em></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endif %}
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
           <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren {{ objectclass_verbose_name_plural }} <strong><em>unten links</em></strong> steuerbar
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -59,7 +70,9 @@
               {% elif objectclass_name == 'Complaint' %}
                 <th class="no-sort">Beschwerdeführung</th>
               {% endif %}
-              <th class="no-sort no-export">Aktionen</th>
+              {% if objectclass_creation_url %}
+                <th class="no-sort no-export">Aktionen</th>
+              {% endif %}
             </tr>
           </thead>
         </table>

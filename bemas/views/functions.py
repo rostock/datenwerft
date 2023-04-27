@@ -65,19 +65,21 @@ def add_generic_objectclass_context_elements(context, model):
   context['objectclass_description'] = model.BasemodelMeta.description
   context['objectclass_definite_article'] = model.BasemodelMeta.definite_article
   context['objectclass_new'] = model.BasemodelMeta.new
-  context['objectclass_creation_url'] = reverse('bemas:' + model.__name__.lower() + '_create')
+  if not issubclass(model, LogEntry):
+    context['objectclass_creation_url'] = reverse('bemas:' + model.__name__.lower() + '_create')
   return context
 
 
-def add_table_context_elements(context, model):
+def add_table_context_elements(context, model, kwargs=None):
   """
   adds table related elements to a context and returns it
 
   :param context: context
   :param model: model
+  :param kwargs: view kwargs
   :return: context with table related elements added
   """
-  context['objects_count'] = model.objects.count()
+  context['objects_count'] = get_model_objects(model, True, kwargs)
   column_titles = []
   address_handled = False
   for field in model._meta.fields:
@@ -111,10 +113,28 @@ def add_table_context_elements(context, model):
           break
       initial_order.append([order_index, order_direction])
   context['initial_order'] = initial_order
-  prefix = 'codelists_' if issubclass(model, Codelist) else ''
-  context['tabledata_url'] = reverse(
-    'bemas:' + prefix + model.__name__.lower() + '_tabledata'
-  )
+  if issubclass(model, Codelist):
+    context['tabledata_url'] = reverse('bemas:codelists_' + model.__name__.lower() + '_tabledata')
+  else:
+    if (
+        'model' in kwargs
+        and kwargs['model']
+        and 'object_pk' in kwargs
+        and kwargs['object_pk']
+    ):
+      context['tabledata_url'] = reverse(
+        'bemas:' + model.__name__.lower() + '_tabledata_model_object',
+        args=[kwargs['model'], kwargs['object_pk']]
+      )
+    elif 'model' in kwargs and kwargs['model']:
+      context['tabledata_url'] = reverse(
+        'bemas:' + model.__name__.lower() + '_tabledata_model',
+        args=[kwargs['model']]
+      )
+    else:
+      context['tabledata_url'] = reverse('bemas:' + model.__name__.lower() + '_tabledata')
+  if not issubclass(model, LogEntry):
+    context['logentry_url'] = reverse('bemas:logentry_table_model', args=[model.__name__])
   return context
 
 
@@ -190,14 +210,14 @@ def assign_widget(field):
   return form_field
 
 
-def create_log_entry(model, object_pk, object_str, action, user):
+def create_log_entry(model, object_pk, action, content, user):
   """
   creates new log entry based on given affected model, affected (target) object, action and user
 
   :param model: affected model
   :param object_pk: affected object id
-  :param object_str: string representation of affected object (target object in some cases)
   :param action: action
+  :param content: content
   :param user: user
   """
   if isinstance(user, str):
@@ -210,8 +230,8 @@ def create_log_entry(model, object_pk, object_str, action, user):
   LogEntry.objects.create(
     model=model.__name__,
     object_pk=object_pk,
-    object_str=object_str,
     action=action,
+    content=content,
     user=user_string
   )
 
@@ -275,6 +295,38 @@ def generate_foreign_key_link_simplified(target_model, target_object, link_text=
     icon + ' ' + link_text + '</a>'
 
 
+def get_model_objects(model, count=False, kwargs=None):
+  """
+  either gets all objects of given model and returns them
+  or counts objects of given model and returns the count
+
+  :param model: model
+  :param kwargs: view kwargs
+  :param count: return objects count instead of objects?
+  :return: either all objects of given model or objects count of given model
+  """
+  if (
+      issubclass(model, LogEntry)
+      and kwargs
+      and 'model' in kwargs
+      and kwargs['model']
+      and 'object_pk' in kwargs
+      and kwargs['object_pk']
+  ):
+    objects = model.objects.filter(
+      model=kwargs['model'], object_pk=kwargs['object_pk'])
+  elif (
+      issubclass(model, LogEntry)
+      and kwargs
+      and 'model' in kwargs
+      and kwargs['model']
+  ):
+    objects = model.objects.filter(model=kwargs['model'])
+  else:
+    objects = model.objects.all()
+  return objects.count() if count else objects
+
+
 def set_generic_objectclass_create_update_delete_context(context, request, model, cancel_url,
                                                          curr_object=None):
   """
@@ -312,18 +364,18 @@ def set_generic_objectclass_create_update_delete_context(context, request, model
   return context
 
 
-def set_log_action_and_object_str(model, curr_object, changed_attribute, cleaned_data=None):
+def set_log_action_and_content(model, curr_object, changed_attribute, cleaned_data=None):
   """
-  sets action and string representation of affected object (target object in some cases)
-  for a new log entry, based on given model, object and changed data attribute, and returns them
+  sets action and content of affected object for a new log entry,
+  based on given model, object and changed data attribute, and returns them
 
   :param model: model
   :param curr_object: object
   :param changed_attribute: changed data attribute
   :param cleaned_data: cleaned form data
   (if many-to-many-relationships where changed, the new data is only found in here)
-  :return: action and string representation of affected object (target object in some cases)
-  for a new log entry, based on given model, object and changed data attribute
+  :return: action and content of affected object for a new log entry,
+  based on given model, object and changed data attribute
   """
   if issubclass(model, Complaint):
     if changed_attribute == 'originator':

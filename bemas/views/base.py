@@ -1,4 +1,5 @@
 from datetime import date, datetime, timezone
+from django.apps import apps
 from django.conf import settings
 from django.db.models import ForeignKey, Q
 from django.urls import reverse
@@ -7,10 +8,11 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Complaint, Contact, Organization, Person
-from bemas.utils import get_foreign_key_target_model, get_foreign_key_target_object, \
+from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Person
+from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
-from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified
+from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified, \
+  get_model_objects
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -22,6 +24,9 @@ class GenericTableDataView(BaseDatatableView):
     self.model = model
     self.columns = self.model._meta.fields
     super().__init__(*args, **kwargs)
+
+  def get_initial_queryset(self):
+    return get_model_objects(self.model, False, self.kwargs)
 
   def prepare_results(self, qs):
     """
@@ -45,8 +50,36 @@ class GenericTableDataView(BaseDatatableView):
           if not is_geometry_field(column.__class__) and not column.name == 'search_content':
             data = None
             value = getattr(item, column.name)
+            # log entry specific column "model"
+            if issubclass(self.model, LogEntry) and column.name == 'model':
+              # generate appropriate text (link in most cases)
+              model = apps.get_app_config('bemas').get_model(value)
+              model_name = model.__name__.lower()
+              model_title = model._meta.verbose_name_plural
+              icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model_name))
+              text = icon + ' ' + model_title
+              if value != 'Contact':
+                text = '<a href="' + reverse('bemas:' + model_name + '_table') + \
+                       '" title="Tabelle anzeigen">' + text + '</a>'
+              item_data.append(text)
+            # log entry specific column "object_pk"
+            elif issubclass(self.model, LogEntry) and column.name == 'object_pk':
+              # generate appropriate link (if target object exists)
+              model = apps.get_app_config('bemas').get_model(item.model)
+              model_name = model.__name__.lower()
+              text = str(value)
+              if model.objects.filter(pk=value).exists():
+                text = '<a href="' + reverse('bemas:' + model_name + '_update', args=[value]) + \
+                       '" title="Objekt bearbeiten">' + text + '</a>'
+              item_data.append(text)
+            # log entry specific column "action"
+            elif issubclass(self.model, LogEntry) and column.name == 'action':
+              item_data.append(LOG_ACTIONS[value])
+            # log entry specific column "content"
+            elif issubclass(self.model, LogEntry) and column.name == 'content' and value:
+              item_data.append('<em>' + value + '</em>')
             # foreign key columns
-            if issubclass(column.__class__, ForeignKey):
+            elif issubclass(column.__class__, ForeignKey):
               # foreign key to object class:
               # generate appropriate foreign key links
               if not issubclass(get_foreign_key_target_model(column), Codelist):
@@ -122,24 +155,37 @@ class GenericTableDataView(BaseDatatableView):
           item_data.append(data)
         # append links for updating and deleting
         if (
-            not issubclass(self.model, Codelist)
-            or is_bemas_admin(self.request.user)
-            or self.request.user.is_superuser
+            (
+                issubclass(self.model, Codelist)
+                and (
+                    is_bemas_admin(self.request.user)
+                    or self.request.user.is_superuser
+                )
+            )
+            or not issubclass(self.model, LogEntry)
         ):
           view_name_prefix = self.model.__name__.lower()
-          title = self.model._meta.verbose_name
           if issubclass(self.model, Codelist):
             view_name_prefix = 'codelists_' + view_name_prefix
             title = 'Codelisteneintrag'
+            log_entry_link = ''
+          else:
+            title = self.model._meta.verbose_name
+            log_entry_link = reverse(
+              'bemas:logentry_table_model_object', args=[self.model.__name__, item_pk])
+            log_entry_link += '"><i class="fas fa-' + get_icon_from_settings('logentry') + \
+                              '" title="Einträge im Bearbeitungsverlauf anzeigen"></i></a>'
           item_data.append(
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('update') +
             '" title="' + title + ' bearbeiten"></i></a>' +
-            '<a class="ms-3" href="' +
+            '<a class="ms-2" href="' +
             reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('delete') +
-            '" title="' + title + ' löschen"></i></a>'
+            '" title="' + title + ' löschen"></i></a>' +
+            '<a class="ms-2" href="' +
+            log_entry_link
           )
         json_data.append(item_data)
     return json_data
