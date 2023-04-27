@@ -192,6 +192,6 @@ class CodelistDeleteView(DeleteView):
         ' <strong><em>' + str(self.object) +
         '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
         'noch auf ihn:<br><br>' +
-        generate_foreign_key_objects_list(exception.protected_objects, True)
+        generate_foreign_key_objects_list(exception.protected_objects)
       )
       return self.render_to_response(self.get_context_data(form=form))

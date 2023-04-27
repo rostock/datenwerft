@@ -555,13 +555,14 @@ class Complaint(GeometryObjectclass):
     new = 'neue'
 
   def __str__(self):
-    return '#' + str(self.id)
+    return '#' + str(self.id) + ' (Status: ' + str(self.status) + ')'
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # on creation:
-    # store default status in designated field
     if not self.pk and Status.get_default_status():
-      self.status = Status.get_default_status()
+      # store default status in designated field
+      if not hasattr(self, 'status'):
+        self.status = Status.get_default_status()
       # store search content in designated field
       self.search_content = 'anonyme Beschwerde'
     # on status update:

@@ -110,6 +110,14 @@ Konfigurationsdatei des *Apache HTTP Servers* öffnen und in etwa folgenden Inha
           Require all granted
         </Directory>
 
+## Cronjobs
+
+Für die App *BEMAS* kann optional ein Cronjob eingerichtet werden, der folgenden Befehl ausführt:
+
+        python manage.py deletepersons
+
+Dieser Befehl führt dazu, dass alle Personen gelöscht werden, die nicht als Ansprechpartner:innen mit Organisationen verknüpft sind und die als Beschwerdeführer:innen nur noch mit Beschwerden verknüpft sind, die seit `BEMAS_STATUS_CHANGE_DEADLINE_DAYS` (siehe `secrets.template`) abgeschlossen sind.
+
 ## Entwicklung
 
 ### Grundsätzliches

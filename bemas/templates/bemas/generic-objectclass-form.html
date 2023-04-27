@@ -56,11 +56,11 @@
           {{ error }}
         </div>
       {% endfor %}
-      <div class="mb-4"></div>
     {% endif %}
+    <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
     {% if objectclass_name == 'Organization' and object %}
-      <div class="alert alert-primary" role="alert">
-        <h5 class="alert-heading">Ansprechpartner:in(nen)</h5>
+      <div class="alert alert-primary mt-4" role="alert">
+        <h5 class="alert-heading"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in(nen)</h5>
         {% if contacts %}
           <ul>
             {% for contact in contacts %}
@@ -75,9 +75,8 @@
         <hr>
         <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}?organization={{ object.pk }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       </div>
-      <div class="mb-4"></div>
     {% endif %}
-    <form class="form" method="post" action="">
+    <form class="form mt-4" method="post" action="">
       {% csrf_token %}
       <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
         <table class="table">

@@ -52,7 +52,7 @@
           <thead>
             <tr>
               {% for column_title in column_titles %}
-                <th{% if column_title == 'Betreiberin' or column_title == 'E-Mail-Adresse(n)' or column_title == 'Telefonnummer(n)' or column_title == 'Verursacher' %} class="no-sort"{% endif %}>{{ column_title }}</th>
+                <th>{{ column_title }}</th>
               {% endfor %}
               {% if objectclass_name == 'Organization' %}
                 <th class="no-sort">Ansprechpartner:in(nen)</th>

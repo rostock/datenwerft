@@ -394,7 +394,7 @@ class GenericObjectclassDeleteView(DeleteView):
         self.model._meta.verbose_name + ' <strong><em>' + str(self.object) +
         '</em></strong> kann nicht gelöscht werden! Folgende(s) Objekt(e) verweist/verweisen '
         'noch auf ' + self.model.BasemodelMeta.personal_pronoun + ':<br><br>' +
-        generate_foreign_key_objects_list(exception.protected_objects, True)
+        generate_foreign_key_objects_list(exception.protected_objects)
       )
       return self.render_to_response(self.get_context_data(form=form))
 
@@ -419,14 +419,14 @@ class OrganizationDeleteView(GenericObjectclassDeleteView):
     if contacts:
       deletion_hint = 'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen ' \
                       'mit folgender/folgenden Person(en) gelöst:<br><br>'
-      deletion_hint += generate_foreign_key_objects_list(contacts, False, 'person')
+      deletion_hint += generate_foreign_key_objects_list(contacts, 'person')
       self.deletion_hints.append(deletion_hint)
     # list complaints (if any) which will automatically be unlinked
     complaints = Complaint.objects.filter(complainers_organizations__id=self.object.pk)
     if complaints:
       deletion_hint = 'Es werden automatisch auch alle Verbindungen als Beschwerdeführerin ' \
                       'mit folgender/folgenden Beschwerden(n) gelöst:<br><br>'
-      deletion_hint += generate_foreign_key_objects_list(complaints, False)
+      deletion_hint += generate_foreign_key_objects_list(complaints)
       self.deletion_hints.append(deletion_hint)
     # set generic object class context for this view
     context = set_generic_objectclass_create_update_delete_context(
@@ -460,14 +460,14 @@ class PersonDeleteView(GenericObjectclassDeleteView):
     if contacts:
       deletion_hint = 'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen ' \
                       'mit folgender/folgenden Organisation(en) gelöst:<br><br>'
-      deletion_hint += generate_foreign_key_objects_list(contacts, False, 'organization')
+      deletion_hint += generate_foreign_key_objects_list(contacts, 'organization')
       self.deletion_hints.append(deletion_hint)
     # list complaints (if any) which will automatically be unlinked
     complaints = Complaint.objects.filter(complainers_persons__id=self.object.pk)
     if complaints:
       deletion_hint = 'Es werden automatisch auch alle Verbindungen als Beschwerdeführer:in ' \
                       'mit folgender/folgenden Beschwerden(n) gelöst:<br><br>'
-      deletion_hint += generate_foreign_key_objects_list(complaints, False)
+      deletion_hint += generate_foreign_key_objects_list(complaints)
       self.deletion_hints.append(deletion_hint)
     # set generic object class context for this view
     context = set_generic_objectclass_create_update_delete_context(

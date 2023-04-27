@@ -200,9 +200,13 @@ def create_log_entry(model, object_pk, object_str, action, user):
   :param action: action
   :param user: user
   """
-  user_string = (
-    user.first_name + ' ' + user.last_name if user.first_name and user.last_name else user.username
-  )
+  if isinstance(user, str):
+    user_string = user
+  else:
+    if user.first_name and user.last_name:
+      user_string = user.first_name + ' ' + user.last_name
+    else:
+      user_string = user.username
   LogEntry.objects.create(
     model=model.__name__,
     object_pk=object_pk,
@@ -212,33 +216,23 @@ def create_log_entry(model, object_pk, object_str, action, user):
   )
 
 
-def generate_foreign_key_objects_list(foreign_key_objects, with_target_model=False,
-                                      formation_hint=None):
+def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
   """
   generates an HTML list of given foreign key objects and returns it
 
   :param foreign_key_objects: foreign key objects
-  :param with_target_model: include target model in list entries?
   :param formation_hint: formation hint
   :return: HTML list of given foreign key objects
   """
   object_list = ''
   for foreign_key_object in foreign_key_objects:
     object_list += ('<li>' if len(foreign_key_objects) > 1 else '')
-    object_list += '<strong><em>'
     if issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'person':
-      object_list += foreign_key_object.name_and_function()
+      foreign_key_object = foreign_key_object.person
     elif issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'organization':
-      object_list += str(foreign_key_object.organization)
-    else:
-      object_list += str(foreign_key_object)
-    object_list += '</em></strong>'
-    if with_target_model:
-      if issubclass(foreign_key_object.__class__, Codelist):
-        object_list += ' aus Codeliste '
-      else:
-        object_list += ' aus Objektklasse '
-      object_list += '<strong>' + foreign_key_object._meta.verbose_name_plural + '</strong>'
+      foreign_key_object = foreign_key_object.organization
+    object_list += generate_foreign_key_link_simplified(
+      foreign_key_object.__class__, foreign_key_object)
     object_list += ('</li>' if len(foreign_key_objects) > 1 else '')
   if len(foreign_key_objects) > 1:
     return '<ul class="object_list">' + object_list + '</ul>'
