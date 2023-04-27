@@ -43,6 +43,8 @@ span.nav-link:hover {
 
 .object_list {
   margin-bottom: 0 !important;
+  padding: 0 !important;
+  list-style-type: none;
 }
 
 .required {

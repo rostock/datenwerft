@@ -16,7 +16,8 @@
         {% endif %}
       {% endfor %}
     {% endif %}
-    <form class="form" method="post" action="">
+    <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
+    <form class="form mt-4" method="post" action="">
       {% csrf_token %}
       <h5>
         <small>

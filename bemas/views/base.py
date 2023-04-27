@@ -8,8 +8,8 @@ from re import match, search, sub
 from zoneinfo import ZoneInfo
 
 from bemas.models import Codelist, Complaint, Contact, Organization, Person
-from bemas.utils import get_foreign_key_target_model, get_icon_from_settings, is_bemas_admin, \
-  is_bemas_user, is_geometry_field
+from bemas.utils import get_foreign_key_target_model, get_foreign_key_target_object, \
+  get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
 from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified
 
 
@@ -45,14 +45,22 @@ class GenericTableDataView(BaseDatatableView):
           if not is_geometry_field(column.__class__) and not column.name == 'search_content':
             data = None
             value = getattr(item, column.name)
-            # foreign key columns (between object classes only):
-            # generate appropriate foreign key links
-            if (
-                not issubclass(self.model, Codelist)
-                and issubclass(column.__class__, ForeignKey)
-                and not issubclass(get_foreign_key_target_model(column), Codelist)
-            ):
-              item_data.append(generate_foreign_key_link(column, item))
+            # foreign key columns
+            if issubclass(column.__class__, ForeignKey):
+              # foreign key to object class:
+              # generate appropriate foreign key links
+              if not issubclass(get_foreign_key_target_model(column), Codelist):
+                item_data.append(generate_foreign_key_link(column, item))
+              # foreign key to codelist and if codelist entry icon available:
+              # add icon and foreign key text
+              elif hasattr(get_foreign_key_target_model(column), 'icon'):
+                foreign_key_target_object = get_foreign_key_target_object(item, column)
+                icon = '<i class="fas fa-' + foreign_key_target_object.icon + '"></i> '
+                item_data.append(icon + escape(value))
+              # foreign key to codelist and if codelist entry icon is not available:
+              # add foreign key text
+              else:
+                item_data.append(escape(value))
             # ordinary columns
             elif not column.name.startswith('address_'):
               if value is not None:
@@ -205,8 +213,20 @@ class GenericTableDataView(BaseDatatableView):
       order_column = self.request.GET.get('order[0][column]')
       order_dir = self.request.GET.get('order[0][dir]', None)
       column_names = []
+      # careful here!
+      # use the same clauses as in prepare_results() above since otherwise,
+      # the wrong order columns could be choosed
+      address_handled = False
       for column in self.columns:
-        column_names.append(column.name)
+        # handle non-geometry related fields and non-search content fields only!
+        if not is_geometry_field(column.__class__) and not column.name == 'search_content':
+          # ordinary columns
+          if not column.name.startswith('address_'):
+            column_names.append(column.name)
+          # handle addresses
+          elif column.name.startswith('address_') and not address_handled:
+            column_names.append(column.name)
+            address_handled = True
       column_name = column_names[int(order_column)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)
