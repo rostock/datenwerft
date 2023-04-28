@@ -474,3 +474,90 @@ for model in models:
         name='logentry_table_model_object'
       )
     )
+
+  #
+  # views for object class event
+  #
+  elif model.__name__ == 'Event':
+
+    # table data composition for object class event
+    urlpatterns.append(
+      path(
+        'event/tabledata',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='event_tabledata'
+      )
+    )
+
+    # table data composition for object class event:
+    # filter by complaint
+    urlpatterns.append(
+      path(
+        'event/tabledata/<complaint_pk>',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='event_tabledata_complaint'
+      )
+    )
+
+    # table page for object class event
+    urlpatterns.append(
+      path(
+        'event/table',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='event_table'
+      )
+    )
+
+    # table page for object class event:
+    # filter by complaint
+    urlpatterns.append(
+      path(
+        'event/table/<complaint_pk>',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='event_table_complaint'
+      )
+    )
+
+    # form page for creating an instance of object class event
+    urlpatterns.append(
+      path(
+        'event/create',
+        view=login_required(GenericObjectclassCreateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:event_table')
+        )),
+        name='event_create'
+      )
+    )
+
+    # form page for updating an instance of object class event
+    urlpatterns.append(
+      path(
+        'event/update/<pk>',
+        view=login_required(GenericObjectclassUpdateView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:event_table')
+        )),
+        name='event_update'
+      )
+    )
+
+    # form page for deleting an instance of object class event
+    urlpatterns.append(
+      path(
+        'event/delete/<pk>',
+        view=login_required(ComplaintDeleteView.as_view(
+          model=model,
+          success_url=reverse_lazy('bemas:event_table')
+        )),
+        name='event_delete'
+      )
+    )

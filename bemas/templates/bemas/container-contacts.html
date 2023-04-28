@@ -1,0 +1,17 @@
+{% load bemas_tags %}
+<div class="alert alert-primary mt-4" role="alert">
+  <h5 class="alert-heading"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in(nen)</h5>
+  {% if contacts %}
+    <ul>
+      {% for contact in contacts %}
+        <li>
+          <a href="{{ contact.link }}" title="Ansprechpartner:in bearbeiten">{{ contact.text }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    (noch) keine:r vorhanden
+  {% endif %}
+  <hr>
+  <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}?organization={{ object.pk }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
+</div>

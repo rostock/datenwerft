@@ -82,6 +82,9 @@ function initDataTable(dataUrl, languageUrl, initialOrder) {
     columnDefs: [{
       'orderable': false,
       'targets': 'no-sort'
+    }, {
+      'searchable': false,
+      'targets': 'no-search'
     }],
     dom: '<Bfr<t>ilp>',
     fixedHeader: true,

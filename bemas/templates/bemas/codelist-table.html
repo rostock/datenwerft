@@ -19,14 +19,7 @@
 {% block content %}
   {% if is_bemas_user %}
     {% if messages and is_bemas_admin %}
-      {% for message in messages %}
-        {% if message.tags and message.tags == 'success' %}
-          <div class="alert alert-success" role="alert">
-            <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
-            {{ message|safe }}
-          </div>
-        {% endif %}
-      {% endfor %}
+      {% include "bemas/container-messages.html" %}
     {% endif %}
     <h2><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codeliste <em>{{ codelist_verbose_name_plural }}</em></h2>
     <h4><small>{{ codelist_description }}</small></h4>
@@ -43,10 +36,7 @@
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-          <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren Codelisteneinträge <strong><em>unten links</em></strong> steuerbar
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        {% include "bemas/container-table-warning.html" %}
         <table id="datasets" class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -54,7 +44,7 @@
                 <th>{{ column_title }}</th>
               {% endfor %}
               {% if is_bemas_admin %}
-                <th class="no-sort no-export">Aktionen</th>
+                <th class="no-export no-search no-sort">Aktionen</th>
               {% endif %}
             </tr>
           </thead>

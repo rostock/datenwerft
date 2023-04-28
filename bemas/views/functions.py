@@ -1,12 +1,16 @@
 from django.conf import settings
-from django.forms import Textarea
+from django.contrib.auth.models import User
+from django.forms import Select, Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
+from operator import itemgetter
 
-from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, LogEntry, Originator
-from bemas.utils import get_foreign_key_target_model, get_foreign_key_target_object, \
-  get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
+from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
+  Originator
+from bemas.utils import generate_user_string, get_foreign_key_target_model, \
+  get_foreign_key_target_object, get_icon_from_settings, is_bemas_admin, is_bemas_user, \
+  is_geometry_field
 
 
 def add_codelist_context_elements(context, model, curr_object=None):
@@ -117,19 +121,25 @@ def add_table_context_elements(context, model, kwargs=None):
     context['tabledata_url'] = reverse('bemas:codelists_' + model.__name__.lower() + '_tabledata')
   else:
     if (
-        'model' in kwargs
+        issubclass(model, LogEntry)
+        and 'model' in kwargs
         and kwargs['model']
         and 'object_pk' in kwargs
         and kwargs['object_pk']
     ):
       context['tabledata_url'] = reverse(
-        'bemas:' + model.__name__.lower() + '_tabledata_model_object',
+        'bemas:logentry_tabledata_model_object',
         args=[kwargs['model'], kwargs['object_pk']]
       )
-    elif 'model' in kwargs and kwargs['model']:
+    elif issubclass(model, LogEntry) and 'model' in kwargs and kwargs['model']:
       context['tabledata_url'] = reverse(
-        'bemas:' + model.__name__.lower() + '_tabledata_model',
+        'bemas:logentry_tabledata_model',
         args=[kwargs['model']]
+      )
+    elif issubclass(model, Event) and 'complaint_pk' in kwargs and kwargs['complaint_pk']:
+      context['tabledata_url'] = reverse(
+        'bemas:event_tabledata_complaint',
+        args=[kwargs['complaint_pk']]
       )
     else:
       context['tabledata_url'] = reverse('bemas:' + model.__name__.lower() + '_tabledata')
@@ -179,6 +189,23 @@ def assign_widget(field):
   # handle date widgets
   if field.__class__.__name__ == 'DateField':
     form_field.widget.input_type = 'date'
+  # convert text input for users to select input with all BEMAS users as choices
+  elif field.name == 'user':
+    users = list(
+      User.objects.filter(
+        groups__name__in=[settings.BEMAS_ADMIN_GROUP_NAME, settings.BEMAS_USERS_GROUP_NAME]
+      ).values('first_name', 'last_name', 'username')
+    )
+    sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'username'))
+    user_list = []
+    for user in sorted_users:
+      user_list.append(generate_user_string(user))
+    choices = [(user, user) for user in user_list]
+    # prepend choices with empty value
+    choices.insert(0, ('', '---------'))
+    form_field.widget = Select(
+      choices=choices
+    )
   # handle inputs
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
@@ -220,19 +247,12 @@ def create_log_entry(model, object_pk, action, content, user):
   :param content: content
   :param user: user
   """
-  if isinstance(user, str):
-    user_string = user
-  else:
-    if user.first_name and user.last_name:
-      user_string = user.first_name + ' ' + user.last_name
-    else:
-      user_string = user.username
   LogEntry.objects.create(
     model=model.__name__,
     object_pk=object_pk,
     action=action,
     content=content,
-    user=user_string
+    user=generate_user_string(user)
   )
 
 
@@ -313,7 +333,7 @@ def get_model_objects(model, count=False, kwargs=None):
       and 'object_pk' in kwargs
       and kwargs['object_pk']
   ):
-    objects = model.objects.filter(
+    objects = LogEntry.objects.filter(
       model=kwargs['model'], object_pk=kwargs['object_pk'])
   elif (
       issubclass(model, LogEntry)
@@ -321,7 +341,14 @@ def get_model_objects(model, count=False, kwargs=None):
       and 'model' in kwargs
       and kwargs['model']
   ):
-    objects = model.objects.filter(model=kwargs['model'])
+    objects = LogEntry.objects.filter(model=kwargs['model'])
+  elif (
+      issubclass(model, Event)
+      and kwargs
+      and 'complaint_pk' in kwargs
+      and kwargs['complaint_pk']
+  ):
+    objects = Event.objects.filter(complaint=kwargs['complaint_pk'])
   else:
     objects = model.objects.all()
   return objects.count() if count else objects
