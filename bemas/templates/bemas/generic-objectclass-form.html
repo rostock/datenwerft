@@ -41,9 +41,7 @@
       {% include "bemas/container-errors.html" %}
     {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
-    {% if objectclass_logentry_url %}
-      <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
-    {% endif %}
+    {% include "bemas/links-events-logentries.html" %}
     {% if objectclass_name == 'Organization' and object %}
       {% include "bemas/container-contacts.html" %}
     {% elif objectclass_name == 'Complaint' and object %}

@@ -42,11 +42,8 @@
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
-        {% if objectclass_name == 'LogEntry' and model %}
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Es werden <strong><em>nicht alle</em></strong> {{ objectclass_verbose_name_plural }} in der Tabelle gelistet, sondern nur diejenigen{% if object_pk %} des Objektes mit der ID <strong><em>{{ object_pk }}</em></strong>{% endif %} der Objektklasse <strong><em>{{ model|beautify_model_string|safe }}!</em></strong>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+        {% if objectclass_name == 'LogEntry' and model or objectclass_name == 'Event' and complaint_pk %}
+          {% include "bemas/container-table-danger.html" %}
         {% endif %}
         {% include "bemas/container-table-warning.html" %}
         <table id="datasets" class="table table-bordered table-striped">

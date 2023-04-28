@@ -14,7 +14,7 @@ from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, assign_widget, create_log_entry, generate_foreign_key_objects_list, \
   set_generic_objectclass_create_update_delete_context, set_log_action_and_content
-from bemas.utils import shorten_string
+from bemas.utils import generate_user_string, shorten_string
 
 
 class GenericObjectclassTableView(TemplateView):
@@ -86,20 +86,19 @@ class GenericObjectclassCreateView(CreateView):
 
     :return: dictionary with initial field values for this view
     """
+    initial_field_values = {}
     # object class contact:
     # optionally set initial value for organization field
     if issubclass(self.model, Contact) and self.request.GET.get('organization', None):
-      return {
-        'organization': self.request.GET.get('organization')
-      }
+      initial_field_values['organization'] = self.request.GET.get('organization')
     # object class event:
-    # optionally set initial value for complaint field
-    if issubclass(self.model, Event) and self.request.GET.get('complaint', None):
-      return {
-        'complaint': self.request.GET.get('complaint')
-      }
+    elif issubclass(self.model, Event):
+      # optionally set initial value for complaint field
+      if self.request.GET.get('complaint', None):
+        initial_field_values['complaint'] = self.request.GET.get('complaint')
+      # pre-select current user as user for a new event
+      initial_field_values['user'] = generate_user_string(self.request.user)
     else:
-      initial_field_values = {}
       for field in self.model._meta.get_fields():
         # handle date fields and their values
         if field.__class__.__name__ == 'DateField':
@@ -107,7 +106,7 @@ class GenericObjectclassCreateView(CreateView):
         # set default status for a new complaint
         elif issubclass(self.model, Complaint) and field.name == 'status':
           initial_field_values['status'] = Status.get_default_status()
-      return initial_field_values
+    return initial_field_values
 
   def form_valid(self, form):
     """
@@ -370,6 +369,12 @@ class GenericObjectclassDeleteView(DeleteView):
         'bemas:logentry_table_model_object',
         args=[self.model.__name__, self.object.pk]
       )
+      # object class complaint:
+      if issubclass(self.model, Complaint):
+        # add events link
+        context['objectclass_event_url'] = reverse(
+          'bemas:event_table_complaint', args=[self.object.pk]
+        )
     # optionally add custom deletion hints (shown as text to user) to context
     if self.deletion_hints:
       context['deletion_hints'] = self.deletion_hints

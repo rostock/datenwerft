@@ -171,10 +171,16 @@ class GenericTableDataView(BaseDatatableView):
             log_entry_link = ''
           else:
             title = self.model._meta.verbose_name
-            log_entry_link = reverse(
+            log_entry_link = '<a class="ms-2" href="' + reverse(
               'bemas:logentry_table_model_object', args=[self.model.__name__, item_pk])
             log_entry_link += '"><i class="fas fa-' + get_icon_from_settings('logentry') + \
                               '" title="Einträge im Bearbeitungsverlauf anzeigen"></i></a>'
+          event_link = ''
+          if issubclass(self.model, Complaint):
+            event_link = '<a class="ms-2" href="' + reverse(
+              'bemas:event_table_complaint', args=[item_pk])
+            event_link += '"><i class="fas fa-' + get_icon_from_settings('event') + \
+                          '" title="Journalereignisse anzeigen"></i></a>'
           item_data.append(
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
@@ -184,7 +190,7 @@ class GenericTableDataView(BaseDatatableView):
             reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('delete') +
             '" title="' + title + ' löschen"></i></a>' +
-            '<a class="ms-2" href="' +
+            event_link +
             log_entry_link
           )
         json_data.append(item_data)

@@ -1,0 +1,7 @@
+{% load bemas_tags %}
+{% if objectclass_event_url %}
+  <a href="{{ objectclass_event_url }}"><i class="fas fa-{{ 'event'|get_icon }}"></i> Journalereignisse anzeigen</a>
+{% endif %}
+{% if objectclass_logentry_url %}
+  <a {% if objectclass_event_url %}class="ms-3" {% endif %}href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
+{% endif %}

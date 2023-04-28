@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.gis.db.models.fields import PointField as ModelPointField
 from django.contrib.gis.forms.fields import PointField as FormPointField
 
@@ -36,6 +37,27 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return second_part.strip()
   else:
     return None
+
+
+def generate_user_string(user):
+  """
+  generates a string out of given user and returns it
+
+  :param user: user
+  :return: string out of given user
+  """
+  if isinstance(user, str):
+    return user
+  elif isinstance(user, User):
+    user = {
+      'first_name': user.first_name if user.first_name else '',
+      'last_name': user.last_name if user.first_name else '',
+      'username': user.username
+    }
+  if user['first_name'] and user['last_name']:
+    return user['first_name'] + ' ' + user['last_name']
+  else:
+    return user['username']
 
 
 def get_foreign_key_target_model(foreign_key_field):

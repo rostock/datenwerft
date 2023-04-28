@@ -1,0 +1,9 @@
+{% load bemas_tags %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  {% if objectclass_name == 'LogEntry' and model %}
+    <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Es werden <strong><em>nicht alle</em></strong> {{ objectclass_verbose_name_plural }} in der Tabelle gelistet, sondern nur diejenigen{% if object_pk %} des Objektes mit der ID <strong><em>{{ object_pk }}</em></strong>{% endif %} der Objektklasse <strong><em>{{ model|beautify_model_string|safe }}!</em></strong>
+  {% elif objectclass_name == 'Event' and complaint_pk %}
+    <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Es werden <strong><em>nicht alle</em></strong> {{ objectclass_verbose_name_plural }} in der Tabelle gelistet, sondern nur diejenigen der Beschwerde mit der ID <strong><em>{{ complaint_pk }}!</em></strong>
+  {% endif %}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
