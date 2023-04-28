@@ -8,8 +8,8 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import GeometryObjectclass, Complaint, Contact, LogEntry, Organization, \
-  Originator, Person, Status
+from bemas.models import GeometryObjectclass, Complaint, Contact, Event, LogEntry, Organization, \
+  Originator, Status
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_table_context_elements, assign_widget, create_log_entry, generate_foreign_key_objects_list, \
@@ -92,6 +92,12 @@ class GenericObjectclassCreateView(CreateView):
       return {
         'organization': self.request.GET.get('organization')
       }
+    # object class event:
+    # optionally set initial value for complaint field
+    if issubclass(self.model, Event) and self.request.GET.get('complaint', None):
+      return {
+        'complaint': self.request.GET.get('complaint')
+      }
     else:
       initial_field_values = {}
       for field in self.model._meta.get_fields():
@@ -124,15 +130,8 @@ class GenericObjectclassCreateView(CreateView):
         obj_str
       )
     )
-    # create new log entry for the following object classes:
-    # Complaint, Contact, Organization, Originator, Person
-    if (
-        issubclass(self.model, Complaint)
-        or issubclass(self.model, Contact)
-        or issubclass(self.model, Organization)
-        or issubclass(self.model, Originator)
-        or issubclass(self.model, Person)
-    ):
+    # create new log entry (except for object class log entry itself, of course)
+    if not issubclass(self.model, LogEntry):
       curr_object = form.save(commit=False)
       curr_object.save()
       create_log_entry(
@@ -216,6 +215,19 @@ class GenericObjectclassUpdateView(UpdateView):
           }
           contacts_list.append(contact_dict)
         context['contacts'] = contacts_list
+    # object class complaint:
+    # optionally add list of events to context
+    elif issubclass(self.model, Complaint):
+      events = Event.objects.filter(complaint=self.object.pk)
+      if events:
+        events_list = []
+        for event in events:
+          event_dict = {
+            'link': reverse('bemas:event_update', args=[event.pk]),
+            'text': event.type_of_event_and_created_at()
+          }
+          events_list.append(event_dict)
+        context['events'] = events_list
     # handle array fields and their values
     # (i.e. those array fields containing more than one value)
     array_fields_values = {}
@@ -382,15 +394,8 @@ class GenericObjectclassDeleteView(DeleteView):
           str(self.object)
         )
       )
-      # create new log entry for the following object classes:
-      # Complaint, Contact, Organization, Originator, Person
-      if (
-          issubclass(self.model, Complaint)
-          or issubclass(self.model, Contact)
-          or issubclass(self.model, Organization)
-          or issubclass(self.model, Originator)
-          or issubclass(self.model, Person)
-      ):
+      # create new log entry (except for object class log entry itself, of course)
+      if not issubclass(self.model, LogEntry):
         create_log_entry(
           self.model,
           object_pk,

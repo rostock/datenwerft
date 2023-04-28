@@ -19,14 +19,7 @@
 {% block content %}
   {% if is_bemas_user %}
     {% if messages %}
-      {% for message in messages %}
-        {% if message.tags and message.tags == 'success' %}
-          <div class="alert alert-success" role="alert">
-            <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
-            {{ message|safe }}
-          </div>
-        {% endif %}
-      {% endfor %}
+      {% include "bemas/container-messages.html" %}
     {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name_plural }}</em></h2>
     <h4><small>{{ objectclass_description }}</small></h4>
@@ -55,10 +48,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endif %}
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-          <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren {{ objectclass_verbose_name_plural }} <strong><em>unten links</em></strong> steuerbar
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        {% include "bemas/container-table-warning.html" %}
         <table id="datasets" class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -71,7 +61,7 @@
                 <th class="no-sort">Beschwerdeführung</th>
               {% endif %}
               {% if objectclass_creation_url %}
-                <th class="no-sort no-export">Aktionen</th>
+                <th class="no-export no-search no-sort">Aktionen</th>
               {% endif %}
             </tr>
           </thead>

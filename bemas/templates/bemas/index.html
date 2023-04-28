@@ -8,6 +8,7 @@
   {% if is_bemas_user %}
     <h2 class="text-center"><em>BEMAS</em></h2>
     <a href="{% url 'bemas:logentry_table' %}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
+    <a href="{% url 'bemas:event_table' %}"><i class="fas fa-{{ 'event'|get_icon }}"></i> Journalereignisse <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:originator_create' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>

@@ -1,5 +1,5 @@
 from django.contrib.gis.db.models import Model
-from django.db.models.fields import BigAutoField, DateTimeField
+from django.db.models.fields import BigAutoField, CharField, DateTimeField
 
 
 class Basemodel(Model):
@@ -49,6 +49,13 @@ class Objectclass(Basemodel):
   """
   abstract model class for object classes
   """
+
+  search_content = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
 
   class Meta(Basemodel.Meta):
     abstract = True

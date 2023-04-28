@@ -7,14 +7,7 @@
 {% block content %}
   {% if is_bemas_user %}
     {% if messages %}
-      {% for message in messages %}
-        {% if message.tags and message.tags == 'error' %}
-          <div class="alert alert-danger" role="alert">
-            <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
-            {{ message|safe }}
-          </div>
-        {% endif %}
-      {% endfor %}
+      {% include "bemas/container-messages.html" %}
     {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
     {% if objectclass_logentry_url %}
@@ -28,12 +21,7 @@
         </small>
       </h5>
       {% if deletion_hints %}
-        {% for deletion_hint in deletion_hints %}
-          <div class="alert alert-secondary" role="alert">
-            <i class="fa-solid fa-{{ 'info'|get_icon }}"></i>
-            {{ deletion_hint|safe }}
-          </div>
-        {% endfor %}
+        {% include "bemas/container-deletion-hints.html" %}
       {% endif %}
       <div class="d-grid mt-4 mb-3 gap-2 d-md-block">
         <button class="btn btn-danger" type="submit"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}{{ objectclass_verbose_name }} {% endif %}löschen</button>

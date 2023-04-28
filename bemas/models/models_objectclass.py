@@ -8,6 +8,7 @@ from django.db.models.fields import BigIntegerField, CharField, DateField, DateT
 from django.db.models.signals import m2m_changed
 from django.utils import timezone
 
+from datenmanagement.models.fields import NullTextField
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
@@ -22,12 +23,6 @@ class Organization(Objectclass):
   model class for object class organization (Organisation)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   name = CharField(
     'Name',
     max_length=255,
@@ -175,12 +170,6 @@ class Person(Objectclass):
   model class for object class person (Person)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   first_name = CharField(
     'Vorname',
     max_length=255,
@@ -312,12 +301,6 @@ class Contact(Objectclass):
   model class for object class contact (Ansprechpartner:in)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   organization = ForeignKey(
     Organization,
     verbose_name='Organisation',
@@ -387,12 +370,6 @@ class Originator(GeometryObjectclass):
   model class for geometry object class originator (Verursacher)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   sector = ForeignKey(
     Sector,
     verbose_name='Branche',
@@ -466,12 +443,6 @@ class Complaint(GeometryObjectclass):
   model class for geometry object class complaint (Beschwerde)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   date_of_receipt = DateField(
     'Eingangsdatum',
     default=date.today
@@ -543,7 +514,7 @@ class Complaint(GeometryObjectclass):
 
   class Meta(GeometryObjectclass.Meta):
     db_table = 'complaint'
-    ordering = ['id']
+    ordering = ['-id']
     verbose_name = 'Beschwerde'
     verbose_name_plural = 'Beschwerden'
 
@@ -593,12 +564,6 @@ class Event(Objectclass):
   model class for object class event (Journalereignis)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   complaint = ForeignKey(
     Complaint,
     verbose_name='Beschwerde',
@@ -611,10 +576,9 @@ class Event(Objectclass):
   )
   user = CharField(
     'Benutzer:in',
-    max_length=255,
-    editable=False
+    max_length=255
   )
-  description = TextField(
+  description = NullTextField(
     'Beschreibung',
     blank=True,
     null=True,
@@ -635,7 +599,7 @@ class Event(Objectclass):
 
   class Meta(Objectclass.Meta):
     db_table = 'event'
-    ordering = ['complaint__id', 'created_at']
+    ordering = ['-complaint__id', '-created_at']
     verbose_name = 'Journalereignis'
     verbose_name_plural = 'Journalereignisse'
 
@@ -653,6 +617,10 @@ class Event(Objectclass):
   def type_of_event_and_complaint(self):
     return str(self.type_of_event) + ' (Beschwerde: ' + str(self.complaint) + ')'
 
+  def type_of_event_and_created_at(self):
+    return str(self.type_of_event) + ' vom ' + self.created_at.strftime('%d.%m.%Y') + \
+           (' (' + shorten_string(self.description) + ')' if self.description else '')
+
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field
     self.search_content = self.type_of_event_and_complaint()
@@ -669,12 +637,6 @@ class LogEntry(Objectclass):
   model class for object class log entry (Eintrag im Bearbeitungsverlauf)
   """
 
-  search_content = CharField(
-    max_length=255,
-    blank=True,
-    null=True,
-    editable=False
-  )
   model = CharField(
     'Objektklasse',
     max_length=255,

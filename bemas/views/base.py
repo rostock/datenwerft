@@ -50,7 +50,7 @@ class GenericTableDataView(BaseDatatableView):
           if not is_geometry_field(column.__class__) and not column.name == 'search_content':
             data = None
             value = getattr(item, column.name)
-            # log entry specific column "model"
+            # log entry specific column "updated_at"
             if issubclass(self.model, LogEntry) and column.name == 'model':
               # generate appropriate text (link in most cases)
               model = apps.get_app_config('bemas').get_model(value)

@@ -1,0 +1,17 @@
+{% load bemas_tags %}
+<div class="alert alert-primary mt-4" role="alert">
+  <h5 class="alert-heading"><i class="fas fa-{{ 'event'|get_icon }}"></i> Journalereignis(se)</h5>
+  {% if events %}
+    <ul>
+      {% for event in events %}
+        <li>
+          <a href="{{ event.link }}" title="Journalereignis bearbeiten">{{ event.text }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    (noch) keines vorhanden
+  {% endif %}
+  <hr>
+  <a class="btn btn-primary" role="button" href="{% url 'bemas:event_create' %}?complaint={{ object.pk }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neues Journalereignis anlegen</a>
+</div>
