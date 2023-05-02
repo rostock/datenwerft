@@ -266,13 +266,19 @@ def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
   """
   object_list = ''
   for foreign_key_object in foreign_key_objects:
+    link_text, suffix = '', ''
     object_list += ('<li>' if len(foreign_key_objects) > 1 else '')
     if issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'person':
+      suffix = ' mit der Funktion ' + foreign_key_object.function
       foreign_key_object = foreign_key_object.person
     elif issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'organization':
+      suffix = ' (dort mit der Funktion ' + foreign_key_object.function + ')'
       foreign_key_object = foreign_key_object.organization
+    if issubclass(foreign_key_object.__class__, Event):
+      link_text = foreign_key_object.type_of_event_and_created_at()
     object_list += generate_foreign_key_link_simplified(
-      foreign_key_object.__class__, foreign_key_object)
+      foreign_key_object.__class__, foreign_key_object, link_text)
+    object_list += suffix
     object_list += ('</li>' if len(foreign_key_objects) > 1 else '')
   if len(foreign_key_objects) > 1:
     return '<ul class="object_list">' + object_list + '</ul>'
@@ -293,6 +299,8 @@ def generate_foreign_key_link(foreign_key_field, source_object, link_text=None):
   target_object = get_foreign_key_target_object(source_object, foreign_key_field)
   if issubclass(target_model, Originator):
     link_text = target_object.sector_and_operator()
+  elif issubclass(target_model, Event):
+    link_text = target_object.type_of_event_and_created_at()
   return generate_foreign_key_link_simplified(target_model, target_object, link_text)
 
 
