@@ -4,10 +4,10 @@ from django.urls import path, reverse_lazy
 from rest_framework import routers
 
 from bemas.models import Codelist
-from .views.base import GenericTableDataView
+from .views.base import GenericTableDataView, GenericMapDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
-from .views.views_general import CodelistsIndexView, IndexView
+from .views.views_general import CodelistsIndexView, IndexView, MapView
 from .views.views_objectclass import ComplaintDeleteView, ContactDeleteView, ContactCreateView, \
   ContactUpdateView, GenericObjectclassCreateView, GenericObjectclassDeleteView, \
   GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
@@ -36,6 +36,12 @@ urlpatterns = [
     'codelists',
     view=login_required(CodelistsIndexView.as_view()),
     name='codelists'
+  ),
+  # map page
+  path(
+    'map',
+    view=login_required(MapView.as_view()),
+    name='map'
   )
 ]
 
@@ -337,6 +343,17 @@ for model in models:
       )
     )
 
+    # map data composition for object class originator
+    urlpatterns.append(
+      path(
+        'originator/mapdata',
+        view=login_required(GenericMapDataView.as_view(
+          model=model
+        )),
+        name='originator_mapdata'
+      )
+    )
+
   #
   # views for object class complaint
   #
@@ -397,6 +414,17 @@ for model in models:
           success_url=reverse_lazy('bemas:complaint_table')
         )),
         name='complaint_delete'
+      )
+    )
+
+    # map data composition for object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/mapdata',
+        view=login_required(GenericMapDataView.as_view(
+          model=model
+        )),
+        name='complaint_mapdata'
       )
     )
 

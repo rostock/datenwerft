@@ -1,0 +1,248 @@
+{% extends "navbar.html" %}
+{% load bemas_tags %}
+{% load leaflet_tags %}
+{% load static %}
+
+{% block title %}Immissions- und Emissionsorte | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  {% leaflet_css plugins="locatecontrol,markercluster" %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}">
+  {% if is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-mobile.css' %}">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js plugins="locatecontrol,markercluster" %}
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
+  <script src="{% static 'bemas/js/map.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if is_bemas_user %}
+    <h2><i class="fas fa-{{ 'map'|get_icon }}"></i> Immissions- und Emissionsorte</h2>
+    <h4><small>Karte mit allen <span style="color:{{ complaints_color }}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden</span> und <span style="color:{{ originators_color }}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursachern</span></small></h4>
+    {% if objects_count == 0 %}
+      <h4 class="mt-3">
+        <em>Keine Beschwerden und Verursacher vorhanden!</em>
+      </h4>
+    {% endif %}
+    <div class="d-grid mt-3 mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
+      <a class="btn btn-secondary" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Beschwerden</a>
+      <button id="complaints-subsetter" class="btn btn-secondary" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+      <a class="btn btn-secondary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Verursacher</a>
+      <button id="originators-subsetter" class="btn btn-secondary" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+    </div>
+    {% if objects_count > 0 %}
+      <div id="map-side-container" class="mb-3">
+        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+        <div id="complaints-filter"{% if not is_mobile %} class="side"{% endif %}>
+          <h5>Filter für <span style="color:{{ complaints_color }}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden</span></h5>
+          <div id="complaints-filter-alert" class="alert alert-warning" role="alert">Filter für Beschwerden wirken <strong>additiv</strong> (wie „UND“)</div>
+          <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
+            <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
+            <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+          </div>
+        </div>
+        <div id="originators-filter"{% if not is_mobile %} class="side"{% endif %}>
+          <h5>Filter für <span style="color:{{ originators_color }}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher</span></h5>
+          <div id="originators-filter-alert" class="alert alert-warning" role="alert">Filter für Verursacher wirken <strong>additiv</strong> (wie „UND“)</div>
+          <div id="filter-normal">
+            <div class="d-grid mt-2 mb-3">
+              <label for="filter-input-sector" class="form-label">Branche</label>
+              <div class="input-group">
+                <select id="filter-input-sector" name="sector" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                  {% for originators_sector in originators_sectors %}
+                    <option value="{{ originators_sector }}">{{ originators_sector }}</option>
+                  {% endfor %}
+                </select>
+                <button class="input-reset btn btn-outline-secondary">
+                  <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                </button>
+              </div>
+            </div>
+            <div class="d-grid mt-2 mb-3">
+              <label for="filter-input-operator" class="form-label">Betreiberin</label>
+              <div class="input-group">
+                <select id="filter-input-operator" name="operator" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                  {% for originators_operator in originators_operators %}
+                    <option value="{{ originators_operator }}">{{ originators_operator }}</option>
+                  {% endfor %}
+                </select>
+                <button class="input-reset btn btn-outline-secondary">
+                  <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                </button>
+              </div>
+            </div>
+            <div class="d-grid mt-2 mb-3">
+              <label for="filter-input-description" class="form-label">Beschreibung</label>
+              <div class="input-group">
+                <input id="filter-input-description" type="text" name="description" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                <button class="input-reset btn btn-outline-secondary">
+                  <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="originators-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
+            <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
+            <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+          </div>
+        </div>
+        <div id="map-control"{% if not is_mobile %} class="side"{% endif %}>
+          <h5>Kartenausschnitt</h5>
+          <div class="d-grid mt-2 gap-2 d-md-block">
+            <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuelle Filtermenge</button>
+            <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
+          </div>
+        </div>
+        <div id="address-search"{% if not is_mobile %} class="side"{% endif %}>
+          <h5>Adressensuche</h5>
+          <div class="form-floating">
+            <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+            <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
+          </div>
+          <div id="results-container" class="results"></div>
+        </div>
+      </div>
+      {% include "modal-error.html" %}
+      {% include "modal-loading.html" %}
+      <script>
+        /* global $, configureMap, enableMapLocate, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, searchField, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByXYAndZoomLevel */
+        /* eslint no-undef: "error" */
+        /**
+         * @function
+         * @name mapCallbackFunction
+         *
+         * handles (as a callback function) given map
+         *
+         * @param {Object} map - map
+         */
+        function mapCallbackFunction(map) {
+          setMapConstants(map);
+          configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+          // make map globally available
+          window.currMap = map;
+
+          {% if is_mobile %}
+            enableMapLocate(map)
+          {% endif %}
+
+          // activate map cluster for complaints
+          let complaintsMarkers = L.markerClusterGroup();
+          // fetch GeoJSON feature collection with complaints for map
+          fetchGeoJsonFeatureCollection('{{ complaints_mapdata_url }}')
+          .then(data => {
+            // for each GeoJSON feature in GeoJSON feature collection:
+            // equip with marker, set properties and actions, bind tooltip
+            // and add it to corresponding map cluster
+            L.Proj.geoJson(data, {
+              pointToLayer: function (feature, latlng) {
+                let marker = new L.circleMarker(latlng, {
+                  radius: 5,
+                  color: '{{ complaints_color }}'
+                });
+                marker.bindTooltip(feature.properties._tooltip);
+                return marker;
+              },
+              onEachFeature: setGeoJsonFeaturePropertiesAndActions
+            }).addTo(complaintsMarkers);
+          })
+          .catch(
+            (error) => {
+              console.error(error);
+            }
+          );
+          // equip map cluster for complaints with ID
+          complaintsMarkers.id = 'complaintsCluster';
+          // add  map cluster for complaints to map
+          map.addLayer(complaintsMarkers);
+
+          // activate map cluster for originators
+          let originatorsMarkers = L.markerClusterGroup();
+          // fetch GeoJSON feature collection with originators for map
+          fetchGeoJsonFeatureCollection('{{ originators_mapdata_url }}', true)
+          .then(data => {
+            // for each GeoJSON feature in GeoJSON feature collection:
+            // equip with marker, set properties and actions, bind tooltip
+            // and add it to corresponding map cluster
+            L.Proj.geoJson(data, {
+              pointToLayer: function (feature, latlng) {
+                let marker = new L.circleMarker(latlng, {
+                  radius: 5,
+                  color: '{{ originators_color }}'
+                });
+                marker.bindTooltip(feature.properties._tooltip);
+                return marker;
+              },
+              onEachFeature: setGeoJsonFeaturePropertiesAndActions
+            }).addTo(originatorsMarkers);
+          })
+          .catch(
+            (error) => {
+              console.error(error);
+            }
+          );
+          // equip map cluster for originators with ID
+          originatorsMarkers.id = 'originatorsCluster';
+          // add  map cluster for originators to map
+          map.addLayer(originatorsMarkers);
+
+          // define several globally available variables
+          window.objectsExtent = map.getBounds();
+          window.removedLayers = [];
+          window.featureGeometry = [];
+        }
+
+        /**
+         * @function
+         *
+         * main function
+         */
+        $(document).ready(function () {
+          // initialize address search (and make its results globally available)
+          window.results = $('div.results');
+          window.searchField = $('#searchtext');
+          initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}');
+
+          // initially set list filter fields to empty option
+          $("select[data-type='list']").each(function() {
+            $(this).val('');
+          });
+
+          // on clicking a button to empty a filter field...
+          $('.input-reset').on('click', function() {
+            // empty respective filter field
+            $(this).prev().is('button') ? $(this).prev().prev().val('') : $(this).prev().val('');
+          });
+
+          // on clicking the button to return to initial map extent...
+          $('#map-extent-initial').on('click', function() {
+            // get initial zoom level from Leaflet configuration
+            let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
+            defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
+            // get initial map center from Leaflet configuration
+            let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
+            let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
+            let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
+            // set initial map extent by means of initial zoom level initial map center
+            setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
+          });
+        });
+      </script>
+    {% endif %}
+  {% else %}
+    {% include "bemas/notice-norights.html" %}
+  {% endif %}
+{% endblock %}

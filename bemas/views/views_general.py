@@ -1,9 +1,11 @@
 from django.apps import apps
+from django.conf import settings
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 
-from bemas.models import Codelist
-from .functions import add_default_context_elements
+from bemas.models import Codelist, Complaint, Originator
+from .functions import add_default_context_elements, add_user_agent_context_elements, \
+  get_model_objects
 
 
 class IndexView(TemplateView):
@@ -54,4 +56,42 @@ class CodelistsIndexView(TemplateView):
           'description': model.BasemodelMeta.description
         })
     context['codelists'] = codelists
+    return context
+
+
+class MapView(TemplateView):
+  """
+  view for map page
+  """
+
+  template_name = 'bemas/map.html'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add default elements to context
+    context = add_default_context_elements(context, self.request.user)
+    # add user agent related elements to context
+    context = add_user_agent_context_elements(context, self.request)
+    # add map related information to context
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['complaints_mapdata_url'] = reverse('bemas:complaint_mapdata')
+    context['originators_mapdata_url'] = reverse('bemas:originator_mapdata')
+    # add filter related information to context
+    context['originators_sectors'] = list(
+      Originator.objects.order_by('sector').values_list('sector__title', flat=True).distinct()
+    )
+    context['originators_operators'] = list(
+      Originator.objects.order_by('operator').values_list('operator__name', flat=True).distinct()
+    )
+    # add miscellaneous information to context
+    context['objects_count'] = (
+        get_model_objects(Complaint, True) + get_model_objects(Originator, True))
+    context['complaints_color'] = settings.BEMAS_COLORS['complaint']
+    context['originators_color'] = settings.BEMAS_COLORS['originator']
     return context

@@ -1,4 +1,12 @@
-#filter-alert {
+#address-search,
+#map-control,
+#originators-filter {
+  margin-top: 2rem;
+}
+
+#filter-alert,
+#complaints-filter-alert,
+#originators-filter-alert {
   display: none;
 }
 
@@ -6,7 +14,8 @@
   width: 100%;
 }
 
-#map {
+#map,
+#leaflet-map {
   height: 100%;
 }
 
@@ -52,6 +61,11 @@
 
 .leaflet-draw-tooltip {
   display: none;
+}
+
+.leaflet-popup-title {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
 }
 
 .marker-cluster div {

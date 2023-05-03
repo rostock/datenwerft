@@ -1,7 +1,9 @@
+from datetime import date, datetime, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models.fields import PointField as ModelPointField
 from django.contrib.gis.forms.fields import PointField as FormPointField
+from zoneinfo import ZoneInfo
 
 
 LOG_ACTIONS = {
@@ -89,6 +91,30 @@ def get_icon_from_settings(key):
   :return: icon (i.e. value) of given key in icon dictionary
   """
   return settings.BEMAS_ICONS.get(key, 'poo')
+
+
+def get_json_data(curr_object, field):
+  """
+  returns JSONesque value of given field of given object
+
+  :param curr_object: object
+  :param field: field
+  :return: JSONesque value of given field of given object
+  """
+  value = getattr(curr_object, field)
+  # format timestamps
+  if isinstance(value, datetime):
+    value_tz = value.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+    value = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+  # format dates
+  elif isinstance(value, date):
+    value = value.strftime('%d.%m.%Y')
+  # format originators
+  elif field == 'originator':
+    value = value.sector_and_operator()
+  else:
+    value = str(value)
+  return value
 
 
 def is_bemas_admin(user):

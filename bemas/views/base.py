@@ -5,14 +5,15 @@ from django.db.models import ForeignKey, Q
 from django.urls import reverse
 from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
+from jsonview.views import JsonView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
 from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
-from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified, \
-  get_model_objects
+from .functions import create_geojson_feature, generate_foreign_key_link, \
+  generate_foreign_key_link_simplified, get_model_objects
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -97,17 +98,14 @@ class GenericTableDataView(BaseDatatableView):
             # ordinary columns
             elif not column.name.startswith('address_'):
               if value is not None:
-                # format Booleans
-                if isinstance(value, bool):
-                  data = ('ja' if value is True else 'nein')
-                # format dates
-                elif isinstance(value, date):
-                  data = value.strftime('%d.%m.%Y')
                 # format timestamps
-                elif isinstance(value, datetime):
+                if isinstance(value, datetime):
                   value_tz = value.replace(tzinfo=timezone.utc).astimezone(
                     ZoneInfo(settings.TIME_ZONE))
                   data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+                # format dates
+                elif isinstance(value, date):
+                  data = value.strftime('%d.%m.%Y')
                 # format lists
                 elif type(value) is list:
                   data = '<br>'.join(value)
@@ -282,3 +280,45 @@ class GenericTableDataView(BaseDatatableView):
       column_name = column_names[int(order_column)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)
+
+
+class GenericMapDataView(JsonView):
+  """
+  map data composition view
+
+  :param model: model
+  """
+
+  model = None
+
+  def __init__(self, model=None, *args, **kwargs):
+    self.model = model
+    super().__init__(*args, **kwargs)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns GeoJSON feature collection
+
+    :param kwargs:
+    :return: GeoJSON feature collection
+    """
+    # declare empty GeoJSON feature collection
+    feature_collection = {
+        'type': 'FeatureCollection',
+        'features': []
+    }
+    if self.kwargs and self.kwargs['subset_id']:
+      objects = None
+      # TODO:
+      # 1. Subset holen und davon die PKs kriegen
+      # 2. mit self.model und PKs in get_model_objects() gehen,
+      # die dann halt noch um die PKs-Verarbeitung ergämnzt werden muss
+    else:
+      objects = get_model_objects(self.model, False)
+    # handle objects
+    for curr_object in objects:
+      # create GeoJSON feature
+      feature = create_geojson_feature(curr_object)
+      # add GeoJSON feature to GeoJSON feature collection
+      feature_collection['features'].append(feature)
+    return feature_collection

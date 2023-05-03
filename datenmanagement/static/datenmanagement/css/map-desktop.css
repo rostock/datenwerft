@@ -1,13 +1,9 @@
-#address-search,
-#map-control {
-  margin-top: 2rem;
-}
-
 #map-side-container {
   min-height: 800px;
 }
 
-#map {
+#map,
+#leaflet-map {
   min-height: 800px;
   width: 70%;
   float: left;

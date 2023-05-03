@@ -1,12 +1,9 @@
-#address-search,
-#map-control {
+#filter,
+#complaints-filter {
   margin-top: 1rem;
 }
 
-#filter {
-  margin-top: 1rem;
-}
-
-#map {
+#map,
+#leaflet-map {
   height: 600px;
 }

@@ -1,16 +1,18 @@
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.serializers import serialize
 from django.forms import Select, Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
+from json import loads
 from leaflet.forms.widgets import LeafletWidget
 from operator import itemgetter
 
 from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
   Originator
 from bemas.utils import generate_user_string, get_foreign_key_target_model, \
-  get_foreign_key_target_object, get_icon_from_settings, is_bemas_admin, is_bemas_user, \
-  is_geometry_field
+  get_foreign_key_target_object, get_icon_from_settings, get_json_data, is_bemas_admin, \
+  is_bemas_user, is_geometry_field
 
 
 def add_codelist_context_elements(context, model, curr_object=None):
@@ -235,6 +237,80 @@ def assign_widget(field):
     # highlight corresponding form field as array field via custom HTML attribute
     form_field.widget.attrs['is_array_field'] = 'true'
   return form_field
+
+
+def create_geojson_feature(curr_object):
+  """
+  creates a GeoJSON feature based on given object and returns it
+
+  :param curr_object: object
+  :return: GeoJSON feature based on given object
+  """
+  # GeoJSON-serialize object
+  object_geojson_serialized = loads(serialize('geojson', [curr_object]))
+  model = curr_object.__class__.__name__.lower()
+  pk = curr_object.pk
+  # define GeoJSON feature:
+  # get geometry from GeoJSON-serialized object,
+  # get (meta) properties directly from object
+  geojson_feature = {
+    'type': 'Feature',
+    'geometry': object_geojson_serialized['features'][0]['geometry'],
+    'properties': {
+      '_model': model,
+      '_tooltip': str(curr_object),
+      '_title': curr_object.__class__._meta.verbose_name,
+      '_link_update': reverse('bemas:' + model + '_update', args=[pk]),
+      '_link_delete': reverse('bemas:' + model + '_delete', args=[pk]),
+      '_link_logentries': reverse(
+        'bemas:logentry_table_model_object', args=[curr_object.__class__.__name__, pk])
+    }
+  }
+  # add further properties to GeoJSON feature
+  for field in curr_object.__class__._meta.concrete_fields:
+    if (
+        getattr(curr_object, field.name)
+        and (
+          (
+              issubclass(curr_object.__class__, Complaint)
+              and field.name in (
+                  'id', 'created_at', 'updated_at', 'date_of_receipt', 'status',
+                  'status_updated_at', 'type_of_immission', 'address', 'originator',
+                  'description', 'dms_link', 'storage_location'
+              )
+          )
+          or (
+              issubclass(curr_object.__class__, Originator)
+              and field.name in (
+                  'id', 'created_at', 'updated_at', 'sector',
+                  'operator', 'description', 'address', 'dms_link'
+              )
+          )
+        )
+    ):
+      geojson_feature['properties'][field.verbose_name] = get_json_data(curr_object, field.name)
+  # object class complaint
+  if issubclass(curr_object.__class__, Complaint):
+    # add events link as property
+    geojson_feature['properties']['_link_events'] = reverse(
+      'bemas:event_table_complaint', args=[pk])
+    # add complainers as property
+    complainers = ''
+    complainers_organizations = Complaint.objects.get(pk=pk).complainers_organizations.all()
+    if complainers_organizations:
+      for index, organization in enumerate(complainers_organizations):
+        complainers += '<br>' if index > 0 else ''
+        complainers += str(organization)
+    complainers_persons = Complaint.objects.get(pk=pk).complainers_persons.all()
+    if complainers_persons:
+      for index, person in enumerate(complainers_persons):
+        complainers += '<br>' if index > 0 or complainers_organizations else ''
+        complainers += str(person)
+    # designate anonymous complaint
+    if not complainers:
+      complainers = 'anonyme Beschwerde'
+    geojson_feature['properties']['Beschwerdeführung'] = complainers
+  return geojson_feature
 
 
 def create_log_entry(model, object_pk, action, content, user):

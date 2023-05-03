@@ -209,21 +209,33 @@ BEMAS_ICONS = {
   # 'deleted': 'minus',
   'error': 'circle-exclamation',
   'event': 'paperclip',
+  'filter_off': 'filter-circle-xmark',
+  'filter_on': 'filter',
   'info': 'circle-info',
   'logentry': 'clock-rotate-left',
-  # 'map': 'map-location-dot',
+  'map': 'map-location-dot',
+  'map_with_filter': 'map-location',
   'ok': 'circle-check',
   'organization': 'building',
   'originator': 'industry',
   # 'orphaned_data': 'ghost',
   'person': 'user',
   'save': 'floppy-disk',
-  # 'show_on_map': 'map',
+  'show_on_map': 'map',
   # 'statistics': 'chart-simple',
   'table': 'table',
   'update': 'pen',
   # 'updated': 'pen',
   'warning': 'triangle-exclamation'
+}
+
+
+# App BEMAS:
+# Farben
+
+BEMAS_COLORS = {
+  'complaint': '#b85814',
+  'originator': '#3d8f8f'
 }
 
 

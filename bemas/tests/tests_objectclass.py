@@ -1,5 +1,5 @@
-from bemas.models import Complaint, Contact, Event, LogEntry, Organization, Originator, Person, \
-  Sector, Status, TypeOfEvent, TypeOfImmission
+from bemas.models import Complaint, Contact, Event, Organization, Originator, Person, Sector, \
+  Status, TypeOfEvent, TypeOfImmission
 from .base import DefaultManyToManyTestCase, DefaultModelTestCase, DefaultViewTestCase
 from .constants_vars import INVALID_STRING, TABLEDATA_VIEW_PARAMS, VALID_DATE, VALID_POINT_DB, \
   VALID_POINT_VIEW
@@ -443,6 +443,12 @@ class OriginatorViewsTest(DefaultViewTestCase):
       200, 'text/html; charset=utf-8', 'neue'
     )
 
+  def test_mapdata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_mapdata', None,
+      200, 'application/json', 'FeatureCollection'
+    )
+
 
 class ComplaintModelTest(DefaultModelTestCase):
   """
@@ -577,6 +583,12 @@ class ComplaintViewsTest(DefaultViewTestCase):
     self.generic_view_test(
       True, False, 'complaint_create', None,
       200, 'text/html; charset=utf-8', 'neue'
+    )
+
+  def test_mapdata_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_mapdata', None,
+      200, 'application/json', 'FeatureCollection'
     )
 
 
