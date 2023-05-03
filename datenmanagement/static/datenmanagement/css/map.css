@@ -1,6 +1,5 @@
-#address-search,
-#map-control,
-#originators-filter {
+#address-search:not(.accordion-item),
+#map-control:not(.accordion-item) {
   margin-top: 2rem;
 }
 

@@ -83,6 +83,20 @@ class MapView(TemplateView):
     context['complaints_mapdata_url'] = reverse('bemas:complaint_mapdata')
     context['originators_mapdata_url'] = reverse('bemas:originator_mapdata')
     # add filter related information to context
+    context['complaints_status'] = list(
+      Complaint.objects.order_by('status').values_list('status__title', flat=True).distinct()
+    )
+    context['complaints_types_of_immission'] = list(
+      Complaint.objects.order_by('type_of_immission').values_list(
+        'type_of_immission__title', flat=True).distinct()
+    )
+    complaints_originators = Complaint.objects.order_by('originator').values_list(
+      'originator', flat=True).distinct()
+    complaints_originators_list = []
+    for originator in complaints_originators:
+      complaints_originators_list.append(
+        Originator.objects.get(pk=originator).sector_and_operator())
+    context['complaints_originators'] = complaints_originators_list
     context['originators_sectors'] = list(
       Originator.objects.order_by('sector').values_list('sector__title', flat=True).distinct()
     )

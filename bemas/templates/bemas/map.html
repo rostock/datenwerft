@@ -46,73 +46,179 @@
     {% if objects_count > 0 %}
       <div id="map-side-container" class="mb-3">
         {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
-        <div id="complaints-filter"{% if not is_mobile %} class="side"{% endif %}>
-          <h5>Filter für <span style="color:{{ complaints_color }}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden</span></h5>
-          <div id="complaints-filter-alert" class="alert alert-warning" role="alert">Filter für Beschwerden wirken <strong>additiv</strong> (wie „UND“)</div>
-          <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
-            <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
-            <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
-          </div>
-        </div>
-        <div id="originators-filter"{% if not is_mobile %} class="side"{% endif %}>
-          <h5>Filter für <span style="color:{{ originators_color }}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher</span></h5>
-          <div id="originators-filter-alert" class="alert alert-warning" role="alert">Filter für Verursacher wirken <strong>additiv</strong> (wie „UND“)</div>
-          <div id="filter-normal">
-            <div class="d-grid mt-2 mb-3">
-              <label for="filter-input-sector" class="form-label">Branche</label>
-              <div class="input-group">
-                <select id="filter-input-sector" name="sector" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
-                  {% for originators_sector in originators_sectors %}
-                    <option value="{{ originators_sector }}">{{ originators_sector }}</option>
-                  {% endfor %}
-                </select>
-                <button class="input-reset btn btn-outline-secondary">
-                  <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
-                </button>
+        <div class="accordion accordion-flush{% if not is_mobile %} side{% endif %}">
+          <div class="accordion-item" id="complaints-filter">
+            <h2 class="accordion-header" id="heading-complaints-filter">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-complaints-filter" aria-expanded="false" aria-controls="collapse-complaints-filter">
+                Filter für Beschwerden
+              </button>
+            </h2>
+            <div id="collapse-complaints-filter" class="accordion-collapse collapse" aria-labelledby="heading-complaints-filter">
+              <div class="accordion-body">
+                <div id="complaints-filter-alert" class="alert alert-warning" role="alert">Filter für Beschwerden wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="d-grid mb-3">
+                  <label for="filter-input-complaints-id" class="form-label"><em>ID</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-id" type="text" name="complaints-id" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label class="form-label"><em>Eingangsdatum</em></label>
+                  <small><em>zwischen</em></small>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-date_of_receipt-left" type="date" name="complaints-date_of_receipt-left" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="left" data-logic="positive">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                  <small class="mt-1"><em>und</em></small>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-date_of_receipt-right" type="date" name="complaints-date_of_receipt-right" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="right" data-logic="positive">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-status" class="form-label"><em>Status</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-complaints-status" name="complaints-status" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                      {% for status in complaints_status %}
+                        <option value="{{ status }}">{{ status }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-type_of_immission" class="form-label"><em>Immissionsart</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-complaints-type_of_immission" name="complaints-type_of_immission" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                      {% for type_of_immission in complaints_types_of_immission %}
+                        <option value="{{ type_of_immission }}">{{ type_of_immission }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-originator" class="form-label"><em>Verursacher</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-complaints-originator" name="complaints-originator" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                      {% for originator in complaints_originators %}
+                        <option value="{{ originator }}">{{ originator }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2">
+                  <label for="filter-input-complaints-description" class="form-label"><em>Beschreibung</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-description" type="text" name="complaints-description" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
+                  <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
+                  <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+                </div>
               </div>
             </div>
-            <div class="d-grid mt-2 mb-3">
-              <label for="filter-input-operator" class="form-label">Betreiberin</label>
-              <div class="input-group">
-                <select id="filter-input-operator" name="operator" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
-                  {% for originators_operator in originators_operators %}
-                    <option value="{{ originators_operator }}">{{ originators_operator }}</option>
-                  {% endfor %}
-                </select>
-                <button class="input-reset btn btn-outline-secondary">
-                  <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
-                </button>
+          </div>
+          <div class="accordion-item" id="originators-filter">
+            <h2 class="accordion-header" id="heading-originators-filter">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-originators-filter" aria-expanded="false" aria-controls="collapse-originators-filter">
+                Filter für Verursacher
+              </button>
+            </h2>
+            <div id="collapse-originators-filter" class="accordion-collapse collapse" aria-labelledby="heading-originators-filter">
+              <div class="accordion-body">
+                <div id="originators-filter-alert" class="alert alert-warning" role="alert">Filter für Verursacher wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="d-grid mb-3">
+                  <label for="filter-input-originators-sector" class="form-label"><em>Branche</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-originators-sector" name="originators-sector" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                      {% for sector in originators_sectors %}
+                        <option value="{{ sector }}">{{ sector }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-originators-operator" class="form-label"><em>Betreiberin</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-originators-operator" name="originators-operator" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                      {% for operator in originators_operators %}
+                        <option value="{{ operator }}">{{ operator }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2">
+                  <label for="filter-input-originators-description" class="form-label"><em>Beschreibung</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-originators-description" type="text" name="originators-description" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="originators-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
+                  <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
+                  <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+                </div>
               </div>
             </div>
-            <div class="d-grid mt-2 mb-3">
-              <label for="filter-input-description" class="form-label">Beschreibung</label>
-              <div class="input-group">
-                <input id="filter-input-description" type="text" name="description" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
-                <button class="input-reset btn btn-outline-secondary">
-                  <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
-                </button>
+          </div>
+          <div class="accordion-item" id="map-control">
+            <h2 class="accordion-header" id="heading-map-control">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-map-control" aria-expanded="false" aria-controls="collapse-map-control">
+                Kartenausschnitt
+              </button>
+            </h2>
+            <div id="collapse-map-control" class="accordion-collapse collapse" aria-labelledby="heading-map-control">
+              <div class="accordion-body">
+                <div class="d-grid gap-2 d-md-block">
+                  <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuelle Filtermenge</button>
+                  <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
+                </div>
               </div>
             </div>
           </div>
-          <div id="originators-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
-            <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
-            <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+          <div class="accordion-item" id="address-search">
+            <h2 class="accordion-header" id="heading-address-search">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-address-search" aria-expanded="false" aria-controls="collapse-address-search">
+                Adressensuche
+              </button>
+            </h2>
+            <div id="collapse-address-search" class="accordion-collapse collapse" aria-labelledby="heading-address-search">
+              <div class="accordion-body">
+                <div class="form-floating">
+                  <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+                  <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
+                </div>
+                <div id="results-container" class="results"></div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div id="map-control"{% if not is_mobile %} class="side"{% endif %}>
-          <h5>Kartenausschnitt</h5>
-          <div class="d-grid mt-2 gap-2 d-md-block">
-            <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuelle Filtermenge</button>
-            <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
-          </div>
-        </div>
-        <div id="address-search"{% if not is_mobile %} class="side"{% endif %}>
-          <h5>Adressensuche</h5>
-          <div class="form-floating">
-            <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
-            <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
-          </div>
-          <div id="results-container" class="results"></div>
         </div>
       </div>
       {% include "modal-error.html" %}
@@ -203,6 +309,16 @@
           window.objectsExtent = map.getBounds();
           window.removedLayers = [];
           window.featureGeometry = [];
+
+          // if map center URL parameter is present,
+          // set initial map extent by means of map center URL parameter
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('center')) {
+            const center = urlParams.get('center').split(',');
+            // call corresponding function twice in order to refresh the map
+            setMapExtentByXYAndZoomLevel(Number(center[0]), Number(center[1]), 18);
+            setMapExtentByXYAndZoomLevel(Number(center[0]), Number(center[1]), 19);
+          }
         }
 
         /**

@@ -9,7 +9,7 @@ from jsonview.views import JsonView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Person
+from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
 from .functions import create_geojson_feature, generate_foreign_key_link, \
@@ -179,6 +179,13 @@ class GenericTableDataView(BaseDatatableView):
               'bemas:event_table_complaint', args=[item_pk])
             event_link += '"><i class="fas fa-' + get_icon_from_settings('event') + \
                           '" title="Journalereignisse anzeigen"></i></a>'
+          map_link = ''
+          if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
+            point = getattr(item, self.model._meta.model.BasemodelMeta.geometry_field)
+            map_link = '<a class="ms-2" href="' + reverse('bemas:map')
+            map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
+            map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + \
+                        '" title="' + title + ' auf Karte anzeigen"></i></a>'
           item_data.append(
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
@@ -189,7 +196,8 @@ class GenericTableDataView(BaseDatatableView):
             '"><i class="fas fa-' + get_icon_from_settings('delete') +
             '" title="' + title + ' löschen"></i></a>' +
             event_link +
-            log_entry_link
+            log_entry_link +
+            map_link
           )
         json_data.append(item_data)
     return json_data
