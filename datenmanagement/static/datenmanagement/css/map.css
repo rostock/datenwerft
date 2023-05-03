@@ -117,7 +117,7 @@
 .leaflet-control-layers-toggle {
   background-size: 60%;
   background-repeat: no-repeat;
-  background-image: url("../img/layer-control-wms.svg");
+  background-image: url("../img/layer-control-wms.svg") !important;
 }
 
 /*
@@ -125,9 +125,11 @@
  */
 
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {
-  mask-image: url("../img/location-arrow-solid.svg");
+  -webkit-mask-image: url("../img/location-arrow-solid.svg") !important;
+  background-image: url("../img/location-arrow-solid.svg") !important;
 }
 
 .leaflet-control-locate a .leaflet-control-locate-spinner {
-  mask-image: url("../img/spinner-solid.svg");
+  -webkit-mask-image: url("../img/spinner-solid.svg") !important;
+  mask-image: url("../img/spinner-solid.svg") !important;
 }

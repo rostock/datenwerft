@@ -258,6 +258,7 @@ def create_geojson_feature(curr_object):
     'geometry': object_geojson_serialized['features'][0]['geometry'],
     'properties': {
       '_model': model,
+      '_pk': pk,
       '_tooltip': str(curr_object),
       '_title': curr_object.__class__._meta.verbose_name,
       '_link_update': reverse('bemas:' + model + '_update', args=[pk]),
@@ -266,7 +267,7 @@ def create_geojson_feature(curr_object):
         'bemas:logentry_table_model_object', args=[curr_object.__class__.__name__, pk])
     }
   }
-  # add further properties to GeoJSON feature
+  # add properties for map pop-up to GeoJSON feature
   for field in curr_object.__class__._meta.concrete_fields:
     if (
         getattr(curr_object, field.name)
@@ -289,12 +290,12 @@ def create_geojson_feature(curr_object):
         )
     ):
       geojson_feature['properties'][field.verbose_name] = get_json_data(curr_object, field.name)
-  # object class complaint
+  # object class complaint:
   if issubclass(curr_object.__class__, Complaint):
-    # add events link as property
+    # add events link as property to GeoJSON feature
     geojson_feature['properties']['_link_events'] = reverse(
       'bemas:event_table_complaint', args=[pk])
-    # add complainers as property
+    # add complainers as property to GeoJSON feature
     complainers = ''
     complainers_organizations = Complaint.objects.get(pk=pk).complainers_organizations.all()
     if complainers_organizations:
@@ -306,10 +307,27 @@ def create_geojson_feature(curr_object):
       for index, person in enumerate(complainers_persons):
         complainers += '<br>' if index > 0 or complainers_organizations else ''
         complainers += str(person)
-    # designate anonymous complaint
+    # designate anonymous complaint if necessary
     if not complainers:
       complainers = 'anonyme Beschwerde'
     geojson_feature['properties']['Beschwerdeführung'] = complainers
+  # add properties for filters to GeoJSON feature
+  for field in curr_object.__class__._meta.concrete_fields:
+    if (
+          (
+              issubclass(curr_object.__class__, Complaint)
+              and field.name in (
+                  'id', 'date_of_receipt', 'status',
+                  'type_of_immission', 'originator', 'description'
+              )
+          )
+          or (
+              issubclass(curr_object.__class__, Originator)
+              and field.name in ('sector', 'operator', 'description')
+          )
+    ):
+      geojson_feature['properties']['_' + field.name + '_'] = get_json_data(
+        curr_object, field.name, True)
   return geojson_feature
 
 

@@ -1,5 +1,33 @@
-/* global $, jQuery, toggleModal */
+/* global $, currMap, jQuery, toggleModal */
 /* eslint no-undef: "error" */
+
+/**
+ * @function
+ * @name applyFilters
+ *
+ * applies filters for given model based on given filter objects list
+ *
+ * @param {string} model - model
+ * @param {Object[]} filterObjectsList - filter objects list
+ */
+function applyFilters(model, filterObjectsList) {
+  if (filterObjectsList.length > 0) {
+    showAllGeoJsonFeatures(model);
+    window.currMap.eachLayer(function(layer) {
+      if (layer.feature && model.includes(layer.feature.properties._model)) {
+        filterGeoJsonFeatures(model, filterObjectsList, layer, false);
+      } else if (layer.id === model + 'Cluster') {
+        let clusterLayer = layer;
+        layer.eachLayer(function(subLayer) {
+          filterGeoJsonFeatures(model, filterObjectsList, subLayer, true, clusterLayer);
+        });
+        layer.refreshClusters();
+      }
+    });
+  } else {
+    showAllGeoJsonFeatures(model);
+  }
+}
 
 /**
  * @function
@@ -24,6 +52,139 @@ async function fetchGeoJsonFeatureCollection(url, lastCall=false) {
   } catch (error) {
     console.error(error);
   }
+}
+
+/**
+ * @function
+ * @name filterApplication
+ *
+ * applies filters for given model
+ *
+ * @param {string} model - model
+ */
+function filterApplication(model) {
+  // enable button to transfer currently filtered data to table
+  $('#' + model + '-subsetter').prop('disabled', false);
+
+  // reset primary keys and map extent of currently filtered data
+  if (model === 'complaints') {
+    window.currentComplaintsFilterPrimaryKeys = [];
+    window.currentComplaintsFilterExtent = [];
+  } else if (model === 'originators') {
+    window.currentOriginatorsFilterPrimaryKeys = [];
+    window.currentOriginatorsFilterExtent = [];
+  }
+
+  // show filter alert
+  $('#' + model + '-filter-alert').show();
+
+  // create filter objects list
+  let filterObjectsList = [];
+  $('[id^=filter-input-' + model + ']').each(function() {
+    if ($(this).val()) {
+      // create filter as object with name, type, (optionally) interval side and value
+      let filterAttribute = {};
+      filterAttribute.name = $(this).attr('name').replace(model + '-', '').replace(/-.*$/, '');
+      filterAttribute.type = $(this).data('type');
+      if ($(this).data('intervalside'))
+        filterAttribute.intervalside = $(this).data('intervalside');
+      filterAttribute.value = $(this).val();
+      // add filter object to filter objects list
+      filterObjectsList.push(filterAttribute);
+    }
+  });
+
+  // apply filters
+  applyFilters(model, filterObjectsList);
+}
+
+/**
+ * @function
+ * @name filterGeoJsonFeatures
+ *
+ * filters GeoJSON features based on given filter objects list
+ *
+ * @param {string} model - model
+ * @param {Object[]} filterObjectsList - filter objects list
+ * @param {Object} layer - GeoJSON map layer
+ * @param {boolean} isSubLayer - GeoJSON map layer is part of a map cluster?
+ * @param {Object} [clusterLayer=layer] - map cluster (equals GeoJSON map layer per default)
+ */
+function filterGeoJsonFeatures(model, filterObjectsList, layer, isSubLayer, clusterLayer = layer) {
+  let stillVisible = true;
+  for (let i = 0; i < filterObjectsList.length; i++) {
+    // "lefty" interval date filter
+    if (filterObjectsList[i].intervalside === 'left') {
+      if (filterObjectsList[i].type === 'date') {
+        if (new Date(filterObjectsList[i].value) > new Date(layer.feature.properties['_' + filterObjectsList[i].name + '_']))
+          stillVisible = false;
+      }
+    // "righty" interval date filter
+    } else if (filterObjectsList[i].intervalside === 'right') {
+      if (filterObjectsList[i].type === 'date') {
+        if (new Date(layer.feature.properties['_' + filterObjectsList[i].name + '_']) > new Date(filterObjectsList[i].value))
+          stillVisible = false;
+      }
+    } else {
+      // text filter based on list values
+      if (filterObjectsList[i].type === 'list') {
+        if (layer.feature.properties['_' + filterObjectsList[i].name + '_'].toLowerCase() !== filterObjectsList[i].value.toLowerCase())
+          stillVisible = false;
+      // ordinary text filter
+      } else {
+         if (layer.feature.properties['_' + filterObjectsList[i].name + '_'].toLowerCase().indexOf(filterObjectsList[i].value.toLowerCase()) === -1)
+          stillVisible = false;
+      }
+    }
+  }
+  if (stillVisible) {
+    // update variables for primary keys and map extent of currently filtered data
+    updateCurrentlyFilteredDataVariables(model, layer);
+  } else {
+    // hide GeoJSON feature
+    if (isSubLayer) {
+      if (model === 'complaints') {
+        window.removedComplaintsLayers.push(layer);
+      } else if (model === 'originators') {
+        window.removedOriginatorsLayers.push(layer);
+      }
+      clusterLayer.removeLayer(layer);
+    } else
+      layer.getElement().style.display = 'none';
+  }
+}
+
+/**
+ * @function
+ * @name filterReset
+ *
+ * resets filters for given model
+ *
+ * @param {string} model - model
+ */
+function filterReset(model) {
+  // disable button to transfer currently filtered data to table
+  $('#' + model + '-subsetter').prop('disabled', true);
+
+  // hide filter alert
+  $('#' + model + '-filter-alert').hide();
+
+  // empty all filter fields
+  $('[id^=filter-input-' + model + ']').each(function() {
+    $(this).val('');
+  });
+
+  // reset primary keys and map extent of currently filtered data
+  if (model === 'complaints') {
+    window.currentComplaintsFilterPrimaryKeys = [];
+    window.currentComplaintsFilterExtent = [];
+  } else if (model === 'originators') {
+    window.currentOriginatorsFilterPrimaryKeys = [];
+    window.currentOriginatorsFilterExtent = [];
+  }
+
+  // show all GeoJSON features
+  showAllGeoJsonFeatures(model);
 }
 
 /**
@@ -60,4 +221,85 @@ function setGeoJsonFeaturePropertiesAndActions(feature, layer) {
   html +=   '</table>';
   html += '</div>';
   layer.bindPopup(html);
+}
+
+/**
+ * @function
+ * @name showAllGeoJsonFeatures
+ *
+ * shows all GeoJSON features of given model
+ *
+ * @param {string} model - model
+ */
+function showAllGeoJsonFeatures(model) {
+  currMap.eachLayer(function(layer) {
+    if (layer.feature && model.includes(layer.feature.properties._model)) {
+      layer.getElement().style.display = '';
+    } else if (layer.id === model + 'Cluster') {
+        if (model === 'complaints') {
+          layer.addLayers(window.removedComplaintsLayers);
+        } else if (model === 'originators') {
+          layer.addLayers(window.removedOriginatorsLayers);
+        }
+        layer.refreshClusters();
+    }
+  });
+  if (model === 'complaints') {
+    window.removedComplaintsLayers = [];
+  } else if (model === 'originators') {
+    window.removedOriginatorsLayers = [];
+  }
+}
+
+/**
+ * @function
+ * @name updateCurrentlyFilteredDataVariables
+ *
+ * update variables of currently filtered data for given model based on given GeoJSON map layer
+ *
+ * @param {string} model - model
+ * @param {Object} layer - GeoJSON map layer
+ */
+function updateCurrentlyFilteredDataVariables(model, layer) {
+  let y = (layer.getLatLng().lat);
+  let x = (layer.getLatLng().lng);
+  if (model === 'complaints') {
+    window.currentComplaintsFilterPrimaryKeys.push(layer.feature.properties._pk);
+    if (window.currentComplaintsFilterExtent.length === 0) {
+      window.currentComplaintsFilterExtent[0] = [];
+      window.currentComplaintsFilterExtent[0][0] = y;
+      window.currentComplaintsFilterExtent[0][1] = x;
+      window.currentComplaintsFilterExtent[1] = [];
+      window.currentComplaintsFilterExtent[1][0] = y;
+      window.currentComplaintsFilterExtent[1][1] = x;
+    } else {
+      if (window.currentComplaintsFilterExtent[0][0] > y)
+        window.currentComplaintsFilterExtent[0][0] = y;
+      if (window.currentComplaintsFilterExtent[0][1] > x)
+        window.currentComplaintsFilterExtent[0][1] = x;
+      if (window.currentComplaintsFilterExtent[1][0] < y)
+        window.currentComplaintsFilterExtent[1][0] = y;
+      if (window.currentComplaintsFilterExtent[1][1] < x)
+        window.currentComplaintsFilterExtent[1][1] = x;
+    }
+  } else if (model === 'originators') {
+    window.currentOriginatorsFilterPrimaryKeys.push(layer.feature.properties._pk);
+    if (window.currentOriginatorsFilterExtent.length === 0) {
+      window.currentOriginatorsFilterExtent[0] = [];
+      window.currentOriginatorsFilterExtent[0][0] = y;
+      window.currentOriginatorsFilterExtent[0][1] = x;
+      window.currentOriginatorsFilterExtent[1] = [];
+      window.currentOriginatorsFilterExtent[1][0] = y;
+      window.currentOriginatorsFilterExtent[1][1] = x;
+    } else {
+      if (window.currentOriginatorsFilterExtent[0][0] > y)
+        window.currentOriginatorsFilterExtent[0][0] = y;
+      if (window.currentOriginatorsFilterExtent[0][1] > x)
+        window.currentOriginatorsFilterExtent[0][1] = x;
+      if (window.currentOriginatorsFilterExtent[1][0] < y)
+        window.currentOriginatorsFilterExtent[1][0] = y;
+      if (window.currentOriginatorsFilterExtent[1][1] < x)
+        window.currentOriginatorsFilterExtent[1][1] = x;
+    }
+  }
 }

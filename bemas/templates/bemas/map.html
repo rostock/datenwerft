@@ -59,24 +59,24 @@
                 <div class="d-grid mb-3">
                   <label for="filter-input-complaints-id" class="form-label"><em>ID</em></label>
                   <div class="input-group">
-                    <input id="filter-input-complaints-id" type="text" name="complaints-id" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                    <input id="filter-input-complaints-id" type="text" name="complaints-id" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
                       <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
                     </button>
                   </div>
                 </div>
                 <div class="d-grid mt-2 mb-3">
-                  <label class="form-label"><em>Eingangsdatum</em></label>
-                  <small><em>zwischen</em></small>
+                  <label for="filter-input-complaints-date_of_receipt-left" class="form-label"><em>Eingangsdatum</em></label>
+                  <small><label for="filter-input-complaints-date_of_receipt-left" class="form-label"><em>zwischen</em></label></small>
                   <div class="input-group">
-                    <input id="filter-input-complaints-date_of_receipt-left" type="date" name="complaints-date_of_receipt-left" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="left" data-logic="positive">
+                    <input id="filter-input-complaints-date_of_receipt-left" type="date" name="complaints-date_of_receipt-left" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="left">
                     <button class="input-reset btn btn-outline-secondary">
                       <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
                     </button>
                   </div>
-                  <small class="mt-1"><em>und</em></small>
+                  <small><label for="filter-input-complaints-date_of_receipt-right" class="form-label mt-2"><em>und</em></label></small>
                   <div class="input-group">
-                    <input id="filter-input-complaints-date_of_receipt-right" type="date" name="complaints-date_of_receipt-right" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="right" data-logic="positive">
+                    <input id="filter-input-complaints-date_of_receipt-right" type="date" name="complaints-date_of_receipt-right" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="right">
                     <button class="input-reset btn btn-outline-secondary">
                       <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
                     </button>
@@ -85,7 +85,7 @@
                 <div class="d-grid mt-2 mb-3">
                   <label for="filter-input-complaints-status" class="form-label"><em>Status</em></label>
                   <div class="input-group">
-                    <select id="filter-input-complaints-status" name="complaints-status" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                    <select id="filter-input-complaints-status" name="complaints-status" class="form-select filter-input" data-type="list">
                       {% for status in complaints_status %}
                         <option value="{{ status }}">{{ status }}</option>
                       {% endfor %}
@@ -98,7 +98,7 @@
                 <div class="d-grid mt-2 mb-3">
                   <label for="filter-input-complaints-type_of_immission" class="form-label"><em>Immissionsart</em></label>
                   <div class="input-group">
-                    <select id="filter-input-complaints-type_of_immission" name="complaints-type_of_immission" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                    <select id="filter-input-complaints-type_of_immission" name="complaints-type_of_immission" class="form-select filter-input" data-type="list">
                       {% for type_of_immission in complaints_types_of_immission %}
                         <option value="{{ type_of_immission }}">{{ type_of_immission }}</option>
                       {% endfor %}
@@ -111,7 +111,7 @@
                 <div class="d-grid mt-2 mb-3">
                   <label for="filter-input-complaints-originator" class="form-label"><em>Verursacher</em></label>
                   <div class="input-group">
-                    <select id="filter-input-complaints-originator" name="complaints-originator" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                    <select id="filter-input-complaints-originator" name="complaints-originator" class="form-select filter-input" data-type="list">
                       {% for originator in complaints_originators %}
                         <option value="{{ originator }}">{{ originator }}</option>
                       {% endfor %}
@@ -124,7 +124,7 @@
                 <div class="d-grid mt-2">
                   <label for="filter-input-complaints-description" class="form-label"><em>Beschreibung</em></label>
                   <div class="input-group">
-                    <input id="filter-input-complaints-description" type="text" name="complaints-description" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                    <input id="filter-input-complaints-description" type="text" name="complaints-description" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
                       <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
                     </button>
@@ -149,7 +149,7 @@
                 <div class="d-grid mb-3">
                   <label for="filter-input-originators-sector" class="form-label"><em>Branche</em></label>
                   <div class="input-group">
-                    <select id="filter-input-originators-sector" name="originators-sector" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                    <select id="filter-input-originators-sector" name="originators-sector" class="form-select filter-input" data-type="list">
                       {% for sector in originators_sectors %}
                         <option value="{{ sector }}">{{ sector }}</option>
                       {% endfor %}
@@ -162,7 +162,7 @@
                 <div class="d-grid mt-2 mb-3">
                   <label for="filter-input-originators-operator" class="form-label"><em>Betreiberin</em></label>
                   <div class="input-group">
-                    <select id="filter-input-originators-operator" name="originators-operator" class="form-select filter-input" data-type="list" data-intervalside="both" data-logic="positive">
+                    <select id="filter-input-originators-operator" name="originators-operator" class="form-select filter-input" data-type="list">
                       {% for operator in originators_operators %}
                         <option value="{{ operator }}">{{ operator }}</option>
                       {% endfor %}
@@ -175,7 +175,7 @@
                 <div class="d-grid mt-2">
                   <label for="filter-input-originators-description" class="form-label"><em>Beschreibung</em></label>
                   <div class="input-group">
-                    <input id="filter-input-originators-description" type="text" name="originators-description" class="form-control filter-input" data-type="text" data-intervalside="both" data-logic="positive">
+                    <input id="filter-input-originators-description" type="text" name="originators-description" class="form-control filter-input" data-type="text">
                     <button class="input-reset btn btn-outline-secondary">
                       <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
                     </button>
@@ -196,8 +196,9 @@
             </h2>
             <div id="collapse-map-control" class="accordion-collapse collapse" aria-labelledby="heading-map-control">
               <div class="accordion-body">
-                <div class="d-grid gap-2 d-md-block">
-                  <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuelle Filtermenge</button>
+                <div class="d-grid gap-2">
+                  <button id="complaints-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+                  <button id="originators-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
                   <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
                 </div>
               </div>
@@ -224,7 +225,7 @@
       {% include "modal-error.html" %}
       {% include "modal-loading.html" %}
       <script>
-        /* global $, configureMap, enableMapLocate, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, searchField, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByXYAndZoomLevel */
+        /* global $, configureMap, enableMapLocate, filterApplication, filterReset, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, objectsExtent, searchField, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByBoundingBox, setMapExtentByLeafletBounds, setMapExtentByXYAndZoomLevel */
         /* eslint no-undef: "error" */
         /**
          * @function
@@ -307,7 +308,8 @@
 
           // define several globally available variables
           window.objectsExtent = map.getBounds();
-          window.removedLayers = [];
+          window.removedComplaintsLayers = [];
+          window.removedOriginatorsLayers = [];
           window.featureGeometry = [];
 
           // if map center URL parameter is present,
@@ -315,7 +317,7 @@
           const urlParams = new URLSearchParams(window.location.search);
           if (urlParams.get('center')) {
             const center = urlParams.get('center').split(',');
-            // call corresponding function twice in order to refresh the map
+            // call corresponding function twice (!) in order to refresh the map
             setMapExtentByXYAndZoomLevel(Number(center[0]), Number(center[1]), 18);
             setMapExtentByXYAndZoomLevel(Number(center[0]), Number(center[1]), 19);
           }
@@ -327,6 +329,12 @@
          * main function
          */
         $(document).ready(function () {
+          // globally available variables for primary keys and map extent of currently filtered data
+          window.currentComplaintsFilterPrimaryKeys = [];
+          window.currentComplaintsFilterExtent = [];
+          window.currentOriginatorsFilterPrimaryKeys = [];
+          window.currentOriginatorsFilterExtent = [];
+
           // initialize address search (and make its results globally available)
           window.results = $('div.results');
           window.searchField = $('#searchtext');
@@ -341,6 +349,60 @@
           $('.input-reset').on('click', function() {
             // empty respective filter field
             $(this).prev().is('button') ? $(this).prev().prev().val('') : $(this).prev().val('');
+          });
+
+          // on clicking the button to apply complaints filters...
+          $('#complaints-filter-apply').on('click', function() {
+            // apply filters
+            filterApplication('complaints');
+          });
+
+          // on clicking the button to reset complaints filters...
+          $('#complaints-filter-reset').on('click', function() {
+            // reset filters
+            filterReset('complaints');
+          });
+
+          // on clicking the button to apply originators filters...
+          $('#originators-filter-apply').on('click', function() {
+            // apply filters
+            filterApplication('originators');
+          });
+
+          // on clicking the button to reset originators filters...
+          $('#originators-filter-reset').on('click', function() {
+            // reset filters
+            filterReset('originators');
+          });
+
+          // on clicking the button to set map extent to that of currently filtered complaints...
+          $('#complaints-map-extent-filter').on('click', function() {
+            if (window.currentComplaintsFilterExtent.length > 0)
+              // set map extent to that of currently filtered complaints, if filter is active
+              setMapExtentByBoundingBox(
+                  window.currentComplaintsFilterExtent[1][1],
+                  window.currentComplaintsFilterExtent[1][0],
+                  window.currentComplaintsFilterExtent[0][1],
+                  window.currentComplaintsFilterExtent[0][0]
+              );
+            else
+              // set map extent to that of all complaints, if filter is not active
+              setMapExtentByLeafletBounds(objectsExtent);
+          });
+
+          // on clicking the button to set map extent to that of currently filtered originators...
+          $('#originators-map-extent-filter').on('click', function() {
+            if (window.currentOriginatorsFilterExtent.length > 0)
+              // set map extent to that of currently filtered originators, if filter is active
+              setMapExtentByBoundingBox(
+                  window.currentOriginatorsFilterExtent[1][1],
+                  window.currentOriginatorsFilterExtent[1][0],
+                  window.currentOriginatorsFilterExtent[0][1],
+                  window.currentOriginatorsFilterExtent[0][0]
+              );
+            else
+              // set map extent to that of all originators, if filter is not active
+              setMapExtentByLeafletBounds(objectsExtent);
           });
 
           // on clicking the button to return to initial map extent...

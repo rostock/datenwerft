@@ -93,21 +93,22 @@ def get_icon_from_settings(key):
   return settings.BEMAS_ICONS.get(key, 'poo')
 
 
-def get_json_data(curr_object, field):
+def get_json_data(curr_object, field, for_filters=False):
   """
   returns JSONesque value of given field of given object
 
   :param curr_object: object
   :param field: field
+  :param for_filters: for filters?
   :return: JSONesque value of given field of given object
   """
   value = getattr(curr_object, field)
   # format timestamps
-  if isinstance(value, datetime):
+  if not for_filters and isinstance(value, datetime):
     value_tz = value.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
     value = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
   # format dates
-  elif isinstance(value, date):
+  elif not for_filters and isinstance(value, date):
     value = value.strftime('%d.%m.%Y')
   # format originators
   elif field == 'originator':

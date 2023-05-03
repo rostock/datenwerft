@@ -146,7 +146,7 @@ class GenericTableDataView(BaseDatatableView):
             for index, person in enumerate(complainers_persons):
               data += '<br>' if index > 0 or complainers_organizations else ''
               data += generate_foreign_key_link_simplified(Person, person)
-          # designate anonymous complaint
+          # designate anonymous complaint if necessary
           if not data:
             data = '<em><i class="fas fa-' + get_icon_from_settings('anonymous_complaint') + \
                    '"></i> anonyme Beschwerde</em>'
