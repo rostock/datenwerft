@@ -6,20 +6,72 @@
 
 {% block content %}
   {% if is_bemas_user %}
-    <h2 class="text-center"><em>BEMAS</em></h2>
-    <a href="{% url 'bemas:map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i> Immissions- und Emissionsorte</a><br>
     <a href="{% url 'bemas:logentry_table' %}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:event_table' %}"><i class="fas fa-{{ 'event'|get_icon }}"></i> Journalereignisse <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
-    <a href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
-    <a href="{% url 'bemas:originator_create' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
-    <a href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
-    <a href="{% url 'bemas:complaint_create' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerde <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:person_table' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:person_create' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Person <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:organization_table' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen <i class="fas fa-{{ 'table'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:organization_create' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisation <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in <i class="fas fa-{{ 'create'|get_icon }}"></i></a><br>
     <a href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codelisten</a>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
+          <div class="card-body">
+            <div class="d-grid col-6 mx-auto">
+              <a class="btn btn-lg btn-warning fs-1 text-center" role="button" href="{% url 'bemas:map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i></a>
+            </div>
+            <p class="card-text mt-2 fs-3 text-center">Immissions- und Emissionsorte</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
+          <div class="card-body">
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
+          <div class="card-body">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-1 row row-cols-1 row-cols-md-3 g-4">
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
+          <div class="card-body">
+            <p class="card-text fs-3 text-center">
+              <span class="fs-1"><i class="fas fa-{{ 'originator'|get_icon }}"></i></span><br>Verursacher (Emissionsorte)
+            </p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-warning fs-5 text-center" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle</a>
+              <a class="btn btn-warning fs-5 text-center" role="button" href="{% url 'bemas:originator_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neu</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
+          <div class="card-body">
+            <p class="card-text fs-3 text-center">
+              <span class="fs-1"><i class="fas fa-{{ 'complaint'|get_icon }}"></i></span><br>Beschwerden (Immissionsorte)
+            </p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-warning fs-5 text-center" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle</a>
+              <a class="btn btn-warning fs-5 text-center" role="button" href="{% url 'bemas:complaint_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neu</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 text-white bg-primary">
+          <div class="card-body">
+          </div>
+        </div>
+      </div>
+    </div>
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}
