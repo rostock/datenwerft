@@ -15,6 +15,7 @@
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
   <script src="{% static 'bemas/js/table.js' %}"></script>
   {% if objectclass_name == 'Complaint' or objectclass_name == 'Originator' %}
+    <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
     <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
   {% endif %}
 {% endblock %}
@@ -41,7 +42,7 @@
       {% if objectclass_name == 'Organization' %}
         <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       {% endif %}
-      {% if objectclass_name == 'Complaint' or objectclass_name == 'Originator' %}
+      {% if objects_count > 0 and objectclass_name == 'Complaint' or objects_count > 0 and objectclass_name == 'Originator' %}
         <button id="subsetter" class="btn btn-secondary"><i class="fas fa-{{ 'map'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
       {% endif %}
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
@@ -70,6 +71,7 @@
           </thead>
         </table>
       </div>
+      {% include "modal-error.html" %}
       <!-- eslint-disable-next-script -->
       <script>
         window.dataUrl = '{{ tabledata_url }}';
@@ -95,9 +97,11 @@
           $('#subsetter').on('click', function() {
             // collect primary keys of currently filtered data
             let primaryKeys = [];
-            $('#datasets > tbody > tr > td:first-child').each(function() {
-              primaryKeys.push($(this).text());
-            });
+            if ($('td').length > 1) {
+              $('#datasets > tbody > tr > td:first-child').each(function () {
+                primaryKeys.push($(this).text());
+              });
+            }
             // create subset of currently filtered data and transfer it to table
             {% with tmp='worschdsupp' %}
               let url_mask = "{% url 'bemas:map_model_subset' objectclass_lower_name tmp %}";
