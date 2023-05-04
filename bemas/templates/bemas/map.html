@@ -428,13 +428,10 @@
                 ];
                 applyFilters('complaints', filterObjectsList);
                 // hide all originators not connected to remaining complaints:
-                // 1) get all originator primary keys of remaining complaints
-                let remainingComplaintsFilterOriginatorsPrimaryKeys = [
-                    ...new Set(window.currentComplaintsFilterOriginatorsPrimaryKeys)
-                ];
-                // 2) create and apply filter which matches the primary keys of all originators against all originator primary keys of remaining complaints
+                // create and apply filter which matches the primary keys of all originators
+                // against all originator primary keys of remaining complaints
                 filterObjectsList = [
-                    createFilterObject('_pk', 'array', remainingComplaintsFilterOriginatorsPrimaryKeys)
+                    createFilterObject('_pk', 'array', window.currentComplaintsFilterOriginatorsPrimaryKeys)
                 ];
                 applyFilters('originators', filterObjectsList);
                 break;
