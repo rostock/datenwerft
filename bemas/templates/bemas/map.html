@@ -1,0 +1,572 @@
+{% extends "navbar.html" %}
+{% load bemas_tags %}
+{% load leaflet_tags %}
+{% load static %}
+
+{% block title %}Immissions- und Emissionsorte | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  {% leaflet_css plugins="locatecontrol,markercluster" %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}">
+  {% if is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-mobile.css' %}">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js plugins="locatecontrol,markercluster" %}
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
+  <script src="{% static 'bemas/js/map.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if is_bemas_user %}
+    <h2><i class="fas fa-{{ 'map'|get_icon }}"></i> Immissions- und Emissionsorte</h2>
+    <h4><small>Karte mit allen <span style="color:{{ complaints_color }}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden</span> und <span style="color:{{ originators_color }}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursachern</span></small></h4>
+    {% if objects_count == 0 %}
+      <h4 class="mt-3">
+        <em>Keine Beschwerden und Verursacher vorhanden!</em>
+      </h4>
+    {% endif %}
+    <div class="d-grid mt-3 mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
+      <a class="btn btn-secondary" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Beschwerden</a>
+      <button id="complaints-subsetter" class="btn btn-secondary" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+      <a class="btn btn-secondary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Verursacher</a>
+      <button id="originators-subsetter" class="btn btn-secondary" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+    </div>
+    {% if objects_count > 0 %}
+      {% if model and subset_pk %}
+        {% include "bemas/container-map-danger.html" %}
+      {% endif %}
+      <div id="map-side-container" class="mb-3">
+        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+        <div class="accordion accordion-flush{% if not is_mobile %} side{% endif %}">
+          <div id="filter-one-click" class="accordion-item">
+            <h2 id="heading-filter-one-click" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-filter-one-click" aria-expanded="false" aria-controls="collapse-filter-one-click">
+                Ein-Klick-Filter
+              </button>
+            </h2>
+            <div id="collapse-filter-one-click" class="accordion-collapse collapse" aria-labelledby="heading-filter-one-click">
+              <div class="accordion-body">
+                <div id="filter-one-click-buttons" class="btn-group-vertical">
+                  <button id="complaints-in-progress" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung</button>
+                  <button id="complaints-in-progress-with-originators" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Beschwerden in Bearbeitung und deren Verursacher</button>
+                </div>
+                <div class="d-grid mt-4">
+                  <button id="filter-one-click-reset" class="btn btn-warning" disabled><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Ein-Klick-Filter zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="complaints-filter" class="accordion-item">
+            <h2 id="heading-complaints-filter" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-complaints-filter" aria-expanded="false" aria-controls="collapse-complaints-filter">
+                Filter für <i class="ms-1 me-1 fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden
+              </button>
+            </h2>
+            <div id="collapse-complaints-filter" class="accordion-collapse collapse" aria-labelledby="heading-complaints-filter">
+              <div class="accordion-body">
+                <div id="complaints-filter-alert" class="alert alert-warning" role="alert">Filter für Beschwerden wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="d-grid mb-3">
+                  <label for="filter-input-complaints-id" class="form-label"><em>ID</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-id" type="text" name="complaints-id" class="form-control filter-input" data-type="text">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-date_of_receipt-left" class="form-label"><em>Eingangsdatum</em></label>
+                  <small><label for="filter-input-complaints-date_of_receipt-left" class="form-label"><em>zwischen</em></label></small>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-date_of_receipt-left" type="date" name="complaints-date_of_receipt-left" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="left">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                  <small><label for="filter-input-complaints-date_of_receipt-right" class="form-label mt-2"><em>und</em></label></small>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-date_of_receipt-right" type="date" name="complaints-date_of_receipt-right" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="right">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-status" class="form-label"><em>Status</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-complaints-status" name="complaints-status" class="form-select filter-input" data-type="list">
+                      {% for status in complaints_status %}
+                        <option value="{{ status }}">{{ status }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-type_of_immission" class="form-label"><em>Immissionsart</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-complaints-type_of_immission" name="complaints-type_of_immission" class="form-select filter-input" data-type="list">
+                      {% for type_of_immission in complaints_types_of_immission %}
+                        <option value="{{ type_of_immission }}">{{ type_of_immission }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-complaints-originator" class="form-label"><em>Verursacher</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-complaints-originator" name="complaints-originator" class="form-select filter-input" data-type="list">
+                      {% for originator in complaints_originators %}
+                        <option value="{{ originator }}">{{ originator }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2">
+                  <label for="filter-input-complaints-description" class="form-label"><em>Beschreibung</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-complaints-description" type="text" name="complaints-description" class="form-control filter-input" data-type="text">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2">
+                  <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Beschwerden anwenden</button>
+                  <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Beschwerden zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="originators-filter" class="accordion-item">
+            <h2 id="heading-originators-filter" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-originators-filter" aria-expanded="false" aria-controls="collapse-originators-filter">
+                Filter für <i class="ms-1 me-1 fas fa-{{ 'originator'|get_icon }}"></i> Verursacher
+              </button>
+            </h2>
+            <div id="collapse-originators-filter" class="accordion-collapse collapse" aria-labelledby="heading-originators-filter">
+              <div class="accordion-body">
+                <div id="originators-filter-alert" class="alert alert-warning" role="alert">Filter für Verursacher wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="d-grid mb-3">
+                  <label for="filter-input-originators-sector" class="form-label"><em>Branche</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-originators-sector" name="originators-sector" class="form-select filter-input" data-type="list">
+                      {% for sector in originators_sectors %}
+                        <option value="{{ sector }}">{{ sector }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2 mb-3">
+                  <label for="filter-input-originators-operator" class="form-label"><em>Betreiberin</em></label>
+                  <div class="input-group">
+                    <select id="filter-input-originators-operator" name="originators-operator" class="form-select filter-input" data-type="list">
+                      {% for operator in originators_operators %}
+                        <option value="{{ operator }}">{{ operator }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid mt-2">
+                  <label for="filter-input-originators-description" class="form-label"><em>Beschreibung</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-originators-description" type="text" name="originators-description" class="form-control filter-input" data-type="text">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}" title="Filterfeld leeren"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="originators-filter-buttons" class="d-grid mt-4 gap-2">
+                  <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Verursacher anwenden</button>
+                  <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Verursacher zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="map-control" class="accordion-item">
+            <h2 id="heading-map-control" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-map-control" aria-expanded="false" aria-controls="collapse-map-control">
+                Kartenausschnitt
+              </button>
+            </h2>
+            <div id="collapse-map-control" class="accordion-collapse collapse" aria-labelledby="heading-map-control">
+              <div class="accordion-body">
+                <div class="d-grid gap-2">
+                  <button id="complaints-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+                  <button id="originators-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
+                  <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="address-search" class="accordion-item">
+            <h2 id="heading-address-search" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-address-search" aria-expanded="false" aria-controls="collapse-address-search">
+                Adressensuche
+              </button>
+            </h2>
+            <div id="collapse-address-search" class="accordion-collapse collapse" aria-labelledby="heading-address-search">
+              <div class="accordion-body">
+                <div class="form-floating">
+                  <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+                  <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
+                </div>
+                <div id="results-container" class="results"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include "modal-error.html" %}
+      {% include "modal-loading.html" %}
+      <!-- eslint-disable-next-script -->
+      <script>
+        window.complaintsPresent = false;
+        window.originatorsPresent = false;
+        {% if complaints_mapdata_url %}
+          window.complaintsPresent = true;
+        {% endif %}
+        {% if originators_mapdata_url %}
+          window.originatorsPresent = true;
+        {% endif %}
+      </script>
+      <script>
+        /* global $, applyFilters, configureMap, createFilterObject, enableMapLocate, filterApplication, filterReset, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByBoundingBox, setMapExtentByLeafletBounds, setMapExtentByXYAndZoomLevel, subsetting */
+        /* eslint no-undef: "error" */
+        /**
+         * @function
+         * @name mapCallbackFunction
+         *
+         * handles (as a callback function) given map
+         *
+         * @param {Object} map - map
+         */
+        function mapCallbackFunction(map) {
+          setMapConstants(map);
+          configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+          // make map globally available
+          window.currMap = map;
+
+          {% if is_mobile %}
+            enableMapLocate(map)
+          {% endif %}
+
+          if (window.complaintsPresent === true) {
+            // activate map cluster for complaints
+            let complaintsMarkers = L.markerClusterGroup();
+            // fetch GeoJSON feature collection with complaints for map
+            fetchGeoJsonFeatureCollection(
+                '{{ complaints_mapdata_url }}',
+                window.originatorsPresent === true ? false : null
+            )
+            .then(data => {
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // equip with marker, set properties and actions, bind tooltip
+              // and add it to corresponding map cluster
+              L.Proj.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                  let marker = new L.circleMarker(latlng, {
+                    radius: 5,
+                    color: '{{ complaints_color }}'
+                  });
+                  marker.bindTooltip(feature.properties._tooltip);
+                  return marker;
+                },
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
+              }).addTo(complaintsMarkers);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+            // equip map cluster for complaints with ID
+            complaintsMarkers.id = 'complaintsCluster';
+            // add  map cluster for complaints to map
+            map.addLayer(complaintsMarkers);
+          }
+
+          if (window.originatorsPresent === true) {
+            // activate map cluster for originators
+            let originatorsMarkers = L.markerClusterGroup();
+            // fetch GeoJSON feature collection with originators for map
+            fetchGeoJsonFeatureCollection(
+                '{{ originators_mapdata_url }}',
+                window.complaintsPresent === true ? true : null
+            )
+            .then(data => {
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // equip with marker, set properties and actions, bind tooltip
+              // and add it to corresponding map cluster
+              L.Proj.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                  let marker = new L.circleMarker(latlng, {
+                    radius: 5,
+                    color: '{{ originators_color }}'
+                  });
+                  marker.bindTooltip(feature.properties._tooltip);
+                  return marker;
+                },
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
+              }).addTo(originatorsMarkers);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+            // equip map cluster for originators with ID
+            originatorsMarkers.id = 'originatorsCluster';
+            // add  map cluster for originators to map
+            map.addLayer(originatorsMarkers);
+          }
+
+          // define several globally available variables
+          window.objectsExtent = map.getBounds();
+          window.removedComplaintsLayers = [];
+          window.removedOriginatorsLayers = [];
+          window.featureGeometry = [];
+
+          // if map center URL parameter is present,
+          // set initial map extent by means of map center URL parameter
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('center')) {
+            const center = urlParams.get('center').split(',');
+            // call corresponding function twice (!) in order to refresh the map
+            setMapExtentByXYAndZoomLevel(Number(center[0]), Number(center[1]), 18);
+            setMapExtentByXYAndZoomLevel(Number(center[0]), Number(center[1]), 19);
+          }
+        }
+
+        /**
+         * @function
+         *
+         * main function
+         */
+        $(document).ready(function () {
+          // globally available variables for primary keys and map extent of currently filtered data
+          window.currentComplaintsFilterPrimaryKeys = [];
+          window.currentComplaintsFilterExtent = [];
+          window.currentComplaintsFilterOriginatorsPrimaryKeys = [];
+          window.currentOriginatorsFilterPrimaryKeys = [];
+          window.currentOriginatorsFilterExtent = [];
+
+          // initialize address search (and make its results globally available)
+          window.results = $('div.results');
+          window.searchField = $('#searchtext');
+          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}');
+
+          // initially set list filter fields to empty option
+          $("select[data-type='list']").each(function() {
+            $(this).val('');
+          });
+
+          // on clicking a one-click-filter button...
+          $('.filter-one-click-button').on('click', function(e) {
+            // disable all one-click-filter buttons
+            $('#filter-one-click-buttons').children('button').each(function() {
+              $(this).prop('disabled', true);
+            });
+
+            // enable button to reset one-click-filters
+            $('#filter-one-click-reset').prop('disabled', false);
+
+            // enable buttons to transfer currently filtered data to table
+            $('[id$=subsetter]').prop('disabled', false);
+
+            // disable all buttons to apply filters
+            $('[id$=filter-apply]').prop('disabled', true);
+
+            // disable all buttons to reset filters
+            $('[id$=filter-reset]').prop('disabled', true);
+
+            // create appropriate filter objects list and apply filters
+            let filterId = e.target.id, filterObjectsList = [];
+            switch (filterId) {
+              case 'complaints-in-progress':
+                filterObjectsList = [
+                    createFilterObject('status', 'list', 'in Bearbeitung')
+                ];
+                applyFilters('complaints', filterObjectsList);
+                // hide all originators by applying an "impossible" filter
+                // (i.e. a filter very unlikely to be matched by any originator)
+                filterObjectsList = [
+                    createFilterObject('description', 'text', '§$%&')
+                ];
+                applyFilters('originators', filterObjectsList);
+                break;
+              case 'complaints-in-progress-with-originators':
+                filterObjectsList = [
+                    createFilterObject('status', 'list', 'in Bearbeitung')
+                ];
+                applyFilters('complaints', filterObjectsList);
+                // hide all originators not connected to remaining complaints:
+                // 1) get all originator primary keys of remaining complaints
+                let remainingComplaintsFilterOriginatorsPrimaryKeys = [
+                    ...new Set(window.currentComplaintsFilterOriginatorsPrimaryKeys)
+                ];
+                // 2) create and apply filter which matches the primary keys of all originators against all originator primary keys of remaining complaints
+                filterObjectsList = [
+                    createFilterObject('_pk', 'array', remainingComplaintsFilterOriginatorsPrimaryKeys)
+                ];
+                applyFilters('originators', filterObjectsList);
+                break;
+            }
+          });
+
+          // on clicking the button to reset one-click-filters...
+          $('#filter-one-click-reset').on('click', function() {
+            // enable all one-click-filter buttons
+            $('#filter-one-click-buttons').children('button').each(function() {
+              $(this).prop('disabled', false);
+            });
+
+            // enable all buttons to apply filters
+            $('[id$=filter-apply]').prop('disabled', false);
+
+            // enable all buttons to reset filters
+            $('[id$=filter-reset]').prop('disabled', false);
+
+            // reset all filters
+            filterReset('complaints');
+            filterReset('originators');
+
+            // disable this button itself
+            $(this).prop('disabled', true);
+          });
+
+          // on clicking a button to empty a filter field...
+          $('.input-reset').on('click', function() {
+            // empty respective filter field
+            $(this).prev().is('button') ? $(this).prev().prev().val('') : $(this).prev().val('');
+          });
+
+          // on clicking the button to apply complaints filters...
+          $('#complaints-filter-apply').on('click', function() {
+            // apply filters
+            filterApplication('complaints');
+          });
+
+          // on clicking the button to reset complaints filters...
+          $('#complaints-filter-reset').on('click', function() {
+            // reset filters
+            filterReset('complaints');
+          });
+
+          // on clicking the button to apply originators filters...
+          $('#originators-filter-apply').on('click', function() {
+            // apply filters
+            filterApplication('originators');
+          });
+
+          // on clicking the button to reset originators filters...
+          $('#originators-filter-reset').on('click', function() {
+            // reset filters
+            filterReset('originators');
+          });
+
+          // on clicking the button to set map extent to that of currently filtered complaints...
+          $('#complaints-map-extent-filter').on('click', function() {
+            if (window.currentComplaintsFilterExtent.length > 0)
+              // set map extent to that of currently filtered complaints, if filter is active
+              setMapExtentByBoundingBox(
+                  window.currentComplaintsFilterExtent[1][1],
+                  window.currentComplaintsFilterExtent[1][0],
+                  window.currentComplaintsFilterExtent[0][1],
+                  window.currentComplaintsFilterExtent[0][0]
+              );
+            else
+              // set map extent to that of all complaints, if filter is not active
+              setMapExtentByLeafletBounds(window.objectsExtent);
+          });
+
+          // on clicking the button to set map extent to that of currently filtered originators...
+          $('#originators-map-extent-filter').on('click', function() {
+            if (window.currentOriginatorsFilterExtent.length > 0)
+              // set map extent to that of currently filtered originators, if filter is active
+              setMapExtentByBoundingBox(
+                  window.currentOriginatorsFilterExtent[1][1],
+                  window.currentOriginatorsFilterExtent[1][0],
+                  window.currentOriginatorsFilterExtent[0][1],
+                  window.currentOriginatorsFilterExtent[0][0]
+              );
+            else
+              // set map extent to that of all originators, if filter is not active
+              setMapExtentByLeafletBounds(window.objectsExtent);
+          });
+
+          // on clicking the button to return to initial map extent...
+          $('#map-extent-initial').on('click', function() {
+            // get initial zoom level from Leaflet configuration
+            let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
+            defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
+            // get initial map center from Leaflet configuration
+            let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
+            let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
+            let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
+            // set initial map extent by means of initial zoom level initial map center
+            setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
+          });
+
+          // on clicking a button to transfer currently filtered data to table...
+          $('[id$=subsetter]').on('click', function() {
+            // create subset of currently filtered data and transfer it to table
+            let model = $(this).attr('id').replace('-subsetter', '');
+            let primaryKeys = [], modelName = '', url_mask = '';
+            if (model === 'complaints') {
+              primaryKeys = window.currentComplaintsFilterPrimaryKeys;
+              modelName = 'complaint';
+              {% with tmp='worschdsupp' %}
+                url_mask = "{% url 'bemas:complaint_table_subset' tmp %}";
+              {% endwith %}
+            } else if (model === 'originators') {
+              primaryKeys = window.currentOriginatorsFilterPrimaryKeys;
+              modelName = 'originator';
+              {% with tmp='worschdsupp' %}
+                url_mask = "{% url 'bemas:originator_table_subset' tmp %}";
+              {% endwith %}
+            }
+            subsetting(
+              primaryKeys,
+              '{% url "toolbox:subset_add" %}',
+              modelName,
+              'id',
+              url_mask,
+              'Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Serverfehler aufgetreten.',
+              'bemas'
+            );
+          });
+        });
+      </script>
+    {% endif %}
+  {% else %}
+    {% include "bemas/notice-norights.html" %}
+  {% endif %}
+{% endblock %}

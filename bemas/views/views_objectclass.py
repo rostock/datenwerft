@@ -369,12 +369,6 @@ class GenericObjectclassDeleteView(DeleteView):
         'bemas:logentry_table_model_object',
         args=[self.model.__name__, self.object.pk]
       )
-      # object class complaint:
-      if issubclass(self.model, Complaint):
-        # add events link
-        context['objectclass_event_url'] = reverse(
-          'bemas:event_table_complaint', args=[self.object.pk]
-        )
     # optionally add custom deletion hints (shown as text to user) to context
     if self.deletion_hints:
       context['deletion_hints'] = self.deletion_hints
@@ -424,8 +418,6 @@ class GenericObjectclassDeleteView(DeleteView):
 class OrganizationDeleteView(GenericObjectclassDeleteView):
   """
   view for form page for deleting an instance of object class organization
-
-  :param deletion_hints: custom deletion hints
   """
 
   def get_context_data(self, **kwargs):
@@ -435,15 +427,15 @@ class OrganizationDeleteView(GenericObjectclassDeleteView):
     :param kwargs:
     :return: dictionary with all context elements for this view
     """
-    # list persons of contacts (if any) which will automatically be unlinked
+    # list persons of linked contacts (if any) which will automatically be deleted
     self.deletion_hints = []
     contacts = self.object.contact_set.all()
     if contacts:
       deletion_hint = 'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen ' \
-                      'mit folgender/folgenden Person(en) gelöst:<br><br>'
+                      'mit folgender/folgenden Person(en) gelöscht:<br><br>'
       deletion_hint += generate_foreign_key_objects_list(contacts, 'person')
       self.deletion_hints.append(deletion_hint)
-    # list complaints (if any) which will automatically be unlinked
+    # list linked complaints (if any) which will automatically be unlinked
     complaints = Complaint.objects.filter(complainers_organizations__id=self.object.pk)
     if complaints:
       deletion_hint = 'Es werden automatisch auch alle Verbindungen als Beschwerdeführerin ' \
@@ -465,8 +457,6 @@ class OrganizationDeleteView(GenericObjectclassDeleteView):
 class PersonDeleteView(GenericObjectclassDeleteView):
   """
   view for form page for deleting an instance of object class person
-
-  :param deletion_hints: custom deletion hints
   """
 
   def get_context_data(self, **kwargs):
@@ -476,15 +466,15 @@ class PersonDeleteView(GenericObjectclassDeleteView):
     :param kwargs:
     :return: dictionary with all context elements for this view
     """
-    # list organizations of contacts (if any) which will automatically be unlinked
+    # list organizations of linked contacts (if any) which will automatically be deleted
     self.deletion_hints = []
     contacts = self.object.contact_set.all()
     if contacts:
       deletion_hint = 'Es werden automatisch auch alle Ansprechpartner:innen-Verbindungen ' \
-                      'mit folgender/folgenden Organisation(en) gelöst:<br><br>'
+                      'mit folgender/folgenden Organisation(en) gelöscht:<br><br>'
       deletion_hint += generate_foreign_key_objects_list(contacts, 'organization')
       self.deletion_hints.append(deletion_hint)
-    # list complaints (if any) which will automatically be unlinked
+    # list linked complaints (if any) which will automatically be unlinked
     complaints = Complaint.objects.filter(complainers_persons__id=self.object.pk)
     if complaints:
       deletion_hint = 'Es werden automatisch auch alle Verbindungen als Beschwerdeführer:in ' \
@@ -506,13 +496,33 @@ class PersonDeleteView(GenericObjectclassDeleteView):
 class ComplaintDeleteView(GenericObjectclassDeleteView):
   """
   view for form page for deleting an instance of object class complaint
-
-  :param deletion_hints: custom deletion hints
   """
 
-  deletion_hints = [
-    'Es werden automatisch auch alle Journalereignisse zu dieser Beschwerde gelöscht.'
-  ]
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    # list linked events (if any) which will automatically be deleted
+    self.deletion_hints = []
+    events = self.object.event_set.all()
+    if events:
+      deletion_hint = 'Es werden automatisch auch alle Journalereignisse ' \
+                      'zu dieser Beschwerde gelöscht:<br><br>'
+      deletion_hint += generate_foreign_key_objects_list(events)
+      self.deletion_hints.append(deletion_hint)
+    # set generic object class context for this view
+    context = set_generic_objectclass_create_update_delete_context(
+      super().get_context_data(**kwargs),
+      self.request,
+      self.model,
+      self.cancel_url
+    )
+    # add custom deletion hints (shown as text to user) to context
+    context['deletion_hints'] = self.deletion_hints
+    return context
 
 
 class ContactCreateView(GenericObjectclassCreateView):

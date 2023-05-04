@@ -1,16 +1,18 @@
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.serializers import serialize
 from django.forms import Select, Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
+from json import loads
 from leaflet.forms.widgets import LeafletWidget
 from operator import itemgetter
 
 from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
   Originator
 from bemas.utils import generate_user_string, get_foreign_key_target_model, \
-  get_foreign_key_target_object, get_icon_from_settings, is_bemas_admin, is_bemas_user, \
-  is_geometry_field
+  get_foreign_key_target_object, get_icon_from_settings, get_json_data, is_bemas_admin, \
+  is_bemas_user, is_geometry_field
 
 
 def add_codelist_context_elements(context, model, curr_object=None):
@@ -64,13 +66,15 @@ def add_generic_objectclass_context_elements(context, model):
   :return: context with generic object class related elements added
   """
   context['objectclass_name'] = model.__name__
+  objectclass_lower_name = model.__name__.lower()
+  context['objectclass_lower_name'] = objectclass_lower_name
   context['objectclass_verbose_name'] = model._meta.verbose_name
   context['objectclass_verbose_name_plural'] = model._meta.verbose_name_plural
   context['objectclass_description'] = model.BasemodelMeta.description
   context['objectclass_definite_article'] = model.BasemodelMeta.definite_article
   context['objectclass_new'] = model.BasemodelMeta.new
   if not issubclass(model, LogEntry):
-    context['objectclass_creation_url'] = reverse('bemas:' + model.__name__.lower() + '_create')
+    context['objectclass_creation_url'] = reverse('bemas:' + objectclass_lower_name + '_create')
   return context
 
 
@@ -140,6 +144,15 @@ def add_table_context_elements(context, model, kwargs=None):
       context['tabledata_url'] = reverse(
         'bemas:event_tabledata_complaint',
         args=[kwargs['complaint_pk']]
+      )
+    elif (
+        (issubclass(model, Complaint) or issubclass(model, Originator))
+        and 'subset_pk' in kwargs
+        and kwargs['subset_pk']
+    ):
+      context['tabledata_url'] = reverse(
+        'bemas:' + model.__name__.lower() + '_tabledata_subset',
+        args=[kwargs['subset_pk']]
       )
     else:
       context['tabledata_url'] = reverse('bemas:' + model.__name__.lower() + '_tabledata')
@@ -237,6 +250,101 @@ def assign_widget(field):
   return form_field
 
 
+def create_geojson_feature(curr_object):
+  """
+  creates a GeoJSON feature based on given object and returns it
+
+  :param curr_object: object
+  :return: GeoJSON feature based on given object
+  """
+  # GeoJSON-serialize object
+  object_geojson_serialized = loads(serialize('geojson', [curr_object]))
+  model = curr_object.__class__.__name__.lower()
+  pk = curr_object.pk
+  # define GeoJSON feature:
+  # get geometry from GeoJSON-serialized object,
+  # get (meta) properties directly from object
+  geojson_feature = {
+    'type': 'Feature',
+    'geometry': object_geojson_serialized['features'][0]['geometry'],
+    'properties': {
+      '_model': model,
+      '_pk': pk,
+      '_tooltip': str(curr_object),
+      '_title': curr_object.__class__._meta.verbose_name,
+      '_link_update': reverse('bemas:' + model + '_update', args=[pk]),
+      '_link_delete': reverse('bemas:' + model + '_delete', args=[pk]),
+      '_link_logentries': reverse(
+        'bemas:logentry_table_model_object', args=[curr_object.__class__.__name__, pk])
+    }
+  }
+  # add properties for map pop-up to GeoJSON feature
+  for field in curr_object.__class__._meta.concrete_fields:
+    if (
+        getattr(curr_object, field.name)
+        and (
+          (
+              issubclass(curr_object.__class__, Complaint)
+              and field.name in (
+                  'id', 'created_at', 'updated_at', 'date_of_receipt', 'status',
+                  'status_updated_at', 'type_of_immission', 'address', 'originator',
+                  'description', 'dms_link', 'storage_location'
+              )
+          )
+          or (
+              issubclass(curr_object.__class__, Originator)
+              and field.name in (
+                  'id', 'created_at', 'updated_at', 'sector',
+                  'operator', 'description', 'address', 'dms_link'
+              )
+          )
+        )
+    ):
+      geojson_feature['properties'][field.verbose_name] = get_json_data(curr_object, field.name)
+  # object class complaint:
+  if issubclass(curr_object.__class__, Complaint):
+    # add events link as property to GeoJSON feature
+    geojson_feature['properties']['_link_events'] = reverse(
+      'bemas:event_table_complaint', args=[pk])
+    # add complainers as property to GeoJSON feature
+    complainers = ''
+    complainers_organizations = Complaint.objects.get(pk=pk).complainers_organizations.all()
+    if complainers_organizations:
+      for index, organization in enumerate(complainers_organizations):
+        complainers += '<br>' if index > 0 else ''
+        complainers += str(organization)
+    complainers_persons = Complaint.objects.get(pk=pk).complainers_persons.all()
+    if complainers_persons:
+      for index, person in enumerate(complainers_persons):
+        complainers += '<br>' if index > 0 or complainers_organizations else ''
+        complainers += str(person)
+    # designate anonymous complaint if necessary
+    if not complainers:
+      complainers = 'anonyme Beschwerde'
+    geojson_feature['properties']['Beschwerdeführung'] = complainers
+  # add properties for filters to GeoJSON feature
+  for field in curr_object.__class__._meta.concrete_fields:
+    if (
+          (
+              issubclass(curr_object.__class__, Complaint)
+              and field.name in (
+                  'id', 'date_of_receipt', 'status',
+                  'type_of_immission', 'originator', 'description'
+              )
+          )
+          or (
+              issubclass(curr_object.__class__, Originator)
+              and field.name in ('sector', 'operator', 'description')
+          )
+    ):
+      geojson_feature['properties']['_' + field.name + '_'] = get_json_data(
+        curr_object, field.name, True)
+  if issubclass(curr_object.__class__, Complaint):
+    geojson_feature['properties']['_originator__id_'] = get_json_data(
+      curr_object.originator, 'id', True)
+  return geojson_feature
+
+
 def create_log_entry(model, object_pk, action, content, user):
   """
   creates new log entry based on given affected model, affected (target) object, action and user
@@ -266,13 +374,19 @@ def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
   """
   object_list = ''
   for foreign_key_object in foreign_key_objects:
+    link_text, suffix = '', ''
     object_list += ('<li>' if len(foreign_key_objects) > 1 else '')
     if issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'person':
+      suffix = ' mit der Funktion ' + foreign_key_object.function
       foreign_key_object = foreign_key_object.person
     elif issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'organization':
+      suffix = ' (dort mit der Funktion ' + foreign_key_object.function + ')'
       foreign_key_object = foreign_key_object.organization
+    if issubclass(foreign_key_object.__class__, Event):
+      link_text = foreign_key_object.type_of_event_and_created_at()
     object_list += generate_foreign_key_link_simplified(
-      foreign_key_object.__class__, foreign_key_object)
+      foreign_key_object.__class__, foreign_key_object, link_text)
+    object_list += suffix
     object_list += ('</li>' if len(foreign_key_objects) > 1 else '')
   if len(foreign_key_objects) > 1:
     return '<ul class="object_list">' + object_list + '</ul>'
@@ -293,6 +407,8 @@ def generate_foreign_key_link(foreign_key_field, source_object, link_text=None):
   target_object = get_foreign_key_target_object(source_object, foreign_key_field)
   if issubclass(target_model, Originator):
     link_text = target_object.sector_and_operator()
+  elif issubclass(target_model, Event):
+    link_text = target_object.type_of_event_and_created_at()
   return generate_foreign_key_link_simplified(target_model, target_object, link_text)
 
 

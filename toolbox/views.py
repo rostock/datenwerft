@@ -65,9 +65,11 @@ class AddSubsetView(View):
           'id': str(subset.pk)
       }
       return JsonResponse(status=200, data=dumps(response), safe=False)
-    except (IntegrityError, MultipleObjectsReturned):
+    except (IntegrityError, MultipleObjectsReturned) as e:
+      print(e)
       return HttpResponseServerError()
-    except Exception:
+    except Exception as e:
+      print(e)
       return HttpResponseServerError()
 
 

@@ -5,14 +5,16 @@ from django.db.models import ForeignKey, Q
 from django.urls import reverse
 from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
+from jsonview.views import JsonView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
-from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Person
+from toolbox.models import Subsets
+from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
-from .functions import generate_foreign_key_link, generate_foreign_key_link_simplified, \
-  get_model_objects
+from .functions import create_geojson_feature, generate_foreign_key_link, \
+  generate_foreign_key_link_simplified, get_model_objects
 
 
 class GenericTableDataView(BaseDatatableView):
@@ -26,7 +28,18 @@ class GenericTableDataView(BaseDatatableView):
     super().__init__(*args, **kwargs)
 
   def get_initial_queryset(self):
-    return get_model_objects(self.model, False, self.kwargs)
+    objects = None
+    if self.kwargs and 'subset_pk' in self.kwargs and self.kwargs['subset_pk']:
+      subset = Subsets.objects.get(pk=self.kwargs['subset_pk'])
+      if (
+          subset is not None
+          and isinstance(subset, Subsets)
+          and subset.model.model == self.model.__name__.lower()
+      ):
+        objects = self.model.objects.filter(pk__in=subset.pk_values)
+    else:
+      objects = get_model_objects(self.model, False, self.kwargs)
+    return objects
 
   def prepare_results(self, qs):
     """
@@ -97,17 +110,14 @@ class GenericTableDataView(BaseDatatableView):
             # ordinary columns
             elif not column.name.startswith('address_'):
               if value is not None:
-                # format Booleans
-                if isinstance(value, bool):
-                  data = ('ja' if value is True else 'nein')
-                # format dates
-                elif isinstance(value, date):
-                  data = value.strftime('%d.%m.%Y')
                 # format timestamps
-                elif isinstance(value, datetime):
+                if isinstance(value, datetime):
                   value_tz = value.replace(tzinfo=timezone.utc).astimezone(
                     ZoneInfo(settings.TIME_ZONE))
                   data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+                # format dates
+                elif isinstance(value, date):
+                  data = value.strftime('%d.%m.%Y')
                 # format lists
                 elif type(value) is list:
                   data = '<br>'.join(value)
@@ -148,7 +158,7 @@ class GenericTableDataView(BaseDatatableView):
             for index, person in enumerate(complainers_persons):
               data += '<br>' if index > 0 or complainers_organizations else ''
               data += generate_foreign_key_link_simplified(Person, person)
-          # designate anonymous complaint
+          # designate anonymous complaint if necessary
           if not data:
             data = '<em><i class="fas fa-' + get_icon_from_settings('anonymous_complaint') + \
                    '"></i> anonyme Beschwerde</em>'
@@ -181,6 +191,13 @@ class GenericTableDataView(BaseDatatableView):
               'bemas:event_table_complaint', args=[item_pk])
             event_link += '"><i class="fas fa-' + get_icon_from_settings('event') + \
                           '" title="Journalereignisse anzeigen"></i></a>'
+          map_link = ''
+          if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
+            point = getattr(item, self.model._meta.model.BasemodelMeta.geometry_field)
+            map_link = '<a class="ms-2" href="' + reverse('bemas:map')
+            map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
+            map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + \
+                        '" title="' + title + ' auf Karte anzeigen"></i></a>'
           item_data.append(
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
@@ -191,7 +208,8 @@ class GenericTableDataView(BaseDatatableView):
             '"><i class="fas fa-' + get_icon_from_settings('delete') +
             '" title="' + title + ' löschen"></i></a>' +
             event_link +
-            log_entry_link
+            log_entry_link +
+            map_link
           )
         json_data.append(item_data)
     return json_data
@@ -282,3 +300,49 @@ class GenericTableDataView(BaseDatatableView):
       column_name = column_names[int(order_column)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)
+
+
+class GenericMapDataView(JsonView):
+  """
+  map data composition view
+
+  :param model: model
+  """
+
+  model = None
+
+  def __init__(self, model=None, *args, **kwargs):
+    self.model = model
+    super().__init__(*args, **kwargs)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns GeoJSON feature collection
+
+    :param kwargs:
+    :return: GeoJSON feature collection
+    """
+    feature_collection, objects = None, None
+    if self.kwargs and 'subset_pk' in self.kwargs and self.kwargs['subset_pk']:
+      subset = Subsets.objects.get(pk=self.kwargs['subset_pk'])
+      if (
+          subset is not None
+          and isinstance(subset, Subsets)
+          and subset.model.model == self.model.__name__.lower()
+      ):
+        objects = self.model.objects.filter(pk__in=subset.pk_values)
+    else:
+      objects = get_model_objects(self.model, False)
+    # handle objects
+    if objects:
+      # declare empty GeoJSON feature collection
+      feature_collection = {
+          'type': 'FeatureCollection',
+          'features': []
+      }
+      for curr_object in objects:
+        # create GeoJSON feature
+        feature = create_geojson_feature(curr_object)
+        # add GeoJSON feature to GeoJSON feature collection
+        feature_collection['features'].append(feature)
+    return feature_collection

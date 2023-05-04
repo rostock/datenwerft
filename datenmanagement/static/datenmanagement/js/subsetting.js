@@ -13,8 +13,9 @@
  * @param {string} modelPrimaryKeyField - Feld mit Primärschlüsseln im Datenmodell mit den Objekten
  * @param {string} successURL - URL zum Öffnen im Erfolgsfall
  * @param {string} errorText - Text für Fehlermeldung
+ * @param {string} [appLabel='datenmanagement'] - Text für Fehlermeldung
  */
-function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL, errorText) {
+function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL, errorText, appLabel='datenmanagement') {
   let errorModalTitle = 'Keine Übernahme der aktuellen Filtermenge möglich!';
   if (keys.length > 0) {
     // Liste mit Primärschlüsseln von Objekten einer Filtermenge in JSON umwandeln
@@ -23,7 +24,7 @@ function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL
     fetch(subsetURL, {
       method: 'POST',
       body: new URLSearchParams({
-        app_label: 'datenmanagement',
+        app_label: appLabel,
         model_name: modelName.toLowerCase(),
         pk_field: modelPrimaryKeyField,
         pk_values: pk_values
@@ -40,7 +41,7 @@ function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL
         toggleModal(
           $('#error-modal'),
           errorModalTitle,
-          'Bei der Übernahme der aktuellen Filtermenge ist ein Serverfehler aufgetreten.'
+          errorText ? errorText : 'Bei der Übernahme der aktuellen Filtermenge ist ein Serverfehler aufgetreten.'
         );
       }
     );

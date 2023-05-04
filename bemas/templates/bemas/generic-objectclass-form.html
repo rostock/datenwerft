@@ -41,7 +41,9 @@
       {% include "bemas/container-errors.html" %}
     {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
-    {% include "bemas/links-events-logentries.html" %}
+    {% if objectclass_logentry_url %}
+      <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
+    {% endif %}
     {% if objectclass_name == 'Organization' and object %}
       {% include "bemas/container-contacts.html" %}
     {% elif objectclass_name == 'Complaint' and object %}
@@ -103,7 +105,7 @@
       {% include "modal-error.html" %}
     </form>
     <script>
-      /* global $, addEmptyFieldButton, addField, addressType, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, searchField, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
+      /* global $, addEmptyFieldButton, addField, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
       /* eslint no-undef: "error" */
       /**
        * @function
@@ -244,7 +246,7 @@
         window.addressType = 'Adresse';
         window.searchField = $('#id_address');
         {% if objectclass_is_geometry_model %}
-          initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType)
+          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
         {% endif %}
 
         // on clicking the map reference (i.e. address to map) button...

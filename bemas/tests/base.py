@@ -5,7 +5,7 @@ from django.urls import reverse
 from json import loads
 
 from bemas.models import Codelist, LogEntry
-from .constants_vars import DATABASES, USERNAME, PASSWORD
+from .constants_vars import DATABASES, USERNAME, PASSWORD, TABLEDATA_VIEW_PARAMS
 from .functions import clean_object_filter, get_object, login
 
 
@@ -265,6 +265,8 @@ class DefaultViewTestCase(DefaultTestCase):
     # try GETting the view
     if view_args and type(view_args) is dict:
       response = self.client.get(url, view_args)
+    elif '_tabledata_subset' in view_name:
+      response = self.client.get(url, TABLEDATA_VIEW_PARAMS)
     else:
       response = self.client.get(url)
     # status code of response as expected?

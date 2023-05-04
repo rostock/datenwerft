@@ -4,10 +4,10 @@ from django.urls import path, reverse_lazy
 from rest_framework import routers
 
 from bemas.models import Codelist
-from .views.base import GenericTableDataView
+from .views.base import GenericTableDataView, GenericMapDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
-from .views.views_general import CodelistsIndexView, IndexView
+from .views.views_general import CodelistsIndexView, IndexView, MapView
 from .views.views_objectclass import ComplaintDeleteView, ContactDeleteView, ContactCreateView, \
   ContactUpdateView, GenericObjectclassCreateView, GenericObjectclassDeleteView, \
   GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
@@ -36,6 +36,19 @@ urlpatterns = [
     'codelists',
     view=login_required(CodelistsIndexView.as_view()),
     name='codelists'
+  ),
+  # map page
+  path(
+    'map',
+    view=login_required(MapView.as_view()),
+    name='map'
+  ),
+  # map page:
+  # filter by model and subset
+  path(
+    'map/<model>/<subset_pk>',
+    view=login_required(MapView.as_view()),
+    name='map_model_subset'
   )
 ]
 
@@ -290,6 +303,18 @@ for model in models:
       )
     )
 
+    # table data composition for object class originator:
+    # filter by subset
+    urlpatterns.append(
+      path(
+        'originator/tabledata/<subset_pk>',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='originator_tabledata_subset'
+      )
+    )
+
     # table page for object class originator
     urlpatterns.append(
       path(
@@ -298,6 +323,18 @@ for model in models:
           model=model
         )),
         name='originator_table'
+      )
+    )
+
+    # table page for object class originator:
+    # filter by subset
+    urlpatterns.append(
+      path(
+        'originator/table/<subset_pk>',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='originator_table_subset'
       )
     )
 
@@ -337,6 +374,29 @@ for model in models:
       )
     )
 
+    # map data composition for object class originator
+    urlpatterns.append(
+      path(
+        'originator/mapdata',
+        view=login_required(GenericMapDataView.as_view(
+          model=model
+        )),
+        name='originator_mapdata'
+      )
+    )
+
+    # map data composition for object class originator:
+    # filter by subset
+    urlpatterns.append(
+      path(
+        'originator/mapdata/<subset_pk>',
+        view=login_required(GenericMapDataView.as_view(
+          model=model
+        )),
+        name='originator_mapdata_subset'
+      )
+    )
+
   #
   # views for object class complaint
   #
@@ -353,6 +413,18 @@ for model in models:
       )
     )
 
+    # table data composition for object class complaint:
+    # filter by subset
+    urlpatterns.append(
+      path(
+        'complaint/tabledata/<subset_pk>',
+        view=login_required(GenericTableDataView.as_view(
+          model=model
+        )),
+        name='complaint_tabledata_subset'
+      )
+    )
+
     # table page for object class complaint
     urlpatterns.append(
       path(
@@ -361,6 +433,18 @@ for model in models:
           model=model
         )),
         name='complaint_table'
+      )
+    )
+
+    # table page for object class complaint:
+    # filter by subset
+    urlpatterns.append(
+      path(
+        'complaint/table/<subset_pk>',
+        view=login_required(GenericObjectclassTableView.as_view(
+          model=model
+        )),
+        name='complaint_table_subset'
       )
     )
 
@@ -397,6 +481,29 @@ for model in models:
           success_url=reverse_lazy('bemas:complaint_table')
         )),
         name='complaint_delete'
+      )
+    )
+
+    # map data composition for object class complaint
+    urlpatterns.append(
+      path(
+        'complaint/mapdata',
+        view=login_required(GenericMapDataView.as_view(
+          model=model
+        )),
+        name='complaint_mapdata'
+      )
+    )
+
+    # map data composition for object class complaint:
+    # filter by subset
+    urlpatterns.append(
+      path(
+        'complaint/mapdata/<subset_pk>',
+        view=login_required(GenericMapDataView.as_view(
+          model=model
+        )),
+        name='complaint_mapdata_subset'
       )
     )
 

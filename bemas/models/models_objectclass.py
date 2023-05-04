@@ -334,7 +334,7 @@ class Contact(Objectclass):
 
   def __str__(self):
     return str(self.person) + ' in der Organisation ' + str(self.organization) + \
-           (' (Funktion: ' + self.function + ')' if self.function else '')
+           (' mit der Funktion ' + self.function if self.function else '')
 
   def name_and_function(self):
     return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
@@ -527,7 +527,8 @@ class Complaint(GeometryObjectclass):
     new = 'neue'
 
   def __str__(self):
-    return '#' + str(self.id) + ' (Status: ' + str(self.status) + ')'
+    return '#' + str(self.id) + ' vom ' + self.date_of_receipt.strftime('%d.%m.%Y') + \
+           ' (' + str(self.status) + ')'
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # on creation:

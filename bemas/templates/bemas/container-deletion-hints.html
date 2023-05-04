@@ -1,7 +1,7 @@
 {% load bemas_tags %}
 {% for deletion_hint in deletion_hints %}
-  <div class="alert alert-secondary" role="alert">
-    <i class="fa-solid fa-{{ 'info'|get_icon }}"></i>
+  <div class="alert alert-warning" role="alert">
+    <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i>
     {{ deletion_hint|safe }}
   </div>
 {% endfor %}
