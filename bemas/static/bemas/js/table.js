@@ -5,10 +5,11 @@
  * @function
  * @name formatData
  *
+ * formats data for export
+ *
  * @param {string} data - data
  * @param {string} brReplacement - replacement character for HTML element <br>
- *
- * format data for export
+ * @returns {string} - data for export
  */
 function formatData(data, brReplacement) {
   if (data) {
@@ -27,11 +28,11 @@ function formatData(data, brReplacement) {
  * @function
  * @name initDataTable
  *
+ * initializes data table
+ *
  * @param {string} dataUrl - data URL
  * @param {string} languageUrl - language URL
  * @param {Object[]} initialOrder - initial order
- *
- * initialize data table
  */
 function initDataTable(dataUrl, languageUrl, initialOrder) {
   $('#datasets').DataTable({

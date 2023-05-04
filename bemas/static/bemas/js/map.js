@@ -59,13 +59,13 @@ function createFilterObject(name, type, value) {
  */
 async function fetchGeoJsonFeatureCollection(url, lastCall=false) {
   try {
-    if (!lastCall)
+    if (lastCall === false || lastCall === null)
       toggleModal($('#loading-modal'), 'Laden der Kartendaten', 'Die Kartendaten werden (nach-)geladen.');
     const response = await fetch(url, {
       method: 'GET'
     });
     const data = await response.json();
-    if (lastCall)
+    if (lastCall === true || lastCall === null)
       toggleModal($('#loading-modal'));
     return data;
   } catch (error) {
@@ -89,6 +89,7 @@ function filterApplication(model) {
   if (model === 'complaints') {
     window.currentComplaintsFilterPrimaryKeys = [];
     window.currentComplaintsFilterExtent = [];
+    window.currentComplaintsFilterOriginatorsPrimaryKeys = [];
   } else if (model === 'originators') {
     window.currentOriginatorsFilterPrimaryKeys = [];
     window.currentOriginatorsFilterExtent = [];
@@ -145,8 +146,19 @@ function filterGeoJsonFeatures(model, filterObjectsList, layer, isSubLayer, clus
           stillVisible = false;
       }
     } else {
+      // text filter based on arrays
+      if (filterObjectsList[i].type === 'array') {
+        let tempStillVisible = false;
+        for (let j = 0; j < filterObjectsList[i].value.length; j++) {
+          if (layer.feature.properties[filterObjectsList[i].name].toString() === filterObjectsList[i].value[j].toString()) {
+            tempStillVisible = true;
+            break;
+          }
+        }
+        if (!tempStillVisible)
+          stillVisible = false;
       // text filter based on list values
-      if (filterObjectsList[i].type === 'list') {
+      } else if (filterObjectsList[i].type === 'list') {
         if (layer.feature.properties['_' + filterObjectsList[i].name + '_'].toLowerCase() !== filterObjectsList[i].value.toLowerCase())
           stillVisible = false;
       // ordinary text filter
@@ -197,6 +209,7 @@ function filterReset(model) {
   if (model === 'complaints') {
     window.currentComplaintsFilterPrimaryKeys = [];
     window.currentComplaintsFilterExtent = [];
+    window.currentComplaintsFilterOriginatorsPrimaryKeys = [];
   } else if (model === 'originators') {
     window.currentOriginatorsFilterPrimaryKeys = [];
     window.currentOriginatorsFilterExtent = [];
@@ -284,6 +297,7 @@ function updateCurrentlyFilteredDataVariables(model, layer) {
   let x = (layer.getLatLng().lng);
   if (model === 'complaints') {
     window.currentComplaintsFilterPrimaryKeys.push(layer.feature.properties._pk);
+    window.currentComplaintsFilterOriginatorsPrimaryKeys.push(layer.feature.properties._originator__id_);
     if (window.currentComplaintsFilterExtent.length === 0) {
       window.currentComplaintsFilterExtent[0] = [];
       window.currentComplaintsFilterExtent[0][0] = y;

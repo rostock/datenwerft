@@ -66,13 +66,15 @@ def add_generic_objectclass_context_elements(context, model):
   :return: context with generic object class related elements added
   """
   context['objectclass_name'] = model.__name__
+  objectclass_lower_name = model.__name__.lower()
+  context['objectclass_lower_name'] = objectclass_lower_name
   context['objectclass_verbose_name'] = model._meta.verbose_name
   context['objectclass_verbose_name_plural'] = model._meta.verbose_name_plural
   context['objectclass_description'] = model.BasemodelMeta.description
   context['objectclass_definite_article'] = model.BasemodelMeta.definite_article
   context['objectclass_new'] = model.BasemodelMeta.new
   if not issubclass(model, LogEntry):
-    context['objectclass_creation_url'] = reverse('bemas:' + model.__name__.lower() + '_create')
+    context['objectclass_creation_url'] = reverse('bemas:' + objectclass_lower_name + '_create')
   return context
 
 
@@ -142,6 +144,15 @@ def add_table_context_elements(context, model, kwargs=None):
       context['tabledata_url'] = reverse(
         'bemas:event_tabledata_complaint',
         args=[kwargs['complaint_pk']]
+      )
+    elif (
+        (issubclass(model, Complaint) or issubclass(model, Originator))
+        and 'subset_pk' in kwargs
+        and kwargs['subset_pk']
+    ):
+      context['tabledata_url'] = reverse(
+        'bemas:' + model.__name__.lower() + '_tabledata_subset',
+        args=[kwargs['subset_pk']]
       )
     else:
       context['tabledata_url'] = reverse('bemas:' + model.__name__.lower() + '_tabledata')
@@ -328,6 +339,9 @@ def create_geojson_feature(curr_object):
     ):
       geojson_feature['properties']['_' + field.name + '_'] = get_json_data(
         curr_object, field.name, True)
+  if issubclass(curr_object.__class__, Complaint):
+    geojson_feature['properties']['_originator__id_'] = get_json_data(
+      curr_object.originator, 'id', True)
   return geojson_feature
 
 

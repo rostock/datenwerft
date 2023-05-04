@@ -14,6 +14,9 @@
   {{ block.super }}
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
   <script src="{% static 'bemas/js/table.js' %}"></script>
+  {% if objectclass_name == 'Complaint' or objectclass_name == 'Originator' %}
+    <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -38,11 +41,14 @@
       {% if objectclass_name == 'Organization' %}
         <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       {% endif %}
+      {% if objectclass_name == 'Complaint' or objectclass_name == 'Originator' %}
+        <button id="subsetter" class="btn btn-secondary"><i class="fas fa-{{ 'map'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
+      {% endif %}
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
-        {% if objectclass_name == 'LogEntry' and model or objectclass_name == 'Event' and complaint_pk %}
+        {% if objectclass_name == 'LogEntry' and model or objectclass_name == 'Event' and complaint_pk or subset_pk %}
           {% include "bemas/container-table-danger.html" %}
         {% endif %}
         {% include "bemas/container-table-warning.html" %}
@@ -70,7 +76,7 @@
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
       <script>
-        /* global $, initDataTable */
+        /* global $, initDataTable, subsetting */
         /* eslint no-undef: "error" */
 
         setTimeout(function () {
@@ -84,6 +90,28 @@
          */
         $(document).ready(function() {
           initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }});
+
+          // on clicking the button to transfer currently filtered data to map...
+          $('#subsetter').on('click', function() {
+            // collect primary keys of currently filtered data
+            let primaryKeys = [];
+            $('#datasets > tbody > tr > td:first-child').each(function() {
+              primaryKeys.push($(this).text());
+            });
+            // create subset of currently filtered data and transfer it to table
+            {% with tmp='worschdsupp' %}
+              let url_mask = "{% url 'bemas:map_model_subset' objectclass_lower_name tmp %}";
+            {% endwith %}
+            subsetting(
+              primaryKeys,
+              '{% url "toolbox:subset_add" %}',
+              '{{ objectclass_lower_name }}',
+              'id',
+              url_mask,
+              'Bei der Übernahme der aktuellen Filtermenge in die Karte ist ein Serverfehler aufgetreten.',
+              'bemas'
+            );
+          });
         });
       </script>
     {% endif %}

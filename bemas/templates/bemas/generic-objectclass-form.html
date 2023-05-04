@@ -105,7 +105,7 @@
       {% include "modal-error.html" %}
     </form>
     <script>
-      /* global $, addEmptyFieldButton, addField, addressType, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, searchField, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
+      /* global $, addEmptyFieldButton, addField, cleanField, configureLeafletGeoman, configureMap, enableAddressReferenceButton, enableMapLocate, initializeAddressSearch, keepDjangoRequiredMessages, L, setAddressToMarkerAddress, setButtonsPosition, setMapConstants, setMarkerToAddressSearchResult */
       /* eslint no-undef: "error" */
       /**
        * @function
@@ -246,7 +246,7 @@
         window.addressType = 'Adresse';
         window.searchField = $('#id_address');
         {% if objectclass_is_geometry_model %}
-          initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType)
+          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
         {% endif %}
 
         // on clicking the map reference (i.e. address to map) button...

@@ -9,6 +9,7 @@ from jsonview.views import JsonView
 from re import match, search, sub
 from zoneinfo import ZoneInfo
 
+from toolbox.models import Subsets
 from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
@@ -27,7 +28,18 @@ class GenericTableDataView(BaseDatatableView):
     super().__init__(*args, **kwargs)
 
   def get_initial_queryset(self):
-    return get_model_objects(self.model, False, self.kwargs)
+    objects = None
+    if self.kwargs and 'subset_pk' in self.kwargs and self.kwargs['subset_pk']:
+      subset = Subsets.objects.get(pk=self.kwargs['subset_pk'])
+      if (
+          subset is not None
+          and isinstance(subset, Subsets)
+          and subset.model.model == self.model.__name__.lower()
+      ):
+        objects = self.model.objects.filter(pk__in=subset.pk_values)
+    else:
+      objects = get_model_objects(self.model, False, self.kwargs)
+    return objects
 
   def prepare_results(self, qs):
     """
@@ -310,23 +322,27 @@ class GenericMapDataView(JsonView):
     :param kwargs:
     :return: GeoJSON feature collection
     """
-    # declare empty GeoJSON feature collection
-    feature_collection = {
-        'type': 'FeatureCollection',
-        'features': []
-    }
-    if self.kwargs and self.kwargs['subset_id']:
-      objects = None
-      # TODO:
-      # 1. Subset holen und davon die PKs kriegen
-      # 2. mit self.model und PKs in get_model_objects() gehen,
-      # die dann halt noch um die PKs-Verarbeitung ergämnzt werden muss
+    feature_collection, objects = None, None
+    if self.kwargs and 'subset_pk' in self.kwargs and self.kwargs['subset_pk']:
+      subset = Subsets.objects.get(pk=self.kwargs['subset_pk'])
+      if (
+          subset is not None
+          and isinstance(subset, Subsets)
+          and subset.model.model == self.model.__name__.lower()
+      ):
+        objects = self.model.objects.filter(pk__in=subset.pk_values)
     else:
       objects = get_model_objects(self.model, False)
     # handle objects
-    for curr_object in objects:
-      # create GeoJSON feature
-      feature = create_geojson_feature(curr_object)
-      # add GeoJSON feature to GeoJSON feature collection
-      feature_collection['features'].append(feature)
+    if objects:
+      # declare empty GeoJSON feature collection
+      feature_collection = {
+          'type': 'FeatureCollection',
+          'features': []
+      }
+      for curr_object in objects:
+        # create GeoJSON feature
+        feature = create_geojson_feature(curr_object)
+        # add GeoJSON feature to GeoJSON feature collection
+        feature_collection['features'].append(feature)
     return feature_collection

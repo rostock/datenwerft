@@ -44,6 +44,9 @@
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     {% if objects_count > 0 %}
+      {% if model and subset_pk %}
+        {% include "bemas/container-map-danger.html" %}
+      {% endif %}
       <div id="map-side-container" class="mb-3">
         {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
         <div class="accordion accordion-flush{% if not is_mobile %} side{% endif %}">
@@ -242,9 +245,19 @@
       </div>
       {% include "modal-error.html" %}
       {% include "modal-loading.html" %}
+      <!-- eslint-disable-next-script -->
       <script>
-
-        /* global $, applyFilters, configureMap, createFilterObject, enableMapLocate, filterApplication, filterReset, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, objectsExtent, searchField, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByBoundingBox, setMapExtentByLeafletBounds, setMapExtentByXYAndZoomLevel */
+        window.complaintsPresent = false;
+        window.originatorsPresent = false;
+        {% if complaints_mapdata_url %}
+          window.complaintsPresent = true;
+        {% endif %}
+        {% if originators_mapdata_url %}
+          window.originatorsPresent = true;
+        {% endif %}
+      </script>
+      <script>
+        /* global $, applyFilters, configureMap, createFilterObject, enableMapLocate, filterApplication, filterReset, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByBoundingBox, setMapExtentByLeafletBounds, setMapExtentByXYAndZoomLevel, subsetting */
         /* eslint no-undef: "error" */
         /**
          * @function
@@ -265,65 +278,75 @@
             enableMapLocate(map)
           {% endif %}
 
-          // activate map cluster for complaints
-          let complaintsMarkers = L.markerClusterGroup();
-          // fetch GeoJSON feature collection with complaints for map
-          fetchGeoJsonFeatureCollection('{{ complaints_mapdata_url }}')
-          .then(data => {
-            // for each GeoJSON feature in GeoJSON feature collection:
-            // equip with marker, set properties and actions, bind tooltip
-            // and add it to corresponding map cluster
-            L.Proj.geoJson(data, {
-              pointToLayer: function (feature, latlng) {
-                let marker = new L.circleMarker(latlng, {
-                  radius: 5,
-                  color: '{{ complaints_color }}'
-                });
-                marker.bindTooltip(feature.properties._tooltip);
-                return marker;
-              },
-              onEachFeature: setGeoJsonFeaturePropertiesAndActions
-            }).addTo(complaintsMarkers);
-          })
-          .catch(
-            (error) => {
-              console.error(error);
-            }
-          );
-          // equip map cluster for complaints with ID
-          complaintsMarkers.id = 'complaintsCluster';
-          // add  map cluster for complaints to map
-          map.addLayer(complaintsMarkers);
+          if (window.complaintsPresent === true) {
+            // activate map cluster for complaints
+            let complaintsMarkers = L.markerClusterGroup();
+            // fetch GeoJSON feature collection with complaints for map
+            fetchGeoJsonFeatureCollection(
+                '{{ complaints_mapdata_url }}',
+                window.originatorsPresent === true ? false : null
+            )
+            .then(data => {
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // equip with marker, set properties and actions, bind tooltip
+              // and add it to corresponding map cluster
+              L.Proj.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                  let marker = new L.circleMarker(latlng, {
+                    radius: 5,
+                    color: '{{ complaints_color }}'
+                  });
+                  marker.bindTooltip(feature.properties._tooltip);
+                  return marker;
+                },
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
+              }).addTo(complaintsMarkers);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+            // equip map cluster for complaints with ID
+            complaintsMarkers.id = 'complaintsCluster';
+            // add  map cluster for complaints to map
+            map.addLayer(complaintsMarkers);
+          }
 
-          // activate map cluster for originators
-          let originatorsMarkers = L.markerClusterGroup();
-          // fetch GeoJSON feature collection with originators for map
-          fetchGeoJsonFeatureCollection('{{ originators_mapdata_url }}', true)
-          .then(data => {
-            // for each GeoJSON feature in GeoJSON feature collection:
-            // equip with marker, set properties and actions, bind tooltip
-            // and add it to corresponding map cluster
-            L.Proj.geoJson(data, {
-              pointToLayer: function (feature, latlng) {
-                let marker = new L.circleMarker(latlng, {
-                  radius: 5,
-                  color: '{{ originators_color }}'
-                });
-                marker.bindTooltip(feature.properties._tooltip);
-                return marker;
-              },
-              onEachFeature: setGeoJsonFeaturePropertiesAndActions
-            }).addTo(originatorsMarkers);
-          })
-          .catch(
-            (error) => {
-              console.error(error);
-            }
-          );
-          // equip map cluster for originators with ID
-          originatorsMarkers.id = 'originatorsCluster';
-          // add  map cluster for originators to map
-          map.addLayer(originatorsMarkers);
+          if (window.originatorsPresent === true) {
+            // activate map cluster for originators
+            let originatorsMarkers = L.markerClusterGroup();
+            // fetch GeoJSON feature collection with originators for map
+            fetchGeoJsonFeatureCollection(
+                '{{ originators_mapdata_url }}',
+                window.complaintsPresent === true ? true : null
+            )
+            .then(data => {
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // equip with marker, set properties and actions, bind tooltip
+              // and add it to corresponding map cluster
+              L.Proj.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                  let marker = new L.circleMarker(latlng, {
+                    radius: 5,
+                    color: '{{ originators_color }}'
+                  });
+                  marker.bindTooltip(feature.properties._tooltip);
+                  return marker;
+                },
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
+              }).addTo(originatorsMarkers);
+            })
+            .catch(
+              (error) => {
+                console.error(error);
+              }
+            );
+            // equip map cluster for originators with ID
+            originatorsMarkers.id = 'originatorsCluster';
+            // add  map cluster for originators to map
+            map.addLayer(originatorsMarkers);
+          }
 
           // define several globally available variables
           window.objectsExtent = map.getBounds();
@@ -351,13 +374,14 @@
           // globally available variables for primary keys and map extent of currently filtered data
           window.currentComplaintsFilterPrimaryKeys = [];
           window.currentComplaintsFilterExtent = [];
+          window.currentComplaintsFilterOriginatorsPrimaryKeys = [];
           window.currentOriginatorsFilterPrimaryKeys = [];
           window.currentOriginatorsFilterExtent = [];
 
           // initialize address search (and make its results globally available)
           window.results = $('div.results');
           window.searchField = $('#searchtext');
-          initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}');
+          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}');
 
           // initially set list filter fields to empty option
           $("select[data-type='list']").each(function() {
@@ -366,8 +390,6 @@
 
           // on clicking a one-click-filter button...
           $('.filter-one-click-button').on('click', function(e) {
-            let $this = $(this);
-
             // disable all one-click-filter buttons
             $('#filter-one-click-buttons').children('button').each(function() {
               $(this).prop('disabled', true);
@@ -386,14 +408,15 @@
             $('[id$=filter-reset]').prop('disabled', true);
 
             // create appropriate filter objects list and apply filters
-            let filterId = e.target.id;
-            let filterObjectsList = [];
+            let filterId = e.target.id, filterObjectsList = [];
             switch (filterId) {
               case 'complaints-in-progress':
                 filterObjectsList = [
                     createFilterObject('status', 'list', 'in Bearbeitung')
                 ];
                 applyFilters('complaints', filterObjectsList);
+                // hide all originators by applying an "impossible" filter
+                // (i.e. a filter very unlikely to be matched by any originator)
                 filterObjectsList = [
                     createFilterObject('description', 'text', '§$%&')
                 ];
@@ -404,7 +427,16 @@
                     createFilterObject('status', 'list', 'in Bearbeitung')
                 ];
                 applyFilters('complaints', filterObjectsList);
-                // TODO: 1. an Cpl-JSON die _originator__id_ anhängen, 2. alle diese holen, 3. listenfilter mit diesen vs. Orig-ID anwenden
+                // hide all originators not connected to remaining complaints:
+                // 1) get all originator primary keys of remaining complaints
+                let remainingComplaintsFilterOriginatorsPrimaryKeys = [
+                    ...new Set(window.currentComplaintsFilterOriginatorsPrimaryKeys)
+                ];
+                // 2) create and apply filter which matches the primary keys of all originators against all originator primary keys of remaining complaints
+                filterObjectsList = [
+                    createFilterObject('_pk', 'array', remainingComplaintsFilterOriginatorsPrimaryKeys)
+                ];
+                applyFilters('originators', filterObjectsList);
                 break;
             }
           });
@@ -472,7 +504,7 @@
               );
             else
               // set map extent to that of all complaints, if filter is not active
-              setMapExtentByLeafletBounds(objectsExtent);
+              setMapExtentByLeafletBounds(window.objectsExtent);
           });
 
           // on clicking the button to set map extent to that of currently filtered originators...
@@ -487,7 +519,7 @@
               );
             else
               // set map extent to that of all originators, if filter is not active
-              setMapExtentByLeafletBounds(objectsExtent);
+              setMapExtentByLeafletBounds(window.objectsExtent);
           });
 
           // on clicking the button to return to initial map extent...
@@ -501,6 +533,35 @@
             let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
             // set initial map extent by means of initial zoom level initial map center
             setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
+          });
+
+          // on clicking a button to transfer currently filtered data to table...
+          $('[id$=subsetter]').on('click', function() {
+            // create subset of currently filtered data and transfer it to table
+            let model = $(this).attr('id').replace('-subsetter', '');
+            let primaryKeys = [], modelName = '', url_mask = '';
+            if (model === 'complaints') {
+              primaryKeys = window.currentComplaintsFilterPrimaryKeys;
+              modelName = 'complaint';
+              {% with tmp='worschdsupp' %}
+                url_mask = "{% url 'bemas:complaint_table_subset' tmp %}";
+              {% endwith %}
+            } else if (model === 'originators') {
+              primaryKeys = window.currentOriginatorsFilterPrimaryKeys;
+              modelName = 'originator';
+              {% with tmp='worschdsupp' %}
+                url_mask = "{% url 'bemas:originator_table_subset' tmp %}";
+              {% endwith %}
+            }
+            subsetting(
+              primaryKeys,
+              '{% url "toolbox:subset_add" %}',
+              modelName,
+              'id',
+              url_mask,
+              'Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Serverfehler aufgetreten.',
+              'bemas'
+            );
           });
         });
       </script>

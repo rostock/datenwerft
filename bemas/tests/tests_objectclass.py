@@ -1,3 +1,6 @@
+from django.contrib.contenttypes.models import ContentType
+
+from toolbox.models import Subsets
 from bemas.models import Complaint, Contact, Event, Organization, Originator, Person, Sector, \
   Status, TypeOfEvent, TypeOfImmission
 from .base import DefaultManyToManyTestCase, DefaultModelTestCase, DefaultViewTestCase
@@ -410,6 +413,29 @@ class OriginatorViewsTest(DefaultViewTestCase):
   views test class for object class originator (Verursacher)
   """
 
+  @classmethod
+  def setUpTestData(cls):
+    organization = Organization.objects.create(
+      name='w66iaSMf'
+    )
+    sector = Sector.objects.first()
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=organization,
+      description='VFBVRCp9',
+      emission_point=VALID_POINT_DB
+    )
+    cls.subset = Subsets.objects.create(
+      model=ContentType.objects.filter(
+        app_label='bemas',
+        model='originator'
+      ).first(),
+      pk_field='id',
+      pk_values=[
+        originator.pk
+      ]
+    )
+
   def setUp(self):
     self.init()
 
@@ -419,16 +445,34 @@ class OriginatorViewsTest(DefaultViewTestCase):
       'application/json', 'ok'
     )
 
+  def test_tabledata_subset_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_tabledata_subset', [self.subset.pk], 200,
+      'application/json', 'ok'
+    )
+
   def test_table_view_no_rights(self):
     self.generic_view_test(
       False, False, 'originator_table', None,
       200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
+  def test_table_subset_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_table_subset', [self.subset.pk],
+      200, 'text/html; charset=utf-8', 'Tabelle wird Server-seitig erzeugt'
+    )
+
+  def test_table_subset_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'originator_table_subset', [self.subset.pk],
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
   def test_table_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'originator_table', None,
-      200, 'text/html; charset=utf-8', 'vorhanden'
+      200, 'text/html; charset=utf-8', 'Tabelle wird Server-seitig erzeugt'
     )
 
   def test_create_view_no_rights(self):
@@ -446,6 +490,12 @@ class OriginatorViewsTest(DefaultViewTestCase):
   def test_mapdata_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'originator_mapdata', None,
+      200, 'application/json', 'FeatureCollection'
+    )
+
+  def test_mapdata_subset_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'originator_mapdata_subset', [self.subset.pk],
       200, 'application/json', 'FeatureCollection'
     )
 
@@ -552,6 +602,38 @@ class ComplaintViewsTest(DefaultViewTestCase):
   views test class for object class complaint (Beschwerde)
   """
 
+  @classmethod
+  def setUpTestData(cls):
+    organization = Organization.objects.create(
+      name='s1VtaLtF'
+    )
+    sector = Sector.objects.first()
+    originator = Originator.objects.create(
+      sector=sector,
+      operator=organization,
+      description='lOUuAGOo',
+      emission_point=VALID_POINT_DB
+    )
+    status = Status.get_default_status()
+    type_of_immission = TypeOfImmission.objects.first()
+    complaint = Complaint.objects.create(
+      status=status,
+      type_of_immission=type_of_immission,
+      immission_point=VALID_POINT_DB,
+      originator=originator,
+      description='38qcRwtj'
+    )
+    cls.subset = Subsets.objects.create(
+      model=ContentType.objects.filter(
+        app_label='bemas',
+        model='complaint'
+      ).first(),
+      pk_field='id',
+      pk_values=[
+        complaint.pk
+      ]
+    )
+
   def setUp(self):
     self.init()
 
@@ -561,16 +643,34 @@ class ComplaintViewsTest(DefaultViewTestCase):
       'application/json', 'ok'
     )
 
+  def test_tabledata_subset_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_tabledata_subset', [self.subset.pk], 200,
+      'application/json', 'ok'
+    )
+
   def test_table_view_no_rights(self):
     self.generic_view_test(
       False, False, 'complaint_table', None,
       200, 'text/html; charset=utf-8', 'keine Rechte'
     )
 
+  def test_table_subset_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_table_subset', [self.subset.pk],
+      200, 'text/html; charset=utf-8', 'Tabelle wird Server-seitig erzeugt'
+    )
+
+  def test_table_subset_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'complaint_table_subset', [self.subset.pk],
+      200, 'text/html; charset=utf-8', 'keine Rechte'
+    )
+
   def test_table_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'complaint_table', None,
-      200, 'text/html; charset=utf-8', 'vorhanden'
+      200, 'text/html; charset=utf-8', 'Tabelle wird Server-seitig erzeugt'
     )
 
   def test_create_view_no_rights(self):
@@ -588,6 +688,12 @@ class ComplaintViewsTest(DefaultViewTestCase):
   def test_mapdata_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'complaint_mapdata', None,
+      200, 'application/json', 'FeatureCollection'
+    )
+
+  def test_mapdata_subset_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'complaint_mapdata_subset', [self.subset.pk],
       200, 'application/json', 'FeatureCollection'
     )
 

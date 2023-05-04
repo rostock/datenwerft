@@ -80,8 +80,22 @@ class MapView(TemplateView):
     context = add_user_agent_context_elements(context, self.request)
     # add map related information to context
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['complaints_mapdata_url'] = reverse('bemas:complaint_mapdata')
-    context['originators_mapdata_url'] = reverse('bemas:originator_mapdata')
+    if (
+        self.kwargs
+        and 'model' in self.kwargs
+        and self.kwargs['model']
+        and 'subset_pk' in self.kwargs
+        and self.kwargs['subset_pk']
+    ):
+      if self.kwargs['model'] == 'complaint':
+        context['complaints_mapdata_url'] = reverse(
+          'bemas:complaint_mapdata_subset', args=[self.kwargs['subset_pk']])
+      elif self.kwargs['model'] == 'originator':
+        context['originators_mapdata_url'] = reverse(
+          'bemas:originator_mapdata_subset', args=[self.kwargs['subset_pk']])
+    else:
+      context['complaints_mapdata_url'] = reverse('bemas:complaint_mapdata')
+      context['originators_mapdata_url'] = reverse('bemas:originator_mapdata')
     # add filter related information to context
     context['complaints_status'] = list(
       Complaint.objects.order_by('status').values_list('status__title', flat=True).distinct()
