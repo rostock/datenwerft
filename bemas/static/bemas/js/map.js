@@ -31,6 +31,25 @@ function applyFilters(model, filterObjectsList) {
 
 /**
  * @function
+ * @name createFilterObject
+ *
+ * creates a filter object based on given name, type and value
+ *
+ * @param {string} name - name
+ * @param {string} type - type
+ * @param {*} value - value
+ * @returns {Object} - filter object
+ */
+function createFilterObject(name, type, value) {
+  let filter = {};
+  filter.name = name;
+  filter.type = type;
+  filter.value = value;
+  return filter;
+}
+
+/**
+ * @function
  * @name fetchGeoJsonFeatureCollection
  *
  * fetches GeoJSON feature collection for map

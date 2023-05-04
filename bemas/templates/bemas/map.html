@@ -47,10 +47,28 @@
       <div id="map-side-container" class="mb-3">
         {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
         <div class="accordion accordion-flush{% if not is_mobile %} side{% endif %}">
-          <div class="accordion-item" id="complaints-filter">
-            <h2 class="accordion-header" id="heading-complaints-filter">
+          <div id="filter-one-click" class="accordion-item">
+            <h2 id="heading-filter-one-click" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-filter-one-click" aria-expanded="false" aria-controls="collapse-filter-one-click">
+                Ein-Klick-Filter
+              </button>
+            </h2>
+            <div id="collapse-filter-one-click" class="accordion-collapse collapse" aria-labelledby="heading-filter-one-click">
+              <div class="accordion-body">
+                <div id="filter-one-click-buttons" class="btn-group-vertical">
+                  <button id="complaints-in-progress" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> nur Beschwerden in Bearbeitung</button>
+                  <button id="complaints-in-progress-with-originators" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Beschwerden in Bearbeitung und deren Verursacher</button>
+                </div>
+                <div class="d-grid mt-4">
+                  <button id="filter-one-click-reset" class="btn btn-warning" disabled><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Ein-Klick-Filter zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="complaints-filter" class="accordion-item">
+            <h2 id="heading-complaints-filter" class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-complaints-filter" aria-expanded="false" aria-controls="collapse-complaints-filter">
-                Filter für Beschwerden
+                Filter für <i class="ms-1 me-1 fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden
               </button>
             </h2>
             <div id="collapse-complaints-filter" class="accordion-collapse collapse" aria-labelledby="heading-complaints-filter">
@@ -130,17 +148,17 @@
                     </button>
                   </div>
                 </div>
-                <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
-                  <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
-                  <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+                <div id="complaints-filter-buttons" class="d-grid mt-4 gap-2">
+                  <button id="complaints-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Beschwerden anwenden</button>
+                  <button id="complaints-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Beschwerden zurücksetzen</button>
                 </div>
               </div>
             </div>
           </div>
-          <div class="accordion-item" id="originators-filter">
-            <h2 class="accordion-header" id="heading-originators-filter">
+          <div id="originators-filter" class="accordion-item">
+            <h2 id="heading-originators-filter" class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-originators-filter" aria-expanded="false" aria-controls="collapse-originators-filter">
-                Filter für Verursacher
+                Filter für <i class="ms-1 me-1 fas fa-{{ 'originator'|get_icon }}"></i> Verursacher
               </button>
             </h2>
             <div id="collapse-originators-filter" class="accordion-collapse collapse" aria-labelledby="heading-originators-filter">
@@ -181,15 +199,15 @@
                     </button>
                   </div>
                 </div>
-                <div id="originators-filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
-                  <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter anwenden</button>
-                  <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter zurücksetzen</button>
+                <div id="originators-filter-buttons" class="d-grid mt-4 gap-2">
+                  <button id="originators-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Verursacher anwenden</button>
+                  <button id="originators-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Verursacher zurücksetzen</button>
                 </div>
               </div>
             </div>
           </div>
-          <div class="accordion-item" id="map-control">
-            <h2 class="accordion-header" id="heading-map-control">
+          <div id="map-control" class="accordion-item">
+            <h2 id="heading-map-control" class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-map-control" aria-expanded="false" aria-controls="collapse-map-control">
                 Kartenausschnitt
               </button>
@@ -204,8 +222,8 @@
               </div>
             </div>
           </div>
-          <div class="accordion-item" id="address-search">
-            <h2 class="accordion-header" id="heading-address-search">
+          <div id="address-search" class="accordion-item">
+            <h2 id="heading-address-search" class="accordion-header">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-address-search" aria-expanded="false" aria-controls="collapse-address-search">
                 Adressensuche
               </button>
@@ -225,7 +243,8 @@
       {% include "modal-error.html" %}
       {% include "modal-loading.html" %}
       <script>
-        /* global $, configureMap, enableMapLocate, filterApplication, filterReset, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, objectsExtent, searchField, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByBoundingBox, setMapExtentByLeafletBounds, setMapExtentByXYAndZoomLevel */
+
+        /* global $, applyFilters, configureMap, createFilterObject, enableMapLocate, filterApplication, filterReset, fetchGeoJsonFeatureCollection, initializeAddressSearch, L, objectsExtent, searchField, setGeoJsonFeaturePropertiesAndActions, setMapConstants, setMapExtentByBoundingBox, setMapExtentByLeafletBounds, setMapExtentByXYAndZoomLevel */
         /* eslint no-undef: "error" */
         /**
          * @function
@@ -343,6 +362,72 @@
           // initially set list filter fields to empty option
           $("select[data-type='list']").each(function() {
             $(this).val('');
+          });
+
+          // on clicking a one-click-filter button...
+          $('.filter-one-click-button').on('click', function(e) {
+            let $this = $(this);
+
+            // disable all one-click-filter buttons
+            $('#filter-one-click-buttons').children('button').each(function() {
+              $(this).prop('disabled', true);
+            });
+
+            // enable button to reset one-click-filters
+            $('#filter-one-click-reset').prop('disabled', false);
+
+            // enable buttons to transfer currently filtered data to table
+            $('[id$=subsetter]').prop('disabled', false);
+
+            // disable all buttons to apply filters
+            $('[id$=filter-apply]').prop('disabled', true);
+
+            // disable all buttons to reset filters
+            $('[id$=filter-reset]').prop('disabled', true);
+
+            // create appropriate filter objects list and apply filters
+            let filterId = e.target.id;
+            let filterObjectsList = [];
+            switch (filterId) {
+              case 'complaints-in-progress':
+                filterObjectsList = [
+                    createFilterObject('status', 'list', 'in Bearbeitung')
+                ];
+                applyFilters('complaints', filterObjectsList);
+                filterObjectsList = [
+                    createFilterObject('description', 'text', '§$%&')
+                ];
+                applyFilters('originators', filterObjectsList);
+                break;
+              case 'complaints-in-progress-with-originators':
+                filterObjectsList = [
+                    createFilterObject('status', 'list', 'in Bearbeitung')
+                ];
+                applyFilters('complaints', filterObjectsList);
+                // TODO: 1. an Cpl-JSON die _originator__id_ anhängen, 2. alle diese holen, 3. listenfilter mit diesen vs. Orig-ID anwenden
+                break;
+            }
+          });
+
+          // on clicking the button to reset one-click-filters...
+          $('#filter-one-click-reset').on('click', function() {
+            // enable all one-click-filter buttons
+            $('#filter-one-click-buttons').children('button').each(function() {
+              $(this).prop('disabled', false);
+            });
+
+            // enable all buttons to apply filters
+            $('[id$=filter-apply]').prop('disabled', false);
+
+            // enable all buttons to reset filters
+            $('[id$=filter-reset]').prop('disabled', false);
+
+            // reset all filters
+            filterReset('complaints');
+            filterReset('originators');
+
+            // disable this button itself
+            $(this).prop('disabled', true);
           });
 
           // on clicking a button to empty a filter field...
