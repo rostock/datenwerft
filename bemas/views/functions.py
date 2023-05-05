@@ -1,3 +1,5 @@
+from datetime import date, timezone
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.serializers import serialize
@@ -7,10 +9,11 @@ from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
 from operator import itemgetter
+from zoneinfo import ZoneInfo
 
 from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
-  Originator
-from bemas.utils import generate_user_string, get_foreign_key_target_model, \
+  Originator, Status
+from bemas.utils import LOG_ACTIONS, generate_user_string, get_foreign_key_target_model, \
   get_foreign_key_target_object, get_icon_from_settings, get_json_data, is_bemas_admin, \
   is_bemas_user, is_geometry_field
 
@@ -431,6 +434,20 @@ def generate_foreign_key_link_simplified(target_model, target_object, link_text=
     icon + ' ' + link_text + '</a>'
 
 
+def get_lastest_activity_objects(count=5, template=True):
+  """
+  returns `count` lastest activity objects (i.e. log entries)
+
+  :param count: count of lastest activity objects
+  :param template: objects representation for template?
+  :return: `count` lastest activity objects (i.e. log entries)
+  """
+  # get `count` lastest log entries as activity objects
+  activity_objects = LogEntry.objects.order_by('-created_at')[:count]
+  # optionally transform activity objects into representations for a template
+  return transform_activity_objects(activity_objects) if template else activity_objects
+
+
 def get_model_objects(model, count=False, kwargs=None):
   """
   either gets all objects of given model and returns them
@@ -547,3 +564,51 @@ def set_log_action_and_content(model, curr_object, changed_attribute, cleaned_da
     if changed_attribute == 'operator':
       return 'updated_operator', str(curr_object.operator)
   return None, None
+
+
+def transform_activity_objects(activity_objects):
+  """
+  returns representations for a template of given activity objects
+
+  :param activity_objects: activity objects
+  :return: representations for a template of given activity objects
+  """
+  activity_objects_list = []
+  for activity_object in activity_objects:
+    # set appropriate icon
+    icon = get_icon_from_settings(activity_object.action)
+    if activity_object.action.startswith('cleared_'):
+      icon = get_icon_from_settings('deleted')
+    elif activity_object.action == 'updated_status':
+      icon = Status.objects.filter(title=activity_object.content)[0].icon
+    elif activity_object.action.startswith('updated_'):
+      icon = get_icon_from_settings('updated')
+    # set appropriate model information
+    model = apps.get_app_config('bemas').get_model(activity_object.model)
+    model_title = model._meta.verbose_name
+    model_icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model.__name__.lower()))
+    model_text = model_icon + ' ' + model_title
+    # set appropriate object link
+    object_pk = activity_object.object_pk
+    link = ''
+    model_name = model.__name__.lower()
+    if model.objects.filter(pk=object_pk).exists():
+      link = reverse('bemas:' + model_name + '_update', args=[object_pk])
+    # set appropriate datetime information
+    created_at = activity_object.created_at.replace(tzinfo=timezone.utc).astimezone(
+      ZoneInfo(settings.TIME_ZONE))
+    if created_at.date() == date.today():
+      created_at = created_at.strftime('%H:%M Uhr')
+    else:
+      created_at = created_at.strftime('%d.%m.%Y, %H:%M Uhr')
+    activity_object_dict = {
+      'icon': icon,
+      'user': activity_object.user,
+      'model': model_text,
+      'action': LOG_ACTIONS[activity_object.action],
+      'created_at': created_at,
+      'link': link,
+      'tooltip': model_title + ' bearbeiten' if link else ''
+    }
+    activity_objects_list.append(activity_object_dict)
+  return activity_objects_list

@@ -1,8 +1,9 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models.fields import PointField as ModelPointField
 from django.contrib.gis.forms.fields import PointField as FormPointField
+from django.utils import timezone
 from zoneinfo import ZoneInfo
 
 
@@ -116,6 +117,30 @@ def get_json_data(curr_object, field, for_filters=False):
   else:
     value = str(value)
   return value
+
+
+def get_orphaned_persons(complaint, contact, person):
+  """
+  returns orphaned persons based on given complaint, contact and person object classes
+
+  :return: orphaned persons based on given complaint, contact and person object classes
+  """
+  # get complaint status change deadline date
+  deadline_date = timezone.now() - timedelta(days=settings.BEMAS_STATUS_CHANGE_DEADLINE_DAYS)
+  # get active complaints
+  # (i.e. complaints with latest status change after deadline date
+  # or with status "less" than closed)
+  act_cpls = complaint.objects.filter(
+    status_updated_at__gt=deadline_date) | complaint.objects.filter(status__ordinal__lt=2)
+  # get all persons connected to contacts
+  con_ps_ids = contact.objects.all().values('person')
+  # get all persons connected to active complaints
+  act_cpls_ps_ids = person.objects.none().values('id')
+  for act_cpl in act_cpls:
+    act_cpls_ps_ids = act_cpls_ps_ids | act_cpl.complainers_persons.all().values('id')
+  # get orphaned persons
+  # (i.e. persons not connected to contacts and active complaints)
+  return person.objects.exclude(id__in=con_ps_ids).exclude(id__in=act_cpls_ps_ids)
 
 
 def is_bemas_admin(user):

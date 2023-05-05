@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 
 from bemas.models import Codelist, Complaint, Originator
 from .functions import add_default_context_elements, add_user_agent_context_elements, \
-  get_model_objects
+  get_lastest_activity_objects, get_model_objects
 
 
 class IndexView(TemplateView):
@@ -25,6 +25,8 @@ class IndexView(TemplateView):
     context = super().get_context_data(**kwargs)
     # add default elements to context
     context = add_default_context_elements(context, self.request.user)
+    # add latest activity objects to context
+    context['lastest_activity_objects'] = get_lastest_activity_objects(3)
     return context
 
 

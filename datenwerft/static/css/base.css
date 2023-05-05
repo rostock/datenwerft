@@ -23,8 +23,16 @@ span.nav-link:hover {
   cursor: default;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .container-fluid:not(nav > .container-fluid) {
   width: 90%;
+}
+
+.custom-tooltip {
+  --bs-tooltip-bg: var(--bs-secondary);
 }
 
 .main-logo {
@@ -39,6 +47,10 @@ span.nav-link:hover {
   height: 30px;
   margin-bottom: 0.25rem;
   margin-right: 0.25rem;
+}
+
+.no-padding-bottom {
+  padding-bottom: 0;
 }
 
 .object_list {

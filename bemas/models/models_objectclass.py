@@ -667,7 +667,7 @@ class LogEntry(Objectclass):
 
   class Meta(Objectclass.Meta):
     db_table = 'logentry'
-    ordering = ['-id']
+    ordering = ['-created_at']
     verbose_name = 'Eintrag im Bearbeitungsverlauf'
     verbose_name_plural = 'Einträge im Bearbeitungsverlauf'
 

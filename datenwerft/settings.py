@@ -193,7 +193,7 @@ USE_TZ = True
 # Icons
 
 BEMAS_ICONS = {
-  # 'activity': 'bell',
+  'activity': 'bell',
   'address': 'house',
   'address_to_map': 'location-dot',
   'anonymous_complaint': 'link-slash',
@@ -204,9 +204,9 @@ BEMAS_ICONS = {
   'complaint': 'folder-open',
   'contact': 'address-card',
   'create': 'circle-plus',
-  # 'created': 'plus',
+  'created': 'plus',
   'delete': 'trash',
-  # 'deleted': 'minus',
+  'deleted': 'minus',
   'error': 'circle-exclamation',
   'event': 'paperclip',
   'filter_off': 'filter-circle-xmark',
@@ -218,14 +218,14 @@ BEMAS_ICONS = {
   'ok': 'circle-check',
   'organization': 'building',
   'originator': 'industry',
-  # 'orphaned_data': 'ghost',
+  'orphaned_data': 'ghost',
   'person': 'user',
   'save': 'floppy-disk',
   'show_on_map': 'map',
-  # 'statistics': 'chart-simple',
+  'statistics': 'chart-simple',
   'table': 'table',
   'update': 'pen',
-  # 'updated': 'pen',
+  'updated': 'pen',
   'warning': 'triangle-exclamation'
 }
 
