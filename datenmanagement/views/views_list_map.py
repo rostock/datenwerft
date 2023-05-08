@@ -179,42 +179,21 @@ class DataView(BaseDatatableView):
         elif value is not None:
           data = escape(value)
         item_data.append(data)
-      if (
-          self.editable
-          and self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower)
-      ):
-        item_data.append(
-            '<a href="' +
-            reverse(
-                'datenmanagement:' +
-                self.model_name +
-                '_change',
-                args=[item_id]) +
-            '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>')
-      elif (
-          self.editable
-          and self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower)
-      ):
-        item_data.append(
-            '<a href="' +
-            reverse(
-                'datenmanagement:' +
-                self.model_name +
-                '_change',
-                args=[item_id]) +
-            '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>')
-      if (
-          self.editable
-          and self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
-      ):
-        item_data.append(
-            '<a href="' +
-            reverse(
-                'datenmanagement:' +
-                self.model_name +
-                '_delete',
-                args=[item_id]) +
-            '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>')
+      if self.editable:
+        links = ''
+        if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):
+          links = '<a href="' + \
+                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_id]) + \
+                  '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>'
+        elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
+          links = '<a href="' + \
+                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_id]) + \
+                  '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>'
+        if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
+          links += '<a class="ms-2" href="' + \
+                   reverse('datenmanagement:' + self.model_name + '_delete', args=[item_id]) + \
+                   '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>'
+        item_data.append(links)
       json_data.append(item_data)
     return json_data
 
