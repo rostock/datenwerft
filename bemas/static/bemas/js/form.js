@@ -112,18 +112,6 @@ function cleanField(field, i, id, name) {
 
 /**
  * @function
- * @name cloneObject
- *
- * @param {string} targetUrl - target URL
- *
- * clones whole object as new object by calling the given target URL
- */
-function cloneObject(targetUrl) {
-  $('form').attr('action', targetUrl);
-}
-
-/**
- * @function
  * @name enableAddressReferenceButton
  *
  * enables address reference (i.e. map to address) button

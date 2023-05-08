@@ -55,8 +55,8 @@ class DeletePersonsWithDataTest(DefaultTestCase):
       description='AV3hpjCt',
       emission_point=VALID_POINT_DB
     )
-    status1 = Status.objects.get(ordinal=1)
-    status2 = Status.objects.get(ordinal=2)
+    status1 = Status.get_default_status()
+    status2 = Status.get_closed_status()
     type_of_immission = TypeOfImmission.objects.first()
     complaint1 = Complaint.objects.create(
       status=status1,

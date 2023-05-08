@@ -417,7 +417,7 @@ class Originator(GeometryObjectclass):
     description = 'Verursacher von Emissionen'
     definite_article = 'der'
     indefinite_article = 'ein'
-    personal_pronoun = 'er'
+    personal_pronoun = 'ihn'
     new = 'neuen'
 
   def __str__(self):
@@ -539,7 +539,7 @@ class Complaint(GeometryObjectclass):
       # store search content in designated field
       self.search_content = 'anonyme Beschwerde'
     # on status update:
-    # store timestamp of status update in designated field
+    # store datetime of status update in designated field
     elif self.pk and self.status != Complaint.objects.get(pk=self.pk).status:
       self.status_updated_at = timezone.now()
     if update_fields is not None and 'status' in update_fields:
@@ -675,7 +675,7 @@ class LogEntry(Objectclass):
     description = 'Logbucheinträge, die durch ausgewählte Ereignisse ausgelöst werden'
     definite_article = 'der'
     indefinite_article = 'ein'
-    personal_pronoun = 'er'
+    personal_pronoun = 'ihn'
     new = 'neuen'
 
   def __str__(self):

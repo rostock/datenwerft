@@ -50,7 +50,7 @@ span.nav-link:hover {
 }
 
 .no-padding-bottom {
-  padding-bottom: 0;
+  padding-bottom: 0 !important;
 }
 
 .object_list {

@@ -510,8 +510,8 @@ class ComplaintModelTest(DefaultModelTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = Status.objects.first()
-    status2 = Status.objects.latest()
+    status1 = Status.get_default_status()
+    status2 = Status.get_closed_status()
     type_of_immission = TypeOfImmission.objects.first()
     sector = Sector.objects.first()
     operator = Organization.objects.create(

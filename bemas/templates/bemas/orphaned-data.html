@@ -1,0 +1,61 @@
+{% extends "navbar.html" %}
+{% load bemas_tags %}
+{% load static %}
+
+{% block title %}verwaiste Objekte | {% endblock %}
+
+{% block content %}
+  {% if is_bemas_user %}
+    <h2><i class="fas fa-{{ 'orphaned_data'|get_icon }}"></i> verwaiste Objekte</h2>
+    <div class="alert alert-primary mt-3 mb-3" role="alert">
+      <h5 class="alert-heading"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen</h5>
+      {% if orphaned_organizations %}
+        Folgende Organisation(en) ist/sind nicht als Betreiberin(nen) mit Verursachern und auch nicht als Beschwerdeführerin(nen) mit Beschwerden verbunden:
+        <ul class="object_list">
+          {% for orphaned_organization in orphaned_organizations %}
+            <li>
+              <a href="{{ orphaned_organization.link }}" title="Organisation bearbeiten">{{ orphaned_organization.text }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        keine verwaisten Organisationen vorhanden
+      {% endif %}
+    </div>
+    <div class="alert alert-primary mt-3 mb-3" role="alert">
+      <h5 class="alert-heading"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen</h5>
+      {% if orphaned_persons %}
+        Folgende Person(en) ist/sind nicht als Ansprechpartner:in(nen) mit Organisationen und auch nicht als Beschwerdeführer:in(nen) mit <strong><em>aktiven</em></strong> Beschwerden verbunden:
+        <ul class="object_list">
+          {% for orphaned_person in orphaned_persons %}
+            <li>
+              <a href="{{ orphaned_person.link }}" title="Person bearbeiten">{{ orphaned_person.text }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        <br>
+        Anmerkung: Beschwerden gelten als <em>inaktiv,</em> wenn sie seit mindestens {{ deadline_date }} den Bearbeitungsstatus <em>abgeschlossen</em> aufweisen.
+      {% else %}
+        keine verwaisten Personen vorhanden
+      {% endif %}
+    </div>
+    <div class="alert alert-primary mt-3 mb-3" role="alert">
+      <h5 class="alert-heading"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher</h5>
+      {% if orphaned_originators %}
+        Folgende(r) Verursacher ist/sind nicht mit Beschwerden verbunden:
+        <ul class="object_list">
+          {% for orphaned_originator in orphaned_originators %}
+            <li>
+              <a href="{{ orphaned_originator.link }}" title="Person bearbeiten">{{ orphaned_originator.text }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        keine verwaisten Verursacher vorhanden
+      {% endif %}
+    </div>
+    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+  {% else %}
+    {% include "bemas/notice-norights.html" %}
+  {% endif %}
+{% endblock %}

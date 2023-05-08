@@ -211,7 +211,7 @@
           <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
         {% if object and user|user_has_model_add_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry(); cloneObject();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit" onclick="cloneObject(); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
           <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>

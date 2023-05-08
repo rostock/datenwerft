@@ -1,19 +1,17 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from django.apps import apps
-from django.conf import settings
 from django.db.models import ForeignKey, Q
 from django.urls import reverse
 from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
 from re import match, search, sub
-from zoneinfo import ZoneInfo
 
 from toolbox.models import Subsets
 from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
-from .functions import create_geojson_feature, generate_foreign_key_link, \
+from .functions import create_geojson_feature, format_date_datetime, generate_foreign_key_link, \
   generate_foreign_key_link_simplified, get_model_objects
 
 
@@ -63,8 +61,11 @@ class GenericTableDataView(BaseDatatableView):
           if not is_geometry_field(column.__class__) and not column.name == 'search_content':
             data = None
             value = getattr(item, column.name)
+            # codelist specific column "icon"
+            if issubclass(self.model, Codelist) and column.name == 'icon':
+              item_data.append('<i class="fas fa-{}"></i>'.format(value))
             # log entry specific column "model"
-            if issubclass(self.model, LogEntry) and column.name == 'model':
+            elif issubclass(self.model, LogEntry) and column.name == 'model':
               # generate appropriate text (link in most cases)
               model = apps.get_app_config('bemas').get_model(value)
               model_name = model.__name__.lower()
@@ -110,14 +111,9 @@ class GenericTableDataView(BaseDatatableView):
             # ordinary columns
             elif not column.name.startswith('address_'):
               if value is not None:
-                # format timestamps
-                if isinstance(value, datetime):
-                  value_tz = value.replace(tzinfo=timezone.utc).astimezone(
-                    ZoneInfo(settings.TIME_ZONE))
-                  data = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
-                # format dates
-                elif isinstance(value, date):
-                  data = value.strftime('%d.%m.%Y')
+                # format dates and datetimes
+                if isinstance(value, date) or isinstance(value, datetime):
+                  data = format_date_datetime(value)
                 # format lists
                 elif type(value) is list:
                   data = '<br>'.join(value)

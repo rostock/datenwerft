@@ -1,4 +1,4 @@
-from datetime import date, timezone
+from datetime import date
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,13 +9,12 @@ from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
 from operator import itemgetter
-from zoneinfo import ZoneInfo
 
 from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
   Originator, Status
-from bemas.utils import LOG_ACTIONS, generate_user_string, get_foreign_key_target_model, \
-  get_foreign_key_target_object, get_icon_from_settings, get_json_data, is_bemas_admin, \
-  is_bemas_user, is_geometry_field
+from bemas.utils import LOG_ACTIONS, format_date_datetime, generate_user_string, \
+  get_foreign_key_target_model, get_foreign_key_target_object, get_icon_from_settings, \
+  get_json_data, is_bemas_admin, is_bemas_user, is_geometry_field
 
 
 def add_codelist_context_elements(context, model, curr_object=None):
@@ -380,10 +379,12 @@ def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
     link_text, suffix = '', ''
     object_list += ('<li>' if len(foreign_key_objects) > 1 else '')
     if issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'person':
-      suffix = ' mit der Funktion ' + foreign_key_object.function
+      if foreign_key_object.function:
+        suffix = ' mit der Funktion ' + foreign_key_object.function
       foreign_key_object = foreign_key_object.person
     elif issubclass(foreign_key_object.__class__, Contact) and formation_hint == 'organization':
-      suffix = ' (dort mit der Funktion ' + foreign_key_object.function + ')'
+      if foreign_key_object.function:
+        suffix = ' (dort mit der Funktion ' + foreign_key_object.function + ')'
       foreign_key_object = foreign_key_object.organization
     if issubclass(foreign_key_object.__class__, Event):
       link_text = foreign_key_object.type_of_event_and_created_at()
@@ -588,24 +589,28 @@ def transform_activity_objects(activity_objects):
     model_title = model._meta.verbose_name
     model_icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model.__name__.lower()))
     model_text = model_icon + ' ' + model_title
+    # set appropriate action information
+    action = LOG_ACTIONS[activity_object.action]
+    if activity_object.action == 'created' or activity_object.action == 'deleted':
+      action = '<em>#{}</em> '.format(activity_object.object_pk) + action
+    elif activity_object.action == 'updated_status':
+      action += ' auf <em>{}</em>'.format(activity_object.content)
     # set appropriate object link
-    object_pk = activity_object.object_pk
     link = ''
     model_name = model.__name__.lower()
-    if model.objects.filter(pk=object_pk).exists():
-      link = reverse('bemas:' + model_name + '_update', args=[object_pk])
+    if model.objects.filter(pk=activity_object.object_pk).exists():
+      link = reverse('bemas:' + model_name + '_update', args=[activity_object.object_pk])
     # set appropriate datetime information
-    created_at = activity_object.created_at.replace(tzinfo=timezone.utc).astimezone(
-      ZoneInfo(settings.TIME_ZONE))
+    created_at = activity_object.created_at
     if created_at.date() == date.today():
-      created_at = created_at.strftime('%H:%M Uhr')
+      created_at = format_date_datetime(created_at, True)
     else:
-      created_at = created_at.strftime('%d.%m.%Y, %H:%M Uhr')
+      created_at = format_date_datetime(created_at)
     activity_object_dict = {
       'icon': icon,
       'user': activity_object.user,
       'model': model_text,
-      'action': LOG_ACTIONS[activity_object.action],
+      'action': action,
       'created_at': created_at,
       'link': link,
       'tooltip': model_title + ' bearbeiten' if link else ''

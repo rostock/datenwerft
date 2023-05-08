@@ -116,3 +116,24 @@ class MapViewTest(DefaultViewTestCase):
       True, False, 'map_model_subset', ['complaint', 1], 200,
       'text/html; charset=utf-8', 'Kartendaten angezeigt'
     )
+
+
+class OrphanedDataViewTest(DefaultViewTestCase):
+  """
+  test class for orphaned data page
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_view_no_rights(self):
+    self.generic_view_test(
+      False, False, 'orphaned_data', None, 200,
+      'text/html; charset=utf-8', 'keine Rechte'
+    )
+
+  def test_view_standard_rights(self):
+    self.generic_view_test(
+      True, False, 'orphaned_data', None, 200,
+      'text/html; charset=utf-8', 'keine verwaisten'
+    )

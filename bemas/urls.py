@@ -7,7 +7,7 @@ from bemas.models import Codelist
 from .views.base import GenericTableDataView, GenericMapDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
-from .views.views_general import CodelistsIndexView, IndexView, MapView
+from .views.views_general import CodelistsIndexView, IndexView, MapView, OrphanedDataView
 from .views.views_objectclass import ComplaintDeleteView, ContactDeleteView, ContactCreateView, \
   ContactUpdateView, GenericObjectclassCreateView, GenericObjectclassDeleteView, \
   GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
@@ -49,6 +49,12 @@ urlpatterns = [
     'map/<model>/<subset_pk>',
     view=login_required(MapView.as_view()),
     name='map_model_subset'
+  ),
+  # orphaned data page
+  path(
+    'orphaned-data',
+    view=login_required(OrphanedDataView.as_view()),
+    name='orphaned_data'
   )
 ]
 

@@ -47,6 +47,10 @@ class Status(Codelist):
   def get_default_status():
     return Status.objects.get(ordinal=1) if Status.objects.filter(ordinal=1).exists() else None
 
+  @staticmethod
+  def get_closed_status():
+    return Status.objects.get(ordinal=2) if Status.objects.filter(ordinal=2).exists() else None
+
 
 class Sector(Codelist):
   """

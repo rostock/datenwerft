@@ -6,129 +6,163 @@
 
 {% block content %}
   {% if is_bemas_user %}
-    <div class="row g-4">
-      <div class="col-4">
-        <div class="alert alert-primary h-100 text-center">
-          <div class="d-grid col-6 mx-auto mt-4">
-            <a class="btn btn-lg btn-primary stretched-link fs-1" role="button" href="{% url 'bemas:map' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="Karte mit allen Beschwerden und Verursachern anzeigen"><i class="fas fa-{{ 'map'|get_icon }}"></i></a>
+    {% if not is_mobile %}
+      <div class="row g-4">
+        <div class="col-4">
+          <div class="alert alert-primary h-100 text-center d-flex align-items-center">
+            <a class="fs-1 stretched-link" href="{% url 'bemas:map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i><br>Immissions- und Emissionsorte</a>
           </div>
-          <p class="mt-3 mb-0 fs-3">Immissions- und Emissionsorte</p>
         </div>
-      </div>
-      <div class="col-8">
-        <div class="card bg-light h-100">
-          <div class="card-header"><i class="fas fa-{{ 'activity'|get_icon }}"></i> letzte Aktivitäten</div>
-          <div class="card-body">
-            <table class="table table-borderless">
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">Benutzer:in</th>
-                  <th scope="col">Objektklasse</th>
-                  <th scope="col">Aktion</th>
-                  <th scope="col">Zeitpunkt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for activity_object in lastest_activity_objects %}
-                  <tr {% if activity_object.link %}class="clickable" onclick="window.location='{{ activity_object.link }}'" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="{{ activity_object.tooltip }}"{% endif %}>
-                    <td><i class="fas fa-{{ activity_object.icon }}"></i></td>
-                    <td>{{ activity_object.user }}</td>
-                    <td>{{ activity_object.model|safe }}</td>
-                    <td>{{ activity_object.action }}</td>
-                    <td>{{ activity_object.created_at }}</td>
+        <div class="col-8">
+          <div class="card bg-light h-100">
+            <div class="card-header"><i class="fas fa-{{ 'activity'|get_icon }}"></i> letzte Aktivitäten</div>
+            <div class="card-body">
+              <table class="table table-borderless small mb0">
+                <thead>
+                  <tr class="no-padding-bottom">
+                    <th scope="col"></th>
+                    <th scope="col">Benutzer:in</th>
+                    <th scope="col">Objektklasse</th>
+                    <th scope="col">Aktion</th>
+                    <th scope="col">Zeitpunkt</th>
+                    <th scope="col"></th>
                   </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          <div class="card-footer text-center">
-            <div class="d-grid gap-2 d-md-block">
-              <a class="btn btn-primary" role="button" href="{% url 'bemas:logentry_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Einträge im Bearbeitungsverlauf in Tabelle anzeigen"><i class="fas fa-{{ 'logentry'|get_icon }}"></i></a>
-              <a class="btn btn-primary ms-2" role="button" href="{% url 'bemas:event_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Journalereignisse in Tabelle anzeigen"><i class="fas fa-{{ 'event'|get_icon }}"></i></a>
+                </thead>
+                <tbody>
+                  {% for activity_object in lastest_activity_objects %}
+                    <tr class="no-padding-bottom">
+                      <td><i class="fas fa-{{ activity_object.icon }}"></i></td>
+                      <td>{{ activity_object.user }}</td>
+                      <td>{{ activity_object.model|safe }}</td>
+                      <td>{{ activity_object.action|safe }}</td>
+                      <td>{{ activity_object.created_at }}</td>
+                      <td>{% if activity_object.link %}<a href="{{ activity_object.link }}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="{{ activity_object.tooltip }}"><i class="fas fa-{{ 'update'|get_icon }}"></i></a>{% endif %}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-1 row g-4">
-      <div class="col">
-        <div class="alert alert-primary h-100 text-center">
-          <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'originator'|get_icon }}"></i></p>
-          <p class="fs-3">Verursacher (Emissionsorte)</p>
-          <div class="d-grid gap-2 col-6 mx-auto">
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:originator_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Verursacher in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:originator_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neuen Verursacher anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="alert alert-primary h-100 text-center">
-          <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'complaint'|get_icon }}"></i></p>
-          <p class="fs-3">Beschwerden (Immissionsorte)</p>
-          <div class="d-grid gap-2 col-6 mx-auto">
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:complaint_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Beschwerden in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
-            <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:complaint_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Beschwerde anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="row g-4">
-          <div class="col">
-            <div class="alert alert-primary h-100 text-center">
-              <p class="mt-2 fs-4"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen</p>
+            <div class="card-footer text-center">
               <div class="d-grid gap-2 d-md-block">
-                <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:person_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Personen in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
-                <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:person_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Person anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="mt-1 row g-4">
-          <div class="col">
-            <div class="alert alert-primary h-100 text-center">
-              <p class="mt-2 fs-4"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen</p>
-              <div class="d-grid gap-2 d-md-block">
-                <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:organization_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Organisationen in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
-                <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:organization_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Organisation anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
-                <a class="btn btn-lg btn-primary fs-5 ms-3" role="button" href="{% url 'bemas:contact_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Ansprechpartner:in anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i><i class="ms-2 fas fa-{{ 'contact'|get_icon }}"></i></a>
+                <a class="btn btn-primary" role="button" href="{% url 'bemas:logentry_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Einträge im Bearbeitungsverlauf in Tabelle anzeigen"><i class="fas fa-{{ 'logentry'|get_icon }}"></i></a>
+                <a class="btn btn-primary ms-2" role="button" href="{% url 'bemas:event_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Journalereignisse in Tabelle anzeigen"><i class="fas fa-{{ 'event'|get_icon }}"></i></a>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="mt-1 row g-4">
-      <div class="col-8">
-        <div class="card bg-light h-100">
-          <div class="card-header"><i class="fas fa-{{ 'statistics'|get_icon }}"></i> Statistiken</div>
-          <div class="card-body">
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="row g-4">
-          <div class="col">
-            <div class="alert alert-primary h-100 text-center no-padding-bottom">
-              <a class="fs-4 stretched-link" href="#"><i class="fas fa-{{ 'orphaned_data'|get_icon }}"></i> verwaiste Objekte</a>
+      <div class="mt-1 row g-4">
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'originator'|get_icon }}"></i></p>
+            <p class="fs-3">Verursacher (Emissionsorte)</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:originator_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Verursacher in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:originator_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neuen Verursacher anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
             </div>
           </div>
         </div>
-        <div class="mt-1 row g-4">
-          <div class="col">
-            <div class="alert alert-primary h-100 text-center no-padding-bottom">
-              <a class="fs-4 stretched-link" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codelisten</a>
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'complaint'|get_icon }}"></i></p>
+            <p class="fs-3">Beschwerden (Immissionsorte)</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:complaint_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Beschwerden in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:complaint_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Beschwerde anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="row g-4">
+            <div class="col">
+              <div class="alert alert-primary h-100 text-center">
+                <p class="mt-2 fs-4"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen</p>
+                <div class="d-grid gap-2 d-md-block">
+                  <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:person_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Personen in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+                  <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:person_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Person anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-1 row g-4">
+            <div class="col">
+              <div class="alert alert-primary h-100 text-center">
+                <p class="mt-2 fs-4"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen</p>
+                <div class="d-grid gap-2 d-md-block">
+                  <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:organization_table' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="alle Organisationen in Tabelle anzeigen"><i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+                  <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'bemas:organization_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Organisation anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+                  <a class="btn btn-lg btn-primary fs-5 ms-3" role="button" href="{% url 'bemas:contact_create' %}" data-bs-toggle="tooltip" data-bs-custom-class="custom-tooltip" data-bs-title="neue Ansprechpartner:in anlegen"><i class="fas fa-{{ 'create'|get_icon }}"></i><i class="ms-2 fas fa-{{ 'contact'|get_icon }}"></i></a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <script>
-      /* global bootstrap */
-      /* eslint no-undef: "error" */
-      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    </script>
+      <div class="mt-1 mb-3 row g-4">
+        <div class="col-8">
+          <div class="card bg-light h-100">
+            <div class="card-header"><i class="fas fa-{{ 'statistics'|get_icon }}"></i> Statistiken</div>
+            <div class="card-body{% if not statistics %} text-center{% endif %}">
+              {% if statistics %}
+                <table class="table table-borderless small mb0">
+                  <tbody>
+                    {% for statistic in statistics %}
+                      <tr class="no-padding-bottom">
+                        <td>{{ statistic.text }}</td>
+                        <td>{{ statistic.figure }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                Es sind (noch) keine Beschwerden vorhanden, sodass keine Statistiken möglich sind!
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="row g-4">
+            <div class="col">
+              <div class="alert alert-primary h-100 text-center no-padding-bottom">
+                <a class="fs-4 stretched-link" href="{% url 'bemas:orphaned_data' %}"><i class="fas fa-{{ 'orphaned_data'|get_icon }}"></i><br>verwaiste Objekte</a>
+              </div>
+            </div>
+          </div>
+          <div class="mt-1 row g-4">
+            <div class="col">
+              <div class="alert alert-primary h-100 text-center no-padding-bottom">
+                <a class="fs-4 stretched-link" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'codelist'|get_icon }}"></i><br>Codelisten</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        /* global bootstrap */
+        /* eslint no-undef: "error" */
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+      </script>
+    {% else %}
+      <div class="row">
+        <div class="d-grid gap-2">
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i> Immissions- und Emissionsorte</a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:logentry_table' %}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf <i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:event_table' %}"><i class="fas fa-{{ 'event'|get_icon }}"></i> Journalereignisse <i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden <i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:complaint_create' %}"><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerde <i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:originator_create' %}"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher <i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:person_table' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen <i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:person_create' %}"><i class="fas fa-{{ 'person'|get_icon }}"></i> Person <i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:organization_table' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen <i class="fas fa-{{ 'table'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:organization_create' %}"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisation <i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'contact'|get_icon }}"></i> Ansprechpartner:in <i class="fas fa-{{ 'create'|get_icon }}"></i></a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:orphaned_data' %}"><i class="fas fa-{{ 'orphaned_data'|get_icon }}"></i> verwaiste Objekte</a>
+          <a class="btn btn-lg btn-primary" role="button" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'codelist'|get_icon }}"></i> Codelisten</a>
+        </div>
+      </div>
+    {% endif %}
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}

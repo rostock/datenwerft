@@ -42,6 +42,28 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return None
 
 
+def format_date_datetime(value, time_string_only=False):
+  """
+  formats date or datetime and returns appropriate date, datetime or time string
+
+  :param value: date or datetime
+  :param time_string_only: time string only?
+  :return: appropriate date, datetime or time string
+  """
+  # format datetimes
+  if isinstance(value, datetime):
+    value_tz = value.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+    if time_string_only:
+      return value_tz.strftime('heute, %H:%M Uhr')
+    else:
+      return value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+  # format dates
+  elif isinstance(value, date):
+    return value.strftime('%d.%m.%Y')
+  else:
+    return value
+
+
 def generate_user_string(user):
   """
   generates a string out of given user and returns it
@@ -61,6 +83,17 @@ def generate_user_string(user):
     return user['first_name'] + ' ' + user['last_name']
   else:
     return user['username']
+
+
+def get_complaint_status_change_deadline_date(format_date=False):
+  """
+  returns complaint status change deadline date
+
+  :param format_date: format date?
+  :return: complaint status change deadline date
+  """
+  deadline_date = timezone.now() - timedelta(days=settings.BEMAS_STATUS_CHANGE_DEADLINE_DAYS)
+  return deadline_date.strftime('%d.%m.%Y') if format_date else deadline_date
 
 
 def get_foreign_key_target_model(foreign_key_field):
@@ -104,13 +137,9 @@ def get_json_data(curr_object, field, for_filters=False):
   :return: JSONesque value of given field of given object
   """
   value = getattr(curr_object, field)
-  # format timestamps
-  if not for_filters and isinstance(value, datetime):
-    value_tz = value.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
-    value = value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
-  # format dates
-  elif not for_filters and isinstance(value, date):
-    value = value.strftime('%d.%m.%Y')
+  # format dates and datetimes
+  if not for_filters and (isinstance(value, date) or isinstance(value, datetime)):
+    value = format_date_datetime(value)
   # format originators
   elif field == 'originator':
     value = value.sector_and_operator()
@@ -119,19 +148,50 @@ def get_json_data(curr_object, field, for_filters=False):
   return value
 
 
+def get_orphaned_organizations(originator, complaint, organization):
+  """
+  returns orphaned organizations based on given originator, complaint
+  and organization object classes
+
+  :return: orphaned organizations based on given originator, complaint
+  and organization object classes
+  """
+  # get all organizations connected to originators
+  oris_orgs_ids = originator.objects.all().values('operator')
+  # get all organizations connected to complaints
+  cpls_orgs_ids = organization.objects.none().values('id')
+  for cpl in complaint.objects.all():
+    cpls_orgs_ids = cpls_orgs_ids | cpl.complainers_organizations.all().values('id')
+  # get orphaned organizations
+  # (i.e. organizations not connected to any originators and any complaints)
+  return organization.objects.exclude(id__in=oris_orgs_ids).exclude(id__in=cpls_orgs_ids)
+
+
+def get_orphaned_originators(complaint, originator):
+  """
+  returns orphaned originators based on given complaint and originator object classes
+
+  :return: orphaned originators based on given complaint and originator object classes
+  """
+  # get all originators connected to complaints
+  cpls_oris_ids = complaint.objects.all().values('originator')
+  # get orphaned originators
+  # (i.e. originators not connected to any complaints)
+  return originator.objects.exclude(id__in=cpls_oris_ids)
+
+
 def get_orphaned_persons(complaint, contact, person):
   """
   returns orphaned persons based on given complaint, contact and person object classes
 
   :return: orphaned persons based on given complaint, contact and person object classes
   """
-  # get complaint status change deadline date
-  deadline_date = timezone.now() - timedelta(days=settings.BEMAS_STATUS_CHANGE_DEADLINE_DAYS)
   # get active complaints
   # (i.e. complaints with latest status change after deadline date
   # or with status "less" than closed)
   act_cpls = complaint.objects.filter(
-    status_updated_at__gt=deadline_date) | complaint.objects.filter(status__ordinal__lt=2)
+    status_updated_at__gt=get_complaint_status_change_deadline_date()
+    ) | complaint.objects.filter(status__ordinal__lt=2)
   # get all persons connected to contacts
   con_ps_ids = contact.objects.all().values('person')
   # get all persons connected to active complaints
@@ -139,7 +199,7 @@ def get_orphaned_persons(complaint, contact, person):
   for act_cpl in act_cpls:
     act_cpls_ps_ids = act_cpls_ps_ids | act_cpl.complainers_persons.all().values('id')
   # get orphaned persons
-  # (i.e. persons not connected to contacts and active complaints)
+  # (i.e. persons not connected to any contacts and any active complaints)
   return person.objects.exclude(id__in=con_ps_ids).exclude(id__in=act_cpls_ps_ids)
 
 
