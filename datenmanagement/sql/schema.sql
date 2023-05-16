@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -1229,6 +1229,18 @@ CREATE TABLE codelisten.typen_erdwaermesonden (
 --
 
 CREATE TABLE codelisten.typen_haltestellen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    typ character varying(255) NOT NULL
+);
+
+
+--
+-- Name: typen_kleinklaeranlagen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.typen_kleinklaeranlagen (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -2497,14 +2509,14 @@ CREATE TABLE fachdaten_adressbezug.baudenkmale_hro (
     geometrie public.geometry(MultiPolygon,25833),
     id integer NOT NULL,
     status uuid NOT NULL,
-    gartendenkmal boolean NOT NULL,
     vorherige_beschreibung character varying(255),
     hinweise character varying(500),
     aenderungen character varying(500),
     unterschutzstellungen date[],
     veroeffentlichungen date[],
     denkmalnummern character varying(255)[],
-    lage character varying(255)
+    lage character varying(255),
+    gartendenkmal boolean NOT NULL
 );
 
 
@@ -2772,6 +2784,32 @@ CREATE TABLE fachdaten_adressbezug.kindertagespflegeeinrichtungen_hro (
     website character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
     deaktiviert date
+);
+
+
+--
+-- Name: kleinklaeranlagen_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    adresse uuid,
+    d3 character(11) NOT NULL,
+    we_datum date NOT NULL,
+    we_aktenzeichen character varying(255),
+    we_befristung date,
+    typ uuid NOT NULL,
+    einleitstelle character varying(255) NOT NULL,
+    gewaesser_berichtspflichtig boolean NOT NULL,
+    umfang_einleitung numeric(3,2),
+    einwohnerwert numeric(3,1),
+    zulassung character varying(11),
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -4445,6 +4483,22 @@ ALTER TABLE ONLY codelisten.typen_haltestellen
 
 
 --
+-- Name: typen_kleinklaeranlagen typen_kleinklaeranlagen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_kleinklaeranlagen
+    ADD CONSTRAINT typen_kleinklaeranlagen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: typen_kleinklaeranlagen typen_kleinklaeranlagen_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_kleinklaeranlagen
+    ADD CONSTRAINT typen_kleinklaeranlagen_typ_unique UNIQUE (typ);
+
+
+--
 -- Name: typen_poller typen_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5218,6 +5272,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.kinder_jugendbetreuung_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.kindertagespflegeeinrichtungen_hro
     ADD CONSTRAINT kindertagespflegeeinrichtungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: kleinklaeranlagen_hro kleinklaeranlagen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.kleinklaeranlagen_hro
+    ADD CONSTRAINT kleinklaeranlagen_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6488,6 +6550,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.hospize_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.kinder_jugendbetreuung_hro
     ADD CONSTRAINT kinder_jugendbetreuung_hro_traeger_fk FOREIGN KEY (traeger) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: kleinklaeranlagen_hro kleinklaeranlagen_hro_typen_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.kleinklaeranlagen_hro
+    ADD CONSTRAINT kleinklaeranlagen_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_kleinklaeranlagen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

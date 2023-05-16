@@ -20,9 +20,10 @@ from .base import SimpleModel
 from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, \
   erdwaermesonden_aktenzeichen_regex, erdwaermesonden_aktenzeichen_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
-  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, poller_nummer_regex, \
-  poller_nummer_message, strassen_schluessel_regex, \
-  strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
+  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, kleinklaeranlagen_d3_regex, \
+  kleinklaeranlagen_d3_message, kleinklaeranlagen_zulassung_regex, \
+  kleinklaeranlagen_zulassung_message, poller_nummer_regex, poller_nummer_message, \
+  strassen_schluessel_regex, strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
   trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
@@ -42,8 +43,9 @@ from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeinde
   Raeumbreiten_Strassenreinigungssatzung_HRO, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Sportarten, \
   Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
-  Typen_Erdwaermesonden, Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, \
-  Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
+  Verbuende_Ladestationen_Elektrofahrzeuge, Wegebreiten_Strassenreinigungssatzung_HRO, \
+  Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
 from .storage import OverwriteStorage
@@ -1676,7 +1678,7 @@ class Erdwaermesonden(SimpleModel):
       'art': 'art',
       'typ': 'typ'
     }
-    list_fields_with_number = ['anzahl_sonden', 'sondenfeldgroesse', 'sondenfeldgroesse']
+    list_fields_with_number = ['anzahl_sonden', 'sondenfeldgroesse']
     map_feature_tooltip_field = 'aktenzeichen'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -2211,7 +2213,7 @@ class Geh_Radwegereinigung(SimpleModel):
   wegeart = ForeignKey(
     Arten_Wege,
     verbose_name='Wegeart',
-    on_delete=CASCADE,
+    on_delete=RESTRICT,
     db_column='wegeart',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_wegearten'
@@ -2219,7 +2221,7 @@ class Geh_Radwegereinigung(SimpleModel):
   wegetyp = ForeignKey(
     Wegetypen_Strassenreinigungssatzung_HRO,
     verbose_name='Wegetyp',
-    on_delete=CASCADE,
+    on_delete=RESTRICT,
     db_column='wegetyp',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_wegetypen',
@@ -2255,7 +2257,7 @@ class Geh_Radwegereinigung(SimpleModel):
   breite = ForeignKey(
     Wegebreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Breite (in m)',
-    on_delete=CASCADE,
+    on_delete=RESTRICT,
     db_column='breite',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_breiten',
@@ -2287,7 +2289,7 @@ class Geh_Radwegereinigung(SimpleModel):
   raeumbreite = ForeignKey(
     Raeumbreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Räumbreite im Winterdienst (in m)',
-    on_delete=CASCADE,
+    on_delete=RESTRICT,
     db_column='raeumbreite',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_raeumbreiten',
@@ -3424,6 +3426,158 @@ class Kinder_Jugendbetreuung(SimpleModel):
     return self.bezeichnung + ' [' + \
       ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') \
       + 'Träger: ' + str(self.traeger) + ']'
+
+
+class Kleinklaeranlagen(SimpleModel):
+  """
+  Kleinkläranlagen
+  """
+
+  adresse = ForeignKey(
+    Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True
+  )
+  d3 = CharField(
+    ' d.3',
+    max_length=11,
+    validators=[
+      RegexValidator(
+        regex=kleinklaeranlagen_d3_regex,
+        message=kleinklaeranlagen_d3_message
+      )
+    ]
+  )
+  we_datum = DateField(
+    'Datum der wasserrechtlichen Erlaubnis',
+    default=date.today
+  )
+  we_aktenzeichen = CharField(
+    'Aktenzeichen der wasserrechtlichen Erlaubnis',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  we_befristung = DateField(
+    'Befristung der wasserrechtlichen Erlaubnis',
+    blank=True,
+    null=True
+  )
+  typ = ForeignKey(
+    Typen_Kleinklaeranlagen,
+    verbose_name='Anlagetyp',
+    on_delete=RESTRICT,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen'
+  )
+  einleitstelle = CharField(
+    'Einleitstelle',
+    max_length=255,
+    validators=standard_validators
+  )
+  gewaesser_berichtspflichtig = BooleanField(
+    ' berichtspflichtiges Gewässer?',
+  )
+  umfang_einleitung = DecimalField(
+    'Umfang der Einleitung (in m³/d)',
+    max_digits=3,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> muss mindestens 0,01 m³/d betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('9.99'),
+        'Der <strong><em>Umfang der Einleitung</em></strong> darf höchstens 9,99 m³/d betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  einwohnerwert = DecimalField(
+    'Einwohnerwert',
+    max_digits=3,
+    decimal_places=1,
+    validators=[
+      MinValueValidator(
+        Decimal('0.1'),
+        'Der <strong><em>Einwohnerwert</em></strong> muss mindestens 0,1 betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99.9'),
+        'Der <strong><em>Einwohnerwert</em></strong> darf höchstens 99,9 betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  zulassung = CharField(
+    'Zulassung',
+    max_length=11,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=kleinklaeranlagen_zulassung_regex,
+        message=kleinklaeranlagen_zulassung_message
+      )
+    ]
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"kleinklaeranlagen_hro'
+    verbose_name = 'Kleinkläranlage'
+    verbose_name_plural = 'Kleinkläranlagen'
+    description = 'Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung'
+    }
+    list_fields_with_date = ['we_datum', 'we_befristung']
+    list_fields_with_foreign_key = {
+      'typ': 'typ'
+    }
+    list_fields_with_number = ['umfang_einleitung', 'einwohnerwert']
+    map_feature_tooltip_field = 'd3'
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'we_datum': 'Datum der wasserrechtlichen Erlaubnis',
+      'we_aktenzeichen': 'Aktenzeichen der wasserrechtlichen Erlaubnis',
+      'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
+      'typ': 'Anlagetyp',
+      'einleitstelle': 'Einleitstelle',
+      'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
+      'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
+      'einwohnerwert': 'Einwohnerwert',
+      'zulassung': 'Zulassung'
+    }
+    map_filter_fields_as_list = ['typ']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    as_overlay = True
+
+  def __str__(self):
+    return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
 
 
 class Kunst_im_oeffentlichen_Raum(SimpleModel):

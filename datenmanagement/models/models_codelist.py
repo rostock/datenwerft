@@ -1730,6 +1730,18 @@ class Typen_Erdwaermesonden(Typ):
     description = 'Typen von Erdwärmesonden'
 
 
+class Typen_Kleinklaeranlagen(Typ):
+  """
+  Typen von Kleinkläranlagen
+  """
+
+  class Meta(Typ.Meta):
+    db_table = 'codelisten\".\"typen_kleinklaeranlagen'
+    verbose_name = 'Typ einer Kleinkläranlage'
+    verbose_name_plural = 'Typen von Kleinkläranlagen'
+    description = 'Typen von Kleinkläranlagen'
+
+
 class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
   """
   Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
