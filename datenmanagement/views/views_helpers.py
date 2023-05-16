@@ -1,6 +1,6 @@
 import requests
 
-from datenwerft.secrets import FME_TOKEN, FME_URL
+from datenwerft.secrets import FME_TOKEN, FME_GPX_URL
 from django.db import connections
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -117,7 +117,7 @@ class GPXtoGeoJSON(View):
     # Name 'gpx' Kommt aus dem Inputfeld im Template
     gpx_file = request.FILES['gpx']
     x = requests.post(
-        url=FME_URL,
+        url=FME_GPX_URL,
         headers={
           'Authorization': FME_TOKEN,
           'Content-Type': 'application/gpx+xml',

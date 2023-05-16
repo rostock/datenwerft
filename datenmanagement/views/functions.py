@@ -248,6 +248,9 @@ def set_form_context_elements(context, model):
   # GPX-Upload-Feld
   context['gpx_input'] = (
       model._meta.gpx_input if hasattr(model._meta, 'gpx_input') else None)
+  # GeoJSON-Upload-Feld
+  context['geojson_input'] = (
+      model._meta.geojson_input if hasattr(model._meta, 'geojson_input') else None)
   # Postleitzahl-Auto-Zuweisung
   context['postcode_assigner'] = (
       model._meta.postcode_assigner if hasattr(model._meta, 'postcode_assigner') else None)

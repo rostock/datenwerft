@@ -372,6 +372,7 @@ class Baustellen_geplant(ComplexModel):
     geometry_type = 'MultiPolygon'
     group_with_users_for_choice_field = 'baustellen_geplant_full'
     ordering = ['bezeichnung']
+    geojson_input = True
     as_overlay = True
 
   def __str__(self):
