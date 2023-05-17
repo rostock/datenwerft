@@ -1,6 +1,6 @@
 import requests
 
-from datenwerft.secrets import FME_TOKEN, FME_GPX_URL
+from datenwerft.secrets import FME_TOKEN, FME_GEOJSON_URL, FME_GPX_URL
 from django.db import connections
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -86,23 +86,23 @@ class GeometryView(JsonView):
     return context
 
 
-class GPXtoGeoJSON(View):
+class GISFiletoGeoJSON(View):
   """
-  Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
+  Übergabe einer Datei an FME Server und Rückgabe des generierten GeoJSON
   """
   http_method_names = ['post']
 
   @csrf_exempt
   def dispatch(self, request, *args, **kwargs):
     """
-    ``dispatch()`` wird von ``GPXtoGeoJSON.as_view()`` in ``urls.py`` aufgerufen;
+    ``dispatch()`` wird von ``GISFiletoGeoJSON.as_view()`` in ``urls.py`` aufgerufen;
     ``dispatch()`` leitet auf ``post()`` weiter, da ein **POST**-Request ausgeführt wurde
     :param request:
     :param args:
     :param kwargs:
     :return:
     """
-    return super(GPXtoGeoJSON, self).dispatch(request, *args, **kwargs)
+    return super(GISFiletoGeoJSON, self).dispatch(request, *args, **kwargs)
 
   @csrf_exempt
   def post(self, request, *args, **kwargs):
@@ -112,24 +112,31 @@ class GPXtoGeoJSON(View):
     :param request:
     :param args:
     :param kwargs:
-    :return: GeoJSON der übergebenen GPX-Datei oder FME-Server-Fehler
+    :return: GeoJSON der übergebenen Datei oder FME-Server-Fehler
     """
-    # Name 'gpx' Kommt aus dem Inputfeld im Template
-    gpx_file = request.FILES['gpx']
-    x = requests.post(
-        url=FME_GPX_URL,
+    file, url, content_type = None, '', ''
+    if 'geojson' in request.FILES.keys():
+      file = request.FILES['geojson']
+      url = FME_GEOJSON_URL
+      content_type = 'application/geo+json'
+    elif 'gpx' in request.FILES.keys():
+      file = request.FILES['gpx']
+      url = FME_GPX_URL
+      content_type = 'application/gpx+xml'
+    post = requests.post(
+        url=url,
         headers={
           'Authorization': FME_TOKEN,
-          'Content-Type': 'application/gpx+xml',
+          'Content-Type': content_type,
           'Accept': 'application/geo+json'
         },
-        data=gpx_file,
+        data=file,
     )
-    if x.status_code != 200:
+    if post.status_code != 200:
       response = {
-        'status_code': str(x.status_code),
-        'error_log': str(x.text)
+        'status_code': str(post.status_code),
+        'error_log': str(post.text)
       }
-      return JsonResponse(status=x.status_code, data=dumps(response), safe=False)
+      return JsonResponse(status=post.status_code, data=dumps(response), safe=False)
     else:
-      return JsonResponse(data=x.json())
+      return JsonResponse(data=post.json())

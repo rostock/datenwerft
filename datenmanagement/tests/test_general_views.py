@@ -46,7 +46,7 @@ class IndexViewTest(DefaultTestCase):
     self.generic_view_test(False, 302)
 
 
-class GPXtoGeoJSONTest(DefaultTestCase):
+class GISFiletoGeoJSONTest(DefaultTestCase):
   """
   Testklasse für Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
   """
@@ -70,7 +70,7 @@ class GPXtoGeoJSONTest(DefaultTestCase):
     # Seite aufrufen und via POST notwendige Daten mitgeben
     with open(file, 'rb') as gpx:
       response = self.client.post(
-        reverse('datenmanagement:gpxtogeojson'),
+        reverse('datenmanagement:gisfiletogeojson'),
         data={
           'gpx': gpx
         }
