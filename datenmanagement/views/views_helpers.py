@@ -1,6 +1,6 @@
 import requests
 
-from datenwerft.secrets import FME_TOKEN, FME_GEOJSON_URL, FME_GPX_URL
+from datenwerft.secrets import FME_GEOJSON_URL, FME_GEOJSON_TOKEN, FME_GPX_URL, FME_GPX_TOKEN
 from django.db import connections
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -114,19 +114,21 @@ class GISFiletoGeoJSON(View):
     :param kwargs:
     :return: GeoJSON der übergebenen Datei oder FME-Server-Fehler
     """
-    file, url, content_type = None, '', ''
+    file, url, token, content_type = None, '', '', ''
     if 'geojson' in request.FILES.keys():
       file = request.FILES['geojson']
       url = FME_GEOJSON_URL
+      token = FME_GEOJSON_TOKEN
       content_type = 'application/geo+json'
     elif 'gpx' in request.FILES.keys():
       file = request.FILES['gpx']
       url = FME_GPX_URL
+      token = FME_GPX_TOKEN
       content_type = 'application/gpx+xml'
     post = requests.post(
         url=url,
         headers={
-          'Authorization': FME_TOKEN,
+          'Authorization': token,
           'Content-Type': content_type,
           'Accept': 'application/geo+json'
         },

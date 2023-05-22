@@ -232,7 +232,7 @@
       </div>
     </div>
     {% include "modal-error.html" %}
-    {% if gpx_input %}
+    {% if geojson_input or gpx_input %}
       {% include "modal-loading.html" %}
     {% endif %}
   </form>

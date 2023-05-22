@@ -16,9 +16,11 @@ DATABASES = {
 USERNAME = 'worschdsupp'
 PASSWORD = 'worschdsupp42'
 
+VALID_GEOJSON_FILE = TEST_DIR / 'data' / 'geojson_valid.json'
 VALID_GPX_FILE = TEST_DIR / 'data' / 'gpx_valid.gpx'
 VALID_IMAGE_FILE = TEST_DIR / 'data' / 'image_valid.jpg'
 VALID_PDF_FILE = TEST_DIR / 'data' / 'pdf_valid.pdf'
+INVALID_GEOJSON_FILE = TEST_DIR / 'data' / 'geojson_invalid.json'
 INVALID_GPX_FILE = TEST_DIR / 'data' / 'gpx_invalid.gpx'
 
 VALID_POINT_DB = Point(307845, 6005103)
