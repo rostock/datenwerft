@@ -139,6 +139,18 @@
             </td>
           </tr>
         {% endif %}
+        {% if geojson_input %}
+          <tr>
+            <td class="cell-label">
+              <label for="id_geojson">GeoJSON-Datei für Geometrie</label>
+            </td>
+            <td class="cell-field">
+              <div class="custom-file">
+                <input class="form-control" type="file" id="id_geojson" name="geojson" accept=".geojson,.json">
+              </div>
+            </td>
+          </tr>
+        {% endif %}
       </table>
     </div>
     {% if geometry_type %}
@@ -220,7 +232,7 @@
       </div>
     </div>
     {% include "modal-error.html" %}
-    {% if gpx_input %}
+    {% if geojson_input or gpx_input %}
       {% include "modal-loading.html" %}
     {% endif %}
   </form>
@@ -1135,30 +1147,42 @@
       disableValueAssigner(valueAssigner);
     });
 
-    {% if gpx_input %}
-      // bei Auswahl einer Datei im GPX-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben
-      // und die ausgewählte GPX-Datei zum Server geschickt; als Antwort des Servers wird der Inhalt der GPX-Datei
-      // als GeoJSON mit den zusätzlichen Attributen mit Start- und Endzeitpunkt erwartet;
-      // diese Attribute werden nach dem erfolgreichen Empfangen der Antwort des Servers in die dafür vorgesehenen Input-Felder geschrieben
-      // und die Geometrie auf die Karte gezeichnet
-      $('#id_gpx').change(function (e) {
+    {% if geojson_input or gpx_input %}
+      let mode = '';
+      let modeName = '';
+      {% if geojson_input %}
+        // bei Auswahl einer Datei im GeoJSON-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben
+        // und die ausgewählte GeoJSON-Datei zum Server geschickt; als Antwort des Servers wird die Geometrie der GeoJSON-Datei als GeoJSON erwartet;
+        // die Geometrie wird nach dem erfolgreichen Empfangen der Antwort des Servers auf die Karte gezeichnet und ersetzt dort ggf. bereits vorhande Geometrien
+        mode = 'geojson';
+        modeName = 'GeoJSON';
+      {% else %}
+        // bei Auswahl einer Datei im GPX-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben
+        // und die ausgewählte GPX-Datei zum Server geschickt; als Antwort des Servers wird der Inhalt der GPX-Datei
+        // als GeoJSON mit den zusätzlichen Attributen mit Start- und Endzeitpunkt erwartet;
+        // diese Attribute werden nach dem erfolgreichen Empfangen der Antwort des Servers in die dafür vorgesehenen Input-Felder geschrieben
+        // und die Geometrie auf die Karte gezeichnet
+        mode = 'gpx';
+        modeName = 'GPX';
+      {% endif %}
+      $('#id_' + mode).change(function (e) {
         toggleModal(
           $('#loading-modal'),
-          'Auswerten der GPX-Datei',
-          'Die GPX-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.'
+          'Auswerten der ' + modeName + '-Datei',
+          'Die ' + modeName + '-Datei wird zum Server hochgeladen und ausgewertet. Dies kann einen Moment dauern.'
         );
         let file = e.target.files[0];
         let formData = new FormData();
-        formData.append('gpx', file);
-        // Leaflet-Geoman-Layer von Karte entfernen (falls zuvor schon eine GPX-Datei hochgeladen wurde)
+        formData.append(mode, file);
+        // Leaflet-Geoman-Layer von Karte entfernen (falls zuvor schon eine Datei hochgeladen wurde)
         currMap.pm.getGeomanLayers().forEach((layer) => {
           if (!layer.toGeoJSON().properties.foreignkey) {
             layer.remove();
           }
         });
-        // Upload der GPX-Datei und Warten auf Antwort des Servers
+        // Upload der Datei und Warten auf Antwort des Servers
         fetch(
-          '{% url "datenmanagement:gpxtogeojson" %}', {
+          '{% url "datenmanagement:gisfiletogeojson" %}', {
             method: 'POST',
             body: formData,
           }
@@ -1175,20 +1199,22 @@
               console.log(data.error_log);
               // ansonsten...
             } else {
-              // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben
-              $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
-              $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
+              if (mode === 'gpx') {
+                // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben
+                $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
+                $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
+              }
               // Layer erzeugen
-              let track = new L.geoJSON(data, {
+              let geometry = new L.geoJSON(data, {
                 color: 'red'
               });
               // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
-              track._changeGeom = true;
-              track.eachLayer((layer) => {
+              geometry._changeGeom = true;
+              geometry.eachLayer((layer) => {
                 layer._drawnByGeoman = true;
               });
               // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
-              track.addTo(currMap);
+              geometry.addTo(currMap);
             }
             toggleModal($('#loading-modal'));
           }

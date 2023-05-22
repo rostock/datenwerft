@@ -437,3 +437,52 @@ class GenericRSAGTestCase(DefaultComplexModelTestCase):
 
   def init(self):
     super().init()
+
+
+class GISFiletoGeoJSONTestCase(DefaultTestCase):
+  """
+  Standardtest für Übergabe einer Datei an FME Server und Rückgabe des generierten GeoJSON
+  (abstrakt)
+  """
+
+  @classmethod
+  def setUpTestData(cls):
+    load_sql_schema()
+
+  def init(self):
+    super().init()
+
+  def generic_view_test(self, file, file_parameter, status_code, string):
+    """
+    testet den View
+
+    :param self
+    :param file: Datei
+    :param file_parameter: POST-Parameter mit Datei
+    :param status_code: Status-Code, den die Antwort aufweisen soll
+    :param string: bestimmter Wert, der in Antwort enthalten sein soll
+    """
+    self.client.login(
+      username=USERNAME,
+      password=PASSWORD
+    )
+    # Seite aufrufen und via POST notwendige Daten mitgeben
+    with open(file, 'rb') as file_data:
+      response = self.client.post(
+        reverse('datenmanagement:gisfiletogeojson'),
+        data={
+          file_parameter: file_data
+        }
+      )
+    # falls Test ausgeführt wird ohne gültiges FME-Token
+    # (also zum Beispiel auf Basis der secrets.template)...
+    if response.status_code == 401:
+      pass
+    # ansonsten, also bei gültigem FME-Token...
+    else:
+      # Antwort mit erwartetem Status-Code?
+      self.assertEqual(response.status_code, status_code)
+      # Content-Type der Antwort wie erwartet?
+      self.assertEqual(response['content-type'].lower(), 'application/json')
+      # Antwort enthält bestimmten Wert?
+      self.assertIn(string, str(loads(response.content)))

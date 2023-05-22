@@ -202,6 +202,10 @@ options.DEFAULT_NAMES += (
   # optional;
   # Boolean;
   # Soll ein GPX-Upload-Feld in den Formularansichten angezeigt werden (True)?
+  'geojson_input',
+  # optional;
+  # Boolean;
+  # Soll ein GeoJSON-Upload-Feld in den Formularansichten angezeigt werden (True)?
   'postcode_assigner',
   # optional;
   # Text;
