@@ -1215,6 +1215,8 @@
               });
               // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
               geometry.addTo(currMap);
+              // Kartenausschnitt auf Bounding-Box des Leaflet-Geoman-Draw-Layers setzen
+              setMapExtentByLeafletBounds(geometry.getBounds());
             }
             toggleModal($('#loading-modal'));
           }
