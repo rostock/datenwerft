@@ -1487,6 +1487,25 @@ CREATE TABLE fachdaten.abfallbehaelter_hro (
 
 
 --
+-- Name: adressunsicherheiten_fotos_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.adressunsicherheiten_fotos_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adressunsicherheit uuid NOT NULL,
+    aufnahmedatum date NOT NULL,
+    dateiname_original character varying(255) NOT NULL,
+    foto character varying(255) NOT NULL
+);
+
+
+--
 -- Name: angelverbotsbereiche_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -1557,6 +1576,24 @@ CREATE TABLE fachdaten.baustellen_geplant_links (
     baustelle_geplant uuid NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     link character varying(255) NOT NULL
+);
+
+
+--
+-- Name: bluehstandorte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.bluehstandorte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    bezeichnung character varying(255) NOT NULL,
+    notizen character varying(1000),
+    geometrie public.geometry(Polygon,25833) NOT NULL
 );
 
 
@@ -4771,6 +4808,14 @@ ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
 
 
 --
+-- Name: adressunsicherheiten_fotos_hro adressunsicherheiten_fotos_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.adressunsicherheiten_fotos_hro
+    ADD CONSTRAINT adressunsicherheiten_fotos_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: angelverbotsbereiche_hro angelverbotsbereiche_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -4800,6 +4845,14 @@ ALTER TABLE ONLY fachdaten.baustellen_geplant_dokumente
 
 ALTER TABLE ONLY fachdaten.baustellen_geplant_links
     ADD CONSTRAINT baustellen_geplant_links_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bluehstandorte_hro bluehstandorte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.bluehstandorte_hro
+    ADD CONSTRAINT bluehstandorte_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5782,6 +5835,14 @@ ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
 
 ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
     ADD CONSTRAINT abfallbehaelter_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_abfallbehaelter(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: adressunsicherheiten_fotos_hro adressunsicherheiten_fotos_hro_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.adressunsicherheiten_fotos_hro
+    ADD CONSTRAINT adressunsicherheiten_fotos_hro_fk FOREIGN KEY (adressunsicherheit) REFERENCES fachdaten_adressbezug.adressunsicherheiten_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

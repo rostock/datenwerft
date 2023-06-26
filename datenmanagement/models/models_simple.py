@@ -31,13 +31,14 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
   get_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
-  Altersklassen_Kadaverfunde, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
-  Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
-  Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Arten_Wege, \
-  Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
-  Anbieter_Carsharing, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Gebaeudebauweisen, \
-  Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
+  Altersklassen_Kadaverfunde, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, \
+  Arten_FairTrade, Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
+  Arten_Hundetoiletten, Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, \
+  Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, \
+  Arten_Toiletten, Arten_Wege, Betriebsarten, Betriebszeiten, \
+  Bewirtschafter_Betreiber_Traeger_Eigentuemer, Anbieter_Carsharing, \
+  Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Gebaeudebauweisen, Gebaeudefunktionen, \
+  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
   Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
   Raeumbreiten_Strassenreinigungssatzung_HRO, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Sportarten, \
