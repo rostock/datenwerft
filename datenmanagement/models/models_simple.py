@@ -31,9 +31,8 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
 from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
   get_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
-  Altersklassen_Kadaverfunde, Arten_Adressunsicherheiten, \
-  Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, Arten_Feldsportanlagen, \
-  Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
+  Altersklassen_Kadaverfunde, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
+  Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
   Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Arten_Wege, \
   Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
@@ -269,67 +268,6 @@ class Abfallbehaelter(SimpleModel):
 
   def __str__(self):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
-
-
-class Adressunsicherheiten(SimpleModel):
-  """
-  Adressunsicherheiten
-  """
-
-  adresse = ForeignKey(
-    Adressen,
-    verbose_name='Adresse',
-    on_delete=SET_NULL,
-    db_column='adresse',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_adressen',
-    blank=True,
-    null=True
-  )
-  art = ForeignKey(
-    Arten_Adressunsicherheiten,
-    verbose_name='Art',
-    on_delete=RESTRICT,
-    db_column='art',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten'
-  )
-  beschreibung = CharField(
-    'Beschreibung',
-    max_length=255,
-    validators=standard_validators
-  )
-  geometrie = point_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten_adressbezug\".\"adressunsicherheiten_hro'
-    verbose_name = 'Adressunsicherheit'
-    verbose_name_plural = 'Adressunsicherheiten'
-    description = 'Adressunsicherheiten in der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'adresse': 'Adresse',
-      'art': 'Art',
-      'beschreibung': 'Beschreibung'
-    }
-    list_fields_with_foreign_key = {
-      'adresse': 'adresse',
-      'art': 'art'
-    }
-    map_feature_tooltip_field = 'art'
-    map_filter_fields = {
-      'aktiv': 'aktiv?',
-      'art': 'Art',
-      'beschreibung': 'Beschreibung'
-    }
-    map_filter_fields_as_list = ['art']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-    as_overlay = True
-
-  def __str__(self):
-    return str(self.art) + (' ' + str(self.adresse) if self.adresse else '')
 
 
 class Angelverbotsbereiche(SimpleModel):

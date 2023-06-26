@@ -23,9 +23,9 @@ from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, path_and_rename, \
   photo_post_processing
-from .models_codelist import Strassen, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
-  Arten_UVP_Vorpruefungen, Auftraggeber_Baustellen, Ausfuehrungen_Haltestellenkataster, \
-  Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
+from .models_codelist import Adressen, Strassen, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Auftraggeber_Baustellen, \
+  Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
   Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
   Ergebnisse_UVP_Vorpruefungen, Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, \
   Genehmigungsbehoerden_UVP_Vorhaben, Mastkennzeichen_RSAG, Masttypen_RSAG, \
@@ -36,6 +36,143 @@ from .models_codelist import Strassen, Arten_Durchlaesse, Arten_Fallwildsuchen_K
   Typen_Haltestellen, Typen_UVP_Vorhaben, Vorgangsarten_UVP_Vorhaben, Zeiteinheiten, \
   ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
 from .storage import OverwriteStorage
+
+
+#
+# Adressunsicherheiten
+#
+
+class Adressunsicherheiten(ComplexModel):
+  """
+  Adressunsicherheiten:
+  Adressunsicherheiten
+  """
+
+  adresse = ForeignKey(
+    Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True
+  )
+  art = ForeignKey(
+    Arten_Adressunsicherheiten,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  beschreibung = CharField(
+    'Beschreibung',
+    max_length=255,
+    validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"adressunsicherheiten_hro'
+    verbose_name = 'Adressunsicherheit'
+    verbose_name_plural = 'Adressunsicherheiten'
+    description = 'Adressunsicherheiten in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'art': 'Art',
+      'beschreibung': 'Beschreibung'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse',
+      'art': 'art'
+    }
+    associated_models = {
+      'Adressunsicherheiten_Fotos': 'adressunsicherheit'
+    }
+    map_feature_tooltip_field = 'art'
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'beschreibung': 'Beschreibung'
+    }
+    map_filter_fields_as_list = ['art']
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+    as_overlay = True
+    ordering = ['adresse', 'art']
+
+  def __str__(self):
+    return str(self.art) + (' ' + str(self.adresse) if self.adresse else '')
+
+
+class Adressunsicherheiten_Fotos(ComplexModel):
+  """
+  Adressunsicherheiten:
+  Fotos
+  """
+
+  adressunsicherheit = ForeignKey(
+    Adressunsicherheiten,
+    verbose_name='Adressunsicherheit',
+    on_delete=CASCADE,
+    db_column='adressunsicherheit',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressunsicherheiten'
+  )
+  aufnahmedatum = DateField(
+    'Aufnahmedatum',
+    default=date.today
+  )
+  dateiname_original = CharField(
+    'Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  foto = ImageField(
+    'Foto(s)',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'adressunsicherheiten'
+    ),
+    max_length=255
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"adressunsicherheiten_fotos_hro'
+    verbose_name = 'Foto einer Adressunsicherheit'
+    verbose_name_plural = 'Fotos der Adressunsicherheiten'
+    description = 'Fotos der Adressunsicherheiten ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adressunsicherheit': 'Adressunsicherheit',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'dateiname_original': 'Original-Dateiname',
+      'foto': 'Foto'
+    }
+    readonly_fields = ['dateiname_original']
+    list_fields_with_date = ['aufnahmedatum']
+    list_fields_with_foreign_key = {
+      'adressunsicherheit': 'adresse'
+    }
+    fields_with_foreign_key_to_linkify = ['adressunsicherheit']
+    object_title = 'das Foto'
+    foreign_key_label = 'Adressunsicherheit'
+    thumbs = True
+    multi_foto_field = True
+
+  def __str__(self):
+    return str(self.adressunsicherheit) + \
+      ' mit Aufnahmedatum ' + \
+      datetime.strptime(str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+
+
+post_save.connect(photo_post_processing, sender=Adressunsicherheiten_Fotos)
+
+post_delete.connect(delete_photo, sender=Adressunsicherheiten_Fotos)
 
 
 #
