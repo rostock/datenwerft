@@ -2372,6 +2372,26 @@ COMMENT ON COLUMN fachdaten.schutzzaeune_tierseuchen_hro.laenge IS 'Einheit: m';
 
 
 --
+-- Name: strassen_historie_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.strassen_historie_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid NOT NULL,
+    datum character varying(255),
+    beschluss character varying(255),
+    veroeffentlichung character varying(255),
+    historie character varying(255)
+);
+
+
+--
 -- Name: strassen_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2387,6 +2407,36 @@ CREATE TABLE fachdaten.strassen_hro (
     bezeichnung character varying(255) NOT NULL,
     schluessel character(5) NOT NULL,
     geometrie public.geometry(MultiLineString,25833) NOT NULL
+);
+
+
+--
+-- Name: strassen_namensanalye_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.strassen_namensanalye_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid NOT NULL,
+    person_weiblich boolean,
+    person_maennlich boolean,
+    beruf boolean,
+    literatur boolean,
+    historisch boolean,
+    flora_fauna boolean,
+    orte_landschaften boolean,
+    gesellschaft boolean,
+    lagehinweis boolean,
+    religion boolean,
+    niederdeutsch boolean,
+    erlaeuterungen_intern text,
+    erlaeuterungen_richter text,
+    wikipedia character varying(255)
 );
 
 
@@ -5194,6 +5244,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 
 --
+-- Name: strassen_historie_hro strassen_historie_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassen_historie_hro
+    ADD CONSTRAINT strassen_historie_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: strassen_hro strassen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5207,6 +5265,14 @@ ALTER TABLE ONLY fachdaten.strassen_hro
 
 ALTER TABLE ONLY fachdaten.strassen_hro
     ADD CONSTRAINT strassen_hro_schluessel_unique UNIQUE (schluessel);
+
+
+--
+-- Name: strassen_namensanalye_hro strassen_namensanalye_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassen_namensanalye_hro
+    ADD CONSTRAINT strassen_namensanalye_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6102,14 +6168,6 @@ ALTER TABLE ONLY fachdaten.fliessgewaesser_hro
 
 
 --
--- Name: geh_und_radwegereinigung_flaechen_hro geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.geh_und_radwegereinigung_flaechen_hro
-    ADD CONSTRAINT geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_ FOREIGN KEY (geh_und_radwegereinigung) REFERENCES fachdaten_strassenbezug.geh_und_radwegereinigung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: geraetespielanlagen_hro geraetespielanlagen_hro_traeger_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6510,6 +6568,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 
 --
+-- Name: strassen_historie_hro strassen_historie_hro_strassen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassen_historie_hro
+    ADD CONSTRAINT strassen_historie_hro_strassen_fk FOREIGN KEY (strasse) REFERENCES fachdaten.strassen_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: strassen_hro strassen_hro_kategorien_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6518,11 +6584,11 @@ ALTER TABLE ONLY fachdaten.strassen_hro
 
 
 --
--- Name: strassenreinigung_flaechen_hro strassenreinigung_flaechen_hro_strassenreinigung_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+-- Name: strassen_namensanalye_hro strassen_namensanalye_hro_strassen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
-ALTER TABLE ONLY fachdaten.strassenreinigung_flaechen_hro
-    ADD CONSTRAINT strassenreinigung_flaechen_hro_strassenreinigung_fk FOREIGN KEY (strassenreinigung) REFERENCES fachdaten_strassenbezug.strassenreinigung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY fachdaten.strassen_namensanalye_hro
+    ADD CONSTRAINT strassen_namensanalye_hro_strassen_fk FOREIGN KEY (strasse) REFERENCES fachdaten.strassen_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

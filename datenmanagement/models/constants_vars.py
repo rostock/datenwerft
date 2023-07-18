@@ -316,3 +316,6 @@ uvp_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer ' \
                                       'aus genau fünf Ziffern, gefolgt ' \
                                       'von genau einem Bindestrich und ' \
                                       'genau zwei Ziffern bestehen.'
+wikipedia_regex = r'^https:\/\/de.wikipedia.org\/wiki\/.*$'
+wikipedia_message = 'Der <strong><em>Link auf Wikipedia</em></strong> muss folgendes ' \
+                    'Format aufweisen (Beispiel): https://de.wikipedia.org/wiki/Albert_Einstein'

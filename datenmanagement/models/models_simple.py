@@ -23,8 +23,7 @@ from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, 
   hydranten_bezeichnung_regex, hydranten_bezeichnung_message, kleinklaeranlagen_d3_regex, \
   kleinklaeranlagen_d3_message, kleinklaeranlagen_zulassung_regex, \
   kleinklaeranlagen_zulassung_message, poller_nummer_regex, poller_nummer_message, \
-  strassen_schluessel_regex, strassen_schluessel_message, trinkwassernotbrunnen_nummer_regex, \
-  trinkwassernotbrunnen_nummer_message
+  trinkwassernotbrunnen_nummer_regex, trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
@@ -37,10 +36,10 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Ka
   Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
   Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
   Anbieter_Carsharing, Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, \
-  Hersteller_Poller, Kategorien_Strassen, Materialien_Denksteine, Ordnungen_Fliessgewaesser, \
-  Personentitel, Quartiere, Sportarten, Status_Baudenkmale_Denkmalbereiche, Status_Poller, \
-  Tierseuchen, Typen_Abfallbehaelter, Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, \
-  Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
+  Hersteller_Poller, Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
+  Sportarten, Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, \
+  Typen_Abfallbehaelter, Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
+  Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
   Zustaende_Schutzzaeune_Tierseuchen
 from .storage import OverwriteStorage
 
@@ -5192,127 +5191,6 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
 
   def __str__(self):
     return str(self.adresse)
-
-
-class Strassen_Simple(SimpleModel):
-  """
-  Straßen
-  """
-
-  kategorie = ForeignKey(
-    Kategorien_Strassen,
-    verbose_name='Kategorie',
-    on_delete=RESTRICT,
-    db_column='kategorie',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_kategorien'
-  )
-  bezeichnung = CharField(
-    'Bezeichnung',
-    max_length=255,
-    validators=standard_validators
-  )
-  schluessel = CharField(
-    'Schlüssel',
-    max_length=5,
-    unique=True,
-    validators=[
-      RegexValidator(
-        regex=strassen_schluessel_regex,
-        message=strassen_schluessel_message
-      )
-    ]
-  )
-  geometrie = multiline_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten\".\"strassen_hro'
-    verbose_name = 'Straße'
-    verbose_name_plural = 'Straßen'
-    description = 'Straßen in der Hanse- und Universitätsstadt Rostock'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'kategorie': 'Kategorie',
-      'bezeichnung': 'Bezeichnung',
-      'schluessel': 'Schlüssel'
-    }
-    list_fields_with_foreign_key = {
-      'kategorie': 'code'
-    }
-    map_feature_tooltip_field = 'bezeichnung'
-    map_filter_fields = {
-      'kategorie': 'Kategorie',
-      'bezeichnung': 'Bezeichnung',
-      'schluessel': 'Schlüssel'
-    }
-    map_filter_fields_as_list = ['kategorie']
-    additional_wms_layers = [
-      {
-        'title': 'Eigentum HRO',
-        'url': '/eigentum_hro/wms',
-        'layers': 'hro.eigentum_hro.eigentum_hro_hro',
-        'proxy': True
-      }, {
-        'title': 'Bewirtschaftungskataster',
-        'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms',
-        'layers': 'hro.bewirtschaftungskataster.bewirtschaftungskataster'
-      }, {
-        'title': 'Grundvermögen: Flächen in Abstimmung',
-        'url': '/grundvermoegen/wms',
-        'layers': 'hro.grundvermoegen.flaechen_in_abstimmung',
-        'proxy': True
-      }, {
-        'title': 'Grundvermögen: Realnutzungsarten',
-        'url': '/grundvermoegen/wms',
-        'layers': 'hro.grundvermoegen.realnutzungsarten',
-        'proxy': True
-      }, {
-        'title': 'Liegenschaftsverwaltung: An- und Verkauf',
-        'url': '/liegenschaftsverwaltung/wms',
-        'layers': 'hro.liegenschaftsverwaltung.anundverkauf',
-        'proxy': True
-      }, {
-        'title': 'Liegenschaftsverwaltung: Mieten und Pachten',
-        'url': '/liegenschaftsverwaltung/wms',
-        'layers': 'hro.liegenschaftsverwaltung.mieten_pachten',
-        'proxy': True
-      }, {
-        'title': 'Flurstücke',
-        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wms',
-        'layers': 'hro.flurstuecke.flurstuecke'
-      }, {
-        'title': 'Straßenwidmungen',
-        'url': '/strassenwidmungen/wms',
-        'layers': 'hro.strassenwidmungen.strassenwidmungen',
-        'proxy': True
-      }, {
-        'title': 'Adressen',
-        'url': 'https://geo.sv.rostock.de/geodienste/adressen/wms',
-        'layers': 'hro.adressen.adressen'
-      }
-    ]
-    additional_wfs_featuretypes = [
-      {
-        'name': 'eigentum_hro',
-        'title': 'Eigentum HRO',
-        'url': '/eigentum_hro/wfs',
-        'featuretypes': 'hro.eigentum_hro.eigentum_hro_hro',
-        'proxy': True
-      }, {
-        'name': 'flurstuecke',
-        'title': 'Flurstücke',
-        'url': '/flurstuecke_hro/wfs',
-        'featuretypes': 'hro.flurstuecke.flurstuecke',
-        'proxy': True
-      }
-    ]
-    geometry_type = 'MultiLineString'
-    as_overlay = True
-    heavy_load_limit = 600
-    forms_in_mobile_mode = True
-
-  def __str__(self):
-    return self.bezeichnung + ' (' + self.schluessel + ')'
 
 
 class Thalasso_Kurwege(SimpleModel):

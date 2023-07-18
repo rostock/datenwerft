@@ -17,7 +17,8 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
   haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
   parkscheinautomaten_bewohnerparkgebiet_regex, parkscheinautomaten_bewohnerparkgebiet_message, \
   parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \
-  uvp_registriernummer_bauamt_regex, uvp_registriernummer_bauamt_message
+  strassen_schluessel_regex, strassen_schluessel_message, uvp_registriernummer_bauamt_regex, \
+  uvp_registriernummer_bauamt_message, wikipedia_regex, wikipedia_message
 from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
@@ -30,9 +31,9 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
   Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
   Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, Genehmigungsbehoerden_UVP_Vorhaben, \
-  Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
-  Raeumbreiten_Strassenreinigungssatzung_HRO, Rechtsgrundlagen_UVP_Vorhaben, \
-  Reinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Kategorien_Strassen, Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, \
+  Materialien_Durchlaesse, Raeumbreiten_Strassenreinigungssatzung_HRO, \
+  Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
   Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
   Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, DFI_Typen_Haltestellenkataster, \
@@ -2944,6 +2945,332 @@ class Strassenreinigung_Flaechen(ComplexModel):
 
   def __str__(self):
     return str(self.strassenreinigung)
+
+
+#
+# Straßen
+#
+
+class Strassen_Simple(ComplexModel):
+  """
+  Straßen:
+  Straßen
+  """
+
+  kategorie = ForeignKey(
+    Kategorien_Strassen,
+    verbose_name='Kategorie',
+    on_delete=RESTRICT,
+    db_column='kategorie',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kategorien'
+  )
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  schluessel = CharField(
+    'Schlüssel',
+    max_length=5,
+    unique=True,
+    validators=[
+      RegexValidator(
+        regex=strassen_schluessel_regex,
+        message=strassen_schluessel_message
+      )
+    ]
+  )
+  geometrie = multiline_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"strassen_hro'
+    verbose_name = 'Straße'
+    verbose_name_plural = 'Straßen'
+    description = 'Straßen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'kategorie': 'Kategorie',
+      'bezeichnung': 'Bezeichnung',
+      'schluessel': 'Schlüssel'
+    }
+    list_fields_with_foreign_key = {
+      'kategorie': 'code'
+    }
+    associated_models = {
+      'Strassen_Simple_Namensanalyse': 'strasse_simple'
+    }
+    map_feature_tooltip_field = 'bezeichnung'
+    map_filter_fields = {
+      'kategorie': 'Kategorie',
+      'bezeichnung': 'Bezeichnung',
+      'schluessel': 'Schlüssel'
+    }
+    map_filter_fields_as_list = ['kategorie']
+    additional_wms_layers = [
+      {
+        'title': 'Eigentum HRO',
+        'url': '/eigentum_hro/wms',
+        'layers': 'hro.eigentum_hro.eigentum_hro_hro',
+        'proxy': True
+      }, {
+        'title': 'Bewirtschaftungskataster',
+        'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms',
+        'layers': 'hro.bewirtschaftungskataster.bewirtschaftungskataster'
+      }, {
+        'title': 'Grundvermögen: Flächen in Abstimmung',
+        'url': '/grundvermoegen/wms',
+        'layers': 'hro.grundvermoegen.flaechen_in_abstimmung',
+        'proxy': True
+      }, {
+        'title': 'Grundvermögen: Realnutzungsarten',
+        'url': '/grundvermoegen/wms',
+        'layers': 'hro.grundvermoegen.realnutzungsarten',
+        'proxy': True
+      }, {
+        'title': 'Liegenschaftsverwaltung: An- und Verkauf',
+        'url': '/liegenschaftsverwaltung/wms',
+        'layers': 'hro.liegenschaftsverwaltung.anundverkauf',
+        'proxy': True
+      }, {
+        'title': 'Liegenschaftsverwaltung: Mieten und Pachten',
+        'url': '/liegenschaftsverwaltung/wms',
+        'layers': 'hro.liegenschaftsverwaltung.mieten_pachten',
+        'proxy': True
+      }, {
+        'title': 'Flurstücke',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wms',
+        'layers': 'hro.flurstuecke.flurstuecke'
+      }, {
+        'title': 'Straßenwidmungen',
+        'url': '/strassenwidmungen/wms',
+        'layers': 'hro.strassenwidmungen.strassenwidmungen',
+        'proxy': True
+      }, {
+        'title': 'Adressen',
+        'url': 'https://geo.sv.rostock.de/geodienste/adressen/wms',
+        'layers': 'hro.adressen.adressen'
+      }
+    ]
+    additional_wfs_featuretypes = [
+      {
+        'name': 'eigentum_hro',
+        'title': 'Eigentum HRO',
+        'url': '/eigentum_hro/wfs',
+        'featuretypes': 'hro.eigentum_hro.eigentum_hro_hro',
+        'proxy': True
+      }, {
+        'name': 'flurstuecke',
+        'title': 'Flurstücke',
+        'url': '/flurstuecke_hro/wfs',
+        'featuretypes': 'hro.flurstuecke.flurstuecke',
+        'proxy': True
+      }
+    ]
+    geometry_type = 'MultiLineString'
+    ordering = ['bezeichnung', 'schluessel']
+    as_overlay = True
+    heavy_load_limit = 600
+    forms_in_mobile_mode = True
+
+  def __str__(self):
+    return self.bezeichnung + ' (' + self.schluessel + ')'
+
+
+class Strassen_Simple_Historie(ComplexModel):
+  """
+  Straßen:
+  Historie
+  """
+
+  strasse_simple = ForeignKey(
+    Strassen_Simple,
+    verbose_name='Straße',
+    on_delete=CASCADE,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strasse'
+  )
+  datum = CharField(
+    'Datum',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  beschluss = CharField(
+    'Beschluss',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  veroeffentlichung = CharField(
+    'Veröffentlichung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  historie = CharField(
+    'Historie',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"strassen_historie_hro'
+    verbose_name = 'Historie zu einer Straße'
+    verbose_name_plural = 'Historie zu Straßen'
+    description = 'Historie zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'datum': 'Datum',
+      'beschluss': 'Beschluss',
+      'veroeffentlichung': 'Veröffentlichung',
+      'historie': 'Historie'
+    }
+    list_fields_with_foreign_key = {
+      'strasse_simple': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['strasse_simple']
+    object_title = 'die Historie'
+    foreign_key_label = 'Straße'
+
+  def __str__(self):
+    return str(self.strasse_simple)
+
+
+class Strassen_Simple_Namensanalyse(ComplexModel):
+  """
+  Straßen:
+  Namensanalyse
+  """
+
+  strasse_simple = ForeignKey(
+    Strassen_Simple,
+    verbose_name='Straße',
+    on_delete=CASCADE,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strasse'
+  )
+  person_weiblich = BooleanField(
+    'Person weiblich?',
+    blank=True,
+    null=True
+  )
+  person_maennlich = BooleanField(
+    'Person männlich?',
+    blank=True,
+    null=True
+  )
+  beruf = BooleanField(
+    'Beruf?',
+    blank=True,
+    null=True
+  )
+  literatur = BooleanField(
+    ' literarische(r) Figur oder Begriff?',
+    blank=True,
+    null=True
+  )
+  historisch = BooleanField(
+    ' historischer Begriff?',
+    blank=True,
+    null=True
+  )
+  flora_fauna = BooleanField(
+    'Eigenname aus der Natur?',
+    blank=True,
+    null=True
+  )
+  orte_landschaften = BooleanField(
+    'Eigenname von Orten oder Landschaften?',
+    blank=True,
+    null=True
+  )
+  gesellschaft = BooleanField(
+    'Begriff gesellschaftlicher Werte?',
+    blank=True,
+    null=True
+  )
+  lagehinweis = BooleanField(
+    'Lagehinweis?',
+    blank=True,
+    null=True
+  )
+  religion = BooleanField(
+    ' religiöse(r) Figur oder Begriff?',
+    blank=True,
+    null=True
+  )
+  niederdeutsch = BooleanField(
+    ' niederdeutscher Begriff?',
+    blank=True,
+    null=True
+  )
+  erlaeuterungen_intern = NullTextField(
+    'Erläuterungen (intern)',
+    max_length=1000,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  erlaeuterungen_richter = NullTextField(
+    'Erläuterungen (J. Richter)',
+    max_length=1000,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  wikipedia = CharField(
+    'Link auf Wikipedia',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=wikipedia_regex,
+        message=wikipedia_message
+      )
+    ]
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"strassen_namensanalye_hro'
+    verbose_name = 'Namensanalyse zu einer Straße'
+    verbose_name_plural = 'Namensanalyse zu Straßen'
+    description = 'Namensanalyse zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'strasse_simple': 'Straße',
+      'person_weiblich': 'Person weiblich?',
+      'person_maennlich': 'Person männlich?',
+      'beruf': 'Beruf?',
+      'literatur': 'literarische(r) Figur oder Begriff?',
+      'historisch': 'historischer Begriff?',
+      'flora_fauna': 'Eigenname aus der Natur?',
+      'orte_landschaften': 'Eigenname von Orten oder Landschaften?',
+      'gesellschaft': 'Begriff gesellschaftlicher Werte?',
+      'lagehinweis': 'Lagehinweis?',
+      'religion': 'religiöse(r) Figur oder Begriff?',
+      'niederdeutsch': 'niederdeutscher Begriff?',
+      'erlaeuterungen_intern': 'Erläuterungen (intern)',
+      'erlaeuterungen_richter': 'Erläuterungen (J. Richter)',
+      'wikipedia': 'Link auf Wikipedia'
+    }
+    list_fields_with_foreign_key = {
+      'strasse_simple': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['strasse_simple']
+    object_title = 'die Namensanalyse'
+    foreign_key_label = 'Straße'
+
+  def __str__(self):
+    return str(self.strasse_simple)
 
 
 #
