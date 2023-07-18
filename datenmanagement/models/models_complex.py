@@ -3127,6 +3127,7 @@ class Strassen_Simple_Historie(ComplexModel):
     description = 'Historie zu Straßen in der Hanse- und Universitätsstadt Rostock'
     list_fields = {
       'aktiv': 'aktiv?',
+      'strasse_simple': 'Straße',
       'datum': 'Datum',
       'beschluss': 'Beschluss',
       'veroeffentlichung': 'Veröffentlichung',
