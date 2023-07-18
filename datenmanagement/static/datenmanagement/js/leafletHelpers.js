@@ -190,28 +190,31 @@ L.Map.prototype.loadGeometryFromForeignKeyFieldObjects = function(url, foreignMo
           features: []
         };
         for (let i = 0; i < data.object_list.length; i++) {
-          let item = data.object_list[i];
-          wkt.read(item.substring(item.indexOf(';') + 1, item.length));
-          // falls Geometrie nicht bereits auf der Karte angezeigt wird...
-          if (data.uuids[i] !== targetObjectPrimaryKey) {
-            // neues leeres GeoJSON-Feature definieren
-            let geoJsonFeature = {
-              type: 'Feature',
-              geometry: null,
-              properties: {
-                'uuid': data.uuids[i],
-                'datenthema': data.model_name,
-                'foreignkey': foreignModel
-              },
-              crs: {
-                type: 'name',
+          let geom = data.object_list[i];
+          // falls Geometrie nicht leer ist...
+          if (geom.indexOf('EMPTY') === -1) {
+            wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
+            // falls Geometrie nicht bereits auf der Karte angezeigt wird...
+            if (data.uuids[i] !== targetObjectPrimaryKey) {
+              // neues leeres GeoJSON-Feature definieren
+              let geoJsonFeature = {
+                type: 'Feature',
+                geometry: null,
                 properties: {
-                  'name': 'urn:ogc:def:crs:EPSG::4326'
+                  'uuid': data.uuids[i],
+                  'datenthema': data.model_name,
+                  'foreignkey': foreignModel
+                },
+                crs: {
+                  type: 'name',
+                  properties: {
+                    'name': 'urn:ogc:def:crs:EPSG::4326'
+                  }
                 }
-              }
-            };
-            geoJsonFeature.geometry = wkt.toJson();
-            geoJsonFeatureCollection.features.push(geoJsonFeature);
+              };
+              geoJsonFeature.geometry = wkt.toJson();
+              geoJsonFeatureCollection.features.push(geoJsonFeature);
+            }
           }
         }
         features = geoJsonFeatureCollection;
@@ -290,32 +293,35 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
         };
         let wkt = new Wkt.Wkt();
         for (let i = 0; i < data.object_list.length; i++) {
-          let item = data.object_list[i];
-          wkt.read(item.substring(item.indexOf(';') + 1, item.length));
-          // neues leeres GeoJSON-Feature definieren
-          let geoJsonFeature = {
-            type: 'Feature',
-            geometry: null,
-            properties: {
-              'uuid': data.uuids[i],
-              'datenthema': data.model_name
-            },
-            crs: {
-              type: 'name',
+          let geom = data.object_list[i];
+          // falls Geometrie nicht leer ist...
+          if (geom.indexOf('EMPTY') === -1) {
+            wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
+            // neues leeres GeoJSON-Feature definieren
+            let geoJsonFeature = {
+              type: 'Feature',
+              geometry: null,
               properties: {
-                'name': 'urn:ogc:def:crs:EPSG::4326'
+                'uuid': data.uuids[i],
+                'datenthema': data.model_name
+              },
+              crs: {
+                type: 'name',
+                properties: {
+                  'name': 'urn:ogc:def:crs:EPSG::4326'
+                }
               }
+            };
+            geoJsonFeature.geometry = wkt.toJson();
+            // verhindern, dass Daten doppelt auf der Karte angezeigt werden
+            let exists = false;
+            for (let e of layer.toGeoJSON().features) {
+              if (e.properties.uuid === geoJsonFeature.properties.uuid)
+                exists = true;
             }
-          };
-          geoJsonFeature.geometry = wkt.toJson();
-          // verhindern, dass Daten doppelt auf der Karte angezeigt werden
-          let exists = false;
-          for (let e of layer.toGeoJSON().features) {
-            if (e.properties.uuid === geoJsonFeature.properties.uuid)
-              exists = true;
+            if (exists === false)
+              geoJsonFeatureCollection.features.push(geoJsonFeature);
           }
-          if (exists === false)
-            geoJsonFeatureCollection.features.push(geoJsonFeature);
         }
         layer.addData(geoJsonFeatureCollection);
       }

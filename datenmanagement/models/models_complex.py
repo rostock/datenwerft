@@ -23,18 +23,24 @@ from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import current_year, delete_pdf, delete_photo, path_and_rename, \
   photo_post_processing
-from .models_codelist import Adressen, Strassen, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Auftraggeber_Baustellen, \
+from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
+  Arten_Adressunsicherheiten, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
+  Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
   Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
   Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
-  Ergebnisse_UVP_Vorpruefungen, Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, \
-  Genehmigungsbehoerden_UVP_Vorhaben, Mastkennzeichen_RSAG, Masttypen_RSAG, \
-  Masttypen_Haltestellenkataster, Materialien_Durchlaesse, Rechtsgrundlagen_UVP_Vorhaben, \
-  Schaeden_Haltestellenkataster, Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
+  Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
+  Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, Genehmigungsbehoerden_UVP_Vorhaben, \
+  Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
+  Raeumbreiten_Strassenreinigungssatzung_HRO, Rechtsgrundlagen_UVP_Vorhaben, \
+  Reinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
+  Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
   Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, DFI_Typen_Haltestellenkataster, \
   Fahrgastunterstandstypen_Haltestellenkataster, Fahrplanvitrinentypen_Haltestellenkataster, \
-  Typen_Haltestellen, Typen_UVP_Vorhaben, Vorgangsarten_UVP_Vorhaben, Zeiteinheiten, \
-  ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
+  Typen_Haltestellen, Typen_UVP_Vorhaben, Vorgangsarten_UVP_Vorhaben, \
+  Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
+  Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
 from .storage import OverwriteStorage
 
 
@@ -1014,6 +1020,302 @@ class Fallwildsuchen_Nachweise(ComplexModel):
     return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + \
       ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' \
       + str(self.art_kontrolle) + ']'
+
+
+#
+# Geh- und Radwegereinigung
+#
+
+class Geh_Radwegereinigung(ComplexModel):
+  """
+  Geh- und Radwegereinigung:
+  Geh- und Radwegereinigung
+  """
+
+  id = CharField(
+    'ID',
+    max_length=14,
+    default='0000000000-000'
+  )
+  gemeindeteil = ForeignKey(
+    Gemeindeteile,
+    verbose_name='Gemeindeteil',
+    on_delete=RESTRICT,
+    db_column='gemeindeteil',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_gemeindeteile',
+    default='00000000-0000-0000-0000-000000000000'
+  )
+  strasse = ForeignKey(
+    Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  inoffizielle_strasse = ForeignKey(
+    Inoffizielle_Strassen,
+    verbose_name=' inoffizielle Straße',
+    on_delete=SET_NULL,
+    db_column='inoffizielle_strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_inoffizielle_strassen',
+    blank=True,
+    null=True
+  )
+  nummer = CharField(
+    'Nummer',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  beschreibung = CharField(
+    'Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  wegeart = ForeignKey(
+    Arten_Wege,
+    verbose_name='Wegeart',
+    on_delete=RESTRICT,
+    db_column='wegeart',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_wegearten'
+  )
+  wegetyp = ForeignKey(
+    Wegetypen_Strassenreinigungssatzung_HRO,
+    verbose_name='Wegetyp',
+    on_delete=RESTRICT,
+    db_column='wegetyp',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_wegetypen',
+    blank=True,
+    null=True
+  )
+  reinigungsklasse = ForeignKey(
+    Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+    verbose_name='Reinigungsklasse',
+    on_delete=SET_NULL,
+    db_column='reinigungsklasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_reinigungsklassen',
+    blank=True,
+    null=True
+  )
+  reinigungsrhythmus = ForeignKey(
+    Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    verbose_name='Reinigungsrhythmus',
+    on_delete=SET_NULL,
+    db_column='reinigungsrhythmus',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_reinigungsrhythmen',
+    blank=True,
+    null=True
+  )
+  laenge = DecimalField(
+    'Länge (in m)',
+    max_digits=7,
+    decimal_places=2,
+    default=0
+  )
+  breite = ForeignKey(
+    Wegebreiten_Strassenreinigungssatzung_HRO,
+    verbose_name='Breite (in m)',
+    on_delete=RESTRICT,
+    db_column='breite',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_breiten',
+    blank=True,
+    null=True
+  )
+  reinigungsflaeche = DecimalField(
+    'Reinigungsfläche (in m²)',
+    max_digits=7,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Reinigungsfläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99999.99'),
+        'Die <strong><em>Reinigungsfläche</em></strong> darf höchstens 99.999,99 m² betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  winterdienst = BooleanField(
+    'Winterdienst?',
+    blank=True,
+    null=True
+  )
+  raeumbreite = ForeignKey(
+    Raeumbreiten_Strassenreinigungssatzung_HRO,
+    verbose_name='Räumbreite im Winterdienst (in m)',
+    on_delete=RESTRICT,
+    db_column='raeumbreite',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_raeumbreiten',
+    blank=True,
+    null=True
+  )
+  winterdienstflaeche = DecimalField(
+    'Winterdienstfläche (in m²)',
+    max_digits=7,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Winterdienstfläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99999.99'),
+        'Die <strong><em>Winterdienstfläche</em></strong> darf höchstens 99.999,99 m² betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  geometrie = multiline_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
+    verbose_name = 'Geh- und Radwegereinigung'
+    verbose_name_plural = 'Geh- und Radwegereinigung'
+    description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
+      'strasse': 'Straße',
+      'inoffizielle_strasse': 'inoffizielle Straße',
+      'nummer': 'Nummer',
+      'beschreibung': 'Beschreibung',
+      'wegeart': 'Wegeart',
+      'wegetyp': 'Wegetyp',
+      'reinigungsklasse': 'Reinigungsklasse',
+      'laenge': 'Länge (in m)',
+      'breite': 'Breite (in m)',
+      'winterdienst': 'Winterdienst?'
+    }
+    list_fields_with_foreign_key = {
+      'gemeindeteil': 'gemeindeteil',
+      'strasse': 'strasse',
+      'inoffizielle_strasse': 'strasse',
+      'wegeart': 'art',
+      'wegetyp': 'wegetyp',
+      'reinigungsklasse': 'code',
+      'reinigungsrhythmus': 'reinigungsrhythmus',
+      'breite': 'wegebreite'
+    }
+    list_fields_with_number = ['id', 'laenge', 'breite']
+    readonly_fields = ['id', 'gemeindeteil', 'laenge']
+    associated_models = {
+      'Geh_Radwegereinigung_Flaechen': 'geh_und_radwegereinigung'
+    }
+    map_feature_tooltip_field = 'id'
+    map_filter_fields = {
+      'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
+      'strasse': 'Straße',
+      'inoffizielle_strasse': 'inoffizielle Straße',
+      'nummer': 'Nummer',
+      'beschreibung': 'Beschreibung',
+      'wegeart': 'Wegeart',
+      'wegetyp': 'Wegetyp',
+      'reinigungsklasse': 'Reinigungsklasse',
+      'reinigungsrhythmus': 'Reinigungsrhythmus',
+      'breite': 'Breite (in m)',
+      'winterdienst': 'Winterdienst?',
+    }
+    map_filter_fields_as_list = [
+      'strasse',
+      'gemeindeteil',
+      'inoffizielle_strasse',
+      'wegeart',
+      'wegetyp',
+      'reinigungsklasse',
+      'reinigungsrhythmus',
+      'breite'
+    ]
+    additional_wms_layers = [
+      {
+        'title': 'Reinigungsreviere',
+        'url': 'https://geo.sv.rostock.de/geodienste/reinigungsreviere/wms',
+        'layers': 'hro.reinigungsreviere.reinigungsreviere'
+      }, {
+        'title': 'Geh- und Radwegereinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+      }, {
+        'title': 'Straßenreinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.strassenreinigung'
+      }
+    ]
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'MultiLineString'
+    ordering = ['id']
+    as_overlay = True
+
+  def __str__(self):
+    return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (
+      ', ' + str(self.beschreibung) if self.beschreibung else '') + (
+             ', Wegeart ' + str(self.wegeart) if self.wegeart else '') + (
+             ', Wegetyp ' + str(self.wegetyp) if self.wegetyp else '') + (
+             ', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') \
+           + (
+             ', mit Winterdienst' if self.winterdienst else '') + (
+             ' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + (
+             ' [inoffizielle Straße: ' + str(
+               self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+
+
+class Geh_Radwegereinigung_Flaechen(ComplexModel):
+  """
+  Geh- und Radwegereinigung:
+  Flächen
+  """
+
+  geh_und_radwegereinigung = ForeignKey(
+    Geh_Radwegereinigung,
+    verbose_name='Geh- und Radwegereinigung',
+    on_delete=CASCADE,
+    db_column='geh_und_radwegereinigung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_geh_und_radwegereinigung'
+  )
+  geometrie = multipolygon_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"geh_und_radwegereinigung_flaechen_hro'
+    verbose_name = 'Fläche zur Geh- und Radwegereinigung'
+    verbose_name_plural = 'Flächen zur Geh- und Radwegereinigung'
+    description = 'Flächen zur Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'geh_und_radwegereinigung': 'Geh- und Radwegereinigung'
+    }
+    list_fields_with_foreign_key = {
+      'geh_und_radwegereinigung': 'id'
+    }
+    map_feature_tooltip_field = 'geh_und_radwegereinigung'
+    geometry_type = 'MultiPolygon'
+    fields_with_foreign_key_to_linkify = ['geh_und_radwegereinigung']
+    object_title = 'die Fläche'
+    foreign_key_label = 'Geh- und Radwegereinigung'
+    as_overlay = True
+
+  def __str__(self):
+    return str(self.geh_und_radwegereinigung)
 
 
 #
@@ -2430,6 +2732,218 @@ class RSAG_Spanndraehte(ComplexModel):
 
   def __str__(self):
     return str(self.uuid)
+
+
+#
+# Straßenreinigung
+#
+
+class Strassenreinigung(ComplexModel):
+  """
+  Straßenreinigung:
+  Straßenreinigung
+  """
+
+  id = CharField(
+    'ID',
+    max_length=14,
+    default='0000000000-000'
+  )
+  gemeindeteil = ForeignKey(
+    Gemeindeteile,
+    verbose_name='Gemeindeteil',
+    on_delete=RESTRICT,
+    db_column='gemeindeteil',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_gemeindeteile',
+    default='00000000-0000-0000-0000-000000000000'
+  )
+  strasse = ForeignKey(
+    Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  inoffizielle_strasse = ForeignKey(
+    Inoffizielle_Strassen,
+    verbose_name=' inoffizielle Straße',
+    on_delete=SET_NULL,
+    db_column='inoffizielle_strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_inoffizielle_strassen',
+    blank=True,
+    null=True
+  )
+  beschreibung = CharField(
+    'Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  ausserhalb = BooleanField(' außerhalb geschlossener Ortslage?')
+  reinigungsklasse = ForeignKey(
+    Reinigungsklassen_Strassenreinigungssatzung_HRO,
+    verbose_name='Reinigungsklasse',
+    on_delete=SET_NULL,
+    db_column='reinigungsklasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_reinigungsklassen',
+    blank=True,
+    null=True
+  )
+  reinigungsrhythmus = ForeignKey(
+    Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    verbose_name='Reinigungsrhythmus',
+    on_delete=SET_NULL,
+    db_column='reinigungsrhythmus',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_reinigungsrhythmen',
+    blank=True,
+    null=True
+  )
+  fahrbahnwinterdienst = ForeignKey(
+    Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
+    verbose_name='Fahrbahnwinterdienst',
+    on_delete=SET_NULL,
+    db_column='fahrbahnwinterdienst',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_fahrbahnwinterdienste',
+    blank=True,
+    null=True
+  )
+  laenge = DecimalField(
+    'Länge (in m)',
+    max_digits=7,
+    decimal_places=2,
+    default=0
+  )
+  geometrie = multiline_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
+    verbose_name = 'Straßenreinigung'
+    verbose_name_plural = 'Straßenreinigung'
+    description = 'Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
+      'strasse': 'Straße',
+      'inoffizielle_strasse': 'inoffizielle Straße',
+      'beschreibung': 'Beschreibung',
+      'ausserhalb': 'außerhalb geschlossener Ortslage?',
+      'reinigungsklasse': 'Reinigungsklasse',
+      'reinigungsrhythmus': 'Reinigungsrhythmus',
+      'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
+      'laenge': 'Länge (in m)'
+    }
+    list_fields_with_foreign_key = {
+      'gemeindeteil': 'gemeindeteil',
+      'strasse': 'strasse',
+      'inoffizielle_strasse': 'strasse',
+      'reinigungsklasse': 'code',
+      'reinigungsrhythmus': 'reinigungsrhythmus',
+      'fahrbahnwinterdienst': 'code'
+    }
+    list_fields_with_number = ['id', 'laenge']
+    readonly_fields = ['id', 'gemeindeteil', 'laenge']
+    associated_models = {
+      'Strassenreinigung_Flaechen': 'strassenreinigung'
+    }
+    map_feature_tooltip_field = 'id'
+    map_filter_fields = {
+      'id': 'ID',
+      'gemeindeteil': 'Gemeindeteil',
+      'strasse': 'Straße',
+      'inoffizielle_strasse': 'inoffizielle Straße',
+      'beschreibung': 'Beschreibung',
+      'ausserhalb': 'außerhalb geschlossener Ortslage?',
+      'reinigungsklasse': 'Reinigungsklasse',
+      'reinigungsrhythmus': 'Reinigungsrhythmus',
+      'fahrbahnwinterdienst': 'Fahrbahnwinterdienst'
+    }
+    map_filter_fields_as_list = [
+      'strasse',
+      'gemeindeteil',
+      'inoffizielle_strasse',
+      'reinigungsklasse',
+      'reinigungsrhythmus',
+      'fahrbahnwinterdienst'
+    ]
+    additional_wms_layers = [
+      {
+        'title': 'Reinigungsreviere',
+        'url': 'https://geo.sv.rostock.de/geodienste/reinigungsreviere/wms',
+        'layers': 'hro.reinigungsreviere.reinigungsreviere'
+      }, {
+        'title': 'Geh- und Radwegereinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+      }, {
+        'title': 'Straßenreinigung',
+        'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
+        'layers': 'hro.strassenreinigung.strassenreinigung'
+      }
+    ]
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'MultiLineString'
+    ordering = ['id']
+    as_overlay = True
+
+  def __str__(self):
+    return str(self.id) + (', ' + str(self.beschreibung) if self.beschreibung else '') + \
+      (', außerhalb geschlossener Ortslage' if self.ausserhalb else '') + \
+      (', Reinigungsklasse ' + str(self.reinigungsklasse) if self.reinigungsklasse else '') + \
+      (', Fahrbahnwinterdienst ' +
+       str(self.fahrbahnwinterdienst) if self.fahrbahnwinterdienst else '') + \
+      (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '') + \
+      (' [inoffizielle Straße: ' +
+       str(self.inoffizielle_strasse) + ']' if self.inoffizielle_strasse else '')
+
+
+class Strassenreinigung_Flaechen(ComplexModel):
+  """
+  Straßenreinigung:
+  Flächen
+  """
+
+  strassenreinigung = ForeignKey(
+    Strassenreinigung,
+    verbose_name='Straßenreinigung',
+    on_delete=CASCADE,
+    db_column='strassenreinigung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassenreinigung'
+  )
+  geometrie = multipolygon_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"strassenreinigung_flaechen_hro'
+    verbose_name = 'Fläche zur Straßenreinigung'
+    verbose_name_plural = 'Flächen zur Straßenreinigung'
+    description = 'Flächen zur Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'strassenreinigung': 'Straßenreinigung'
+    }
+    list_fields_with_foreign_key = {
+      'strassenreinigung': 'id'
+    }
+    map_feature_tooltip_field = 'strassenreinigung'
+    geometry_type = 'MultiPolygon'
+    fields_with_foreign_key_to_linkify = ['strassenreinigung']
+    object_title = 'die Fläche'
+    foreign_key_label = 'Straßenreinigung'
+    as_overlay = True
+
+  def __str__(self):
+    return str(self.strassenreinigung)
 
 
 #

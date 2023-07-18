@@ -216,8 +216,10 @@ def thumb_image(path, thumb_path):
   """
   try:
     if path.exists():
+      print(path)
+      print(thumb_path)
       image = Image.open(path)
-      image.thumbnail((70, 70), Image.ANTIALIAS)
+      image.thumbnail((70, 70), Image.Resampling.LANCZOS)
       image.save(thumb_path, optimize=True, quality=20)
       image.close()
   except (AttributeError, KeyError, IndexError):

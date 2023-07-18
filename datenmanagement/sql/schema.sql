@@ -1853,6 +1853,23 @@ CREATE TABLE fachdaten.fliessgewaesser_hro (
 
 
 --
+-- Name: geh_und_radwegereinigung_flaechen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.geh_und_radwegereinigung_flaechen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    geh_und_radwegereinigung uuid NOT NULL,
+    geometrie public.geometry(MultiPolygon,25833) NOT NULL
+);
+
+
+--
 -- Name: geraetespielanlagen_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2370,6 +2387,23 @@ CREATE TABLE fachdaten.strassen_hro (
     bezeichnung character varying(255) NOT NULL,
     schluessel character(5) NOT NULL,
     geometrie public.geometry(MultiLineString,25833) NOT NULL
+);
+
+
+--
+-- Name: strassenreinigung_flaechen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.strassenreinigung_flaechen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    strassenreinigung uuid NOT NULL,
+    geometrie public.geometry(MultiPolygon,25833) NOT NULL
 );
 
 
@@ -4960,6 +4994,14 @@ ALTER TABLE ONLY fachdaten.fliessgewaesser_hro
 
 
 --
+-- Name: geh_und_radwegereinigung_flaechen_hro geh_und_radwegereinigung_flaechen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.geh_und_radwegereinigung_flaechen_hro
+    ADD CONSTRAINT geh_und_radwegereinigung_flaechen_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: geraetespielanlagen_hro geraetespielanlagen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5165,6 +5207,14 @@ ALTER TABLE ONLY fachdaten.strassen_hro
 
 ALTER TABLE ONLY fachdaten.strassen_hro
     ADD CONSTRAINT strassen_hro_schluessel_unique UNIQUE (schluessel);
+
+
+--
+-- Name: strassenreinigung_flaechen_hro strassenreinigung_flaechen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassenreinigung_flaechen_hro
+    ADD CONSTRAINT strassenreinigung_flaechen_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5485,6 +5535,20 @@ ALTER TABLE ONLY fachdaten_strassenbezug.hausnummern_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_; Type: INDEX; Schema: fachdaten; Owner: -
+--
+
+CREATE INDEX geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_ ON fachdaten.geh_und_radwegereinigung_flaechen_hro USING btree (geh_und_radwegereinigung);
+
+
+--
+-- Name: strassenreinigung_flaechen_hro_strassenreinigung_ix; Type: INDEX; Schema: fachdaten; Owner: -
+--
+
+CREATE INDEX strassenreinigung_flaechen_hro_strassenreinigung_ix ON fachdaten.strassenreinigung_flaechen_hro USING btree (strassenreinigung);
 
 
 --
@@ -6038,6 +6102,14 @@ ALTER TABLE ONLY fachdaten.fliessgewaesser_hro
 
 
 --
+-- Name: geh_und_radwegereinigung_flaechen_hro geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.geh_und_radwegereinigung_flaechen_hro
+    ADD CONSTRAINT geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_ FOREIGN KEY (geh_und_radwegereinigung) REFERENCES fachdaten_strassenbezug.geh_und_radwegereinigung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: geraetespielanlagen_hro geraetespielanlagen_hro_traeger_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6443,6 +6515,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 ALTER TABLE ONLY fachdaten.strassen_hro
     ADD CONSTRAINT strassen_hro_kategorien_fk FOREIGN KEY (kategorie) REFERENCES codelisten.kategorien_strassen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: strassenreinigung_flaechen_hro strassenreinigung_flaechen_hro_strassenreinigung_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.strassenreinigung_flaechen_hro
+    ADD CONSTRAINT strassenreinigung_flaechen_hro_strassenreinigung_fk FOREIGN KEY (strassenreinigung) REFERENCES fachdaten_strassenbezug.strassenreinigung_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

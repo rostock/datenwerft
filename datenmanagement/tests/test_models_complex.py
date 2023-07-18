@@ -3,18 +3,20 @@ from django.core.files import File
 from django.test import override_settings
 from datenmanagement.models import Adressen, Adressunsicherheiten, Adressunsicherheiten_Fotos, \
   Arten_Adressunsicherheiten, Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, \
-  Auftraggeber_Baustellen, Baustellen_Fotodokumentation_Baustellen, \
+  Arten_Wege, Auftraggeber_Baustellen, Baustellen_Fotodokumentation_Baustellen, \
   Baustellen_Fotodokumentation_Fotos, Baustellen_geplant, Baustellen_geplant_Dokumente, \
   Baustellen_geplant_Links, Durchlaesse_Durchlaesse, Durchlaesse_Fotos, \
   E_Anschluesse_Parkscheinautomaten, Ergebnisse_UVP_Vorpruefungen, \
   Fallwildsuchen_Kontrollgebiete, Fallwildsuchen_Nachweise, Fotomotive_Haltestellenkataster, \
+  Geh_Radwegereinigung, Geh_Radwegereinigung_Flaechen, Gemeindeteile, \
   Genehmigungsbehoerden_UVP_Vorhaben, Haltestellenkataster_Fotos, \
   Haltestellenkataster_Haltestellen, Masttypen_RSAG, Parkscheinautomaten_Tarife, \
   Parkscheinautomaten_Parkscheinautomaten, Rechtsgrundlagen_UVP_Vorhaben, RSAG_Gleise, \
   RSAG_Leitungen, RSAG_Masten, RSAG_Quertraeger, RSAG_Spanndraehte, Sparten_Baustellen, \
-  Status_Baustellen_Fotodokumentation_Fotos, Status_Baustellen_geplant, Tierseuchen, \
-  Typen_UVP_Vorhaben, UVP_Vorhaben, UVP_Vorpruefungen, Verkehrliche_Lagen_Baustellen, \
-  Verkehrsmittelklassen, Vorgangsarten_UVP_Vorhaben, Zeiteinheiten, Zonen_Parkscheinautomaten
+  Status_Baustellen_Fotodokumentation_Fotos, Status_Baustellen_geplant, Strassenreinigung, \
+  Strassenreinigung_Flaechen, Tierseuchen, Typen_UVP_Vorhaben, UVP_Vorhaben, UVP_Vorpruefungen, \
+  Verkehrliche_Lagen_Baustellen, Verkehrsmittelklassen, Vorgangsarten_UVP_Vorhaben, \
+  Zeiteinheiten, Zonen_Parkscheinautomaten
 
 from .base import DefaultComplexModelTestCase, GenericRSAGTestCase
 from .constants_vars import *
@@ -82,7 +84,7 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
   def setUp(self):
     self.init()
 
-  def test_is_simplemodel(self):
+  def test_is_complexmodel(self):
     self.generic_is_complexmodel_test(self.model)
 
   def test_create(self):
@@ -2499,6 +2501,503 @@ class FallwildsuchenNachweiseTest(DefaultComplexModelTestCase):
 
 
 #
+# Geh- und Radwegereinigung
+#
+
+class GehRadwegereinigungTest(DefaultComplexModelTestCase):
+  """
+  Geh- und Radwegereinigung:
+  Geh- und Radwegereinigung
+  """
+
+  model = Geh_Radwegereinigung
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    gemeindeteil = Gemeindeteile.objects.create(
+      gemeindeteil='Gemeindeteil',
+      geometrie=VALID_MULTIPOLYGON_DB
+    )
+    wegeart = Arten_Wege.objects.create(
+      art='Art'
+    )
+    cls.attributes_values_db_initial = {
+      'gemeindeteil': gemeindeteil,
+      'beschreibung': 'Beschreibung1',
+      'wegeart': wegeart,
+      'geometrie': VALID_MULTILINE_DB
+    }
+    cls.attributes_values_db_updated = {
+      'beschreibung': 'Beschreibung2'
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'id': '0000000000-000',
+      'gemeindeteil': str(gemeindeteil.pk),
+      'beschreibung': 'Beschreibung3',
+      'wegeart': str(wegeart.pk),
+      'laenge': 0,
+      'geometrie': VALID_MULTILINE_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'id': '0000000000-000',
+      'gemeindeteil': str(gemeindeteil.pk),
+      'beschreibung': 'Beschreibung4',
+      'wegeart': str(wegeart.pk),
+      'laenge': 0,
+      'geometrie': VALID_MULTILINE_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'beschreibung': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+
+class GehRadwegereinigungFlaechenTest(DefaultComplexModelTestCase):
+  """
+  Geh- und Radwegereinigung:
+  Flächen
+  """
+
+  model = Geh_Radwegereinigung_Flaechen
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    gemeindeteil = Gemeindeteile.objects.create(
+      gemeindeteil='Gemeindeteil',
+      geometrie=VALID_MULTIPOLYGON_DB
+    )
+    wegeart = Arten_Wege.objects.create(
+      art='Art'
+    )
+    geh_und_radwegereinigung = Geh_Radwegereinigung.objects.create(
+      gemeindeteil=gemeindeteil,
+      beschreibung='Beschreibung',
+      wegeart=wegeart,
+      geometrie=VALID_MULTILINE_DB
+    )
+    cls.attributes_values_db_initial = {
+      'geh_und_radwegereinigung': geh_und_radwegereinigung,
+      'geometrie': VALID_MULTIPOLYGON_DB
+    }
+    cls.attributes_values_db_updated = {
+      'aktiv': False
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'geh_und_radwegereinigung': str(geh_und_radwegereinigung.pk),
+      'geometrie': VALID_MULTIPOLYGON_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': False,
+      'geh_und_radwegereinigung': str(geh_und_radwegereinigung.pk),
+      'geometrie': VALID_MULTIPOLYGON_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+
+#
 # Haltestellenkataster
 #
 
@@ -4353,6 +4852,497 @@ class RSAGSpanndraehteTest(GenericRSAGTestCase):
   """
 
   model = RSAG_Spanndraehte
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+
+#
+# Straßenreinigung
+#
+
+class StrassenreinigungTest(DefaultComplexModelTestCase):
+  """
+  Straßenreinigung:
+  Straßenreinigung
+  """
+
+  model = Strassenreinigung
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    gemeindeteil = Gemeindeteile.objects.create(
+      gemeindeteil='Gemeindeteil',
+      geometrie=VALID_MULTIPOLYGON_DB
+    )
+    cls.attributes_values_db_initial = {
+      'gemeindeteil': gemeindeteil,
+      'beschreibung': 'Beschreibung1',
+      'ausserhalb': False,
+      'geometrie': VALID_MULTILINE_DB
+    }
+    cls.attributes_values_db_updated = {
+      'beschreibung': 'Beschreibung2'
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'id': '0000000000-000',
+      'gemeindeteil': str(gemeindeteil.pk),
+      'beschreibung': 'Beschreibung3',
+      'ausserhalb': False,
+      'laenge': 0,
+      'geometrie': VALID_MULTILINE_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'id': '0000000000-000',
+      'gemeindeteil': str(gemeindeteil.pk),
+      'beschreibung': 'Beschreibung4',
+      'ausserhalb': False,
+      'laenge': 0,
+      'geometrie': VALID_MULTILINE_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'beschreibung': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test(self.model)
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+
+class StrassenreinigungFlaechenTest(DefaultComplexModelTestCase):
+  """
+  Straßenreinigung:
+  Flächen
+  """
+
+  model = Strassenreinigung_Flaechen
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    gemeindeteil = Gemeindeteile.objects.create(
+      gemeindeteil='Gemeindeteil',
+      geometrie=VALID_MULTIPOLYGON_DB
+    )
+    strassenreinigung = Strassenreinigung.objects.create(
+      gemeindeteil=gemeindeteil,
+      beschreibung='Beschreibung',
+      ausserhalb=False,
+      geometrie=VALID_MULTILINE_DB
+    )
+    cls.attributes_values_db_initial = {
+      'strassenreinigung': strassenreinigung,
+      'geometrie': VALID_MULTIPOLYGON_DB
+    }
+    cls.attributes_values_db_updated = {
+      'aktiv': False
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'strassenreinigung': str(strassenreinigung.pk),
+      'geometrie': VALID_MULTIPOLYGON_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': False,
+      'strassenreinigung': str(strassenreinigung.pk),
+      'geometrie': VALID_MULTIPOLYGON_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
   def setUp(self):
     self.init()
