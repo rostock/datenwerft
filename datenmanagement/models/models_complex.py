@@ -2998,6 +2998,7 @@ class Strassen_Simple(ComplexModel):
       'kategorie': 'code'
     }
     associated_models = {
+      'Strassen_Simple_Historie': 'strasse_simple',
       'Strassen_Simple_Namensanalyse': 'strasse_simple'
     }
     map_feature_tooltip_field = 'bezeichnung'
