@@ -185,7 +185,7 @@ class SectorModelTest(DefaultCodelistTestCase):
   """
 
   model = Sector
-  count = 1
+  count = 26
   attributes_values_db_initial = {
     'title': 'hFxVbEb2'
   }
@@ -259,7 +259,7 @@ class SectorViewsTest(DefaultViewTestCase):
   def test_tabledata_view_standard_rights(self):
     self.generic_view_test(
       True, False, 'codelists_sector_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'Baubetrieb'
+      'application/json', 'Freizeitanlage'
     )
 
   def test_tabledata_view_admin_rights(self):
@@ -347,7 +347,7 @@ class TypeOfEventModelTest(DefaultCodelistTestCase):
   """
 
   model = TypeOfEvent
-  count = 6
+  count = 5
   attributes_values_db_initial = {
     'title': 'UIO0F3n8',
     'icon': 'qgzUK9gf'
@@ -514,7 +514,7 @@ class TypeOfImmissionModelTest(DefaultCodelistTestCase):
   """
 
   model = TypeOfImmission
-  count = 6
+  count = 7
   attributes_values_db_initial = {
     'title': 'eaDUeltd',
     'icon': 'wLIe5cDw'

@@ -35,9 +35,9 @@ class IndexView(TemplateView):
     context['lastest_activity_objects'] = get_lastest_activity_objects(5)
     # add statistics to context
     num_complaints = Complaint.objects.all().count()
-    one_year_ago = (timezone.now() - timedelta(days=365)).date()
+    one_year_ago = (timezone.now() - timedelta(days=365))
     one_year_ago_formatted = format_date_datetime(one_year_ago)
-    one_month_ago = (timezone.now() - timedelta(days=30)).date()
+    one_month_ago = (timezone.now() - timedelta(days=30))
     one_month_ago_formatted = format_date_datetime(one_month_ago)
     statistics = []
     # total complaints by type of immission
