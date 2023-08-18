@@ -63,6 +63,13 @@ class Sector(Codelist):
     unique=True,
     validators=standard_validators
   )
+  examples = CharField(
+    'Beispiele',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelist_sector'

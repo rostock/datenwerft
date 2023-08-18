@@ -15,49 +15,142 @@ def load_initial_data(apps, schema_editor):
   )
   sector = apps.get_model('bemas', 'Sector')
   sector.objects.create(
-    title='Baubetrieb'
+    title='Anlage an Wohnhaus',
+    examples='Luftwärmepumpe, Fahrstuhl'
+  )
+  sector.objects.create(
+    title='Anlage für gesundheitliche und soziale Zwecke',
+    examples='Klinik, Kirche, Pflegeheim, Schule, Kindertagesstätte'
+  )
+  sector.objects.create(
+    title='Baustelle/Einsatz von Geräten und Maschinen'
+  )
+  sector.objects.create(
+    title='Einzelhandel',
+    examples='Supermarkt, Bäckereifiliale'
+  )
+  sector.objects.create(
+    title='Elektromagnetische Strahlung',
+    examples='Erweiterung/Bau Antennenanlage, Hochspannungsleitung'
+  )
+  sector.objects.create(
+    title='Fahrzeug- und Maschinenbau',
+    examples='Bootsbau, Kfz-Bau, Werft'
+  )
+  sector.objects.create(
+    title='Forschung/Universität'
+  )
+  sector.objects.create(
+    title='Freizeitanlage',
+    examples='Wasserski, Skaterpark, Spielplatz'
+  )
+  sector.objects.create(
+    title='Gastgewerbe',
+    examples='Schank-/Speisewirtschaft, Beherbergungsbetrieb, Diskothek'
+  )
+  sector.objects.create(
+    title='Hafen/Umschlag/Liegeplatz'
+  )
+  sector.objects.create(
+    title='Handel, Vermietung und Reparatur von Fahrzeugen, Maschinen und Anlagen',
+    examples='Autohaus, Kfz-Werkstatt'
+  )
+  sector.objects.create(
+    title='Kultureinrichtung',
+    examples='Kino, Theater, Stadthalle'
+  )
+  sector.objects.create(
+    title='landwirtschaftlicher Betrieb/Tierhaltung',
+    examples='Tierheim, Tierpension'
+  )
+  sector.objects.create(
+    title='produzierendes und verarbeitendes Gewerbe',
+    examples='Bäckerei, Großküche, Holz-, Metall-, Kunststoffbearbeitung/-verarbeitung'
+  )
+  sector.objects.create(
+    title='Stellplatzanlage/Parkhaus'
+  )
+  sector.objects.create(
+    title='Speditionsbetrieb/Logistikunternehmen/Großhandel/Zusteller'
+  )
+  sector.objects.create(
+    title='Sportanlage'
+  )
+  sector.objects.create(
+    title='Tankstelle/Ladestation'
+  )
+  sector.objects.create(
+    title='Veranstaltung im Freien',
+    examples='Hanse Sail, Warnemünder Woche'
+  )
+  sector.objects.create(
+    title='Verbrennungsanlage',
+    examples='Heizung, Kamin, Heizkraftwerk, Krematorium'
+  )
+  sector.objects.create(
+    title='Ver- und Entsorgung',
+    examples='Deponie, Wasserwerk, Kläranlage'
+  )
+  sector.objects.create(
+    title='Schienenverkehr',
+    examples='Straßenbahnverkehr, Eisenbahnverkehr'
+  )
+  sector.objects.create(
+    title='sonstige Anlage',
+    examples='Windkraftanlage, Werbeanlage'
+  )
+  sector.objects.create(
+    title='sonstige Dienstleistung und sonstiges Gewerbe',
+    examples='chemische Reinigung, Nagelstudio, Fitnesscenter, Baubetrieb'
+  )
+  sector.objects.create(
+    title='sonstiger Verkehr',
+    examples='Schiffsverkehr, Luftverkehr'
+  )
+  sector.objects.create(
+    title='Straßenverkehr'
   )
   type_of_event = apps.get_model('bemas', 'TypeOfEvent')
   type_of_event.objects.create(
-    title='Briefpost',
-    icon='envelope'
+    title='Besprechung',
+    icon='comments'
   )
   type_of_event.objects.create(
-    title='E-Mail',
-    icon='at'
+    title='Ortsbegehung',
+    icon='eye'
   )
   type_of_event.objects.create(
-    title='Meeting',
-    icon='handshake-simple'
-  )
-  type_of_event.objects.create(
-    title='Messung',
+    title='Prognose/Messung',
     icon='gauge'
+  )
+  type_of_event.objects.create(
+    title='Schriftverkehr',
+    icon='envelope'
   )
   type_of_event.objects.create(
     title='Telefonat',
     icon='phone'
   )
-  type_of_event.objects.create(
-    title='Vor-Ort-Begehung',
-    icon='eye'
-  )
   type_of_immission = apps.get_model('bemas', 'TypeOfImmission')
   type_of_immission.objects.create(
-    title='Elektromagnetik',
+    title='Abgas/Rauch',
+    icon='cloud'
+  )
+  type_of_immission.objects.create(
+    title='Elektromagnetische Strahlung',
     icon='radiation'
   )
   type_of_immission.objects.create(
-    title='Erschütterung',
+    title='Erschütterungen',
     icon='house-crack'
-  )
-  type_of_immission.objects.create(
-    title='Geräusche',
-    icon='volume-high'
   )
   type_of_immission.objects.create(
     title='Geruch',
     icon='poop'
+  )
+  type_of_immission.objects.create(
+    title='Lärm',
+    icon='volume-high'
   )
   type_of_immission.objects.create(
     title='Licht',

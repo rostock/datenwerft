@@ -235,6 +235,17 @@
           });
         });
 
+        // handle sector select field: add tooltips to options, based on examples given for sectors
+        let sectorExamples = [];
+        {% if sector_examples %}
+          sectorExamples = {{ sector_examples|safe }}
+        {% endif %}
+        $('select#id_sector > option').each(function () {
+          let value = $(this).attr('value');
+          if (value > 0)
+            $(this).attr('title', sectorExamples[value]);
+        });
+
         // handle multiple select fields
         $('select[multiple]').each(function () {
           addEmptyFieldButton($(this));

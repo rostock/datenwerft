@@ -22,6 +22,18 @@ def beautify_model_string(model_name):
 
 
 @register.filter
+def get_dict_value_by_key(arg_dict, key):
+  """
+  returns value of given key in given dictionary
+
+  :param arg_dict: dictionary
+  :param key: key in dictionary
+  :return: value of given key in given dictionary
+  """
+  return arg_dict.get(key)
+
+
+@register.filter
 @stringfilter
 def get_icon(key):
   """

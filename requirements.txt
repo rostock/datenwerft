@@ -5,7 +5,6 @@ django-jsonview
 django-leaflet
 django-user-agents
 djangorestframework
-piccolo-theme
 Pillow
 psycopg2-binary
 PyYAML

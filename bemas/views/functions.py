@@ -6,7 +6,7 @@ from django.core.serializers import serialize
 from django.forms import Select, Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
-from json import loads
+from json import dumps, loads
 from leaflet.forms.widgets import LeafletWidget
 from operator import itemgetter
 
@@ -77,6 +77,19 @@ def add_generic_objectclass_context_elements(context, model):
   context['objectclass_new'] = model.BasemodelMeta.new
   if not issubclass(model, LogEntry):
     context['objectclass_creation_url'] = reverse('bemas:' + objectclass_lower_name + '_create')
+  return context
+
+
+def add_sector_examples_context_element(context, sector):
+  """
+  adds sector examples to a context and returns it
+
+  :param context: context
+  :param sector: sectormodel
+  :return: context with sector examples added
+  """
+  sectors = sector.objects.all()
+  context['sector_examples'] = dumps({ sector.pk : sector.examples for sector in sectors })
   return context
 
 

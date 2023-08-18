@@ -9,10 +9,11 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
 from bemas.models import GeometryObjectclass, Complaint, Contact, Event, LogEntry, Organization, \
-  Originator, Status
+  Originator, Sector, Status
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
-  add_table_context_elements, assign_widget, create_log_entry, generate_foreign_key_objects_list, \
+  add_sector_examples_context_element, add_table_context_elements, assign_widget, \
+  create_log_entry, generate_foreign_key_objects_list, \
   set_generic_objectclass_create_update_delete_context, set_log_action_and_content
 from bemas.utils import generate_user_string, shorten_string
 
@@ -78,6 +79,10 @@ class GenericObjectclassCreateView(CreateView):
       self.model,
       self.cancel_url
     )
+    # object class originator:
+    # add list of sector examples to context
+    if issubclass(self.model, Originator):
+      context = add_sector_examples_context_element(context, Sector)
     return context
 
   def get_initial(self):
@@ -252,6 +257,10 @@ class GenericObjectclassUpdateView(UpdateView):
           geojson=AsGeoJSON(geometry)
         ).get(pk=self.object.pk).geojson
       context['geometry'] = geometry
+    # object class originator:
+    # add list of sector examples to context
+    if issubclass(self.model, Originator):
+      context = add_sector_examples_context_element(context, Sector)
     return context
 
   def get_initial(self):
