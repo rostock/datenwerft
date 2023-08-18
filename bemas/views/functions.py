@@ -89,7 +89,7 @@ def add_sector_examples_context_element(context, sector):
   :return: context with sector examples added
   """
   sectors = sector.objects.all()
-  context['sector_examples'] = dumps({ sector.pk : sector.examples for sector in sectors })
+  context['sector_examples'] = dumps({sector.pk: sector.examples for sector in sectors})
   return context
 
 
