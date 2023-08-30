@@ -13,29 +13,29 @@ class StatusModelTest(DefaultCodelistTestCase):
   """
 
   model = Status
-  count = 2
+  count = 3
   attributes_values_db_initial = {
-    'ordinal': 3,
+    'ordinal': 4,
     'title': 'I0JBAMtz',
     'icon': '3jw5UCfJ'
   }
   attributes_values_db_updated = {
-    'ordinal': 4,
+    'ordinal': 5,
     'title': '4Ke2ZalC',
     'icon': '3ZtNGShd'
   }
   attributes_values_view_initial = {
-    'ordinal': 5,
+    'ordinal': 6,
     'title': 'C1wePTPw',
     'icon': 'wacsjIgS'
   }
   attributes_values_view_updated = {
-    'ordinal': 6,
+    'ordinal': 7,
     'title': 'Ye5nXUid',
     'icon': 'ABys0FRo'
   }
   attributes_values_view_invalid = {
-    'ordinal': 6,
+    'ordinal': 7,
     'title': INVALID_STRING,
     'icon': INVALID_STRING
   }

@@ -13,6 +13,11 @@ def load_initial_data(apps, schema_editor):
     title='abgeschlossen',
     icon='check'
   )
+  status.objects.create(
+    ordinal=3,
+    title='nicht zuständig',
+    icon='thumbs-down'
+  )
   sector = apps.get_model('bemas', 'Sector')
   sector.objects.create(
     title='Anlage an Wohnhaus',

@@ -37,7 +37,7 @@ gravis_message = 'Texte dürfen keine Gravis (`) enthalten. Stattdessen ' \
                  'muss der typographisch korrekte Apostroph (’) verwendet werden.'
 hausnummer_regex = r'^[1-9][0-9]{0,2}[a-z]?$'
 hausnummer_message = 'Die <strong><em>Hausnummer</em></strong> muss eine Zahl ' \
-                     'zwischen 1 und 999 sein, optional gefolgt von einem Kleinbuchstaben.'
+                     'zwischen 1 und 999 sein, optional direkt gefolgt von einem Kleinbuchstaben.'
 hausnummer_zusatz_regex = r'^[a-z]$'
 hausnummer_zusatz_message = 'Der <strong><em>Hausnummernzusatz</em>' \
                             '</strong> muss aus genau einem ' \
