@@ -9,8 +9,10 @@
     {% if not is_mobile %}
       <div class="row g-4">
         <div class="col-4">
-          <div class="alert alert-primary h-100 text-center d-flex align-items-center">
-            <a class="fs-1 stretched-link" href="{% url 'bemas:map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i><br>Immissions- und Emissionsorte</a>
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-5 mb-0 fs-1">
+              <a href="{% url 'bemas:map' %}"><i class="fas fa-{{'map'|get_icon }}"></i><br>Immissions-<br>und Emissionsorte</a>
+            </p>
           </div>
         </div>
         <div class="col-8">

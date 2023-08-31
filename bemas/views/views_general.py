@@ -140,9 +140,17 @@ class MapView(TemplateView):
     context['originators_sectors'] = list(
       Originator.objects.order_by('sector').values_list('sector__title', flat=True).distinct()
     )
-    context['originators_operators'] = list(
-      Originator.objects.order_by('operator').values_list('operator__name', flat=True).distinct()
-    )
+    if Originator.objects.filter(operator_organization__isnull=False):
+      context['originators_operators_organizations'] = list(
+        Originator.objects.filter(operator_organization__isnull=False).order_by(
+          'operator_organization').values_list('operator_organization__name', flat=True).distinct()
+      )
+    if Originator.objects.filter(operator_person__isnull=False):
+      originators_operators_persons_ids = Originator.objects.filter(
+        operator_person__isnull=False).values('operator_person').distinct()
+      context['originators_operators_persons'] = list(
+        Person.objects.filter(id__in=originators_operators_persons_ids)
+      )
     # add miscellaneous information to context
     context['objects_count'] = (
         get_model_objects(Complaint, True) + get_model_objects(Originator, True))
@@ -179,7 +187,7 @@ class OrphanedDataView(TemplateView):
         }
         orphaned_organizations_list.append(orphaned_organization_dict)
       context['orphaned_organizations'] = orphaned_organizations_list
-    orphaned_persons = get_orphaned_persons(Complaint, Contact, Person)
+    orphaned_persons = get_orphaned_persons(Complaint, Contact, Originator, Person)
     if orphaned_persons:
       orphaned_persons_list = []
       for orphaned_person in orphaned_persons:

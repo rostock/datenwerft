@@ -10,11 +10,12 @@ from zoneinfo import ZoneInfo
 LOG_ACTIONS = {
   'created': 'neu angelegt',
   'deleted': 'gelöscht',
-  'updated_complainers_organizations': 'Beschwerdeführerin(nen) geändert',
-  'cleared_complainers_organizations': 'alle Beschwerdeführerin(nen) entfernt',
-  'updated_complainers_persons': 'Beschwerdeführer:in(nen) geändert',
-  'cleared_complainers_persons': 'alle Beschwerdeführer:in(nen) entfernt',
-  'updated_operator': 'Betreiberin geändert',
+  'updated_complainers_organizations': 'Organisation(en) als Beschwerdeführerin(nen) geändert',
+  'cleared_complainers_organizations': 'alle Organisationen als Beschwerdeführerinnen entfernt',
+  'updated_complainers_persons': 'Person(en) als Beschwerdeführer:in(nen) geändert',
+  'cleared_complainers_persons': 'alle Personen als Beschwerdeführer:innen entfernt',
+  'updated_operator_organization': 'Organisation als Betreiberin geändert',
+  'updated_operator_person': 'Person als Betreiber:in geändert',
   'updated_originator': 'Verursacher geändert',
   'updated_status': 'Bearbeitungsstatus geändert'
 }
@@ -137,14 +138,17 @@ def get_json_data(curr_object, field, for_filters=False):
   :return: JSONesque value of given field of given object
   """
   value = getattr(curr_object, field)
-  # format dates and datetimes
-  if not for_filters and (isinstance(value, date) or isinstance(value, datetime)):
-    value = format_date_datetime(value)
-  # format originators
-  elif field == 'originator':
-    value = value.sector_and_operator()
+  if value:
+    # format dates and datetimes
+    if not for_filters and (isinstance(value, date) or isinstance(value, datetime)):
+      value = format_date_datetime(value)
+    # format originators
+    elif field == 'originator':
+      value = value.sector_and_operator()
+    else:
+      value = str(value)
   else:
-    value = str(value)
+    value = ''
   return value
 
 
@@ -157,7 +161,8 @@ def get_orphaned_organizations(originator, complaint, organization):
   and organization object classes
   """
   # get all organizations connected to originators
-  oris_orgs_ids = originator.objects.all().values('operator')
+  oris_orgs_ids = originator.objects.filter(
+    operator_organization__isnull=False).values('operator_organization')
   # get all organizations connected to complaints
   cpls_orgs_ids = organization.objects.none().values('id')
   for cpl in complaint.objects.all():
@@ -180,7 +185,7 @@ def get_orphaned_originators(complaint, originator):
   return originator.objects.exclude(id__in=cpls_oris_ids)
 
 
-def get_orphaned_persons(complaint, contact, person):
+def get_orphaned_persons(complaint, contact, originator, person):
   """
   returns orphaned persons based on given complaint, contact and person object classes
 
@@ -194,13 +199,17 @@ def get_orphaned_persons(complaint, contact, person):
     ) | complaint.objects.filter(status__ordinal__lt=2)
   # get all persons connected to contacts
   con_ps_ids = contact.objects.all().values('person')
+  # get all persons connected to originators
+  oris_ps_ids = originator.objects.filter(
+    operator_person__isnull=False).values('operator_person')
   # get all persons connected to active complaints
   act_cpls_ps_ids = person.objects.none().values('id')
   for act_cpl in act_cpls:
     act_cpls_ps_ids = act_cpls_ps_ids | act_cpl.complainers_persons.all().values('id')
   # get orphaned persons
-  # (i.e. persons not connected to any contacts and any active complaints)
-  return person.objects.exclude(id__in=con_ps_ids).exclude(id__in=act_cpls_ps_ids)
+  # (i.e. persons not connected to any contacts and any originators and any active complaints)
+  return person.objects.exclude(id__in=con_ps_ids).exclude(
+    id__in=oris_ps_ids).exclude(id__in=act_cpls_ps_ids)
 
 
 def is_bemas_admin(user):
