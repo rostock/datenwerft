@@ -172,6 +172,8 @@ STATICFILES_DIRS = (
   ('popperjs', BASE_DIR / 'node_modules/@popperjs/core/dist/umd'),
   ('proj4', BASE_DIR / 'node_modules/proj4/dist'),
   ('proj4leaflet', BASE_DIR / 'node_modules/proj4leaflet/src'),
+  ('select2', BASE_DIR / 'node_modules/select2/dist/css'),
+  ('select2', BASE_DIR / 'node_modules/select2/dist/js'),
   ('wicket', BASE_DIR / 'node_modules/wicket'),
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
   ('css', BASE_DIR / 'datenwerft/static/css'),

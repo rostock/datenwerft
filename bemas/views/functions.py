@@ -238,8 +238,10 @@ def assign_widget(field):
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
+    # handle ordinary (single) selects
     elif form_field.widget.input_type == 'select':
       form_field.widget.attrs['class'] = 'form-select'
+      # handle multiple selects
       if form_field.widget.__class__.__name__ == 'SelectMultiple':
         form_field.widget.attrs['size'] = 5
     else:
@@ -253,6 +255,7 @@ def assign_widget(field):
   # handle text areas
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
+    form_field.widget.attrs['rows'] = 5
   # handle geometry widgets
   elif is_geometry_field(field.__class__):
     form_field = field.formfield(

@@ -18,6 +18,7 @@
   {% else %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
   {% endif %}
+  <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
 {% endblock %}
 
 {% block scripts %}
@@ -33,6 +34,8 @@
     <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
   {% endif %}
   <script src="{% static 'bemas/js/form.js' %}"></script>
+  <script src="{% static 'bemas/js/form.js' %}"></script>
+  <script src="{% static 'select2/select2.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -246,10 +249,19 @@
             $(this).attr('title', sectorExamples[value]);
         });
 
-        // handle multiple select fields
-        $('select[multiple]').each(function () {
-          addEmptyFieldButton($(this));
-        });
+        // handle certain select fields: convert them to autocomplete fields
+        $('select#id_organization').select2();
+        $('select#id_person').select2();
+        $('select#id_operator_organization').select2();
+        $('select#id_operator_person').select2();
+        $('select#id_originator').select2();
+        $('select#id_complainers_organizations').select2();
+        $('select#id_complainers_persons').select2();
+
+        // currently not needed due to conversion of multiple select fields to autocomplete fields
+        /* $('select[multiple]').each(function () {
+          // addEmptyFieldButton($(this));
+        }); */
 
         // initialize address search (and make its results globally available)
         window.results = $('div.results');
