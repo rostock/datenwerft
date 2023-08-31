@@ -25,7 +25,9 @@
     <div class="alert alert-primary mt-3 mb-3" role="alert">
       <h5 class="alert-heading"><i class="fas fa-{{ 'person'|get_icon }}"></i> Personen</h5>
       {% if orphaned_persons %}
-        Folgende Person(en) ist/sind nicht als Ansprechpartner:in(nen) mit Organisationen und auch nicht als Beschwerdeführer:in(nen) mit <strong><em>aktiven</em></strong> Beschwerden verbunden:
+        Folgende Person(en) ist/sind nicht als Ansprechpartner:in(nen) mit Organisationen, nicht
+        als Betreiber:in(nen) mit Verursachern und auch nicht als Beschwerdeführer:in(nen) mit
+        <strong><em>aktiven</em></strong> Beschwerden verbunden:
         <ul class="object_list">
           {% for orphaned_person in orphaned_persons %}
             <li>

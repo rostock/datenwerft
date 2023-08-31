@@ -44,7 +44,7 @@ class MapViewTest(DefaultViewTestCase):
     sector = Sector.objects.first()
     originator = Originator.objects.create(
       sector=sector,
-      operator=organization,
+      operator_organization=organization,
       description='NutMoxfw',
       emission_point=VALID_POINT_DB
     )

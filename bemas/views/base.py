@@ -93,7 +93,7 @@ class GenericTableDataView(BaseDatatableView):
             elif issubclass(self.model, LogEntry) and column.name == 'content' and value:
               item_data.append('<em>' + value + '</em>')
             # foreign key columns
-            elif issubclass(column.__class__, ForeignKey):
+            elif issubclass(column.__class__, ForeignKey) and value:
               # foreign key to object class:
               # generate appropriate foreign key links
               if not issubclass(get_foreign_key_target_model(column), Codelist):

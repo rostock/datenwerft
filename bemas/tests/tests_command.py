@@ -51,7 +51,7 @@ class DeletePersonsWithDataTest(DefaultTestCase):
     sector = Sector.objects.first()
     originator = Originator.objects.create(
       sector=sector,
-      operator=organization,
+      operator_organization=organization,
       description='AV3hpjCt',
       emission_point=VALID_POINT_DB
     )

@@ -238,8 +238,10 @@ def assign_widget(field):
   if hasattr(form_field.widget, 'input_type'):
     if form_field.widget.input_type == 'checkbox':
       form_field.widget.attrs['class'] = 'form-check-input'
+    # handle ordinary (single) selects
     elif form_field.widget.input_type == 'select':
       form_field.widget.attrs['class'] = 'form-select'
+      # handle multiple selects
       if form_field.widget.__class__.__name__ == 'SelectMultiple':
         form_field.widget.attrs['size'] = 5
     else:
@@ -253,6 +255,7 @@ def assign_widget(field):
   # handle text areas
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
+    form_field.widget.attrs['rows'] = 5
   # handle geometry widgets
   elif is_geometry_field(field.__class__):
     form_field = field.formfield(
@@ -309,8 +312,8 @@ def create_geojson_feature(curr_object):
           or (
               issubclass(curr_object.__class__, Originator)
               and field.name in (
-                  'id', 'created_at', 'updated_at', 'sector',
-                  'operator', 'description', 'address', 'dms_link'
+                  'id', 'created_at', 'updated_at', 'sector', 'operator_organization',
+                  'operator_person', 'description', 'address', 'dms_link'
               )
           )
         )
@@ -340,17 +343,19 @@ def create_geojson_feature(curr_object):
   # add properties for filters to GeoJSON feature
   for field in curr_object.__class__._meta.concrete_fields:
     if (
-          (
-              issubclass(curr_object.__class__, Complaint)
-              and field.name in (
-                  'id', 'date_of_receipt', 'status',
-                  'type_of_immission', 'originator', 'description'
-              )
-          )
-          or (
-              issubclass(curr_object.__class__, Originator)
-              and field.name in ('sector', 'operator', 'description')
-          )
+        (
+            issubclass(curr_object.__class__, Complaint)
+            and field.name in (
+                'id', 'date_of_receipt', 'status',
+                'type_of_immission', 'originator', 'description'
+            )
+        )
+        or (
+            issubclass(curr_object.__class__, Originator)
+            and field.name in (
+                'sector', 'operator_organization', 'operator_person', 'description'
+            )
+        )
     ):
       geojson_feature['properties']['_' + field.name + '_'] = get_json_data(
         curr_object, field.name, True)
@@ -575,8 +580,10 @@ def set_log_action_and_content(model, curr_object, changed_attribute, cleaned_da
       else:
         return 'cleared_complainers_persons', '/'
   elif issubclass(model, Originator):
-    if changed_attribute == 'operator':
-      return 'updated_operator', str(curr_object.operator)
+    if changed_attribute == 'operator_organization':
+      return 'updated_operator_organization', str(curr_object.operator_organization)
+    elif changed_attribute == 'operator_person':
+      return 'updated_operator_person', str(curr_object.operator_person)
   return None, None
 
 

@@ -333,15 +333,15 @@ class OriginatorModelTest(DefaultModelTestCase):
   @classmethod
   def setUpTestData(cls):
     sector = Sector.objects.first()
-    operator1 = Organization.objects.create(
+    organization1 = Organization.objects.create(
       name='OqEGVai4'
     )
-    operator2 = Organization.objects.create(
+    organization2 = Organization.objects.create(
       name='PFqzwRF9'
     )
     cls.attributes_values_db_initial = {
       'sector': sector,
-      'operator': operator1,
+      'operator_organization': organization1,
       'description': 'd1ZpOwn8',
       'emission_point': VALID_POINT_DB
     }
@@ -350,13 +350,13 @@ class OriginatorModelTest(DefaultModelTestCase):
     }
     cls.attributes_values_view_initial = {
       'sector': str(sector.pk),
-      'operator': str(operator1.pk),
+      'operator_organization': str(organization1.pk),
       'description': 's2fpbQ9n',
       'emission_point': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'sector': str(sector.pk),
-      'operator': str(operator2.pk),
+      'operator_organization': str(organization2.pk),
       'description': 'x4O4uocT',
       'emission_point': VALID_POINT_VIEW
     }
@@ -392,7 +392,7 @@ class OriginatorModelTest(DefaultModelTestCase):
   def test_view_update_success(self):
     self.generic_crud_view_test(
       True, True, False, 'originator_update', self.attributes_values_view_updated,
-      302, 'text/html; charset=utf-8', '', 1, 'updated_operator'
+      302, 'text/html; charset=utf-8', '', 1, 'updated_operator_organization'
     )
 
   def test_view_update_error(self):
@@ -421,7 +421,7 @@ class OriginatorViewsTest(DefaultViewTestCase):
     sector = Sector.objects.first()
     originator = Originator.objects.create(
       sector=sector,
-      operator=organization,
+      operator_organization=organization,
       description='VFBVRCp9',
       emission_point=VALID_POINT_DB
     )
@@ -514,12 +514,12 @@ class ComplaintModelTest(DefaultModelTestCase):
     status2 = Status.get_closed_status()
     type_of_immission = TypeOfImmission.objects.first()
     sector = Sector.objects.first()
-    operator = Organization.objects.create(
+    organization = Organization.objects.create(
       name='PUAlDiMq'
     )
     originator = Originator.objects.create(
       sector=sector,
-      operator=operator,
+      operator_organization=organization,
       description='PEbwEh9H',
       emission_point=VALID_POINT_DB
     )
@@ -610,7 +610,7 @@ class ComplaintViewsTest(DefaultViewTestCase):
     sector = Sector.objects.first()
     originator = Originator.objects.create(
       sector=sector,
-      operator=organization,
+      operator_organization=organization,
       description='lOUuAGOo',
       emission_point=VALID_POINT_DB
     )
@@ -711,12 +711,12 @@ class ComplaintOrganizationManyToManyTest(DefaultManyToManyTestCase):
   def setUpTestData(cls):
     type_of_immission = TypeOfImmission.objects.first()
     sector = Sector.objects.first()
-    operator = Organization.objects.create(
+    organization = Organization.objects.create(
       name='sklAapDM'
     )
     originator = Originator.objects.create(
       sector=sector,
-      operator=operator,
+      operator_organization=organization,
       description='fiqgCONB',
       emission_point=VALID_POINT_DB
     )
@@ -757,12 +757,12 @@ class ComplaintPersonManyToManyTest(DefaultManyToManyTestCase):
   def setUpTestData(cls):
     type_of_immission = TypeOfImmission.objects.first()
     sector = Sector.objects.first()
-    operator = Organization.objects.create(
+    organization = Organization.objects.create(
       name='NXtnFe8H'
     )
     originator = Originator.objects.create(
       sector=sector,
-      operator=operator,
+      operator_organization=organization,
       description='i7g3qten',
       emission_point=VALID_POINT_DB
     )
@@ -801,12 +801,12 @@ class EventModelTest(DefaultModelTestCase):
   @classmethod
   def setUpTestData(cls):
     sector = Sector.objects.first()
-    operator = Organization.objects.create(
+    organization = Organization.objects.create(
       name='szWLszDf'
     )
     originator = Originator.objects.create(
       sector=sector,
-      operator=operator,
+      operator_organization=organization,
       description='amPaaSKF',
       emission_point=VALID_POINT_DB
     )

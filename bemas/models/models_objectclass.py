@@ -375,10 +375,19 @@ class Originator(GeometryObjectclass):
     verbose_name='Branche',
     on_delete=PROTECT
   )
-  operator = ForeignKey(
+  operator_organization = ForeignKey(
     Organization,
-    verbose_name='Betreiberin',
-    on_delete=PROTECT
+    verbose_name='Organisation als Betreiberin',
+    on_delete=PROTECT,
+    blank=True,
+    null=True
+  )
+  operator_person = ForeignKey(
+    Person,
+    verbose_name='Person als Betreiber:in',
+    on_delete=PROTECT,
+    blank=True,
+    null=True
   )
   description = TextField(
     'Beschreibung',
@@ -408,7 +417,12 @@ class Originator(GeometryObjectclass):
 
   class Meta(GeometryObjectclass.Meta):
     db_table = 'originator'
-    ordering = ['sector__title', 'operator__name', 'description']
+    ordering = [
+      'sector__title',
+      'operator_organization__name',
+      'operator_person__last_name',
+      'description'
+    ]
     verbose_name = 'Verursacher'
     verbose_name_plural = 'Verursacher'
 
@@ -421,11 +435,20 @@ class Originator(GeometryObjectclass):
     new = 'neuen'
 
   def __str__(self):
-    return str(self.sector) + ' mit der Betreiberin ' + str(self.operator) + \
-           ' (' + shorten_string(self.description) + ')'
+    operator = ''
+    if self.operator_organization:
+      operator = ' mit der Betreiberin ' + str(self.operator_organization)
+    elif self.operator_person:
+      operator = ' mit der/dem Betreiber:in ' + str(self.operator_person)
+    return str(self.sector) + operator + ' (' + shorten_string(self.description) + ')'
 
   def sector_and_operator(self):
-    return str(self.sector) + ' (Betreiberin: ' + str(self.operator) + ')'
+    operator = ''
+    if self.operator_organization:
+      operator = ' (Betreiberin: ' + str(self.operator_organization) + ')'
+    elif self.operator_person:
+      operator = ' (Betreiber:in: ' + str(self.operator_person) + ')'
+    return str(self.sector) + operator
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field

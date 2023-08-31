@@ -104,7 +104,7 @@
                   </div>
                 </div>
                 <div class="d-grid mt-2 mb-3">
-                  <label for="filter-input-complaints-status" class="form-label"><em>Status</em></label>
+                  <label for="filter-input-complaints-status" class="form-label"><em>Bearbeitungsstatus</em></label>
                   <div class="input-group">
                     <select id="filter-input-complaints-status" name="complaints-status" class="form-select filter-input" data-type="list">
                       {% for status in complaints_status %}
@@ -180,19 +180,37 @@
                     </button>
                   </div>
                 </div>
-                <div class="d-grid mt-2 mb-3">
-                  <label for="filter-input-originators-operator" class="form-label"><em>Betreiberin</em></label>
-                  <div class="input-group">
-                    <select id="filter-input-originators-operator" name="originators-operator" class="form-select filter-input" data-type="list">
-                      {% for operator in originators_operators %}
-                        <option value="{{ operator }}">{{ operator }}</option>
-                      {% endfor %}
-                    </select>
-                    <button class="input-reset btn btn-outline-secondary">
-                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
-                    </button>
+                {% if originators_operators_organizations %}
+                  <div class="d-grid mt-2 mb-3">
+                    <label for="filter-input-originators-operator-organization" class="form-label"><em>Organisation als Betreiberin</em></label>
+                    <div class="input-group">
+                      <select id="filter-input-originators-operator-organization" name="originators-operator_organization" class="form-select filter-input" data-type="list">
+                        {% for operator_organization in originators_operators_organizations %}
+                          <option value="{{ operator_organization }}">{{ operator_organization }}</option>
+                        {% endfor %}
+                      </select>
+                      <button class="input-reset btn btn-outline-secondary">
+                        <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                {% endif %}
+                {% if originators_operators_persons %}
+                  <div class="d-grid mt-2 mb-3">
+                    <label for="filter-input-originators-operator-person" class="form-label"><em>Person als Betreiber:in</em></label>
+                    <div class="input-group">
+                      <select id="filter-input-originators-operator-person"
+                              name="originators-operator_person" class="form-select filter-input" data-type="list">
+                        {% for operator_person in originators_operators_persons %}
+                          <option value="{{ operator_person }}">{{ operator_person }}</option>
+                        {% endfor %}
+                      </select>
+                      <button class="input-reset btn btn-outline-secondary">
+                        <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                      </button>
+                    </div>
+                  </div>
+                {% endif %}
                 <div class="d-grid mt-2">
                   <label for="filter-input-originators-description" class="form-label"><em>Beschreibung</em></label>
                   <div class="input-group">
