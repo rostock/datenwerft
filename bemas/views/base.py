@@ -57,8 +57,13 @@ class GenericTableDataView(BaseDatatableView):
         item_pk = getattr(item, self.model._meta.pk.name)
         address_handled = False
         for column in self.columns:
-          # handle non-geometry related fields and non-search content fields only!
-          if not is_geometry_field(column.__class__) and not column.name == 'search_content':
+          # handle non-geometry related fields, non-search content fields
+          # and non-operator related fields only!
+          if (
+              not is_geometry_field(column.__class__)
+              and not column.name == 'search_content'
+              and not column.name.startswith('operator_')
+          ):
             data = None
             value = getattr(item, column.name)
             # codelist specific column "icon"
@@ -138,6 +143,23 @@ class GenericTableDataView(BaseDatatableView):
               data += generate_foreign_key_link_simplified(
                 Contact, contact, contact.name_and_function()
               )
+          item_data.append(data)
+        # object class originator:
+        # add column which lists operator(s)
+        elif issubclass(self.model, Originator):
+          data = ''
+          operator_organization = getattr(item, 'operator_organization')
+          if operator_organization:
+            data = generate_foreign_key_link_simplified(Organization, operator_organization)
+          operator_person = getattr(item, 'operator_person')
+          if operator_person:
+            data += '<br>' if operator_organization else ''
+            data += generate_foreign_key_link_simplified(Person, operator_person)
+          # designate anonymous complaint if necessary
+          if not data:
+            data = '<em><i class="fas fa-' + \
+                   get_icon_from_settings('originator_without_operator') + \
+                   '"></i> unbekannte Betreiberverhältnisse</em>'
           item_data.append(data)
         # object class complaint:
         # add column which lists complainer(s)

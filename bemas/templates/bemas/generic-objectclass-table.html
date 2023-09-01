@@ -61,6 +61,8 @@
               {% endfor %}
               {% if objectclass_name == 'Organization' %}
                 <th class="no-sort">Ansprechpartner:in(nen)</th>
+              {% elif objectclass_name == 'Originator' %}
+                <th class="no-sort">Betreiberverhältnisse</th>
               {% elif objectclass_name == 'Complaint' %}
                 <th class="no-sort">Beschwerdeführung</th>
               {% endif %}

@@ -443,7 +443,7 @@ class Originator(GeometryObjectclass):
     return str(self.sector) + operator + ' (' + shorten_string(self.description) + ')'
 
   def sector_and_operator(self):
-    operator = ''
+    operator = ' unbekannte Betreiberverhältnisse'
     if self.operator_organization:
       operator = ' (Betreiberin: ' + str(self.operator_organization) + ')'
     elif self.operator_person:

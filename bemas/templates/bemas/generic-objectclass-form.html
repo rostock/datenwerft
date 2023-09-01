@@ -19,6 +19,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
   {% endif %}
   <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'select2-bootstrap-5-theme/select2-bootstrap-5-theme.min.css' %}">
 {% endblock %}
 
 {% block scripts %}
@@ -250,13 +251,13 @@
         });
 
         // handle certain select fields: convert them to autocomplete fields
-        $('select#id_organization').select2();
-        $('select#id_person').select2();
-        $('select#id_operator_organization').select2();
-        $('select#id_operator_person').select2();
-        $('select#id_originator').select2();
-        $('select#id_complainers_organizations').select2();
-        $('select#id_complainers_persons').select2();
+        $('select#id_organization').select2({ theme: 'bootstrap-5' });
+        $('select#id_person').select2({ theme: 'bootstrap-5' });
+        $('select#id_operator_organization').select2({ theme: 'bootstrap-5' });
+        $('select#id_operator_person').select2({ theme: 'bootstrap-5' });
+        $('select#id_originator').select2({ theme: 'bootstrap-5' });
+        $('select#id_complainers_organizations').select2({ theme: 'bootstrap-5' });
+        $('select#id_complainers_persons').select2({ theme: 'bootstrap-5' });
 
         // currently not needed due to conversion of multiple select fields to autocomplete fields
         /* $('select[multiple]').each(function () {
