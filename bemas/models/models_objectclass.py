@@ -438,17 +438,24 @@ class Originator(GeometryObjectclass):
     operator = ''
     if self.operator_organization:
       operator = ' mit der Betreiberin ' + str(self.operator_organization)
-    elif self.operator_person:
-      operator = ' mit der/dem Betreiber:in ' + str(self.operator_person)
+    if self.operator_person:
+      if self.operator_organization:
+        operator += ' und'
+      operator += ' mit der/dem Betreiber:in ' + str(self.operator_person)
     return str(self.sector) + operator + ' (' + shorten_string(self.description) + ')'
 
   def sector_and_operator(self):
-    operator = ' unbekannte Betreiberverhältnisse'
+    operator = ' (unbekannte Betreiberverhältnisse'
     if self.operator_organization:
-      operator = ' (Betreiberin: ' + str(self.operator_organization) + ')'
-    elif self.operator_person:
-      operator = ' (Betreiber:in: ' + str(self.operator_person) + ')'
-    return str(self.sector) + operator
+      operator = ' (Betreiberin: ' + str(self.operator_organization)
+    if self.operator_person:
+      if self.operator_organization:
+        operator += ' und'
+      if operator == ' (unbekannte Betreiberverhältnisse':
+        operator = ' (Betreiber:in: ' + str(self.operator_person)
+      else:
+        operator += ' Betreiber:in: ' + str(self.operator_person)
+    return str(self.sector) + operator + ')'
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field
