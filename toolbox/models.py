@@ -20,7 +20,7 @@ class Subsets(Model):
   )
   pk_values = ArrayField(
     CharField(
-      # normally model primary keys are UUIDs (36 chars in length)
+      # data model primary keys are UUIDs (36 chars in length)
       max_length=36
     )
   )
@@ -31,9 +31,3 @@ class Subsets(Model):
 
   def __str__(self):
     return str(self.id)
-
-  def save(self, *args, **kwargs):
-    super().save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super().delete(*args, **kwargs)

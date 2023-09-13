@@ -15,8 +15,9 @@ from .models import Subsets
 
 class AddSubsetView(View):
   """
-  Add a new subset
+  view for creating a subset
   """
+
   http_method_names = ['post']
 
   def __init__(self):
@@ -30,8 +31,9 @@ class AddSubsetView(View):
   def dispatch(self, request, *args, **kwargs):
     """
     ``dispatch()`` is called via ``AddSubsetView.as_view()`` in ``urls.py``;
-    ``dispatch()`` forwards to ``post()`` since a **POST** request has been executed
-    :param request:
+    ``dispatch()`` forwards to ``post()`` since a POST request has been executed
+
+    :param request: request
     :param args:
     :param kwargs:
     :return:
@@ -48,7 +50,7 @@ class AddSubsetView(View):
     """
     ``post()`` is called automatically by ``dispatch()``
 
-    :param request:
+    :param request: request
     :param args:
     :param kwargs:
     :return: JSON response with ID of newly created subset or simple HTTP error response
@@ -75,8 +77,9 @@ class AddSubsetView(View):
 
 class OWSProxyView(View):
   """
-  proxy for OGC web services (OWS)
+  view for proxy for OGC web services (OWS)
   """
+
   http_method_names = ['get']
 
   def __init__(self):
@@ -87,8 +90,9 @@ class OWSProxyView(View):
   def dispatch(self, request, *args, **kwargs):
     """
     ``dispatch()`` is called via ``OWSProxyView.as_view()`` in ``urls.py``;
-    ``dispatch()`` forwards to ``get()`` since a **GET** request has been executed
-    :param request:
+    ``dispatch()`` forwards to ``get()`` since a GET request has been executed
+
+    :param request: request
     :param args:
     :param kwargs:
     :return:
@@ -105,7 +109,7 @@ class OWSProxyView(View):
     """
     ``get()`` is called automatically by ``dispatch()``
 
-    :param request:
+    :param request: request
     :param args:
     :param kwargs:
     :return: HTTP response with proxied OWS
@@ -119,8 +123,9 @@ class OWSProxyView(View):
 
 class AddressSearchView(View):
   """
-  address search
+  view for address search
   """
+
   http_method_names = ['get']
 
   def __init__(self):
@@ -135,8 +140,9 @@ class AddressSearchView(View):
   def dispatch(self, request, *args, **kwargs):
     """
     ``dispatch()`` is called via ``AddressSearchView.as_view()`` in ``urls.py``;
-    ``dispatch()`` forwards to ``get()`` since a **GET** request has been executed
-    :param request:
+    ``dispatch()`` forwards to ``get()`` since a GET request has been executed
+
+    :param request: request
     :param args:
     :param kwargs:
     :return:
@@ -153,7 +159,7 @@ class AddressSearchView(View):
     """
     ``get()`` is called automatically by ``dispatch()``
 
-    :param request:
+    :param request: request
     :param args:
     :param kwargs:
     :return: HTTP response with address search result
@@ -176,8 +182,9 @@ class AddressSearchView(View):
 
 class ReverseSearchView(View):
   """
-  search for objects in specified radius around given coordinates
+  view for search for objects in specified radius around given coordinates
   """
+
   http_method_names = ['get']
 
   def __init__(self):
@@ -192,8 +199,9 @@ class ReverseSearchView(View):
   def dispatch(self, request, *args, **kwargs):
     """
     ``dispatch()`` is called via ``ReverseSearchView.as_view()`` in ``urls.py``;
-    ``dispatch()`` forwards to ``get()`` since a **GET** request has been executed
-    :param request:
+    ``dispatch()`` forwards to ``get()`` since a GET request has been executed
+
+    :param request: request
     :param args:
     :param kwargs:
     :return:
@@ -210,7 +218,7 @@ class ReverseSearchView(View):
     """
     ``get()`` is called automatically by ``dispatch()``
 
-    :param request:
+    :param request: request
     :param args:
     :param kwargs:
     :return: HTTP response with objects in specified radius around given coordinates

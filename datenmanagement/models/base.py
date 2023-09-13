@@ -6,12 +6,12 @@ from toolbox.constants_vars import standard_validators
 
 
 #
-# Basisklassen für Datenmodelle
+# base abstract model classes
 #
 
 class Basemodel(Model):
   """
-  Basisdatenmodell (abstrakt)
+  default abstract model class
   """
 
   uuid = UUIDField(
@@ -24,16 +24,10 @@ class Basemodel(Model):
     abstract = True
     managed = False
 
-  def save(self, *args, **kwargs):
-    super().save(*args, **kwargs)
-
-  def delete(self, *args, **kwargs):
-    super().delete(*args, **kwargs)
-
 
 class Metamodel(Basemodel):
   """
-  Meta-Datenmodell (abstrakt)
+  abstract model class for meta models
   """
 
   class Meta(Basemodel.Meta):
@@ -44,7 +38,7 @@ class Metamodel(Basemodel):
 
 class Codelist(Basemodel):
   """
-  Codeliste (abstrakt)
+  abstract model class for codelists
   """
 
   class Meta(Basemodel.Meta):
@@ -53,12 +47,12 @@ class Codelist(Basemodel):
 
 
 #
-# Klassen für Codelisten
+# abstract model classes for specific codelists
 #
 
 class Art(Codelist):
   """
-  Art (abstrakt)
+  abstract model class for 'Art' codelists
   """
 
   art = CharField(
@@ -81,7 +75,7 @@ class Art(Codelist):
 
 class Befestigungsart(Codelist):
   """
-  Befestigungsart (abstrakt)
+  abstract model class for 'Befestigungsart' codelists
   """
 
   befestigungsart = CharField(
@@ -104,7 +98,7 @@ class Befestigungsart(Codelist):
 
 class Material(Codelist):
   """
-  Material (abstrakt)
+  abstract model class for 'Material' codelists
   """
 
   material = CharField(
@@ -127,7 +121,7 @@ class Material(Codelist):
 
 class Schlagwort(Codelist):
   """
-  Schlagwort (abstrakt)
+  abstract model class for 'Schlagwort' codelists
   """
 
   schlagwort = CharField(
@@ -150,7 +144,7 @@ class Schlagwort(Codelist):
 
 class Status(Codelist):
   """
-  Status (abstrakt)
+  abstract model class for 'Status' codelists
   """
 
   status = CharField(
@@ -173,7 +167,7 @@ class Status(Codelist):
 
 class Typ(Codelist):
   """
-  Typ (abstrakt)
+  abstract model class for 'Typ' codelists
   """
 
   typ = CharField(
@@ -195,12 +189,12 @@ class Typ(Codelist):
 
 
 #
-# Klassen für normale Datenmodelle
+# abstract model classes for data models
 #
 
 class SimpleModel(Basemodel):
   """
-  einfaches Datenmodell (abstrakt)
+  abstract model class for simple data models
   """
 
   aktiv = BooleanField(
@@ -214,7 +208,7 @@ class SimpleModel(Basemodel):
 
 class ComplexModel(SimpleModel):
   """
-  komplexes Datenmodell (abstrakt)
+  abstract model class for complex data models
   """
 
   class Meta(SimpleModel.Meta):

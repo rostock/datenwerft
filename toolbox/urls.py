@@ -11,28 +11,24 @@ api_urlpatterns = router.urls
 app_name = 'toolbox'
 
 urlpatterns = [
-  # AddSubsetView:
-  # adds a new subset
+  # create a subset
   path(
     'subset/add',
     view=login_required(AddSubsetView.as_view()),
     name='subset_add'
   ),
-  # OWSProxyView:
   # proxy for OGC web services (OWS)
   re_path(
     route=r'owsproxy',
     view=login_required(OWSProxyView.as_view()),
     name='owsproxy'
   ),
-  # AddressSearchView:
   # address search
   path(
     'addresssearch',
     view=login_required(AddressSearchView.as_view()),
     name='addresssearch'
   ),
-  # ReverseSearchView:
   # search for objects in specified radius around given coordinates
   path(
     'reversesearch',
