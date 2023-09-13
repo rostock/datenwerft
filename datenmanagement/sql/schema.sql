@@ -2,15 +2,15 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.5
--- Dumped by pg_dump version 14.5
+-- Dumped from database version 15.4
+-- Dumped by pg_dump version 15.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', 'public', false);
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -1580,6 +1580,28 @@ CREATE TABLE fachdaten.baustellen_geplant_links (
 
 
 --
+-- Name: bemas_altdaten_journalereignisse; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.bemas_altdaten_journalereignisse (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    id integer NOT NULL,
+    bearbeitet boolean,
+    target_created_at timestamp with time zone NOT NULL,
+    target_search_content character varying(255),
+    target_description text NOT NULL,
+    target_complaint_id integer NOT NULL,
+    target_type_of_event character varying(255) NOT NULL
+);
+
+
+--
 -- Name: bluehstandorte_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2662,6 +2684,76 @@ CREATE TABLE fachdaten_adressbezug.behinderteneinrichtungen_hro (
     website character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
     deaktiviert date
+);
+
+
+--
+-- Name: bemas_altdaten_beschwerden; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.bemas_altdaten_beschwerden (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    id integer NOT NULL,
+    bearbeitet boolean,
+    reason_date_of_receipt boolean NOT NULL,
+    reason_immission_point boolean NOT NULL,
+    reason_originator_id boolean NOT NULL,
+    reason_type_of_immission boolean NOT NULL,
+    source_beschwerdefuehrer_strasse character varying(255),
+    source_beschwerdefuehrer_plz character varying(255),
+    source_beschwerdefuehrer_ort character varying(255),
+    source_immissionsart character varying(255),
+    target_search_content character varying(255),
+    target_date_of_receipt date,
+    target_status_updated_at timestamp with time zone,
+    target_description character varying(255) NOT NULL,
+    target_storage_location character varying(255),
+    target_originator_id integer NOT NULL,
+    target_status character varying(255) NOT NULL,
+    target_type_of_immission character varying(255),
+    target_complainers_organizations integer[],
+    target_complainers_persons integer[],
+    geometrie public.geometry(Point,25833)
+);
+
+
+--
+-- Name: bemas_altdaten_verursacher; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.bemas_altdaten_verursacher (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    id integer NOT NULL,
+    bearbeitet boolean,
+    reason_sector boolean NOT NULL,
+    reason_emission_point boolean NOT NULL,
+    source_verursacher_strasse character varying(255),
+    source_verursacher_plz character varying(255),
+    source_verursacher_ort character varying(255),
+    source_betreiber_name character varying(255),
+    source_betreiber_strasse character varying(255),
+    source_betreiber_plz character varying(255),
+    source_betreiber_ort character varying(255),
+    target_search_content character varying(255),
+    target_description character varying(255) NOT NULL,
+    target_operator_organization_id integer,
+    target_operator_person_id integer,
+    target_sector character varying(255),
+    geometrie public.geometry(Point,25833)
 );
 
 
@@ -4932,6 +5024,14 @@ ALTER TABLE ONLY fachdaten.baustellen_geplant_links
 
 
 --
+-- Name: bemas_altdaten_journalereignisse bemas_altdaten_journalereignisse_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.bemas_altdaten_journalereignisse
+    ADD CONSTRAINT bemas_altdaten_journalereignisse_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: bluehstandorte_hro bluehstandorte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5361,6 +5461,22 @@ ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.behinderteneinrichtungen_hro
     ADD CONSTRAINT behinderteneinrichtungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bemas_altdaten_beschwerden bemas_altdaten_beschwerden_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.bemas_altdaten_beschwerden
+    ADD CONSTRAINT bemas_altdaten_beschwerden_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bemas_altdaten_verursacher bemas_altdaten_verursacher_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.bemas_altdaten_verursacher
+    ADD CONSTRAINT bemas_altdaten_verursacher_pk PRIMARY KEY (uuid);
 
 
 --

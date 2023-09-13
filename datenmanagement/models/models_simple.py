@@ -16,7 +16,7 @@ from toolbox.constants_vars import personennamen_validators, standard_validators
   d3_message, email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, \
   inventarnummer_regex, inventarnummer_message, postleitzahl_message, postleitzahl_regex, \
   rufnummer_regex, rufnummer_message, url_message
-from .base import SimpleModel
+from .base import Basemodel, SimpleModel
 from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, \
   erdwaermesonden_aktenzeichen_regex, erdwaermesonden_aktenzeichen_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
@@ -301,7 +301,7 @@ class Angelverbotsbereiche(SimpleModel):
 
   def __str__(self):
     return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + \
-           (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
+      (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
 
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
@@ -727,7 +727,7 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
 
   def __str__(self):
     return self.vorhabenbezeichnung + ' (Beschlussjahr ' + str(self.beschlussjahr) + ')' + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+      (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
 post_delete.connect(delete_pdf, sender=Beschluesse_Bau_Planungsausschuss)
@@ -3002,7 +3002,7 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
 
   def __str__(self):
     return self.vorname + ' ' + self.nachname + \
-           (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+      (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
 class Kinder_Jugendbetreuung(SimpleModel):
@@ -5672,3 +5672,281 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+
+BEMAS_ALTDATEN_VERURSACHER_TARGET_SECTOR_CHOICES = (
+  ('Anlage an Wohnhaus', 'Anlage an Wohnhaus'),
+  ('Anlage für gesundheitliche und soziale Zwecke',
+   'Anlage für gesundheitliche und soziale Zwecke'),
+  ('Baustelle/Einsatz von Geräten und Maschinen', 'Baustelle/Einsatz von Geräten und Maschinen'),
+  ('Einzelhandel', 'Einzelhandel'),
+  ('Elektromagnetische Strahlung', 'Elektromagnetische Strahlung'),
+  ('Fahrzeug- und Maschinenbau', 'Fahrzeug- und Maschinenbau'),
+  ('Forschung/Universität', 'Forschung/Universität'),
+  ('Freizeitanlage', 'Freizeitanlage'),
+  ('Gastgewerbe', 'Gastgewerbe'),
+  ('Hafen/Umschlag/Liegeplatz', 'Hafen/Umschlag/Liegeplatz'),
+  ('Handel, Vermietung und Reparatur von Fahrzeugen, Maschinen und Anlagen',
+   'Handel, Vermietung und Reparatur von Fahrzeugen, Maschinen und Anlagen'),
+  ('Kultureinrichtung', 'Kultureinrichtung'),
+  ('landwirtschaftlicher Betrieb/Tierhaltung', 'landwirtschaftlicher Betrieb/Tierhaltung'),
+  ('produzierendes und verarbeitendes Gewerbe', 'produzierendes und verarbeitendes Gewerbe'),
+  ('Schienenverkehr', 'Schienenverkehr'),
+  ('sonstige Anlage', 'sonstige Anlage'),
+  ('sonstige Dienstleistung und sonstiges Gewerbe',
+   'sonstige Dienstleistung und sonstiges Gewerbe'),
+  ('sonstiger Verkehr', 'sonstiger Verkehr'),
+  ('Speditionsbetrieb/Logistikunternehmen/Großhandel/Zusteller',
+   'Speditionsbetrieb/Logistikunternehmen/Großhandel/Zusteller'),
+  ('Sportanlage', 'Sportanlage'),
+  ('Stellplatzanlage/Parkhaus', 'Stellplatzanlage/Parkhaus'),
+  ('Straßenverkehr', 'Straßenverkehr'),
+  ('Tankstelle/Ladestation', 'Tankstelle/Ladestation'),
+  ('Veranstaltung im Freien', 'Veranstaltung im Freien'),
+  ('Verbrennungsanlage', 'Verbrennungsanlage'),
+  ('Ver- und Entsorgung', 'Ver- und Entsorgung')
+)
+
+
+class Bemas_Altdaten_Verursacher(Basemodel):
+  adresse = ForeignKey(
+    Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True
+  )
+  id = PositiveIntegerField(
+    ' aus altem BEMAS: ID',
+    default=0
+  )
+  bearbeitet = BooleanField(
+    ' bearbeitet?',
+    default=True
+  )
+  reason_sector = BooleanField(
+    'Mangel in altem BEMAS: Branche fehlte'
+  )
+  reason_emission_point = BooleanField(
+    'Mangel in altem BEMAS: Verortung fehlte'
+  )
+  target_sector = CharField(
+    ' für neues BEMAS: Branche',
+    choices=BEMAS_ALTDATEN_VERURSACHER_TARGET_SECTOR_CHOICES
+  )
+  target_description = CharField(
+    ' für neues BEMAS: Beschreibung',
+    max_length=255,
+    validators=standard_validators
+  )
+  source_verursacher_strasse = CharField(
+    ' aus altem BEMAS: Verursacher Straße',
+    blank=True,
+    null=True
+  )
+  source_verursacher_plz = CharField(
+    ' aus altem BEMAS: Verursacher PLZ',
+    blank=True,
+    null=True
+  )
+  source_verursacher_ort = CharField(
+    ' aus altem BEMAS: Verursacher Ort',
+    blank=True,
+    null=True
+  )
+  source_betreiber_name = CharField(
+    ' aus altem BEMAS: Betreiber Name',
+    blank=True,
+    null=True
+  )
+  source_betreiber_strasse = CharField(
+    ' aus altem BEMAS: Betreiber Straße',
+    blank=True,
+    null=True
+  )
+  source_betreiber_plz = CharField(
+    ' aus altem BEMAS: Betreiber PLZ',
+    blank=True,
+    null=True
+  )
+  source_betreiber_ort = CharField(
+    ' aus altem BEMAS: Betreiber Ort',
+    blank=True,
+    null=True
+  )
+  target_operator_organization_id = PositiveIntegerField(
+    ' aus altem BEMAS: Betreiber Organisation',
+    default=0,
+    blank=True,
+    null=True
+  )
+  target_operator_person_id = PositiveIntegerField(
+    ' aus altem BEMAS: Betreiber Person',
+    default=0,
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(Basemodel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"bemas_altdaten_verursacher'
+    verbose_name = 'BEMAS-Altdaten: Verursacher'
+    verbose_name_plural = 'BEMAS-Altdaten: Verursacher'
+    description = 'BEMAS-Altdaten: Verursacher'
+    list_fields = {
+      'id': 'ID',
+      'bearbeitet': 'bearbeitet?',
+      'reason_sector': 'Branche fehlt(e)',
+      'reason_emission_point': 'Verortung fehlt(e)',
+      'adresse': 'Adresse',
+      'target_sector': 'Branche',
+      'target_description': 'Beschreibung'
+    }
+    list_fields_with_number = ['id']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse'
+    }
+    readonly_fields = [
+      'id', 'reason_sector', 'reason_emission_point', 'source_verursacher_strasse',
+      'source_verursacher_plz', 'source_verursacher_ort', 'source_betreiber_name',
+      'source_betreiber_strasse', 'source_betreiber_plz', 'source_betreiber_ort',
+      'target_operator_organization_id', 'target_operator_person_id'
+    ]
+    map_feature_tooltip_field = 'id'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return str(self.id)
+
+
+BEMAS_ALTDATEN_BESCHWERDEN_TARGET_STATUS_CHOICES = (
+  ('in Bearbeitung', 'in Bearbeitung'),
+  ('abgeschlossen', 'abgeschlossen'),
+  ('nicht zuständig', 'nicht zuständig')
+)
+
+
+BEMAS_ALTDATEN_BESCHWERDEN_TARGET_TYPE_OF_IMMISSION_CHOICES = (
+  ('Abgas/Rauch', 'Abgas/Rauch'),
+  ('Elektromagnetische Strahlung', 'Elektromagnetische Strahlung'),
+  ('Erschütterungen', 'Erschütterungen'),
+  ('Geruch', 'Geruch'),
+  ('Lärm', 'Lärm'),
+  ('Licht', 'Licht'),
+  ('Staub', 'Staub')
+)
+
+
+class Bemas_Altdaten_Beschwerden(Basemodel):
+  adresse = ForeignKey(
+    Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True
+  )
+  id = PositiveIntegerField(
+    ' aus altem BEMAS: ID',
+    default=0
+  )
+  bearbeitet = BooleanField(
+    ' bearbeitet?',
+    default=True
+  )
+  reason_date_of_receipt = BooleanField(
+    'Mangel in altem BEMAS: Eingangsdatum fehlte'
+  )
+  reason_type_of_immission = BooleanField(
+    'Mangel in altem BEMAS: Immissionsart fehlte'
+  )
+  reason_originator_id = BooleanField(
+    'Mangel in altem BEMAS: Verursacher ebenfalls mit Mängeln'
+  )
+  reason_immission_point = BooleanField(
+    'Mangel in altem BEMAS: Verortung fehlte'
+  )
+  target_date_of_receipt = DateField(
+    ' für neues BEMAS: Eingangsdatum'
+  )
+  target_status = CharField(
+    ' für neues BEMAS: Bearbeitungsstatus',
+    choices=BEMAS_ALTDATEN_BESCHWERDEN_TARGET_STATUS_CHOICES
+  )
+  target_type_of_immission = CharField(
+    ' für neues BEMAS: Immissionsart',
+    choices=BEMAS_ALTDATEN_BESCHWERDEN_TARGET_TYPE_OF_IMMISSION_CHOICES
+  )
+  target_originator_id = PositiveIntegerField(
+    ' aus altem BEMAS/für neues BEMAS: Verursacher'
+  )
+  target_description = CharField(
+    ' für neues BEMAS: Beschreibung',
+    max_length=255,
+    validators=standard_validators
+  )
+  source_beschwerdefuehrer_strasse = CharField(
+    ' aus altem BEMAS: Beschwerdeführer Straße',
+    blank=True,
+    null=True
+  )
+  source_beschwerdefuehrer_plz = CharField(
+    ' aus altem BEMAS: Beschwerdeführer PLZ',
+    blank=True,
+    null=True
+  )
+  source_beschwerdefuehrer_ort = CharField(
+    ' aus altem BEMAS: Beschwerdeführer Ort',
+    blank=True,
+    null=True
+  )
+  source_immissionsart = CharField(
+    ' aus altem BEMAS: Immissionsart',
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(Basemodel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"bemas_altdaten_beschwerden'
+    verbose_name = 'BEMAS-Altdaten: Beschwerde'
+    verbose_name_plural = 'BEMAS-Altdaten: Beschwerden'
+    description = 'BEMAS-Altdaten: Beschwerden'
+    list_fields = {
+      'id': 'ID',
+      'bearbeitet': 'bearbeitet?',
+      'reason_date_of_receipt': 'Eingangsdatum fehlt(e)',
+      'reason_type_of_immission': 'Immissionsart fehlt(e)',
+      'reason_originator_id': 'Verursacher ebenfalls mit Mängeln',
+      'reason_immission_point': 'Verortung fehlt(e)',
+      'adresse': 'Adresse',
+      'target_date_of_receipt': 'Eingangsdatum',
+      'target_status': 'Bearbeitungsstatus',
+      'target_type_of_immission': 'Immissionsart',
+      'target_originator_id': 'Verursacher',
+      'target_description': 'Beschreibung'
+    }
+    list_fields_with_date = ['target_date_of_receipt']
+    list_fields_with_number = ['id', 'target_originator_id']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse'
+    }
+    readonly_fields = [
+      'id', 'reason_date_of_receipt', 'reason_type_of_immission', 'reason_originator_id',
+      'reason_immission_point', 'source_beschwerdefuehrer_strasse', 'source_beschwerdefuehrer_plz',
+      'source_beschwerdefuehrer_ort', 'source_immissionsart'
+    ]
+    map_feature_tooltip_field = 'id'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+
+  def __str__(self):
+    return str(self.id)
