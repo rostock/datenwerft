@@ -412,7 +412,7 @@ class DataMapView(JsonView):
                   '_change',
                   args=[curr_object.pk]))
         # optional: Objekt als inaktiv kennzeichnen
-        if curr_object.aktiv is False:
+        if hasattr(curr_object, 'aktiv') and curr_object.aktiv is False:
           feature['properties']['inaktiv'] = True
         # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
         # falls entsprechende Klausel in der Modelldefinition existiert
