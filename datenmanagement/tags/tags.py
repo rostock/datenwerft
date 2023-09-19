@@ -39,10 +39,7 @@ def get_class_foreign_key_label(value):
   :param value: Datenmodell
   :return: Feld mit Fremdschlüssel zu übergebenem Datenmodell oder nichts
   """
-  if hasattr(value.__class__._meta, 'foreign_key_label'):
-    return value.__class__._meta.foreign_key_label
-  else:
-    return None
+  return value.__class__.BasemodelMeta.foreign_key_label
 
 
 @register.filter
@@ -64,10 +61,7 @@ def get_class_object_title(value):
   :param value: Datenmodell
   :return: Textbaustein für die Löschansicht zu übergebenem Datenmodell oder nichts
   """
-  if hasattr(value.__class__._meta, 'object_title'):
-    return value.__class__._meta.object_title
-  else:
-    return None
+  return value.__class__.BasemodelMeta.object_title
 
 
 @register.filter
@@ -200,7 +194,7 @@ def has_model_geometry_field(model_name):
   :return: hat übergebenes Datenmodell ein Geometriefeld?
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)
-  return True if hasattr(model._meta, 'geometry_type') else False
+  return True if model.BasemodelMeta.geometry_type else False
 
 
 @register.filter

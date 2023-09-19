@@ -57,13 +57,8 @@ class DataForm(ModelForm):
     self.file = file
     self.model = model
     self.request = request
-    self.address_type = (
-        self.instance._meta.address_type if hasattr(
-            self.instance._meta,
-            'address_type') else None)
-    self.address_mandatory = (
-        self.instance._meta.address_mandatory if hasattr(
-            self.instance._meta, 'address_mandatory') else None)
+    self.address_type = self.instance.BasemodelMeta.address_type
+    self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
 
     for field in self.model._meta.get_fields():
       # Textfelder gegebenenfalls in Auswahllisten umwandeln
@@ -239,11 +234,9 @@ class DataForm(ModelForm):
     :return: bereinigtes Feld mit Original-Dateiname
     """
     data = self.cleaned_data['dateiname_original']
-    if self.multi_foto_field and self.multi_foto_field:
-      if self.multi_files:
+    if self.multi_foto_field and self.multi_files:
         data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
-    else:
-      if self.file:
+    elif self.file:
         data = self.file.getlist('foto')[0].name
     return data
 
@@ -305,10 +298,8 @@ class DataAddView(CreateView):
     """
     kwargs = super(DataAddView, self).get_form_kwargs()
     self = set_form_attributes(self)
-    if hasattr(self.model._meta, 'multi_foto_field'):
-      self.multi_foto_field = self.model._meta.multi_foto_field
-      if self.request.method == 'POST':
-        self.multi_files = self.request.FILES
+    if self.model.BasemodelMeta.multi_foto_field and self.request.method == 'POST':
+      self.multi_files = self.request.FILES
     if self.request.method == 'POST':
       self.file = self.request.FILES
     kwargs[
@@ -317,7 +308,7 @@ class DataAddView(CreateView):
         'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs[
         'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['multi_foto_field'] = self.multi_foto_field
+    kwargs['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
     kwargs['multi_files'] = self.multi_files
     kwargs['file'] = self.file
     kwargs['model'] = self.model
@@ -334,9 +325,7 @@ class DataAddView(CreateView):
     context = super(DataAddView, self).get_context_data(**kwargs)
     context = set_model_related_context_elements(context, self.model)
     context = set_form_context_elements(context, self.model)
-    context['multi_foto_field'] = (
-        self.model._meta.multi_foto_field if hasattr(
-            self.model._meta, 'multi_foto_field') else None)
+    context['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
     return context
 
   def get_initial(self):
@@ -363,7 +352,7 @@ class DataAddView(CreateView):
             + ' (' + self.request.user.email.lower() + ')'
         )
     if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
-      if not hasattr(self.model._meta, "group_with_users_for_choice_field"):
+      if not self.model.BasemodelMeta.group_with_users_for_choice_field:
         return {
             'ansprechpartner': ansprechpartner,
             'bearbeiter': bearbeiter,
@@ -437,8 +426,7 @@ class DataChangeView(UpdateView):
     self = set_form_attributes(self)
     self.associated_objects = None
     self.associated_new = None
-    if hasattr(self.model._meta, 'associated_models'):
-      self.associated_models = self.model._meta.associated_models
+    self.associated_models = self.model.BasemodelMeta.associated_models
     if self.request.method == 'POST':
       self.file = self.request.FILES
     kwargs['associated_objects'] = self.associated_objects
@@ -459,23 +447,18 @@ class DataChangeView(UpdateView):
       self.associated_new = []
       self.associated_objects = []
       for associated_model in self.associated_models:
-        associated_model_model = apps.get_app_config(
-            'datenmanagement').get_model(associated_model)
-        associated_model_foreign_key_field = self.associated_models.get(
-            associated_model)
-        title = (
-            sub(
-                '^[a-z]{3} ',
-                '',
-                associated_model_model._meta.object_title) +
-            ' zu ' +
-            associated_model_model._meta.foreign_key_label if hasattr(
-                associated_model_model._meta,
-                'object_title'
-            ) and hasattr(
-                associated_model_model._meta,
-                'foreign_key_label'
-            ) else associated_model_model._meta.verbose_name)
+        associated_model_model = apps.get_app_config('datenmanagement').get_model(associated_model)
+        associated_model_foreign_key_field = self.associated_models.get(associated_model)
+        title = ''
+        if associated_model_model.BasemodelMeta.object_title:
+          if associated_model_model.BasemodelMeta.foreign_key_label:
+            foreign_key_label = associated_model_model.BasemodelMeta.foreign_key_label
+          else:
+            foreign_key_label = associated_model_model._meta.verbose_name
+          title = (
+            sub('^[a-z]{3} ', '', associated_model_model.BasemodelMeta.object_title) +
+            ' zu ' + foreign_key_label
+          )
         associated_new_dict = {
             'title': title,
             'link': reverse(
@@ -497,20 +480,14 @@ class DataChangeView(UpdateView):
               associated_object.foto if hasattr(
                   associated_object,
                   'foto') else None)
-          thumbs = (
-              associated_model_model._meta.thumbs if foto and hasattr(
-                  associated_model_model._meta,
-                  'thumbs') else None)
           preview_img_url = ''
           preview_thumb_url = ''
           if foto:
             try:
               preview_img_url = foto.url + '?' + str(time())
-              if thumbs is not None and thumbs:
+              if associated_model_model.BasemodelMeta.thumbs:
                 preview_thumb_url = get_thumb_url(
                     foto.url) + '?' + str(time())
-              else:
-                preview_thumb_url = ''
             except ValueError:
               pass
           associated_object_dict = {
@@ -543,7 +520,7 @@ class DataChangeView(UpdateView):
         self.associated_objects if self.associated_objects else None)
     context['associated_new'] = (
         self.associated_new if self.associated_new else None)
-    if hasattr(self.model._meta, 'geometry_type'):
+    if self.model.BasemodelMeta.geometry_type:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
             'SELECT st_asgeojson(st_transform(geometrie, 4326)) FROM ' +
@@ -555,23 +532,13 @@ class DataChangeView(UpdateView):
         context['geometry'] = result
     else:
       context['geometry'] = None
-    context['current_address'] = (
-        self.object.adresse.pk if hasattr(
-            self.model._meta,
-            'address_type'
-        ) and self.model._meta.address_type == 'Adresse' and self.object.adresse else None)
-    context['current_street'] = (
-        self.object.strasse.pk if hasattr(
-            self.model._meta,
-            'address_type'
-        ) and self.model._meta.address_type == 'Straße' and self.object.strasse else None)
-    context['current_quarter'] = (
-        self.object.gemeindeteil.pk if hasattr(
-            self.model._meta,
-            'address_type'
-        )
-        and self.model._meta.address_type == 'Gemeindeteil'
-        and self.object.gemeindeteil else None)
+    if self.model.BasemodelMeta.address_type:
+      if self.model.BasemodelMeta.address_type == 'Adresse' and self.object.adresse:
+        context['current_address'] = self.object.adresse.pk
+      elif self.model.BasemodelMeta.address_type == 'Straße' and self.object.strasse:
+        context['current_street'] = self.object.strasse.pk
+      elif self.model.BasemodelMeta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
+        context['current_quarter'] = self.object.gemeindeteil.pk
     # Dictionary für alle Array-Felder und deren Inhalte vorbereiten,
     # die als Inhalt mehr als einen Wert umfassen
     array_fields_values = {}
@@ -607,14 +574,14 @@ class DataChangeView(UpdateView):
     # leeres Dictionary für initiale Feldwerte im View definieren
     curr_dict = {}
     # falls Adresse, Straße oder Gemeindeteil existiert...
-    if hasattr(self.model._meta, 'address_type'):
+    if self.model.BasemodelMeta.address_type:
       # Dictionary um entsprechenden initialen Feldwert
       # für Adresse, Straße oder Gemeindeteil ergänzen
-      if self.model._meta.address_type == 'Adresse' and self.object.adresse:
+      if self.model.BasemodelMeta.address_type == 'Adresse' and self.object.adresse:
         curr_dict['adresse'] = self.object.adresse
-      elif self.model._meta.address_type == 'Straße' and self.object.strasse:
+      elif self.model.BasemodelMeta.address_type == 'Straße' and self.object.strasse:
         curr_dict['strasse'] = self.object.strasse
-      elif self.model._meta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
+      elif self.model.BasemodelMeta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
         curr_dict['gemeindeteil'] = self.object.gemeindeteil
     for field in self.model._meta.get_fields():
       # bei Array-Feld...

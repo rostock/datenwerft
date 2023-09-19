@@ -202,14 +202,11 @@ def set_form_attributes(form):
   :return: Forumular mit gesetzten Attributen
   """
   form.fields_with_foreign_key_to_linkify = (
-      form.model._meta.fields_with_foreign_key_to_linkify if hasattr(
-          form.model._meta, 'fields_with_foreign_key_to_linkify') else None)
+    form.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
   form.choices_models_for_choices_fields = (
-      form.model._meta.choices_models_for_choices_fields if hasattr(
-          form.model._meta, 'choices_models_for_choices_fields') else None)
+    form.model.BasemodelMeta.choices_models_for_choices_fields)
   form.group_with_users_for_choice_field = (
-      form.model._meta.group_with_users_for_choice_field if hasattr(
-          form.model._meta, 'group_with_users_for_choice_field') else None)
+    form.model.BasemodelMeta.group_with_users_for_choice_field)
   return form
 
 
@@ -225,52 +222,36 @@ def set_form_context_elements(context, model):
   """
   context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
   context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
-  context['catalog_link_fields'] = (
-      model._meta.catalog_link_fields if hasattr(model._meta, 'catalog_link_fields') else None)
-  context['catalog_link_fields_names'] = (
-      list(model._meta.catalog_link_fields.keys()) if hasattr(
-          model._meta, 'catalog_link_fields') else None)
+  context['catalog_link_fields'] = model.BasemodelMeta.catalog_link_fields
+  if model.BasemodelMeta.catalog_link_fields:
+    context['catalog_link_fields_names'] = list(model.BasemodelMeta.catalog_link_fields.keys())
   context['fields_with_foreign_key_to_linkify'] = (
-      model._meta.fields_with_foreign_key_to_linkify if hasattr(
-          model._meta, 'fields_with_foreign_key_to_linkify') else None)
+    model.BasemodelMeta.fields_with_foreign_key_to_linkify)
   context['choices_models_for_choices_fields'] = (
-      model._meta.choices_models_for_choices_fields if hasattr(
-          model._meta, 'choices_models_for_choices_fields') else None)
-  context['address_type'] = (
-      model._meta.address_type if hasattr(model._meta, 'address_type') else None)
-  context['address_mandatory'] = (
-      model._meta.address_mandatory if hasattr(model._meta, 'address_mandatory') else None)
-  context['readonly_fields'] = (
-      model._meta.readonly_fields if hasattr(model._meta, 'readonly_fields') else None)
+    model.BasemodelMeta.choices_models_for_choices_fields)
+  context['address_type'] = model.BasemodelMeta.address_type
+  context['address_mandatory'] = model.BasemodelMeta.address_mandatory
+  context['readonly_fields'] = model.BasemodelMeta.readonly_fields
   context['group_with_users_for_choice_field'] = (
-      model._meta.group_with_users_for_choice_field if hasattr(
-          model._meta, 'group_with_users_for_choice_field') else None)
+    model.BasemodelMeta.group_with_users_for_choice_field)
   # GPX-Upload-Feld
-  context['gpx_input'] = (
-      model._meta.gpx_input if hasattr(model._meta, 'gpx_input') else None)
+  context['gpx_input'] = model.BasemodelMeta.gpx_input
   # GeoJSON-Upload-Feld
-  context['geojson_input'] = (
-      model._meta.geojson_input if hasattr(model._meta, 'geojson_input') else None)
+  context['geojson_input'] = model.BasemodelMeta.geojson_input
   # Postleitzahl-Auto-Zuweisung
-  context['postcode_assigner'] = (
-      model._meta.postcode_assigner if hasattr(model._meta, 'postcode_assigner') else None)
+  context['postcode_assigner'] = model.BasemodelMeta.postcode_assigner
   # zusätzliche WMS-Layer
-  context['additional_wms_layers'] = (
-    model._meta.additional_wms_layers if hasattr(
-      model._meta, 'additional_wms_layers') else None)
+  context['additional_wms_layers'] = model.BasemodelMeta.additional_wms_layers
   # zusätzliche WFS-Feature-Types
-  context['additional_wfs_featuretypes'] = (
-    model._meta.additional_wfs_featuretypes if hasattr(
-      model._meta, 'additional_wfs_featuretypes') else None)
+  context['additional_wfs_featuretypes'] = model.BasemodelMeta.additional_wfs_featuretypes
   # Liste aller Datensätze für die Overlay-Daten-Liste
   model_list = {}
   app_models = apps.get_app_config('datenmanagement').get_models()
   for app_model in app_models:
-    if hasattr(app_model._meta, 'as_overlay') and app_model._meta.as_overlay is True:
+    if app_model.BasemodelMeta.as_overlay:
       model_list[app_model.__name__] = app_model._meta.verbose_name_plural
   context['model_list'] = dict(sorted(model_list.items()))
-  context['forms_in_mobile_mode'] = (
-      model._meta.forms_in_mobile_mode if hasattr(model._meta, 'forms_in_mobile_mode') else False)
+  context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
   return context
 
 
@@ -289,11 +270,9 @@ def set_model_related_context_elements(context, model, kwargs=None):
   context['model_pk_field'] = model._meta.pk.name
   context['model_verbose_name'] = model._meta.verbose_name
   context['model_verbose_name_plural'] = model._meta.verbose_name_plural
-  context['model_description'] = model._meta.description
-  context['editable'] = (
-      model._meta.editable if hasattr(model._meta, 'editable') else True)
-  context['geometry_type'] = (
-      model._meta.geometry_type if hasattr(model._meta, 'geometry_type') else None)
+  context['model_description'] = model.BasemodelMeta.description
+  context['editable'] = model.BasemodelMeta.editable
+  context['geometry_type'] = model.BasemodelMeta.geometry_type
   context['subset_id'] = None
   if kwargs and kwargs['subset_id']:
     subset_id = int(kwargs['subset_id'])

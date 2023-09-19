@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models.fields import PointField as ModelPointField
 from django.contrib.gis.forms.fields import PointField as FormPointField
-from django.utils import timezone
+from django.utils import timezone as tz
 from zoneinfo import ZoneInfo
 
 
@@ -93,7 +93,7 @@ def get_complaint_status_change_deadline_date(format_date=False):
   :param format_date: format date?
   :return: complaint status change deadline date
   """
-  deadline_date = timezone.now() - timedelta(days=settings.BEMAS_STATUS_CHANGE_DEADLINE_DAYS)
+  deadline_date = tz.now() - timedelta(days=settings.BEMAS_STATUS_CHANGE_DEADLINE_DAYS)
   return deadline_date.strftime('%d.%m.%Y') if format_date else deadline_date
 
 

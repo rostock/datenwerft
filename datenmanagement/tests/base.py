@@ -4,8 +4,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse, reverse_lazy
 from json import loads
-from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
 
+from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
+from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .constants_vars import *
 from .functions import clean_object_filter, create_test_subset, get_object, load_sql_schema
 
@@ -321,23 +322,16 @@ class DefaultMetaModelTestCase(DefaultModelTestCase):
   def init(self):
     super().init()
 
-  def generic_is_metamodel_test(self, model):
+  def generic_is_metamodel_test(self):
     """
-    testet, ob das Datenmodell ein Meta-Datenmodell ist
+    tests if model is meta model
 
     :param self
-    :param model: Datenmodell
     """
-    # Datenmodell als Meta-Datenmodell deklariert?
-    self.assertTrue(
-      hasattr(model._meta, 'metamodel')
-      and model._meta.metamodel is True
-    )
-    # Datenmodell nicht bearbeitbar?
-    self.assertTrue(
-      hasattr(model._meta, 'editable')
-      and model._meta.editable is False
-    )
+    # model declared as meta model?
+    self.assertTrue(issubclass(self.model, Metamodel))
+    # model not editable?
+    self.assertTrue(self.model.BasemodelMeta.editable is False)
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
@@ -348,18 +342,14 @@ class DefaultCodelistTestCase(DefaultModelTestCase):
   def init(self):
     super().init()
 
-  def generic_is_codelist_test(self, model):
+  def generic_is_codelist_test(self):
     """
-    testet, ob das Datenmodell eine Codeliste ist
+    tests if model is codelist
 
     :param self
-    :param model: Datenmodell
     """
-    # Datenmodell als Codeliste deklariert?
-    self.assertTrue(
-      hasattr(model._meta, 'codelist')
-      and model._meta.codelist is True
-    )
+    # model declared as codelist?
+    self.assertTrue(issubclass(self.model, Codelist))
 
 
 class DefaultSimpleModelTestCase(DefaultModelTestCase):
@@ -370,19 +360,14 @@ class DefaultSimpleModelTestCase(DefaultModelTestCase):
   def init(self):
     super().init()
 
-  def generic_is_simplemodel_test(self, model):
+  def generic_is_simplemodel_test(self):
     """
-    testet, ob das Datenmodell ein einfaches Datenmodell ist
+    tests if model is simple data model
 
     :param self
-    :param model: Datenmodell
     """
-    # Datenmodell als einfaches Datenmodell deklariert?
-    self.assertTrue(
-      (not hasattr(model._meta, 'metamodel') or model._meta.metamodel is False)
-      and (not hasattr(model._meta, 'codelist') or model._meta.codelist is False)
-      and (not hasattr(model._meta, 'complex') or model._meta.complex is False)
-    )
+    # model declared as simple data model?
+    self.assertTrue(issubclass(self.model, SimpleModel))
 
 
 class DefaultComplexModelTestCase(DefaultModelTestCase):
@@ -393,20 +378,14 @@ class DefaultComplexModelTestCase(DefaultModelTestCase):
   def init(self):
     super().init()
 
-  def generic_is_complexmodel_test(self, model):
+  def generic_is_complexmodel_test(self):
     """
-    testet, ob das Datenmodell ein komplexes Datenmodell ist
+    tests if model is complex data model
 
     :param self
-    :param model: Datenmodell
     """
-    # Datenmodell als komplexes Datenmodell deklariert?
-    self.assertTrue(
-      (not hasattr(model._meta, 'metamodel') or model._meta.metamodel is False)
-      and (not hasattr(model._meta, 'codelist') or model._meta.codelist is False)
-      and hasattr(model._meta, 'complex')
-      and model._meta.complex is True
-    )
+    # model declared as complex data model?
+    self.assertTrue(issubclass(self.model, ComplexModel))
 
 
 class GenericRSAGTestCase(DefaultComplexModelTestCase):

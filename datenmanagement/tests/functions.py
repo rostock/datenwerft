@@ -19,9 +19,9 @@ def clean_object_filter(model, object_filter):
   cleaned_object_filter.pop('geometrie', None)
   # falls eines der Attribute im Objektfilter unter jenen Attributen ist,
   # die in den Formularansichten des Datenmodells nur lesbar erscheinen sollen...
-  if hasattr(model._meta, 'readonly_fields'):
+  if model.BasemodelMeta.readonly_fields:
     for attribute in object_filter:
-      if attribute in model._meta.readonly_fields:
+      if attribute in model.BasemodelMeta.readonly_fields:
         # Attribut aus Objektfilter entfernen, da es ansonsten passieren kann,
         # dass das Objekt unten nicht gefunden wird
         # (etwa bei Attributen, die nach dem Speichern auf Datenbankebene manipuliert werden)
@@ -69,6 +69,7 @@ def load_sql_schema():
   schema_sql = schema_file.read()
   with connections['datenmanagement'].cursor() as cursor:
     cursor.execute(schema_sql)
+  schema_file.close()
 
 
 def remove_file_attributes_from_object_filter(object_filter):

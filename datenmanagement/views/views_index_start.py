@@ -1,6 +1,8 @@
 from django.apps import apps
 from django.views.generic import ListView
 
+from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
+
 
 class IndexView(ListView):
   """
@@ -39,15 +41,15 @@ class IndexView(ListView):
         list_model = {
           'name': model.__name__,
           'verbose_name_plural': model._meta.verbose_name_plural,
-          'description': model._meta.description
+          'description': model.BasemodelMeta.description
         }
-        if hasattr(model._meta, 'metamodel') and model._meta.metamodel is True:
+        if issubclass(model, Metamodel):
           models_meta.append(list_model)
-        elif hasattr(model._meta, 'codelist') and model._meta.codelist is True:
+        elif issubclass(model, Codelist):
           models_codelist.append(list_model)
-        elif hasattr(model._meta, 'complex') and model._meta.complex is True:
+        elif issubclass(model, ComplexModel):
           models_complex.append(list_model)
-        else:
+        elif issubclass(model, SimpleModel):
           models_simple.append(list_model)
     context = super(IndexView, self).get_context_data(**kwargs)
     context['models_meta'] = models_meta
@@ -86,11 +88,7 @@ class StartView(ListView):
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model._meta.description
-    context['editable'] = (
-        self.model._meta.editable if hasattr(
-            self.model._meta, 'editable') else True)
-    context['geometry_type'] = (
-        self.model._meta.geometry_type if hasattr(
-            self.model._meta, 'geometry_type') else None)
+    context['model_description'] = self.model.BasemodelMeta.description
+    context['editable'] = self.model.BasemodelMeta.editable
+    context['geometry_type'] = self.model.BasemodelMeta.geometry_type
     return context

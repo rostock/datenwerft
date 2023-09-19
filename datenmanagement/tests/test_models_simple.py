@@ -82,7 +82,7 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -305,7 +305,7 @@ class AngelverbotsbereicheTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -533,7 +533,7 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -803,7 +803,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1047,7 +1047,7 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1279,7 +1279,7 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1539,7 +1539,7 @@ class BildungstraegerTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1776,7 +1776,7 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2004,7 +2004,7 @@ class ContainerstellplaetzeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2247,7 +2247,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2508,7 +2508,7 @@ class DenksteineTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2745,7 +2745,7 @@ class ErdwaermesondenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2985,7 +2985,7 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3228,7 +3228,7 @@ class FairTradeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3472,7 +3472,7 @@ class FeldsportanlagenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3715,7 +3715,7 @@ class FeuerwachenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3954,7 +3954,7 @@ class FliessgewaesserTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4192,7 +4192,7 @@ class GeraetespielanlagenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4424,7 +4424,7 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -4698,7 +4698,7 @@ class HausnummernTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4942,7 +4942,7 @@ class HospizeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5188,7 +5188,7 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5438,7 +5438,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5705,7 +5705,7 @@ class KadaverfundeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5945,7 +5945,7 @@ class KindertagespflegeeinrichtungenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6189,7 +6189,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6433,7 +6433,7 @@ class KleinklaeranlagenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6656,7 +6656,7 @@ class KunstImOeffentlichenRaumTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6902,7 +6902,7 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7142,7 +7142,7 @@ class MeldedienstFlaechenhaftTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7382,7 +7382,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7622,7 +7622,7 @@ class MobilpunkteTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7859,7 +7859,7 @@ class ParkmoeglichkeitenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8105,7 +8105,7 @@ class PflegeeinrichtungenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8351,7 +8351,7 @@ class PollerTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8574,7 +8574,7 @@ class ReinigungsreviereTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8818,7 +8818,7 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9060,7 +9060,7 @@ class SchiffsliegeplaetzeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9307,7 +9307,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9557,7 +9557,7 @@ class SporthallenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9801,7 +9801,7 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10074,7 +10074,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10347,7 +10347,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10578,7 +10578,7 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10821,7 +10821,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11071,7 +11071,7 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11317,7 +11317,7 @@ class VereineTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11554,7 +11554,7 @@ class VerkaufstellenAngelberechtigungenTest(DefaultSimpleModelTestCase):
     self.init()
 
   def test_is_simplemodel(self):
-    self.generic_is_simplemodel_test(self.model)
+    self.generic_is_simplemodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)

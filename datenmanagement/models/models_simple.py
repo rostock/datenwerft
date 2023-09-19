@@ -228,7 +228,12 @@ class Abfallbehaelter(SimpleModel):
     db_table = 'fachdaten\".\"abfallbehaelter_hro'
     verbose_name = 'Abfallbehälter'
     verbose_name_plural = 'Abfallbehälter'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Abfallbehälter in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['deaktiviert', 'id']
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Außerbetriebstellung',
@@ -245,7 +250,7 @@ class Abfallbehaelter(SimpleModel):
       'eigentuemer': 'bezeichnung',
       'bewirtschafter': 'bezeichnung'
     }
-    readonly_fields = ['deaktiviert', 'id']
+    heavy_load_limit = 500
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -256,9 +261,6 @@ class Abfallbehaelter(SimpleModel):
       'pflegeobjekt': 'Pflegeobjekt'
     }
     map_filter_fields_as_list = ['typ', 'eigentuemer', 'bewirtschafter']
-    geometry_type = 'Point'
-    as_overlay = True
-    heavy_load_limit = 500
 
   def __str__(self):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
@@ -289,15 +291,17 @@ class Angelverbotsbereiche(SimpleModel):
     db_table = 'fachdaten\".\"angelverbotsbereiche_hro'
     verbose_name = 'Angelverbotsbereich'
     verbose_name_plural = 'Angelverbotsbereiche'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Angelverbotsbereiche der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'LineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung'
     }
     map_feature_tooltip_field = 'bezeichnung'
-    geometry_type = 'LineString'
-    as_overlay = True
 
   def __str__(self):
     return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + \
@@ -361,8 +365,13 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"aufteilungsplaene_wohnungseigentumsgesetz_hro'
     verbose_name = 'Aufteilungsplan nach Wohnungseigentumsgesetz'
     verbose_name_plural = 'Aufteilungspläne nach Wohnungseigentumsgesetz'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Aufteilungspläne nach Wohnungseigentumsgesetz' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -381,9 +390,6 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
       'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
       'datum': 'Datum'
     }
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
 
   def __str__(self):
     return 'Abgeschlossenheitserklärung mit Datum ' + \
@@ -494,7 +500,14 @@ class Baudenkmale(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"baudenkmale_hro'
     verbose_name = 'Baudenkmal'
     verbose_name_plural = 'Baudenkmale'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Baudenkmale der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -508,7 +521,6 @@ class Baudenkmale(SimpleModel):
       'status': 'status',
       'adresse': 'adresse'
     }
-    readonly_fields = ['id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -519,8 +531,6 @@ class Baudenkmale(SimpleModel):
       'gartendenkmal': 'Gartendenkmal?'
     }
     map_filter_fields_as_list = ['status']
-    address_type = 'Adresse'
-    address_mandatory = False
     additional_wfs_featuretypes = [
       {
         'name': 'flurstuecke',
@@ -537,8 +547,6 @@ class Baudenkmale(SimpleModel):
         'proxy': True
       }
     ]
-    geometry_type = 'MultiPolygon'
-    as_overlay = True
 
   def __str__(self):
     return self.beschreibung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -630,7 +638,12 @@ class Behinderteneinrichtungen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"behinderteneinrichtungen_hro'
     verbose_name = 'Behinderteneinrichtung'
     verbose_name_plural = 'Behinderteneinrichtungen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Behinderteneinrichtungen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -647,9 +660,6 @@ class Behinderteneinrichtungen(SimpleModel):
       'traeger': 'Träger'
     }
     map_filter_fields_as_list = ['traeger']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + \
@@ -702,8 +712,13 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"beschluesse_bau_planungsausschuss_hro'
     verbose_name = 'Beschluss des Bau- und Planungsausschusses'
     verbose_name_plural = 'Beschlüsse des Bau- und Planungsausschusses'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Beschlüsse des Bau- und Planungsausschusses der Bürgerschaft ' \
                   'der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -721,9 +736,6 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
       'beschlussjahr': 'Beschlussjahr',
       'vorhabenbezeichnung': 'Bezeichnung des Vorhabens'
     }
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.vorhabenbezeichnung + ' (Beschlussjahr ' + str(self.beschlussjahr) + ')' + \
@@ -829,10 +841,15 @@ class Bildungstraeger(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"bildungstraeger_hro'
     verbose_name = 'Bildungsträger'
     verbose_name_plural = 'Bildungsträger'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Bildungsträger in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
       'schlagwoerter': 'Schlagwoerter_Bildungstraeger'
     }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -847,9 +864,6 @@ class Bildungstraeger(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'schlagwoerter': 'Schlagwörter'
     }
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -948,7 +962,12 @@ class Carsharing_Stationen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"carsharing_stationen_hro'
     verbose_name = 'Carsharing-Station'
     verbose_name_plural = 'Carsharing-Stationen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Carsharing-Stationen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -967,9 +986,6 @@ class Carsharing_Stationen(SimpleModel):
       'anbieter': 'Anbieter'
     }
     map_filter_fields_as_list = ['anbieter']
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + \
@@ -1224,7 +1240,13 @@ class Containerstellplaetze(SimpleModel):
     db_table = 'fachdaten\".\"containerstellplaetze_hro'
     verbose_name = 'Containerstellplatz'
     verbose_name_plural = 'Containerstellplätze'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Containerstellplätze in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['deaktiviert', 'id']
+    geometry_type = 'Point'
+    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Außerbetriebstellung',
@@ -1234,16 +1256,12 @@ class Containerstellplaetze(SimpleModel):
       'foto': 'Foto'
     }
     list_fields_with_date = ['deaktiviert']
-    readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'id': 'ID',
       'privat': 'privat?',
       'bezeichnung': 'Bezeichnung'
     }
-    geometry_type = 'Point'
-    thumbs = True
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung
@@ -1338,7 +1356,12 @@ class Denkmalbereiche(SimpleModel):
     db_table = 'fachdaten\".\"denkmalbereiche_hro'
     verbose_name = 'Denkmalbereich'
     verbose_name_plural = 'Denkmalbereiche'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Denkmalbereiche der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -1350,7 +1373,6 @@ class Denkmalbereiche(SimpleModel):
     list_fields_with_foreign_key = {
       'status': 'status'
     }
-    readonly_fields = ['id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -1360,8 +1382,6 @@ class Denkmalbereiche(SimpleModel):
       'beschreibung': 'Beschreibung'
     }
     map_filter_fields_as_list = ['status']
-    geometry_type = 'MultiPolygon'
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung + ' [Beschreibung: ' + str(self.beschreibung) + ']'
@@ -1464,7 +1484,12 @@ class Denksteine(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"denksteine_hro'
     verbose_name = 'Denkstein'
     verbose_name_plural = 'Denksteine'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Denksteine in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -1490,9 +1515,6 @@ class Denksteine(SimpleModel):
       'sterbejahr': 'Sterbejahr'
     }
     map_filter_fields_as_list = ['titel']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return (str(self.titel) + ' ' if self.titel else '') + \
@@ -1593,7 +1615,11 @@ class Erdwaermesonden(SimpleModel):
     db_table = 'fachdaten\".\"erdwaermesonden_hro'
     verbose_name = 'Erdwärmesonde'
     verbose_name_plural = 'Erdwärmesonden'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Erdwärmesonden in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
@@ -1606,11 +1632,11 @@ class Erdwaermesonden(SimpleModel):
       'endteufe': 'Endteufe (in m)',
       'hinweis': 'Hinweis'
     }
+    list_fields_with_number = ['anzahl_sonden', 'sondenfeldgroesse']
     list_fields_with_foreign_key = {
       'art': 'art',
       'typ': 'typ'
     }
-    list_fields_with_number = ['anzahl_sonden', 'sondenfeldgroesse']
     map_feature_tooltip_field = 'aktenzeichen'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -1625,8 +1651,6 @@ class Erdwaermesonden(SimpleModel):
       'hinweis': 'Hinweis'
     }
     map_filter_fields_as_list = ['art', 'typ']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return self.aktenzeichen
@@ -1663,7 +1687,11 @@ class Fahrradabstellanlagen(SimpleModel):
     db_table = 'fachdaten\".\"fahrradabstellanlagen_hro'
     verbose_name = 'Fahrradabstellanlage'
     verbose_name_plural = 'Fahrradabstellanlagen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Fahrradabstellanlagen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -1671,10 +1699,10 @@ class Fahrradabstellanlagen(SimpleModel):
       'gebuehren': 'Gebühren?',
       'ueberdacht': 'überdacht?'
     }
+    list_fields_with_number = ['stellplaetze']
     list_fields_with_foreign_key = {
       'art': 'art'
     }
-    list_fields_with_number = ['stellplaetze']
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -1684,8 +1712,6 @@ class Fahrradabstellanlagen(SimpleModel):
       'ueberdacht': 'überdacht?'
     }
     map_filter_fields_as_list = ['art']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return str(self.uuid)
@@ -1789,7 +1815,12 @@ class FairTrade(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"fairtrade_hro'
     verbose_name = 'Fair Trade'
     verbose_name_plural = 'Fair Trade'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Fair Trade in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -1806,9 +1837,6 @@ class FairTrade(SimpleModel):
       'bezeichnung': 'Bezeichnung'
     }
     map_filter_fields_as_list = ['art']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -1858,7 +1886,11 @@ class Feldsportanlagen(SimpleModel):
     db_table = 'fachdaten\".\"feldsportanlagen_hro'
     verbose_name = 'Feldsportanlage'
     verbose_name_plural = 'Feldsportanlagen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Feldsportanlagen in der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
+    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -1877,8 +1909,6 @@ class Feldsportanlagen(SimpleModel):
       'traeger': 'Träger'
     }
     map_filter_fields_as_list = ['art', 'traeger']
-    geometry_type = 'Point'
-    thumbs = True
 
   def __str__(self):
     return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
@@ -1973,7 +2003,12 @@ class Feuerwachen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"feuerwachen_hro'
     verbose_name = 'Feuerwache'
     verbose_name_plural = 'Feuerwachen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Feuerwachen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -1990,9 +2025,6 @@ class Feuerwachen(SimpleModel):
       'bezeichnung': 'Bezeichnung'
     }
     map_filter_fields_as_list = ['art']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -2056,7 +2088,12 @@ class Fliessgewaesser(SimpleModel):
     db_table = 'fachdaten\".\"fliessgewaesser_hro'
     verbose_name = 'Fließgewässer'
     verbose_name_plural = 'Fließgewässer'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Fließgewässer in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    as_overlay = True
+    readonly_fields = ['laenge', 'laenge_in_hro']
+    geometry_type = 'LineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'nummer': 'Nummer',
@@ -2066,12 +2103,12 @@ class Fliessgewaesser(SimpleModel):
       'laenge': 'Länge (in m)',
       'laenge_in_hro': 'Länge innerhalb Rostocks (in m)'
     }
+    list_fields_with_number = ['laenge', 'laenge_in_hro']
     list_fields_with_foreign_key = {
       'art': 'art',
       'ordnung': 'ordnung'
     }
-    list_fields_with_number = ['laenge', 'laenge_in_hro']
-    readonly_fields = ['laenge', 'laenge_in_hro']
+    heavy_load_limit = 500
     map_feature_tooltip_field = 'nummer'
     map_filter_fields = {
       'nummer': 'Nummer',
@@ -2080,9 +2117,6 @@ class Fliessgewaesser(SimpleModel):
       'bezeichnung': 'Bezeichnung'
     }
     map_filter_fields_as_list = ['art', 'ordnung']
-    geometry_type = 'LineString'
-    as_overlay = True
-    heavy_load_limit = 500
 
   def __str__(self):
     return self.nummer + ' [Art: ' + str(self.art) + \
@@ -2130,7 +2164,11 @@ class Geraetespielanlagen(SimpleModel):
     db_table = 'fachdaten\".\"geraetespielanlagen_hro'
     verbose_name = 'Gerätespielanlage'
     verbose_name_plural = 'Gerätespielanlagen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Gerätespielanlagen in der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
+    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2148,8 +2186,6 @@ class Geraetespielanlagen(SimpleModel):
       'beschreibung': 'Beschreibung'
     }
     map_filter_fields_as_list = ['traeger']
-    geometry_type = 'Point'
-    thumbs = True
 
   def __str__(self):
     return self.bezeichnung
@@ -2213,7 +2249,13 @@ class Gutachterfotos(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"gutachterfotos_hro'
     verbose_name = 'Gutachterfoto'
     verbose_name_plural = 'Gutachterfotos'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Gutachterfotos der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -2226,16 +2268,12 @@ class Gutachterfotos(SimpleModel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
+    heavy_load_limit = 800
     map_feature_tooltip_field = 'datum'
     map_filter_fields = {
       'datum': 'Datum',
       'aufnahmedatum': 'Aufnahmedatum'
     }
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-    thumbs = True
-    heavy_load_limit = 800
 
   def __str__(self):
     return 'Gutachterfoto mit Aufnahmedatum ' + \
@@ -2383,11 +2421,17 @@ class Hausnummern(SimpleModel):
     unique_together = ['strasse', 'hausnummer', 'hausnummer_zusatz']
     verbose_name = 'Hausnummer'
     verbose_name_plural = 'Hausnummern'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Hausnummern der Hanse- und Universitätsstadt Rostock'
     catalog_link_fields = {
       'gebaeude_bauweise': 'https://geo.sv.rostock.de/alkis-ok/31001/baw/',
       'gebaeude_funktion': 'https://geo.sv.rostock.de/alkis-ok/31001/gfk/'
     }
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    postcode_assigner = 'postleitzahl'
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Datum der Löschung',
@@ -2400,16 +2444,17 @@ class Hausnummern(SimpleModel):
       'gebaeude_bauweise': 'Bauweise des Gebäudes',
       'gebaeude_funktion': 'Funktion des Gebäudes'
     }
-    list_fields_with_foreign_key = {
-      'strasse': 'strasse',
-      'gebaeude_bauweise': 'bezeichnung',
-      'gebaeude_funktion': 'bezeichnung'
-    }
     list_fields_with_date = [
       'deaktiviert',
       'vergabe_datum'
     ]
     list_fields_with_number = ['hausnummer']
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'gebaeude_bauweise': 'bezeichnung',
+      'gebaeude_funktion': 'bezeichnung'
+    }
+    heavy_load_limit = 800
     map_feature_tooltip_fields = [
       'strasse',
       'hausnummer',
@@ -2428,11 +2473,6 @@ class Hausnummern(SimpleModel):
       'gebaeude_funktion': 'Funktion des Gebäudes'
     }
     map_filter_fields_as_list = ['strasse', 'gebaeude_bauweise', 'gebaeude_funktion']
-    address_type = 'Straße'
-    address_mandatory = True
-    geometry_type = 'Point'
-    postcode_assigner = 'postleitzahl'
-    heavy_load_limit = 800
 
   def __str__(self):
     return str(self.strasse) + ' ' + str(self.hausnummer) + \
@@ -2526,7 +2566,12 @@ class Hospize(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"hospize_hro'
     verbose_name = 'Hospiz'
     verbose_name_plural = 'Hospize'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Hospize in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -2543,9 +2588,6 @@ class Hospize(SimpleModel):
       'traeger': 'Träger'
     }
     map_filter_fields_as_list = ['traeger']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -2638,7 +2680,12 @@ class Hundetoiletten(SimpleModel):
     db_table = 'fachdaten\".\"hundetoiletten_hro'
     verbose_name = 'Hundetoilette'
     verbose_name_plural = 'Hundetoiletten'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Hundetoiletten im Eigentum der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['deaktiviert', 'id']
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Außerbetriebstellung',
@@ -2653,7 +2700,6 @@ class Hundetoiletten(SimpleModel):
       'art': 'art',
       'bewirtschafter': 'bezeichnung'
     }
-    readonly_fields = ['deaktiviert', 'id']
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -2663,8 +2709,6 @@ class Hundetoiletten(SimpleModel):
       'pflegeobjekt': 'Pflegeobjekt'
     }
     map_filter_fields_as_list = ['art', 'bewirtschafter']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return self.id + ' [Art: ' + str(self.art) + ']'
@@ -2731,7 +2775,11 @@ class Hydranten(SimpleModel):
     db_table = 'fachdaten\".\"hydranten_hro'
     verbose_name = 'Hydrant'
     verbose_name_plural = 'Hydranten'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Hydranten im Eigentum der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2759,8 +2807,6 @@ class Hydranten(SimpleModel):
       'hauptwasserzaehler': 'Hauptwasserzähler'
     }
     map_filter_fields_as_list = ['eigentuemer', 'bewirtschafter', 'betriebszeit']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung
@@ -2838,7 +2884,11 @@ class Kadaverfunde(SimpleModel):
     db_table = 'fachdaten\".\"kadaverfunde_hro'
     verbose_name = 'Kadaverfund'
     verbose_name_plural = 'Kadaverfunde'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kadaverfunde in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'tierseuche': 'Tierseuche',
@@ -2874,8 +2924,6 @@ class Kadaverfunde(SimpleModel):
       'zustand',
       'art_auffinden'
     ]
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
@@ -2976,8 +3024,13 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"kindertagespflegeeinrichtungen_hro'
     verbose_name = 'Kindertagespflegeeinrichtung'
     verbose_name_plural = 'Kindertagespflegeeinrichtungen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kindertagespflegeeinrichtungen (Tagesmütter und Tagesväter) in der Hanse- ' \
                   'und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -2996,9 +3049,6 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
       'nachname': 'Nachname',
       'plaetze': 'Plätze'
     }
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.vorname + ' ' + self.nachname + \
@@ -3085,7 +3135,12 @@ class Kinder_Jugendbetreuung(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"kinder_jugendbetreuung_hro'
     verbose_name = 'Kinder- und/oder Jugendbetreuung'
     verbose_name_plural = 'Kinder- und Jugendbetreuung'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kinder- und Jugendbetreuung in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -3102,9 +3157,6 @@ class Kinder_Jugendbetreuung(SimpleModel):
       'traeger': 'Träger'
     }
     map_filter_fields_as_list = ['traeger']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -3221,7 +3273,13 @@ class Kleinklaeranlagen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"kleinklaeranlagen_hro'
     verbose_name = 'Kleinkläranlage'
     verbose_name_plural = 'Kleinkläranlagen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kleinkläranlagen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
@@ -3236,10 +3294,10 @@ class Kleinklaeranlagen(SimpleModel):
       'zulassung': 'Zulassung'
     }
     list_fields_with_date = ['we_datum', 'we_befristung']
+    list_fields_with_number = ['umfang_einleitung', 'einwohnerwert']
     list_fields_with_foreign_key = {
       'typ': 'typ'
     }
-    list_fields_with_number = ['umfang_einleitung', 'einwohnerwert']
     map_feature_tooltip_field = 'd3'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -3255,10 +3313,6 @@ class Kleinklaeranlagen(SimpleModel):
       'zulassung': 'Zulassung'
     }
     map_filter_fields_as_list = ['typ']
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return self.d3 + ' mit Datum der wasserrechtlichen Erlaubnis ' + str(self.we_datum)
@@ -3300,7 +3354,10 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
     db_table = 'fachdaten\".\"kunst_im_oeffentlichen_raum_hro'
     verbose_name = 'Kunst im öffentlichen Raum'
     verbose_name_plural = 'Kunst im öffentlichen Raum'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kunst im öffentlichen Raum der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -3310,7 +3367,6 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
     }
     list_fields_with_number = ['entstehungsjahr']
     map_feature_tooltip_field = 'bezeichnung'
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung
@@ -3418,10 +3474,15 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"ladestationen_elektrofahrzeuge_hro'
     verbose_name = 'Ladestation für Elektrofahrzeuge'
     verbose_name_plural = 'Ladestationen für Elektrofahrzeuge'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Ladestationen für Elektrofahrzeuge in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
       'ladekarten': 'Ladekarten_Ladestationen_Elektrofahrzeuge'
     }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -3451,9 +3512,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'ladekarten': 'Ladekarten'
     }
     map_filter_fields_as_list = ['betreiber', 'verbund', 'betriebsart']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -3494,7 +3552,10 @@ class Meldedienst_flaechenhaft(SimpleModel):
     db_table = 'fachdaten\".\"meldedienst_flaechenhaft_hro'
     verbose_name = 'Meldedienst (flächenhaft)'
     verbose_name_plural = 'Meldedienst (flächenhaft)'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Meldedienst (flächenhaft) der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -3513,7 +3574,6 @@ class Meldedienst_flaechenhaft(SimpleModel):
       'datum': 'Datum'
     }
     map_filter_fields_as_list = ['art']
-    geometry_type = 'Polygon'
 
   def __str__(self):
     return str(self.art) + \
@@ -3570,7 +3630,14 @@ class Meldedienst_punkthaft(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"meldedienst_punkthaft_hro'
     verbose_name = 'Meldedienst (punkthaft)'
     verbose_name_plural = 'Meldedienst (punkthaft)'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Meldedienst (punkthaft) der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['deaktiviert']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Zurückstellung',
@@ -3585,7 +3652,7 @@ class Meldedienst_punkthaft(SimpleModel):
       'adresse': 'adresse',
       'art': 'art'
     }
-    readonly_fields = ['deaktiviert']
+    heavy_load_limit = 600
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -3594,11 +3661,6 @@ class Meldedienst_punkthaft(SimpleModel):
       'datum': 'Datum'
     }
     map_filter_fields_as_list = ['art']
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
-    as_overlay = True
-    heavy_load_limit = 600
 
   def __str__(self):
     return str(self.art) + \
@@ -3641,10 +3703,13 @@ class Mobilpunkte(SimpleModel):
     db_table = 'fachdaten\".\"mobilpunkte_hro'
     verbose_name = 'Mobilpunkt'
     verbose_name_plural = 'Mobilpunkte'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Mobilpunkte in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
       'angebote': 'Angebote_Mobilpunkte'
     }
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -3652,7 +3717,6 @@ class Mobilpunkte(SimpleModel):
       'website': 'Website'
     }
     map_feature_tooltip_field = 'bezeichnung'
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung
@@ -3795,7 +3859,12 @@ class Parkmoeglichkeiten(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"parkmoeglichkeiten_hro'
     verbose_name = 'Parkmöglichkeit'
     verbose_name_plural = 'Parkmöglichkeiten'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Parkmöglichkeiten in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -3815,9 +3884,6 @@ class Parkmoeglichkeiten(SimpleModel):
       'betreiber': 'Betreiber'
     }
     map_filter_fields_as_list = ['art', 'betreiber']
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
 
   def __str__(self):
     return str(self.art) + ' ' + self.standort + \
@@ -3915,7 +3981,12 @@ class Pflegeeinrichtungen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"pflegeeinrichtungen_hro'
     verbose_name = 'Pflegeeinrichtung'
     verbose_name_plural = 'Pflegeeinrichtungen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Pflegeeinrichtungen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -3934,9 +4005,6 @@ class Pflegeeinrichtungen(SimpleModel):
       'betreiber': 'Betreiber:in'
     }
     map_filter_fields_as_list = ['art']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -4035,10 +4103,14 @@ class Poller(SimpleModel):
     db_table = 'fachdaten\".\"poller_hro'
     verbose_name = 'Poller'
     verbose_name_plural = 'Poller'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Poller in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
     choices_models_for_choices_fields = {
       'schliessungen': 'Schliessungen_Poller'
     }
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -4069,8 +4141,6 @@ class Poller(SimpleModel):
       'schliessungen': 'Schließungen'
     }
     map_filter_fields_as_list = ['art', 'status', 'hersteller', 'typ']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return (self.nummer + ', ' if self.nummer else '') + \
@@ -4110,17 +4180,23 @@ class Reinigungsreviere(SimpleModel):
     db_table = 'fachdaten_gemeindeteilbezug\".\"reinigungsreviere_hro'
     verbose_name = 'Reinigungsreviere'
     verbose_name_plural = 'Reinigungsreviere'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Reinigungsreviere der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    address_type = 'Gemeindeteil'
+    address_mandatory = False
+    geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'gemeindeteil': 'Gemeindeteil',
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung'
     }
+    list_fields_with_number = ['nummer']
     list_fields_with_foreign_key = {
       'gemeindeteil': 'gemeindeteil'
     }
-    list_fields_with_number = ['nummer']
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'gemeindeteil': 'Gemeindeteil',
@@ -4143,10 +4219,6 @@ class Reinigungsreviere(SimpleModel):
         'layers': 'hro.strassenreinigung.strassenreinigung'
       }
     ]
-    address_type = 'Gemeindeteil'
-    address_mandatory = False
-    geometry_type = 'MultiPolygon'
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
@@ -4232,7 +4304,12 @@ class Rettungswachen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"rettungswachen_hro'
     verbose_name = 'Rettungswache'
     verbose_name_plural = 'Rettungswachen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Rettungswachen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -4249,9 +4326,6 @@ class Rettungswachen(SimpleModel):
       'traeger': 'Träger'
     }
     map_filter_fields_as_list = ['traeger']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -4377,7 +4451,11 @@ class Schiffsliegeplaetze(SimpleModel):
     db_table = 'fachdaten\".\"schiffsliegeplaetze_hro'
     verbose_name = 'Schiffsliegeplatz'
     verbose_name_plural = 'Schiffsliegeplätze'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Schiffsliegeplätze der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'hafen': 'Hafen',
@@ -4385,10 +4463,10 @@ class Schiffsliegeplaetze(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)'
     }
+    list_fields_with_number = ['zulaessiger_tiefgang']
     list_fields_with_foreign_key = {
       'hafen': 'bezeichnung'
     }
-    list_fields_with_number = ['zulaessiger_tiefgang']
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'hafen': 'Hafen',
@@ -4397,8 +4475,6 @@ class Schiffsliegeplaetze(SimpleModel):
       'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)'
     }
     map_filter_fields_as_list = ['hafen']
-    geometry_type = 'Polygon'
-    as_overlay = True
 
   def __str__(self):
     return self.liegeplatznummer + ', ' + self.bezeichnung + ' [Hafen: ' + str(self.hafen) + ']'
@@ -4435,18 +4511,22 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
     db_table = 'fachdaten\".\"schutzzaeune_tierseuchen_hro'
     verbose_name = 'Schutzzaun gegen eine Tierseuche'
     verbose_name_plural = 'Schutzzäune gegen Tierseuchen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Schutzzäune gegen Tierseuchen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'tierseuche': 'Tierseuche',
       'laenge': 'Länge (in m)',
       'zustand': 'Zustand'
     }
+    list_fields_with_number = ['laenge']
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung',
       'zustand': 'zustand'
     }
-    list_fields_with_number = ['laenge']
     readonly_fields = ['laenge']
     map_feature_tooltip_field = 'zustand'
     map_filter_fields = {
@@ -4454,8 +4534,6 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
       'zustand': 'Zustand'
     }
     map_filter_fields_as_list = ['tierseuche', 'zustand']
-    geometry_type = 'MultiLineString'
-    as_overlay = True
 
   def __str__(self):
     return str(self.tierseuche) + ', ' + str(self.zustand)
@@ -4524,7 +4602,13 @@ class Sporthallen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"sporthallen_hro'
     verbose_name = 'Sporthalle'
     verbose_name_plural = 'Sporthallen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Sporthallen in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
+    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -4545,10 +4629,6 @@ class Sporthallen(SimpleModel):
       'sportart': 'Sportart'
     }
     map_filter_fields_as_list = ['traeger', 'sportart']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-    thumbs = True
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -4656,7 +4736,12 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"stadtteil_begegnungszentren_hro'
     verbose_name = 'Stadtteil- und/oder Begegnungszentrum'
     verbose_name_plural = 'Stadtteil- und Begegnungszentren'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Stadtteil- und Begegnungszentren in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -4673,9 +4758,6 @@ class Stadtteil_Begegnungszentren(SimpleModel):
       'traeger': 'Träger'
     }
     map_filter_fields_as_list = ['traeger']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -4888,8 +4970,13 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_geschaeftslagen_sanierungsgebiet_hro'
     verbose_name = 'Standortqualität einer Geschäftslage im Sanierungsgebiet'
     verbose_name_plural = 'Standortqualitäten von Geschäftslagen im Sanierungsgebiet'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Standortqualitäten von Geschäftslagen ' \
                   'im Sanierungsgebiet der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -4930,9 +5017,6 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
       'quartier': 'Quartier'
     }
     map_filter_fields_as_list = ['quartier']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return str(self.adresse)
@@ -5143,8 +5227,13 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"standortqualitaeten_wohnlagen_sanierungsgebiet_hro'
     verbose_name = 'Standortqualität einer Wohnlage im Sanierungsgebiet'
     verbose_name_plural = 'Standortqualitäten von Wohnlagen im Sanierungsgebiet'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Standortqualitäten von Wohnlagen ' \
                   'im Sanierungsgebiet der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -5185,9 +5274,6 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
       'quartier': 'Quartier'
     }
     map_filter_fields_as_list = ['quartier']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return str(self.adresse)
@@ -5235,7 +5321,11 @@ class Thalasso_Kurwege(SimpleModel):
     db_table = 'fachdaten\".\"thalasso_kurwege_hro'
     verbose_name = 'Thalasso-Kurweg'
     verbose_name_plural = 'Thalasso-Kurwege'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Thalasso-Kurwege in der Hanse- und Universitätsstadt Rostock'
+    readonly_fields = ['laenge']
+    geometry_type = 'LineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -5246,14 +5336,12 @@ class Thalasso_Kurwege(SimpleModel):
       'laenge': 'Länge (in m)'
     }
     list_fields_with_number = ['laenge']
-    readonly_fields = ['laenge']
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'streckenbeschreibung': 'Streckenbeschreibung',
       'barrierefrei': 'barrierefrei?'
     }
-    geometry_type = 'LineString'
 
   def __str__(self):
     return self.bezeichnung
@@ -5297,7 +5385,11 @@ class Toiletten(SimpleModel):
     db_table = 'fachdaten\".\"toiletten_hro'
     verbose_name = 'Toilette'
     verbose_name_plural = 'Toiletten'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Toiletten in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -5320,8 +5412,6 @@ class Toiletten(SimpleModel):
       'wickelmoeglichkeit': 'Wickelmöglichkeit?'
     }
     map_filter_fields_as_list = ['art', 'bewirtschafter']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return str(self.art) + \
@@ -5404,7 +5494,10 @@ class Trinkwassernotbrunnen(SimpleModel):
     db_table = 'fachdaten\".\"trinkwassernotbrunnen_hro'
     verbose_name = 'Trinkwassernotbrunnen'
     verbose_name_plural = 'Trinkwassernotbrunnen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Trinkwassernotbrunnen in der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'nummer': 'Nummer',
@@ -5431,7 +5524,6 @@ class Trinkwassernotbrunnen(SimpleModel):
       'ausbautiefe': 'Ausbautiefe (in m)'
     }
     map_filter_fields_as_list = ['eigentuemer', 'betreiber']
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.nummer
@@ -5528,10 +5620,15 @@ class Vereine(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"vereine_hro'
     verbose_name = 'Verein'
     verbose_name_plural = 'Vereine'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Vereine in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
       'schlagwoerter': 'Schlagwoerter_Vereine'
     }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -5546,9 +5643,6 @@ class Vereine(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'schlagwoerter': 'Schlagwörter'
     }
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -5647,11 +5741,16 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     db_table = 'fachdaten_adressbezug\".\"verkaufstellen_angelberechtigungen_hro'
     verbose_name = 'Verkaufstelle für Angelberechtigungen'
     verbose_name_plural = 'Verkaufstellen für Angelberechtigungen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Verkaufstellen für Angelberechtigungen in der Hanse- und Universitätsstadt ' \
                   'Rostock'
     choices_models_for_choices_fields = {
       'berechtigungen': 'Angelberechtigungen'
     }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -5666,9 +5765,6 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'berechtigungen': 'verkaufte Berechtigung(en)'
     }
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
@@ -5795,7 +5891,18 @@ class Bemas_Altdaten_Verursacher(Basemodel):
     db_table = 'fachdaten_adressbezug\".\"bemas_altdaten_verursacher'
     verbose_name = 'BEMAS-Altdaten: Verursacher'
     verbose_name_plural = 'BEMAS-Altdaten: Verursacher'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'BEMAS-Altdaten: Verursacher'
+    readonly_fields = [
+      'id', 'reason_sector', 'reason_emission_point', 'source_verursacher_strasse',
+      'source_verursacher_plz', 'source_verursacher_ort', 'source_betreiber_name',
+      'source_betreiber_strasse', 'source_betreiber_plz', 'source_betreiber_ort',
+      'target_operator_organization_id', 'target_operator_person_id'
+    ]
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'id': 'ID',
       'bearbeitet': 'bearbeitet?',
@@ -5809,16 +5916,7 @@ class Bemas_Altdaten_Verursacher(Basemodel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    readonly_fields = [
-      'id', 'reason_sector', 'reason_emission_point', 'source_verursacher_strasse',
-      'source_verursacher_plz', 'source_verursacher_ort', 'source_betreiber_name',
-      'source_betreiber_strasse', 'source_betreiber_plz', 'source_betreiber_ort',
-      'target_operator_organization_id', 'target_operator_person_id'
-    ]
     map_feature_tooltip_field = 'id'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
 
   def __str__(self):
     return str(self.id)
@@ -5918,7 +6016,17 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
     db_table = 'fachdaten_adressbezug\".\"bemas_altdaten_beschwerden'
     verbose_name = 'BEMAS-Altdaten: Beschwerde'
     verbose_name_plural = 'BEMAS-Altdaten: Beschwerden'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'BEMAS-Altdaten: Beschwerden'
+    readonly_fields = [
+      'id', 'reason_date_of_receipt', 'reason_type_of_immission', 'reason_originator_id',
+      'reason_immission_point', 'source_beschwerdefuehrer_strasse', 'source_beschwerdefuehrer_plz',
+      'source_beschwerdefuehrer_ort', 'source_immissionsart'
+    ]
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'id': 'ID',
       'bearbeitet': 'bearbeitet?',
@@ -5938,15 +6046,7 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    readonly_fields = [
-      'id', 'reason_date_of_receipt', 'reason_type_of_immission', 'reason_originator_id',
-      'reason_immission_point', 'source_beschwerdefuehrer_strasse', 'source_beschwerdefuehrer_plz',
-      'source_beschwerdefuehrer_ort', 'source_immissionsart'
-    ]
     map_feature_tooltip_field = 'id'
-    address_type = 'Adresse'
-    address_mandatory = False
-    geometry_type = 'Point'
 
   def __str__(self):
     return str(self.id)

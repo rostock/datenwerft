@@ -56,7 +56,7 @@ def delete_photo(sender, instance, **kwargs):
   :param **kwargs
   """
   if hasattr(instance, 'foto') and instance.foto:
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
+    if sender.BasemodelMeta.thumbs:
       path = get_path(instance.foto.url)
       thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
       try:
@@ -84,7 +84,7 @@ def delete_photo_after_emptied(sender, instance, created, **kwargs):
   # und wenn Datenobjekt nicht neu hinzugefügt, sondern aktualisiert wurde
   if pre_save_instance.foto and not instance.foto and not created:
     path = get_path(pre_save_instance.foto.url)
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
+    if sender.BasemodelMeta.thumbs:
       thumb = Path(PurePath(path).parent / 'thumbs' / PurePath(path).name)
       try:
         delete_duplicate_photos_with_other_suffixes(thumb)
@@ -171,7 +171,7 @@ def photo_post_processing(sender, instance, **kwargs):
     # falls Foto(s) mit derselben UUID, aber unterschiedlichem Dateityp (also Suffix), vorhanden:
     # diese(s) löschen und natürlich auch das/die entsprechende(n) Thumbnail(s)
     delete_duplicate_photos_with_other_suffixes(path)
-    if hasattr(sender._meta, 'thumbs') and sender._meta.thumbs:
+    if sender.BasemodelMeta.thumbs:
       thumb_path = Path(PurePath(path).parent / 'thumbs')
       if not thumb_path.exists():
         if path.exists():
@@ -194,7 +194,7 @@ def rotate_image(path):
       for orientation in list(ExifTags.TAGS.keys()):
         if ExifTags.TAGS[orientation] == 'Orientation':
           break
-      exif = dict(list(image._getexif().items()))
+      exif = dict(list(image.getexif().items()))
       if exif[orientation] == 3:
         image = image.rotate(180, expand=True)
       elif exif[orientation] == 6:
@@ -216,8 +216,6 @@ def thumb_image(path, thumb_path):
   """
   try:
     if path.exists():
-      print(path)
-      print(thumb_path)
       image = Image.open(path)
       image.thumbnail((70, 70), Image.Resampling.LANCZOS)
       image.save(thumb_path, optimize=True, quality=20)

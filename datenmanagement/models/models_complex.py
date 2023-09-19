@@ -82,9 +82,19 @@ class Adressunsicherheiten(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_adressbezug\".\"adressunsicherheiten_hro'
+    ordering = ['adresse', 'art']
     verbose_name = 'Adressunsicherheit'
     verbose_name_plural = 'Adressunsicherheiten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Adressunsicherheiten in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Adressunsicherheiten_Fotos': 'adressunsicherheit'
+    }
+    address_type = 'Adresse'
+    address_mandatory = True
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -95,9 +105,6 @@ class Adressunsicherheiten(ComplexModel):
       'adresse': 'adresse',
       'art': 'art'
     }
-    associated_models = {
-      'Adressunsicherheiten_Fotos': 'adressunsicherheit'
-    }
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -105,11 +112,6 @@ class Adressunsicherheiten(ComplexModel):
       'beschreibung': 'Beschreibung'
     }
     map_filter_fields_as_list = ['art']
-    address_type = 'Adresse'
-    address_mandatory = True
-    geometry_type = 'Point'
-    as_overlay = True
-    ordering = ['adresse', 'art']
 
   def __str__(self):
     return str(self.art) + (' ' + str(self.adresse) if self.adresse else '')
@@ -151,8 +153,16 @@ class Adressunsicherheiten_Fotos(ComplexModel):
     db_table = 'fachdaten\".\"adressunsicherheiten_fotos_hro'
     verbose_name = 'Foto einer Adressunsicherheit'
     verbose_name_plural = 'Fotos der Adressunsicherheiten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos der Adressunsicherheiten ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['adressunsicherheit']
+    object_title = 'das Foto'
+    foreign_key_label = 'Adressunsicherheit'
+    thumbs = True
+    multi_foto_field = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adressunsicherheit': 'Adressunsicherheit',
@@ -160,16 +170,10 @@ class Adressunsicherheiten_Fotos(ComplexModel):
       'dateiname_original': 'Original-Dateiname',
       'foto': 'Foto'
     }
-    readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
       'adressunsicherheit': 'adresse'
     }
-    fields_with_foreign_key_to_linkify = ['adressunsicherheit']
-    object_title = 'das Foto'
-    foreign_key_label = 'Adressunsicherheit'
-    thumbs = True
-    multi_foto_field = True
 
   def __str__(self):
     return str(self.adressunsicherheit) + \
@@ -247,14 +251,23 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"baustellen_fotodokumentation_baustellen_hro'
+    ordering = ['bezeichnung']
     verbose_name = 'Baustelle der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Baustellen der Baustellen-Fotodokumentation'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Baustellen der Baustellen-Fotodokumentation ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    associated_models = {
+      'Baustellen_Fotodokumentation_Fotos': 'baustellen_fotodokumentation_baustelle'
+    }
     choices_models_for_choices_fields = {
       'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
       'sparten': 'Sparten_Baustellen'
     }
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse': 'Straße',
@@ -269,9 +282,6 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
       'strasse': 'strasse',
       'auftraggeber': 'auftraggeber'
     }
-    associated_models = {
-      'Baustellen_Fotodokumentation_Fotos': 'baustellen_fotodokumentation_baustelle'
-    }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -279,10 +289,6 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
       'auftraggeber': 'Auftraggeber'
     }
     map_filter_fields_as_list = ['auftraggeber']
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'Point'
-    ordering = ['bezeichnung']
 
   def __str__(self):
     return self.bezeichnung + (' [Straße: ' + str(self.strasse) + ']' if self.strasse else '')
@@ -332,8 +338,16 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     db_table = 'fachdaten\".\"baustellen_fotodokumentation_fotos_hro'
     verbose_name = 'Foto der Baustellen-Fotodokumentation'
     verbose_name_plural = 'Fotos der Baustellen-Fotodokumentation'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos der Baustellen-Fotodokumentation ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
+    object_title = 'das Foto'
+    foreign_key_label = 'Baustelle'
+    thumbs = True
+    multi_foto_field = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baustellen_fotodokumentation_baustelle': 'Baustelle',
@@ -342,17 +356,11 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
       'dateiname_original': 'Original-Dateiname',
       'foto': 'Foto'
     }
-    readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
       'baustellen_fotodokumentation_baustelle': 'bezeichnung',
       'status': 'status'
     }
-    fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
-    object_title = 'das Foto'
-    foreign_key_label = 'Baustelle'
-    thumbs = True
-    multi_foto_field = True
 
   def __str__(self):
     return str(self.baustellen_fotodokumentation_baustelle) + \
@@ -465,13 +473,26 @@ class Baustellen_geplant(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"baustellen_geplant'
+    ordering = ['bezeichnung']
     verbose_name = 'Baustelle (geplant)'
     verbose_name_plural = 'Baustellen (geplant)'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Baustellen (geplant) in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    as_overlay = True
+    associated_models = {
+      'Baustellen_geplant_Dokumente': 'baustelle_geplant',
+      'Baustellen_geplant_Links': 'baustelle_geplant'
+    }
     choices_models_for_choices_fields = {
       'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
       'sparten': 'Sparten_Baustellen'
     }
+    group_with_users_for_choice_field = 'baustellen_geplant_full'
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'MultiPolygon'
+    geojson_input = True
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse': 'Straße',
@@ -492,11 +513,7 @@ class Baustellen_geplant(ComplexModel):
       'auftraggeber': 'auftraggeber',
       'status': 'status'
     }
-    associated_models = {
-      'Baustellen_geplant_Dokumente': 'baustelle_geplant',
-      'Baustellen_geplant_Links': 'baustelle_geplant'
-    }
-    highlight_flag = 'konflikt'
+    list_highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
     map_one_click_filters = True
     map_deadlinefilter_fields = ['beginn', 'ende']
@@ -511,13 +528,6 @@ class Baustellen_geplant(ComplexModel):
     map_filter_hide_initial = {
       'status': 'abgeschlossen'
     }
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiPolygon'
-    group_with_users_for_choice_field = 'baustellen_geplant_full'
-    ordering = ['bezeichnung']
-    geojson_input = True
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung + ' [' + \
@@ -558,8 +568,13 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     db_table = 'fachdaten\".\"baustellen_geplant_dokumente'
     verbose_name = 'Dokument der Baustelle (geplant)'
     verbose_name_plural = 'Dokumente der Baustellen (geplant)'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Dokumente der Baustellen (geplant) ' \
                   'in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    fields_with_foreign_key_to_linkify = ['baustelle_geplant']
+    object_title = 'das Dokument'
+    foreign_key_label = 'Baustelle (geplant)'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
@@ -569,9 +584,6 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     list_fields_with_foreign_key = {
       'baustelle_geplant': 'bezeichnung'
     }
-    fields_with_foreign_key_to_linkify = ['baustelle_geplant']
-    object_title = 'das Dokument'
-    foreign_key_label = 'Baustelle (geplant)'
 
   def __str__(self):
     return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
@@ -613,8 +625,13 @@ class Baustellen_geplant_Links(ComplexModel):
     db_table = 'fachdaten\".\"baustellen_geplant_links'
     verbose_name = 'Link der Baustelle (geplant)'
     verbose_name_plural = 'Links der Baustellen (geplant)'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Links der Baustellen (geplant) ' \
                   'in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    fields_with_foreign_key_to_linkify = ['baustelle_geplant']
+    object_title = 'der Link'
+    foreign_key_label = 'Baustelle (geplant)'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
@@ -624,9 +641,6 @@ class Baustellen_geplant_Links(ComplexModel):
     list_fields_with_foreign_key = {
       'baustelle_geplant': 'bezeichnung'
     }
-    fields_with_foreign_key_to_linkify = ['baustelle_geplant']
-    object_title = 'der Link'
-    foreign_key_label = 'Baustelle (geplant)'
 
   def __str__(self):
     return str(self.baustelle_geplant) + ' mit Bezeichnung ' + self.bezeichnung
@@ -772,9 +786,17 @@ class Durchlaesse_Durchlaesse(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"durchlaesse_durchlaesse_hro'
+    ordering = ['aktenzeichen']
     verbose_name = 'Durchlass'
     verbose_name_plural = 'Durchlässe'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Durchlaesse_Fotos': 'durchlaesse_durchlass'
+    }
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -786,13 +808,10 @@ class Durchlaesse_Durchlaesse(ComplexModel):
       'zustaendigkeit': 'Zuständigkeit',
       'bearbeiter': 'Bearbeiter:in'
     }
+    list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
     list_fields_with_foreign_key = {
       'art': 'art',
       'material': 'material'
-    }
-    list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
-    associated_models = {
-      'Durchlaesse_Fotos': 'durchlaesse_durchlass'
     }
     map_feature_tooltip_field = 'aktenzeichen'
     map_filter_fields = {
@@ -806,9 +825,6 @@ class Durchlaesse_Durchlaesse(ComplexModel):
       'bearbeiter': 'Bearbeiter:in'
     }
     map_filter_fields_as_list = ['art', 'material']
-    geometry_type = 'Point'
-    ordering = ['aktenzeichen']
-    as_overlay = True
 
   def __str__(self):
     return self.aktenzeichen
@@ -859,7 +875,15 @@ class Durchlaesse_Fotos(ComplexModel):
     db_table = 'fachdaten\".\"durchlaesse_fotos_hro'
     verbose_name = 'Foto des Durchlasses'
     verbose_name_plural = 'Fotos der Durchlässe'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos der Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
+    object_title = 'das Foto'
+    foreign_key_label = 'Durchlass'
+    thumbs = True
+    multi_foto_field = True
     list_fields = {
       'aktiv': 'aktiv?',
       'durchlaesse_durchlass': 'Durchlass',
@@ -868,16 +892,10 @@ class Durchlaesse_Fotos(ComplexModel):
       'dateiname_original': 'Original-Dateiname',
       'foto': 'Foto'
     }
-    readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
       'durchlaesse_durchlass': 'aktenzeichen'
     }
-    fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
-    object_title = 'das Foto'
-    foreign_key_label = 'Durchlass'
-    thumbs = True
-    multi_foto_field = True
 
   def __str__(self):
     return str(self.durchlaesse_durchlass) + \
@@ -918,10 +936,18 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"fallwildsuchen_kontrollgebiete_hro'
+    ordering = ['bezeichnung']
     verbose_name = 'Kontrollgebiet im Rahmen einer Fallwildsuche'
     verbose_name_plural = 'Kontrollgebiete im Rahmen von Fallwildsuchen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Kontrollgebiete im Rahmen von Fallwildsuchen ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Fallwildsuchen_Nachweise': 'kontrollgebiet'
+    }
+    geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'tierseuche': 'Tierseuche',
@@ -930,18 +956,12 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung'
     }
-    associated_models = {
-      'Fallwildsuchen_Nachweise': 'kontrollgebiet'
-    }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
       'bezeichnung': 'Bezeichnung'
     }
     map_filter_fields_as_list = ['tierseuche']
-    geometry_type = 'Polygon'
-    ordering = ['bezeichnung']
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung
@@ -977,8 +997,16 @@ class Fallwildsuchen_Nachweise(ComplexModel):
     db_table = 'fachdaten\".\"fallwildsuchen_nachweise_hro'
     verbose_name = 'Nachweis im Rahmen einer Fallwildsuche'
     verbose_name_plural = 'Nachweise im Rahmen von Fallwildsuchen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Nachweise im Rahmen von Fallwildsuchen ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    fields_with_foreign_key_to_linkify = ['kontrollgebiet']
+    object_title = 'der Nachweis im Rahmen einer Fallwildsuche'
+    foreign_key_label = 'Kontrollgebiet'
+    geometry_type = 'MultiLineString'
+    gpx_input = True
     list_fields = {
       'aktiv': 'aktiv?',
       'kontrollgebiet': 'Kontrollgebiet',
@@ -1001,12 +1029,6 @@ class Fallwildsuchen_Nachweise(ComplexModel):
       'art_kontrolle': 'Art der Kontrolle'
     }
     map_filter_fields_as_list = ['kontrollgebiet', 'art_kontrolle']
-    geometry_type = 'MultiLineString'
-    fields_with_foreign_key_to_linkify = ['kontrollgebiet']
-    object_title = 'der Nachweis im Rahmen einer Fallwildsuche'
-    foreign_key_label = 'Kontrollgebiet'
-    gpx_input = True
-    as_overlay = True
 
   def __str__(self):
     local_tz = ZoneInfo(settings.TIME_ZONE)
@@ -1188,9 +1210,20 @@ class Geh_Radwegereinigung(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"geh_und_radwegereinigung_hro'
+    ordering = ['id']
     verbose_name = 'Geh- und Radwegereinigung'
     verbose_name_plural = 'Geh- und Radwegereinigung'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Geh_Radwegereinigung_Flaechen': 'geh_und_radwegereinigung'
+    }
+    readonly_fields = ['id', 'gemeindeteil', 'laenge']
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -1206,6 +1239,7 @@ class Geh_Radwegereinigung(ComplexModel):
       'breite': 'Breite (in m)',
       'winterdienst': 'Winterdienst?'
     }
+    list_fields_with_number = ['id', 'laenge', 'breite']
     list_fields_with_foreign_key = {
       'gemeindeteil': 'gemeindeteil',
       'strasse': 'strasse',
@@ -1215,11 +1249,6 @@ class Geh_Radwegereinigung(ComplexModel):
       'reinigungsklasse': 'code',
       'reinigungsrhythmus': 'reinigungsrhythmus',
       'breite': 'wegebreite'
-    }
-    list_fields_with_number = ['id', 'laenge', 'breite']
-    readonly_fields = ['id', 'gemeindeteil', 'laenge']
-    associated_models = {
-      'Geh_Radwegereinigung_Flaechen': 'geh_und_radwegereinigung'
     }
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
@@ -1261,11 +1290,6 @@ class Geh_Radwegereinigung(ComplexModel):
         'layers': 'hro.strassenreinigung.strassenreinigung'
       }
     ]
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiLineString'
-    ordering = ['id']
-    as_overlay = True
 
   def __str__(self):
     return str(self.id) + (', ' + str(self.nummer) if self.nummer else '') + (
@@ -1300,7 +1324,14 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
     db_table = 'fachdaten\".\"geh_und_radwegereinigung_flaechen_hro'
     verbose_name = 'Fläche zur Geh- und Radwegereinigung'
     verbose_name_plural = 'Flächen zur Geh- und Radwegereinigung'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Flächen zur Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    fields_with_foreign_key_to_linkify = ['geh_und_radwegereinigung']
+    object_title = 'die Fläche'
+    foreign_key_label = 'Geh- und Radwegereinigung'
+    geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'geh_und_radwegereinigung': 'Geh- und Radwegereinigung'
@@ -1309,11 +1340,6 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
       'geh_und_radwegereinigung': 'id'
     }
     map_feature_tooltip_field = 'geh_und_radwegereinigung'
-    geometry_type = 'MultiPolygon'
-    fields_with_foreign_key_to_linkify = ['geh_und_radwegereinigung']
-    object_title = 'die Fläche'
-    foreign_key_label = 'Geh- und Radwegereinigung'
-    as_overlay = True
 
   def __str__(self):
     return str(self.geh_und_radwegereinigung)
@@ -1809,13 +1835,22 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"haltestellenkataster_haltestellen_hro'
     unique_together = ['hst_hafas_id', 'hst_bus_bahnsteigbezeichnung']
+    ordering = ['id']
     verbose_name = 'Haltestelle des Haltestellenkatasters'
     verbose_name_plural = 'Haltestellen des Haltestellenkatasters'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Haltestellen des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Haltestellenkataster_Fotos': 'haltestellenkataster_haltestelle'
+    }
+    readonly_fields = ['id']
     choices_models_for_choices_fields = {
       'hst_linien': 'Linien',
       'hst_verkehrsmittelklassen': 'Verkehrsmittelklassen'
     }
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Außerbetriebstellung',
@@ -1826,14 +1861,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     }
     list_fields_with_date = ['deaktiviert']
     list_fields_with_number = ['id']
-    associated_models = {
-      'Haltestellenkataster_Fotos': 'haltestellenkataster_haltestelle'
-    }
-    readonly_fields = ['id']
     map_feature_tooltip_field = 'hst_bezeichnung'
-    geometry_type = 'Point'
-    ordering = ['id']
-    as_overlay = True
 
   def __str__(self):
     return self.hst_bezeichnung + ' [ID: ' + str(self.id) + \
@@ -1886,7 +1914,15 @@ class Haltestellenkataster_Fotos(ComplexModel):
     db_table = 'fachdaten\".\"haltestellenkataster_fotos_hro'
     verbose_name = 'Foto des Haltestellenkatasters'
     verbose_name_plural = 'Fotos des Haltestellenkatasters'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
+    object_title = 'das Foto'
+    foreign_key_label = 'Haltestelle'
+    thumbs = True
+    multi_foto_field = True
     list_fields = {
       'aktiv': 'aktiv?',
       'haltestellenkataster_haltestelle': 'Haltestelle',
@@ -1895,17 +1931,11 @@ class Haltestellenkataster_Fotos(ComplexModel):
       'dateiname_original': 'Original-Dateiname',
       'foto': 'Foto'
     }
-    readonly_fields = ['dateiname_original']
     list_fields_with_date = ['aufnahmedatum']
     list_fields_with_foreign_key = {
       'haltestellenkataster_haltestelle': 'id',
       'motiv': 'fotomotiv'
     }
-    fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
-    object_title = 'das Foto'
-    foreign_key_label = 'Haltestelle'
-    thumbs = True
-    multi_foto_field = True
 
   def __str__(self):
     return str(self.haltestellenkataster_haltestelle) + ' mit Motiv ' + str(self.motiv) + \
@@ -2086,19 +2116,20 @@ class Parkscheinautomaten_Tarife(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"parkscheinautomaten_tarife_hro'
+    ordering = ['bezeichnung']
     verbose_name = 'Tarif der Parkscheinautomaten'
     verbose_name_plural = 'Tarife der Parkscheinautomaten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Tarife der Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    associated_models = {
+      'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'
+    }
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
       'zeiten': 'Bewirtschaftungszeiten'
     }
-    associated_models = {
-      'Parkscheinautomaten_Parkscheinautomaten': 'parkscheinautomaten_tarif'
-    }
-    ordering = ['bezeichnung']
-    as_overlay = False
 
   def __str__(self):
     return self.bezeichnung
@@ -2200,7 +2231,12 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     db_table = 'fachdaten\".\"parkscheinautomaten_parkscheinautomaten_hro'
     verbose_name = 'Parkscheinautomat'
     verbose_name_plural = 'Parkscheinautomaten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'parkscheinautomaten_tarif': 'Tarif',
@@ -2212,7 +2248,6 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       'parkscheinautomaten_tarif': 'bezeichnung',
       'zone': 'zone'
     }
-    fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'parkscheinautomaten_tarif': 'Tarif',
@@ -2221,8 +2256,6 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       'zone': 'Zone'
     }
     map_filter_fields_as_list = ['parkscheinautomaten_tarif', 'zone']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung
@@ -2251,21 +2284,23 @@ class RSAG_Gleise(ComplexModel):
     db_table = 'fachdaten\".\"rsag_gleise_hro'
     verbose_name = 'RSAG-Gleis'
     verbose_name_plural = 'RSAG-Gleise'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Gleise innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?',
       'quelle': 'Quelle'
     }
+    heavy_load_limit = 800
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'uuid': 'UUID',
       'quelle': 'Quelle'
     }
-    geometry_type = 'LineString'
-    as_overlay = True
-    heavy_load_limit = 800
 
   def __str__(self):
     return str(self.uuid)
@@ -2541,10 +2576,19 @@ class RSAG_Masten(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"rsag_masten_hro'
+    ordering = ['mastnummer']
     verbose_name = 'RSAG-Mast'
     verbose_name_plural = 'RSAG-Masten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'RSAG_Quertraeger': 'mast',
+      'RSAG_Spanndraehte': 'mast'
+    }
+    geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
       'mastnummer': 'Mastnummer',
@@ -2586,13 +2630,6 @@ class RSAG_Masten(ComplexModel):
       'mastkennzeichen_3',
       'mastkennzeichen_4'
     ]
-    associated_models = {
-      'RSAG_Quertraeger': 'mast',
-      'RSAG_Spanndraehte': 'mast'
-    }
-    ordering = ['mastnummer']
-    geometry_type = 'Point'
-    as_overlay = True
 
   def __str__(self):
     return self.mastnummer
@@ -2610,8 +2647,12 @@ class RSAG_Leitungen(ComplexModel):
     db_table = 'fachdaten\".\"rsag_leitungen_hro'
     verbose_name = 'RSAG-Oberleitung'
     verbose_name_plural = 'RSAG-Oberleitungen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Oberleitungen innerhalb der Straßenbahninfrastruktur ' \
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?'
@@ -2620,8 +2661,6 @@ class RSAG_Leitungen(ComplexModel):
     map_filter_fields = {
       'uuid': 'UUID'
     }
-    geometry_type = 'LineString'
-    as_overlay = True
 
   def __str__(self):
     return str(self.uuid)
@@ -2654,8 +2693,13 @@ class RSAG_Quertraeger(ComplexModel):
     db_table = 'fachdaten\".\"rsag_quertraeger_hro'
     verbose_name = 'RSAG-Querträger'
     verbose_name_plural = 'RSAG-Querträger'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Querträger innerhalb der Straßenbahninfrastruktur ' \
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    fields_with_foreign_key_to_linkify = ['mast']
+    geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?',
@@ -2665,7 +2709,6 @@ class RSAG_Quertraeger(ComplexModel):
     list_fields_with_foreign_key = {
       'mast': 'mastnummer'
     }
-    fields_with_foreign_key_to_linkify = ['mast']
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'uuid': 'UUID',
@@ -2673,8 +2716,6 @@ class RSAG_Quertraeger(ComplexModel):
       'quelle': 'Quelle'
     }
     map_filter_fields_as_list = ['mast']
-    geometry_type = 'LineString'
-    as_overlay = True
 
   def __str__(self):
     return str(self.uuid)
@@ -2709,8 +2750,13 @@ class RSAG_Spanndraehte(ComplexModel):
     db_table = 'fachdaten\".\"rsag_spanndraehte_hro'
     verbose_name = 'RSAG-Spanndraht'
     verbose_name_plural = 'RSAG-Spanndrähte'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Spanndrähte innerhalb der Straßenbahninfrastruktur ' \
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    fields_with_foreign_key_to_linkify = ['mast']
+    geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
       'aktiv': 'aktiv?',
@@ -2720,7 +2766,6 @@ class RSAG_Spanndraehte(ComplexModel):
     list_fields_with_foreign_key = {
       'mast': 'mastnummer'
     }
-    fields_with_foreign_key_to_linkify = ['mast']
     map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'uuid': 'UUID',
@@ -2728,8 +2773,6 @@ class RSAG_Spanndraehte(ComplexModel):
       'quelle': 'Quelle'
     }
     map_filter_fields_as_list = ['mast']
-    geometry_type = 'LineString'
-    as_overlay = True
 
   def __str__(self):
     return str(self.uuid)
@@ -2827,9 +2870,20 @@ class Strassenreinigung(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten_strassenbezug\".\"strassenreinigung_hro'
+    ordering = ['id']
     verbose_name = 'Straßenreinigung'
     verbose_name_plural = 'Straßenreinigung'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Strassenreinigung_Flaechen': 'strassenreinigung'
+    }
+    readonly_fields = ['id', 'gemeindeteil', 'laenge']
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -2843,6 +2897,7 @@ class Strassenreinigung(ComplexModel):
       'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
       'laenge': 'Länge (in m)'
     }
+    list_fields_with_number = ['id', 'laenge']
     list_fields_with_foreign_key = {
       'gemeindeteil': 'gemeindeteil',
       'strasse': 'strasse',
@@ -2850,11 +2905,6 @@ class Strassenreinigung(ComplexModel):
       'reinigungsklasse': 'code',
       'reinigungsrhythmus': 'reinigungsrhythmus',
       'fahrbahnwinterdienst': 'code'
-    }
-    list_fields_with_number = ['id', 'laenge']
-    readonly_fields = ['id', 'gemeindeteil', 'laenge']
-    associated_models = {
-      'Strassenreinigung_Flaechen': 'strassenreinigung'
     }
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
@@ -2891,11 +2941,6 @@ class Strassenreinigung(ComplexModel):
         'layers': 'hro.strassenreinigung.strassenreinigung'
       }
     ]
-    address_type = 'Straße'
-    address_mandatory = False
-    geometry_type = 'MultiLineString'
-    ordering = ['id']
-    as_overlay = True
 
   def __str__(self):
     return str(self.id) + (', ' + str(self.beschreibung) if self.beschreibung else '') + \
@@ -2928,7 +2973,14 @@ class Strassenreinigung_Flaechen(ComplexModel):
     db_table = 'fachdaten\".\"strassenreinigung_flaechen_hro'
     verbose_name = 'Fläche zur Straßenreinigung'
     verbose_name_plural = 'Flächen zur Straßenreinigung'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Flächen zur Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    fields_with_foreign_key_to_linkify = ['strassenreinigung']
+    object_title = 'die Fläche'
+    foreign_key_label = 'Straßenreinigung'
+    geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'strassenreinigung': 'Straßenreinigung'
@@ -2937,11 +2989,6 @@ class Strassenreinigung_Flaechen(ComplexModel):
       'strassenreinigung': 'id'
     }
     map_feature_tooltip_field = 'strassenreinigung'
-    geometry_type = 'MultiPolygon'
-    fields_with_foreign_key_to_linkify = ['strassenreinigung']
-    object_title = 'die Fläche'
-    foreign_key_label = 'Straßenreinigung'
-    as_overlay = True
 
   def __str__(self):
     return str(self.strassenreinigung)
@@ -2985,9 +3032,19 @@ class Strassen_Simple(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"strassen_hro'
+    ordering = ['bezeichnung', 'schluessel']
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Straßen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    forms_in_mobile_mode = True
+    associated_models = {
+      'Strassen_Simple_Historie': 'strasse_simple',
+      'Strassen_Simple_Namensanalyse': 'strasse_simple'
+    }
+    geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'kategorie': 'Kategorie',
@@ -2997,10 +3054,7 @@ class Strassen_Simple(ComplexModel):
     list_fields_with_foreign_key = {
       'kategorie': 'code'
     }
-    associated_models = {
-      'Strassen_Simple_Historie': 'strasse_simple',
-      'Strassen_Simple_Namensanalyse': 'strasse_simple'
-    }
+    heavy_load_limit = 600
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'kategorie': 'Kategorie',
@@ -3068,11 +3122,6 @@ class Strassen_Simple(ComplexModel):
         'proxy': True
       }
     ]
-    geometry_type = 'MultiLineString'
-    ordering = ['bezeichnung', 'schluessel']
-    as_overlay = True
-    heavy_load_limit = 600
-    forms_in_mobile_mode = True
 
   def __str__(self):
     return self.bezeichnung + ' (' + self.schluessel + ')'
@@ -3125,7 +3174,12 @@ class Strassen_Simple_Historie(ComplexModel):
     db_table = 'fachdaten\".\"strassen_historie_hro'
     verbose_name = 'Historie zu einer Straße'
     verbose_name_plural = 'Historie zu Straßen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Historie zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    fields_with_foreign_key_to_linkify = ['strasse_simple']
+    object_title = 'die Historie'
+    foreign_key_label = 'Straße'
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse_simple': 'Straße',
@@ -3137,9 +3191,6 @@ class Strassen_Simple_Historie(ComplexModel):
     list_fields_with_foreign_key = {
       'strasse_simple': 'bezeichnung'
     }
-    fields_with_foreign_key_to_linkify = ['strasse_simple']
-    object_title = 'die Historie'
-    foreign_key_label = 'Straße'
 
   def __str__(self):
     return str(self.strasse_simple)
@@ -3245,7 +3296,12 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     db_table = 'fachdaten\".\"strassen_namensanalye_hro'
     verbose_name = 'Namensanalyse zu einer Straße'
     verbose_name_plural = 'Namensanalyse zu Straßen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Namensanalyse zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    fields_with_foreign_key_to_linkify = ['strasse_simple']
+    object_title = 'die Namensanalyse'
+    foreign_key_label = 'Straße'
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse_simple': 'Straße',
@@ -3267,9 +3323,6 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     list_fields_with_foreign_key = {
       'strasse_simple': 'bezeichnung'
     }
-    fields_with_foreign_key_to_linkify = ['strasse_simple']
-    object_title = 'die Namensanalyse'
-    foreign_key_label = 'Straße'
 
   def __str__(self):
     return str(self.strasse_simple)
@@ -3348,10 +3401,18 @@ class UVP_Vorhaben(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"uvp_vorhaben_hro'
+    ordering = ['bezeichnung']
     verbose_name = 'UVP-Vorhaben'
     verbose_name_plural = 'UVP-Vorhaben'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Vorhaben, auf die sich Vorprüfungen der Hanse- und Universitätsstadt Rostock ' \
                   'zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V beziehen'
+    as_overlay = True
+    associated_models = {
+      'UVP_Vorpruefungen': 'uvp_vorhaben'
+    }
+    geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -3362,15 +3423,12 @@ class UVP_Vorhaben(ComplexModel):
       'rechtsgrundlage': 'Rechtsgrundlage',
       'typ': 'Typ'
     }
+    list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
     list_fields_with_foreign_key = {
       'vorgangsart': 'vorgangsart',
       'genehmigungsbehoerde': 'genehmigungsbehoerde',
       'rechtsgrundlage': 'rechtsgrundlage',
       'typ': 'typ'
-    }
-    list_fields_with_date = ['datum_posteingang_genehmigungsbehoerde']
-    associated_models = {
-      'UVP_Vorpruefungen': 'uvp_vorhaben'
     }
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3388,9 +3446,6 @@ class UVP_Vorhaben(ComplexModel):
       'rechtsgrundlage',
       'typ'
     ]
-    geometry_type = 'Polygon'
-    ordering = ['bezeichnung']
-    as_overlay = True
 
   def __str__(self):
     return self.bezeichnung
@@ -3453,8 +3508,13 @@ class UVP_Vorpruefungen(ComplexModel):
     db_table = 'fachdaten\".\"uvp_vorpruefungen_hro'
     verbose_name = 'UVP-Vorprüfung'
     verbose_name_plural = 'UVP-Vorprüfungen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock ' \
                   'zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
+    fields_with_foreign_key_to_linkify = ['uvp_vorhaben']
+    object_title = 'die UVP-Vorprüfung'
+    foreign_key_label = 'Vorhaben'
     list_fields = {
       'aktiv': 'aktiv?',
       'uvp_vorhaben': 'Vorhaben',
@@ -3469,9 +3529,6 @@ class UVP_Vorpruefungen(ComplexModel):
       'art': 'art',
       'ergebnis': 'ergebnis'
     }
-    fields_with_foreign_key_to_linkify = ['uvp_vorhaben']
-    object_title = 'die UVP-Vorprüfung'
-    foreign_key_label = 'Vorhaben'
 
   def __str__(self):
     return str(self.uvp_vorhaben) + ' mit Datum ' + \

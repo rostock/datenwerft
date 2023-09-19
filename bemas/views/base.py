@@ -211,7 +211,7 @@ class GenericTableDataView(BaseDatatableView):
                           '" title="Journalereignisse anzeigen"></i></a>'
           map_link = ''
           if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
-            point = getattr(item, self.model._meta.model.BasemodelMeta.geometry_field)
+            point = getattr(item, self.model.BasemodelMeta.geometry_field)
             map_link = '<a class="ms-2" href="' + reverse('bemas:map')
             map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
             map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + \

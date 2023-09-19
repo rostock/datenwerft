@@ -28,33 +28,16 @@ class DataView(BaseDatatableView):
     self.model = model
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
-    self.editable = (
-        self.model._meta.editable if hasattr(
-            self.model._meta, 'editable') else True)
-    self.columns = self.model._meta.list_fields
+    self.editable = self.model.BasemodelMeta.editable
     self.columns_with_foreign_key_to_linkify = (
-        self.model._meta.fields_with_foreign_key_to_linkify if hasattr(
-            self.model._meta,
-            'fields_with_foreign_key_to_linkify') else None)
-    self.columns_with_foreign_key = (
-        self.model._meta.list_fields_with_foreign_key if hasattr(
-            self.model._meta, 'list_fields_with_foreign_key') else None)
-    self.columns_with_number = (
-        self.model._meta.list_fields_with_number if hasattr(
-            self.model._meta, 'list_fields_with_number') else None)
-    self.columns_with_date = (
-        self.model._meta.list_fields_with_date if hasattr(
-            self.model._meta,
-            'list_fields_with_date') else None)
-    self.columns_with_datetime = (
-        self.model._meta.list_fields_with_datetime if hasattr(
-            self.model._meta,
-            'list_fields_with_datetime') else None)
-    self.column_as_highlight_flag = (
-        self.model._meta.highlight_flag if hasattr(
-            self.model._meta, 'highlight_flag') else None)
-    self.thumbs = (self.model._meta.thumbs if hasattr(self.model._meta,
-                                                      'thumbs') else None)
+      self.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
+    self.columns = self.model.BasemodelMeta.list_fields
+    self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
+    self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
+    self.columns_with_number = self.model.BasemodelMeta.list_fields_with_number
+    self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
+    self.column_as_highlight_flag = self.model.BasemodelMeta.list_highlight_flag
+    self.thumbs = self.model.BasemodelMeta.thumbs
     super(DataView, self).__init__()
 
   def get_initial_queryset(self):
@@ -82,7 +65,8 @@ class DataView(BaseDatatableView):
       ):
         d = ' disabled'
       cb = '<input class="action-checkbox" type="checkbox" value="' + str(item_id) + '"' + d + '>'
-      item_data.append(cb)
+      if self.editable:
+        item_data.append(cb)
       for column in self.columns:
         data = None
         value = getattr(item, column)
@@ -132,16 +116,18 @@ class DataView(BaseDatatableView):
             replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
           datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
           data = datetimestamp_str
-        elif (value is not None and
-              value and
-              self.column_as_highlight_flag is not None and
-              column == self.column_as_highlight_flag):
+        elif (
+            value is not None
+            and value
+            and self.column_as_highlight_flag is not None
+            and column == self.column_as_highlight_flag
+        ):
           data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
         elif value is not None and column == 'foto':
           try:
             data = ('<a href="' + value.url + '?' + str(time()) +
                     '" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">')
-            if self.thumbs is not None and self.thumbs:
+            if self.thumbs:
               data += '<img src="' + get_thumb_url(
                   value.url) + '?' + str(
                   time()) + '" alt="Vorschau" />'
@@ -296,8 +282,9 @@ class DataListView(generic.ListView):
     """
     context = super(DataListView, self).get_context_data(**kwargs)
     context = set_model_related_context_elements(context, self.model, self.kwargs)
-    context['list_fields_labels'] = list(self.model._meta.list_fields.values())
-    context['thumbs'] = (self.model._meta.thumbs if hasattr(self.model._meta, 'thumbs') else None)
+    context['list_fields_labels'] = list(self.model.BasemodelMeta.list_fields.values()) if (
+      self.model.BasemodelMeta.list_fields) else None
+    context['thumbs'] = self.model.BasemodelMeta.thumbs
     return context
 
 
@@ -316,9 +303,7 @@ class DataMapView(JsonView):
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
     self.model_pk_field = self.model._meta.pk.name
-    self.editable = (
-        self.model._meta.editable if hasattr(
-            self.model._meta, 'editable') else True)
+    self.editable = self.model.BasemodelMeta.editable
     super(DataMapView, self).__init__()
 
   def get_context_data(self, **kwargs):
@@ -356,19 +341,18 @@ class DataMapView(JsonView):
                       [curr_object],
                       srid=25833))
         # Tooltip erzeugen
-        if hasattr(self.model._meta, 'map_feature_tooltip_field'):
-          data = getattr(
-              curr_object, self.model._meta.map_feature_tooltip_field)
+        if self.model.BasemodelMeta.map_feature_tooltip_field:
+          data = getattr(curr_object, self.model.BasemodelMeta.map_feature_tooltip_field)
           if isinstance(data, date):
             data = data.strftime('%d.%m.%Y')
           elif isinstance(data, datetime):
             data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
           tooltip = str(data)
-        elif hasattr(self.model._meta, 'map_feature_tooltip_fields'):
+        elif self.model.BasemodelMeta.map_feature_tooltip_fields:
           previous_value = ''
           tooltip_value = ''
           index = 0
-          for field in self.model._meta.map_feature_tooltip_fields:
+          for field in self.model.BasemodelMeta.map_feature_tooltip_fields:
             field_value = ''
             if field and getattr(curr_object, field) is not None:
               field_value = str(getattr(curr_object, field))
@@ -416,26 +400,24 @@ class DataMapView(JsonView):
           feature['properties']['inaktiv'] = True
         # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
         # falls entsprechende Klausel in der Modelldefinition existiert
-        if hasattr(self.model._meta, 'map_filter_hide_initial'):
+        if self.model.BasemodelMeta.map_filter_hide_initial:
           if str(
               getattr(
                   curr_object, list(
-                      self.model._meta.map_filter_hide_initial.keys())[0])) == str(
+                      self.model.BasemodelMeta.map_filter_hide_initial.keys())[0])) == str(
               list(
-                  self.model._meta.map_filter_hide_initial.values())[0]):
+                  self.model.BasemodelMeta.map_filter_hide_initial.values())[0]):
             feature['properties']['hide_initial'] = True
         # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
         # falls entsprechende Klausel in der Modelldefinition existiert
-        if hasattr(self.model._meta, 'highlight_flag'):
-          data = getattr(
-              curr_object, self.model._meta.highlight_flag)
+        if self.model.BasemodelMeta.list_highlight_flag:
+          data = getattr(curr_object, self.model.BasemodelMeta.list_highlight_flag)
           if data:
             feature['properties']['highlight'] = data
         # optional: Stichtagsfilter als Eigenschaften setzen,
         # falls entsprechende Klausel in der Modelldefinition existiert
-        if hasattr(self.model._meta, 'map_deadlinefilter_fields'):
-          for index, field in enumerate(
-                  self.model._meta.map_deadlinefilter_fields):
+        if self.model.BasemodelMeta.map_deadlinefilter_fields:
+          for index, field in enumerate(self.model.BasemodelMeta.map_deadlinefilter_fields):
             data = getattr(curr_object, field)
             if isinstance(data, date):
               data = data.strftime('%Y-%m-%d')
@@ -447,13 +429,13 @@ class DataMapView(JsonView):
             feature['properties'][field] = str(data)
         # optional: Intervallfilter als Eigenschaften setzen,
         # falls entsprechende Klausel in der Modelldefinition existiert
-        if hasattr(self.model._meta, 'map_rangefilter_fields'):
-          for field in self.model._meta.map_rangefilter_fields.keys():
+        if self.model.BasemodelMeta.map_rangefilter_fields:
+          for field in self.model.BasemodelMeta.map_rangefilter_fields.keys():
             feature['properties'][field] = str(get_data(curr_object, field))
         # optional: sonstige Filter als Eigenschaften setzen,
         # falls entsprechende Klausel in der Modelldefinition existiert
-        if hasattr(self.model._meta, 'map_filter_fields'):
-          for field in self.model._meta.map_filter_fields.keys():
+        if self.model.BasemodelMeta.map_filter_fields:
+          for field in self.model.BasemodelMeta.map_filter_fields.keys():
             feature['properties'][field] = str(get_data(curr_object, field))
         # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
         map_features['features'].append(feature)
@@ -494,9 +476,9 @@ class DataMapListView(generic.ListView):
     # und zwar eine Variable mit dem Minimal- und eine Variable mit dem Maximalwert
     interval_filter_min = None
     interval_filter_max = None
-    if hasattr(self.model._meta, 'map_rangefilter_fields'):
+    if self.model.BasemodelMeta.map_rangefilter_fields:
       # Feld für Minimalwerte definieren
-      field_name = list(self.model._meta.map_rangefilter_fields.keys())[0]
+      field_name = list(self.model.BasemodelMeta.map_rangefilter_fields.keys())[0]
       # NOT-NULL-Filter konstruieren
       field_name_isnull = field_name + '__isnull'
       # Minimalwert erhalten und in vorbereitete Variable einfügen
@@ -507,7 +489,7 @@ class DataMapListView(generic.ListView):
       elif isinstance(interval_filter_min, datetime):
         interval_filter_min = interval_filter_min.strftime('%Y-%m-%d %H:%M:%S')
       # Feld für Maximalwerte definieren
-      field_name = list(self.model._meta.map_rangefilter_fields.keys())[1]
+      field_name = list(self.model.BasemodelMeta.map_rangefilter_fields.keys())[1]
       # NOT-NULL-Filter konstruieren
       field_name_isnull = field_name + '__isnull'
       # Maximalwert erhalten und in vorbereitete Variable einfügen
@@ -519,16 +501,16 @@ class DataMapListView(generic.ListView):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d %H:%M:%S')
     # Dictionary für Filterfelder vorbereiten, die als Auswahlfeld fungieren sollen
     list_filter_lists = {}
-    if hasattr(self.model._meta, 'map_filter_fields_as_list'):
+    if self.model.BasemodelMeta.map_filter_fields_as_list:
       # alle entsprechend definierten Felder durchgehen
-      for field_name in self.model._meta.map_filter_fields_as_list:
+      for field_name in self.model.BasemodelMeta.map_filter_fields_as_list:
         # passendes Zielmodell identifizieren
         target_model = self.model._meta.get_field(field_name).remote_field.model
         # passendes Feld im Zielmodell für die Sortierung identifizieren
         foreign_field_name_ordering = target_model._meta.ordering[0]
         # passendes Feld im Zielmodell für die Anzeige identifizieren
-        if hasattr(target_model._meta, 'naming'):
-          foreign_field_name_naming = target_model._meta.naming
+        if target_model.BasemodelMeta.naming:
+          foreign_field_name_naming = target_model.BasemodelMeta.naming
         else:
           foreign_field_name_naming = foreign_field_name_ordering
         # NOT-NULL-Filter konstruieren
@@ -547,16 +529,16 @@ class DataMapListView(generic.ListView):
         list_filter_lists[field_name] = cleaned_value_list
     # Dictionary für Filterfelder vorbereiten, die als Checkboxen-Set fungieren sollen
     checkbox_filter_lists = {}
-    if hasattr(self.model._meta, 'map_filter_fields'):
+    if self.model.BasemodelMeta.map_filter_fields:
       # alle entsprechend definierten Felder durchgehen
-      for field_name in self.model._meta.map_filter_fields:
+      for field_name in self.model.BasemodelMeta.map_filter_fields:
         # falls es sich um ein ChoiceArrayField handelt
         # oder das Feld explizit als Checkboxen-Set fungieren soll...
         if (
           self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField'
           or (
-            hasattr(self.model._meta, 'map_filter_fields_as_checkbox')
-            and field_name in self.model._meta.map_filter_fields_as_checkbox
+            self.model.BasemodelMeta.map_filter_fields_as_checkbox
+            and field_name in self.model.BasemodelMeta.map_filter_fields_as_checkbox
           )
         ):
           complete_field_name_ordering = complete_field_name_naming = field_name
@@ -570,8 +552,8 @@ class DataMapListView(generic.ListView):
             # passendes Feld im Zielmodell für die Sortierung identifizieren
             foreign_field_name_ordering = target_model._meta.ordering[0]
             # passendes Feld im Zielmodell für die Anzeige identifizieren
-            if hasattr(target_model._meta, 'naming'):
-              foreign_field_name_naming = target_model._meta.naming
+            if target_model.BasemodelMeta.naming:
+              foreign_field_name_naming = target_model.BasemodelMeta.naming
             else:
               foreign_field_name_naming = foreign_field_name_ordering
             complete_field_name_ordering = field_name + '__' + foreign_field_name_ordering
@@ -608,53 +590,35 @@ class DataMapListView(generic.ListView):
     context = super(DataMapListView, self).get_context_data(**kwargs)
     context = set_model_related_context_elements(context, self.model, self.kwargs)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['subset_id'] = (
-        int(self.kwargs['subset_id']) if self.kwargs and self.kwargs['subset_id'] else None)
-    context['highlight_flag'] = (
-        self.model._meta.highlight_flag if hasattr(
-            self.model._meta, 'highlight_flag') else None)
-    context['map_filters_enabled'] = (
-        True if hasattr(self.model._meta, 'map_filter_fields') or hasattr(
-            self.model._meta, 'map_rangefilter_fields') else None)
-    context['map_one_click_filters'] = (
-        self.model._meta.map_one_click_filters if hasattr(
-            self.model._meta, 'map_one_click_filters') else None)
-    context['map_rangefilter_fields'] = (
-        list(self.model._meta.map_rangefilter_fields.keys()) if hasattr(
-            self.model._meta, 'map_rangefilter_fields') else None)
-    context['map_rangefilter_fields_labels'] = (
-        list(self.model._meta.map_rangefilter_fields.values()) if hasattr(
-            self.model._meta, 'map_rangefilter_fields') else None)
+    if self.kwargs and self.kwargs['subset_id']:
+      context['subset_id'] = int(self.kwargs['subset_id'])
+    context['highlight_flag'] = self.model.BasemodelMeta.list_highlight_flag
+    if (
+        self.model.BasemodelMeta.map_filter_fields
+        or self.model.BasemodelMeta.map_rangefilter_fields
+    ):
+      context['map_filters_enabled'] = True
+    context['map_one_click_filters'] = self.model.BasemodelMeta.map_one_click_filters
+    if self.model.BasemodelMeta.map_rangefilter_fields:
+      context['map_rangefilter_fields'] = list(
+        self.model.BasemodelMeta.map_rangefilter_fields.keys())
+      context['map_rangefilter_fields_labels'] = list(
+        self.model.BasemodelMeta.map_rangefilter_fields.values())
     context['interval_filter_min'] = interval_filter_min
     context['interval_filter_max'] = interval_filter_max
-    context['map_deadlinefilter_fields'] = (
-        self.model._meta.map_deadlinefilter_fields if hasattr(
-            self.model._meta, 'map_deadlinefilter_fields') else None)
-    context['map_filter_fields'] = (
-        list(self.model._meta.map_filter_fields.keys()) if hasattr(
-            self.model._meta, 'map_filter_fields') else None)
-    context['map_filter_fields_labels'] = (
-        list(self.model._meta.map_filter_fields.values()) if hasattr(
-            self.model._meta, 'map_filter_fields') else None)
+    context['map_deadlinefilter_fields'] = self.model.BasemodelMeta.map_deadlinefilter_fields
+    if self.model.BasemodelMeta.map_filter_fields:
+      context['map_filter_fields'] = list(self.model.BasemodelMeta.map_filter_fields.keys())
+      context['map_filter_fields_labels'] = list(
+        self.model.BasemodelMeta.map_filter_fields.values())
     context['map_filter_fields_as_checkbox'] = (
-        self.model._meta.map_filter_fields_as_checkbox if hasattr(
-            self.model._meta, 'map_filter_fields_as_checkbox') else None)
+      self.model.BasemodelMeta.map_filter_fields_as_checkbox)
     context['checkbox_filter_lists'] = dumps(checkbox_filter_lists)
-    context['map_filter_fields_as_list'] = (
-        self.model._meta.map_filter_fields_as_list if hasattr(
-            self.model._meta, 'map_filter_fields_as_list') else None)
+    context['map_filter_fields_as_list'] = self.model.BasemodelMeta.map_filter_fields_as_list
     context['list_filter_lists'] = dumps(list_filter_lists)
     context['map_filter_boolean_fields_as_checkbox'] = (
-        self.model._meta.map_filter_boolean_fields_as_checkbox if hasattr(
-            self.model._meta,
-            'map_filter_boolean_fields_as_checkbox') else None)
-    context['map_filter_hide_initial'] = (
-        True if hasattr(
-            self.model._meta, 'map_filter_hide_initial') else False)
-    context['additional_wms_layers'] = (
-        self.model._meta.additional_wms_layers if hasattr(
-            self.model._meta, 'additional_wms_layers') else None)
-    context['heavy_load_limit'] = (
-        self.model._meta.heavy_load_limit if hasattr(
-            self.model._meta, 'heavy_load_limit') else None)
+      self.model.BasemodelMeta.map_filter_boolean_fields_as_checkbox)
+    context['map_filter_hide_initial'] = self.model.BasemodelMeta.map_filter_hide_initial
+    context['additional_wms_layers'] = self.model.BasemodelMeta.additional_wms_layers
+    context['heavy_load_limit'] = self.model.BasemodelMeta.heavy_load_limit
     return context

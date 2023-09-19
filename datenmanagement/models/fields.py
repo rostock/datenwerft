@@ -7,30 +7,24 @@ from django.forms import Textarea, TypedMultipleChoiceField
 
 
 #
-# Erweiterungen bestehender Klassen für Felder
+# extensions of existing model fields
 #
 
 class ChoiceArrayField(ArrayField):
   """
-  Multiple-Choice-Feld
-  (Quelle: https://gist.github.com/danni/f55c4ce19598b2b345ef)
+  ArrayField with multiple choices,
+  i.e. a model field that allows to store an array of choices
+  (source: https://gist.github.com/danni/f55c4ce19598b2b345ef)
   """
 
   def formfield(self, **kwargs):
     defaults = {
       'form_class': TypedMultipleChoiceField,
       'choices': self.base_field.choices,
+      'coerce': self.base_field.to_python
     }
     defaults.update(kwargs)
     return super(ArrayField, self).formfield(**defaults)
-
-  def to_python(self, value):
-    res = super().to_python(value)
-    if isinstance(res, list):
-      value = [self.base_field.to_python(val) for val in res]
-    else:
-      value = None
-    return value
 
   def validate(self, value, model_instance):
     if not self.editable:
@@ -38,8 +32,7 @@ class ChoiceArrayField(ArrayField):
     if value is None or value in self.empty_values:
       return None
     if self.choices is not None and value not in self.empty_values:
-      if set(value).issubset(
-          {option_key for option_key, _ in self.choices}):
+      if set(value).issubset({option_key for option_key, _ in self.choices}):
         return
       raise ValidationError(
         self.error_messages['invalid_choice'],
@@ -50,21 +43,15 @@ class ChoiceArrayField(ArrayField):
       )
 
     if value is None and not self.null:
-      raise ValidationError(
-        self.error_messages['null'],
-        code='null'
-      )
+      raise ValidationError(self.error_messages['null'], code='null')
 
     if not self.blank and value in self.empty_values:
-      raise ValidationError(
-        self.error_messages['blank'],
-        code='blank'
-      )
+      raise ValidationError(self.error_messages['blank'], code='blank')
 
 
 class NullTextField(TextField):
   """
-  Textfeld, das NULL-Werte statt Leerstrings schreibt
+  TextField writing NULL values to database instead of empty strings
   """
 
   def get_internal_type(self):
@@ -82,31 +69,17 @@ class NullTextField(TextField):
     return self.to_python(value)
 
   def formfield(self, **kwargs):
-    return super(NullTextField, self).formfield(**{
+    defaults = {
       'max_length': self.max_length,
-      **({} if self.choices is not None else {'widget': Textarea}),
-      **kwargs,
-    })
-
-
-class PositiveIntegerRangeField(PositiveIntegerField):
-  """
-  positives Integer-Feld mit Minimal- und Maximalwert
-  """
-
-  def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
-    self.min_value, self.max_value = min_value, max_value
-    PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
-
-  def formfield(self, **kwargs):
-    defaults = {'min_value': self.min_value, 'max_value': self.max_value}
+      **({} if self.choices is not None else {'widget': Textarea})
+    }
     defaults.update(kwargs)
-    return super(PositiveIntegerRangeField, self).formfield(**defaults)
+    return super().formfield(**defaults)
 
 
 class PositiveIntegerMinField(PositiveIntegerField):
   """
-  positives Integer-Feld mit Minimalwert
+  PositiveIntegerField with minimum value
   """
 
   def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
@@ -114,14 +87,34 @@ class PositiveIntegerMinField(PositiveIntegerField):
     PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {'min_value': self.min_value}
+    defaults = {
+      'min_value': self.min_value
+    }
     defaults.update(kwargs)
-    return super(PositiveIntegerMinField, self).formfield(**defaults)
+    return super().formfield(**defaults)
+
+
+class PositiveIntegerRangeField(PositiveIntegerField):
+  """
+  PositiveIntegerField with minimum and maximum value
+  """
+
+  def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
+    self.min_value, self.max_value = min_value, max_value
+    PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
+
+  def formfield(self, **kwargs):
+    defaults = {
+      'min_value': self.min_value,
+      'max_value': self.max_value
+    }
+    defaults.update(kwargs)
+    return super().formfield(**defaults)
 
 
 class PositiveSmallIntegerMinField(PositiveSmallIntegerField):
   """
-  positives Small-Integer-Feld mit Minimalwert
+  PositiveSmallIntegerField with minimum value
   """
 
   def __init__(self, verbose_name=None, name=None, min_value=None, **kwargs):
@@ -129,14 +122,16 @@ class PositiveSmallIntegerMinField(PositiveSmallIntegerField):
     PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {'min_value': self.min_value}
+    defaults = {
+      'min_value': self.min_value
+    }
     defaults.update(kwargs)
-    return super(PositiveSmallIntegerMinField, self).formfield(**defaults)
+    return super().formfield(**defaults)
 
 
 class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
   """
-  positives Small-Integer-Feld mit Minimal- und Maximalwert
+  PositiveSmallIntegerField with minimum and maximum value
   """
 
   def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
@@ -144,13 +139,16 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
     PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {'min_value': self.min_value, 'max_value': self.max_value}
+    defaults = {
+      'min_value': self.min_value,
+      'max_value': self.max_value
+    }
     defaults.update(kwargs)
-    return super(PositiveSmallIntegerRangeField, self).formfield(**defaults)
+    return super().formfield(**defaults)
 
 
 #
-# Geometriefelder
+# definition of geometry model fields
 #
 
 point_field = PointField(

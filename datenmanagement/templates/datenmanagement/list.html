@@ -54,7 +54,9 @@
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th id="check-all" class="no-export no-search no-sort"><i class="fas fa-check-square"></i></th>
+            {% if editable %}
+              <th id="check-all" class="no-export no-search no-sort"><i class="fas fa-check-square"></i></th>
+            {% endif %}
             {% for label in list_fields_labels %}
               {% with schritt=forloop.counter|stringformat:'s' %}
                 {% with spalte='spalte_'|add:schritt %}
@@ -87,6 +89,7 @@
          * Hauptfunktion
          */
         $(document).ready(function() {
+          let numberOfColumns = $('#datasets > thead > tr th').length;
           let table = $('#datasets').DataTable({
             ajax: window.dataUrl,
             buttons: [
@@ -142,7 +145,7 @@
               url: window.languageUrl
             },
             lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
-            order: [[1, 'asc']],
+            order: [[numberOfColumns > 1 ? 1 : 0, 'asc']],
             orderCellsTop: true,
             orderClasses: false,
             orderMulti: false,

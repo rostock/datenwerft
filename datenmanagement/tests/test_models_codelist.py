@@ -58,7 +58,7 @@ class AdressenTest(DefaultMetaModelTestCase):
     self.init()
 
   def test_is_metamodel(self):
-    self.generic_is_metamodel_test(self.model)
+    self.generic_is_metamodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -96,7 +96,7 @@ class AdressenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      'Adresse1'
     )
 
 
@@ -118,7 +118,7 @@ class StrassenTest(DefaultMetaModelTestCase):
     self.init()
 
   def test_is_metamodel(self):
-    self.generic_is_metamodel_test(self.model)
+    self.generic_is_metamodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -156,7 +156,7 @@ class StrassenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      'Straße1'
     )
 
 
@@ -178,7 +178,7 @@ class InoffizielleStrassenTest(DefaultMetaModelTestCase):
     self.init()
 
   def test_is_metamodel(self):
-    self.generic_is_metamodel_test(self.model)
+    self.generic_is_metamodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -216,7 +216,7 @@ class InoffizielleStrassenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      'Straße1'
     )
 
 
@@ -239,7 +239,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
     self.init()
 
   def test_is_metamodel(self):
-    self.generic_is_metamodel_test(self.model)
+    self.generic_is_metamodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -277,7 +277,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      str(self.test_object.pk)
+      'Gemeindeteil1'
     )
 
 
@@ -317,7 +317,7 @@ class AltersklassenKadaverfundeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -444,7 +444,7 @@ class AngeboteMobilpunkteTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -571,7 +571,7 @@ class AngelberechtigungenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -708,7 +708,7 @@ class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -835,7 +835,7 @@ class ArtenAdressunsicherheitenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -962,7 +962,7 @@ class ArtenDurchlaesseTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1089,7 +1089,7 @@ class ArtenErdwaermesondenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1216,7 +1216,7 @@ class ArtenFahrradabstellanlagenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1343,7 +1343,7 @@ class ArtenFairTradeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1470,7 +1470,7 @@ class ArtenFeldsportanlagenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1597,7 +1597,7 @@ class ArtenFeuerwachenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1724,7 +1724,7 @@ class ArtenFliessgewaesserTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1851,7 +1851,7 @@ class ArtenHundetoilettenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1978,7 +1978,7 @@ class ArtenFallwildsuchenKontrollenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2105,7 +2105,7 @@ class ArtenMeldedienstflaechenhaftTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2232,7 +2232,7 @@ class ArtenMeldedienstpunkthaftTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2359,7 +2359,7 @@ class ArtenParkmoeglichkeitenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2486,7 +2486,7 @@ class ArtenPflegeeinrichtungenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2613,7 +2613,7 @@ class ArtenPollerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2740,7 +2740,7 @@ class ArtenToilettenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2867,7 +2867,7 @@ class ArtenUVPVorpruefungenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2994,7 +2994,7 @@ class ArtenWegeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3121,7 +3121,7 @@ class AuftraggeberBaustellenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3248,7 +3248,7 @@ class AusfuehrungenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3375,7 +3375,7 @@ class BefestigungsartenAufstellflaecheBusHaltestellenkatasterTest(DefaultCodelis
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3502,7 +3502,7 @@ class BefestigungsartenWarteflaecheHaltestellenkatasterTest(DefaultCodelistTestC
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3629,7 +3629,7 @@ class BetriebsartenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3756,7 +3756,7 @@ class BetriebszeitenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3888,7 +3888,7 @@ class BewirtschafterBetreiberTraegerEigentuemerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4015,7 +4015,7 @@ class AnbieterCarsharingTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4142,7 +4142,7 @@ class EAnschluesseParkscheinautomatenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4269,7 +4269,7 @@ class ErgebnisseUVPVorpruefungenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4396,7 +4396,7 @@ class FahrbahnwinterdienstStrassenreinigungssatzungHROTest(DefaultCodelistTestCa
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4523,7 +4523,7 @@ class FotomotiveHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4655,7 +4655,7 @@ class FundamenttypenRSAGTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4787,7 +4787,7 @@ class GebaeudebauweisenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4919,7 +4919,7 @@ class GebaeudefunktionenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5046,7 +5046,7 @@ class GenehmigungsbehoerdenUVPVorhabenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5178,7 +5178,7 @@ class GeschlechterKadaverfundeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5315,7 +5315,7 @@ class HaefenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5442,7 +5442,7 @@ class HerstellerPollerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5579,7 +5579,7 @@ class KategorienStrassenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5706,7 +5706,7 @@ class LadekartenLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5833,7 +5833,7 @@ class LinienTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5965,7 +5965,7 @@ class MastkennzeichenRSAGTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6097,7 +6097,7 @@ class MasttypenRSAGTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6224,7 +6224,7 @@ class MasttypenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6351,7 +6351,7 @@ class MaterialienDenksteineTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6478,7 +6478,7 @@ class MaterialienDurchlaesseTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6605,7 +6605,7 @@ class OrdnungenFliessgewaesserTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6732,7 +6732,7 @@ class PersonentitelTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6859,7 +6859,7 @@ class QuartiereTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6986,7 +6986,7 @@ class RaeumbreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7113,7 +7113,7 @@ class RechtsgrundlagenUVPVorhabenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7244,7 +7244,7 @@ class ReinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase)
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7376,7 +7376,7 @@ class ReinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7503,7 +7503,7 @@ class SchaedenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7630,7 +7630,7 @@ class SchlagwoerterBildungstraegerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7757,7 +7757,7 @@ class SchlagwoerterVereineTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -7884,7 +7884,7 @@ class SchliessungenPollerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8011,7 +8011,7 @@ class SitzbanktypenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8138,7 +8138,7 @@ class SpartenBaustellenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8265,7 +8265,7 @@ class SportartenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8392,7 +8392,7 @@ class StatusBaudenkmaleDenkmalbereicheTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8519,7 +8519,7 @@ class StatusBaustellengeplantTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8646,7 +8646,7 @@ class StatusBaustellenFotodokumentationFotosTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8773,7 +8773,7 @@ class StatusPollerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -8900,7 +8900,7 @@ class TierseuchenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9027,7 +9027,7 @@ class TypenAbfallbehaelterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9154,7 +9154,7 @@ class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9281,7 +9281,7 @@ class TypenErdwaermesondenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9408,7 +9408,7 @@ class TypenKleinklaeranlagenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9535,7 +9535,7 @@ class FahrgastunterstandstypenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9662,7 +9662,7 @@ class FahrplanvitrinentypenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9789,7 +9789,7 @@ class TypenHaltestellenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -9916,7 +9916,7 @@ class TypenPollerTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10043,7 +10043,7 @@ class TypenUVPVorhabenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10170,7 +10170,7 @@ class VerbuendeLadestationenElektrofahrzeugeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10297,7 +10297,7 @@ class VerkehrlicheLagenBaustellenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10424,7 +10424,7 @@ class VerkehrsmittelklassenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10551,7 +10551,7 @@ class VorgangsartenUVPVorhabenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10678,7 +10678,7 @@ class WegebreitenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10809,7 +10809,7 @@ class WegereinigungsklassenStrassenreinigungssatzungHROTest(DefaultCodelistTestC
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -10941,7 +10941,7 @@ class WegereinigungsrhythmenStrassenreinigungssatzungHROTest(DefaultCodelistTest
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11068,7 +11068,7 @@ class WegetypenStrassenreinigungssatzungHROTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11200,7 +11200,7 @@ class ZeiteinheitenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11327,7 +11327,7 @@ class ZHTypenHaltestellenkatasterTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11454,7 +11454,7 @@ class ZonenParkscheinautomatenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11586,7 +11586,7 @@ class ZustaendeKadaverfundeTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11718,7 +11718,7 @@ class ZustaendeSchutzzaeuneTierseuchenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -11845,7 +11845,7 @@ class ZustandsbewertungenTest(DefaultCodelistTestCase):
     self.init()
 
   def test_is_codelist(self):
-    self.generic_is_codelist_test(self.model)
+    self.generic_is_codelist_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)

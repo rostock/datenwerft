@@ -86,7 +86,7 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -332,7 +332,7 @@ class AdressunsicherheitenFotosTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -566,7 +566,7 @@ class BaustellenFotodokumentationBaustellenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -830,7 +830,7 @@ class BaustellenFotodokumentationFotosTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -1075,7 +1075,7 @@ class BaustellenGeplantTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1314,7 +1314,7 @@ class BaustellenGeplantDokumenteTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -1501,7 +1501,7 @@ class BaustellenGeplantLinksTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1665,7 +1665,7 @@ class DurchlaesseDurchlaesseTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -1911,7 +1911,7 @@ class DurchlaesseFotosTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -2119,7 +2119,7 @@ class FallwildsuchenKontrollgebieteTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2379,7 +2379,7 @@ class FallwildsuchenNachweiseTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2562,7 +2562,7 @@ class GehRadwegereinigungTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -2806,7 +2806,7 @@ class GehRadwegereinigungFlaechenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3053,7 +3053,7 @@ class HaltestellenkatasterHaltestellenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3318,7 +3318,7 @@ class HaltestellenkatasterFotosTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_create(self):
@@ -3541,7 +3541,7 @@ class ParkscheinautomatenTarifeTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3742,7 +3742,7 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -3950,7 +3950,7 @@ class RSAGGleiseTest(GenericRSAGTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4189,7 +4189,7 @@ class RSAGMastenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4410,7 +4410,7 @@ class RSAGLeitungenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4654,7 +4654,7 @@ class RSAGQuertraegerTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -4858,7 +4858,7 @@ class RSAGSpanndraehteTest(GenericRSAGTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5105,7 +5105,7 @@ class StrassenSimpleTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5348,7 +5348,7 @@ class StrassenSimpleHistorieTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5521,7 +5521,7 @@ class StrassenSimpleNamensanalyseTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5701,7 +5701,7 @@ class StrassenreinigungTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -5942,7 +5942,7 @@ class StrassenreinigungFlaechenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6205,7 +6205,7 @@ class UVPVorhabenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
@@ -6481,7 +6481,7 @@ class UVPVorpruefungenTest(DefaultComplexModelTestCase):
     self.init()
 
   def test_is_complexmodel(self):
-    self.generic_is_complexmodel_test(self.model)
+    self.generic_is_complexmodel_test()
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
