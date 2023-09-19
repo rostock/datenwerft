@@ -1,6 +1,6 @@
-from uuid import uuid4
 from django.contrib.gis.db.models import Model
 from django.db.models.fields import BooleanField, CharField, UUIDField
+from uuid import uuid4
 
 from toolbox.constants_vars import standard_validators
 
@@ -39,7 +39,7 @@ class Basemodel(Model):
     # shall the form views of this model always be rendered in mobile mode?
     forms_in_mobile_mode = False
     # String:
-    # name of the model field of this model
+    # name of the field of this model
     # whose value shall appear in drop-down list map filters in map views
     naming = None
     # Dictionary:
@@ -48,11 +48,11 @@ class Basemodel(Model):
     # in the form views and in the table of the list view of this model?
     associated_models = None
     # List of strings:
-    # names of those model fields of this model
+    # names of those fields of this model
     # which shall be rendered as read-only in the form views of this model
     readonly_fields = None
     # Dictionary:
-    # names of those model fields of this model (as keys)
+    # names of those fields of this model (as keys)
     # to which other models (as values) are assigned,
     # whose values are to be used to fill corresponding selection lists
     # in the form views of this model
@@ -62,12 +62,12 @@ class Basemodel(Model):
     # in the form views of this model
     group_with_users_for_choice_field = None
     # List of strings:
-    # names of those model fields of this model
+    # names of those fields of this model
     # which shall be equipped with additional foreign key links
     # in the form views of this model
     fields_with_foreign_key_to_linkify = None
     # Dictionary:
-    # names of those model fields of this model (as keys)
+    # names of those fields of this model (as keys)
     # which shall be equipped with additional external links (as values)
     # in the form views of this model
     catalog_link_fields = None
@@ -79,11 +79,11 @@ class Basemodel(Model):
     # (only relevant for models with foreign keys)
     object_title = None
     # String:
-    # title of the foreign key model field of this model
+    # label of the foreign key field of this model
     # (only relevant for models with foreign keys)
     foreign_key_label = None
     # String:
-    # address reference type of this model (i.e. address, street or quarter)
+    # address reference type of this model (i.e. address, street or district)
     address_type = None
     # Boolean:
     # shall an address reference be mandatory for this model?
@@ -102,33 +102,33 @@ class Basemodel(Model):
     # shall an upload field for a GPX file be available in the form views of this model?
     gpx_input = False
     # String:
-    # name of the model field of this model
+    # name of the field of this model
     # which shall be equipped with a postcode assignment function
     # in the form views of this model
     postcode_assigner = None
     # Dictionary:
-    # names of those model fields of this model (as keys)
+    # names of those fields of this model (as keys)
     # which shall appear as columns in the table of the list view of this model
     # in exactly this order, with their respective labels, i.e. column headers (as values)
     list_fields = None
     # List of strings:
-    # names of those model fields of this model appearing in ``list_fields``
+    # names of those fields of this model appearing in ``list_fields``
     # whose values are of a numeric data type and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_number = None
     # List of strings:
-    # names of those model fields of this model appearing in ``list_fields``
+    # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type date and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_date = None
     # List of strings:
-    # names of those model fields of this model appearing in ``list_fields``
+    # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type datetime and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_datetime = None
     # Dictionary:
-    # names of those model fields appearing in ``list_fields`` (as keys)
-    # which are to be converted into names of foreign key model fields (as values)
+    # names of those fields appearing in ``list_fields`` (as keys)
+    # which are to be converted into names of foreign key fields (as values)
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
     list_fields_with_foreign_key = None
@@ -142,11 +142,11 @@ class Basemodel(Model):
     # in the map view of this model
     heavy_load_limit = None
     # String:
-    # name of the model field of this model
+    # name of the field of this model
     # which shall be used as the source for the map feature tooltips in the map view of this model
     map_feature_tooltip_field = None
     # List of strings:
-    # names of the model fields of this model
+    # names of the fields of this model
     # whose values shall concatenated
     # and as such be used as the source for the map feature tooltips in the map view of this model
     map_feature_tooltip_fields = None
@@ -155,38 +155,38 @@ class Basemodel(Model):
     # appear in the map view of this model?
     map_one_click_filters = False
     # List of strings:
-    # names of exactly two model fields of this model
+    # names of exactly two fields of this model
     # which shall appear as a deadline map filter in the map view of this model
     # (always processed in pairs!)
     map_deadlinefilter_fields = None
     # Dictionary:
-    # names of those model fields of this model (as keys)
+    # names of those fields of this model (as keys)
     # which shall appear as interval/range map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
     # (always processed in pairs!)
     map_rangefilter_fields = None
     # Dictionary:
-    # names of those model fields of this model (as keys)
+    # names of those fields of this model (as keys)
     # which shall appear as map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
     map_filter_fields = None
     # List of strings:
-    # names of those model fields of this model appearing in ``map_filter_fields``
+    # names of those fields of this model appearing in ``map_filter_fields``
     # which shall appear as drop-down list map filters in the map view of this model
     map_filter_fields_as_list = None
     # List of strings:
-    # names of those model fields of this model appearing in ``map_filter_fields``
+    # names of those fields of this model appearing in ``map_filter_fields``
     # which shall appear as checkbox-set map filters in the map view of this model
-    # (but these must not be the model fields from ``map_filter_fields``
+    # (but these must not be the fields from ``map_filter_fields``
     # which are already multiple selection fields!)
     map_filter_fields_as_checkbox = None
     # Boolean:
-    # shall those model fields of this model appearing in ``map_filter_fields``
+    # shall those fields of this model appearing in ``map_filter_fields``
     # which are of data type boolean
     # appear as checkbox-set map filters in the map view of this model?
     map_filter_boolean_fields_as_checkbox = False
     # Dictionary:
-    # name of that model field of this model (as key)
+    # name of that field of this model (as key)
     # whose specific value (as value) shall ensure that all those objects
     # that have exactly this specific value in this field
     # do not initially appear on the map in the map view of this model

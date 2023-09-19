@@ -5,21 +5,12 @@ from PIL import ExifTags, Image
 from uuid import uuid4
 
 
-def current_year():
-  """
-  liefert aktuelles Jahr zurück
-
-  :return: aktuelles Jahr
-  """
-  return int(date.today().year)
-
-
 def delete_duplicate_photos_with_other_suffixes(path):
   """
-  löscht Duplikate von Fotos, die zwar denselben Pfad aufweisen wie der übergebene Pfad,
-  die jedoch eine andere Dateiendung aufweisen
+  deletes duplicate photo files that have the same path as the passed photo file path
+  but have a different file extension
 
-  :param path: Pfad
+  :param path: photo file path
   """
   filename = PurePath(path).name
   pathname = Path(PurePath(path).parent)
@@ -33,10 +24,10 @@ def delete_duplicate_photos_with_other_suffixes(path):
 
 def delete_pdf(sender, instance, **kwargs):
   """
-  löscht PDF zu übergebenenem Datenobjekt
+  deletes PDF file connected with passed object of sending model
 
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
+  :param sender: sending model
+  :param instance: object
   :param **kwargs
   """
   if hasattr(instance, 'pdf') and instance.pdf:
@@ -49,10 +40,12 @@ def delete_pdf(sender, instance, **kwargs):
 
 def delete_photo(sender, instance, **kwargs):
   """
-  löscht Foto zu übergebenenem Datenobjekt und, falls vorhanden, auch das entsprechende Thumbnail
+  deletes photo file connected with passed object of sending model
+  (and the related thumbnail photo file as well, if existing)
+  if photo is mandatory
 
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
+  :param sender: sending model
+  :param instance: object
   :param **kwargs
   """
   if hasattr(instance, 'foto') and instance.foto:
@@ -71,17 +64,18 @@ def delete_photo(sender, instance, **kwargs):
 
 def delete_photo_after_emptied(sender, instance, created, **kwargs):
   """
-  löscht Foto zu übergebenenem Datenobjekt und, falls vorhanden, auch das entsprechende Thumbnail;
-  greift bei Datenmodellen, bei denen das Foto optional ist
+  deletes photo file connected with passed object of sending model
+  (and the related thumbnail photo file as well, if existing)
+  if photo is not mandatory
 
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
-  :param created: Datenobjekt neu hinzugefügt?
+  :param sender: sending model
+  :param instance: object
+  :param created: object created?
   :param **kwargs
   """
   pre_save_instance = instance._pre_save_instance
-  # nur ausführen, wenn zuvor ein Foto existiert hat, wenn nun kein Foto mehr übergeben wurde
-  # und wenn Datenobjekt nicht neu hinzugefügt, sondern aktualisiert wurde
+  # execute only if a photo file previously existed, if no more photo file was transferred
+  # and if object was not created but updated
   if pre_save_instance.foto and not instance.foto and not created:
     path = get_path(pre_save_instance.foto.url)
     if sender.BasemodelMeta.thumbs:
@@ -98,12 +92,21 @@ def delete_photo_after_emptied(sender, instance, created, **kwargs):
       pass
 
 
+def get_current_year():
+  """
+  returns current year as a number
+
+  :return: current year as a number
+  """
+  return int(date.today().year)
+
+
 def get_path(url):
   """
-  gibt Pfad zur übergebenenen URL zurück
+  returns path related to passed URL
 
   :param url: URL
-  :return: Pfad zur übergebenenen URL
+  :return: path related to passed URL
   """
   if settings.MEDIA_ROOT and settings.MEDIA_URL:
     path = Path(settings.MEDIA_ROOT) / url[len(settings.MEDIA_URL):]
@@ -112,35 +115,20 @@ def get_path(url):
   return path
 
 
-def get_pre_save_instance(sender, instance, **kwargs):
-  """
-  setzt übergebenenes Datenobjekt vor dem finalen Speichern
-
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
-  :param **kwargs
-  """
-  try:
-    instance._pre_save_instance = sender.objects.get(pk=instance.uuid)
-  except sender.DoesNotExist:
-    instance._pre_save_instance = instance
-
-
 def path_and_rename(path):
   """
-  bereinigt übergebenenen Pfad und gibt diesen zurück
+  cleans passed path and returns it
 
-  :param path: Pfad
-  :return: bereinigter, übergebenener Pfad
+  :param path: path
+  :return: cleaned version of passed path
   """
   def wrapper(instance, filename):
     """
-    setzt Pfad anhand des übergebenen Datenobjekts sowie des übergebenen Dateinamens
-    und gibt den gesetzten Pfad zurück
+    sets path based on passed object and passed file name and returns it
 
-    :param instance: Datenobjekt
-    :param filename: Dateiname
-    :return: anhand des übergebenen Datenobjekts und des übergebenen Dateinamens gesetzter Pfad
+    :param instance: object
+    :param filename: file name
+    :return: path set based on passed object and passed file name
     """
     if hasattr(instance, 'dateiname_original'):
       instance.dateiname_original = filename
@@ -150,16 +138,16 @@ def path_and_rename(path):
     else:
       filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
     return Path(path) / filename
-
   return wrapper
 
 
 def photo_post_processing(sender, instance, **kwargs):
   """
-  behandelt Foto des übergebenenen Datenobjekts nach dem finalen Speichern des Datenobjekts
+  handles photo file connected with passed object of sending model
+  after passed object is finally saved
 
-  :param sender: Datenmodell
-  :param instance: Datenobjekt
+  :param sender: sending model
+  :param instance: object
   :param **kwargs
   """
   if instance.foto:
@@ -168,8 +156,9 @@ def photo_post_processing(sender, instance, **kwargs):
     else:
       path = Path(settings.BASE_DIR) / instance.foto.url
     rotate_image(path)
-    # falls Foto(s) mit derselben UUID, aber unterschiedlichem Dateityp (also Suffix), vorhanden:
-    # diese(s) löschen und natürlich auch das/die entsprechende(n) Thumbnail(s)
+    # delete duplicate photo files that have the same path as the current photo file
+    # but have a different file extension
+    # (and the related thumbnail photo files as well, if existing)
     delete_duplicate_photos_with_other_suffixes(path)
     if sender.BasemodelMeta.thumbs:
       thumb_path = Path(PurePath(path).parent / 'thumbs')
@@ -183,9 +172,9 @@ def photo_post_processing(sender, instance, **kwargs):
 
 def rotate_image(path):
   """
-  dreht Foto unter dem übergebenenen Pfad
+  rotates photo file with passed photo file path
 
-  :param path: Pfad
+  :param path: photo file path
   """
   try:
     if path.exists():
@@ -207,12 +196,27 @@ def rotate_image(path):
     pass
 
 
+def set_pre_save_instance(sender, instance, **kwargs):
+  """
+  sets passed object of sending model before final saving
+
+  :param sender: sending model
+  :param instance: object
+  :param **kwargs
+  """
+  try:
+    instance._pre_save_instance = sender.objects.get(pk=instance.uuid)
+  except sender.DoesNotExist:
+    instance._pre_save_instance = instance
+
+
 def thumb_image(path, thumb_path):
   """
-  erstellt Thumbnail unter dem übergebenenem Thumbnail-Pfad zum Foto unter dem übergebenenen Pfad
+  creates thumbnail photo file with passed thumbnail photo file path
+  related to photo file with passed photo file path
 
-  :param path: Pfad
-  :param thumb_path: Thumbnail-Pfad
+  :param path: photo file path
+  :param thumb_path: thumbnail photo file path
   """
   try:
     if path.exists():

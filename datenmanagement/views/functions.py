@@ -1,5 +1,3 @@
-import os
-
 from datetime import date, datetime
 from django.apps import apps
 from django.conf import settings
@@ -9,9 +7,10 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from leaflet.forms.widgets import LeafletWidget
 from locale import LC_ALL, format_string, setlocale
+from pathlib import Path
 from re import sub
-from toolbox.models import Subsets
 
+from toolbox.models import Subsets
 from .fields import ArrayDateField
 
 
@@ -163,8 +162,8 @@ def get_thumb_url(url):
   :param url: URL eines Fotos
   :return: zugehörige Thumbnail-URL für die übergebene URL eines Fotos
   """
-  head, tail = os.path.split(url)
-  return head + '/thumbs/' + tail
+  path = Path(url)
+  return str(path.parent / 'thumbs' / path.name)
 
 
 def get_uuids_geometries_from_sql(rows):

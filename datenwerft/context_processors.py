@@ -3,10 +3,10 @@ from django.urls import NoReverseMatch, reverse
 
 def include_login_form(request):
   """
-  setzt das Login-Formular
+  returns login form based on passed request
 
-  :param request: Anfrage
-  :return: Login-Formular
+  :param request: request
+  :return: login form based on passed request
   """
   from django.contrib.auth.forms import AuthenticationForm
   form = AuthenticationForm()

@@ -4,11 +4,11 @@ from .constants_vars import USERNAME, PASSWORD
 
 def clean_object_filter(object_filter, model=None):
   """
-  cleans given object filter and returns it
+  cleans passed object filter and returns it
 
   :param object_filter: object filter
   :param model: model
-  :return: cleaned version of given object filter
+  :return: cleaned version of passed object filter
   """
   cleaned_object_filter = object_filter.copy()
   # remove geometry field from object filter
@@ -19,11 +19,11 @@ def clean_object_filter(object_filter, model=None):
 
 def get_object(model, object_filter):
   """
-  fetches object of given model from the database according to given object filter and returns it
+  fetches object of passed model from the database according to passed object filter and returns it
 
   :param model: model
   :param object_filter: object filter
-  :return: object of given model from the database according to given object filter
+  :return: object of passed model from the database according to passed object filter
   """
   return model.objects.get(**object_filter)
 

@@ -111,7 +111,8 @@
 }
 
 /*
- * Leaflet-Button für Layer-Control überschreiben
+ * Leaflet:
+ * buttons for layer controls
  */
 
 .leaflet-control-layers-toggle {
@@ -121,7 +122,8 @@
 }
 
 /*
- * Leaflet-Buttons für Location überschreiben
+ * Leaflet:
+ * buttons for location controls
  */
 
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {

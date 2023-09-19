@@ -24,7 +24,7 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Status_Poller, Strassen, Thalasso_Kurwege, Tierseuchen, Toiletten, Trinkwassernotbrunnen, \
   Typen_Kleinklaeranlagen, Vereine, Verkaufstellen_Angelberechtigungen, Zustaende_Kadaverfunde, \
   Zustaende_Schutzzaeune_Tierseuchen
-from datenmanagement.models.functions import current_year
+from datenmanagement.models.functions import get_current_year
 
 from .base import DefaultSimpleModelTestCase
 from .constants_vars import *
@@ -1260,14 +1260,14 @@ class BeschluesseBauPlanungsausschussTest(DefaultSimpleModelTestCase):
   attributes_values_view_initial = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter3',
-    'beschlussjahr': current_year(),
+    'beschlussjahr': get_current_year(),
     'vorhabenbezeichnung': 'Vorhabenbezeichnung3',
     'geometrie': VALID_POINT_VIEW
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'bearbeiter': 'Bearbeiter4',
-    'beschlussjahr': current_year(),
+    'beschlussjahr': get_current_year(),
     'vorhabenbezeichnung': 'Vorhabenbezeichnung4',
     'geometrie': VALID_POINT_VIEW
   }
@@ -10013,7 +10013,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
     )
     cls.attributes_values_db_initial = {
       'adresse': adresse,
-      'bewertungsjahr': current_year(),
+      'bewertungsjahr': get_current_year(),
       'quartier': quartier,
       'kundschaftskontakte_anfangswert': 23.42,
       'kundschaftskontakte_endwert': 23.42,
@@ -10033,7 +10033,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'bewertungsjahr': current_year(),
+      'bewertungsjahr': get_current_year(),
       'quartier': str(quartier.pk),
       'kundschaftskontakte_anfangswert': 23.42,
       'kundschaftskontakte_endwert': 23.42,
@@ -10050,7 +10050,7 @@ class StandortqualitaetenGeschaeftslagenSanierungsgebietTest(DefaultSimpleModelT
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'bewertungsjahr': current_year(),
+      'bewertungsjahr': get_current_year(),
       'quartier': str(quartier.pk),
       'kundschaftskontakte_anfangswert': 42.23,
       'kundschaftskontakte_endwert': 42.23,
@@ -10286,7 +10286,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
     )
     cls.attributes_values_db_initial = {
       'adresse': adresse,
-      'bewertungsjahr': current_year(),
+      'bewertungsjahr': get_current_year(),
       'quartier': quartier,
       'gesellschaftslage_anfangswert': 23.42,
       'gesellschaftslage_endwert': 23.42,
@@ -10306,7 +10306,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'bewertungsjahr': current_year(),
+      'bewertungsjahr': get_current_year(),
       'quartier': str(quartier.pk),
       'gesellschaftslage_anfangswert': 23.42,
       'gesellschaftslage_endwert': 23.42,
@@ -10323,7 +10323,7 @@ class StandortqualitaetenWohnlagenSanierungsgebietTest(DefaultSimpleModelTestCas
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'bewertungsjahr': current_year(),
+      'bewertungsjahr': get_current_year(),
       'quartier': str(quartier.pk),
       'gesellschaftslage_anfangswert': 42.23,
       'gesellschaftslage_endwert': 42.23,

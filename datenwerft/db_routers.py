@@ -1,7 +1,7 @@
 class DatabaseRouter:
   """
-  Router zur Steuerung aller Datenbankoperationen
-  auf Datenmodellen der Apps BEMAS und Datenmanagement
+  router to control all database operations
+  on models of BEMAS and Datenmanagement apps
   """
   route_app_labels = {
     'bemas',
@@ -10,8 +10,8 @@ class DatabaseRouter:
 
   def db_for_read(self, model, **hints):
     """
-    alle Lesezugriffe auf Datenmodelle der Apps BEMAS und Datenmanagement
-    werden in die entsprechende Datenbank geroutet
+    all read access to models of BEMAS and Datenmanagement apps
+    are routed to the corresponding database
     """
     if model._meta.app_label in self.route_app_labels:
       if model._meta.app_label == 'bemas':
@@ -22,8 +22,8 @@ class DatabaseRouter:
 
   def db_for_write(self, model, **hints):
     """
-    alle Schreibzugriffe auf Datenmodelle der Apps BEMAS und Datenmanagement
-    werden in die entsprechende Datenbank geroutet
+    all write access to models of BEMAS and Datenmanagement apps
+    are routed to the corresponding database
     """
     if model._meta.app_label in self.route_app_labels:
       if model._meta.app_label == 'bemas':
@@ -34,14 +34,13 @@ class DatabaseRouter:
 
   def allow_relation(self, obj1, obj2, **hints):
     """
-    Relationen grundsätzlich immer erlauben
+    always allow relations
     """
     return True
 
   def allow_migrate(self, db, app_label, model_name=None, **hints):
     """
-    sicherstellen, dass alle Datenmodelle der App Datenmanagement
-    niemals einer Migration unterzogen werden
+    ensure that all models of Datenmanagement app are never subject to migration
     """
     if app_label in self.route_app_labels:
       if app_label == 'datenmanagement' or db == 'datenmanagement':

@@ -5,7 +5,7 @@ from pathlib import Path
 
 class OverwriteStorage(FileSystemStorage):
   """
-  ermöglicht das Überschreiben vorhandener Dateien mit demselben Namen
+  allows overwriting existing files with the same name
   """
 
   def get_available_name(self, name, max_length=None):

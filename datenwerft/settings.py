@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Datenwerft.HRO:
-# globale Anwendungsdefinition
+# global application definition
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DJANGO_APPS = [
@@ -63,7 +63,7 @@ TEMPLATES = [
         'datenwerft.context_processors.include_login_form',
       ],
       'libraries': {
-        'datenmanagement_tags': 'datenmanagement.tags.tags',
+        'datenmanagement_tags': 'datenmanagement.tags',
         'bemas_tags': 'bemas.tags'
       },
     },
@@ -72,7 +72,7 @@ TEMPLATES = [
 
 
 # Datenwerft.HRO:
-# Datenbanken
+# databases
 
 DATABASE_ROUTERS = [
   'datenwerft.db_routers.DatabaseRouter'
@@ -80,7 +80,7 @@ DATABASE_ROUTERS = [
 
 
 # Datenwerft.HRO:
-# Authentisierung
+# authentication
 
 AUTHENTICATION_BACKENDS = (
   'accounts.backend.DatenwerftAuthBackend',
@@ -89,7 +89,7 @@ AUTHENTICATION_BACKENDS = (
 
 
 # Datenwerft.HRO:
-# Sicherheit
+# security
 
 CSRF_COOKIE_SECURE = False
 SECURE_BROWSER_XSS_FILTER = True
@@ -137,7 +137,7 @@ LEAFLET_CONFIG = {
 
 
 # Datenwerft.HRO:
-# REST-Framework
+# REST framework
 
 REST_FRAMEWORK = {
   'DEFAULT_PERMISSION_CLASSES': [
@@ -154,8 +154,8 @@ REST_FRAMEWORK = {
 
 
 # Datenwerft.HRO:
-# globale statische Dateien, statische Dateien externer Bibliotheken
-# und statische Dateien der Hilfe
+# global static files, static files of external libraries
+# and static help files
 
 STATICFILES_DIRS = (
   BASE_DIR / 'vendor/',
@@ -183,7 +183,7 @@ STATICFILES_DIRS = (
 
 
 # Datenwerft.HRO:
-# Internationalisierung (i18n) und Lokalisierung (L10n)
+# internationalization (i18n) and localization (l10n)
 
 LANGUAGE_CODE = 'de'
 TIME_ZONE = 'Europe/Berlin'
@@ -191,8 +191,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-# App BEMAS:
-# Icons
+# BEMAS app:
+# icons
 
 BEMAS_ICONS = {
   'activity': 'bell',
@@ -233,8 +233,8 @@ BEMAS_ICONS = {
 }
 
 
-# App BEMAS:
-# Farben
+# BEMAS app:
+# colors
 
 BEMAS_COLORS = {
   'complaint': '#b85814',
@@ -242,7 +242,8 @@ BEMAS_COLORS = {
 }
 
 
-# Konfigurationsdatei mit weiteren Parametern, die nicht unter Git-Versionskontrolle fallen sollen
+# configuration file with additional parameters
+# which must not fall under Git version control
 
 try:
   from datenwerft.secrets import *

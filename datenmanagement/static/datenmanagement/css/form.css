@@ -100,7 +100,8 @@ input[name="strasse"] {
 }
 
 /*
- * Leaflet-Buttons für Layer-Controls überschreiben
+ * Leaflet:
+ * buttons for layer controls
  */
 
 .leaflet-control-layers-toggle {
@@ -121,7 +122,8 @@ input[name="strasse"] {
 }
 
 /*
- * Leaflet-Buttons für Location überschreiben
+ * Leaflet:
+ * buttons for location controls
  */
 
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {
@@ -133,7 +135,8 @@ input[name="strasse"] {
 }
 
 /*
- * Leaflet-Button zum Adoptieren von Geometrien definieren
+ * Leaflet:
+ * buttons for adopting geometries
  */
 
 .adopt-geometry-control {

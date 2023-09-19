@@ -7,16 +7,16 @@
  *
  * @param {Object} field - single field
  *
- * inserts a deletion button for the given single field within an array field complex
+ * inserts a deletion button for the passed single field within an array field complex
  */
 function addDeleteFieldButton(field) {
   // create button
   let deleteFieldButton = $('<button class="input-reset btn btn-warning" title="Wert löschen"><i class="fas fa-trash"></i></button></div>');
-  // insert created button after given single field
+  // insert created button after passed single field
   deleteFieldButton.insertAfter(field);
   // on clicking the created button...
   deleteFieldButton.click(function () {
-    // delete given single field and the button itself
+    // delete passed single field and the button itself
     field.parent().remove();
   });
 }
@@ -27,16 +27,16 @@ function addDeleteFieldButton(field) {
  *
  * @param {Object} field - field
  *
- * inserts a button after the given field for emptying the field
+ * inserts a button after the passed field for emptying the field
  */
 function addEmptyFieldButton(field) {
   // create button
   let emptyFieldButton = $('<span><i class="clear-field fas fa-circle-minus text-primary" title="alle Selektionen entfernen"></i></span>');
-  // insert created button after given field
+  // insert created button after passed field
   emptyFieldButton.insertAfter(field);
   // on clicking the created button...
   emptyFieldButton.click(function () {
-    // empty given field
+    // empty passed field
     field.val([]);
   });
 }
@@ -46,17 +46,17 @@ function addEmptyFieldButton(field) {
  * @name addField
  *
  * @param {Object} field - single field
- * @param {Object} fieldToInsertAfter - field after which the given single field (i.e. its wrapper) shall be inserted
+ * @param {Object} fieldToInsertAfter - field after which the passed single field (i.e. its wrapper) shall be inserted
  * @param {boolean} [buttonsPosition=false] - dynamically set vertical positions of buttons?
  *
- * inserts the given single field into an array field complex
+ * inserts the passed single field into an array field complex
  */
 function addField(field, fieldToInsertAfter, buttonsPosition= false) {
   // create wrapper
   let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
-  // insert given single field into created wrapper
+  // insert passed single field into created wrapper
   wrapper.append(field);
-  // insert created wrapper after given field after which the wrapper shall be inserted
+  // insert created wrapper after passed field after which the wrapper shall be inserted
   wrapper.insertAfter(fieldToInsertAfter.parent().is('.input-group') ? fieldToInsertAfter.parent() : fieldToInsertAfter);
   // add a deletion button
   addDeleteFieldButton(field);
@@ -69,9 +69,9 @@ function addField(field, fieldToInsertAfter, buttonsPosition= false) {
  * @function
  * @name adoptReverseSearchResult
  *
- * @param {JSON} geoJson - results of search for objects within a certain radius around given coordinates
+ * @param {JSON} geoJson - results of search for objects within a certain radius around passed coordinates
  *
- * adopts results of search for objects within a certain radius around given coordinates
+ * adopts results of search for objects within a certain radius around passed coordinates
  */
 function adoptReverseSearchResult(geoJson) {
   let erfolg = false;
@@ -102,7 +102,7 @@ function adoptReverseSearchResult(geoJson) {
  * @param {string} id - base text for HTML attribute id of field
  * @param {string} name - base text for HTML attribute name of field
  *
- * cleans the given single field within an array field complex
+ * cleans the passed single field within an array field complex
  */
 function cleanField(field, i, id, name) {
   field.attr('id', id + '_' + i);

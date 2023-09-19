@@ -43,7 +43,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   def generic_existance_test(self, test_object):
     """
-    tests general existance of given test object
+    tests general existance of passed test object
 
     :param self
     :param test_object: test object
@@ -56,7 +56,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   def generic_create_test(self):
     """
-    tests creation of test object of given model
+    tests creation of test object of passed model
 
     :param self
     """
@@ -71,7 +71,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   def generic_update_test(self):
     """
-    tests update of test object of given model
+    tests update of test object of passed model
 
     :param self
     """
@@ -89,7 +89,7 @@ class DefaultModelTestCase(DefaultTestCase):
 
   def generic_delete_test(self):
     """
-    tests deletion of test object of given model
+    tests deletion of test object of passed model
 
     :param self
     """
@@ -131,7 +131,7 @@ class DefaultModelTestCase(DefaultTestCase):
     response = self.client.post(url, data)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
-    # content type of response
+    # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
     # clean object filter
     object_filter = clean_object_filter(object_filter, self.model)
@@ -189,7 +189,7 @@ class DefaultManyToManyTestCase(DefaultTestCase):
 
   def generic_existance_test(self, test_object_from, test_object_to, relationship):
     """
-    tests general existance of many-to-many-relationship of given test objects
+    tests general existance of many-to-many-relationship of passed test objects
 
     :param self
     :param test_object_from: test object (from)
@@ -205,7 +205,7 @@ class DefaultManyToManyTestCase(DefaultTestCase):
 
   def generic_create_test(self):
     """
-    tests creation of many-to-many-relationship of test objects of given models
+    tests creation of many-to-many-relationship of test objects of passed models
 
     :param self
     """
@@ -223,7 +223,7 @@ class DefaultManyToManyTestCase(DefaultTestCase):
 
   def generic_delete_test(self):
     """
-    tests deletion of many-to-many-relationship of test objects of given models
+    tests deletion of many-to-many-relationship of test objects of passed models
 
     :param self
     """

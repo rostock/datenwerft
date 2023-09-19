@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connections
 from pathlib import Path
 from shutil import rmtree
+
 from toolbox.models import Subsets
 
 
@@ -63,7 +64,7 @@ def get_object(model, object_filter):
 
 def load_sql_schema():
   """
-  lädt ein SQL-Schema in eine Datenbank
+  loads an SQL schema into a database
   """
   schema_file = open(Path(__file__).resolve().parent.parent / 'sql/schema.sql', 'r')
   schema_sql = schema_file.read()

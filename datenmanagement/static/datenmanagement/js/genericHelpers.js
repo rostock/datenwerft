@@ -6,11 +6,11 @@
  * @function
  * @name getFeatureCenter
  *
- * gibt das Zentrum eines übergebenen GeoJSON-Features zurück
+ * returns center of passed GeoJSON feature
  *
- * @param {JSON} geoJson - GeoJSON-Feature
- * @param {string} [geometryType=''] - Geometrietyp des GeoJSON-Features
- * @returns {Array} - Array mit x- und y-Koordinate
+ * @param {JSON} geoJson - GeoJSON feature
+ * @param {string} [geometryType=''] - geometry type of GeoJSON feature
+ * @returns {Array} - center (i.e. array with x and y coordinates) of passed GeoJSON feature
  */
 function getFeatureCenter(geoJson, geometryType = '') {
   let xArray = [];
@@ -48,10 +48,10 @@ function getFeatureCenter(geoJson, geometryType = '') {
  * @function
  * @name getFeatureGeometryLatLng
  *
- * gibt die x- und y-Koordinate (des Zentrums) einer übergebenen Geometrie eines GeoJSON-Features zurück
+ * returns center of passed GeoJSON feature geometry
  *
- * @param {Object} featureGeometry - Geometrie eines GeoJSON-Features
- * @returns {Array} - Array mit x- und y-Koordinate
+ * @param {Object} featureGeometry - GeoJSON feature geometry
+ * @returns {Array} - center (i.e. array with x and y coordinates) of passed GeoJSON feature
  */
 function getFeatureGeometryLatLng(featureGeometry) {
   let x = 0, y = 0;
@@ -69,25 +69,25 @@ function getFeatureGeometryLatLng(featureGeometry) {
  * @function
  * @name interchangeRecursive
  *
- * rekursives Umkehren der Reihenfolge von x- und y-Koordinaten
+ * recursively reverses the order of x and y coordinates in passed array and returns it
  *
- * @param {Array} arr - Array, in dem das Umkehren der Reihenfolge durchgeführt wird
- * @param {boolean} [polygon=false] - handelt es sich um ein Polygon?
- * @returns {Array} - Array mit umgekehrter Reihenfolge von x- und y-Koordinaten
+ * @param {Array} arr - array with x and y coordinates
+ * @param {boolean} [polygon=false] - is it a polygon?
+ * @returns {Array} - array with x and y coordinates in reverse order
  */
 function interchangeRecursive(arr, polygon = false) {
-  // eindimensionales Array
+  // one-dimensional array
   if (typeof arr[0] === 'number') {
     let lat = arr[1];
     let lng = arr[0];
     arr[0] = lat;
     arr[1] = lng;
     return arr;
-  // mehrdimensionales Array
+  // multi-dimensional array
   } else if (Array.isArray(arr[0])) {
     for (let i = 0; i < arr.length; i++) {
-      // bei Polygonen sind das erste und das letzte x-y-Koordinatenpaar gleich:
-      // daher hier letztes x-y-Koordinatenpaar auslassen!
+      // for polygons, the first and last x-y coordinate pairs are the same:
+      // therefore leave out the last x-y coordinate pair here!
       if (polygon === true && i === (arr.length - 1) && typeof arr[i][0] === 'number') {
         continue;
       }
@@ -101,13 +101,13 @@ function interchangeRecursive(arr, polygon = false) {
  * @function
  * @name refreshModal
  *
- * aktualisiert den Inhalt des übergebenen Bootstrap-Modals
+ * refreshes contents of passed Bootstrap modal and returns it
  *
- * @param {Object} modal - Bootstrap-Modal
- * @param {string} [title=''] - Titel des Bootstrap-Modals
- * @param {string} [body=''] - Body des Bootstrap-Modals
- * @param {Boolean} [addFooter=false] - Footer zum Bootstrap-Modal hinzufügen?
- * @returns {Object} - aktualisierter Bootstrap-Modal
+ * @param {Object} modal - Bootstrap modal
+ * @param {string} [title=''] - titel of the Bootstrap modal
+ * @param {string} [body=''] - body of the Bootstrap modal
+ * @param {Boolean} [addFooter=false] - add a footer to the Bootstrap modal?
+ * @returns {Object} - Bootstrap modal with refreshd contents
  */
 function refreshModal(modal, title = '', body = '', addFooter = false) {
   modal.find('.modal-title').text(title);
@@ -130,12 +130,12 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
  * @function
  * @name toggleModal
  *
- * schaltet die Sichtbarkeit des übergebenen Bootstrap-Modals um
+ * toggles visibility of passed Bootstrap modal
  *
- * @param {Object} modal - Bootstrap-Modal
- * @param {string} [title=''] - Titel des Bootstrap-Modals
- * @param {string} [body=''] - Body des Bootstrap-Modals
- * @param {string} [customLoadingContent=null] - zusätzlichen Inhalt für Ladeansicht anzeigen
+ * @param {Object} modal - Bootstrap modal
+ * @param {string} [title=''] - titel of the Bootstrap modal
+ * @param {string} [body=''] - body of the Bootstrap modal
+ * @param {string} [customLoadingContent=null] - additional content for loading view
  */
 function toggleModal(modal, title = '', body = '', customLoadingContent = '') {
   refreshModal(modal, title, body);

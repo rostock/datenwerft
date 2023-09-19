@@ -279,19 +279,19 @@
           {% endif %}
           // falls Geometrie nicht punkthaft ist...
           {% if geometry_type != 'Point' %}
-            // Tooltip setzen (wird ansonsten weiter unten beim Laden der GeoJSON-FeatureCollection gesetzt)
+            // Tooltip setzen (wird ansonsten weiter unten beim Laden der GeoJSON featureCollection gesetzt)
             layer.bindTooltip(feature.properties.tooltip);
           {% endif %}
         }
 
         // falls große Datenmenge zu erwarten ist...
         {% if heavy_load_limit %}
-          // Konstanten und Variablen für die Anzahl der (bereits geholten) Features der GeoJSON-FeatureCollection definieren
+          // Konstanten und Variablen für die Anzahl der (bereits geholten) Features der GeoJSON featureCollection definieren
           const border = {{ objects_count }};
           const limit = {{ heavy_load_limit }};
           let promises = [];
           let count = 0;
-          // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON-FeatureCollection für die Karte eingeblendet wird
+          // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON featureCollection für die Karte eingeblendet wird
           $('#loading-modal-map-data-count').text(count);
           $('#loading-modal-map-data-border').text(border);
         {% endif %}
@@ -300,7 +300,7 @@
          * @function
          * @name fetchGeoJsonFeatureCollection
          *
-         * holt die GeoJSON-FeatureCollection für die Karte
+         * holt die GeoJSON featureCollection für die Karte
          *
          * @param {boolean} heavyLoad - große Datenmenge zu erwarten?
          * @param {number} [limit=0] - Limit für aktuellen Ladeschritt
@@ -347,13 +347,13 @@
           let markers = L.markerClusterGroup();
           // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
-            // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
+            // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
             for (let offset = 0; offset < border; offset += limit) {
               promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
             }
             Promise.all(promises)
             .then(data => {
-              // jedes Feature der GeoJSON-FeatureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
+              // jedes Feature der GeoJSON featureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                   let marker = new L.circleMarker(latlng, {
@@ -372,10 +372,10 @@
             );
           // ansonsten...
           {% else %}
-            // GeoJSON-FeatureCollection für die Karte in einem Ladeschritt holen
+            // GeoJSON featureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
-              // jedes Feature der GeoJSON-FeatureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
+              // jedes Feature der GeoJSON featureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                   let marker = new L.circleMarker(latlng, {
@@ -400,13 +400,13 @@
         {% else %}
           // falls große Datenmenge zu erwarten ist...
           {% if heavy_load_limit %}
-            // GeoJSON-FeatureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
+            // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
             for (let offset = 0; offset < border; offset += limit) {
               promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
             }
             Promise.all(promises)
             .then(data => {
-              // für jedes Feature der GeoJSON-FeatureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
+              // für jedes Feature der GeoJSON featureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
               L.Proj.geoJson(data, {
                 onEachFeature: setMapFeaturePropertiesAndActions
               }).addTo(map);
@@ -418,10 +418,10 @@
             );
           // ansonsten...
           {% else %}
-            // GeoJSON-FeatureCollection für die Karte in einem Ladeschritt holen
+            // GeoJSON featureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
-              // für jedes Feature der GeoJSON-FeatureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
+              // für jedes Feature der GeoJSON featureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
               L.Proj.geoJson(data, {
                 onEachFeature: setMapFeaturePropertiesAndActions
               }).addTo(map);

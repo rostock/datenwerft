@@ -5,13 +5,13 @@
  * @function
  * @name configureLeafletGeoman
  *
- * konfiguriert Leaflet-Geoman in der übergebenen Karte
+ * configures Leaflet-Geoman in passed map
  *
- * @param {Object} map - Karte
- * @param {string} [geometryType=''] - Geometrietyp des aktuellen Datenthemas im Formular
+ * @param {Object} map - map
+ * @param {string} [geometryType=''] - geometry type of the current data theme in the form
  */
 function configureLeafletGeoman(map, geometryType = '') {
-  // eigene Übersetzungen definieren
+  // define custom translations
   const customTranslation = {
     actions: {
       cancel: 'abbrechen',
@@ -36,94 +36,94 @@ function configureLeafletGeoman(map, geometryType = '') {
     },
   };
 
-  // Tooltip-Sprache mit eigenen Übersetzungen setzen
+  // set tooltip language with custom translations
   map.pm.setLang('customDe', customTranslation, 'de');
 
-  // Optionen für das Zeichnen von Objekten setzen
+  // set options for drawing objects
   map.pm.setPathOptions(map._pathOptions);
 
-  // globale Optionen setzen
+  // set global options
   map.pm.setGlobalOptions({
     snapDistance: 10,
-    continueDrawing: false, // nach Hinzufügen einer Geometrie
+    continueDrawing: false, // after adding a geometry
     markerStyle: {
       icon: redMarker
     }
   })
 
-  // Kontrollelemente setzen
+  // set control elements
   if (geometryType === 'Point') {
     map.pm.addControls({
       position: 'topleft',
-      drawCircleMarker: false,  // Kreis-Marker setzen
-      drawCircle: false,        // Kreis zeichnen
-      drawPolyline: false,      // Linie zeichnen
-      drawRectangle: false,     // Rechteck zeichnen
-      drawPolygon: false,       // Polygon zeichnen
-      drawText: false,          // Text erstellen
-      dragMode: false,          // Geometrie verschieben
-      editMode: false,          // Stützpunkt bearbeiten
-      cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
-      rotateMode: false,        // Geometrie rotieren
-      removalMode: false        // Geometrie löschen
+      drawCircleMarker: false,
+      drawCircle: false,
+      drawPolyline: false,
+      drawRectangle: false,
+      drawPolygon: false,
+      drawText: false,
+      dragMode: false,
+      editMode: false,
+      cutPolygon: false,
+      rotateMode: false,
+      removalMode: false
     });
   } else if (geometryType === 'LineString') {
     map.pm.addControls({
       position: 'topleft',
-      drawCircleMarker: false,  // Kreis-Marker setzen
-      drawCircle: false,        // Kreis zeichnen
-      drawMarker: false,        // Marker setzen
-      drawRectangle: false,     // Rechteck zeichnen
-      drawPolygon: false,       // Polygon zeichnen
-      drawText: false,          // Text erstellen
-      dragMode: false,          // Geometrie verschieben
-      cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
-      rotateMode: false         // Geometrie rotieren
+      drawCircleMarker: false,
+      drawCircle: false,
+      drawMarker: false,
+      drawRectangle: false,
+      drawPolygon: false,
+      drawText: false,
+      dragMode: false,
+      cutPolygon: false,
+      rotateMode: false
     });
   } else if (geometryType === 'Polygon') {
     map.pm.addControls({
       position: 'topleft',
-      drawCircleMarker: false,  // Kreis-Marker setzen
-      drawCircle: false,        // Kreis zeichnen
-      drawMarker: false,        // Marker setzen
-      drawPolyline: false,      // Linie zeichnen
-      drawText: false,          // Text erstellen
-      dragMode: false,          // Geometrie verschieben
-      cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
-      rotateMode: false         // Geometrie rotieren
+      drawCircleMarker: false,
+      drawCircle: false,
+      drawMarker: false,
+      drawPolyline: false,
+      drawText: false,
+      dragMode: false,
+      cutPolygon: false,
+      rotateMode: false
     });
   } else if (geometryType === 'MultiPolygon') {
     map.pm.addControls({
       position: 'topleft',
-      drawCircleMarker: false,  // Kreis-Marker setzen
-      drawCircle: false,        // Kreis zeichnen
-      drawMarker: false,        // Marker setzen
-      drawPolyline: false,      // Linie zeichnen
-      drawText: false,          // Text erstellen
-      dragMode: false,          // Geometrie verschieben
-      rotateMode: false         // Geometrie rotieren
+      drawCircleMarker: false,
+      drawCircle: false,
+      drawMarker: false,
+      drawPolyline: false,
+      drawText: false,
+      dragMode: false,
+      rotateMode: false
     });
   } else {
     map.pm.addControls({
       position: 'topleft',
-      drawCircleMarker: false,  // Kreis-Marker setzen
-      drawCircle: false,        // Kreis zeichnen
-      drawMarker: false,        // Marker setzen
-      drawPolyline: false,      // Linie zeichnen
-      drawRectangle: false,     // Rechteck zeichnen
-      drawPolygon: false,       // Polygon zeichnen
-      drawText: false,          // Text erstellen
-      dragMode: false,          // Geometrie verschieben
-      editMode: false,          // Stützpunkt bearbeiten
-      cutPolygon: false,        // Polygon aus anderer Geometrie ausschneiden
-      rotateMode: false,        // Geometrie rotieren
-      removalMode: false        // Geometrie löschen
+      drawCircleMarker: false,
+      drawCircle: false,
+      drawMarker: false,
+      drawPolyline: false,
+      drawRectangle: false,
+      drawPolygon: false,
+      drawText: false,
+      dragMode: false,
+      editMode: false,
+      cutPolygon: false,
+      rotateMode: false,
+      removalMode: false
     });
   }
 
-  // falls Geometrietyp des Datenthemas flächenhaft ist...
+  // if the geometry type of the data theme is areal...
   if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-    // Button zum Adoptieren von Geometrien als Kontrollelement hinzufügen
+    // add control button to adopt geometries
     map.pm.Toolbar.createCustomControl({
       name: 'adoptGeometry',
       title: 'vorhandene Geometrien adoptieren',
@@ -134,25 +134,25 @@ function configureLeafletGeoman(map, geometryType = '') {
       ]
     });
     map.on('pm:buttonclick', (e) => {
-      // Geometrien interaktiv setzen
+      // set geometries interactively
       if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === false) {
         map.getLayersOfType('Polygon', true).forEach((layer) => {
           layer.setInteractive(true);
           layer.on('click', () => {
             let j = JSON.parse($('#id_geometrie').val());
             let type = (j.type.indexOf('MultiPolygon') > -1) ? 'MultiPolygon' : 'Polygon';
-            // falls bislang noch keine Geometrie vorliegt...
+            // if no geometry is available yet...
             if (map.pm.getGeomanDrawLayers().length < 1) {
-              // Layer aus adoptierter Geometrie erzeugen
+              // create layer from adopted geometry
               let geometryToAdopt = new L.geoJSON(layer.toGeoJSON(), {
                 color: 'red'
               });
-              // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
+              // add created layer and all sublayers to Leaflet-Geoman draw layer
               geometryToAdopt._changeGeom = true;
               geometryToAdopt.eachLayer((layer) => {
                 layer._drawnByGeoman = true;
               });
-              // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
+              // add Leaflet-Geoman draw layer to map
               geometryToAdopt.addTo(map);
             }
             map.pm.getGeomanDrawLayers()[0].unite(layer, type);
@@ -161,7 +161,7 @@ function configureLeafletGeoman(map, geometryType = '') {
       }
     });
     map.on('pm:buttonclick', (e) => {
-      // Bearbeitung deaktivieren
+      // disable editing
       if (e.btnName === 'adoptGeometry' && e.button.toggleStatus === true) {
         map.pm.getGeomanLayers().forEach((layer) => {
           layer.setInteractive(false);
@@ -169,7 +169,7 @@ function configureLeafletGeoman(map, geometryType = '') {
       }
     });
     map.on('pm:actionclick', (e) => {
-      // Bearbeitung deaktivieren
+      // disable editing
       if (e.btnName === 'adoptGeometry' && e.text === 'beenden') {
         map.pm.getGeomanLayers().forEach((layer) => {
           layer.setInteractive(false);
@@ -183,39 +183,39 @@ function configureLeafletGeoman(map, geometryType = '') {
  * @function
  * @name configureMap
  *
- * konfiguriert die übergebene Karte
+ * configures the passed map
  *
- * @param {Object} map - Karte
- * @param {Object} owsProxyUrl - URL des OWS-Proxies
- * @param {Object} [additionalWmsLayers={}] - zusätzliche Karten
+ * @param {Object} map - map
+ * @param {Object} owsProxyUrl - URL of OWS proxy
+ * @param {Object} [additionalWmsLayers={}] - additional WMS layers
  */
 function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
-  // Rendering der Feature-Layer auf der Karte etwas beschleunigen
+  // slightly speed up the rendering of the feature layers on the map
   map.preferCanvas = true;
 
-  // Standard-Zoom-Kontrollelemente entfernen und durch solche mit eigenen Tooltips ersetzen
+  // remove standard zoom controls and replace them with ones with custom tooltips
   map.zoomControl.remove();
   L.control.zoom({
     zoomInTitle:'hineinzoomen',
     zoomOutTitle:'herauszoomen'
   }).addTo(map);
 
-  // ORKa.MV definieren
+  // define ORKa.MV
   const orkamv = L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer">ODbL</a>) und LkKfS-MV'
   });
 
-  // ORKa.MV standardmäßig zur Karte hinzufügen
+  // add ORKa.MV to map by default
   map.addLayer(orkamv);
 
-  // OpenStreetMap definieren
+  // define OpenStreetMap
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap-Mitwirkende</a>'
   });
 
-  // basemap.de definieren
+  // define basemap.de
   const basemapde = L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde', {
     layers: 'de_basemapde_web_raster_farbe',
     format: map._wmsFormat,
@@ -223,7 +223,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: '© GeoBasis-DE/BKG'
   });
 
-  // Liegenschaftskarte definieren
+  // define Liegenschaftskarte
   const liegenschaftskarte = L.tileLayer.wms(owsProxyUrl + '/liegenschaftskarte/wms', {
     layers: 'hro.liegenschaftskarte',
     format: map._wmsFormat,
@@ -231,13 +231,13 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
   });
 
-  // Luftbild definieren
+  // define Luftbild
   const luftbild = L.tileLayer('https://geo.sv.rostock.de/geodienste/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/M-V'
   });
 
-  // zuvor definierte Karten als Hintergrundkarten zusammenfassen
+  // combine previously defined maps as background maps
   const baseMaps = {
     'basemap.de': basemapde,
     'Liegenschaftskarte': liegenschaftskarte,
@@ -246,7 +246,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     'ORKa.MV': orkamv
   };
 
-  // Kilometerquadrate ETRS89/UTM-33N definieren
+  // define Kilometerquadrate ETRS89/UTM-33N
   const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
     layers: 'hro.koordinatensysteme.kilometerquadrate_utm',
     format: map._wmsFormat,
@@ -254,18 +254,18 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     transparent: true
   });
 
-  // zuvor definierte Karten als Overlay-Karten zusammenfassen
+  // combine previously defined maps as overlay maps
   let overlayMaps = {
     'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
   };
 
-  // ggf. zusätzlich definierte Karten zu den Overlay-Karten hinzufügen
+  // if necessary, add additional WMS layers to the overlay maps as well
   overlayMaps = Object.assign(additionalWmsLayers, overlayMaps);
 
-  // Umschalter für Hintergrundkarten zur Karte hinzufügen
+  // add background map toggle to map
   L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-  // Kartenprojektion EPSG:25833 definieren
+  // define map projection
   proj4.defs([
     [
       'EPSG:25833',
@@ -278,9 +278,9 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
  * @function
  * @name enableMapLocate
  *
- * fügt Standortbestimmung zur übergebenen Karte hinzu
+ * adds location control to the passed map
  *
- * @param {Object} map - Karte
+ * @param {Object} map - map
  */
 function enableMapLocate(map) {
   L.control.locate({
@@ -301,13 +301,13 @@ function enableMapLocate(map) {
  * @function
  * @name getAddressSearchResult
  *
- * erstellt ein HTML-Resultat aus einem Resultat der Adressensuche
+ * creates an HTML result from an address search result and returns it
  *
- * @param {string} index - Index des Resultats aus der Adressensuche
- * @param {string} uuid - UUID des Resultats aus der Adressensuche
- * @param {string} titel - Titel des Resultats aus der Adressensuche
- * @param {string} gemeindeteil_abkuerzung - Abkürzung des Gemeindeteils aus dem Resultat aus der Adressensuche
- * @returns {string} - HTML-Resultat
+ * @param {string} index - index of the address search result
+ * @param {string} uuid - UUID of the address search result
+ * @param {string} titel - title of the address search result
+ * @param {string} gemeindeteil_abkuerzung - district abbreviation of the address search result
+ * @returns {string} - HTML result
  */
 function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
   let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + uuid + '"><strong>' + titel + '</strong>';
@@ -320,25 +320,26 @@ function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
  * @function
  * @name initializeAddressSearch
  *
- * initialisiert die Adressensuche
+ * initializes the address search
  *
- * @param {Object} searchField - Sucheingabefeld der Adressensuche
- * @param {string} url - URL der Adressensuche
- * @param {string} [addressType=''] - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
- * @param {Object} [addressUuidField=null] - Feld mit UUID der/des referenzierten Adresse, Straße oder Gemeindeteils
+ * @param {Object} searchField - search input field of the address search
+ * @param {string} url - URL of the address search
+ * @param {string} [addressType=''] - address reference type (i.e. address, street or district)
+ * @param {Object} [addressUuidField=null] - field with UUID of referenced address, street or district
+ * oder Gemeindeteils
  */
 function initializeAddressSearch(searchField, url, addressType = '', addressUuidField = null) {
-  // bei Klick auf Stelle außerhalb der Adressensuche...
+  // clicking on a location outside of the address search...
   results.click(function(e) {
     $('html').one('click',function() {
-      // Resultate der Adressensuche leeren
+      // clearing address search results
       results.children().remove();
       results.fadeOut();
     });
     e.stopPropagation();
   });
 
-  // ab dem dritten eingegebenen Zeichen in entsprechendem Eingabefeld Adressensuche durchführen
+  // carry out an address search from the third character entered in the corresponding input field
   searchField.keyup(function() {
     if ($(this).val().length >= 3) {
       let searchText = searchField.val();
@@ -354,7 +355,8 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
     }
   });
 
-  // bei Klick in Eingabefeld für Adressensuche dieses und die Resultate der Adressensuche leeren
+  // on clicking in the input field for address search:
+  // empty it and the results of the address search as well
   searchField.on('click', function() {
     $(this).val('');
     if (addressUuidField !== null)
@@ -367,12 +369,12 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  * @function
  * @name setMapConstants
  *
- * setzt Konstanten für die übergebene Karte
+ * sets constants for the passed map
  *
- * @param {Object} map - Karte
+ * @param {Object} map - map
  */
 function setMapConstants(map) {
-  // allgemeine Konstanten
+  // global constants
   map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
   map._wmsFormat = 'image/png';
   map._maxLayerZoom = 19;
@@ -380,13 +382,13 @@ function setMapConstants(map) {
   map._minLayerZoomForDataThemes = 13;
   map._themaUrl = {};
 
-  // Optionen für das Zeichnen von Objekten
+  // options for drawing objects
   map._pathOptions = {
-    color: 'red', // Linienfarbe für gezeichnete Objekte
-    fillColor: 'red', // Füllfarbe für gezeichnete Objekte
-    requireSnapToFinish: true, // Zeichnen von Polygonen endet mit bestehendem Punkt
+    color: 'red', // line color for drawn objects
+    fillColor: 'red', // fill color for drawn objects
+    requireSnapToFinish: true, // drawing polygons ends with existing point
     templineStyle: {
-      color: 'red' // Linienfarbe während des Zeichnens
+      color: 'red' // line color while drawing
     }
   };
 }
@@ -395,11 +397,11 @@ function setMapConstants(map) {
  * @function
  * @name setMapExtentByXYAndZoomLevel
  *
- * setzt den Kartenausschnitt mittels Kartenzentrum und Zoom-Level
+ * sets the map section using the passed map center and zoom level
  *
- * @param {number} x - x-Koordinate des Kartenzentrums
- * @param {number} y - y-Koordinate des Kartenzentrums
- * @param {number} zoomLevel - Zoom-Level
+ * @param {number} x - x coordinate of the map center
+ * @param {number} y - y coordinate of the map center
+ * @param {number} zoomLevel - zoom level
  */
 function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
   currMap.panTo([y, x]);
@@ -410,12 +412,12 @@ function setMapExtentByXYAndZoomLevel(x, y, zoomLevel) {
  * @function
  * @name setMapExtentByBoundingBox
  *
- * setzt den Kartenausschnitt mittels Bounding-Box
+ * sets the map section using the passed bounding box
  *
- * @param {number} min_x - minimale x-Koordinate
- * @param {number} min_y - minimale y-Koordinate
- * @param {number} max_x - maximale x-Koordinate
- * @param {number} max_y - maximale y-Koordinate
+ * @param {number} min_x - minimum x coordinate
+ * @param {number} min_y - minimum y coordinate
+ * @param {number} max_x - maximum x coordinate
+ * @param {number} max_y - maximum y coordinate
  */
 function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
   currMap.fitBounds([[max_y, max_x], [min_y, min_x]]);
@@ -425,9 +427,9 @@ function setMapExtentByBoundingBox(min_x, min_y, max_x, max_y) {
  * @function
  * @name setMapExtentByLeafletBounds
  *
- * setzt den Kartenausschnitt mittels Leaflet-Bounding-Box-Objekt
+ * sets the map section using the passed Leaflet bounding box object
  *
- * @param {Object} leafletBounds - Leaflet-Bounding-Box-Objekt
+ * @param {Object} leafletBounds - Leaflet bounding box object
  */
 function setMapExtentByLeafletBounds(leafletBounds) {
   currMap.fitBounds(leafletBounds);
@@ -437,20 +439,20 @@ function setMapExtentByLeafletBounds(leafletBounds) {
  * @function
  * @name showAddressSearchResults
  *
- * zeigt und behandelt die Resultate der Adressensuche
+ * shows and handles the results of the address search
  *
- * @param {JSON} json - Resultate der Adressensuche
- * @param {string} addressType - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
- * @param {Object} searchField - Sucheingabefeld der Adressensuche
- * @param {Object} addressUuidField - Feld mit UUID der/des referenzierten Adresse, Straße oder Gemeindeteils
+ * @param {JSON} json - results of the address search
+ * @param {string} addressType - address reference type (i.e. address, street or district)
+ * @param {Object} searchField - search input field of the address search
+ * @param {Object} addressUuidField - field with UUID of referenced address, street or district
  */
 function showAddressSearchResults(json, addressType, searchField, addressUuidField) {
-  // Resultate leeren
+  // empty results
   results.children().remove();
 
-  // JSON durchgehen...
+  // go through JSON...
   jQuery.each(json.features, function(index, item) {
-    // je JSON-Feature ein Resultat bauen, falls JSON-Feature nicht als "historisch" markiert ist
+    // build one result for each JSON feature if the JSON feature is not marked as "historical"
     if (!item.properties.historisch) {
       let titel;
       if (item.properties._title_.indexOf(', ') !== -1)
@@ -458,9 +460,9 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
       else
         titel = item.properties._title_;
       let result = '';
-      // falls Datenmodell Adressenbezug vorsieht...
+      // if model provides address reference...
       if (addressType !== '') {
-        // nur Objektgruppen berücksichtigen, die mit dem Typ des Adressenbezugs übereinstimmen
+        // consider object groups only that match the address reference type
         let substring = item.properties.objektgruppe;
         if (item.properties.objektgruppe.indexOf(' HRO') !== -1)
           substring = item.properties.objektgruppe.substring(0, item.properties.objektgruppe.lastIndexOf(' HRO'));
@@ -468,9 +470,9 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
           result = getAddressSearchResult(index, item.properties.uuid, titel, item.properties.gemeindeteil_abkuerzung);
           result += '</div>';
         }
-      // ansonsten...
+      // otherwise...
       } else {
-        // alle Objektgruppen berücksichtigen
+        // consider all object groups
         result = getAddressSearchResult(index, item.properties.uuid, titel, item.properties.gemeindeteil_abkuerzung);
         result += '<small class="text-secondary"><em>' + item.properties.objektgruppe.replace(/ HRO/, '') + '</em></small></div>';
       }
@@ -479,29 +481,30 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
     }
   });
 
-  // Resultate einblenden
+  // show results
   results.fadeIn();
 
-  // bei Klick auf ein Resultat...
+  // clicking on a result...
   results.children().on('click', function() {
-    // Button „Marker setzen“ aktivieren
+    // activate button „Marker setzen“
     $('#addressToMap').prop('disabled', false);
-    // falls Datenmodell Adressenbezug vorsieht...
+    // if model provides address reference...
     if (addressType !== '') {
-      // Text des Resultats in Suchfeld übernehmen
-      // und UUID als Data-Attribut in Feld mit UUID der/des referenzierten Adresse, Straße oder Gemeindeteils übernehmen
+      // copy the text of the result into the search field
+      // and adopt the UUID as a data attribute in the field with UUID
+      // of referenced address, street or district
       let text = $(this).children('strong').text();
       if ($(this).children('small'))
         text += ' ' + $(this).children('small').text();
       searchField.val(text);
       if (addressUuidField)
         addressUuidField.val($(this).data('uuid'));
-    // ansonsten...
+    // otherwise...
     } else {
-      // Text des Resultats in Suchfeld übernehmen
+      // copy the text of the result into the search field
       searchField.val($(this).children('strong').text());
     }
-    // Karte auf Resultat zoomen
+    // zoom map to result
     let resultingFeatureGeometry = json.features[$(this).data('feature')].geometry;
     if (resultingFeatureGeometry.type === 'Point') {
       resultingFeatureGeometry.coordinates = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates);

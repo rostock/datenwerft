@@ -76,10 +76,10 @@ class CodelistCreateView(CreateView):
 
   def form_valid(self, form):
     """
-    sends HTTP response if given form is valid
+    sends HTTP response if passed form is valid
 
     :param form: form
-    :return: HTTP response if given form is valid
+    :return: HTTP response if passed form is valid
     """
     success(
       self.request,
@@ -128,10 +128,10 @@ class CodelistUpdateView(UpdateView):
 
   def form_valid(self, form):
     """
-    sends HTTP response if given form is valid
+    sends HTTP response if passed form is valid
 
     :param form: form
-    :return: HTTP response if given form is valid
+    :return: HTTP response if passed form is valid
     """
     success(
       self.request,
@@ -170,10 +170,10 @@ class CodelistDeleteView(DeleteView):
 
   def form_valid(self, form):
     """
-    sends HTTP response if given form is valid
+    sends HTTP response if passed form is valid
 
     :param form: form
-    :return: HTTP response if given form is valid
+    :return: HTTP response if passed form is valid
     """
     success_url = self.get_success_url()
     try:

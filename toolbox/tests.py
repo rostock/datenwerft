@@ -233,7 +233,7 @@ class SearchesTestCase(TestCase):
 class SearchesTest(SearchesTestCase):
   """
   test class for address search
-  and search for objects in specified radius around given coordinates
+  and search for objects in specified radius around passed coordinates
   """
 
   def setUp(self):

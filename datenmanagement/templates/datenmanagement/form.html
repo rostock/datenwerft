@@ -49,7 +49,7 @@
     {% for error in form.non_field_errors %}
       <div class="alert alert-danger" role="alert">
         <i class="fa-solid fa-circle-exclamation"></i>
-        {{ error|customize_error_message }}
+        {{ error|clean_error_message }}
       </div>
     {% endfor %}
     <div class="mb-4"></div>
@@ -202,7 +202,7 @@
                 {{ form.gemeindeteil }}
                 <label for="id_gemeindeteil">{{ address_type }} eingeben…</label>
               </div>
-              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_quarter %}{{ current_quarter }}{% endif %}">
+              <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_district %}{{ current_district }}{% endif %}">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}

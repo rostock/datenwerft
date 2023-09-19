@@ -318,7 +318,7 @@ class DataMapView(JsonView):
       limit = int(self.request.GET.get('limit'))
     if self.request.GET.get('offset'):
       offset = int(self.request.GET.get('offset'))
-    # GeoJSON-FeatureCollection definieren
+    # GeoJSON featureCollection definieren
     map_features = {
         'type': 'FeatureCollection',
         'features': []
@@ -369,7 +369,7 @@ class DataMapView(JsonView):
           tooltip = tooltip_value.strip()
         else:
           tooltip = str(curr_object.pk)
-        # GeoJSON-Feature definieren:
+        # GeoJSON feature definieren:
         # * Geometrie aus serialisiertem GeoJSON holen
         # * Eigenschaften aus den zuvor befüllten Variablen holen
         feature = {
@@ -437,7 +437,7 @@ class DataMapView(JsonView):
         if self.model.BasemodelMeta.map_filter_fields:
           for field in self.model.BasemodelMeta.map_filter_fields.keys():
             feature['properties'][field] = str(get_data(curr_object, field))
-        # GeoJSON-Feature zur GeoJSON-FeatureCollection hinzufügen
+        # GeoJSON feature zur GeoJSON featureCollection hinzufügen
         map_features['features'].append(feature)
     return map_features
 

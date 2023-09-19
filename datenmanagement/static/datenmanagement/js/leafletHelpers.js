@@ -2,16 +2,16 @@
 /* eslint no-undef: "error" */
 
 /*
- * Erweiterungen bestehender Leaflet-Klassen
+ * extensions of existing Leaflet classes
  */
 
 /**
  * @function
  * @name getActiveOverlays
  *
- * gibt alle aktiven Layer im Layer-Control zurück
+ * returns all active layers in layer controls
  *
- * @returns {Object} - alle aktiven Layer im Layer-Control
+ * @returns {Object} - all active layers in layer controls
  */
 L.Control.Layers.prototype.getActiveOverlays = function() {
   let activeLayers = {};
@@ -32,19 +32,18 @@ L.Control.Layers.prototype.getActiveOverlays = function() {
 
 
 /*
- * Leaflet-Hilfsfunktionen
+ * Leaflet helper functions
  */
 
 /**
  * @function
  * @name getLayersOfType
  *
- * gibt alle Layer des übergebenen Typs zurück
+ * returns all layers of passed type
  *
- * @param {string} type - Typ der zu suchenden Layer als String (Beispiel: 'LineString')
- * @param {boolean} [withCompatible=false] - mit kompatiblen Layern? (Beispiel: bei `type='Point'` Rückgabe aller Point- und Multi-Point-Layer)
- *
- * @returns {Array} - alle Layer des übergebenen Typs
+ * @param {string} type - type of layers to search as a string (example: 'LineString')
+ * @param {boolean} [withCompatible=false] - with compatible layers? (example: return all point and multi-point layers if `type='Point'`)
+ * @returns {Array} - all layers of passed type
  */
 L.Map.prototype.getLayersOfType = function(type, withCompatible = false) {
   let result = []
@@ -68,13 +67,13 @@ L.Map.prototype.getLayersOfType = function(type, withCompatible = false) {
  * @function
  * @name getAttachingLayers
  *
- * gibt für einen übergebenen Layer alle anknüpfenden Layer desselben Typs zurück:
- * - anknüpfend bei Polygonen: mindestens zwei Punkte identisch
- * - anknüpfend bei Linien: Start- oder Endpunkt identisch
+ * returns all layers attached to passed layer (provided that they are of the same type),
+ * where attached means:
+ * - polygons: at least two points are identical
+ * - lines: start or end points are identical
  *
- * @param {Object} layer - Layer, für den die anknüpfenden Layer desselben Typs gefunden werden sollen
- *
- * @returns {Array} - alle an den übergebenen Layer anknüpfenden Layer desselben Typs
+ * @param {Object} layer - layer for which all attached layers of the same type shall be found
+ * @returns {Array} - all layers attached to passed layer (provided that they are of the same type)
  */
 L.Map.prototype.getAttachingLayers = function(layer) {
   let results = [];
@@ -98,11 +97,10 @@ L.Map.prototype.getAttachingLayers = function(layer) {
  * @function
  * @name loadGeometryFromField
  *
- * lädt Geometrie aus Input-Feld in Karte
+ * loads geometry from passed input field to map
  *
- * @param {string} fieldId - ID des Input-Felds
- *
- * @returns {this} modifizierte Karte
+ * @param {string} fieldId - input field ID
+ * @returns {this} - map with geometry loaded from passed input field
  */
 L.Map.prototype.loadGeometryFromField = function(fieldId) {
   let geojson = {
@@ -116,7 +114,7 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
         icon: redMarker
       });
     },
-    // Farbe während des Zeichnens
+    // color while drawing
     templineStyle: {
       color: 'red',
     },
@@ -139,17 +137,16 @@ L.Map.prototype.loadGeometryFromField = function(fieldId) {
  * @function
  * @name loadGeometryFromForeignKeyFieldObjects
  *
- * lädt Geometrie(n) des/der Zielobjekts/Zielobjekte eines Fremdschlüsselfeldes in Karte
+ * loads geometry from foreign key field target objects to map
  *
- * @param {string} url - URL zum Laden der Geometrie(n) des/der Zielobjekts/Zielobjekte eines Fremdschlüssels
- * @param {string} foreignModel - Name des Zieldatenmodells des Fremdschlüssels
- * @param {string} fieldName - Name des Feldes mit dem Fremdschlüssel
- * @param {string} fieldTitle - Titel des Feldes mit dem Fremdschlüssel
- * @param {string} [fieldValue=''] - Wert des Feldes mit dem Fremdschlüssel
- * @param {string} [targetObjectPrimaryKey=''] - Primärschlüssel des aktuellen Zielobjekts des Fremdschlüssels
- * @param {boolean} [singleMode=true] - Soll nur eine Geometrie verarbeitet werden?
- *
- * @returns {this} modifizierte Karte
+ * @param {string} url - URL for loading geometry from foreign key field target objects
+ * @param {string} foreignModel - name of the target model of the foreign key
+ * @param {string} fieldName - name of the foreign key field
+ * @param {string} fieldTitle - title of the foreign key field
+ * @param {string} [fieldValue=''] - value of the foreign key field
+ * @param {string} [targetObjectPrimaryKey=''] - primary key of the foreign key's current target object
+ * @param {boolean} [singleMode=true] - shall only one geometry be processed at once?
+ * @returns {this} - map with geometry loaded from foreign key field target objects
  */
 L.Map.prototype.loadGeometryFromForeignKeyFieldObjects = function(url, foreignModel, fieldName, fieldTitle, fieldValue = '', targetObjectPrimaryKey = '', singleMode = true) {
   fetch(
@@ -165,7 +162,7 @@ L.Map.prototype.loadGeometryFromForeignKeyFieldObjects = function(url, foreignMo
       if (singleMode) {
         let geom = data.geometry;
         wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
-        // neues leeres GeoJSON-Feature definieren
+        // define new empty GeoJSON feature
         let geoJsonFeature = {
           type: 'Feature',
           geometry: null,
@@ -184,19 +181,19 @@ L.Map.prototype.loadGeometryFromForeignKeyFieldObjects = function(url, foreignMo
         geoJsonFeature.geometry = wkt.toJson();
         features = geoJsonFeature;
       } else {
-        // neue leere GeoJSON-FeatureCollection definieren
+        // define new empty GeoJSON feature collection
         let geoJsonFeatureCollection = {
           type: 'FeatureCollection',
           features: []
         };
         for (let i = 0; i < data.object_list.length; i++) {
           let geom = data.object_list[i];
-          // falls Geometrie nicht leer ist...
+          // if geometry is not empty...
           if (geom.indexOf('EMPTY') === -1) {
             wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
-            // falls Geometrie nicht bereits auf der Karte angezeigt wird...
+            // if geometry is not already displayed on map...
             if (data.uuids[i] !== targetObjectPrimaryKey) {
-              // neues leeres GeoJSON-Feature definieren
+              // define new empty GeoJSON feature
               let geoJsonFeature = {
                 type: 'Feature',
                 geometry: null,
@@ -256,12 +253,12 @@ L.Map.prototype.loadGeometryFromForeignKeyFieldObjects = function(url, foreignMo
  * @function
  * @name loadExternalData
  *
- * lädt zusätzliche Features im aktuellen Sichtbereich nach
+ * reloads additional features in the current viewing area of the map
  *
- * @param {string} name - Name des Datenthemas oder WFS-Feature-Types
- * @param {string} baseUrl - Basis-URL des Datenthemas oder WFS
- * @param {Object} layer - Layer des Datenthemas oder WFS-Feature-Types
- * @param {boolean} [isWFS=false] - Handelt es sich um einen WFS?
+ * @param {string} name - name of the data theme or the WFS feature type
+ * @param {string} baseUrl - base URL of the data theme or the WFS
+ * @param {Object} layer - layer of the data theme or the WFS feature type
+ * @param {boolean} [isWFS=false] - is it a WFS?
  */
 L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false) {
   let url = baseUrl;
@@ -271,7 +268,7 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
     url += boundingBoxParameter;
   } else {
     let center = this.getCenter();
-    // Bounding-Circle berechnen
+    // calculate bounding circle
     let rad = this.distance(center, mapPart['_northEast']) * 1.2;
     url += '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad;
   }
@@ -286,7 +283,7 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
           layer.clearLayers();
         layer.addData(data);
       } else {
-        // neue leere GeoJSON-FeatureCollection definieren
+        // define new empty GeoJSON feature collection
         let geoJsonFeatureCollection = {
           type: 'FeatureCollection',
           features: []
@@ -294,10 +291,10 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
         let wkt = new Wkt.Wkt();
         for (let i = 0; i < data.object_list.length; i++) {
           let geom = data.object_list[i];
-          // falls Geometrie nicht leer ist...
+          // if geometry is not empty...
           if (geom.indexOf('EMPTY') === -1) {
             wkt.read(geom.substring(geom.indexOf(';') + 1, geom.length));
-            // neues leeres GeoJSON-Feature definieren
+            // define new empty GeoJSON feature
             let geoJsonFeature = {
               type: 'Feature',
               geometry: null,
@@ -313,7 +310,7 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
               }
             };
             geoJsonFeature.geometry = wkt.toJson();
-            // verhindern, dass Daten doppelt auf der Karte angezeigt werden
+            // prevent data from appearing twice on the map
             let exists = false;
             for (let e of layer.toGeoJSON().features) {
               if (e.properties.uuid === geoJsonFeature.properties.uuid)
@@ -325,7 +322,7 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
         }
         layer.addData(geoJsonFeatureCollection);
       }
-      // Leaflet-Geoman-Optionen setzen
+      // set Leaflet-Geoman options
       layer.pm.setOptions({
         draggable: false,
         allowEditing: false,
@@ -350,26 +347,25 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
  * @function
  * @name updateMap
  *
- * lädt zusätzliche Features in Karte,
- * löscht doppelte Features aus Karte (falls die Quelle der Features ein Datenthema ist)
- * und hebt aktive Layer in der Karte an
+ * loads additional features to the map,
+ * deletes duplicate features from the map (if the source of the features is a data theme),
+ * and raises active layers in the map
  *
- * @param {Object} layerControl - Layer-Control zum Zuschalten zusätzlicher Datenthemen oder WFS-Feature-Types
- * @param {boolean} [isWFS=false] - Handelt es sich um einen WFS?
- *
- * @returns {this} modifizierte Karte
+ * @param {Object} layerControl - layer control to activate additional data themes or WFS feature types
+ * @param {boolean} [isWFS=false] - is it a WFS?
+ * @returns {this} - modified map
  */
 L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
-  // aktive Layer im Layer-Control ermitteln
+  // dermine active layers in the layer control
   let list = layerControl.getActiveOverlays();
   let minZoom = isWFS === true ? this._minLayerZoomForWFSFeaturetypes : this._minLayerZoomForDataThemes;
-  // falls überhaupt aktive Layer vorhanden sind...
+  // if there are any active layers at all...
   if (Object.keys(list).length > 0) {
     if (this.getZoom() > minZoom) {
       for (let key in list) {
         this.loadExternalData(key, this._themaUrl[key], list[key], isWFS);
       }
-      // anheben des Layers, der bearbeitet wird
+      // raise the layer being edited
       this.eachLayer((layer) => {
         if (layer._drawnByGeoman === true) {
           if (layer instanceof L.Marker)
@@ -414,9 +410,9 @@ L.Map.prototype.updateMap = function(layerControl, isWFS = false) {
  * @function
  * @name setInteractive
  *
- * setzt Interaktivität für den übergebenen Layer bzw. die übergebene Layer-Gruppe
+ * sets interactivity for the passed layer or layer group
  *
- * @param {boolean} interactive - interaktiv?
+ * @param {boolean} interactive - interactive?
  */
 L.Layer.prototype.setInteractive = function(interactive) {
   if (this.getLayers) {
@@ -438,26 +434,26 @@ L.Layer.prototype.setInteractive = function(interactive) {
  * @function
  * @name unite
  *
- * bildet die Vereinigung mit einem übergebenen Layer
+ * carries out a union with a passed layer
  *
- * @param {Object} diffrentLayer - Layer, mit dem die Vereinigung durchgeführt werden soll
- * @param {string} type - Typ des Layer, mit dem die Vereinigung durchgeführt werden soll, als String (Beispiel: 'LineString')
+ * @param {Object} diffrentLayer - layer to perform the union with
+ * @param {string} type - type of the layer to perform the union with as a string (example: 'LineString')
  */
 L.Polygon.prototype.unite = function(diffrentLayer, type) {
   let feature1 = this.toGeoJSON();
   let feature2 = diffrentLayer.toGeoJSON();
-  // Multi-Polygon...
+  // multi-polygon...
   if (type.indexOf('Polygon') > 0) {
-    // Vereinigung durchführen
+    // carry out union
     let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates);
-    // x- und y-Koordinate tauschen
+    // swap x and y coordinates
     result = interchangeRecursive(result, true);
     this.setLatLngs(result);
-  // Polygon...
+  // polygon...
   } else if (type.indexOf('Polygon') === 0) {
-    // Vereinigung durchführen
+    // carry out union
     let result = martinez.union(feature1.geometry.coordinates, feature2.geometry.coordinates);
-    // x- und y-Koordinate tauschen
+    // swap x and y coordinates
     result = interchangeRecursive(result, true);
     if (result.length === 1)
       this.setLatLngs(result[0]);
@@ -468,7 +464,7 @@ L.Polygon.prototype.unite = function(diffrentLayer, type) {
  * @function
  * @name interchangeLatLng
  *
- * Umkehren der Reihenfolge von x- und y-Koordinaten
+ * reverses the order of x and y coordinates
  */
 L.Layer.prototype.interchangeLatLng = function() {
   let json = this.toGeoJSON();

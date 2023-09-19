@@ -114,7 +114,7 @@
        * @function
        * @name mapCallbackFunction
        *
-       * handles (as a callback function) given map
+       * handles (as a callback function) passed map
        *
        * @param {Object} map - map
        */
@@ -239,7 +239,7 @@
           });
         });
 
-        // handle sector select field: add tooltips to options, based on examples given for sectors
+        // handle sector select field: add tooltips to options, based on examples passed for sectors
         let sectorExamples = [];
         {% if sector_examples %}
           sectorExamples = {{ sector_examples|safe }}

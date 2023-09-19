@@ -115,10 +115,10 @@ class GenericObjectclassCreateView(CreateView):
 
   def form_valid(self, form):
     """
-    sends HTTP response if given form is valid
+    sends HTTP response if passed form is valid
 
     :param form: form
-    :return: HTTP response if given form is valid
+    :return: HTTP response if passed form is valid
     """
     # string representation of new complaint equals its primary key
     # (which is not yet available) and thus use its description here
@@ -149,11 +149,11 @@ class GenericObjectclassCreateView(CreateView):
 
   def form_invalid(self, form, **kwargs):
     """
-    re-opens given form if it is not valid
+    re-opens passed form if it is not valid
     (purpose: empty non-valid array fields)
 
     :param form: form
-    :return: given form if it is not valid
+    :return: passed form if it is not valid
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
@@ -288,10 +288,10 @@ class GenericObjectclassUpdateView(UpdateView):
 
   def form_valid(self, form):
     """
-    sends HTTP response if given form is valid
+    sends HTTP response if passed form is valid
 
     :param form: form
-    :return: HTTP response if given form is valid
+    :return: HTTP response if passed form is valid
     """
     success(
       self.request,
@@ -326,11 +326,11 @@ class GenericObjectclassUpdateView(UpdateView):
 
   def form_invalid(self, form, **kwargs):
     """
-    re-opens given form if it is not valid
+    re-opens passed form if it is not valid
     (purpose: reset non-valid array fields to their initial state)
 
     :param form: form
-    :return: given form if it is not valid
+    :return: passed form if it is not valid
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
@@ -385,10 +385,10 @@ class GenericObjectclassDeleteView(DeleteView):
 
   def form_valid(self, form):
     """
-    sends HTTP response if given form is valid
+    sends HTTP response if passed form is valid
 
     :param form: form
-    :return: HTTP response if given form is valid
+    :return: HTTP response if passed form is valid
     """
     success_url = self.get_success_url()
     try:

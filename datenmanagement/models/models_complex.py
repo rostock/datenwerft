@@ -22,7 +22,7 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
 from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
-from .functions import current_year, delete_pdf, delete_photo, path_and_rename, \
+from .functions import get_current_year, delete_pdf, delete_photo, path_and_rename, \
   photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Arten_Adressunsicherheiten, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
@@ -689,7 +689,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
   )
   baujahr = PositiveSmallIntegerRangeField(
     'Baujahr',
-    max_value=current_year(),
+    max_value=get_current_year(),
     blank=True,
     null=True
   )

@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import path, reverse_lazy
 from rest_framework.routers import DefaultRouter
 
-from .views.functions import delete_object_immediately
 from .views.api import DatenmanagementViewSet
+from .views.functions import delete_object_immediately
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .views.views_helpers import GeometryView, GISFiletoGeoJSON
 from .views.views_index_start import IndexView, StartView
@@ -25,10 +25,10 @@ api_urlpatterns = router.urls
 
 def permission_required(*perms):
   """
-  prüft übergebene Berechtigung(en)
+  checks passed authorization(s)
 
-  :param perms: Berechtigung(en)
-  :return: Prüfung der übergebenen Berechtigung(en)
+  :param perms: authorization(s)
+  :return: check of passed authorization(s)
   """
   return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
@@ -36,19 +36,17 @@ def permission_required(*perms):
 app_name = 'datenmanagement'
 
 #
-# generelle Views
+# general views
 #
 
 urlpatterns = [
-  # IndexView:
-  # Liste der Datenthemen, die zur Verfügung stehen
+  # main page
   path(
     '',
     view=login_required(IndexView.as_view()),
     name='index'
   ),
-  # GISFiletoGeoJSON:
-  # Übergabe einer Datei an FME Server und Rückgabe des generierten GeoJSON
+  # passes a file to FME Server and returns the generated GeoJSON
   path(
     'gisfiletogeojson',
     view=login_required(GISFiletoGeoJSON.as_view()),
@@ -57,7 +55,7 @@ urlpatterns = [
 ]
 
 #
-# Views für jedes Datenmodell
+# views for each model
 #
 
 app_models = apps.get_app_config(app_name).get_models()
@@ -65,8 +63,7 @@ for model in app_models:
   model_name = model.__name__
   model_name_lower = model_name.lower()
 
-  # StartView:
-  # Startansicht eines Datenmodells
+  # entry page of a model
   urlpatterns.append(
     path(
       model_name,
@@ -83,8 +80,7 @@ for model in app_models:
     )
   )
 
-  # DataView:
-  # bereitet Datenbankobjekte für Tabellenansicht auf
+  # table data composition of a model
   urlpatterns.append(
     path(
       model_name + '/data',
@@ -94,6 +90,9 @@ for model in app_models:
       name=model_name + '_data'
     )
   )
+
+  # table data composition of a model:
+  # filter by subset
   urlpatterns.append(
     path(
       model_name + '/data/subset/<subset_id>',
@@ -104,8 +103,7 @@ for model in app_models:
     )
   )
 
-  # DataListView:
-  # listet alle Datenbankobjekte eines Datenmodells in einer Tabelle auf
+  # table page of a model
   urlpatterns.append(
     path(
       model_name + '/list',
@@ -120,6 +118,9 @@ for model in app_models:
       name=model_name + '_list'
     )
   )
+
+  # table page of a model:
+  # filter by subset
   urlpatterns.append(
     path(
       model_name + '/list/subset/<subset_id>',
@@ -135,8 +136,7 @@ for model in app_models:
     )
   )
 
-  # DataMapView:
-  # bereitet Datenbankobjekte für Tabellenansicht auf
+  # map data composition of a model
   urlpatterns.append(
     path(
       model_name + '/mapdata',
@@ -146,6 +146,9 @@ for model in app_models:
       name=model_name + '_mapdata'
     )
   )
+
+  # map data composition of a model:
+  # filter by subset
   urlpatterns.append(
     path(
       model_name + '/mapdata/subset/<subset_id>',
@@ -156,8 +159,7 @@ for model in app_models:
     )
   )
 
-  # DataMapListView:
-  # zeigt alle Datenbankobjekte eines Datenmodells auf einer Karte an
+  # map page of a model
   urlpatterns.append(
     path(
       model_name + '/map',
@@ -172,6 +174,9 @@ for model in app_models:
       name=model_name + '_map'
     )
   )
+
+  # map page of a model:
+  # filter by subset
   urlpatterns.append(
     path(
       model_name + '/map/subset/<subset_id>',
@@ -187,8 +192,7 @@ for model in app_models:
     )
   )
 
-  # DataAddView:
-  # erstellt ein neues Datenbankobjekt eines Datenmodells
+  # form page for creating an object of a model
   urlpatterns.append(
     path(
       model_name + '/add',
@@ -203,8 +207,7 @@ for model in app_models:
     )
   )
 
-  # DataChangeView:
-  # ändert ein vorhandenes Datenbankobjekt eines Datenmodells
+  # form page for updating an object of a model
   urlpatterns.append(
     path(
       model_name + '/change/<pk>',
@@ -221,8 +224,7 @@ for model in app_models:
     )
   )
 
-  # DataDeleteView:
-  # löscht ein vorhandenes Datenbankobjekt eines Datenmodells
+  # form page for deleting an object of a model
   urlpatterns.append(
     path(
       model_name + '/delete/<pk>',
@@ -237,7 +239,7 @@ for model in app_models:
     )
   )
 
-  # löscht ein Datenbankobjekt eines Datenmodells direkt aus der Datenbank
+  # deletes an object of a model directly from the database
   urlpatterns.append(
     path(
       model_name + '/deleteimmediately/<pk>',
@@ -248,8 +250,7 @@ for model in app_models:
     )
   )
 
-  # GeometryView:
-  # Abfrage der Geometrien eines Datenmodells
+  # queries the geometries of a model
   urlpatterns.append(
     path(
       model_name + '/geometry',

@@ -5,22 +5,22 @@
  * @function
  * @name subsetting
  *
- * behandelt und übergibt eine Filtermenge
+ * handles and passes a filter set
  *
- * @param {string[]} keys - Liste mit Primärschlüsseln von Objekten einer Filtermenge
- * @param {string} subsetURL - URL des Toolbox-Views zum Erstellen eines neuen Subsets
- * @param {string} modelName - Name des Datenmodells mit den Objekten
- * @param {string} modelPrimaryKeyField - Feld mit Primärschlüsseln im Datenmodell mit den Objekten
- * @param {string} successURL - URL zum Öffnen im Erfolgsfall
- * @param {string} errorText - Text für Fehlermeldung
- * @param {string} [appLabel='datenmanagement'] - Text für Fehlermeldung
+ * @param {string[]} keys - list of primary keys of objects of a filter set
+ * @param {string} subsetURL - URL of Toolbox app view for creating a subset
+ * @param {string} modelName - name of the model with the objects
+ * @param {string} modelPrimaryKeyField - name of the primary key field of the model with the objects
+ * @param {string} successURL - URL to open if successful
+ * @param {string} errorText - text for error message
+ * @param {string} [appLabel='datenmanagement'] - app label
  */
 function subsetting(keys, subsetURL, modelName, modelPrimaryKeyField, successURL, errorText, appLabel='datenmanagement') {
   let errorModalTitle = 'Keine Übernahme der aktuellen Filtermenge möglich!';
   if (keys.length > 0) {
-    // Liste mit Primärschlüsseln von Objekten einer Filtermenge in JSON umwandeln
+    // convert list of primary keys of objects of a filter set to JSON
     let pk_values = JSON.stringify(keys);
-    // POST-Request an Toolbox-View zum Erstellen eines neuen Subsets senden
+    // send POST request to appropriate Toolbox app view for creating a subset
     fetch(subsetURL, {
       method: 'POST',
       body: new URLSearchParams({

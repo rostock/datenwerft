@@ -5,7 +5,7 @@
  * @function
  * @name applyFilters
  *
- * applies filters for given model based on given filter objects list
+ * applies filters for passed model based on passed filter objects list
  *
  * @param {string} model - model
  * @param {Object[]} filterObjectsList - filter objects list
@@ -33,7 +33,7 @@ function applyFilters(model, filterObjectsList) {
  * @function
  * @name createFilterObject
  *
- * creates a filter object based on given name, type and value
+ * creates a filter object based on passed name, type and value, and returns it
  *
  * @param {string} name - name
  * @param {string} type - type
@@ -77,7 +77,7 @@ async function fetchGeoJsonFeatureCollection(url, lastCall=false) {
  * @function
  * @name filterApplication
  *
- * applies filters for given model
+ * applies filters for passed model
  *
  * @param {string} model - model
  */
@@ -122,7 +122,7 @@ function filterApplication(model) {
  * @function
  * @name filterGeoJsonFeatures
  *
- * filters GeoJSON features based on given filter objects list
+ * filters GeoJSON features based on passed filter objects list
  *
  * @param {string} model - model
  * @param {Object[]} filterObjectsList - filter objects list
@@ -189,7 +189,7 @@ function filterGeoJsonFeatures(model, filterObjectsList, layer, isSubLayer, clus
  * @function
  * @name filterReset
  *
- * resets filters for given model
+ * resets filters for passed model
  *
  * @param {string} model - model
  */
@@ -259,7 +259,7 @@ function setGeoJsonFeaturePropertiesAndActions(feature, layer) {
  * @function
  * @name showAllGeoJsonFeatures
  *
- * shows all GeoJSON features of given model
+ * shows all GeoJSON features of passed model
  *
  * @param {string} model - model
  */
@@ -287,7 +287,7 @@ function showAllGeoJsonFeatures(model) {
  * @function
  * @name updateCurrentlyFilteredDataVariables
  *
- * update variables of currently filtered data for given model based on given GeoJSON map layer
+ * update variables of currently filtered data for passed model based on passed GeoJSON map layer
  *
  * @param {string} model - model
  * @param {Object} layer - GeoJSON map layer

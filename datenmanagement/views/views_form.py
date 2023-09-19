@@ -538,7 +538,7 @@ class DataChangeView(UpdateView):
       elif self.model.BasemodelMeta.address_type == 'Straße' and self.object.strasse:
         context['current_street'] = self.object.strasse.pk
       elif self.model.BasemodelMeta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
-        context['current_quarter'] = self.object.gemeindeteil.pk
+        context['current_district'] = self.object.gemeindeteil.pk
     # Dictionary für alle Array-Felder und deren Inhalte vorbereiten,
     # die als Inhalt mehr als einen Wert umfassen
     array_fields_values = {}

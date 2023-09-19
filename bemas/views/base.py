@@ -41,7 +41,7 @@ class GenericTableDataView(BaseDatatableView):
 
   def prepare_results(self, qs):
     """
-    loops given queryset, creates cleaned-up JSON representation of the queryset and returns it
+    loops passed queryset, creates cleaned-up JSON representation of the queryset and returns it
 
     :param qs: queryset
     :return: cleaned-up JSON representation of the queryset
@@ -234,7 +234,7 @@ class GenericTableDataView(BaseDatatableView):
 
   def filter_queryset(self, qs):
     """
-    filters given queryset
+    filters passed queryset
 
     :param qs: queryset
     :return: filtered queryset
@@ -289,7 +289,7 @@ class GenericTableDataView(BaseDatatableView):
 
   def ordering(self, qs):
     """
-    sorts given queryset
+    sorts passed queryset
 
     :param qs: queryset
     :return: sorted queryset

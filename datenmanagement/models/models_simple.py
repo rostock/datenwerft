@@ -27,8 +27,8 @@ from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, 
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
-from .functions import current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
-  get_pre_save_instance, path_and_rename, photo_post_processing
+from .functions import get_current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
+  set_pre_save_instance, path_and_rename, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
   Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, Arten_Feldsportanlagen, \
   Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
@@ -72,7 +72,7 @@ class Abfallbehaelter(SimpleModel):
   )
   aufstellungsjahr = PositiveSmallIntegerRangeField(
     'Aufstellungsjahr',
-    max_value=current_year(),
+    max_value=get_current_year(),
     blank=True,
     null=True
   )
@@ -685,8 +685,8 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
   beschlussjahr = PositiveSmallIntegerRangeField(
     'Beschlussjahr',
     min_value=1990,
-    max_value=current_year(),
-    default=current_year()
+    max_value=get_current_year(),
+    default=get_current_year()
   )
   vorhabenbezeichnung = CharField(
     'Bezeichnung des Vorhabens',
@@ -1087,7 +1087,7 @@ class Containerstellplaetze(SimpleModel):
   )
   inbetriebnahmejahr = PositiveSmallIntegerRangeField(
     'Inbetriebnahmejahr',
-    max_value=current_year(),
+    max_value=get_current_year(),
     blank=True,
     null=True
   )
@@ -1267,7 +1267,7 @@ class Containerstellplaetze(SimpleModel):
     return self.bezeichnung
 
 
-pre_save.connect(get_pre_save_instance, sender=Containerstellplaetze)
+pre_save.connect(set_pre_save_instance, sender=Containerstellplaetze)
 
 post_save.connect(photo_post_processing, sender=Containerstellplaetze)
 
@@ -1467,7 +1467,7 @@ class Denksteine(SimpleModel):
   erstes_verlegejahr = PositiveSmallIntegerRangeField(
     ' erstes Verlegejahr',
     min_value=2002,
-    max_value=current_year()
+    max_value=get_current_year()
   )
   website = CharField(
     'Website',
@@ -1914,7 +1914,7 @@ class Feldsportanlagen(SimpleModel):
     return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
 
 
-pre_save.connect(get_pre_save_instance, sender=Feldsportanlagen)
+pre_save.connect(set_pre_save_instance, sender=Feldsportanlagen)
 
 post_save.connect(photo_post_processing, sender=Feldsportanlagen)
 
@@ -2191,7 +2191,7 @@ class Geraetespielanlagen(SimpleModel):
     return self.bezeichnung
 
 
-pre_save.connect(get_pre_save_instance, sender=Geraetespielanlagen)
+pre_save.connect(set_pre_save_instance, sender=Geraetespielanlagen)
 
 post_save.connect(photo_post_processing, sender=Geraetespielanlagen)
 
@@ -2621,7 +2621,7 @@ class Hundetoiletten(SimpleModel):
   )
   aufstellungsjahr = PositiveSmallIntegerRangeField(
     'Aufstellungsjahr',
-    max_value=current_year(),
+    max_value=get_current_year(),
     blank=True,
     null=True
   )
@@ -3344,7 +3344,7 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
   )
   entstehungsjahr = PositiveSmallIntegerRangeField(
     'Entstehungsjahr',
-    max_value=current_year(),
+    max_value=get_current_year(),
     blank=True,
     null=True
   )
@@ -4636,7 +4636,7 @@ class Sporthallen(SimpleModel):
       'Träger: ' + str(self.traeger) + ', Sportart: ' + str(self.sportart) + ']'
 
 
-pre_save.connect(get_pre_save_instance, sender=Sporthallen)
+pre_save.connect(set_pre_save_instance, sender=Sporthallen)
 
 post_save.connect(photo_post_processing, sender=Sporthallen)
 
@@ -4783,8 +4783,8 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
   bewertungsjahr = PositiveSmallIntegerRangeField(
     'Bewertungsjahr',
     min_value=1990,
-    max_value=current_year(),
-    default=current_year()
+    max_value=get_current_year(),
+    default=get_current_year()
   )
   quartier = ForeignKey(
     Quartiere,
@@ -5040,8 +5040,8 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
   bewertungsjahr = PositiveSmallIntegerRangeField(
     'Bewertungsjahr',
     min_value=1990,
-    max_value=current_year(),
-    default=current_year()
+    max_value=get_current_year(),
+    default=get_current_year()
   )
   quartier = ForeignKey(
     Quartiere,

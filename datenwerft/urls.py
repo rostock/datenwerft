@@ -22,22 +22,22 @@ urlpatterns = [
   # ...Django administration
   path('admin/', view=admin_site.urls),
 
-  # ...API
+  # ...Django API
   path('api/', include(api_urlpatterns)),
 
-  # ...API auth
+  # ...Django API auth
   path('api-auth/', view=include('rest_framework.urls')),
 
-  # ...App Accounts
+  # ...Accounts app
   path('accounts/', view=include('accounts.urls')),
 
-  # ...App Toolbox
+  # ...Toolbox app
   path('toolbox/', view=include('toolbox.urls')),
 
-  # ...App Datenmanagement
+  # ...Datenmanagement app
   path('datenmanagement/', view=include('datenmanagement.urls')),
 
-  # ...App BEMAS
+  # ...BEMAS app
   path('bemas/', view=include('bemas.urls')),
 
   # ...main page

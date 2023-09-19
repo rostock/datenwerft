@@ -182,7 +182,7 @@ class AddressSearchView(View):
 
 class ReverseSearchView(View):
   """
-  view for search for objects in specified radius around given coordinates
+  view for search for objects in specified radius around passed coordinates
   """
 
   http_method_names = ['get']
@@ -221,7 +221,7 @@ class ReverseSearchView(View):
     :param request: request
     :param args:
     :param kwargs:
-    :return: HTTP response with objects in specified radius around given coordinates
+    :return: HTTP response with objects in specified radius around passed coordinates
     """
     try:
       response = requests.get(

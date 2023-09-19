@@ -5,28 +5,28 @@
  * @function
  * @name customMapFilters
  *
- * behandelt Ein-Klick- sowie andere individuelle Kartenfilter
- * und gibt Liste für Filterobjekte zurück
+ * handles one-click filters (as well as other custom filters)
+ * and returns a list with filter objects
  *
- * @param {string} filterId - ID des Filters
- * @returns {Object[]} - Liste für Filterobjekte
+ * @param {string} filterId - filter ID
+ * @returns {Object[]} - list with filter objects
  */
 function customMapFilters(filterId) {
-  // Liste für Filterobjekte definieren
+  // define list with filter objects
   let filterList = [];
 
-  // aktuelles Datum
+  // get current date
   let currentDate = new Date().toJSON().slice(0, 10);
 
-  // Ein-Klick-Filter behandeln
+  // handle one-click filters
   switch (filterId) {
     case 'baustellen-geplant-ende-nicht-abgeschlossen':
-      // Filterobjekt(e) zur Liste für Filterobjekte hinzufügen
+      // add filter objects to defined list with filter objects
       filterList.push(createFilter('ende', 'date', 'right', 'positive', currentDate));
       filterList.push(createFilter('status', 'list', 'both', 'negative', 'abgeschlossen'));
       break;
     case 'baustellen-geplant-beginn-nicht-imbau':
-      // Filterobjekt(e) zur Liste für Filterobjekte hinzufügen
+      // add filter objects to defined list with filter objects
       filterList.push(createFilter('beginn', 'date', 'right', 'positive', currentDate));
       filterList.push(createFilter('ende', 'date', 'left', 'positive', currentDate));
       filterList.push(createFilter('status', 'list', 'both', 'negative', 'im Bau (P8)'));
@@ -40,14 +40,14 @@ function customMapFilters(filterId) {
  * @function
  * @name createFilter
  *
- * erstellt ein Filterobjekt
+ * creates a filter object based on the passed parameters and returns it
  *
- * @param {string} name - Name
- * @param {string} type - Typ
- * @param {string} intervalside - "Intervallseite"
- * @param {string} logic - Wirkungslogik
- * @param {*} value - Wert
- * @returns {Object} - Filterobjekt
+ * @param {string} name - name
+ * @param {string} type - type
+ * @param {string} intervalside - interval side
+ * @param {string} logic - effect logic
+ * @param {*} value - value
+ * @returns {Object} - filter object
  */
 function createFilter(name, type, intervalside, logic, value) {
   let filter = {};

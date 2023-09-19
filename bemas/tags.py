@@ -10,10 +10,10 @@ register = template.Library()
 @register.filter
 def beautify_model_string(model_name):
   """
-  checks if given field is a geometry related field
+  checks if passed field is a geometry related field
 
   :param model_name: model name
-  :return: given field is a geometry related field?
+  :return: passed field is a geometry related field?
   """
   icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model_name.lower()))
   model = apps.get_app_config('bemas').get_model(model_name)
@@ -24,11 +24,11 @@ def beautify_model_string(model_name):
 @register.filter
 def get_dict_value_by_key(arg_dict, key):
   """
-  returns value of given key in given dictionary
+  returns value of passed key in passed dictionary
 
   :param arg_dict: dictionary
   :param key: key in dictionary
-  :return: value of given key in given dictionary
+  :return: value of passed key in passed dictionary
   """
   return arg_dict.get(key)
 
@@ -37,10 +37,10 @@ def get_dict_value_by_key(arg_dict, key):
 @stringfilter
 def get_icon(key):
   """
-  returns icon (i.e. value) of given key in icon dictionary
+  returns icon (i.e. value) of passed key in icon dictionary
 
   :param key: key in icon dictionary
-  :return: icon (i.e. value) of given key in icon dictionary
+  :return: icon (i.e. value) of passed key in icon dictionary
   """
   return get_icon_from_settings(key)
 
@@ -48,10 +48,10 @@ def get_icon(key):
 @register.filter
 def is_field_geometry_field(field):
   """
-  checks if given field is a geometry related field
+  checks if passed field is a geometry related field
 
   :param field: field
-  :return: given field is a geometry related field?
+  :return: passed field is a geometry related field?
   """
   return is_geometry_field(field.field.__class__)
 
@@ -60,7 +60,7 @@ def is_field_geometry_field(field):
 @stringfilter
 def replace(value, arg):
   """
-  replaces string in given value
+  replaces string in passed value
 
   :param value: value
   :param arg: source string and target string

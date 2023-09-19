@@ -23,7 +23,7 @@ LOG_ACTIONS = {
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
   """
-  concats given address string parts and returns address string
+  concats passed address string parts and returns address string
 
   :param street: street name
   :param house_number: house number
@@ -67,10 +67,10 @@ def format_date_datetime(value, time_string_only=False):
 
 def generate_user_string(user):
   """
-  generates a string out of given user and returns it
+  generates a string out of passed user and returns it
 
   :param user: user
-  :return: string out of given user
+  :return: string out of passed user
   """
   if isinstance(user, str):
     return user
@@ -99,43 +99,43 @@ def get_complaint_status_change_deadline_date(format_date=False):
 
 def get_foreign_key_target_model(foreign_key_field):
   """
-  returns target model of given foreign key field
+  returns target model of passed foreign key field
 
   :param foreign_key_field: foreign key field
-  :return: target model of given foreign key field
+  :return: target model of passed foreign key field
   """
   return foreign_key_field.remote_field.model
 
 
 def get_foreign_key_target_object(source_object, foreign_key_field):
   """
-  returns target object of given foreign key field of given source object
+  returns target object of passed foreign key field of passed source object
 
   :param source_object: source object
   :param foreign_key_field: foreign key field
-  :return: target object of given foreign key field of given source object
+  :return: target object of passed foreign key field of passed source object
   """
   return getattr(source_object, foreign_key_field.name)
 
 
 def get_icon_from_settings(key):
   """
-  returns icon (i.e. value) of given key in icon dictionary
+  returns icon (i.e. value) of passed key in icon dictionary
 
   :param key: key in icon dictionary
-  :return: icon (i.e. value) of given key in icon dictionary
+  :return: icon (i.e. value) of passed key in icon dictionary
   """
   return settings.BEMAS_ICONS.get(key, 'poo')
 
 
 def get_json_data(curr_object, field, for_filters=False):
   """
-  returns JSONesque value of given field of given object
+  returns JSONesque value of passed field of passed object
 
   :param curr_object: object
   :param field: field
   :param for_filters: for filters?
-  :return: JSONesque value of given field of given object
+  :return: JSONesque value of passed field of passed object
   """
   value = getattr(curr_object, field)
   if value:
@@ -154,10 +154,10 @@ def get_json_data(curr_object, field, for_filters=False):
 
 def get_orphaned_organizations(originator, complaint, organization):
   """
-  returns orphaned organizations based on given originator, complaint
+  returns orphaned organizations based on passed originator, complaint
   and organization object classes
 
-  :return: orphaned organizations based on given originator, complaint
+  :return: orphaned organizations based on passed originator, complaint
   and organization object classes
   """
   # get all organizations connected to originators
@@ -174,9 +174,9 @@ def get_orphaned_organizations(originator, complaint, organization):
 
 def get_orphaned_originators(complaint, originator):
   """
-  returns orphaned originators based on given complaint and originator object classes
+  returns orphaned originators based on passed complaint and originator object classes
 
-  :return: orphaned originators based on given complaint and originator object classes
+  :return: orphaned originators based on passed complaint and originator object classes
   """
   # get all originators connected to complaints
   cpls_oris_ids = complaint.objects.all().values('originator')
@@ -187,9 +187,9 @@ def get_orphaned_originators(complaint, originator):
 
 def get_orphaned_persons(complaint, contact, originator, person):
   """
-  returns orphaned persons based on given complaint, contact and person object classes
+  returns orphaned persons based on passed complaint, contact and person object classes
 
-  :return: orphaned persons based on given complaint, contact and person object classes
+  :return: orphaned persons based on passed complaint, contact and person object classes
   """
   # get active complaints
   # (i.e. complaints with latest status change after deadline date
@@ -214,22 +214,22 @@ def get_orphaned_persons(complaint, contact, originator, person):
 
 def is_bemas_admin(user):
   """
-  checks if given user is a BEMAS admin
+  checks if passed user is a BEMAS admin
 
   :param user: user
-  :return: given user is a BEMAS admin?
+  :return: passed user is a BEMAS admin?
   """
   return user.groups.filter(name=settings.BEMAS_ADMIN_GROUP_NAME)
 
 
 def is_bemas_user(user, only_bemas_user_check=False):
   """
-  checks if given user is a BEMAS user
+  checks if passed user is a BEMAS user
   (and optionally checks if it is a BEMAS user only)
 
   :param user: user
   :param only_bemas_user_check: check if user is a BEMAS user only?
-  :return: given user is a BEMAS user (only)?
+  :return: passed user is a BEMAS user (only)?
   """
   in_bemas_groups = user.groups.filter(
     name__in=[settings.BEMAS_ADMIN_GROUP_NAME, settings.BEMAS_USERS_GROUP_NAME]
@@ -246,10 +246,10 @@ def is_bemas_user(user, only_bemas_user_check=False):
 
 def is_geometry_field(field):
   """
-  checks if given field is a geometry related field
+  checks if passed field is a geometry related field
 
   :param field: field
-  :return: given field is a geometry related field?
+  :return: passed field is a geometry related field?
   """
   if issubclass(field, FormPointField) or issubclass(field, ModelPointField):
     return True
@@ -259,7 +259,7 @@ def is_geometry_field(field):
 
 def shorten_string(string, max_chars=20, suspension_point=True):
   """
-  shortens given string and returns it
+  shortens passed string and returns it
 
   :param string: string to be shortened
   :param max_chars: maximum number of characters
