@@ -49,7 +49,7 @@ class IndexView(ListView):
           models_codelist.append(list_model)
         elif issubclass(model, ComplexModel):
           models_complex.append(list_model)
-        elif issubclass(model, SimpleModel):
+        else:
           models_simple.append(list_model)
     context = super(IndexView, self).get_context_data(**kwargs)
     context['models_meta'] = models_meta

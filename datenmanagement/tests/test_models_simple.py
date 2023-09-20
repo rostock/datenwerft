@@ -24,7 +24,7 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Status_Poller, Strassen, Thalasso_Kurwege, Tierseuchen, Toiletten, Trinkwassernotbrunnen, \
   Typen_Kleinklaeranlagen, Vereine, Verkaufstellen_Angelberechtigungen, Zustaende_Kadaverfunde, \
   Zustaende_Schutzzaeune_Tierseuchen
-from datenmanagement.models.functions import get_current_year
+from datenmanagement.utils import get_current_year
 
 from .base import DefaultSimpleModelTestCase
 from .constants_vars import *

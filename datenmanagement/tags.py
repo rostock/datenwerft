@@ -3,7 +3,7 @@ from django.apps import apps
 from django.template.defaultfilters import stringfilter
 from re import sub
 
-from datenmanagement.utils import is_geometry_field
+from datenmanagement.utils import is_address_related_field, is_geometry_field
 
 register = template.Library()
 
@@ -188,19 +188,12 @@ def has_model_geometry_field(model_name):
 @register.filter
 def is_field_address_related_field(field):
   """
-  prüft, ob das übergebene Feld einen Adressenbezug aufweist
+  checks if passed field is an address related field
 
-  :param field: Feld
-  :return: weist übergebenes Feld einen Adressenbezug auf?
+  :param field: field
+  :return: passed field is an address related field?
   """
-  if (
-      field.name == 'adresse'
-      or field.name == 'strasse'
-      or field.name == 'gemeindeteil'
-  ):
-    return True
-  else:
-    return False
+  return is_address_related_field(field)
 
 
 @register.filter
@@ -252,25 +245,6 @@ def replace(value, arg):
     return value
   source, target = arg.split('|')
   return value.replace(source, target)
-
-
-@register.filter
-def user_has_model_permission(user, obj):
-  """
-  checks whether the passed user generally has rights on the model of the passed object
-
-  :param user: user
-  :param obj: object
-  :return: has the passed user generally  rights on the model of the passed object?
-  """
-  permission_add = user.has_perm('datenmanagement.add_' + obj.__class__.__name__.lower())
-  permission_change = user.has_perm('datenmanagement.change_' + obj.__class__.__name__.lower())
-  permission_delete = user.has_perm('datenmanagement.delete_' + obj.__class__.__name__.lower())
-  permission_view = user.has_perm('datenmanagement.view_' + obj.__class__.__name__.lower())
-  if permission_change or permission_add or permission_delete or permission_view:
-    return True
-  else:
-    return False
 
 
 @register.filter

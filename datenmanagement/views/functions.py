@@ -35,6 +35,7 @@ def assign_widgets(field):
     form_field.widget.attrs['class'] = 'form-select'
   elif form_field.widget.__class__.__name__ == 'Textarea':
     form_field.widget.attrs['class'] = 'form-control'
+    form_field.widget.attrs['rows'] = 5
   elif field.name == 'geometrie':
     form_field = field.formfield(widget=LeafletWidget())
   elif field.__class__.__name__ == 'CharField' and field.name == 'farbe':

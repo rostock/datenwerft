@@ -11,6 +11,7 @@ from django.db.models.signals import post_delete, post_save
 from re import sub
 from zoneinfo import ZoneInfo
 
+from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from .base import ComplexModel
 from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
@@ -22,8 +23,7 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
 from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
-from .functions import get_current_year, delete_pdf, delete_photo, path_and_rename, \
-  photo_post_processing
+from .functions import delete_pdf, delete_photo, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Arten_Adressunsicherheiten, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
   Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \

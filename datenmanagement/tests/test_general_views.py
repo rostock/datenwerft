@@ -5,9 +5,13 @@ from .base import DefaultTestCase, GISFiletoGeoJSONTestCase
 from .constants_vars import *
 
 
+#
+# general views
+#
+
 class IndexViewTest(DefaultTestCase):
   """
-  Testklasse für Liste der Datenthemen, die zur Verfügung stehen
+  test class for main page
   """
 
   def setUp(self):
@@ -15,26 +19,27 @@ class IndexViewTest(DefaultTestCase):
 
   def generic_view_test(self, login, status_code, string=''):
     """
-    testet den View
+    tests the view
 
     :param self
-    :param login: mit Login?
-    :param status_code: : Status-Code, den die Antwort aufweisen soll
-    :param string: bestimmter Wert, der in Antwort enthalten sein soll
+    :param login: with login?
+    :param status_code: expected status code of response
+    :param string: specific string that should be contained in response
     """
+    # with login?
     if login:
       self.client.login(
         username=USERNAME,
         password=PASSWORD
       )
-    # Seite via GET aufrufen
+    # try GETting the view
     response = self.client.get(reverse('datenmanagement:index'))
-    # Status-Code der Antwort wie erwartet?
+    # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
-    # Content-Type der Antwort wie erwartet?
+    # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), 'text/html; charset=utf-8')
+    # specific string contained in response?
     if string:
-      # Antwort enthält bestimmten Wert?
       self.assertIn(string, str(response.content))
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
@@ -47,7 +52,7 @@ class IndexViewTest(DefaultTestCase):
 
 class GeoJSONtoGeoJSONTest(GISFiletoGeoJSONTestCase):
   """
-  Testklasse für Übergabe einer GeoJSON-Datei an FME Server und Rückgabe des generierten GeoJSON
+  test class for passing a GeoJSON file to FME Server and returning the generated GeoJSON
   """
 
   def setUp(self):
@@ -64,7 +69,7 @@ class GeoJSONtoGeoJSONTest(GISFiletoGeoJSONTestCase):
 
 class GPXtoGeoJSONTest(GISFiletoGeoJSONTestCase):
   """
-  Testklasse für Übergabe einer GPX-Datei an FME Server und Rückgabe des generierten GeoJSON
+  test class for passing a GPX file to FME Server and returning the generated GeoJSON
   """
 
   def setUp(self):

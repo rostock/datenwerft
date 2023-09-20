@@ -15,7 +15,7 @@ from .functions import add_default_context_elements, add_generic_objectclass_con
   add_sector_examples_context_element, add_table_context_elements, assign_widget, \
   create_log_entry, generate_foreign_key_objects_list, \
   set_generic_objectclass_create_update_delete_context, set_log_action_and_content
-from bemas.utils import generate_user_string, shorten_string
+from bemas.utils import generate_user_string, is_geometry_field, shorten_string
 
 
 class GenericObjectclassTableView(TemplateView):
@@ -157,10 +157,15 @@ class GenericObjectclassCreateView(CreateView):
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
-    # empty all array fields
     for field in self.model._meta.get_fields():
+      # empty all array fields
       if field.__class__.__name__ == 'ArrayField':
         form.data[field.name] = None
+      # keep geometry (otherwise it would be lost on re-rendering)
+      elif is_geometry_field(field.__class__):
+        geometry = form.data.get(field.name, None)
+        if geometry and '0,0' not in geometry:
+          context_data['geometry'] = geometry
     context_data['form'] = form
     return self.render_to_response(context_data)
 
@@ -334,8 +339,8 @@ class GenericObjectclassUpdateView(UpdateView):
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
-    # reset all array fields to their initial state
     for field in self.model._meta.get_fields():
+      # reset all array fields to their initial state
       if field.__class__.__name__ == 'ArrayField':
         values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
         if values is not None and len(values) > 0 and values[0] is not None:

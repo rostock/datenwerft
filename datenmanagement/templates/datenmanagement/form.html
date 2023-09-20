@@ -189,6 +189,7 @@
                 <label for="id_adresse">{{ address_type }} eingeben…</label>
               </div>
               <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
+              <input id="id_adresse_temp" type="hidden" name="adresse_temp">
             {% elif address_type == 'Straße' %}
               <label for="id_strasse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
@@ -196,6 +197,7 @@
                 <label for="id_strasse">{{ address_type }} eingeben…</label>
               </div>
               <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
+              <input id="id_strasse_temp" type="hidden" name="strasse_temp">
             {% elif address_type == 'Gemeindeteil' %}
               <label for="id_gemeindeteil" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>
               <div class="form-floating">
@@ -203,6 +205,7 @@
                 <label for="id_gemeindeteil">{{ address_type }} eingeben…</label>
               </div>
               <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_district %}{{ current_district }}{% endif %}">
+              <input id="id_gemeindeteil_temp" type="hidden" name="gemeindeteil_temp">
             {% endif %}
           {% else %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
@@ -684,15 +687,19 @@
       if (window.addressType === 'Adresse') {
         window.searchField = $('#id_adresse');
         window.addressUuidField = $('#id_adresse_uuid');
+        window.addressTempField = $('#id_adresse_temp');
       } else if (window.addressType === 'Straße') {
         window.searchField = $('#id_strasse');
         window.addressUuidField = $('#id_strasse_uuid');
+        window.addressTempField = $('#id_strasse_temp');
       } else if (window.addressType === 'Gemeindeteil') {
         window.searchField = $('#id_gemeindeteil');
         window.addressUuidField = $('#id_gemeindeteil_uuid');
+        window.addressTempField = $('#id_gemeindeteil_temp');
       } else {
         window.searchField = $('#address-search');
         window.addressUuidField = null;
+        window.addressTempField = null;
       }
       initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType, addressUuidField);
 
@@ -1110,10 +1117,13 @@
           {% endif %}
         }
         $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
-        // setzt Referenz aus Feld mit UUID der referenzierten Adresse,
-        // der referenzierten Straße oder des referenzierten Gemeindeteils
-        if (addressUuidField && $.trim(searchField.val()).length)
+        if (addressUuidField && $.trim(searchField.val()).length) {
+          // keep current address, street or district temporarily
+          addressTempField.val(searchField.val());
+          // setzt Referenz aus Feld mit UUID der referenzierten Adresse,
+          // der referenzierten Straße oder des referenzierten Gemeindeteils
           searchField.val(addressUuidField.val());
+        }
       {% endif %}
     }
 

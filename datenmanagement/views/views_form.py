@@ -16,6 +16,7 @@ from operator import itemgetter
 from re import sub
 from time import time
 
+from datenmanagement.utils import is_address_related_field, is_geometry_field
 from .fields import AddressUUIDField, QuarterUUIDField, StreetUUIDField
 from .functions import assign_widgets, get_thumb_url, set_form_attributes, \
   set_form_context_elements, set_model_related_context_elements
@@ -376,18 +377,27 @@ class DataAddView(CreateView):
 
   def form_invalid(self, form, **kwargs):
     """
-    öffnet Formular erneut, wenn Formular nicht valide ist;
-    Definition nur zu dem Zweck, dass nicht valide befüllte Array-Felder wieder geleert werden
+    re-opens passed form if it is not valid
+    (purpose: empty non-valid array fields)
 
-    :param form: Formular, das geprüft werden soll
-    :return: Formular, falls Formular nicht valide
+    :param form: form
+    :return: passed form if it is not valid
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
-    # alle Array-Felder wieder leeren
     for field in self.model._meta.get_fields():
+      # empty all array fields
       if field.__class__.__name__ == 'ArrayField':
         form.data[field.name] = None
+      # keep address reference (otherwise it would be lost on re-rendering)
+      elif is_address_related_field(field):
+        address = form.data.get(field.name + '_temp', None)
+        form.data[field.name] = address
+      # keep geometry (otherwise it would be lost on re-rendering)
+      elif is_geometry_field(field.__class__):
+        geometry = form.data.get(field.name, None)
+        if geometry and '0,0' not in geometry and '[]' not in geometry:
+          context_data['geometry'] = geometry
     context_data['form'] = form
     return self.render_to_response(context_data)
 
@@ -612,23 +622,31 @@ class DataChangeView(UpdateView):
 
   def form_invalid(self, form, **kwargs):
     """
-    öffnet Formular erneut, wenn Formular nicht valide ist;
-    Definition nur zu dem Zweck, dass nicht valide befüllte Array-Felder
-    wieder auf ihren ursprünglichen Zustand zurückgesetzt werden
+    re-opens passed form if it is not valid
+    (purpose: reset non-valid array fields to their initial state)
 
-    :param form: Formular, das geprüft werden soll
-    :return: Formular, falls Formular nicht valide
+    :param form: form
+    :return: passed form if it is not valid
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
-    # alle Array-Felder wieder auf ihren ursprünglichen Zustand zurücksetzen
     for field in self.model._meta.get_fields():
+      # reset all array fields to their initial state
       if field.__class__.__name__ == 'ArrayField':
         values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
         if values is not None and len(values) > 0 and values[0] is not None:
           form.data[field.name] = values[0]
         else:
           form.data[field.name] = values
+      # keep address reference (otherwise it would be lost on re-rendering)
+      elif is_address_related_field(field):
+        address = form.data.get(field.name + '_temp', None)
+        form.data[field.name] = address
+      # keep geometry (otherwise it would be lost on re-rendering)
+      elif is_geometry_field(field.__class__):
+        geometry = form.data.get(field.name, None)
+        if geometry and '0,0' not in geometry and '[]' not in geometry:
+          context_data['geometry'] = geometry
     context_data['form'] = form
     return self.render_to_response(context_data)
 

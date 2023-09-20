@@ -8,35 +8,35 @@ from toolbox.models import Subsets
 
 def clean_object_filter(model, object_filter):
   """
-  liefert die bereinigte Variante des übergebenen Objektfilters zurück
+  cleans passed object filter and returns it
 
-  :param model: Datenmodell
-  :param object_filter: Objektfilter
-  :return: bereinigte Variante des übergebenen Objektfilters
+  :param model: model
+  :param object_filter: object filter
+  :return: cleaned version of passed object filter
   """
   cleaned_object_filter = object_filter.copy()
-  # "kritische" Attribute (Dateien, Geometrie) immer aus Objektfilter entfernen
+  # always remove geometry and file fields from passed object filter
   cleaned_object_filter = remove_file_attributes_from_object_filter(cleaned_object_filter)
   cleaned_object_filter.pop('geometrie', None)
-  # falls eines der Attribute im Objektfilter unter jenen Attributen ist,
-  # die in den Formularansichten des Datenmodells nur lesbar erscheinen sollen...
+  # if one of the attributes in the passed object filter is among those attributes
+  # which shall be rendered as read-only in the form views of the passed model...
   if model.BasemodelMeta.readonly_fields:
     for attribute in object_filter:
       if attribute in model.BasemodelMeta.readonly_fields:
-        # Attribut aus Objektfilter entfernen, da es ansonsten passieren kann,
-        # dass das Objekt unten nicht gefunden wird
-        # (etwa bei Attributen, die nach dem Speichern auf Datenbankebene manipuliert werden)
+        # remove attribute from object filter
+        # since otherwise it may happen that the object below is not found
+        # (for example, with attributes that are manipulated at database level after saving)
         cleaned_object_filter.pop(attribute)
   return cleaned_object_filter
 
 
 def create_test_subset(model, test_object):
   """
-  liefert ein Subset mit dem übergebenen Objekt des übergebenen Datenmodells zurück
+  returns a subset with the passed test object of the passed model
 
-  :param model: Datenmodell
-  :param test_object: Objekt des übergebenen Datenmodells
-  :return: Subset mit dem übergebenen Objekt des übergebenen Datenmodells
+  :param model: model
+  :param test_object: test object
+  :return: subset with the passed test object of the passed model
   """
   return Subsets.objects.create(
     model=ContentType.objects.filter(
@@ -52,12 +52,12 @@ def create_test_subset(model, test_object):
 
 def get_object(model, object_filter):
   """
-  holt ein Objekt des übergebenen Datenmodells aus der Datenbank,
-  auf den der übergebene Objektfilter passt, und liefert dieses zurück
+  returns an object of the passed model from the database,
+  to which the passed object filter fits
 
-  :param model: Datenmodell
-  :param object_filter: Objektfilter
-  :return: Objekt des übergebenen Datenmodells, auf den der übergebene Objektfilter passt
+  :param model: model
+  :param object_filter: object filter
+  :return: an object of the passed model from the database, to which the passed object filter fits
   """
   return model.objects.get(**object_filter)
 
@@ -75,10 +75,10 @@ def load_sql_schema():
 
 def remove_file_attributes_from_object_filter(object_filter):
   """
-  liefert die um Dateien-Attribute bereinigte Variante des übergebenen Objektfilters zurück
+  returns the variant of the passed object filter that has been cleaned of file attributes
 
-  :param object_filter: Objektfilter
-  :return: um Dateien-Attribute bereinigte Variante des übergebenen Objektfilters
+  :param object_filter: object filter
+  :return: the variant of the passed object filter that has been cleaned of file attributes
   """
   object_filter.pop('dokument', None)
   object_filter.pop('foto', None)
@@ -88,9 +88,9 @@ def remove_file_attributes_from_object_filter(object_filter):
 
 def remove_uploaded_test_files(path):
   """
-  löscht das Verzeichnis mit den hochgeladenen Testdateien
+  deletes directory with uploaded test files
 
-  :param path: Verzeichnis mit den hochgeladenen Testdateien
+  :param path: path of directory with uploaded test files
   """
   if path.exists():
     rmtree(path)

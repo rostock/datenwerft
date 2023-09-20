@@ -37,12 +37,13 @@ from .constants_vars import *
 
 
 #
-# Meta-Datenmodelle
+# meta models
+# (not visible for ordinary users unless given explicit rights)
 #
 
 class AdressenTest(DefaultMetaModelTestCase):
   """
-  Testklasse für Adressen
+  Adressen
   """
 
   model = Adressen
@@ -102,7 +103,7 @@ class AdressenTest(DefaultMetaModelTestCase):
 
 class StrassenTest(DefaultMetaModelTestCase):
   """
-  Testklasse für Straßen
+  Straßen
   """
 
   model = Strassen
@@ -162,7 +163,7 @@ class StrassenTest(DefaultMetaModelTestCase):
 
 class InoffizielleStrassenTest(DefaultMetaModelTestCase):
   """
-  Testklasse für inoffizielle Straßen
+  inoffizielle Straßen
   """
 
   model = Inoffizielle_Strassen
@@ -222,7 +223,7 @@ class InoffizielleStrassenTest(DefaultMetaModelTestCase):
 
 class GemeindeteileTest(DefaultMetaModelTestCase):
   """
-  Testklasse für Gemeindeteile
+  Gemeindeteile
   """
 
   model = Gemeindeteile
@@ -282,7 +283,7 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
 
 
 #
-# Codelisten
+# codelists
 #
 
 class AltersklassenKadaverfundeTest(DefaultCodelistTestCase):

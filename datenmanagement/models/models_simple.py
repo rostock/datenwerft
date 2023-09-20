@@ -6,12 +6,13 @@ from django.core.validators import EmailValidator, MaxValueValidator, MinValueVa
   RegexValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
-  DecimalField, PositiveIntegerField
+  DecimalField, PositiveIntegerField, TextField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
 
+from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import personennamen_validators, standard_validators, d3_regex, \
   d3_message, email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, \
   inventarnummer_regex, inventarnummer_message, postleitzahl_message, postleitzahl_regex, \
@@ -27,8 +28,8 @@ from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, 
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
-from .functions import get_current_year, delete_pdf, delete_photo, delete_photo_after_emptied, \
-  set_pre_save_instance, path_and_rename, photo_post_processing
+from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
+  set_pre_save_instance, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
   Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, Arten_Feldsportanlagen, \
   Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
@@ -5833,9 +5834,8 @@ class Bemas_Altdaten_Verursacher(Basemodel):
     ' für neues BEMAS: Branche',
     choices=BEMAS_ALTDATEN_VERURSACHER_TARGET_SECTOR_CHOICES
   )
-  target_description = CharField(
+  target_description = TextField(
     ' für neues BEMAS: Beschreibung',
-    max_length=255,
     validators=standard_validators
   )
   source_verursacher_strasse = CharField(
@@ -5985,9 +5985,8 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
   target_originator_id = PositiveIntegerField(
     ' aus altem BEMAS/für neues BEMAS: Verursacher'
   )
-  target_description = CharField(
+  target_description = TextField(
     ' für neues BEMAS: Beschreibung',
-    max_length=255,
     validators=standard_validators
   )
   source_beschwerdefuehrer_strasse = CharField(
