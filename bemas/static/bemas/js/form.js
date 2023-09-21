@@ -1,6 +1,3 @@
-/* global $, currMap, featureGeometry, getFeatureCenter, getFeatureGeometryLatLng, jQuery, L, redMarker, searchField, toggleModal */
-/* eslint no-undef: "error" */
-
 /**
  * @function
  * @name addDeleteFieldButton

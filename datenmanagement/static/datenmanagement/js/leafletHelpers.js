@@ -1,6 +1,3 @@
-/* global $, grayMarker, interchangeRecursive, L, martinez, orangeMarker, redMarker, toggleModal, Wkt */
-/* eslint no-undef: "error" */
-
 /*
  * extensions of existing Leaflet classes
  */

@@ -1,29 +1,22 @@
 from django.apps import apps
-from django.views.generic import ListView
+from django.views.generic.base import TemplateView
 
-from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
+from datenmanagement.models.base import Codelist, ComplexModel, Metamodel
 
 
-class IndexView(ListView):
+class IndexView(TemplateView):
   """
-  Liste der Datenthemen, die zur Verfügung stehen
+  view for main page
   """
 
   template_name = 'datenmanagement/index.html'
 
-  def get_queryset(self):
-    """
-    überschreibt Funktion für Standard-Rückgabewert,
-    damit diese nichts zurückgibt statt stumpf die Gesamtmenge aller Objekte des Datenmodells
-    """
-    return
-
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: dictionary with all context elements for this view
     """
     models_meta, models_codelist, models_complex, models_simple = [], [], [], []
     app_models = apps.get_app_config('datenmanagement').get_models()
@@ -59,32 +52,28 @@ class IndexView(ListView):
     return context
 
 
-class StartView(ListView):
+class StartView(TemplateView):
   """
-  Startansicht eines Datenthemas
+  view for entry page of a model
 
-  folgende Möglichkeiten:
-  * neuen Datensatz anlegen
-  * Datensätze in Tabelle auflisten
-  * Datensätze auf Karte anzeigen
-
-  :param model: Datenmodell
-  :param template_name: Name des Templates
+  :param model: model
   """
 
-  def __init__(self, model=None, template_name=None):
+  model = None
+  template_name = 'datenmanagement/start.html'
+
+  def __init__(self, model=None):
     self.model = model
-    self.template_name = template_name
-    super(StartView, self).__init__()
+    super().__init__()
 
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: dictionary with all context elements for this view
     """
-    context = super(StartView, self).get_context_data(**kwargs)
+    context = super().get_context_data(**kwargs)
     context['model_name'] = self.model.__name__
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural

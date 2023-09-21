@@ -1,6 +1,3 @@
-/* global $ */
-/* eslint no-undef: "error" */
-
 /**
  * @function
  * @name customMapFilters

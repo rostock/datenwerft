@@ -279,7 +279,7 @@
 
       // bei mobilen Geräten: Standortbestimmung hinzufügen
       {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-        enableMapLocate(map);
+        enableMapLocate(map)
       {% endif %}
 
       // globale Marker für Leaflet konfigurieren und auch in anderen Scopes
@@ -316,14 +316,14 @@
       // Leaflet-Geoman konfigurieren
       {% if not gpx_input %}
         {% if 'LineString' in geometry_type %}
-          configureLeafletGeoman(map, 'LineString');
+          configureLeafletGeoman(map, 'LineString')
         {% elif geometry_type == 'Point' or geometry_type == 'Polygon' or geometry_type == 'MultiPolygon' %}
-          configureLeafletGeoman(map, '{{ geometry_type }}');
+          configureLeafletGeoman(map, '{{ geometry_type }}')
         {% else %}
-          configureLeafletGeoman(map);
+          configureLeafletGeoman(map)
         {% endif %}
       {% else %}
-        configureLeafletGeoman(map);
+        configureLeafletGeoman(map)
       {% endif %}
 
       // falls Geometrie vorhanden...
@@ -344,7 +344,7 @@
                       '{{ field }}',
                       '{{ field_title }}',
                       '{{ object|get_value_of_field:field }}'
-                    );
+                    )
                   {% endwith %}
                 {% endif %}
               {% endwith %}

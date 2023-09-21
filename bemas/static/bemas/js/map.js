@@ -1,6 +1,3 @@
-/* global $, currMap, jQuery, toggleModal */
-/* eslint no-undef: "error" */
-
 /**
  * @function
  * @name applyFilters

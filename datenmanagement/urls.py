@@ -7,7 +7,7 @@ from .views.api import DatenmanagementViewSet
 from .views.functions import delete_object_immediately
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .views.views_helpers import GeometryView, GISFiletoGeoJSON
-from .views.views_index_start import IndexView, StartView
+from .views.views_general import IndexView, StartView
 from .views.views_list_map import DataListView, DataMapListView, DataMapView, DataView
 
 
@@ -72,10 +72,7 @@ for model in app_models:
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
         'datenmanagement.view_' + model_name_lower
-      )(StartView.as_view(
-        model=model,
-        template_name='datenmanagement/start.html'
-      )),
+      )(StartView.as_view(model=model)),
       name=model_name + '_start'
     )
   )

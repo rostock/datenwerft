@@ -1,6 +1,3 @@
-/* global $, toggleModal */
-/* eslint no-undef: "error" */
-
 /**
  * @function
  * @name subsetting

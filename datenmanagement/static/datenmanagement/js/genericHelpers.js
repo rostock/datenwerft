@@ -1,7 +1,3 @@
-/* global $ */
-/* eslint no-undef: "error" */
-/* exported getFeatureCenter */
-
 /**
  * @function
  * @name getFeatureCenter

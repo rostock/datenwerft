@@ -1,15 +1,69 @@
 {
   "env": {
     "browser": true,
-    "es2021": true
+    "django/i18n": true,
+    "jquery": true
   },
   "extends": "eslint:recommended",
+  "globals": {
+    "addEmptyFieldButton": true,
+    "addField": true,
+    "applyFilters": true,
+    "bootstrap": true,
+    "border": true,
+    "cleanField": true,
+    "configureLeafletGeoman": true,
+    "configureMap": true,
+    "count": true,
+    "createFilterObject": true,
+    "currMap": true,
+    "customMapFilters": true,
+    "enableAddressReferenceButton": true,
+    "enableMapLocate": true,
+    "featureGeometry": true,
+    "fetchGeoJsonFeatureCollection": true,
+    "filterApplication": true,
+    "filterReset": true,
+    "getFeatureCenter": true,
+    "getFeatureGeometryLatLng": true,
+    "grayMarker": true,
+    "initDataTable": true,
+    "initializeAddressSearch": true,
+    "interchangeRecursive": true,
+    "keepDjangoRequiredMessages": true,
+    "L": true,
+    "limit": true,
+    "martinez": true,
+    "objectsExtent": true,
+    "orangeMarker": true,
+    "proj4": true,
+    "Promise": true,
+    "promises": true,
+    "redMarker": true,
+    "results": true,
+    "searchField": true,
+    "setAddressToMarkerAddress": true,
+    "setButtonsPosition": true,
+    "setGeoJsonFeaturePropertiesAndActions": true,
+    "setMapConstants": true,
+    "setMapExtentByXYAndZoomLevel": true,
+    "setMapExtentByBoundingBox": true,
+    "setMapExtentByLeafletBounds": true,
+    "setMarkerToAddressSearchResult": true,
+    "subsetting": true,
+    "toggleModal": true,
+    "Wkt": true
+  },
+  "ignorePatterns": [
+    "datenmanagement/templates/datenmanagement/form.html"
+  ],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "plugins": [
     "html",
+    "django",
     "jinja2-processor"
   ],
   "rules": {

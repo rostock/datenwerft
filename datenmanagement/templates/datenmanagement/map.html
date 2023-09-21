@@ -209,6 +209,7 @@
     {% include "modal-error.html" %}
     {% include "modal-loading.html" %}
     <script>
+      /* eslint no-unexpected-multiline: "off" */
       /**
        * @function
        * @name mapCallbackFunction
@@ -227,10 +228,27 @@
         // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.currMap = map;
 
-        // bei mobilen Geräten: Standortbestimmung hinzufügen
+        // define several globally available variables
         {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-          enableMapLocate(map);
+          window.mobile = true
         {% endif %}
+        window.geometryType = '{{ geometry_type }}';
+        {% if heavy_load_limit %}
+          window.heavyLoadLimit = true
+        {% endif %}
+        {% if highlight_flag %}
+          window.highlightFlag = true
+        {% endif %}
+        {% if map_filter_hide_initial %}
+          window.mapFilterHideInitial = true
+        {% endif %}
+        {% if subset_id %}
+          window.subsetID = true
+        {% endif %}
+
+        // bei mobilen Geräten: Standortbestimmung hinzufügen
+        if (window.mobile)
+          enableMapLocate(map);
 
         /**
          * @function
@@ -258,7 +276,7 @@
             });
           }
           // falls Feature-Highlighting vorgesehen ist...
-          {% if highlight_flag %}
+          if (window.highlightFlag) {
             if (typeof feature.properties.highlight !== 'undefined' && feature.properties.highlight) {
               // Feature highlighten
               layer.setStyle({
@@ -266,9 +284,9 @@
                 fillColor: 'red'
               });
             }
-          {% endif %}
+          }
           // falls Feature von initialer Feature-Ausblendung betroffen ist...
-          {% if map_filter_hide_initial %}
+          if (window.mapFilterHideInitial) {
             if (typeof feature.properties.hide_initial !== 'undefined' && feature.properties.hide_initial)
               // Feature ausblenden
               layer.setStyle({
@@ -276,16 +294,15 @@
                 stroke: false,
                 opacity: 0
               });
-          {% endif %}
+          }
           // falls Geometrie nicht punkthaft ist...
-          {% if geometry_type != 'Point' %}
+          if (window.geometryType !== 'Point')
             // Tooltip setzen (wird ansonsten weiter unten beim Laden der GeoJSON featureCollection gesetzt)
             layer.bindTooltip(feature.properties.tooltip);
-          {% endif %}
         }
 
         // falls große Datenmenge zu erwarten ist...
-        {% if heavy_load_limit %}
+        if (window.heavyLoadLimit) {
           // Konstanten und Variablen für die Anzahl der (bereits geholten) Features der GeoJSON featureCollection definieren
           const border = {{ objects_count }};
           const limit = {{ heavy_load_limit }};
@@ -294,7 +311,7 @@
           // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON featureCollection für die Karte eingeblendet wird
           $('#loading-modal-map-data-count').text(count);
           $('#loading-modal-map-data-border').text(border);
-        {% endif %}
+        }
 
         /**
          * @function
@@ -310,9 +327,8 @@
           let url;
           try {
             url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata' %}";
-            {% if subset_id %}
+            if (window.subsetID)
              url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata'|add:'_subset' subset_id %}";
-            {% endif %}
             // Parameter für aktuellen Ladeschritt setzen, falls große Datenmenge zu erwarten ist
             if (heavyLoad) {
               url += '?limit=' + limit + '&offset=' + offset;
@@ -342,11 +358,11 @@
         }
 
         // falls Geometrie punkthaft ist...
-        {% if geometry_type == 'Point' %}
+        if (window.geometryType === 'Point') {
           // Cluster aktivieren
           let markers = L.markerClusterGroup();
           // falls große Datenmenge zu erwarten ist...
-          {% if heavy_load_limit %}
+          if (window.heavyLoadLimit) {
             // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
             for (let offset = 0; offset < border; offset += limit) {
               promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
@@ -371,7 +387,7 @@
               }
             );
           // ansonsten...
-          {% else %}
+          } else {
             // GeoJSON featureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
@@ -392,14 +408,14 @@
                 console.error(error);
               }
             );
-          {% endif %}
+          }
           // Cluster mit eindeutiger ID versehen und zur Karte hinzufügen
           markers.id = 'cluster';
           map.addLayer(markers);
         // ansonsten...
-        {% else %}
+        } else {
           // falls große Datenmenge zu erwarten ist...
-          {% if heavy_load_limit %}
+          if (window.heavyLoadLimit) {
             // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
             for (let offset = 0; offset < border; offset += limit) {
               promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
@@ -417,7 +433,7 @@
               }
             );
           // ansonsten...
-          {% else %}
+          } else {
             // GeoJSON featureCollection für die Karte in einem Ladeschritt holen
             fetchGeoJsonFeatureCollection()
             .then(data => {
@@ -431,8 +447,8 @@
                 console.error(error);
               }
             );
-          {% endif %}
-        {% endif %}
+          }
+        }
 
         // gemeinsame Bounding-Box aller Objekte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
         window.objectsExtent = map.getBounds();
@@ -836,7 +852,7 @@
         });
 
         // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
-        {% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %}
+        if ($('#map-control').hasClass('side')) {
           let height = $('#map-side-container').position().top;
           $('.side').each(function() {
             height += $(this).height();
@@ -845,7 +861,7 @@
           $('#map').height(height);
           if (typeof currMap !== 'undefined')
             currMap.invalidateSize();
-        {% endif %}
+        }
       });
 
       /**
@@ -979,7 +995,7 @@
               window.currentFilterExtent[1][1] = west;
           }
           // Layer (= Feature) einblenden, falls es von initialer Feature-Ausblendung betroffen ist
-          {% if map_filter_hide_initial %}
+          if (window.mapFilterHideInitial) {
             if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
               layer.setStyle({
                 color: '#3388ff',
@@ -989,7 +1005,7 @@
                 opacity: 1
               });
             }
-          {% endif %}
+          }
         // ansonsten:
         } else {
           // Layer (= Feature) tatsächlich ausblenden
@@ -1012,7 +1028,7 @@
           if (layer.feature) {
             layer.getElement().style.display = '';
             // Layer (= Feature) ausblenden, falls es von initialer Feature-Ausblendung betroffen ist
-            {% if map_filter_hide_initial %}
+            if (window.mapFilterHideInitial) {
               if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
                 layer.setStyle({
                   fill: false,
@@ -1020,7 +1036,7 @@
                   opacity: 0
                 });
               }
-            {% endif %}
+            }
           } else if (layer.id === 'cluster') {
             layer.addLayers(window.removedLayers);
             layer.refreshClusters();
