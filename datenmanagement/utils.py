@@ -23,6 +23,23 @@ def get_current_year():
   return int(date.today().year)
 
 
+def get_field_name_for_address_type(model, l10n=True):
+  """
+  returns name of address related field depending on address reference type of passed model
+
+  :param model: model
+  :param l10n: localized name version?
+  :return: name of address related field depending on address reference type of passed model
+  """
+  if model.BasemodelMeta.address_type == 'Adresse':
+    return 'adresse' if l10n else 'address'
+  elif model.BasemodelMeta.address_type == 'Straße':
+    return 'strasse' if l10n else 'street'
+  elif model.BasemodelMeta.address_type == 'Gemeindeteil':
+    return 'gemeindeteil' if l10n else 'district'
+  return None
+
+
 def get_path(url):
   """
   returns path related to passed URL

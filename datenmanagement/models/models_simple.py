@@ -5821,8 +5821,7 @@ class Bemas_Altdaten_Verursacher(Basemodel):
     default=0
   )
   bearbeitet = BooleanField(
-    ' bearbeitet?',
-    default=True
+    ' bearbeitet?'
   )
   reason_sector = BooleanField(
     'Mangel in altem BEMAS: Branche fehlte'
@@ -5956,8 +5955,7 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
     default=0
   )
   bearbeitet = BooleanField(
-    ' bearbeitet?',
-    default=True
+    ' bearbeitet?'
   )
   reason_date_of_receipt = BooleanField(
     'Mangel in altem BEMAS: Eingangsdatum fehlte'
@@ -6020,8 +6018,8 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
     description = 'BEMAS-Altdaten: Beschwerden'
     readonly_fields = [
       'id', 'reason_date_of_receipt', 'reason_type_of_immission', 'reason_originator_id',
-      'reason_immission_point', 'source_beschwerdefuehrer_strasse', 'source_beschwerdefuehrer_plz',
-      'source_beschwerdefuehrer_ort', 'source_immissionsart'
+      'reason_immission_point', 'target_originator_id', 'source_beschwerdefuehrer_strasse',
+      'source_beschwerdefuehrer_plz', 'source_beschwerdefuehrer_ort', 'source_immissionsart'
     ]
     address_type = 'Adresse'
     address_mandatory = False
@@ -6046,6 +6044,61 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
       'adresse': 'adresse'
     }
     map_feature_tooltip_field = 'id'
+
+  def __str__(self):
+    return str(self.id)
+
+
+BEMAS_ALTDATEN_JOURNALEREIGNISSE_TARGET_TYPE_OF_EVENT = (
+  ('Besprechung', 'Besprechung'),
+  ('Ortsbegehung', 'Ortsbegehung'),
+  ('Prognose/Messung', 'Prognose/Messung'),
+  ('Schriftverkehr', 'Schriftverkehr'),
+  ('Telefonat', 'Telefonat')
+)
+
+
+class Bemas_Altdaten_Journalereignisse(Basemodel):
+  id = PositiveIntegerField(
+    ' aus altem BEMAS: ID',
+    default=0
+  )
+  bearbeitet = BooleanField(
+    ' bearbeitet?'
+  )
+  target_created_at = DateTimeField(
+    ' für neues BEMAS: Zeitstempel'
+  )
+  target_complaint_id = PositiveIntegerField(
+    ' aus altem BEMAS/für neues BEMAS: Beschwerde'
+  )
+  target_type_of_event = CharField(
+    ' für neues BEMAS: Ereignisart',
+    choices=BEMAS_ALTDATEN_JOURNALEREIGNISSE_TARGET_TYPE_OF_EVENT
+  )
+  target_description = TextField(
+    ' für neues BEMAS: Beschreibung',
+    validators=standard_validators
+  )
+
+  class Meta(Basemodel.Meta):
+    db_table = 'fachdaten\".\"bemas_altdaten_journalereignisse'
+    verbose_name = 'BEMAS-Altdaten: Journalereignis'
+    verbose_name_plural = 'BEMAS-Altdaten: Journalereignisse'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'BEMAS-Altdaten: Journalereignisse'
+    readonly_fields = ['id']
+    list_fields = {
+      'id': 'ID',
+      'bearbeitet': 'bearbeitet?',
+      'target_created_at': 'Zeitstempel',
+      'target_complaint_id': 'Beschwerde',
+      'target_type_of_event': 'Ereignisart',
+      'target_description': 'Beschreibung'
+    }
+    list_fields_with_datetime = ['target_created_at']
+    list_fields_with_number = ['id', 'target_complaint_id']
 
   def __str__(self):
     return str(self.id)

@@ -590,10 +590,10 @@
                 inputField.prop('disabled', true);
               } else {
                 inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + wert + '</em></span>');
-                let label = inputField.parent().closest('tr').find('label');
-                label.wrapInner('<em></em>');
                 inputField.hide();
               }
+              let label = inputField.parent().closest('tr').find('label');
+              label.wrapInner('<em></em>');
             }
           {% else %}
             inputField.closest('tr').hide();

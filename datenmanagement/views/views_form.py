@@ -16,7 +16,8 @@ from operator import itemgetter
 from re import sub
 from time import time
 
-from datenmanagement.utils import is_address_related_field, is_geometry_field
+from datenmanagement.utils import get_field_name_for_address_type, is_address_related_field, \
+  is_geometry_field
 from .fields import AddressUUIDField, QuarterUUIDField, StreetUUIDField
 from .functions import assign_widgets, get_thumb_url, set_form_attributes, \
   set_form_context_elements, set_model_related_context_elements
@@ -391,6 +392,8 @@ class DataAddView(CreateView):
         form.data[field.name] = None
       # keep address reference (otherwise it would be lost on re-rendering)
       elif is_address_related_field(field):
+        field_name_for_address_type = get_field_name_for_address_type(self.model, False)
+        context_data['current_' + field_name_for_address_type] = form.data.get(field.name, None)
         address = form.data.get(field.name + '_temp', None)
         form.data[field.name] = address
       # keep geometry (otherwise it would be lost on re-rendering)
@@ -543,12 +546,13 @@ class DataChangeView(UpdateView):
     else:
       context['geometry'] = None
     if self.model.BasemodelMeta.address_type:
-      if self.model.BasemodelMeta.address_type == 'Adresse' and self.object.adresse:
-        context['current_address'] = self.object.adresse.pk
-      elif self.model.BasemodelMeta.address_type == 'Straße' and self.object.strasse:
-        context['current_street'] = self.object.strasse.pk
-      elif self.model.BasemodelMeta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
-        context['current_district'] = self.object.gemeindeteil.pk
+      field_name_for_address_type = get_field_name_for_address_type(self.model, False)
+      if field_name_for_address_type == 'adresse' and self.object.adresse:
+        context['current_' + field_name_for_address_type] = self.object.adresse.pk
+      elif field_name_for_address_type == 'strasse' and self.object.strasse:
+        context['current_' + field_name_for_address_type] = self.object.strasse.pk
+      elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
+        context['current_' + field_name_for_address_type] = self.object.gemeindeteil.pk
     # Dictionary für alle Array-Felder und deren Inhalte vorbereiten,
     # die als Inhalt mehr als einen Wert umfassen
     array_fields_values = {}
@@ -587,12 +591,13 @@ class DataChangeView(UpdateView):
     if self.model.BasemodelMeta.address_type:
       # Dictionary um entsprechenden initialen Feldwert
       # für Adresse, Straße oder Gemeindeteil ergänzen
-      if self.model.BasemodelMeta.address_type == 'Adresse' and self.object.adresse:
-        curr_dict['adresse'] = self.object.adresse
-      elif self.model.BasemodelMeta.address_type == 'Straße' and self.object.strasse:
-        curr_dict['strasse'] = self.object.strasse
-      elif self.model.BasemodelMeta.address_type == 'Gemeindeteil' and self.object.gemeindeteil:
-        curr_dict['gemeindeteil'] = self.object.gemeindeteil
+      field_name_for_address_type = get_field_name_for_address_type(self.model)
+      if field_name_for_address_type == 'adresse' and self.object.adresse:
+        curr_dict[field_name_for_address_type] = self.object.adresse
+      elif field_name_for_address_type == 'strasse' and self.object.strasse:
+        curr_dict[field_name_for_address_type] = self.object.strasse
+      elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
+        curr_dict[field_name_for_address_type] = self.object.gemeindeteil
     for field in self.model._meta.get_fields():
       # bei Array-Feld...
       if field.__class__.__name__ == 'ArrayField':
@@ -640,6 +645,8 @@ class DataChangeView(UpdateView):
           form.data[field.name] = values
       # keep address reference (otherwise it would be lost on re-rendering)
       elif is_address_related_field(field):
+        field_name_for_address_type = get_field_name_for_address_type(self.model, False)
+        context_data['current_' + field_name_for_address_type] = form.data.get(field.name, None)
         address = form.data.get(field.name + '_temp', None)
         form.data[field.name] = address
       # keep geometry (otherwise it would be lost on re-rendering)
