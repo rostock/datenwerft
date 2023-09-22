@@ -5,7 +5,7 @@ from django.core.serializers import serialize
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import escape
-from django.views import generic
+from django.views.generic.base import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
 from json import dumps, loads
@@ -18,7 +18,7 @@ from .functions import add_user_agent_context_elements, get_model_objects, \
   add_model_context_elements
 
 
-class DataView(BaseDatatableView):
+class TableDataCompositionView(BaseDatatableView):
   """
   bereitet Datenbankobjekte für Tabellenansicht auf
 
@@ -39,7 +39,7 @@ class DataView(BaseDatatableView):
     self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
     self.column_as_highlight_flag = self.model.BasemodelMeta.list_highlight_flag
     self.thumbs = self.model.BasemodelMeta.thumbs
-    super(DataView, self).__init__()
+    super().__init__()
 
   def get_initial_queryset(self):
     if self.kwargs and self.kwargs['subset_id']:
@@ -253,7 +253,7 @@ class DataView(BaseDatatableView):
       return qs
 
 
-class DataListView(generic.ListView):
+class TableListView(TemplateView):
   """
   listet alle Datenbankobjekte eines Datensatzes in einer Tabelle auf
 
@@ -262,17 +262,12 @@ class DataListView(generic.ListView):
   :param success_url: Success-URL
   """
 
+  model = None
+
   def __init__(self, model=None, template_name=None, success_url=None):
     self.model = model
     self.template_name = template_name
-    super(DataListView, self).__init__()
-
-  def get_queryset(self):
-    """
-    überschreibt Funktion für Standard-Rückgabewert,
-    damit diese nichts zurückgibt statt stumpf die Gesamtmenge aller Objekte des Datenmodells
-    """
-    return
+    super().__init__()
 
   def get_context_data(self, **kwargs):
     """
@@ -291,7 +286,7 @@ class DataListView(generic.ListView):
     return context
 
 
-class DataMapView(JsonView):
+class MapDataCompositionView(JsonView):
   """
   Abfrage aller Datenbankobjekte eines Datensatzes für die Karte
   * limit: auf n Datenbankobjekte limitieren (entspricht SQL-LIMIT)
@@ -307,7 +302,7 @@ class DataMapView(JsonView):
     self.model_name_lower = self.model.__name__.lower()
     self.model_pk_field = self.model._meta.pk.name
     self.editable = self.model.BasemodelMeta.editable
-    super(DataMapView, self).__init__()
+    super().__init__()
 
   def get_context_data(self, **kwargs):
     """
@@ -445,7 +440,7 @@ class DataMapView(JsonView):
     return map_features
 
 
-class DataMapListView(generic.ListView):
+class MapListView(TemplateView):
   """
   zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an;
   außerdem werden, falls definiert, entsprechende Filtermöglichkeiten geladen
@@ -454,19 +449,14 @@ class DataMapListView(generic.ListView):
   :param template_name: Name des Templates
   """
 
+  model = None
+
   def __init__(self, model=None, template_name=None):
     self.model = model
     self.model_name = self.model.__name__
     self.model_name_lower = self.model.__name__.lower()
     self.template_name = template_name
-    super(DataMapListView, self).__init__()
-
-  def get_queryset(self):
-    """
-    überschreibt Funktion für Standard-Rückgabewert,
-    damit diese nichts zurückgibt statt stumpf die Gesamtmenge aller Objekte des Datenmodells
-    """
-    return
+    super().__init__()
 
   def get_context_data(self, **kwargs):
     """

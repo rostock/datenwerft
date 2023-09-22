@@ -7,7 +7,8 @@ from .views.api import DatenmanagementViewSet
 from .views.functions import delete_object_immediately
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView
-from .views.views_list_map import DataListView, DataMapListView, DataMapView, DataView
+from .views.views_list_map import MapDataCompositionView, MapListView, TableDataCompositionView, \
+  TableListView
 
 
 router = DefaultRouter()
@@ -84,7 +85,7 @@ for model in models:
       model_name + '/data',
       view=permission_required(
         'datenmanagement.view_' + model_name_lower
-      )(DataView.as_view(model=model)),
+      )(TableDataCompositionView.as_view(model=model)),
       name=model_name + '_data'
     )
   )
@@ -96,7 +97,7 @@ for model in models:
       model_name + '/data/subset/<subset_id>',
       view=permission_required(
         'datenmanagement.view_' + model_name_lower
-      )(DataView.as_view(model=model)),
+      )(TableDataCompositionView.as_view(model=model)),
       name=model_name + '_data_subset'
     )
   )
@@ -109,7 +110,7 @@ for model in models:
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
         'datenmanagement.view_' + model_name_lower
-      )(DataListView.as_view(
+      )(TableListView.as_view(
         model=model,
         template_name='datenmanagement/list.html'
       )),
@@ -126,7 +127,7 @@ for model in models:
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
         'datenmanagement.view_' + model_name_lower
-      )(DataListView.as_view(
+      )(TableListView.as_view(
         model=model,
         template_name='datenmanagement/list.html'
       )),
@@ -140,7 +141,7 @@ for model in models:
       model_name + '/mapdata',
       view=permission_required(
         'datenmanagement.view_' + model_name_lower
-      )(DataMapView.as_view(model=model)),
+      )(MapDataCompositionView.as_view(model=model)),
       name=model_name + '_mapdata'
     )
   )
@@ -152,7 +153,7 @@ for model in models:
       model_name + '/mapdata/subset/<subset_id>',
       view=permission_required(
         'datenmanagement.view_' + model_name_lower
-      )(DataMapView.as_view(model=model)),
+      )(MapDataCompositionView.as_view(model=model)),
       name=model_name + '_mapdata_subset'
     )
   )
@@ -165,7 +166,7 @@ for model in models:
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
         'datenmanagement.view_' + model_name_lower
-      )(DataMapListView.as_view(
+      )(MapListView.as_view(
         model=model,
         template_name='datenmanagement/map.html'
       )),
@@ -182,7 +183,7 @@ for model in models:
         'datenmanagement.change_' + model_name_lower,
         'datenmanagement.delete_' + model_name_lower,
         'datenmanagement.view_' + model_name_lower
-      )(DataMapListView.as_view(
+      )(MapListView.as_view(
         model=model,
         template_name='datenmanagement/map.html'
       )),

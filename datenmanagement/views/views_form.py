@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.forms.models import modelform_factory
 from django.urls import reverse
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 from re import sub
 from time import time

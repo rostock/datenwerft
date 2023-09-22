@@ -230,8 +230,13 @@
 
         // define several globally available variables
         window.geometryType = '{{ geometry_type }}';
+        window.promises = [];
+        window.count = 0;
         {% if heavy_load_limit %}
           window.heavyLoadLimit = true
+          // variables and constants for the number of (already fetched) features of the GeoJSON feature collection
+          window.border = {{ objects_count }}
+          window.limit = {{ heavy_load_limit }}
         {% endif %}
         {% if highlight_flag %}
           window.highlightFlag = true
@@ -301,14 +306,9 @@
 
         // falls große Datenmenge zu erwarten ist...
         if (window.heavyLoadLimit) {
-          // Konstanten und Variablen für die Anzahl der (bereits geholten) Features der GeoJSON featureCollection definieren
-          const border = {{ objects_count }};
-          const limit = {{ heavy_load_limit }};
-          let promises = [];
-          let count = 0;
           // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON featureCollection für die Karte eingeblendet wird
-          $('#loading-modal-map-data-count').text(count);
-          $('#loading-modal-map-data-border').text(border);
+          $('#loading-modal-map-data-count').text(window.count);
+          $('#loading-modal-map-data-border').text(window.border);
         }
 
         /**
@@ -342,9 +342,9 @@
             });
             const data = await response.json();
             if (heavyLoad) {
-              count += data.features.length;
-              $('#loading-modal-map-data-count').text(count);
-              if (count === border) {
+              window.count += data.features.length;
+              $('#loading-modal-map-data-count').text(window.count);
+              if (window.count === window.border) {
                 toggleModal($('#loading-modal'));
               }
             } else
@@ -362,10 +362,10 @@
           // falls große Datenmenge zu erwarten ist...
           if (window.heavyLoadLimit) {
             // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
-            for (let offset = 0; offset < border; offset += limit) {
-              promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
+            for (let offset = 0; offset < window.border; offset += window.limit) {
+              window.promises.push(fetchGeoJsonFeatureCollection(true, window.limit, offset));
             }
-            Promise.all(promises)
+            Promise.all(window.promises)
             .then(data => {
               // jedes Feature der GeoJSON featureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
               L.Proj.geoJson(data, {
@@ -415,10 +415,10 @@
           // falls große Datenmenge zu erwarten ist...
           if (window.heavyLoadLimit) {
             // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
-            for (let offset = 0; offset < border; offset += limit) {
-              promises.push(fetchGeoJsonFeatureCollection(true, limit, offset));
+            for (let offset = 0; offset < window.border; offset += window.limit) {
+              window.promises.push(fetchGeoJsonFeatureCollection(true, window.limit, offset));
             }
-            Promise.all(promises)
+            Promise.all(window.promises)
             .then(data => {
               // für jedes Feature der GeoJSON featureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
               L.Proj.geoJson(data, {
