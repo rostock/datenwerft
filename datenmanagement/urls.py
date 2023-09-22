@@ -12,14 +12,18 @@ from .views.views_list_map import DataListView, DataMapListView, DataMapView, Da
 
 
 router = DefaultRouter()
-app_models = apps.get_app_config('datenmanagement').get_models()
-for model in app_models:
-    model_name = model.__name__.lower()
-    router.register(
-        model_name,
-        DatenmanagementViewSet.create_custom(model=model),
-        basename=model_name
-    )
+
+app_name = 'datenmanagement'
+
+models = apps.get_app_config(app_name).get_models()
+for model in models:
+  model_name_lower = model.__name__.lower()
+  router.register(
+    model_name_lower,
+    DatenmanagementViewSet.create_custom(model=model),
+    basename=model_name_lower
+  )
+
 api_urlpatterns = router.urls
 
 
@@ -32,8 +36,6 @@ def permission_required(*perms):
   """
   return user_passes_test(lambda u: any(u.has_perm(perm) for perm in perms))
 
-
-app_name = 'datenmanagement'
 
 #
 # general views
@@ -58,8 +60,8 @@ urlpatterns = [
 # views for each model
 #
 
-app_models = apps.get_app_config(app_name).get_models()
-for model in app_models:
+models = apps.get_app_config(app_name).get_models()
+for model in models:
   model_name = model.__name__
   model_name_lower = model_name.lower()
 

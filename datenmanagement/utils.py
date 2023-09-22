@@ -115,3 +115,23 @@ def path_and_rename(path):
       filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
     return Path(path) / filename
   return wrapper
+
+
+def user_has_model_permissions_at_all(user, model):
+  """
+  checks whether the passed user has any rights on the passed model
+
+  :param user: user
+  :param model: model
+  :return: has the passed user any rights on the passed model?
+  """
+  model_name_lower = model.__name__.lower()
+  if (
+      user.has_perm('datenmanagement.add_' + model_name_lower)
+      or user.has_perm('datenmanagement.change_' + model_name_lower)
+      or user.has_perm('datenmanagement.delete_' + model_name_lower)
+      or user.has_perm('datenmanagement.view_' + model_name_lower)
+  ):
+    return True
+  else:
+    return False

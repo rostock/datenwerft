@@ -32,7 +32,6 @@ def clean_error_message(value):
 
 
 @register.filter
-@stringfilter
 def get_class_foreign_key_label(value):
   """
   returns label of foreign key field of passed model
@@ -44,7 +43,6 @@ def get_class_foreign_key_label(value):
 
 
 @register.filter
-@stringfilter
 def get_class_name(value):
   """
   returns class name of passed model
@@ -56,7 +54,6 @@ def get_class_name(value):
 
 
 @register.filter
-@stringfilter
 def get_class_object_title(value):
   """
   returns text module for deletion form view of passed model
@@ -68,7 +65,6 @@ def get_class_object_title(value):
 
 
 @register.filter
-@stringfilter
 def get_class_verbose_name_plural(value):
   """
   returns verbose name plural of passed model

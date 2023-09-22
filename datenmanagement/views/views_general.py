@@ -2,6 +2,7 @@ from django.apps import apps
 from django.views.generic.base import TemplateView
 
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel
+from datenmanagement.utils import user_has_model_permissions_at_all
 
 
 class IndexView(TemplateView):
@@ -19,32 +20,23 @@ class IndexView(TemplateView):
     :return: dictionary with all context elements for this view
     """
     models_meta, models_codelist, models_complex, models_simple = [], [], [], []
-    app_models = apps.get_app_config('datenmanagement').get_models()
-    for model in app_models:
-      if (
-          self.request.user.has_perm(
-              'datenmanagement.add_' +
-              model.__name__.lower()) or self.request.user.has_perm(
-              'datenmanagement.change_' +
-              model.__name__.lower()) or self.request.user.has_perm(
-              'datenmanagement.delete_' +
-              model.__name__.lower()) or self.request.user.has_perm(
-              'datenmanagement.view_' +
-              model.__name__.lower())):
-        list_model = {
+    models = apps.get_app_config('datenmanagement').get_models()
+    for model in models:
+      if user_has_model_permissions_at_all(self.request.user, model):
+        model_dict = {
           'name': model.__name__,
           'verbose_name_plural': model._meta.verbose_name_plural,
           'description': model.BasemodelMeta.description
         }
         if issubclass(model, Metamodel):
-          models_meta.append(list_model)
+          models_meta.append(model_dict)
         elif issubclass(model, Codelist):
-          models_codelist.append(list_model)
+          models_codelist.append(model_dict)
         elif issubclass(model, ComplexModel):
-          models_complex.append(list_model)
+          models_complex.append(model_dict)
         else:
-          models_simple.append(list_model)
-    context = super(IndexView, self).get_context_data(**kwargs)
+          models_simple.append(model_dict)
+    context = super().get_context_data(**kwargs)
     context['models_meta'] = models_meta
     context['models_codelist'] = models_codelist
     context['models_complex'] = models_complex
@@ -78,6 +70,6 @@ class StartView(TemplateView):
     context['model_name_lower'] = self.model.__name__.lower()
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     context['model_description'] = self.model.BasemodelMeta.description
-    context['editable'] = self.model.BasemodelMeta.editable
-    context['geometry_type'] = self.model.BasemodelMeta.geometry_type
+    context['model_is_editable'] = self.model.BasemodelMeta.editable
+    context['model_has_geometry'] = self.model.BasemodelMeta.geometry_type
     return context
