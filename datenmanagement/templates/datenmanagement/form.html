@@ -9,7 +9,7 @@
   {{ block.super }}
   {% leaflet_css plugins="geoman,locatecontrol" %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  {% if forms_in_mobile_mode or request.user_agent.is_mobile or request.user_agent.is_tablet %}
+  {% if forms_in_mobile_mode or is_mobile %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
     {% if forms_in_mobile_mode %}
       <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}">
@@ -174,7 +174,7 @@
                 {% elif address_type == 'Straße' %}
                   <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
                 {% elif address_type == 'Gemeindeteil' %}
-                  <button disabled id="mapToQuarter" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
+                  <button disabled id="mapToDistrict" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
                 {% endif %}
               {% endif %}
             </div>
@@ -223,13 +223,13 @@
     <div id="buttons">
       <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not is_mobile %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
         {% if object and user|user_has_model_add_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="cloneObject(); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit" onclick="cloneObject(); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not is_mobile %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
-          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet %}Datensatz {% endif %}löschen</a>
+          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not is_mobile %}Datensatz {% endif %}löschen</a>
         {% endif %}
         <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
@@ -278,7 +278,7 @@
       window.currMap = map;
 
       // bei mobilen Geräten: Standortbestimmung hinzufügen
-      {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+      {% if is_mobile %}
         enableMapLocate(map)
       {% endif %}
 
@@ -730,7 +730,7 @@
       });
 
       // bei Klick auf Button „Gemeindeteil übernehmen“...
-      $('#mapToQuarter').on('click', function () {
+      $('#mapToDistrict').on('click', function () {
         // aktuellen Gemeindeteil der Geometrie in der Karte übernehmen
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
@@ -741,7 +741,7 @@
 
       // bei Desktop und bei vorhandener Karte:
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
-      {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
+      {% if not forms_in_mobile_mode and not is_mobile and geometry_type %}
         setButtonsPosition();
       {% endif %}
 
@@ -870,7 +870,7 @@
       addDeleteFieldButton(field);
       // bei Desktop und bei vorhandener Karte:
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
-      {% if not forms_in_mobile_mode and not request.user_agent.is_mobile and not request.user_agent.is_tablet and geometry_type %}
+      {% if not forms_in_mobile_mode and not is_mobile and geometry_type %}
         setButtonsPosition();
       {% endif %}
     }
@@ -975,7 +975,7 @@
       {% elif address_type == 'Straße' %}
         $('#mapToStreet').prop('disabled', false);
       {% elif address_type == 'Gemeindeteil' %}
-        $('#mapToQuarter').prop('disabled', false);
+        $('#mapToDistrict').prop('disabled', false);
       {% endif %}
     }
 

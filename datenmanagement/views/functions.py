@@ -1,51 +1,151 @@
-from datetime import date, datetime
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.forms import CheckboxSelectMultiple, TextInput
+from django.db.models.fields import DateField, DateTimeField, TimeField
+from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
-from locale import LC_ALL, format_string, setlocale
-from pathlib import Path
 from re import sub
 
+from datenmanagement.models.fields import ChoiceArrayField
+from datenmanagement.utils import is_geometry_field
 from toolbox.models import Subsets
 from .fields import ArrayDateField
 
 
+def add_model_context_elements(context, model, kwargs=None):
+  """
+  adds general model related elements models to the passed context and returns the context
+
+  :param context: context
+  :param model: model
+  :param kwargs: kwargs of the view calling this function
+  :return: context with general model related elements added
+  """
+  model_name = model.__name__
+  context['model_name'] = model_name
+  context['model_name_lower'] = model_name.lower()
+  context['model_pk_field'] = model._meta.pk.name
+  context['model_verbose_name'] = model._meta.verbose_name
+  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
+  context['model_description'] = model.BasemodelMeta.description
+  context['editable'] = model.BasemodelMeta.editable
+  context['geometry_type'] = model.BasemodelMeta.geometry_type
+  context['subset_id'] = None
+  if kwargs and kwargs['subset_id']:
+    subset_id = int(kwargs['subset_id'])
+    context['subset_id'] = subset_id
+    context['objects_count'] = get_model_objects(model, subset_id, True)
+  else:
+    context['objects_count'] = get_model_objects(model, None, True)
+  return context
+
+
+def add_model_form_context_elements(context, model):
+  """
+  adds model form related elements models to the passed context and returns the context
+
+  :param context: context
+  :param model: model
+  :return: context with model form related elements added
+  """
+  context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+  context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
+  context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
+  context['readonly_fields'] = model.BasemodelMeta.readonly_fields
+  context['choices_models_for_choices_fields'] = (
+    model.BasemodelMeta.choices_models_for_choices_fields)
+  context['group_with_users_for_choice_field'] = (
+    model.BasemodelMeta.group_with_users_for_choice_field)
+  context['fields_with_foreign_key_to_linkify'] = (
+    model.BasemodelMeta.fields_with_foreign_key_to_linkify)
+  context['catalog_link_fields'] = model.BasemodelMeta.catalog_link_fields
+  if model.BasemodelMeta.catalog_link_fields:
+    context['catalog_link_fields_names'] = list(model.BasemodelMeta.catalog_link_fields.keys())
+  context['address_type'] = model.BasemodelMeta.address_type
+  context['address_mandatory'] = model.BasemodelMeta.address_mandatory
+  context['geojson_input'] = model.BasemodelMeta.geojson_input
+  context['gpx_input'] = model.BasemodelMeta.gpx_input
+  context['postcode_assigner'] = model.BasemodelMeta.postcode_assigner
+  context['additional_wms_layers'] = model.BasemodelMeta.additional_wms_layers
+  context['additional_wfs_featuretypes'] = model.BasemodelMeta.additional_wfs_featuretypes
+  # list of all models
+  # which shall be selectable as additional overlay layers in the maps of all form views
+  model_list = {}
+  app_models = apps.get_app_config('datenmanagement').get_models()
+  for app_model in app_models:
+    if app_model.BasemodelMeta.as_overlay:
+      model_list[app_model.__name__] = app_model._meta.verbose_name_plural
+  context['model_list'] = dict(sorted(model_list.items()))
+  return context
+
+
+def add_user_agent_context_elements(context, request):
+  """
+  adds user agent related elements to the passed context and returns the context
+
+  :param context: context
+  :param request: request
+  :return: context with user agent related elements added
+  """
+  user_agent = get_user_agent(request)
+  if user_agent.is_mobile or user_agent.is_tablet:
+    context['is_mobile'] = True
+  else:
+    context['is_mobile'] = False
+  return context
+
+
 def assign_widgets(field):
   """
-  liefert passendes Formularelement (Widget) zu übergebenem Feld
+  creates corresponding form field (widget) to passed model field and returns it
 
-  :param field: Feld
-  :return: Formularelement (Widget) zu übergebenem Feld
+  :param field: model field
+  :return: corresponding form field (widget) to passed model field
   """
-  # Array-Felder als solche markieren,
-  # ihre Klasse jedoch mit jener ihres Basisfeldes überschreiben
   is_array_field = False
+  # field is array field?
   if field.__class__.__name__ == 'ArrayField':
+    # override the class of the field by the class of its base field
     field = field.base_field
     is_array_field = True
   form_field = field.formfield()
-  if (
-      form_field.widget.__class__.__name__ == 'Select'
-      or form_field.widget.__class__.__name__ == 'NullBooleanSelect'
-  ):
+  # handle array fields with multiple choices
+  if issubclass(field.__class__, ChoiceArrayField):
+    form_field = field.formfield(empty_value=None, widget=CheckboxSelectMultiple())
+  # handle ordinary (single) selects
+  elif issubclass(form_field.widget.__class__, Select):
     form_field.widget.attrs['class'] = 'form-select'
-  elif form_field.widget.__class__.__name__ == 'Textarea':
+  # handle text areas
+  elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
     form_field.widget.attrs['rows'] = 5
-  elif field.name == 'geometrie':
+  # handle geometry fields/widgets
+  elif is_geometry_field(field.__class__):
     form_field = field.formfield(widget=LeafletWidget())
-  elif field.__class__.__name__ == 'CharField' and field.name == 'farbe':
+  elif issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe':
     form_field = field.formfield(widget=TextInput(attrs={
       'type': 'color',
       'class': 'form-control-color'
     }))
-  elif field.__class__.__name__ == 'ChoiceArrayField':
-    form_field = field.formfield(empty_value=None, widget=CheckboxSelectMultiple())
-  elif field.__class__.__name__ == 'DateField':
+  # handle datetime fields/widgets
+  elif issubclass(field.__class__, DateTimeField):
+    form_field = field.formfield(widget=TextInput(attrs={
+      'type': 'datetime-local',
+      'class': 'form-control',
+      'step': '1'
+    }))
+  # handle time fields/widgets
+  elif issubclass(field.__class__, TimeField):
+    form_field = field.formfield(widget=TextInput(attrs={
+      'type': 'time',
+      'class': 'form-control',
+      'step': '1'
+    }))
+  # handle date fields/widgets
+  elif issubclass(field.__class__, DateField):
     if is_array_field:
       label = form_field.label
       form_field = ArrayDateField(
@@ -63,38 +163,28 @@ def assign_widgets(field):
         'type': 'date',
         'class': 'form-control'
       }))
-  elif field.__class__.__name__ == 'DateTimeField':
-    form_field = field.formfield(widget=TextInput(attrs={
-      'type': 'datetime-local',
-      'class': 'form-control',
-      'step': '1'
-    }))
-  elif field.__class__.__name__ == 'TimeField':
-    form_field = field.formfield(widget=TextInput(attrs={
-      'type': 'time',
-      'class': 'form-control',
-      'step': '1'
-    }))
+  # handle other inputs
   else:
     if hasattr(form_field.widget, 'input_type'):
       if form_field.widget.input_type == 'checkbox':
         form_field.widget.attrs['class'] = 'form-check-input'
       else:
         form_field.widget.attrs['class'] = 'form-control'
-  # Markierung als Array-Feld als HTML-Attribut in Formularfeld übertragen, falls vorhanden
+  # field is array field?
   if is_array_field:
+    # highlight corresponding form field as array field via custom HTML attribute
     form_field.widget.attrs['is_array_field'] = 'true'
   return form_field
 
 
 def delete_object_immediately(request, pk):
   """
-  löscht das Datenobjekt mit dem übergebenen Primärschlüssel aus der Datenbank;
-  wirft eine entsprechende Exception bei fehlenden Berechtigungen
+  deletes the data object with the passed primary key directly from the database
+  and throws a corresponding exception if permissions are missing
 
-  :param request: WSGI-Request
-  :param pk: Primärschlüssel des zu löschenden Datenbankobjekts
-  :return: HTTP-Code 204 (No Content)
+  :param request: WSGI request
+  :param pk: primary key of the database object to be deleted
+  :return: HTTP code 204 (No Content)
   """
   model_name = sub(
     pattern='^.*\\/',
@@ -114,32 +204,14 @@ def delete_object_immediately(request, pk):
   return HttpResponse(status=204)
 
 
-def get_data(curr_object, field):
-  """
-  gibt die Daten des übergebenen Feldes für das übergebene Datenobjekt zurück
-
-  :param curr_object: Datenobjekt
-  :param field: Feld
-  :return: Daten des übergebenen Feldes für das übergebene Datenobjekt
-  """
-  data = getattr(curr_object, field)
-  if isinstance(data, date):
-    data = data.strftime('%Y-%m-%d')
-  elif isinstance(data, datetime):
-    data = data.strftime('%Y-%m-%d %H:%M:%S')
-  return data
-
-
 def get_model_objects(model, subset_id=None, count_only=False):
   """
-  gibt entweder alle Datenobjekte des übergebenen Datenmodells
-  oder aber eine Untermenge davon zurück
+  either returns all data objects of the passed model or a subset of it
 
-  :param model: Datenmodell
-  :param subset_id: ID der Untermenge
-  :param count_only: nur die Anzahl und nicht die Datenobjekte selbst zurückgeben?
-  :return: entweder alle Datenobjekte des übergebenen Datenmodells
-  oder aber eine Untermenge davon
+  :param model: model
+  :param subset_id: subset ID
+  :param count_only: only return the count and not the data objects themselves?
+  :return: either all data objects of the passed model or a subset of it
   """
   if subset_id is not None and isinstance(subset_id, int):
     subset = Subsets.objects.filter(id=subset_id)[0]
@@ -156,24 +228,14 @@ def get_model_objects(model, subset_id=None, count_only=False):
   return objects.count() if count_only else objects
 
 
-def get_thumb_url(url):
-  """
-  gibt die zugehörige Thumbnail-URL für die übergebene URL eines Fotos zurück
-
-  :param url: URL eines Fotos
-  :return: zugehörige Thumbnail-URL für die übergebene URL eines Fotos
-  """
-  path = Path(url)
-  return str(path.parent / 'thumbs' / path.name)
-
-
 def get_uuids_geometries_from_sql(rows):
   """
-  gibt alle UUID (als Liste) und alle Geometrien (als Liste)
-  aus dem Resultat einer SQL-Abfrage zurück
+  returns all UUID (as a list) and all geometries (as a list)
+  from the passed result of an SQL query
 
-  :param rows: Resultat einer SQL-Abfrage
-  :return: alle UUID (als Liste) und alle Geometrien (als Liste) aus dem Resultat einer SQL-Abfrage
+  :param rows: result of an SQL query
+  :return: all UUID (as a list) and all geometries (as a list)
+  from the passed result of an SQL query
   """
   uuid_list = []
   geometry_list = []
@@ -183,23 +245,12 @@ def get_uuids_geometries_from_sql(rows):
   return uuid_list, geometry_list
 
 
-def localize_number(value):
-  """
-  gibt den übergebenen numerischen Wert lokalisiert zurück
-
-  :param value: numerischer Wert
-  :return: lokalisierter numerischer Wert
-  """
-  setlocale(LC_ALL, 'de_DE.UTF-8')
-  return format_string('%.2f', value, grouping=True)
-
-
 def set_form_attributes(form):
   """
-  setzt Attribute im übergebenen Forumular und gibt dieses Forumular anschließend wieder zurück
+  sets attributes in the passed form and returns it
 
-  :param form: Forumular
-  :return: Forumular mit gesetzten Attributen
+  :param form: form
+  :return: passed form with attributes set
   """
   form.fields_with_foreign_key_to_linkify = (
     form.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
@@ -208,76 +259,3 @@ def set_form_attributes(form):
   form.group_with_users_for_choice_field = (
     form.model.BasemodelMeta.group_with_users_for_choice_field)
   return form
-
-
-def set_form_context_elements(context, model):
-  """
-  setzt auf das Formular für das übergebene Datenmodell bezogene Elemente im übergebenen Kontext
-  und gibt diesen Kontext anschließend wieder zurück
-
-  :param context: Kontext
-  :param model: Datenmodell
-  :return: Kontext mit gesetzten,
-  auf das Formular für das übergebene Datenmodell bezogenen Elementen
-  """
-  context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-  context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
-  context['catalog_link_fields'] = model.BasemodelMeta.catalog_link_fields
-  if model.BasemodelMeta.catalog_link_fields:
-    context['catalog_link_fields_names'] = list(model.BasemodelMeta.catalog_link_fields.keys())
-  context['fields_with_foreign_key_to_linkify'] = (
-    model.BasemodelMeta.fields_with_foreign_key_to_linkify)
-  context['choices_models_for_choices_fields'] = (
-    model.BasemodelMeta.choices_models_for_choices_fields)
-  context['address_type'] = model.BasemodelMeta.address_type
-  context['address_mandatory'] = model.BasemodelMeta.address_mandatory
-  context['readonly_fields'] = model.BasemodelMeta.readonly_fields
-  context['group_with_users_for_choice_field'] = (
-    model.BasemodelMeta.group_with_users_for_choice_field)
-  # GPX-Upload-Feld
-  context['gpx_input'] = model.BasemodelMeta.gpx_input
-  # GeoJSON-Upload-Feld
-  context['geojson_input'] = model.BasemodelMeta.geojson_input
-  # Postleitzahl-Auto-Zuweisung
-  context['postcode_assigner'] = model.BasemodelMeta.postcode_assigner
-  # zusätzliche WMS-Layer
-  context['additional_wms_layers'] = model.BasemodelMeta.additional_wms_layers
-  # zusätzliche WFS-Feature-Types
-  context['additional_wfs_featuretypes'] = model.BasemodelMeta.additional_wfs_featuretypes
-  # Liste aller Datensätze für die Overlay-Daten-Liste
-  model_list = {}
-  app_models = apps.get_app_config('datenmanagement').get_models()
-  for app_model in app_models:
-    if app_model.BasemodelMeta.as_overlay:
-      model_list[app_model.__name__] = app_model._meta.verbose_name_plural
-  context['model_list'] = dict(sorted(model_list.items()))
-  context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
-  return context
-
-
-def set_model_related_context_elements(context, model, kwargs=None):
-  """
-  setzt allgemeine, auf das übergebene Datenmodell bezogene Elemente im übergebenen Kontext
-  und gibt diesen Kontext anschließend wieder zurück
-
-  :param context: Kontext
-  :param model: Datenmodell
-  :param kwargs: kwargs des Views, der diese Funktion aufruft
-  :return: Kontext mit gesetzten allgemeinen, auf das übergebene Datenmodell bezogenen Elementen
-  """
-  context['model_name'] = model.__name__
-  context['model_name_lower'] = model.__name__.lower()
-  context['model_pk_field'] = model._meta.pk.name
-  context['model_verbose_name'] = model._meta.verbose_name
-  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
-  context['model_description'] = model.BasemodelMeta.description
-  context['editable'] = model.BasemodelMeta.editable
-  context['geometry_type'] = model.BasemodelMeta.geometry_type
-  context['subset_id'] = None
-  if kwargs and kwargs['subset_id']:
-    subset_id = int(kwargs['subset_id'])
-    context['subset_id'] = subset_id
-    context['objects_count'] = get_model_objects(model, subset_id, True)
-  else:
-    context['objects_count'] = get_model_objects(model, None, True)
-  return context

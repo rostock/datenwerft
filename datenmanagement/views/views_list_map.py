@@ -13,8 +13,9 @@ from re import IGNORECASE, match, search, sub
 from time import time
 from zoneinfo import ZoneInfo
 
-from .functions import get_data, get_model_objects, get_thumb_url, \
-  localize_number, set_model_related_context_elements
+from datenmanagement.utils import get_data, get_thumb_url, localize_number
+from .functions import add_user_agent_context_elements, get_model_objects, \
+  add_model_context_elements
 
 
 class DataView(BaseDatatableView):
@@ -280,11 +281,13 @@ class DataListView(generic.ListView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    context = super(DataListView, self).get_context_data(**kwargs)
-    context = set_model_related_context_elements(context, self.model, self.kwargs)
+    context = super().get_context_data(**kwargs)
+    context = add_model_context_elements(context, self.model, self.kwargs)
     context['list_fields_labels'] = list(self.model.BasemodelMeta.list_fields.values()) if (
       self.model.BasemodelMeta.list_fields) else None
     context['thumbs'] = self.model.BasemodelMeta.thumbs
+    # add user agent related elements to context
+    context = add_user_agent_context_elements(context, self.request)
     return context
 
 
@@ -587,8 +590,10 @@ class DataMapListView(generic.ListView):
             # sortierte Liste aller eindeutigen Einzelwerte
             # direkt in vorbereitetes Dictionary einfügen
             checkbox_filter_lists[field_name] = values_list
-    context = super(DataMapListView, self).get_context_data(**kwargs)
-    context = set_model_related_context_elements(context, self.model, self.kwargs)
+    context = super().get_context_data(**kwargs)
+    # add user agent related elements to context
+    context = add_user_agent_context_elements(context, self.request)
+    context = add_model_context_elements(context, self.model, self.kwargs)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     if self.kwargs and self.kwargs['subset_id']:
       context['subset_id'] = int(self.kwargs['subset_id'])

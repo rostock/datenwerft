@@ -29,7 +29,7 @@
       {% endif %}
     </em>
   </h4>
-  <div class="d-grid gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
+  <div class="d-grid gap-2{% if not is_mobile %} d-md-block{% endif %}">
     {% if editable and user|user_has_model_add_permission:model_name_lower %}
       <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}

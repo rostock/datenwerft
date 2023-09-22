@@ -4,17 +4,10 @@ from django.forms import DateField, UUIDField
 
 class AddressUUIDField(UUIDField):
   """
-  verstecktes Input-Feld für Adresse
-
-  Verwendung in Klasse DataForm
+  hidden input field for address reference type address
   """
 
   def to_python(self, value):
-    """
-
-    :param value: UUID
-    :return: Adresse
-    """
     if value in self.empty_values:
       return None
     adressen = apps.get_app_config('datenmanagement').get_model('Adressen')
@@ -23,36 +16,22 @@ class AddressUUIDField(UUIDField):
 
 class StreetUUIDField(UUIDField):
   """
-  verstecktes Input-Feld für Straße
-
-  Verwendung in Klasse DataForm
+  hidden input field for address reference type street
   """
 
   def to_python(self, value):
-    """
-
-    :param value: UUID
-    :return: Straße
-    """
     if value in self.empty_values:
       return None
     strassen = apps.get_app_config('datenmanagement').get_model('Strassen')
     return strassen.objects.get(pk=value)
 
 
-class QuarterUUIDField(UUIDField):
+class DistrictUUIDField(UUIDField):
   """
-  verstecktes Input-Feld für Gemeindeteil
-
-  Verwendung in Klasse DataForm
+  hidden input field for address reference type district
   """
 
   def to_python(self, value):
-    """
-
-    :param value: UUID
-    :return: Gemeindeteil
-    """
     if value in self.empty_values:
       return None
     gemeindeteile = apps.get_app_config('datenmanagement').get_model('Gemeindeteile')
@@ -61,17 +40,10 @@ class QuarterUUIDField(UUIDField):
 
 class ArrayDateField(DateField):
   """
-  Input-Feld für ein Datum innerhalb eines Array-Feld-Komplexes
-
-  Verwendung in Klasse DataForm
+  input field for a date within an array field complex
   """
 
   def to_python(self, value):
-    """
-
-    :param value: Datum
-    :return: Datum
-    """
     if not value:
       return None
     return value

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from django.conf import settings
 from django.contrib.gis.db.models.fields import LineStringField as ModelLineStringField
 from django.contrib.gis.db.models.fields import MultiLineStringField as ModelMultiLineStringField
@@ -10,6 +10,7 @@ from django.contrib.gis.forms.fields import MultiLineStringField as FormMultiLin
 from django.contrib.gis.forms.fields import MultiPolygonField as FormMultiPolygonField
 from django.contrib.gis.forms.fields import PointField as FormPointField
 from django.contrib.gis.forms.fields import PolygonField as FormPolygonField
+from locale import LC_ALL, format_string, setlocale
 from pathlib import Path
 from uuid import uuid4
 
@@ -21,6 +22,22 @@ def get_current_year():
   :return: current year as a number
   """
   return int(date.today().year)
+
+
+def get_data(curr_object, field):
+  """
+  returns the data of the passed model field for the passed object
+
+  :param curr_object: object
+  :param field: model field
+  :return:  data of the passed model field for the passed object
+  """
+  data = getattr(curr_object, field)
+  if isinstance(data, date):
+    data = data.strftime('%Y-%m-%d')
+  elif isinstance(data, datetime):
+    data = data.strftime('%Y-%m-%d %H:%M:%S')
+  return data
 
 
 def get_field_name_for_address_type(model, l10n=True):
@@ -52,6 +69,17 @@ def get_path(url):
   else:
     path = Path(settings.BASE_DIR) / url
   return path
+
+
+def get_thumb_url(url):
+  """
+  returns the associated thumbnail URL for the passed URL of a photo
+
+  :param url: URL of a photo
+  :return: associated thumbnail URL for the passed URL of a photo
+  """
+  path = Path(url)
+  return str(path.parent / 'thumbs' / path.name)
 
 
 def is_address_related_field(field):
@@ -91,6 +119,17 @@ def is_geometry_field(field):
     return False
 
 
+def localize_number(value):
+  """
+  returns the passed numerical value localized
+
+  :param value: numerical value
+  :return: localized version of the passed numerical value
+  """
+  setlocale(LC_ALL, 'de_DE.UTF-8')
+  return format_string('%.2f', value, grouping=True)
+
+
 def path_and_rename(path):
   """
   cleans passed path and returns it
@@ -117,7 +156,7 @@ def path_and_rename(path):
   return wrapper
 
 
-def user_has_model_permissions_at_all(user, model):
+def user_has_model_permissions_any(user, model):
   """
   checks whether the passed user has any rights on the passed model
 
@@ -129,6 +168,25 @@ def user_has_model_permissions_at_all(user, model):
   if (
       user.has_perm('datenmanagement.add_' + model_name_lower)
       or user.has_perm('datenmanagement.change_' + model_name_lower)
+      or user.has_perm('datenmanagement.delete_' + model_name_lower)
+      or user.has_perm('datenmanagement.view_' + model_name_lower)
+  ):
+    return True
+  else:
+    return False
+
+
+def user_has_model_permissions_change_delete_view(user, model):
+  """
+  checks whether the passed user has change, delete or view rights on the passed model
+
+  :param user: user
+  :param model: model
+  :return: has the passed user change, delete or view rights on the passed model?
+  """
+  model_name_lower = model.__name__.lower()
+  if (
+      user.has_perm('datenmanagement.change_' + model_name_lower)
       or user.has_perm('datenmanagement.delete_' + model_name_lower)
       or user.has_perm('datenmanagement.view_' + model_name_lower)
   ):

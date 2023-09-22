@@ -6,8 +6,7 @@ from rest_framework.routers import DefaultRouter
 from .views.api import DatenmanagementViewSet
 from .views.functions import delete_object_immediately
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
-from .views.views_helpers import GeometryView, GISFiletoGeoJSON
-from .views.views_general import IndexView, StartView
+from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView
 from .views.views_list_map import DataListView, DataMapListView, DataMapView, DataView
 
 

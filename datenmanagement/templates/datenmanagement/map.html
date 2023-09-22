@@ -9,7 +9,7 @@
   {{ block.super }}
   {% leaflet_css plugins="locatecontrol,markercluster" %}
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}">
-  {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+  {% if is_mobile %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-mobile.css' %}">
   {% else %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-desktop.css' %}">
@@ -41,7 +41,7 @@
       {% endif %}
     </em>
   </h4>
-  <div class="d-grid mb-3 gap-2{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} d-md-block{% endif %}">
+  <div class="d-grid mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
     {% if user|user_has_model_add_permission:model_name_lower %}
       <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
@@ -61,7 +61,7 @@
     <div id="map-side-container" class="mb-3">
       {% leaflet_map "map" callback="window.mapCallbackFunction" %}
       {% if map_filters_enabled %}
-        <div id="filter"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
+        <div id="filter"{% if not is_mobile %} class="side"{% endif %}>
           <h5>Filter für Kartenobjekte</h5>
           <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv</strong> (wie „UND“)</div>
           {% if map_one_click_filters %}
@@ -190,14 +190,14 @@
           </div>
         </div>
       {% endif %}
-      <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
+      <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not is_mobile %} class="side"{% endif %}>
         <h5>Kartenausschnitt</h5>
         <div class="d-grid mt-2 gap-2 d-md-block">
           <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
           <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-map"></i> gesamt</button>
         </div>
       </div>
-      <div id="address-search"{% if not request.user_agent.is_mobile and not request.user_agent.is_tablet %} class="side"{% endif %}>
+      <div id="address-search"{% if not is_mobile %} class="side"{% endif %}>
         <h5>Adressensuche</h5>
         <div class="form-floating">
           <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
@@ -229,9 +229,6 @@
         window.currMap = map;
 
         // define several globally available variables
-        {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-          window.mobile = true
-        {% endif %}
         window.geometryType = '{{ geometry_type }}';
         {% if heavy_load_limit %}
           window.heavyLoadLimit = true
@@ -247,8 +244,9 @@
         {% endif %}
 
         // bei mobilen Geräten: Standortbestimmung hinzufügen
-        if (window.mobile)
-          enableMapLocate(map);
+        {% if is_mobile %}
+          enableMapLocate(map)
+        {% endif %}
 
         /**
          * @function

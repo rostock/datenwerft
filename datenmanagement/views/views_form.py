@@ -1,272 +1,20 @@
-from datenmanagement.models import Ansprechpartner_Baustellen
 from django.apps import apps
-from django.contrib.auth.models import Group, User
 from django.contrib.messages import success
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.postgres.fields.array import ArrayField
 from django.core.exceptions import PermissionDenied
 from django.db import connections
-from django.db.models import F
-from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, UpdateView
 from json import dumps
-from operator import itemgetter
 from re import sub
 from time import time
 
-from datenmanagement.utils import get_field_name_for_address_type, is_address_related_field, \
-  is_geometry_field
-from .fields import AddressUUIDField, QuarterUUIDField, StreetUUIDField
-from .functions import assign_widgets, get_thumb_url, set_form_attributes, \
-  set_form_context_elements, set_model_related_context_elements
-
-
-class DataForm(ModelForm):
-  """
-  definiert Basisformular
-
-  :param *args
-  :param **kwargs
-  """
-
-  required_css_class = 'required'
-
-  def __init__(self, *args, **kwargs):
-    associated_objects = kwargs.pop('associated_objects', None)
-    associated_new = kwargs.pop('associated_new', None)
-    fields_with_foreign_key_to_linkify = kwargs.pop(
-        'fields_with_foreign_key_to_linkify', None)
-    choices_models_for_choices_fields = kwargs.pop(
-        'choices_models_for_choices_fields', None)
-    group_with_users_for_choice_field = kwargs.pop(
-        'group_with_users_for_choice_field', None)
-    multi_foto_field = kwargs.pop('multi_foto_field', None)
-    multi_files = kwargs.pop('multi_files', None)
-    file = kwargs.pop('file', None)
-    model = kwargs.pop('model', None)
-    request = kwargs.pop('request', None)
-    kwargs.setdefault('label_suffix', '')
-    super(DataForm, self).__init__(*args, **kwargs)
-    self.associated_objects = associated_objects
-    self.associated_new = associated_new
-    self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
-    self.choices_models_for_choices_fields = choices_models_for_choices_fields
-    self.group_with_users_for_choice_field = group_with_users_for_choice_field
-    self.multi_foto_field = multi_foto_field
-    self.multi_files = multi_files
-    self.file = file
-    self.model = model
-    self.request = request
-    self.address_type = self.instance.BasemodelMeta.address_type
-    self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
-
-    for field in self.model._meta.get_fields():
-      # Textfelder gegebenenfalls in Auswahllisten umwandeln
-      if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-        if (
-            self.group_with_users_for_choice_field
-            and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
-        ):
-          users = list(
-            User.objects.filter(
-              groups__name=self.group_with_users_for_choice_field
-            ).values('first_name', 'last_name', 'email')
-          )
-          # Sonderbehandlung für Datenmodell Baustellen (geplant):
-          # hier zusätzliche Benutzer aus Codeliste holen
-          if self.model.__name__ == 'Baustellen_geplant':
-            additional_users = Ansprechpartner_Baustellen.objects.all()
-            additional_users = additional_users.annotate(
-              first_name=F('vorname'), last_name=F('nachname')
-            ).values('first_name', 'last_name', 'email')
-            additional_user_list = []
-            for additional_user in list(additional_users):
-              if additional_user['first_name'] is None:
-                additional_user['first_name'] = 'zzz'
-              if additional_user['last_name'] is None:
-                additional_user['last_name'] = 'zzz'
-              additional_user_list.append(additional_user)
-            users += additional_user_list
-          sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'email'))
-          user_list = []
-          for user in sorted_users:
-            if user['first_name'] != 'zzz' and user['last_name'] != 'zzz':
-              user_list.append(
-                user['first_name'] + ' ' + user['last_name'] + ' (' + user['email'].lower() + ')'
-              )
-            else:
-              user_list.append(user['email'].lower())
-          choices = [(user, user) for user in user_list]
-          # Leerwert an erster Stelle einfügen
-          choices.insert(0, ('', '---------'))
-          choice_field = ChoiceField(
-            label=field.verbose_name,
-            choices=choices,
-            initial=request.user.first_name +
-            ' ' +
-            request.user.last_name +
-            ' (' +
-            request.user.email.lower() +
-            ')'
-          )
-          if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-            self.fields[field.name] = choice_field
-      # Adressfelder in eigenen Feldtyp umwandeln
-      elif (field.name == 'adresse' or
-            field.name == 'strasse' or
-            field.name == 'gemeindeteil'):
-        attrs = {
-            'class': 'form-control',
-            'autocapitalize': 'off',
-            'autocomplete': 'off',
-            'placeholder': ''
-        }
-        label = field.verbose_name
-        required = self.address_mandatory
-        if field.name == 'adresse':
-          attrs['placeholder'] = 'Adresse eingeben…'
-          self.fields[field.name] = AddressUUIDField(
-              label=label,
-              widget=TextInput(attrs=attrs),
-              required=required
-          )
-        elif field.name == 'strasse':
-          attrs['placeholder'] = 'Straße eingeben…'
-          self.fields[field.name] = StreetUUIDField(
-              label=label,
-              widget=TextInput(attrs=attrs),
-              required=required
-          )
-        else:
-          attrs['placeholder'] = 'Gemeindeteil eingeben…'
-          self.fields[field.name] = QuarterUUIDField(
-              label=label,
-              widget=TextInput(attrs=attrs),
-              required=required
-          )
-      # bestimmte Modelle für bestimmte Felder zur Befüllung
-      # entsprechender Auswahllisten heranziehen
-      elif self.choices_models_for_choices_fields:
-        choices_model_for_choices_field = self.choices_models_for_choices_fields.get(
-            field.name)
-        if choices_model_for_choices_field is not None:
-          choices_model = apps.get_app_config(
-              'datenmanagement').get_model(
-              choices_model_for_choices_field)
-          choices = []
-          for choices_model_object in choices_model.objects.all():
-            choices.append(
-                (choices_model_object, choices_model_object))
-          self.fields[field.name].choices = choices
-
-    for field in self.fields.values():
-      if field.label == 'Geometrie':
-        required_message = 'Es muss ein Marker in der Karte gesetzt ' \
-                           'werden bzw. eine Linie oder Fläche ' \
-                           'gezeichnet werden, falls es sich um Daten ' \
-                           'linien- oder flächenhafter Repräsentation ' \
-                           'handelt!'
-      else:
-        required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(
-            label=field.label)
-      invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
-      item_invalid_message = 'Der Wert an Stelle %(nth)s im Attribut ' \
-                             '<strong><em>ATTRIBUTE</em></strong> war ungültig! ' \
-                             'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
-      ArrayField.default_error_messages['item_invalid'] = item_invalid_message
-      unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut ' \
-                       '<strong><em>{label}</em></strong>!'.format(label=field.label)
-      field.error_messages = {
-        'invalid_image': invalid_image_message,
-        'required': required_message,
-        'unique': unique_message
-      }
-
-  def clean_foto(self):
-    """
-    bereinigt Feld mit Foto
-    (Hinweis: Methode wird durch Django ignoriert, falls ein solches Feld nicht existiert)
-
-    :return: bereinigtes Feld mit Foto
-    """
-    if self.multi_foto_field:
-      # alle weiteren Operationen nur dann durchführen,
-      # wenn auch wirklich alle Pflichtfelder gefüllt sind,
-      # da ansonsten die Übernahme für die weiteren Foto-Datensätze nicht funktioniert
-      ok = True
-      for field in self.model._meta.get_fields():
-        if (
-            field.name != self.model._meta.pk.name
-            and field.name != 'foto'
-            and self.fields[field.name].required
-            and not self.data[field.name]
-        ):
-          ok = False
-          break
-      if ok:
-        fotos_count = len(self.multi_files.getlist('foto'))
-        if fotos_count > 1:
-          i = 1
-          for foto in self.multi_files.getlist('foto'):
-            if i < fotos_count:
-              m = self.model()
-              for field in self.model._meta.get_fields():
-                if field.name == 'dateiname_original':
-                  setattr(m, field.name, foto.name)
-                elif field.name == 'foto':
-                  setattr(m, field.name, foto)
-                elif field.name != m._meta.pk.name:
-                  setattr(m, field.name,
-                          self.cleaned_data[field.name])
-              m.save()
-              i += 1
-    # Hinweis: Das return-Statement passt in jedem Fall,
-    # also sowohl bei normalem Dateifeld als auch bei Multi-Dateifeld,
-    # da hier immer die (in alphabetischer Reihenfolge des Dateinamens)
-    # letzte Datei behandelt wird.
-    return self.cleaned_data['foto']
-
-  def clean_dateiname_original(self):
-    """
-    bereinigt Feld mit Original-Dateiname
-    (Hinweis: Methode wird durch Django ignoriert, falls ein solches Feld nicht existiert)
-
-    :return: bereinigtes Feld mit Original-Dateiname
-    """
-    data = self.cleaned_data['dateiname_original']
-    if self.multi_foto_field and self.multi_files:
-        data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
-    elif self.file:
-        data = self.file.getlist('foto')[0].name
-    return data
-
-  def clean_geometrie(self):
-    """
-    bereinigt Feld mit Geometrie
-    (Hinweis: Methode wird durch Django ignoriert, falls ein solches Feld nicht existiert)
-
-    :return: bereinigtes Feld mit Geometrie
-    """
-    data = self.cleaned_data['geometrie']
-    error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche ' \
-                 'gezeichnet werden, falls es sich um Daten linien- oder flächenhafter ' \
-                 'Repräsentation handelt!'
-    if (
-        not self.model._meta.get_field('geometrie').blank
-        and not self.model._meta.get_field('geometrie').null
-        and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
-    ):
-      raise ValidationError(error_text)
-    elif (
-        self.model._meta.get_field('geometrie').blank
-        and self.model._meta.get_field('geometrie').null
-        and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
-    ):
-      return None
-    else:
-      return data
+from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
+  is_address_related_field, is_geometry_field
+from .forms import GenericForm
+from .functions import add_user_agent_context_elements, assign_widgets, set_form_attributes, \
+  add_model_form_context_elements, add_model_context_elements
 
 
 class DataAddView(CreateView):
@@ -284,7 +32,7 @@ class DataAddView(CreateView):
     self.success_url = success_url
     self.form_class = modelform_factory(
         self.model,
-        form=DataForm,
+        form=GenericForm,
         fields='__all__',
         formfield_callback=assign_widgets)
     self.multi_foto_field = None
@@ -324,9 +72,11 @@ class DataAddView(CreateView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    context = super(DataAddView, self).get_context_data(**kwargs)
-    context = set_model_related_context_elements(context, self.model)
-    context = set_form_context_elements(context, self.model)
+    context = super().get_context_data(**kwargs)
+    # add user agent related elements to context
+    context = add_user_agent_context_elements(context, self.request)
+    context = add_model_context_elements(context, self.model)
+    context = add_model_form_context_elements(context, self.model)
     context['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
     return context
 
@@ -420,7 +170,7 @@ class DataChangeView(UpdateView):
     self.success_url = success_url
     self.form_class = modelform_factory(
       self.model,
-      form=DataForm,
+      form=GenericForm,
       fields='__all__',
       formfield_callback=assign_widgets)
     self.associated_models = None
@@ -526,9 +276,11 @@ class DataChangeView(UpdateView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    context = super(DataChangeView, self).get_context_data(**kwargs)
-    context = set_model_related_context_elements(context, self.model)
-    context = set_form_context_elements(context, self.model)
+    context = super().get_context_data(**kwargs)
+    # add user agent related elements to context
+    context = add_user_agent_context_elements(context, self.request)
+    context = add_model_context_elements(context, self.model)
+    context = add_model_form_context_elements(context, self.model)
     context['associated_objects'] = (
         self.associated_objects if self.associated_objects else None)
     context['associated_new'] = (
@@ -682,7 +434,7 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     :param kwargs:
     :return: Dictionary mit Kontextelementen des Views
     """
-    context = super(DataDeleteView, self).get_context_data(**kwargs)
+    context = super().get_context_data(**kwargs)
     context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
     return context
 
