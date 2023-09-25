@@ -127,11 +127,13 @@ input[name="strasse"] {
  */
 
 .leaflet-control-locate a .leaflet-control-locate-location-arrow {
-  mask-image: url("../img/location-arrow-solid.svg");
+  -webkit-mask-image: url("../img/location-arrow-solid.svg") !important;
+  background-image: url("../img/location-arrow-solid.svg") !important;
 }
 
 .leaflet-control-locate a .leaflet-control-locate-spinner {
-  mask-image: url("../img/spinner-solid.svg");
+  -webkit-mask-image: url("../img/spinner-solid.svg") !important;
+  mask-image: url("../img/spinner-solid.svg") !important;
 }
 
 /*

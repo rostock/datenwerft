@@ -13,6 +13,7 @@
 {% block scripts %}
   {{ block.super }}
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/list.js' %}"></script>
   <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
 {% endblock %}
@@ -30,17 +31,18 @@
     </em>
   </h4>
   <div class="d-grid gap-2{% if not is_mobile %} d-md-block{% endif %}">
-    {% if editable and user|user_has_model_add_permission:model_name_lower %}
-      <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
+    {% if url_model_add %}
+      <a class="btn btn-primary" role="button" href="{{ url_model_add }}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
-    {% if objects_count > 0 and geometry_type %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_map' %}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
+    {% if objects_count > 0 and url_model_map %}
+      <a class="btn btn-secondary" role="button" href="{{ url_model_map }}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
       <button id="subsetter" class="btn btn-secondary"><i class="fas fa-map"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge auf Karte übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-backward"></i> zurück</a>
+    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i>
+      zurück</a>
   </div>
   {% if objects_count > 0 %}
-    <div class="d-grid mt-5{% if not editable or not user|user_has_model_delete_permission:model_name_lower %} mb-3{% endif %} gap-2 mx-auto">
+    <div class="d-grid mt-5{% if not actions %} mb-3{% endif %} gap-2 mx-auto">
       {% if subset_id %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
@@ -54,17 +56,13 @@
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>
-            {% if editable %}
+            {% if model_is_editable %}
               <th id="check-all" class="no-export no-search no-sort"><i class="fas fa-check-square"></i></th>
             {% endif %}
-            {% for label in list_fields_labels %}
-              {% with schritt=forloop.counter|stringformat:'s' %}
-                {% with spalte='spalte_'|add:schritt %}
-                  <th>{{ label }}</th>
-                {% endwith %}
-              {% endwith %}
+            {% for column_title in column_titles %}
+              <th>{{ column_title }}</th>
             {% endfor %}
-            {% if editable %}
+            {% if model_is_editable %}
               <th class="no-export no-search no-sort">Aktionen</th>
             {% endif %}
           </tr>
@@ -73,9 +71,9 @@
       <!-- eslint-disable-next-script -->
       <script>
         {% if subset_id %}
-          window.dataUrl = "{% url 'datenmanagement:'|add:model_name|add:'_data'|add:'_subset' subset_id %}";
+          window.dataUrl = '{{ url_model_tabledata_subset }}';
         {% else %}
-          window.dataUrl = "{% url 'datenmanagement:'|add:model_name|add:'_data' %}";
+          window.dataUrl = '{{ url_model_tabledata }}';
         {% endif %}
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
       </script>
@@ -83,129 +81,58 @@
         /**
          * @function
          *
-         * Hauptfunktion
+         * main function
          */
         $(document).ready(function() {
           let numberOfColumns = $('#datasets > thead > tr th').length;
-          let table = $('#datasets').DataTable({
-            ajax: window.dataUrl,
-            buttons: [
-              {
-                extend: 'csvHtml5',
-                fieldSeparator: ';',
-                exportOptions: {
-                  // entsprechend markierte Spalten nicht exportieren
-                  columns: ':visible:not(.no-export)',
-                }
-              }, {
-                extend: 'excelHtml5',
-                title: '',
-                exportOptions: {
-                  // entsprechend markierte Spalten nicht exportieren
-                  columns: ':visible:not(.no-export)',
-                }
-              }, {
-                extend: 'pdfHtml5',
-                orientation: 'landscape',
-                pageSize: 'A4',
-                exportOptions: {
-                  // entsprechend markierte Spalten nicht exportieren
-                  columns: ':visible:not(.no-export)',
-                },
-                customize: function(doc) {
-                  doc.defaultStyle.fontSize = 7;
-                  doc.pageMargins = [20, 20, 20, 20];
-                  doc.styles.tableHeader.fontSize = 7;
-                }
-              }
-            ],
-            colReorder: true,
-            columnDefs: [{
-              'orderable': false,
-              'targets': 'no-sort'
-            }, {
-              'searchable': false,
-              'targets': 'no-search'
-            }],
-            createdRow: function(row) {
-              // inaktive Zeilen (= Datensätze) mit schwächerer Textfarbe versehen
-              if ($(row).find('td:nth-child(2)').text() === 'nein') {
-                $(row).addClass('text-secondary');
-              // entsprechend markierte Zeilen (= Datensätze) mit besonderer Textfarbe hervorheben
-              } else if ($(row).find('.text-danger').length) {
-                $(row).addClass('text-danger');
-              }
-            },
-            dom: '<Bfr<t>ilp>',
-            fixedHeader: true,
-            language: {
-              url: window.languageUrl
-            },
-            lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
-            order: [[numberOfColumns > 1 ? 1 : 0, 'asc']],
-            orderCellsTop: true,
-            orderClasses: false,
-            orderMulti: false,
-            pageLength: 25,
-            processing: true,
-            searchDelay: 500,
-            searching: true,
-            serverSide: true,
-            stateSave: true
-          });
+          let table = initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
 
-          // bei Klick auf Button zum Ausführen der gewählten Aktion...
+          // on clicking the button to execute the selected action...
           $('#action-button').click(function() {
-            // falls gewählte Aktion das Löschen ausgewählter Datensätze ist...
+            // if selected action is deleting all selected rows (= records)...
             if ($('#action-select').val() === 'delete-selected') {
               let actionCheckboxes = $('.action-checkbox').filter(':checked');
               if (actionCheckboxes.length > 0) {
-                // alle ausgewählten Zeilen (= Datensätze) durchgehen...
+                // go through all selected rows (= records)...
                 actionCheckboxes.each(function() {
-                  // Zeile (= Datensatz) löschen
+                  // delete row (= record)
                   let id = $(this).val();
-                  {% with tmp='worschdsupp' %}
-                    let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_deleteimmediately' tmp %}".replace(/worschdsupp/, id.toString());
-                  {% endwith %}
-                  jQuery.get(url_mask);
+                  jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, id.toString()));
                 });
-                // kurz warten und Tabelle neuladen, damit gelöschte Zeilen (= Datensätze) verschwinden
+                // wait briefly and reload the table so that deleted rows (= records) disappear
                 setTimeout(function() {
                   table.ajax.reload();
-                  $('#action-count').text('kein Datensatz');
+                  $('#action-count').text('kein Datensatz ausgewählt');
                 }, 1000);
               }
             }
           });
 
-          // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Kartenansicht...
+          // on clicking the button to transfer currently filtered data to map...
           $('#subsetter').on('click', function() {
-            // Primärschlüssel aller Objekte in aktueller Filtermenge sammeln
+            // collect primary keys of currently filtered data
             let currentTablePrimaryKeys = [];
             let tableData = table.rows().data();
             for (let i = 0; i < tableData.length; i++) {
               let stringWithPrimaryKeys = tableData[i][0];
               currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value="/, '').replace(/">/, ''));
             }
-            // Filtermenge behandeln und übergeben
-            {% with tmp='worschdsupp' %}
-              let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_map'|add:'_subset' tmp %}";
-            {% endwith %}
+            // create subset of currently filtered data and transfer it to table
             subsetting(
               currentTablePrimaryKeys,
               '{% url "toolbox:subset_add" %}',
               '{{ model_name }}',
-              '{{ model_pk_field }}',
-              url_mask,
+              '{{ model_pk_field_name }}',
+              '{{ url_model_map_subset_placeholder }}',
               'Bei der Übernahme der aktuellen Filtermenge auf die Karte ist ein Serverfehler aufgetreten.'
             );
           });
         });
 
-        // sobald eine Zeile (= Datensatz) an- oder abgewählt wurde...
+        // as soon as a row (= record) has been selected or deselected...
         $('body').on('change', '.action-checkbox', function() {
           let actionCheckboxes = $('.action-checkbox').filter(':checked');
-          // Hinweistexte entsprechend anpassen
+          // adjust information texts accordingly
           if (actionCheckboxes.length === 1)
             $('#action-count').text('1 Datensatz ausgewählt');
           else if (actionCheckboxes.length === 0)
@@ -215,12 +142,13 @@
         });
       </script>
     </div>
-    {% if editable and user|user_has_model_delete_permission:model_name_lower %}
+    {% if actions %}
       <div class="d-grid mt-4">
         <span id="action-count">kein Datensatz ausgewählt</span>
       </div>
       <div class="d-grid mt-2 mb-3">
         <div class="input-group">
+          <label hidden for="action-select" class="form-label">Aktion</label>
           <select class="form-select" id="action-select" name="action">
             <option selected>Aktion wählen…</option>
             <option value="delete-selected">ausgewählte Datensätze löschen</option>

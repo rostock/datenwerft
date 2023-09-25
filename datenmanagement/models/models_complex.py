@@ -513,7 +513,7 @@ class Baustellen_geplant(ComplexModel):
       'auftraggeber': 'auftraggeber',
       'status': 'status'
     }
-    list_highlight_flag = 'konflikt'
+    highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
     map_one_click_filters = True
     map_deadlinefilter_fields = ['beginn', 'ende']

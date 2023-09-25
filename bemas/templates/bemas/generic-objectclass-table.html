@@ -101,7 +101,7 @@
                 primaryKeys.push($(this).text());
               });
             }
-            // create subset of currently filtered data and transfer it to table
+            // create subset of currently filtered data and transfer it to map
             {% with tmp='worschdsupp' %}
               let url_mask = "{% url 'bemas:map_model_subset' objectclass_lower_name tmp %}";
             {% endwith %}

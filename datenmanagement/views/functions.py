@@ -17,7 +17,7 @@ from .fields import ArrayDateField
 
 def add_model_context_elements(context, model, kwargs=None):
   """
-  adds general model related elements models to the passed context and returns the context
+  adds general model related elements to the passed context and returns the context
 
   :param context: context
   :param model: model
@@ -45,7 +45,7 @@ def add_model_context_elements(context, model, kwargs=None):
 
 def add_model_form_context_elements(context, model):
   """
-  adds model form related elements models to the passed context and returns the context
+  adds model form related elements to the passed context and returns the context
 
   :param context: context
   :param model: model

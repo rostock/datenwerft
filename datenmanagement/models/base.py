@@ -133,9 +133,10 @@ class Basemodel(Model):
     # in the referenced table of the corresponding list view
     list_fields_with_foreign_key = None
     # String:
-    # Name des Boolean-Feldes, dessen Wert (falls ``True``) als Flag zum Highlighten
-    # entsprechender Zeilen in der Tabelle der Listenansicht herangezogen werden soll
-    list_highlight_flag = None
+    # name of that Boolean field of this model
+    # whose values (only if ``True``) shall be used as a flag for highlighting
+    # both in the table of the list view of this model and in the map view of this model
+    highlight_flag = None
     # Number:
     # limit for individual map feature loading steps
     # (i.e. maximum number of map features to be loaded in one step at once)

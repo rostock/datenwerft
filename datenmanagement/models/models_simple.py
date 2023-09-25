@@ -3289,6 +3289,7 @@ class Kleinklaeranlagen(SimpleModel):
       'we_befristung': 'Befristung der wasserrechtlichen Erlaubnis',
       'typ': 'Anlagetyp',
       'einleitstelle': 'Einleitstelle',
+      'adresse': 'Adresse',
       'gewaesser_berichtspflichtig': 'berichtspflichtiges Gewässer?',
       'umfang_einleitung': 'Umfang der Einleitung (in m³/d)',
       'einwohnerwert': 'Einwohnerwert',
@@ -3297,6 +3298,7 @@ class Kleinklaeranlagen(SimpleModel):
     list_fields_with_date = ['we_datum', 'we_befristung']
     list_fields_with_number = ['umfang_einleitung', 'einwohnerwert']
     list_fields_with_foreign_key = {
+      'adresse': 'adresse',
       'typ': 'typ'
     }
     map_feature_tooltip_field = 'd3'

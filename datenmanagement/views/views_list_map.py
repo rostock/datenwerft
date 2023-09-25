@@ -20,165 +20,155 @@ from .functions import add_user_agent_context_elements, get_model_objects, \
 
 class TableDataCompositionView(BaseDatatableView):
   """
-  bereitet Datenbankobjekte für Tabellenansicht auf
-
-  :param model: Datenmodell
+  view for table data composition of a model
   """
 
-  def __init__(self, model=None):
+  def __init__(self, model=None, *args, **kwargs):
     self.model = model
-    self.model_name = self.model.__name__
-    self.model_name_lower = self.model.__name__.lower()
-    self.editable = self.model.BasemodelMeta.editable
-    self.columns_with_foreign_key_to_linkify = (
+    model_name = self.model.__name__
+    self.model_name = model_name
+    self.model_name_lower = model_name.lower()
+    self.model_is_editable = self.model.BasemodelMeta.editable
+    self.fields_with_foreign_key_to_linkify = (
       self.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
     self.columns = self.model.BasemodelMeta.list_fields
+    self.columns_with_number = self.model.BasemodelMeta.list_fields_with_number
     self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
     self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
-    self.columns_with_number = self.model.BasemodelMeta.list_fields_with_number
     self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
-    self.column_as_highlight_flag = self.model.BasemodelMeta.list_highlight_flag
+    self.column_as_highlight_flag = self.model.BasemodelMeta.highlight_flag
     self.thumbs = self.model.BasemodelMeta.thumbs
-    super().__init__()
+    super().__init__(*args, **kwargs)
 
   def get_initial_queryset(self):
-    if self.kwargs and self.kwargs['subset_id']:
+    if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
       return get_model_objects(self.model, int(self.kwargs['subset_id']))
     else:
       return get_model_objects(self.model)
 
   def prepare_results(self, qs):
     """
-    prüft Datensatz auf Datentypen und erstellt daraus ein JSON mit angepasstem Inhalt
-    (Beispiel: True -> ja)
+    loops passed queryset, creates cleaned-up JSON representation of the queryset and returns it
 
-    :param qs: Datensatz
-    :return: Datensatz als JSON
+    :param qs: queryset
+    :return: cleaned-up JSON representation of the queryset
     """
     json_data = []
     for item in qs:
       item_data = []
-      item_id = getattr(item, self.model._meta.pk.name)
-      d = ''
+      item_pk = getattr(item, self.model._meta.pk.name)
       if (
-          not self.editable or
-          not self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
+          self.model_is_editable and
+          self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
       ):
-        d = ' disabled'
-      cb = '<input class="action-checkbox" type="checkbox" value="' + str(item_id) + '"' + d + '>'
-      if self.editable:
-        item_data.append(cb)
+        item_data.append(
+          '<input class="action-checkbox" type="checkbox" value="' + str(item_pk) + '">')
       for column in self.columns:
-        data = None
         value = getattr(item, column)
-        if (value is not None and
-            self.columns_with_foreign_key is not None and
-            column in self.columns_with_foreign_key and
-            self.columns_with_foreign_key_to_linkify is not None and
-            column in self.columns_with_foreign_key_to_linkify):
-          foreign_model = value._meta.label
-          foreign_model_primary_key = value._meta.pk.name
-          foreign_model_title = self.columns.get(column)
-          foreign_model_attribute_for_text = self.columns_with_foreign_key.get(
-              column)
-          data = '<a href="' + reverse(
-              'datenmanagement:' + foreign_model.replace(
-                  value._meta.app_label + '.',
-                  ''
-              ) + '_change',
-              args=[
-                  getattr(
-                      value,
-                      foreign_model_primary_key
-                  )
-              ]
-          ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
-            + foreign_model_title + ' ansehen oder bearbeiten">' + str(
-              getattr(
-                  value,
-                  foreign_model_attribute_for_text)) + '</a>'
-        elif (value is not None and
-              self.columns_with_number is not None and
-              column in self.columns_with_number):
-          if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
-            data = localize_number(Decimal(str(value)))
-          else:
-            data = value
-        elif (value is not None and
-              self.columns_with_date is not None and
-              column in self.columns_with_date):
-          data = datetime.strptime(str(value), '%Y-%m-%d').strftime(
-              '%d.%m.%Y')
-        elif (value is not None and
-              self.columns_with_datetime is not None and
-              column in self.columns_with_datetime):
-          datetimestamp_str = sub(r'([+-][0-9]{2}):', '\\1', str(value))
-          datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').\
-            replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
-          datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-          data = datetimestamp_str
-        elif (
-            value is not None
-            and value
-            and self.column_as_highlight_flag is not None
-            and column == self.column_as_highlight_flag
-        ):
-          data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
-        elif value is not None and column == 'foto':
-          try:
-            data = ('<a href="' + value.url + '?' + str(time()) +
-                    '" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">')
-            if self.thumbs:
-              data += '<img src="' + get_thumb_url(
-                  value.url) + '?' + str(
-                  time()) + '" alt="Vorschau" />'
+        data = None
+        # handle non-empty fields only!
+        if value is not None:
+          # format foreign keys
+          if (
+              self.columns_with_foreign_key
+              and column in self.columns_with_foreign_key
+              and self.fields_with_foreign_key_to_linkify
+              and column in self.fields_with_foreign_key_to_linkify
+          ):
+            foreign_model = value._meta.label
+            foreign_model_primary_key = value._meta.pk.name
+            foreign_model_title = self.columns.get(column)
+            foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
+            data = '<a href="' + reverse(
+                'datenmanagement:' + foreign_model.replace(
+                    value._meta.app_label + '.',
+                    ''
+                ) + '_change',
+                args=[getattr(value, foreign_model_primary_key)]
+            ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
+              + foreign_model_title + ' ansehen oder bearbeiten">' + str(
+                getattr(value, foreign_model_attribute_for_text)) + '</a>'
+          # format numbers
+          elif self.columns_with_number and column in self.columns_with_number:
+            if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
+              data = localize_number(Decimal(str(value)))
             else:
-              data += '<img src="' + value.url + '?' + str(
-                  time()) + '" alt="Vorschau" width="70px" />'
-            data += '</a>'
-          except ValueError:
-            pass
-        elif value is not None and (column == 'dokument' or column == 'pdf'):
-          try:
-            data = '<a href="' + value.url + '?' + str(
-                time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
-                ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
-                ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
-          except ValueError:
-            pass
-        elif value is not None and value is True:
-          data = 'ja'  # True durch 'Ja' ersetzen
-        elif value is not None and value is False:
-          data = 'nein'  # False durch 'nein' ersetzen
-        elif value is not None and type(value) in [list, tuple]:
-          data = ', '.join(map(str, value))
-        elif value is not None and isinstance(value, str) and value.startswith('http'):
-          data = ('<a href="' + value +
-                  '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">' +
-                  value + '</a>')
-        elif (value is not None and
-              isinstance(value, str) and
-              match(r"^#[a-f0-9]{6}$", value, IGNORECASE)):
-          data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
-                 + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
-                 + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
-                 + '">&zwnj;</div>'
-        elif value is not None:
-          data = escape(value)
+              data = value
+          # format dates
+          elif self.columns_with_date and column in self.columns_with_date:
+            data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
+          # format datetimes
+          elif self.columns_with_datetime and column in self.columns_with_datetime:
+            datetimestamp_str = sub(r'([+-][0-9]{2}):', '\\1', str(value))
+            datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').\
+              replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+            datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+            data = datetimestamp_str
+          # handle highlight flags
+          elif self.column_as_highlight_flag and column == self.column_as_highlight_flag:
+            data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
+          # handle photo files
+          elif column == 'foto':
+            try:
+              data = ('<a href="' + value.url + '?' + str(time()) +
+                      '" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">')
+              if self.thumbs:
+                data += '<img src="' + get_thumb_url(
+                    value.url) + '?' + str(
+                    time()) + '" alt="Vorschau" />'
+              else:
+                data += '<img src="' + value.url + '?' + str(
+                    time()) + '" alt="Vorschau" width="70px" />'
+              data += '</a>'
+            except ValueError:
+              pass
+          # handle PDF files
+          elif column == 'dokument' or column == 'pdf':
+            try:
+              data = '<a href="' + value.url + '?' + str(
+                  time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
+                  ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
+                  ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
+            except ValueError:
+              pass
+          # format Boolean ``True``
+          elif value is True:
+            data = 'ja'
+          # format Boolean ``False``
+          elif value is False:
+            data = 'nein'
+          # format lists
+          elif type(value) in [list, tuple]:
+            data = ', '.join(map(str, value))
+          # format external links
+          elif isinstance(value, str) and value.startswith('http'):
+            data = ('<a href="' + value +
+                    '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">' +
+                    value + '</a>')
+          # format colors
+          elif isinstance(value, str) and match(r"^#[a-f0-9]{6}$", value, IGNORECASE):
+            data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
+                   + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
+                   + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
+                   + '">&zwnj;</div>'
+          # take all other values as they are
+          else:
+            data = escape(value)
         item_data.append(data)
-      if self.editable:
+      # append links for changing, viewing and/or deleting
+      if self.model_is_editable:
         links = ''
         if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):
           links = '<a href="' + \
-                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_id]) + \
+                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk]) + \
                   '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>'
         elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
           links = '<a href="' + \
-                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_id]) + \
+                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk]) + \
                   '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>'
         if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
           links += '<a class="ms-2" href="' + \
-                   reverse('datenmanagement:' + self.model_name + '_delete', args=[item_id]) + \
+                   reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk]) + \
                    '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>'
         item_data.append(links)
       json_data.append(item_data)
@@ -186,10 +176,10 @@ class TableDataCompositionView(BaseDatatableView):
 
   def filter_queryset(self, qs):
     """
-    filtert Datensatz
+    filters passed queryset
 
-    :param qs: Datensatz
-    :return: gefilterter Datensatz
+    :param qs: queryset
+    :return: filtered queryset
     """
     current_search = self.request.GET.get('search[value]', None)
     if current_search:
@@ -197,9 +187,9 @@ class TableDataCompositionView(BaseDatatableView):
       for search_element in current_search.lower().split():
         qs_params_inner = None
         for column in self.columns:
+          # take care of foreign key columns
           if self.columns_with_foreign_key:
-            column_with_foreign_key = self.columns_with_foreign_key.get(
-                column)
+            column_with_foreign_key = self.columns_with_foreign_key.get(column)
             if column_with_foreign_key is not None:
               column = column + str('__') + column_with_foreign_key
           case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
@@ -237,233 +227,241 @@ class TableDataCompositionView(BaseDatatableView):
 
   def ordering(self, qs):
     """
-    sortiert Datensatz
+    sorts passed queryset
 
-    :param qs: Datensatz
-    :return: sortierter Datensatz
+    :param qs: queryset
+    :return: sorted queryset
     """
-    order_column = self.request.GET.get('order[0][column]', None)
-    order_dir = self.request.GET.get('order[0][dir]', None)
-    columns = list(self.columns.keys())
-    column = str(columns[int(order_column) - 1])
-    directory = '-' if order_dir is not None and order_dir == 'desc' else ''
-    if order_column is not None:
-      return qs.order_by(directory + column)
-    else:
+    # assume initial order since multiple column sorting is prohibited
+    if self.request.GET.get('order[1][column]') is not None:
       return qs
+    elif self.request.GET.get('order[0][column]') is not None:
+      order_column = self.request.GET.get('order[0][column]')
+      order_dir = self.request.GET.get('order[0][dir]', None)
+      column_names = list(self.columns.keys())
+      column_name = column_names[int(order_column) - 1]
+      directory = '-' if order_dir is not None and order_dir == 'desc' else ''
+      return qs.order_by(directory + column_name)
 
 
 class TableListView(TemplateView):
   """
-  listet alle Datenbankobjekte eines Datensatzes in einer Tabelle auf
+  view for table page of a model
 
-  :param model: Datenmodell
-  :param template_name: Name des Templates
-  :param success_url: Success-URL
+  :param model: model
   """
 
   model = None
 
-  def __init__(self, model=None, template_name=None, success_url=None):
-    self.model = model
-    self.template_name = template_name
-    super().__init__()
-
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: dictionary with all context elements for this view
     """
+    model_name = self.model.__name__
+    model_name_lower = model_name.lower()
     context = super().get_context_data(**kwargs)
-    context = add_model_context_elements(context, self.model, self.kwargs)
-    context['list_fields_labels'] = list(self.model.BasemodelMeta.list_fields.values()) if (
-      self.model.BasemodelMeta.list_fields) else None
-    context['thumbs'] = self.model.BasemodelMeta.thumbs
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
+    # add further elements to context
+    context['model_name'] = model_name
+    context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
+    context['model_description'] = self.model.BasemodelMeta.description
+    context['model_pk_field_name'] = self.model._meta.pk.name
+    context['model_is_editable'] = self.model.BasemodelMeta.editable
+    if (
+        self.model.BasemodelMeta.editable
+        and self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
+    ):
+      context['actions'] = True
+      context['url_model_deleteimmediately_placeholder'] = reverse(
+        'datenmanagement:' + model_name + '_deleteimmediately', args=['worschdsupp'])
+    context['column_titles'] = list(self.model.BasemodelMeta.list_fields.values()) if (
+      self.model.BasemodelMeta.list_fields) else None
+    if (
+        self.model.BasemodelMeta.editable
+        and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)
+    ):
+      context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
+      if self.model.BasemodelMeta.geometry_type:
+        context['url_model_map'] = reverse('datenmanagement:' + model_name + '_map')
+        context['url_model_map_subset_placeholder'] = reverse(
+          'datenmanagement:' + model_name + '_map_subset', args=['worschdsupp'])
+    context['url_model_tabledata'] = reverse('datenmanagement:' + model_name + '_data')
+    if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
+      subset_id = int(kwargs['subset_id'])
+      context['subset_id'] = subset_id
+      context['objects_count'] = get_model_objects(self.model, subset_id, True)
+      context['url_model_tabledata_subset'] = reverse(
+        'datenmanagement:' + model_name + '_data_subset', args=[subset_id])
+    else:
+      context['objects_count'] = get_model_objects(self.model, None, True)
+    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     return context
 
 
 class MapDataCompositionView(JsonView):
   """
-  Abfrage aller Datenbankobjekte eines Datensatzes für die Karte
-  * limit: auf n Datenbankobjekte limitieren (entspricht SQL-LIMIT)
-  * offset: alle weiteren Datenbankobjekte ab dem n-ten Datenbankobjekt (entspricht SQL-OFFSET)
+  view for map data composition of a model
 
-  :param model: Datenmodell
+  * limit: limit to n database objects (SQL: LIMIT)
+  * offset: all other database objects starting from the n-th database object (SQL: OFFSET)
+
+  :param model: model
   """
+
   model = None
 
-  def __init__(self, model):
+  def __init__(self, model=None, *args, **kwargs):
     self.model = model
-    self.model_name = self.model.__name__
-    self.model_name_lower = self.model.__name__.lower()
-    self.model_pk_field = self.model._meta.pk.name
-    self.editable = self.model.BasemodelMeta.editable
-    super().__init__()
+    model_name = self.model.__name__
+    self.model_name = model_name
+    self.model_name_lower = model_name.lower()
+    self.model_is_editable = self.model.BasemodelMeta.editable
+    self.model_pk_field_name = self.model._meta.pk.name
+    super().__init__(*args, **kwargs)
 
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns GeoJSON feature collection
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: GeoJSON feature collection
     """
-    map_features, limit, offset, objects = None, None, None, None
+    feature_collection, limit, offset, objects = None, None, None, None
     if self.request.GET.get('limit'):
       limit = int(self.request.GET.get('limit'))
     if self.request.GET.get('offset'):
       offset = int(self.request.GET.get('offset'))
-    # GeoJSON featureCollection definieren
-    map_features = {
-        'type': 'FeatureCollection',
-        'features': []
-    }
-    if self.kwargs and self.kwargs['subset_id']:
+    if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
       objects = get_model_objects(self.model, int(self.kwargs['subset_id']))
     else:
       objects = get_model_objects(self.model)
-    if limit is not None and offset is not None:
-      objects = objects[offset:(offset + limit)]
-    elif limit is not None:
-      objects = objects[:limit]
-    # über alle Objekte gehen...
-    for curr_object in objects:
-      # nur, falls Geometrie nicht leer ist...
-      if curr_object.geometrie:
-        # Objekt als GeoJSON serializieren
-        object_serialized = loads(
-            serialize('geojson',
-                      [curr_object],
-                      srid=25833))
-        # Tooltip erzeugen
-        if self.model.BasemodelMeta.map_feature_tooltip_field:
-          data = getattr(curr_object, self.model.BasemodelMeta.map_feature_tooltip_field)
-          if isinstance(data, date):
-            data = data.strftime('%d.%m.%Y')
-          elif isinstance(data, datetime):
-            data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-          tooltip = str(data)
-        elif self.model.BasemodelMeta.map_feature_tooltip_fields:
-          previous_value = ''
-          tooltip_value = ''
-          index = 0
-          for field in self.model.BasemodelMeta.map_feature_tooltip_fields:
-            field_value = ''
-            if field and getattr(curr_object, field) is not None:
-              field_value = str(getattr(curr_object, field))
-            tooltip_value = (
-                # Leerzeichen zwischen einzelne Tooltip-Bestandteilen setzen,
-                # aber nicht zwischen Hausnummer und Hausnummernzusatz
-                tooltip_value + (
-                    '' if (match(r'^[a-z]$', field_value) and
-                           match(r'^[0-9]+$', previous_value)) else ' '
-                ) + field_value if index > 0 else field_value
-            )
-            index += 1
-            previous_value = field_value
-          tooltip = tooltip_value.strip()
-        else:
-          tooltip = str(curr_object.pk)
-        # GeoJSON feature definieren:
-        # * Geometrie aus serialisiertem GeoJSON holen
-        # * Eigenschaften aus den zuvor befüllten Variablen holen
-        feature = {
-            'type': 'Feature',
-            'geometry': object_serialized['features'][0]['geometry'],
-            'properties': {
-                self.model_pk_field: str(curr_object.pk),
-                'tooltip': tooltip
-            },
-            'crs': {
-                'type': 'name',
-                'properties': {
-                    'name': 'urn:ogc:def:crs:EPSG::25833'
-                }
-            }
-        }
-        # falls Datenmodell generell bearbeitet werden darf...
-        if self.editable:
-          # Link auf Objekt als Eigenschaft setzen
-          feature['properties']['link'] = (
-              reverse(
-                  'datenmanagement:' +
-                  self.model_name +
-                  '_change',
-                  args=[curr_object.pk]))
-        # optional: Objekt als inaktiv kennzeichnen
-        if hasattr(curr_object, 'aktiv') and curr_object.aktiv is False:
-          feature['properties']['inaktiv'] = True
-        # optional: Flag zum initialen Erscheinen des Objekts auf der Karte als Eigenschaft setzen,
-        # falls entsprechende Klausel in der Modelldefinition existiert
-        if self.model.BasemodelMeta.map_filter_hide_initial:
-          if str(
-              getattr(
-                  curr_object, list(
-                      self.model.BasemodelMeta.map_filter_hide_initial.keys())[0])) == str(
-              list(
-                  self.model.BasemodelMeta.map_filter_hide_initial.values())[0]):
-            feature['properties']['hide_initial'] = True
-        # optional: Flag zum Highlighten des Objekts auf der Karte als Eigenschaft setzen,
-        # falls entsprechende Klausel in der Modelldefinition existiert
-        if self.model.BasemodelMeta.list_highlight_flag:
-          data = getattr(curr_object, self.model.BasemodelMeta.list_highlight_flag)
-          if data:
-            feature['properties']['highlight'] = data
-        # optional: Stichtagsfilter als Eigenschaften setzen,
-        # falls entsprechende Klausel in der Modelldefinition existiert
-        if self.model.BasemodelMeta.map_deadlinefilter_fields:
-          for index, field in enumerate(self.model.BasemodelMeta.map_deadlinefilter_fields):
-            data = getattr(curr_object, field)
+    # handle objects
+    if objects:
+      if limit is not None and offset is not None:
+        objects = objects[offset:(offset + limit)]
+      elif limit is not None:
+        objects = objects[:limit]
+      # declare empty GeoJSON feature collection
+      feature_collection = {
+          'type': 'FeatureCollection',
+          'features': []
+      }
+      for curr_object in objects:
+        # only if geometry is not empty...
+        if curr_object.geometrie:
+          # serialize object as GeoJSON
+          object_serialized = loads(serialize('geojson', [curr_object], srid=25833))
+          # create tooltip
+          if self.model.BasemodelMeta.map_feature_tooltip_field:
+            data = getattr(curr_object, self.model.BasemodelMeta.map_feature_tooltip_field)
             if isinstance(data, date):
-              data = data.strftime('%Y-%m-%d')
+              data = data.strftime('%d.%m.%Y')
             elif isinstance(data, datetime):
-              data = data.strftime('%Y-%m-%d %H:%M:%S')
-            feature['properties']['deadline_' +
-                                  str(index)] = str(data)
-            # zusätzlich Feld auch als "normale" Filtereigenschaft setzen
-            feature['properties'][field] = str(data)
-        # optional: Intervallfilter als Eigenschaften setzen,
-        # falls entsprechende Klausel in der Modelldefinition existiert
-        if self.model.BasemodelMeta.map_rangefilter_fields:
-          for field in self.model.BasemodelMeta.map_rangefilter_fields.keys():
-            feature['properties'][field] = str(get_data(curr_object, field))
-        # optional: sonstige Filter als Eigenschaften setzen,
-        # falls entsprechende Klausel in der Modelldefinition existiert
-        if self.model.BasemodelMeta.map_filter_fields:
-          for field in self.model.BasemodelMeta.map_filter_fields.keys():
-            feature['properties'][field] = str(get_data(curr_object, field))
-        # GeoJSON feature zur GeoJSON featureCollection hinzufügen
-        map_features['features'].append(feature)
-    return map_features
+              data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+            tooltip = str(data)
+          elif self.model.BasemodelMeta.map_feature_tooltip_fields:
+            previous_value = ''
+            tooltip_value = ''
+            index = 0
+            for field in self.model.BasemodelMeta.map_feature_tooltip_fields:
+              field_value = ''
+              if field and getattr(curr_object, field) is not None:
+                field_value = str(getattr(curr_object, field))
+              tooltip_value = (
+                  # place spaces between individual tooltip components
+                  # but not between housenumber and housenumber suffix
+                  tooltip_value + (
+                      '' if (match(r'^[a-z]$', field_value) and
+                             match(r'^[0-9]+$', previous_value)) else ' '
+                  ) + field_value if index > 0 else field_value
+              )
+              index += 1
+              previous_value = field_value
+            tooltip = tooltip_value.strip()
+          else:
+            tooltip = str(curr_object.pk)
+          # create GeoJSON feature:
+          # * get geometry from serialized GeoJSON
+          # * get properties from previously declared variables
+          feature = {
+              'type': 'Feature',
+              'geometry': object_serialized['features'][0]['geometry'],
+              'properties': {
+                  self.model_pk_field_name: str(curr_object.pk),
+                  'tooltip': tooltip
+              },
+              'crs': {
+                  'type': 'name',
+                  'properties': {
+                      'name': 'urn:ogc:def:crs:EPSG::25833'
+                  }
+              }
+          }
+          if self.model_is_editable:
+            # set object link as property
+            feature['properties']['link'] = (
+                reverse('datenmanagement:' + self.model_name + '_change', args=[curr_object.pk])
+            )
+          # optional: mark object as inactive
+          if hasattr(curr_object, 'aktiv') and curr_object.aktiv is False:
+            feature['properties']['inaktiv'] = True
+          # optional: mark object as to hide it initially
+          if self.model.BasemodelMeta.map_filter_hide_initial:
+            if str(
+                getattr(
+                    curr_object, list(
+                        self.model.BasemodelMeta.map_filter_hide_initial.keys())[0])) == str(
+                list(
+                    self.model.BasemodelMeta.map_filter_hide_initial.values())[0]):
+              feature['properties']['hide_initial'] = True
+          # optional: mark object as to highlight it
+          if self.model.BasemodelMeta.highlight_flag:
+            data = getattr(curr_object, self.model.BasemodelMeta.highlight_flag)
+            if data:
+              feature['properties']['highlight'] = data
+          # optional: set deadline map filter as properties
+          if self.model.BasemodelMeta.map_deadlinefilter_fields:
+            for index, field in enumerate(self.model.BasemodelMeta.map_deadlinefilter_fields):
+              data = getattr(curr_object, field)
+              if isinstance(data, date):
+                data = data.strftime('%Y-%m-%d')
+              elif isinstance(data, datetime):
+                data = data.strftime('%Y-%m-%d %H:%M:%S')
+              feature['properties']['deadline_' + str(index)] = str(data)
+              # additionally set field as an ordinary map filter property, too
+              feature['properties'][field] = str(data)
+          # optional: set deadline interval/range map filter as properties
+          if self.model.BasemodelMeta.map_rangefilter_fields:
+            for field in self.model.BasemodelMeta.map_rangefilter_fields.keys():
+              feature['properties'][field] = str(get_data(curr_object, field))
+          # optional: set all other map filters as properties
+          if self.model.BasemodelMeta.map_filter_fields:
+            for field in self.model.BasemodelMeta.map_filter_fields.keys():
+              feature['properties'][field] = str(get_data(curr_object, field))
+          # add GeoJSON feature to GeoJSON feature collection
+          feature_collection['features'].append(feature)
+    return feature_collection
 
 
 class MapListView(TemplateView):
   """
-  zeigt alle Datenbankobjekte eines Datensatzes auf einer Karte an;
-  außerdem werden, falls definiert, entsprechende Filtermöglichkeiten geladen
+  view for map page of a model
 
-  :param model: Datenmodell
-  :param template_name: Name des Templates
+  :param model: model
   """
 
   model = None
 
-  def __init__(self, model=None, template_name=None):
-    self.model = model
-    self.model_name = self.model.__name__
-    self.model_name_lower = self.model.__name__.lower()
-    self.template_name = template_name
-    super().__init__()
-
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: dictionary with all context elements for this view
     """
     # Variablen für Filterfelder vorbereiten, die als Intervallfelder fungieren sollen,
     # und zwar eine Variable mit dem Minimal- und eine Variable mit dem Maximalwert
@@ -587,7 +585,7 @@ class MapListView(TemplateView):
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     if self.kwargs and self.kwargs['subset_id']:
       context['subset_id'] = int(self.kwargs['subset_id'])
-    context['highlight_flag'] = self.model.BasemodelMeta.list_highlight_flag
+    context['highlight_flag'] = self.model.BasemodelMeta.highlight_flag
     if (
         self.model.BasemodelMeta.map_filter_fields
         or self.model.BasemodelMeta.map_rangefilter_fields

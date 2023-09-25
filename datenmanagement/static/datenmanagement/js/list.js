@@ -25,14 +25,15 @@ function formatData(data, brReplacement) {
  * @function
  * @name initDataTable
  *
- * initializes data table
+ * initializes data table and returns it
  *
  * @param {string} dataUrl - data URL
  * @param {string} languageUrl - language URL
- * @param {Object[]} initialOrder - initial order
+ * @param {number} numberOfColumns - number of columns
+ * @returns {Object} - table
  */
-function initDataTable(dataUrl, languageUrl, initialOrder) {
-  $('#datasets').DataTable({
+function initDataTable(dataUrl, languageUrl, numberOfColumns) {
+  return $('#datasets').DataTable({
     ajax: dataUrl,
     buttons: [
       {
@@ -84,13 +85,22 @@ function initDataTable(dataUrl, languageUrl, initialOrder) {
       'searchable': false,
       'targets': 'no-search'
     }],
+    createdRow: function(row) {
+      // provide inactive rows (= records) with a weaker text color
+      if ($(row).find('td:nth-child(2)').text() === 'nein') {
+        $(row).addClass('text-secondary');
+      // provide highlight flag rows (= records) with with red text color
+      } else if ($(row).find('.text-danger').length) {
+        $(row).addClass('text-danger');
+      }
+    },
     dom: '<Bfr<t>ilp>',
     fixedHeader: true,
     language: {
       url: languageUrl
     },
     lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
-    order: initialOrder,
+    order: [[numberOfColumns > 1 ? 1 : 0, 'asc']],
     orderCellsTop: true,
     orderClasses: false,
     orderMulti: false,
