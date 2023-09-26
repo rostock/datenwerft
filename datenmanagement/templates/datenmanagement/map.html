@@ -24,6 +24,7 @@
   <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
   <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/map.js' %}"></script>
   {% if map_one_click_filters %}
     <script src="{% static 'datenmanagement/js/customMapFilters.js' %}"></script>
   {% endif %}
@@ -42,14 +43,14 @@
     </em>
   </h4>
   <div class="d-grid mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
-    {% if user|user_has_model_add_permission:model_name_lower %}
-      <a class="btn btn-primary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_add' %}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
+    {% if url_model_add %}
+      <a class="btn btn-primary" role="button" href="{{ url_model_add }}"><i class="fas fa-circle-plus"></i> neuen Datensatz anlegen</a>
     {% endif %}
-    {% if objects_count > 0 %}
-      <a class="btn btn-secondary" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_list' %}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
+    {% if objects_count > 0 and url_model_list %}
+      <a class="btn btn-secondary" role="button" href="{{ url_model_list }}"><i class="fas fa-table"></i> alle Datensätze in Tabelle auflisten</a>
       <button id="subsetter" class="btn btn-secondary" disabled><i class="fas fa-table"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge in Tabelle übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-backward"></i> zurück</a>
+    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i>zurück</a>
   </div>
   {% if objects_count > 0 %}
     {% if subset_id %}
@@ -87,34 +88,34 @@
               </div>
             </div>
           {% endif %}
-          {% if map_rangefilter_fields and map_rangefilter_fields_labels %}
+          {% if map_intervalfilter_fields and map_intervalfilter_fields_labels %}
             <div id="filter-interval">
-              {% for map_rangefilter_field in map_rangefilter_fields %}
+              {% for map_intervalfilter_field in map_intervalfilter_fields %}
                 {% if not forloop.counter|divisibleby:2 %}
                   {% with naechster_index=forloop.counter0|add:1 %}
                   <div class="d-grid mt-2 mb-3">
-                    <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
+                    <label for="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label">{{ map_intervalfilter_fields_labels|get_list_item_by_index:forloop.counter0 }}</label>
                     <div class="input-group">
-                      {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
+                      {% if 'Date' in map_intervalfilter_field|get_type_of_field:model_name %}
+                        <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input datetime-input" data-type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive" {% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive">
+                        <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" type="text" name="{{ map_intervalfilter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-control filter-input" data-type="text" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="left" data-logic="positive">
                       {% endif %}
                     </div>
                   </div>
                   <div class="d-grid mt-2 mb-3">
-                    <label for="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-label">{{ map_rangefilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
+                    <label for="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" class="form-label">{{ map_intervalfilter_fields_labels|get_list_item_by_index:naechster_index }}</label>
                     <div class="input-group">
-                      {% if 'Date' in map_rangefilter_field|get_type_of_field:model_name %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive" {% if map_rangefilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
+                      {% if 'Date' in map_intervalfilter_field|get_type_of_field:model_name %}
+                        <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime-local{% else %}date{% endif %}" name="{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input datetime-input" data-type="{% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}datetime{% else %}date{% endif %}" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive" {% if map_intervalfilter_field|get_type_of_field:model_name == 'DateTimeField' %}step="1"{% endif %}>
                         <button class="input-reset btn btn-outline-secondary">
                           <i class="fas fa-trash" title="Filterfeld leeren"></i>
                         </button>
                       {% else %}
-                        <input id="filter-input-{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_rangefilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_rangefilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive">
+                        <input id="filter-input-{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" type="text" name="{{ map_intervalfilter_fields|get_list_item_by_index:naechster_index }}" class="form-control filter-input" data-type="text" {% if map_intervalfilter_field|is_field_nullable:model_name %}data-nullable{% endif %} data-intervalside="right" data-logic="positive">
                       {% endif %}
                     </div>
                   </div>
@@ -162,6 +163,7 @@
                     <div class="d-grid gap-2 d-md-block">
                       {% if map_filter_field|get_type_of_field:model_name == 'ChoiceArrayField' %}
                         Listeneinträge
+                        <label hidden for="filtertype-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-label"></label>
                         <select id="filtertype-{{ map_filter_fields|get_list_item_by_index:forloop.counter0 }}" class="form-select filtertype">
                           <option value="additive">additiv (wie „UND“)</option>
                           <option value="exclusive">exklusiv (wie „ODER“)</option>
@@ -214,160 +216,75 @@
        * @function
        * @name mapCallbackFunction
        *
-       * behandelt als Callback-Funktion die übergebene Karte
+       * handles (as a callback function) passed map
        *
-       * @param {Object} map - Karte
+       * @param {Object} map - map
        */
       function mapCallbackFunction(map) {
-        // Konstanten für Karte setzen
         setMapConstants(map);
-
-        // Karte konfigurieren
         configureMap(map, '{% url "toolbox:owsproxy" %}');
 
-        // Karte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+        // make map globally available
         window.currMap = map;
 
+        {% if is_mobile %}
+          enableMapLocate(map)
+        {% endif %}
+
         // define several globally available variables
-        window.geometryType = '{{ geometry_type }}';
-        window.promises = [];
-        window.count = 0;
+        window.geometryType = '{{ model_geometry_type }}';
+        window.objectsExtent = map.getBounds();
+        window.removedLayers = [];
+        window.featureGeometry = [];
+        window.subsetID = false;
+        {% if subset_id %}
+          window.subsetID = true
+        {% endif %}
+        if (window.subsetID)
+          window.mapDataUrl = '{{ url_model_mapdata_subset }}'
+        else
+          window.mapDataUrl = '{{ url_model_mapdata }}'
+        window.heavyLoadLimit = false;
         {% if heavy_load_limit %}
           window.heavyLoadLimit = true
-          // variables and constants for the number of (already fetched) features of the GeoJSON feature collection
+        {% endif %}
+        if (window.heavyLoadLimit) {
+          // variables and constants for the number of (already fetched) features
+          // of the GeoJSON feature collection
+          window.promises = [];
+          window.count = 0;
           window.border = {{ objects_count }}
           window.limit = {{ heavy_load_limit }}
-        {% endif %}
+        }
         {% if highlight_flag %}
           window.highlightFlag = true
         {% endif %}
         {% if map_filter_hide_initial %}
           window.mapFilterHideInitial = true
         {% endif %}
-        {% if subset_id %}
-          window.subsetID = true
-        {% endif %}
 
-        // bei mobilen Geräten: Standortbestimmung hinzufügen
-        {% if is_mobile %}
-          enableMapLocate(map)
-        {% endif %}
-
-        /**
-         * @function
-         * @name setMapFeaturePropertiesAndActions
-         *
-         * definiert Aktionen und Eigenschaften für jeden Feature-Layer auf der Karte
-         *
-         * @param {Object} feature - Feature
-         * @param {Object} layer - Feature-Layer
-         */
-        function setMapFeaturePropertiesAndActions(feature, layer) {
-          // falls Feature einen Link auf dessen Bearbeitungs-/Betrachtungssseite aufweist...
-          if (feature.properties.link) {
-            // Link öffnen bei Klick auf Feature
-            layer.on('click', function () {
-              window.open(feature.properties.link, '_blank', 'noopener,noreferrer').focus();
-            });
-          }
-          // falls Feature inaktiv ist...
-          if (typeof feature.properties.inaktiv !== 'undefined' && feature.properties.inaktiv) {
-            // Feature vom Standard abweichend darstellen
-            layer.setStyle({
-              color: '#999',
-              fillColor: '#999'
-            });
-          }
-          // falls Feature-Highlighting vorgesehen ist...
-          if (window.highlightFlag) {
-            if (typeof feature.properties.highlight !== 'undefined' && feature.properties.highlight) {
-              // Feature highlighten
-              layer.setStyle({
-                color: 'red',
-                fillColor: 'red'
-              });
-            }
-          }
-          // falls Feature von initialer Feature-Ausblendung betroffen ist...
-          if (window.mapFilterHideInitial) {
-            if (typeof feature.properties.hide_initial !== 'undefined' && feature.properties.hide_initial)
-              // Feature ausblenden
-              layer.setStyle({
-                fill: false,
-                stroke: false,
-                opacity: 0
-              });
-          }
-          // falls Geometrie nicht punkthaft ist...
-          if (window.geometryType !== 'Point')
-            // Tooltip setzen (wird ansonsten weiter unten beim Laden der GeoJSON featureCollection gesetzt)
-            layer.bindTooltip(feature.properties.tooltip);
-        }
-
-        // falls große Datenmenge zu erwarten ist...
+        // if large amounts of data are expected...
         if (window.heavyLoadLimit) {
-          // Zähler im Bootstrap-Modal setzen, das während des Ladevorgangs der GeoJSON featureCollection für die Karte eingeblendet wird
+          // set counters in the Bootstrap modal
+          // that appears while loading the GeoJSON feature collection for the map
           $('#loading-modal-map-data-count').text(window.count);
           $('#loading-modal-map-data-border').text(window.border);
         }
 
-        /**
-         * @function
-         * @name fetchGeoJsonFeatureCollection
-         *
-         * holt die GeoJSON featureCollection für die Karte
-         *
-         * @param {boolean} heavyLoad - große Datenmenge zu erwarten?
-         * @param {number} [limit=0] - Limit für aktuellen Ladeschritt
-         * @param {number} [offset=0] - Offset für aktuellen Ladeschritt (= Vielfaches des Limits für aktuellen Ladeschritt)
-         */
-        async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offset = 0) {
-          let url;
-          try {
-            url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata' %}";
-            if (window.subsetID)
-             url = "{% url 'datenmanagement:'|add:model_name|add:'_mapdata'|add:'_subset' subset_id %}";
-            // Parameter für aktuellen Ladeschritt setzen, falls große Datenmenge zu erwarten ist
-            if (heavyLoad) {
-              url += '?limit=' + limit + '&offset=' + offset;
-            }
-            toggleModal(
-              $('#loading-modal'),
-              'Laden der Kartendaten',
-              'Die Kartendaten werden (nach-)geladen.' + (heavyLoad ? ' Dies kann einen Moment dauern, da es sich insgesamt um eine sehr große Datenmenge handelt.' : ''),
-              heavyLoad ? '#loading-modal-map-data' : null
-            );
-            const response = await fetch(url, {
-              method: 'GET'
-            });
-            const data = await response.json();
-            if (heavyLoad) {
-              window.count += data.features.length;
-              $('#loading-modal-map-data-count').text(window.count);
-              if (window.count === window.border) {
-                toggleModal($('#loading-modal'));
-              }
-            } else
-              toggleModal($('#loading-modal'));
-            return data;
-          } catch (error) {
-            console.error(error);
-          }
-        }
-
-        // falls Geometrie punkthaft ist...
+        // if geometry is point-like...
         if (window.geometryType === 'Point') {
-          // Cluster aktivieren
+          // activate map cluster
           let markers = L.markerClusterGroup();
-          // falls große Datenmenge zu erwarten ist...
+          // if large amounts of data are expected...
           if (window.heavyLoadLimit) {
-            // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
-            for (let offset = 0; offset < window.border; offset += window.limit) {
+            // fetch GeoJSON feature collection for map in multiple steps, all executed in parallel
+            for (let offset = 0; offset < window.border; offset += window.limit)
               window.promises.push(fetchGeoJsonFeatureCollection(true, window.limit, offset));
-            }
             Promise.all(window.promises)
             .then(data => {
-              // jedes Feature der GeoJSON featureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // equip with marker, set properties and actions, bind tooltip
+              // and add it to corresponding map cluster
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                   let marker = new L.circleMarker(latlng, {
@@ -376,7 +293,7 @@
                   marker.bindTooltip(feature.properties.tooltip);
                   return marker;
                 },
-                onEachFeature: setMapFeaturePropertiesAndActions
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
               }).addTo(markers);
             })
             .catch(
@@ -384,12 +301,14 @@
                 console.error(error);
               }
             );
-          // ansonsten...
+          // otherwise...
           } else {
-            // GeoJSON featureCollection für die Karte in einem Ladeschritt holen
+            // fetch GeoJSON feature collection for map in one single step
             fetchGeoJsonFeatureCollection()
             .then(data => {
-              // jedes Feature der GeoJSON featureCollection mit Marker versehen, Aktionen und Eigenschaften definieren, Tooltip setzen und zum Cluster hinzufügen
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // equip with marker, set properties and actions, bind tooltip
+              // and add it to corresponding map cluster
               L.Proj.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                   let marker = new L.circleMarker(latlng, {
@@ -398,7 +317,7 @@
                   marker.bindTooltip(feature.properties.tooltip);
                   return marker;
                 },
-                onEachFeature: setMapFeaturePropertiesAndActions
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
               }).addTo(markers);
             })
             .catch(
@@ -407,22 +326,23 @@
               }
             );
           }
-          // Cluster mit eindeutiger ID versehen und zur Karte hinzufügen
+          // equip map cluster with ID
           markers.id = 'cluster';
+          // add  map cluster to map
           map.addLayer(markers);
-        // ansonsten...
+        // otherwise (i.e. if geometry is not point-like)...
         } else {
-          // falls große Datenmenge zu erwarten ist...
+          // if large amounts of data are expected...
           if (window.heavyLoadLimit) {
-            // GeoJSON featureCollection für die Karte in mehreren Ladeschritten holen, die alle parallel ausgeführt werden
-            for (let offset = 0; offset < window.border; offset += window.limit) {
+            // fetch GeoJSON feature collection for map in multiple steps, all executed in parallel
+            for (let offset = 0; offset < window.border; offset += window.limit)
               window.promises.push(fetchGeoJsonFeatureCollection(true, window.limit, offset));
-            }
             Promise.all(window.promises)
             .then(data => {
-              // für jedes Feature der GeoJSON featureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // set properties and actions and add it to corresponding map cluster
               L.Proj.geoJson(data, {
-                onEachFeature: setMapFeaturePropertiesAndActions
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
               }).addTo(map);
             })
             .catch(
@@ -430,14 +350,15 @@
                 console.error(error);
               }
             );
-          // ansonsten...
+          // otherwise...
           } else {
-            // GeoJSON featureCollection für die Karte in einem Ladeschritt holen
+            // fetch GeoJSON feature collection for map in one single step
             fetchGeoJsonFeatureCollection()
             .then(data => {
-              // für jedes Feature der GeoJSON featureCollection Aktionen und Eigenschaften definieren und Feature zur Karte hinzufügen
+              // for each GeoJSON feature in GeoJSON feature collection:
+              // set properties and actions and add it to corresponding map cluster
               L.Proj.geoJson(data, {
-                onEachFeature: setMapFeaturePropertiesAndActions
+                onEachFeature: setGeoJsonFeaturePropertiesAndActions
               }).addTo(map);
             })
             .catch(
@@ -447,29 +368,15 @@
             );
           }
         }
-
-        // gemeinsame Bounding-Box aller Objekte auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
-        window.objectsExtent = map.getBounds();
-
-        // globale Variable für gelöschte Cluster-Features auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
-        window.removedLayers = [];
-
-        // globale Variable für Feature-Geometrie auch in anderen Scopes bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
-        window.featureGeometry = [];
       }
 
       /**
        * @function
        *
-       * Hauptfunktion
+       * main function
        */
       $(document).ready(function() {
-        // Variablen definieren für:
-        // Primärschlüssel der aktuellen Filtermenge
-        // Bounding-Box der aktuellen Filtermenge
-        // minimale und maximale Werte von entsprechenden Intervallfilterfeldern
-        // Wertelisten für entsprechende Filterfelder, die als Listenfilter dargestellt werden sollen
-        // Wertelisten für entsprechende Filterfelder, die als Checkboxen-Set dargestellt werden sollen
+        // (globally available) variables for primary keys and map extent of currently filtered data
         window.currentFilterPrimaryKeys = [];
         window.currentFilterExtent = [];
         let intervalFilterMin = [];
@@ -479,116 +386,112 @@
         let checkboxFilterLists = [];
         let checkboxFilterListsValues = {{ checkbox_filter_lists|safe }};
 
-        // Adressensuche initialisieren
-        // dabei Resultate der Adressensuche auch in anderen Scopes bzw. außerhalb der Hauptfunktion verfügbar machen
+        // initialize address search (and make its results globally available)
         window.results = $('div.results');
-        let searchField = $('#searchtext');
-        initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}');
+        window.searchField = $('#searchtext');
+        initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}');
 
-        // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
+        // iterate all filter fields (except Boolean and checkbox filter fields)...
         $('.filter-input').each(function() {
-          // Feld als Objekt mit Name und Typ erstellen
+          // create field as an object with name and type
           let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
-          // falls es sich um ein Intervallfilterfeld handelt...
+          // if it is an interval filter field...
           if ($(this).data('intervalside') === 'left' || $(this).data('intervalside') === 'right') {
-            // falls es sich um ein "linkes" Intervallfilterfeld (also für niedrigere/kleinere/frühere Werte) handelt...
+            // if it is a "lefty" interval filter field (i.e. for lower/smaller/earlier values)...
             if ($(this).data('intervalside') === 'left') {
-              // Wert des Feldobjekts entsprechend setzen
+              // set the value of the field object accordingly
               filterField.value = '{{ interval_filter_min }}';
-              // Feldobjekt zur Variable für minimale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              // add field object to variable for minimum values of corresponding interval filter fields
               intervalFilterMin.push(filterField);
-            // falls es sich um ein "rechtes" Intervallfilterfeld (also für höhere/größere/spätere Werte) handelt...
+            // if it is a "righty" interval filter field (i.e. for higher/larger/later values)...
             } else if ($(this).data('intervalside') === 'right') {
-              // Wert des Feldobjekts entsprechend setzen
+              // set the value of the field object accordingly
               filterField.value = '{{ interval_filter_max }}';
-              // Feldobjekt zur Variable für maximale Werte von entsprechenden Intervallfilterfeldern hinzufügen
+              // add field object to variable for maximum values of corresponding interval filter fields
               intervalFilterMax.push(filterField);
             }
-          // falls es sich um ein Listenfeld handelt...
+          // if it is a list filter field...
           } else if ($(this).data('type') === 'list' && $(this).attr('name') in listFilterListsValues) {
-            // Wert des Feldobjekts entsprechend setzen
+            // set the value of the field object accordingly
             filterField.value = listFilterListsValues[filterField.name];
-            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Listenfilter dargestellt werden sollen
+            // add field object to value list variable for corresponding filter fields to be represented as list filters
             listFilterLists.push(filterField);
           }
         });
 
-        // über alle Boolean-Filterfelder gehen...
+        // iterate all Boolean filter fields...
         $('.filter-input input[type="checkbox"]').each(function() {
-          // Feld als Objekt mit Name und Typ erstellen
+          // create field as an object with name and type
           let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
-          // Wert des Feldobjekts als Boolean setzen
+          // set the value of the field object as Boolean
           if ($(this).is(':checked')) {
             filterField.value = 'True';
           } else {
             filterField.value = 'False';
           }
-          // falls es sich um ein Listenfeld handelt...
+          // if it is a list filter field...
           if ($(this).attr('name') in listFilterListsValues)
-            // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Listenfilter dargestellt werden sollen
+            // add field object to value list variable for corresponding filter fields to be represented as list filters
             listFilterLists.push(filterField);
         });
 
-        // über alle Checkbox-Filterfelder gehen...
+        // iterate all checkbox filter fields...
         $('.filter-checkbox-fieldset').each(function() {
-          // Feld als Objekt mit Name, Typ und Wert erstellen
+          // create field as an object with name, type and value
           let filterField = {};
           filterField.name = $(this).attr('name');
           filterField.type = $(this).data('type');
-          // Wert des Feldobjekts entsprechend setzen
+          // set the value of the field object accordingly
           filterField.value = checkboxFilterListsValues[filterField.name];
-          // Feldobjekt zur Variable für Wertelisten für entsprechende Filterfelder hinzufügen, die als Checkboxen-Set dargestellt werden sollen
+          // add field object to value list variable for corresponding filter fields to be represented as checkbox sets
           checkboxFilterLists.push(filterField);
         });
 
-        // Date-/Time-/Date-Time-Picker für jedes relevante Filterfeld initialisieren
+        // initialize date/time/datetime picker for each relevant filter field...
         $('.datetime-input').each(function() {
-          // Variable für initiales Datum bzw. initiales Datum mit Zeit definieren
+          // declare variable for initial date/time/datetime
           let initialDateTime = '';
-
-          // falls Filterfeld in Variable für minimale Werte von entsprechenden Intervallfilterfeldern auftritt:
-          // Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
+          // if filter field occurs in variable for minimum values of corresponding interval filter fields:
+          // set variable for initial date/time/datetime to the value there
           for (let i = 0; i < intervalFilterMin.length; i++) {
             if (intervalFilterMin[i].name === $(this).attr('name')) {
               initialDateTime = intervalFilterMin[i].value;
               break;
             }
           }
-
-          // falls Filterfeld in Variable für maximale Werte von entsprechenden Intervallfilterfeldern auftritt:
-          // Variable für initiales Datum bzw. initiales Datum mit Zeit auf dortigen Wert setzen
+          // if filter field occurs in variable for maximum values of corresponding interval filter fields:
+          // set variable for initial date/time/datetime to the value there
           for (let j = 0; j < intervalFilterMax.length; j++) {
             if (intervalFilterMax[j].name === $(this).attr('name')) {
               initialDateTime = intervalFilterMax[j].value;
               break;
             }
           }
-
-          // falls Variable für initiales Datum bzw. initiales Datum mit Zeit gesetzt ist...
+          // if variable for initial date/time/datetime is not empty...
           if (initialDateTime !== '') {
-            // initiales Datum bzw. initiales Datum mit Zeit auf entsprechenden Wert setzen
+            // set initial date/time/datetime to the value of the variable
             $(this).val(initialDateTime);
-            // Data-Attribut hinzufügen mit initialem Datum bzw. initialem Datum mit Zeit (benötigt beim Zurücksetzen der Filter)
+            // add data attribute with initial date/time/datetime (needed when resetting the filters)
             $(this).attr('data-initial', initialDateTime);
           }
         });
 
-        // Listenfelder initialisieren
+        // initialize list fields...
         $("select[data-type='list']").each(function() {
-          // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Listenfilter dargestellt werden sollen...
+          // iterate value list variables for corresponding filter fields that shall be displayed as list filters...
           for (let i = 0; i < listFilterLists.length; i++) {
             if (listFilterLists[i].name === $(this).attr('name')) {
-              // falls Listenfeld nicht schon als Ja-Nein-Listenfeld vordefiniert ist...
+              // if list field is not already predefined as yes-/no list field...
               if (typeof $(this).data('boolean') == 'undefined') {
-                // Werteliste als Optionen im Listenfeld abbilden
+                // display list of values as options in the list field
                 for (let j = 0; j < listFilterLists[i].value.length; j++) {
                   let value = listFilterLists[i].value[j];
                   let text = value;
-                  // ggf. Dezimaltrenner behandeln
+                  // if necessary, handle decimal separators
                   if (/^([0-9]+\.[0-9]+)$/.test(value) === true)
                     text = value.replace('.', ',');
                   $(this).append($('<option>', {
@@ -600,16 +503,16 @@
               break;
             }
           }
-          // zum Abschluss sicherstellen, dass Listenfeld initial auf leerer Option steht
+          // finally, make sure that the list field is initially set to empty option
           $(this).val('');
         });
 
-        // Checkboxen-Sets initialisieren
+        // initialize checkbox sets...
         $('.filter-checkbox-fieldset').each(function() {
-          // Variable für Wertelisten für entsprechende Filterfelder durchgehen, die als Checkboxen-Set dargestellt werden sollen...
+          // iterate value list variables for corresponding filter fields that shall be displayed as checkbox sets...
           for (let i = 0; i < checkboxFilterLists.length; i++) {
             if (checkboxFilterLists[i].name === $(this).attr('name')) {
-              // Werteliste als Checkboxen im Set abbilden
+              // display the list of values as checkboxes in the checkbox set
               for (let j = 0; j < checkboxFilterLists[i].value.length; j++) {
                 let $label = $('<label>').attr('for', 'checkbox-' + i + '-' + j);
                 $label.append($('<input>', {
@@ -626,230 +529,221 @@
           }
         });
 
-        // bei Klick auf einen Ein-Klick-Filter-Button...
+        // on clicking a one-click-filter button...
         $('.filter-one-click-button').on('click', function(e) {
           let $this = $(this);
-
-          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht aktivieren
+          // enable button for passing the current filter set to the table
           $('#subsetter').prop('disabled', false);
-
-          // alle übrigen Ein-Klick-Filter-Buttons deaktivieren
+          // disable all other one-click-filter buttons
           $this.parent().children('button').each(function() {
             if ($(this).attr('id') !== e.target.id) {
               $(this).prop('disabled', true);
             }
           });
-
-          // Button zum Anwenden der Filter deaktivieren
+          // disable button to apply filters
           $('#filter-apply').prop('disabled', true);
-
-          // Liste für Filterobjekte definieren und befüllen
+          // declare and fill the filter object list
           let filterAttributesList = customMapFilters(e.target.id);
-
-          // Filter anwenden
+          // apply filters
           applyFilters(filterAttributesList);
         });
 
-        // bei Klick auf Button zum Anwenden der Filter...
+        // on clicking the button to apply the filters...
         $('#filter-apply').on('click', function() {
-          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht aktivieren
+          // enable button for passing the current filter set to the table
           $('#subsetter').prop('disabled', false);
 
-          // alle Ein-Klick-Filter-Buttons deaktivieren
+          // disable all one-click-filter buttons
           $('#filter-one-click').children('button').each(function() {
             $(this).prop('disabled', true);
           });
 
-          // Variable für Liste für Filterobjekte definieren
+          // declare a variable for the filter object list
           let filterAttributesList = [];
 
-          // Primärschlüssel der aktuellen Filtermenge zurücksetzen
+          // reset primary keys of current filter set
           window.currentFilterPrimaryKeys = [];
 
-          // Bounding-Box der aktuellen Filtermenge zurücksetzen
+          // reset bounding box of current filter set
           window.currentFilterExtent = [];
 
-          // Hinweise auf additive Wirkung der Filter anzeigen
+          // show indication of additive effect of the filters
           $('#filter-alert').show();
 
-          // über alle Filter (außer Boolean-Filter und Checkboxen-Sets) gehen...
+          // iterate all filters (except Boolean and checkbox filters)...
           $('.filter-input').each(function() {
             if ($(this).val()) {
-              // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
+              // create filter as an object with name, type, "lefty/righty" and value
               let filterAttribute = {};
               filterAttribute.name = $(this).attr('name');
               filterAttribute.type = $(this).data('type');
               filterAttribute.intervalside = $(this).data('intervalside');
               filterAttribute.value = $(this).val();
-              // Filterobjekt zur Liste für Filterobjekte hinzufügen
+              // add filter object to filter object list
               filterAttributesList.push(filterAttribute);
             }
           });
 
-          // über alle Boolean-Filter gehen...
+          // iterate all Boolean filters...
           $('.filter-input input[type="checkbox"]').each(function() {
-            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert erstellen
+            // create filter as an object with name, type, "lefty/righty" and value
             let filterAttribute = {};
             filterAttribute.name = $(this).attr('name');
             filterAttribute.type = $(this).data('type');
             filterAttribute.intervalside = $(this).data('intervalside');
-            // Wert des Filterobjekts als Boolean setzen
+            // set value of filter object as Boolean
             if ($(this).is(':checked')) {
               filterAttribute.value = 'True';
             } else {
               filterAttribute.value = 'False';
             }
-            // Filterobjekt zur Liste für Filterobjekte hinzufügen
+            // add filter object to filter object list
             filterAttributesList.push(filterAttribute);
           });
 
-          // über alle Checkboxen-Sets gehen...
+          // iterate all checkbox filters...
           $('.filter-checkbox-fieldset').each(function() {
             let checkedObjectsAtAll = false;
-            // Filter als Objekt mit Name, Typ, "Intervallseite" und Wert (als Liste) erstellen
+            // create filter as an object with name, type, "lefty/righty" and values (as a list)
             let filterAttribute = {};
             let name = $(this).attr('name');
             filterAttribute.name = name;
             filterAttribute.type = $(this).data('type');
-            // Wirkung der Filter (additiv oder exklusiv) entweder aus entsprechendem Auswahlfeld auslesen
-            // oder direkt als exklusiv festlegen, wenn kein entsprechendes Auswahlfeld existiert
+            // either read the effect of the filter (additive or exclusive)
+            // from the corresponding selection field
+            // or set it directly as exclusive if no corresponding selection field exists
             if ($('select[id^=filtertype-' + name + ']').length)
               filterAttribute.filtertype = $('select[id^=filtertype-' + name + ']').children('option:selected').val();
             else
               filterAttribute.filtertype = 'exclusive';
             filterAttribute.intervalside = $(this).data('intervalside');
             filterAttribute.value = [];
-            // Wertliste des Filterobjekts mit dem Wert jeder aktiven Checkbox befüllen
+            // fill the value list of the filter object with the value of each active checkbox
             $(this).find('input:checked').each(function() {
               checkedObjectsAtAll = true;
               filterAttribute.value.push($(this).val());
             });
-            // falls mindestens eine Checkbox im Checkboxen-Set aktiv ist...
+            // if at least one checkbox in the checkbox set is active...
             if (checkedObjectsAtAll)
-              // Filterobjekt zur Liste für Filterobjekte hinzufügen
+              // add filter object to filter object list
               filterAttributesList.push(filterAttribute);
           });
 
-          // Filter anwenden
+          // apply filters
           applyFilters(filterAttributesList);
         });
 
-        // bei Klick auf Button zum Zurücksetzen der Filter...
+        // on clicking the button to reset the filters...
         $('#filter-reset').on('click', function() {
-          // alle Ein-Klick-Filter-Buttons (wieder) aktivieren
+          // (re)enable all one-click filter buttons
           $('#filter-one-click').children('button').each(function() {
             $(this).prop('disabled', false);
           });
 
-          // Button zum Anwenden der Filter (wieder) aktivieren
+          // (re)enable button to apply the filters
           $('#filter-apply').prop('disabled', false);
 
-          // Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht deaktivieren
+          // enable button for passing the current filter set to the table
           $('#subsetter').prop('disabled', true);
 
-          // Hinweise auf additive Wirkung der Filter (wieder) verbergen
+          // hide indication of additive effect of the filters
           $('#filter-alert').hide();
 
-          // über alle Filterfelder (außer Boolean- und Checkbox-Filterfelder) gehen...
+          // iterate all filter fields (except Boolean and checkbox filter fields)...
           $('.filter-input').each(function() {
-            // falls initialer Wert vorhanden...
+            // if initial value exists...
             if ($(this).data('initial'))
-              // Filterfeld auf initialen Wert setzen
+              // set filter field to initial value
               $(this).val($(this).data('initial'));
-            // ansonsten Filterfeld auf leeren Wert setzen
+            // otherwise set filter field to empty value
             else
               $(this).val('');
           });
 
-          // über alle Boolean-Filterfelder gehen...
+          // iterate all Boolean filter fields...
           $('.filter-input input[type="checkbox"]').each(function() {
-            // falls initialer Wert vorhanden...
+            // if initial value exists...
             if ($(this).data('initial')) {
-              // Filterfeld auf initialen Wert setzen
+              // set filter field to initial value
               let initialValue = $(this).data('initial');
-              // Boolean korrekt behandeln
+              // treat Boolean correctly
               if (initialValue.toLowerCase() === 'false') {
                 $(this).prop('checked', false);
               } else {
                 $(this).prop('checked', true);
               }
             }
-            // ansonsten Filterfeld auf leeren Wert setzen
+            // otherwise set filter field to empty value
             else {
               $(this).prop('checked', false);
             }
           });
 
-          // über alle Checkbox-Filterfelder gehen...
+          // iterate all checkbox filter fields...
           $('.filter-checkbox-fieldset').each(function() {
-            // alle aktivierten Checkboxen deaktivieren
+            // deactivate all activated checkboxes
             $(this).find('input:checked').each(function() {
               $(this).prop('checked', false);
             });
           });
-          // Wirkmodus aller Checkbox-Filter wieder auf Standard setzen, also additiv (wie „UND“)
+          // set the effective mode of all checkbox filters back to standard, i.e. additive (= AND)
           $('.filtertype').each(function() {
             $(this)[0].selectedIndex = 0;
           });
 
-          // Primärschlüssel der aktuellen Filtermenge zurücksetzen
+          // reset primary keys of current filter set
           window.currentFilterPrimaryKeys = [];
 
-          // Bounding-Box der aktuellen Filtermenge zurücksetzen
+          // reset bounding box of current filter set
           window.currentFilterExtent = [];
 
-          // alle Layers (= Features) auf der Karte wieder anzeigen
+          // show all features on the map again
           showAllMapFeatures();
         });
 
-        // bei Klick auf Kreuzchen in einem Filterfeld...
+        // on clicking a button to empty a filter field...
         $('.input-reset').on('click', function() {
-          // betreffendes Filterfeld leeren
+          // empty respective filter field
           $(this).prev().is('button') ? $(this).prev().prev().val('') : $(this).prev().val('');
         });
 
-        // bei Klick auf Button zum Setzen des initialen Kartenausschnitts...
-        $('#map-extent-initial').on('click', function() {
-          // initiales Zoomlevel aus Leaflet-Konfiguration auslesen
-          let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
-          defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
-          // initiales Kartenzentrum aus Leaflet-Konfiguration auslesen
-          let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
-          let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
-          let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
-          // Kartenausschnitt mittels Kartenzentrum und Zoom-Level setzen
-          setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
-        });
-
-        // bei Klick auf Button zum Setzen des Kartenausschnitts auf Bounding-Box der aktuellen Filtermenge...
+        // on clicking the button to set map extent to that of currently filtered objects...
         $('#map-extent-filter').on('click', function() {
-          // falls Filter aktiv...
           if (window.currentFilterExtent.length > 0)
-            // Kartenausschnitt auf Bounding-Box der aktuellen Filtermenge setzen
+            // set map extent to that of currently filtered objects, if filter is active
             setMapExtentByBoundingBox(window.currentFilterExtent[1][1], window.currentFilterExtent[1][0], window.currentFilterExtent[0][1], window.currentFilterExtent[0][0]);
-          // ansonsten...
           else
-            // Kartenausschnitt auf Bounding-Box aller Objekte setzen
+              // set map extent to that of all objects, if filter is not active
             setMapExtentByLeafletBounds(objectsExtent);
         });
 
-        // bei Klick auf Button zur Übergabe der aktuellen Filtermenge an Tabellenansicht...
+        // on clicking the button to return to initial map extent...
+        $('#map-extent-initial').on('click', function() {
+          // get initial zoom level from Leaflet configuration
+          let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
+          defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
+          // get initial map center from Leaflet configuration
+          let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
+          let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
+          let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
+          // set initial map extent by means of initial zoom level initial map center
+          setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
+        });
+
+        // on clicking a button to transfer currently filtered data to table...
         $('#subsetter').on('click', function() {
-          // Filtermenge behandeln und übergeben
-          {% with tmp='worschdsupp' %}
-            let url_mask = "{% url 'datenmanagement:'|add:model_name|add:'_list'|add:'_subset' tmp %}";
-          {% endwith %}
+          // create subset of currently filtered data and transfer it to table
           subsetting(
             window.currentFilterPrimaryKeys,
             '{% url "toolbox:subset_add" %}',
             '{{ model_name }}',
-            '{{ model_pk_field }}',
-            url_mask,
+            '{{ model_pk_field_name }}',
+            '{{ url_model_list_subset_placeholder }}',
             'Bei der Übernahme der aktuellen Filtermenge in die Tabelle ist ein Serverfehler aufgetreten.'
           );
         });
 
-        // Höhe der Karte dynamisch setzen anhand der Höhen der Seitenbereiche
+        // dynamically set the height of the map based on the heights of the page areas
         if ($('#map-control').hasClass('side')) {
           let height = $('#map-side-container').position().top;
           $('.side').each(function() {
@@ -861,214 +755,6 @@
             currMap.invalidateSize();
         }
       });
-
-      /**
-       * @function
-       * @name filterMapFeatures
-       *
-       * filtert Layer (= Features) auf der Karte
-       *
-       * @param {Object[]} filterAttributesList - Liste für Filterobjekte
-       * @param {Object} layer - Layer (= Feature)
-       * @param {boolean} isSubLayer - Layer (= Feature) ist Bestandteil einer Layergruppe (= eines Clusters)?
-       * @param {Object} [clusterLayer=layer] - Layergruppe (= Cluster), falls vorhanden; standardmäßig auf den Layer (= das Feature) gesetzt
-       */
-      function filterMapFeatures(filterAttributesList, layer, isSubLayer, clusterLayer = layer) {
-        let stillVisible = true;
-        for (let i = 0; i < filterAttributesList.length; i++) {
-          // bei Stichtagsfilter einen entsprechenden Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-          if (filterAttributesList[i].name === 'deadline') {
-            // auf passende Formatierung achten, das es sich beim Filter um einen Datumsfilter handelt!
-            if (!(new Date(filterAttributesList[i].value) > new Date(layer.feature.properties['deadline_0'])) || !(new Date(layer.feature.properties['deadline_1']) > new Date(filterAttributesList[i].value)))
-              stillVisible = false;
-          // bei "linkem" Intervallfilter (also für niedrigere/kleinere/frühere Werte) einen "kleiner"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-          } else if (filterAttributesList[i].intervalside === 'left') {
-            if (filterAttributesList[i].type === 'date') {
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-              if (new Date(filterAttributesList[i].value) > new Date(layer.feature.properties[filterAttributesList[i].name]))
-                stillVisible = false;
-            } else if (filterAttributesList[i].type === 'datetime') {
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Zeitstempelfilter handelt!
-              if (new Date(filterAttributesList[i].value).valueOf() > new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
-                stillVisible = false;
-            } else {
-              if (filterAttributesList[i].value > layer.feature.properties[filterAttributesList[i].name])
-                stillVisible = false;
-            }
-          // bei "rechtem" Intervallfilter (also für höhere/größere/spätere Werte) einen "größer"-Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-          } else if (filterAttributesList[i].intervalside === 'right') {
-            if (filterAttributesList[i].type === 'date') {
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Datumsfilter handelt!
-              if (new Date(layer.feature.properties[filterAttributesList[i].name]) > new Date(filterAttributesList[i].value))
-                stillVisible = false;
-            } else if (filterAttributesList[i].type === 'datetime') {
-              // auf passende Formatierung achten, wenn es sich beim Filter um einen Zeitstempelfilter handelt!
-              if (new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf() > new Date(filterAttributesList[i].value).valueOf())
-                stillVisible = false;
-            } else {
-              if (layer.feature.properties[filterAttributesList[i].name] > filterAttributesList[i].value)
-                stillVisible = false;
-            }
-          // bei Checkboxen-Sets String-Vergleich mit allen aktivierten Checkboxen durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken, falls einzelne Checkboxen additiv wirken sollen
-          } else if (filterAttributesList[i].type === 'checkbox-set' && filterAttributesList[i].value.length > 0) {
-            if (filterAttributesList[i].filtertype === 'additive') {
-              for (let j = 0; j < filterAttributesList[i].value.length; j++) {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[j].toLowerCase()) === -1)
-                  stillVisible = false;
-              }
-            } else {
-              // mit Hilfsvariable arbeiten, um dem exklusiven Charakter (ODER) gerecht zu werden
-              let tempStillVisible = false;
-              for (let k = 0; k < filterAttributesList[i].value.length; k++) {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(filterAttributesList[i].value[k].toLowerCase()) !== -1) {
-                  tempStillVisible = true;
-                  break;
-                }
-              }
-              if (!tempStillVisible)
-                stillVisible = false;
-            }
-          // ansonsten einen Vergleich durchführen und Layer (= Feature) ggf. zur Ausblendung vormerken
-          } else if (filterAttributesList[i].type !== 'checkbox-set') {
-            if (filterAttributesList[i].type === 'date' || filterAttributesList[i].type === 'datetime') {
-              // negative oder positive Wirkungslogik?
-              if (filterAttributesList[i].logic === 'negative') {
-                // auf passende Formatierung achten, wenn es sich beim Filter um einen Datums- oder Zeitstempelfilter handelt!
-                if (new Date(filterAttributesList[i].value).valueOf() === new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
-                  stillVisible = false;
-              } else {
-                // auf passende Formatierung achten, wenn es sich beim Filter um einen Datums- oder Zeitstempelfilter handelt!
-                if (new Date(filterAttributesList[i].value).valueOf() !== new Date(layer.feature.properties[filterAttributesList[i].name]).valueOf())
-                  stillVisible = false;
-              }
-            } else if (filterAttributesList[i].type === 'list') {
-              // negative oder positive Wirkungslogik?
-              if (filterAttributesList[i].logic === 'negative') {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() === filterAttributesList[i].value.toLowerCase())
-                  stillVisible = false;
-              } else {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase() !== filterAttributesList[i].value.toLowerCase())
-                  stillVisible = false;
-              }
-            } else {
-               let value = filterAttributesList[i].value.toLowerCase();
-              // Dezimaltrenner behandeln, falls eine Dezimalzahl eingegeben wurde
-              if (/^([0-9]+,[0-9]+)$/.test(filterAttributesList[i].value) === true)
-                value = filterAttributesList[i].value.replace(',', '.');
-              // negative oder positive Wirkungslogik?
-              if (filterAttributesList[i].logic === 'negative') {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(value) !== -1)
-                  stillVisible = false;
-              } else {
-                if (layer.feature.properties[filterAttributesList[i].name].toLowerCase().indexOf(value) === -1)
-                  stillVisible = false;
-              }
-            }
-          }
-        }
-        // falls Layer (= Feature) nicht zur Ausblendung vorgemerkt ist, also weiterhin sichtbar sein soll:
-        if (stillVisible) {
-          // Variable für Primärschlüssel der aktuellen Filtermenge aktualisieren
-          window.currentFilterPrimaryKeys.push(layer.feature.properties['{{ model_pk_field }}']);
-          // Variable für Bounding-Box der aktuellen Filtermenge aktualisieren
-          let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
-          let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
-          let south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
-          let west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
-          if (window.currentFilterExtent.length === 0) {
-            window.currentFilterExtent[0] = [];
-            window.currentFilterExtent[0][0] = north;
-            window.currentFilterExtent[0][1] = east;
-            window.currentFilterExtent[1] = [];
-            window.currentFilterExtent[1][0] = south;
-            window.currentFilterExtent[1][1] = west;
-          } else {
-            if (window.currentFilterExtent[0][0] > north)
-              window.currentFilterExtent[0][0] = north;
-            if (window.currentFilterExtent[0][1] > east)
-              window.currentFilterExtent[0][1] = east;
-            if (window.currentFilterExtent[1][0] < south)
-              window.currentFilterExtent[1][0] = south;
-            if (window.currentFilterExtent[1][1] < west)
-              window.currentFilterExtent[1][1] = west;
-          }
-          // Layer (= Feature) einblenden, falls es von initialer Feature-Ausblendung betroffen ist
-          if (window.mapFilterHideInitial) {
-            if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
-              layer.setStyle({
-                color: '#3388ff',
-                fill: true,
-                fillColor: '#3388ff',
-                stroke: true,
-                opacity: 1
-              });
-            }
-          }
-        // ansonsten:
-        } else {
-          // Layer (= Feature) tatsächlich ausblenden
-          if (isSubLayer) {
-            window.removedLayers.push(layer);
-            clusterLayer.removeLayer(layer);
-          } else
-            layer.getElement().style.display = 'none';
-        }
-      }
-
-      /**
-       * @function
-       * @name showAllMapFeatures
-       *
-       * zeigt alle Layers (= Features) auf der Karte (wieder) an
-       */
-      function showAllMapFeatures() {
-        currMap.eachLayer(function(layer) {
-          if (layer.feature) {
-            layer.getElement().style.display = '';
-            // Layer (= Feature) ausblenden, falls es von initialer Feature-Ausblendung betroffen ist
-            if (window.mapFilterHideInitial) {
-              if (typeof layer.feature.properties.hide_initial !== 'undefined' && layer.feature.properties.hide_initial) {
-                layer.setStyle({
-                  fill: false,
-                  stroke: false,
-                  opacity: 0
-                });
-              }
-            }
-          } else if (layer.id === 'cluster') {
-            layer.addLayers(window.removedLayers);
-            layer.refreshClusters();
-          }
-        });
-        window.removedLayers = [];
-      }
-
-      /**
-       * @function
-       * @name applyFilters
-       *
-       * wendet Filter an
-       *
-       * @param {Object[]} filterAttributesList - Liste für Filterobjekte
-       */
-      function applyFilters(filterAttributesList) {
-        if (filterAttributesList.length > 0) {
-          showAllMapFeatures();
-          window.currMap.eachLayer(function(layer) {
-            if (layer.feature) {
-              filterMapFeatures(filterAttributesList, layer, false);
-            } else if (layer.id === 'cluster') {
-              let clusterLayer = layer;
-              layer.eachLayer(function(subLayer) {
-                filterMapFeatures(filterAttributesList, subLayer, true, clusterLayer);
-              });
-              layer.refreshClusters();
-            }
-          });
-        } else {
-          showAllMapFeatures();
-        }
-      }
     </script>
   {% endif %}
 {% endblock %}

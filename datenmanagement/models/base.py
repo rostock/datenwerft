@@ -162,10 +162,10 @@ class Basemodel(Model):
     map_deadlinefilter_fields = None
     # Dictionary:
     # names of those fields of this model (as keys)
-    # which shall appear as interval/range map filters in the map view of this model
+    # which shall appear as interval map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
     # (always processed in pairs!)
-    map_rangefilter_fields = None
+    map_intervalfilter_fields = None
     # Dictionary:
     # names of those fields of this model (as keys)
     # which shall appear as map filters in the map view of this model

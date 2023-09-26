@@ -14,6 +14,7 @@
     "configureMap": true,
     "createFilterObject": true,
     "currMap": true,
+    "customMapFilters": true,
     "enableAddressReferenceButton": true,
     "enableMapLocate": true,
     "featureGeometry": true,
@@ -29,8 +30,10 @@
     "keepDjangoRequiredMessages": true,
     "L": true,
     "martinez": true,
+    "objectsExtent": true,
     "orangeMarker": true,
     "proj4": true,
+    "Promise": true,
     "redMarker": true,
     "results": true,
     "searchField": true,
@@ -42,13 +45,13 @@
     "setMapExtentByBoundingBox": true,
     "setMapExtentByLeafletBounds": true,
     "setMarkerToAddressSearchResult": true,
+    "showAllMapFeatures": true,
     "subsetting": true,
     "toggleModal": true,
     "Wkt": true
   },
   "ignorePatterns": [
-    "datenmanagement/templates/datenmanagement/form.html",
-    "datenmanagement/templates/datenmanagement/map.html"
+    "datenmanagement/templates/datenmanagement/form.html"
   ],
   "parserOptions": {
     "ecmaVersion": "latest",

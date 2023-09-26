@@ -13,9 +13,9 @@
 {% block scripts %}
   {{ block.super }}
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
-  <script src="{% static 'datenmanagement/js/list.js' %}"></script>
   <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script src="{% static 'datenmanagement/js/subsetting.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/list.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -38,8 +38,7 @@
       <a class="btn btn-secondary" role="button" href="{{ url_model_map }}"><i class="fas fa-map"></i> alle Datensätze auf Karte anzeigen</a>
       <button id="subsetter" class="btn btn-secondary"><i class="fas fa-map"></i> <i class="fas fa-filter"></i> aktuelle Filtermenge auf Karte übernehmen</button>
     {% endif %}
-    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i>
-      zurück</a>
+    <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i>zurück</a>
   </div>
   {% if objects_count > 0 %}
     <div class="d-grid mt-5{% if not actions %} mb-3{% endif %} gap-2 mx-auto">
@@ -117,7 +116,7 @@
               let stringWithPrimaryKeys = tableData[i][0];
               currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value="/, '').replace(/">/, ''));
             }
-            // create subset of currently filtered data and transfer it to table
+            // create subset of currently filtered data and transfer it to map
             subsetting(
               currentTablePrimaryKeys,
               '{% url "toolbox:subset_add" %}',
@@ -148,7 +147,7 @@
       </div>
       <div class="d-grid mt-2 mb-3">
         <div class="input-group">
-          <label hidden for="action-select" class="form-label">Aktion</label>
+          <label hidden for="action-select" class="form-label"></label>
           <select class="form-select" id="action-select" name="action">
             <option selected>Aktion wählen…</option>
             <option value="delete-selected">ausgewählte Datensätze löschen</option>

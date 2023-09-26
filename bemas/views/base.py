@@ -1,13 +1,13 @@
 from datetime import date, datetime
 from django.apps import apps
-from django.db.models import ForeignKey, Q
+from django.db.models import ForeignKey
 from django.urls import reverse
 from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
-from re import match, search, sub
 
 from toolbox.models import Subsets
+from toolbox.utils import optimize_datatable_filter
 from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user, is_geometry_field
@@ -254,35 +254,8 @@ class GenericTableDataView(BaseDatatableView):
             # foreign key target model is object class
             else:
               search_column += '__search_content'
-          case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
-          case_b = search('^[0-9]{2}\\.[0-9]{4}$', search_element)
-          case_c = search('^[0-9]{2}\\.[0-9]{2}$', search_element)
-          if case_a or case_b or case_c:
-            search_element_splitted = search_element.split('.')
-            kwargs = {
-                '{0}__{1}'.format(search_column, 'icontains'): (search_element_splitted[
-                    2] + '-' if case_a else '') +
-                search_element_splitted[1] + '-' +
-                search_element_splitted[0]
-            }
-          elif search_element == 'ja':
-            kwargs = {
-                '{0}__{1}'.format(search_column, 'icontains'): 'true'
-            }
-          elif search_element == 'nein' or search_element == 'nei':
-            kwargs = {
-                '{0}__{1}'.format(search_column, 'icontains'): 'false'
-            }
-          elif match(r"^[0-9]+,[0-9]+$", search_element):
-            kwargs = {
-                '{0}__{1}'.format(search_column, 'icontains'): sub(',', '.', search_element)
-            }
-          else:
-            kwargs = {
-                '{0}__{1}'.format(search_column, 'icontains'): search_element
-            }
-          q = Q(**kwargs)
-          qs_params_inner = qs_params_inner | q if qs_params_inner else q
+          qs_params_inner = optimize_datatable_filter(
+            search_element, search_column, qs_params_inner)
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
     return qs

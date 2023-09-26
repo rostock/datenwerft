@@ -2,20 +2,20 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
 from django.core.serializers import serialize
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import TemplateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
 from json import dumps, loads
-from re import IGNORECASE, match, search, sub
+from re import IGNORECASE, match, sub
 from time import time
 from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_data, get_thumb_url, localize_number
-from .functions import add_user_agent_context_elements, get_model_objects, \
-  add_model_context_elements
+from toolbox.utils import optimize_datatable_filter
+from .functions import add_basic_model_context_elements, add_user_agent_context_elements, \
+  get_model_objects
 
 
 class TableDataCompositionView(BaseDatatableView):
@@ -192,35 +192,7 @@ class TableDataCompositionView(BaseDatatableView):
             column_with_foreign_key = self.columns_with_foreign_key.get(column)
             if column_with_foreign_key is not None:
               column = column + str('__') + column_with_foreign_key
-          case_a = search('^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$', search_element)
-          case_b = search('^[0-9]{2}\\.[0-9]{4}$', search_element)
-          case_c = search('^[0-9]{2}\\.[0-9]{2}$', search_element)
-          if case_a or case_b or case_c:
-            search_element_splitted = search_element.split('.')
-            kwargs = {
-                '{0}__{1}'.format(column, 'icontains'): (search_element_splitted[
-                    2] + '-' if case_a else '') +
-                search_element_splitted[1] + '-' +
-                search_element_splitted[0]
-            }
-          elif search_element == 'ja':
-            kwargs = {
-                '{0}__{1}'.format(column, 'icontains'): 'true'
-            }
-          elif search_element == 'nein' or search_element == 'nei':
-            kwargs = {
-                '{0}__{1}'.format(column, 'icontains'): 'false'
-            }
-          elif match(r"^[0-9]+,[0-9]+$", search_element):
-            kwargs = {
-                '{0}__{1}'.format(column, 'icontains'): sub(',', '.', search_element)
-            }
-          else:
-            kwargs = {
-                '{0}__{1}'.format(column, 'icontains'): search_element
-            }
-          q = Q(**kwargs)
-          qs_params_inner = qs_params_inner | q if qs_params_inner else q
+          qs_params_inner = optimize_datatable_filter(search_element, column, qs_params_inner)
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
     return qs
@@ -265,12 +237,9 @@ class TableListView(TemplateView):
     context = super().get_context_data(**kwargs)
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
     # add further elements to context
-    context['model_name'] = model_name
-    context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model.BasemodelMeta.description
-    context['model_pk_field_name'] = self.model._meta.pk.name
-    context['model_is_editable'] = self.model.BasemodelMeta.editable
     if (
         self.model.BasemodelMeta.editable
         and self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
@@ -408,7 +377,7 @@ class MapDataCompositionView(JsonView):
             )
           # optional: mark object as inactive
           if hasattr(curr_object, 'aktiv') and curr_object.aktiv is False:
-            feature['properties']['inaktiv'] = True
+            feature['properties']['inaktiv'] = 'true'
           # optional: mark object as to hide it initially
           if self.model.BasemodelMeta.map_filter_hide_initial:
             if str(
@@ -417,7 +386,7 @@ class MapDataCompositionView(JsonView):
                         self.model.BasemodelMeta.map_filter_hide_initial.keys())[0])) == str(
                 list(
                     self.model.BasemodelMeta.map_filter_hide_initial.values())[0]):
-              feature['properties']['hide_initial'] = True
+              feature['properties']['hide_initial'] = 'true'
           # optional: mark object as to highlight it
           if self.model.BasemodelMeta.highlight_flag:
             data = getattr(curr_object, self.model.BasemodelMeta.highlight_flag)
@@ -434,9 +403,9 @@ class MapDataCompositionView(JsonView):
               feature['properties']['deadline_' + str(index)] = str(data)
               # additionally set field as an ordinary map filter property, too
               feature['properties'][field] = str(data)
-          # optional: set deadline interval/range map filter as properties
-          if self.model.BasemodelMeta.map_rangefilter_fields:
-            for field in self.model.BasemodelMeta.map_rangefilter_fields.keys():
+          # optional: set deadline interval map filter as properties
+          if self.model.BasemodelMeta.map_intervalfilter_fields:
+            for field in self.model.BasemodelMeta.map_intervalfilter_fields.keys():
               feature['properties'][field] = str(get_data(curr_object, field))
           # optional: set all other map filters as properties
           if self.model.BasemodelMeta.map_filter_fields:
@@ -463,68 +432,67 @@ class MapListView(TemplateView):
     :param kwargs:
     :return: dictionary with all context elements for this view
     """
-    # Variablen für Filterfelder vorbereiten, die als Intervallfelder fungieren sollen,
-    # und zwar eine Variable mit dem Minimal- und eine Variable mit dem Maximalwert
+    # declare variables for filter fields that are to act as interval map filters,
+    # one variable with the minimum value and one variable with the maximum value
     interval_filter_min = None
     interval_filter_max = None
-    if self.model.BasemodelMeta.map_rangefilter_fields:
-      # Feld für Minimalwerte definieren
-      field_name = list(self.model.BasemodelMeta.map_rangefilter_fields.keys())[0]
-      # NOT-NULL-Filter konstruieren
+    if self.model.BasemodelMeta.map_intervalfilter_fields:
+      # define field for minimum values
+      field_name = list(self.model.BasemodelMeta.map_intervalfilter_fields.keys())[0]
+      # construct NOT NULL filter
       field_name_isnull = field_name + '__isnull'
-      # Minimalwert erhalten und in vorbereitete Variable einfügen
+      # get minimum value and insert into declared variable
       interval_filter_min = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
           field_name).values_list(field_name, flat=True).first()
       if isinstance(interval_filter_min, date):
         interval_filter_min = interval_filter_min.strftime('%Y-%m-%d')
       elif isinstance(interval_filter_min, datetime):
         interval_filter_min = interval_filter_min.strftime('%Y-%m-%d %H:%M:%S')
-      # Feld für Maximalwerte definieren
-      field_name = list(self.model.BasemodelMeta.map_rangefilter_fields.keys())[1]
-      # NOT-NULL-Filter konstruieren
+      # define field for maximum values
+      field_name = list(self.model.BasemodelMeta.map_intervalfilter_fields.keys())[1]
+      # construct NOT NULL filter
       field_name_isnull = field_name + '__isnull'
-      # Maximalwert erhalten und in vorbereitete Variable einfügen
+      # get maximum value and insert into declared variable
       interval_filter_max = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
           field_name).values_list(field_name, flat=True).last()
       if isinstance(interval_filter_max, date):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d')
       elif isinstance(interval_filter_max, datetime):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d %H:%M:%S')
-    # Dictionary für Filterfelder vorbereiten, die als Auswahlfeld fungieren sollen
+    # declare dictionary for filter fields that are to act as selections
     list_filter_lists = {}
     if self.model.BasemodelMeta.map_filter_fields_as_list:
-      # alle entsprechend definierten Felder durchgehen
+      # go through all appropriately defined fields...
       for field_name in self.model.BasemodelMeta.map_filter_fields_as_list:
-        # passendes Zielmodell identifizieren
+        # identify suitable target model
         target_model = self.model._meta.get_field(field_name).remote_field.model
-        # passendes Feld im Zielmodell für die Sortierung identifizieren
+        # identify the suitable field in the target model for sorting
         foreign_field_name_ordering = target_model._meta.ordering[0]
-        # passendes Feld im Zielmodell für die Anzeige identifizieren
+        # identify the suitable field in the target model for display
         if target_model.BasemodelMeta.naming:
           foreign_field_name_naming = target_model.BasemodelMeta.naming
         else:
           foreign_field_name_naming = foreign_field_name_ordering
-        # NOT-NULL-Filter konstruieren
+        # construct NOT NULL filter
         field_name_isnull = field_name + '__isnull'
-        # sortierte Liste aller eindeutigen Werte des passenden Feldes aus Zielmodell erhalten
+        # sorted list of all unique values of the matching field obtained from the target model
         value_list = list(
             self.model.objects.exclude(**{field_name_isnull: True}).order_by(
                 field_name + '__' + foreign_field_name_ordering).values_list(
                 field_name + '__' + foreign_field_name_naming, flat=True).distinct())
-        # Dezimalzahlen in Liste in Strings umwandeln,
-        # da Dezimalzahlen nicht als JSON serialisiert werden können
+        # convert decimal numbers in list to strings,
+        # since decimal numbers cannot be serialized as JSON
         cleaned_value_list = []
         for value in value_list:
           cleaned_value_list.append(str(value) if isinstance(value, Decimal) else value)
-        # Liste in vorbereitetes Dictionary einfügen
+        # insert list into declared dictionary
         list_filter_lists[field_name] = cleaned_value_list
-    # Dictionary für Filterfelder vorbereiten, die als Checkboxen-Set fungieren sollen
+    # declare dictionary for filter fields that are to act as checkbox sets
     checkbox_filter_lists = {}
     if self.model.BasemodelMeta.map_filter_fields:
-      # alle entsprechend definierten Felder durchgehen
+      # go through all appropriately defined fields...
       for field_name in self.model.BasemodelMeta.map_filter_fields:
-        # falls es sich um ein ChoiceArrayField handelt
-        # oder das Feld explizit als Checkboxen-Set fungieren soll...
+        # if it is a ChoiceArrayField or the field shall explicitly function as a checkbox set...
         if (
           self.model._meta.get_field(field_name).__class__.__name__ == 'ChoiceArrayField'
           or (
@@ -533,85 +501,106 @@ class MapListView(TemplateView):
           )
         ):
           complete_field_name_ordering = complete_field_name_naming = field_name
-          # falls es sich um ein Fremdschlüsselfeld handelt...
+          # if it is a foreign key field...
           if (
             hasattr(self.model._meta.get_field(field_name), 'remote_field')
             and self.model._meta.get_field(field_name).remote_field is not None
           ):
-            # passendes Zielmodell identifizieren
+            # identify suitable target model
             target_model = self.model._meta.get_field(field_name).remote_field.model
-            # passendes Feld im Zielmodell für die Sortierung identifizieren
+            # identify the suitable field in the target model for sorting
             foreign_field_name_ordering = target_model._meta.ordering[0]
-            # passendes Feld im Zielmodell für die Anzeige identifizieren
+            # identify the suitable field in the target model for display
             if target_model.BasemodelMeta.naming:
               foreign_field_name_naming = target_model.BasemodelMeta.naming
             else:
               foreign_field_name_naming = foreign_field_name_ordering
             complete_field_name_ordering = field_name + '__' + foreign_field_name_ordering
             complete_field_name_naming = field_name + '__' + foreign_field_name_naming
-          # NOT-NULL-Filter konstruieren
+          # construct NOT NULL filter
           field_name_isnull = field_name + '__isnull'
-          # sortierte Liste aller eindeutigen Werte des Feldes erhalten
+          # sorted list of all unique values of the matching field obtained from the target model
           values_list = list(
             self.model.objects.exclude(**{field_name_isnull: True}).order_by(
               complete_field_name_ordering).values_list(
               complete_field_name_naming, flat=True).distinct())
-          # falls es sich NICHT um ein Fremdschlüsselfeld handelt...
+          # if it is NOT a foreign key field...
           if field_name == complete_field_name_ordering:
-            # Werte vereinzeln und sortierte Liste aller eindeutigen Einzelwerte erhalten
+            # separate values and get a sorted list of all unique individual values
             value_list = list([item for sublist in values_list for item in sublist])
             distinct_value_list = []
             for value_list_item in value_list:
               if value_list_item not in distinct_value_list:
                 distinct_value_list.append(value_list_item)
-            # Dezimalzahlen in Liste in Strings umwandeln,
-            # da Dezimalzahlen nicht als JSON serialisiert werden können
+            # convert decimal numbers in list to strings,
+            # since decimal numbers cannot be serialized as JSON
             cleaned_distinct_value_list = []
             for distinct_value in distinct_value_list:
               cleaned_distinct_value_list.append(str(distinct_value)
                                                  if isinstance(distinct_value, Decimal)
                                                  else distinct_value)
-            # Liste in vorbereitetes Dictionary einfügen
+            # insert list into declared dictionary
             checkbox_filter_lists[field_name] = cleaned_distinct_value_list
-          # ansonsten...
+          # otherwise...
           else:
-            # sortierte Liste aller eindeutigen Einzelwerte
-            # direkt in vorbereitetes Dictionary einfügen
+            # insert a sorted list of all unique individual values
+            # directly into the declared dictionary
             checkbox_filter_lists[field_name] = values_list
+    model_name = self.model.__name__
+    model_name_lower = model_name.lower()
     context = super().get_context_data(**kwargs)
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
-    context = add_model_context_elements(context, self.model, self.kwargs)
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
+    # add further elements to context
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    if self.kwargs and self.kwargs['subset_id']:
-      context['subset_id'] = int(self.kwargs['subset_id'])
+    if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
+      subset_id = int(kwargs['subset_id'])
+      context['subset_id'] = subset_id
+      context['objects_count'] = get_model_objects(self.model, subset_id, True)
+      context['url_model_mapdata_subset'] = reverse(
+        'datenmanagement:' + model_name + '_mapdata_subset', args=[subset_id])
+    else:
+      context['objects_count'] = get_model_objects(self.model, None, True)
     context['highlight_flag'] = self.model.BasemodelMeta.highlight_flag
+    context['heavy_load_limit'] = self.model.BasemodelMeta.heavy_load_limit
+    context['additional_wms_layers'] = self.model.BasemodelMeta.additional_wms_layers
+    if (
+        self.model.BasemodelMeta.editable
+        and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)
+    ):
+      context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
+    context['url_model_list'] = reverse('datenmanagement:' + model_name + '_list')
+    context['url_model_list_subset_placeholder'] = reverse(
+      'datenmanagement:' + model_name + '_list_subset', args=['worschdsupp'])
+    context['url_model_mapdata'] = reverse('datenmanagement:' + model_name + '_mapdata')
+    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
+    # add map filter related elements to context
     if (
         self.model.BasemodelMeta.map_filter_fields
-        or self.model.BasemodelMeta.map_rangefilter_fields
+        or self.model.BasemodelMeta.map_intervalfilter_fields
     ):
       context['map_filters_enabled'] = True
     context['map_one_click_filters'] = self.model.BasemodelMeta.map_one_click_filters
-    if self.model.BasemodelMeta.map_rangefilter_fields:
-      context['map_rangefilter_fields'] = list(
-        self.model.BasemodelMeta.map_rangefilter_fields.keys())
-      context['map_rangefilter_fields_labels'] = list(
-        self.model.BasemodelMeta.map_rangefilter_fields.values())
+    context['map_deadlinefilter_fields'] = self.model.BasemodelMeta.map_deadlinefilter_fields
+    if self.model.BasemodelMeta.map_intervalfilter_fields:
+      context['map_intervalfilter_fields'] = list(
+        self.model.BasemodelMeta.map_intervalfilter_fields.keys())
+      context['map_intervalfilter_fields_labels'] = list(
+        self.model.BasemodelMeta.map_intervalfilter_fields.values())
     context['interval_filter_min'] = interval_filter_min
     context['interval_filter_max'] = interval_filter_max
-    context['map_deadlinefilter_fields'] = self.model.BasemodelMeta.map_deadlinefilter_fields
     if self.model.BasemodelMeta.map_filter_fields:
       context['map_filter_fields'] = list(self.model.BasemodelMeta.map_filter_fields.keys())
       context['map_filter_fields_labels'] = list(
         self.model.BasemodelMeta.map_filter_fields.values())
     context['map_filter_fields_as_checkbox'] = (
       self.model.BasemodelMeta.map_filter_fields_as_checkbox)
-    context['checkbox_filter_lists'] = dumps(checkbox_filter_lists)
     context['map_filter_fields_as_list'] = self.model.BasemodelMeta.map_filter_fields_as_list
     context['list_filter_lists'] = dumps(list_filter_lists)
+    context['checkbox_filter_lists'] = dumps(checkbox_filter_lists)
     context['map_filter_boolean_fields_as_checkbox'] = (
       self.model.BasemodelMeta.map_filter_boolean_fields_as_checkbox)
     context['map_filter_hide_initial'] = self.model.BasemodelMeta.map_filter_hide_initial
-    context['additional_wms_layers'] = self.model.BasemodelMeta.additional_wms_layers
-    context['heavy_load_limit'] = self.model.BasemodelMeta.heavy_load_limit
     return context

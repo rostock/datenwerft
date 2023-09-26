@@ -15,14 +15,31 @@ from toolbox.models import Subsets
 from .fields import ArrayDateField
 
 
+def add_basic_model_context_elements(context, model):
+  """
+  adds basic model related elements to the passed context and returns the context
+
+  :param context: context
+  :param model: model
+  :return: context with basic model related elements added
+  """
+  context['model_name'] = model.__name__
+  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
+  context['model_description'] = model.BasemodelMeta.description
+  context['model_is_editable'] = model.BasemodelMeta.editable
+  context['model_geometry_type'] = model.BasemodelMeta.geometry_type
+  context['model_pk_field_name'] = model._meta.pk.name
+  return context
+
+
 def add_model_context_elements(context, model, kwargs=None):
   """
-  adds general model related elements to the passed context and returns the context
+  adds model related elements to the passed context and returns the context
 
   :param context: context
   :param model: model
   :param kwargs: kwargs of the view calling this function
-  :return: context with general model related elements added
+  :return: context with model related elements added
   """
   model_name = model.__name__
   context['model_name'] = model_name

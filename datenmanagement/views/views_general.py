@@ -13,7 +13,7 @@ from requests import post as requests_post
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel
 from datenmanagement.utils import user_has_model_permissions_any, \
   user_has_model_permissions_change_delete_view
-from .functions import get_uuids_geometries_from_sql
+from .functions import add_basic_model_context_elements, get_uuids_geometries_from_sql
 
 
 class GeometryView(JsonView):
@@ -207,8 +207,8 @@ class StartView(TemplateView):
     model_name = self.model.__name__
     model_name_lower = model_name.lower()
     context = super().get_context_data(**kwargs)
-    context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
-    context['model_description'] = self.model.BasemodelMeta.description
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
     if (
         self.model.BasemodelMeta.editable
         and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)

@@ -1020,7 +1020,7 @@ class Fallwildsuchen_Nachweise(ComplexModel):
       'art_kontrolle': 'art'
     }
     map_feature_tooltip_field = 'art_kontrolle'
-    map_rangefilter_fields = {
+    map_intervalfilter_fields = {
       'startzeitpunkt': 'Startzeitpunkt',
       'endzeitpunkt': 'Endzeitpunkt'
     }
