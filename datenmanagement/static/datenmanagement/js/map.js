@@ -224,7 +224,7 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
  * @param {Object} layer - GeoJSON map layer
  */
 function setGeoJsonFeaturePropertiesAndActions(feature, layer) {
-  // if feature has a link to its viewing/changing page...
+  // if feature has a link to its form page...
   if (feature.properties.link) {
     // open link when clicking on feature
     layer.on('click', function () {

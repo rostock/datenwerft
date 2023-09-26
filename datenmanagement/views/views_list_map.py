@@ -155,7 +155,7 @@ class TableDataCompositionView(BaseDatatableView):
           else:
             data = escape(value)
         item_data.append(data)
-      # append links for changing, viewing and/or deleting
+      # append links for updating, viewing and/or deleting
       if self.model_is_editable:
         links = ''
         if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):

@@ -23,40 +23,14 @@ def add_basic_model_context_elements(context, model):
   :param model: model
   :return: context with basic model related elements added
   """
-  context['model_name'] = model.__name__
+  model_name = model.__name__
+  context['model_name'] = model_name
+  context['model_name_lower'] = model_name.lower()
   context['model_verbose_name_plural'] = model._meta.verbose_name_plural
   context['model_description'] = model.BasemodelMeta.description
   context['model_is_editable'] = model.BasemodelMeta.editable
   context['model_geometry_type'] = model.BasemodelMeta.geometry_type
   context['model_pk_field_name'] = model._meta.pk.name
-  return context
-
-
-def add_model_context_elements(context, model, kwargs=None):
-  """
-  adds model related elements to the passed context and returns the context
-
-  :param context: context
-  :param model: model
-  :param kwargs: kwargs of the view calling this function
-  :return: context with model related elements added
-  """
-  model_name = model.__name__
-  context['model_name'] = model_name
-  context['model_name_lower'] = model_name.lower()
-  context['model_pk_field'] = model._meta.pk.name
-  context['model_verbose_name'] = model._meta.verbose_name
-  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
-  context['model_description'] = model.BasemodelMeta.description
-  context['editable'] = model.BasemodelMeta.editable
-  context['geometry_type'] = model.BasemodelMeta.geometry_type
-  context['subset_id'] = None
-  if kwargs and kwargs['subset_id']:
-    subset_id = int(kwargs['subset_id'])
-    context['subset_id'] = subset_id
-    context['objects_count'] = get_model_objects(model, subset_id, True)
-  else:
-    context['objects_count'] = get_model_objects(model, None, True)
   return context
 
 

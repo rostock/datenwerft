@@ -13,78 +13,75 @@ from time import time
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field, is_geometry_field
 from .forms import GenericForm
-from .functions import add_user_agent_context_elements, assign_widgets, set_form_attributes, \
-  add_model_form_context_elements, add_model_context_elements
+from .functions import add_basic_model_context_elements, add_model_form_context_elements, \
+  add_user_agent_context_elements, assign_widgets, set_form_attributes
 
 
 class DataAddView(CreateView):
   """
-  erstellt ein neues Datenbankobjekt eines Datensatzes
-
-  :param model: Datenmodell
-  :param template_name: Name des Templates
-  :param success_url: Success-URL
+  view for form page for creating an object of a model
   """
 
-  def __init__(self, model=None, template_name=None, success_url=None):
+  def __init__(self, model=None, *args, **kwargs):
     self.model = model
-    self.template_name = template_name
-    self.success_url = success_url
     self.form_class = modelform_factory(
         self.model,
         form=GenericForm,
         fields='__all__',
-        formfield_callback=assign_widgets)
+        formfield_callback=assign_widgets
+    )
     self.multi_foto_field = None
     self.multi_files = None
     self.file = None
-    super(DataAddView, self).__init__()
+    super().__init__(*args, **kwargs)
 
   def get_form_kwargs(self):
     """
-    liefert **kwargs als Dictionary mit Formularattributen
+    returns ``**kwargs`` as a dictionary with form attributes
 
-    :return: **kwargs als Dictionary mit Formularattributen
+    :return: ``**kwargs`` as a dictionary with form attributes
     """
-    kwargs = super(DataAddView, self).get_form_kwargs()
+    kwargs = super().get_form_kwargs()
     self = set_form_attributes(self)
     if self.model.BasemodelMeta.multi_foto_field and self.request.method == 'POST':
       self.multi_files = self.request.FILES
     if self.request.method == 'POST':
       self.file = self.request.FILES
-    kwargs[
-        'fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
-    kwargs[
-        'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
-    kwargs[
-        'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
-    kwargs['multi_files'] = self.multi_files
-    kwargs['file'] = self.file
-    kwargs['model'] = self.model
     kwargs['request'] = self.request
+    kwargs['model'] = self.model
+    kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
+    kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
+    kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
+    kwargs['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
+    kwargs['file'] = self.file
+    kwargs['multi_files'] = self.multi_files
     return kwargs
 
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: dictionary with all context elements for this view
     """
+    model_name = self.model.__name__
     context = super().get_context_data(**kwargs)
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
-    context = add_model_context_elements(context, self.model)
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
+    # add model form related elements to context
     context = add_model_form_context_elements(context, self.model)
+    # add further elements to context
     context['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
+    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     return context
 
   def get_initial(self):
     """
-    setzt initiale Feldwerte im View
+    conditionally sets initial field values for this view
 
-    :return: Dictionary mit initialen Feldwerten im View
+    :return: dictionary with initial field values for this view
     """
     ansprechpartner = None
     bearbeiter = None
@@ -113,10 +110,10 @@ class DataAddView(CreateView):
 
   def form_valid(self, form):
     """
-    sendet eine HTTP-Response, wenn Formular valide ist
+    sends HTTP response if passed form is valid
 
-    :param form: Formular, das geprüft werden soll
-    :return: Success-URL als HTTP-Response, falls Formular valide
+    :param form: form
+    :return: HTTP response if passed form is valid
     """
     form.instance.user = self.request.user
     success(
@@ -124,7 +121,7 @@ class DataAddView(CreateView):
       'Der neue Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich angelegt!' % str(form.instance)
     )
-    return super(DataAddView, self).form_valid(form)
+    return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
     """
@@ -157,55 +154,45 @@ class DataAddView(CreateView):
 
 class DataChangeView(UpdateView):
   """
-  ändert ein vorhandenes Datenbankobjekt eines Datensatzes
-
-  :param model: Datenmodell
-  :param template_name: Name des Templates
-  :param success_url: Success-URL
+  view for form page for updating an object of a model
   """
 
-  def __init__(self, model=None, template_name=None, success_url=None):
+  def __init__(self, model=None, *args, **kwargs):
     self.model = model
-    self.template_name = template_name
-    self.success_url = success_url
     self.form_class = modelform_factory(
-      self.model,
-      form=GenericForm,
-      fields='__all__',
-      formfield_callback=assign_widgets)
-    self.associated_models = None
+        self.model,
+        form=GenericForm,
+        fields='__all__',
+        formfield_callback=assign_widgets
+    )
     self.file = None
-    self.associated_new = None
     self.associated_objects = None
-    super(DataChangeView, self).__init__()
+    self.associated_new = None
+    self.associated_models = None
+    super().__init__(*args, **kwargs)
 
   def get_form_kwargs(self):
     """
-    liefert **kwargs als Dictionary mit Formularattributen
+    returns ``**kwargs`` as a dictionary with form attributes
 
-    :return: **kwargs als Dictionary mit Formularattributen
+    :return: ``**kwargs`` as a dictionary with form attributes
     """
-    kwargs = super(DataChangeView, self).get_form_kwargs()
+    kwargs = super().get_form_kwargs()
     self = set_form_attributes(self)
     self.associated_objects = None
     self.associated_new = None
     self.associated_models = self.model.BasemodelMeta.associated_models
     if self.request.method == 'POST':
       self.file = self.request.FILES
+    kwargs['request'] = self.request
+    kwargs['model'] = self.model
     kwargs['associated_objects'] = self.associated_objects
     kwargs['associated_new'] = self.associated_new
-    kwargs[
-        'fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
-    kwargs[
-        'choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
-    kwargs[
-        'group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
+    kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
+    kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
+    kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
     kwargs['file'] = self.file
-    kwargs['model'] = self.model
-    kwargs['request'] = self.request
-
-    # assoziierte Modelle für die Bereitstellung entsprechender Links
-    # heranziehen
+    # use associated models to provide corresponding links
     if self.associated_models:
       self.associated_new = []
       self.associated_objects = []
@@ -231,26 +218,21 @@ class DataChangeView(UpdateView):
             '?preselect_field=' +
             associated_model_foreign_key_field +
             '&preselect_value=' +
-            str(
-                self.object.pk)}
+            str(self.object.pk)
+        }
         self.associated_new.append(associated_new_dict)
         curr_filter = {
             associated_model_foreign_key_field: self.object.pk
         }
-        for associated_object in associated_model_model.objects.filter(
-                **curr_filter):
-          foto = (
-              associated_object.foto if hasattr(
-                  associated_object,
-                  'foto') else None)
+        for associated_object in associated_model_model.objects.filter(**curr_filter):
+          foto = associated_object.foto if hasattr(associated_object, 'foto') else None
           preview_img_url = ''
           preview_thumb_url = ''
           if foto:
             try:
               preview_img_url = foto.url + '?' + str(time())
               if associated_model_model.BasemodelMeta.thumbs:
-                preview_thumb_url = get_thumb_url(
-                    foto.url) + '?' + str(time())
+                preview_thumb_url = get_thumb_url(foto.url) + '?' + str(time())
             except ValueError:
               pass
           associated_object_dict = {
@@ -258,37 +240,37 @@ class DataChangeView(UpdateView):
               'name': str(associated_object),
               'id': associated_object.pk,
               'link': reverse(
-                  'datenmanagement:' + associated_model + '_change',
-                  args=[associated_object.pk]),
+                  'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
               'preview_img_url': preview_img_url,
               'preview_thumb_url': preview_thumb_url
           }
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
       kwargs['associated_new'] = self.associated_new
-
     return kwargs
 
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return: dictionary with all context elements for this view
     """
+    model_name = self.model.__name__
     context = super().get_context_data(**kwargs)
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
-    context = add_model_context_elements(context, self.model)
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
+    # add model form related elements to context
     context = add_model_form_context_elements(context, self.model)
-    context['associated_objects'] = (
-        self.associated_objects if self.associated_objects else None)
-    context['associated_new'] = (
-        self.associated_new if self.associated_new else None)
+    # add further elements to context
+    context['associated_objects'] = self.associated_objects if self.associated_objects else None
+    context['associated_new'] = self.associated_new if self.associated_new else None
     if self.model.BasemodelMeta.geometry_type:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
-            'SELECT st_asgeojson(st_transform(geometrie, 4326)) FROM ' +
+            'SELECT ST_AsGeoJSON(ST_Transform(geometrie, 4326)) FROM ' +
             self.model._meta.db_table.replace('"', '') +
             ' WHERE UUID=%s;',
             [self.kwargs['pk']]
@@ -305,44 +287,42 @@ class DataChangeView(UpdateView):
         context['current_' + field_name_for_address_type] = self.object.strasse.pk
       elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
         context['current_' + field_name_for_address_type] = self.object.gemeindeteil.pk
-    # Dictionary für alle Array-Felder und deren Inhalte vorbereiten,
-    # die als Inhalt mehr als einen Wert umfassen
+    # prepare a dictionary for all array fields and their contents that contain more than one value
     array_fields_values = {}
     for field in self.model._meta.get_fields():
-      # bei Array-Feld...
       if field.__class__.__name__ == 'ArrayField':
-        # Werte auslesen
+        # read values
         values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        # sofern dieses mehr als einen Wert umfasst...
+        # if more than one value...
         if values is not None and len(values) > 1:
-          # Liste für dieses Feld aus allen Array-Inhalten ab dem zweiten zusammenstellen
+          # compile the list for this field from all array contents starting from the second one
           array_field_values = values[1:]
-          # falls Basisfeld des Array-Felds vom Typ Datum ist...
+          # if base field of array field is of type Date...
           if field.base_field.__class__.__name__ == 'DateField':
-            # Listeninhalte formatieren
+            # format list contents
             cleaned_array_field_values = []
             for array_field_value in array_field_values:
               cleaned_array_field_values.append(array_field_value.strftime('%Y-%m-%d'))
             array_field_values = cleaned_array_field_values
-          # Liste in vorbereitetes Dictionary einfügen
+          # insert list into prepared dictionary
           array_fields_values[field.name] = array_field_values
-    # neuen Kontext anlegen und Dictionary für alle Array-Felder und deren Inhalte
-    # dort JSON-serialisiert einfügen, die als Inhalt mehr als einen Wert umfassen
+    # create a new context and insert a JSON-serialized dictionary for all array fields
+    # and their contents that contain more than one value
     context['array_fields_values'] = dumps(array_fields_values)
+    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     return context
 
   def get_initial(self):
     """
-    setzt initiale Feldwerte im View
+    conditionally sets initial field values for this view
 
-    :return: Dictionary mit initialen Feldwerten im View
+    :return: dictionary with initial field values for this view
     """
-    # leeres Dictionary für initiale Feldwerte im View definieren
+    # declare empty dictionary for initial field values in the view
     curr_dict = {}
-    # falls Adresse, Straße oder Gemeindeteil existiert...
+    # if address, street or district exists...
     if self.model.BasemodelMeta.address_type:
-      # Dictionary um entsprechenden initialen Feldwert
-      # für Adresse, Straße oder Gemeindeteil ergänzen
+      # add the appropriate initial field value for address, street or district to the dictionary
       field_name_for_address_type = get_field_name_for_address_type(self.model)
       if field_name_for_address_type == 'adresse' and self.object.adresse:
         curr_dict[field_name_for_address_type] = self.object.adresse
@@ -351,23 +331,21 @@ class DataChangeView(UpdateView):
       elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
         curr_dict[field_name_for_address_type] = self.object.gemeindeteil
     for field in self.model._meta.get_fields():
-      # bei Array-Feld...
       if field.__class__.__name__ == 'ArrayField':
         values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        # sofern dieses nicht leer ist...
         if values is not None and len(values) > 0 and values[0] is not None:
-          # initialen Wert für dieses Feld auf ersten Wert des Arrays des Objektes setzen
+          # set initial value for this field to first array element
+          # and add it to prepared dictionary
           initial_value = values[0]
-          # Dictionary um den initialen Wert für dieses Feld ergänzen
           curr_dict[field.name] = initial_value
     return curr_dict
 
   def form_valid(self, form):
     """
-    sendet eine HTTP-Response, wenn Formular valide ist
+    sends HTTP response if passed form is valid
 
-    :param form: Formular, das geprüft werden soll
-    :return: Success-URL als HTTP-Response, falls Formular valide
+    :param form: form
+    :return: HTTP response if passed form is valid
     """
     form.instance.user = self.request.user
     success(
@@ -375,7 +353,7 @@ class DataChangeView(UpdateView):
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich geändert!' % str(form.instance)
     )
-    return super(DataChangeView, self).form_valid(form)
+    return super().form_valid(form)
 
   def form_invalid(self, form, **kwargs):
     """
@@ -411,59 +389,58 @@ class DataChangeView(UpdateView):
 
   def get_object(self, *args, **kwargs):
     """
-    liefert Objekt zurück, das geändert werden soll;
-    bei fehlenden Rechten wird PermissionDenied()-Exeption geworfen
+    returns object to be changed;
+    if rights are missing, a ``PermissionDenied()`` exception is thrown
 
     :param args:
     :param kwargs:
-    :return: Objekt, das geändert werden soll
+    :return: object to be changed
     """
-    obj = super(DataChangeView, self).get_object(*args, **kwargs)
+    obj = super().get_object(*args, **kwargs)
     return obj
 
 
 class DataDeleteView(SuccessMessageMixin, DeleteView):
   """
-  löscht ein vorhandenes Datenbankobjekt eines Datensatzes
+  view for form page for deleting an object of a model
   """
 
   def get_context_data(self, **kwargs):
     """
-    liefert Dictionary mit Kontextelementen des Views
+    returns a dictionary with all context elements for this view
 
     :param kwargs:
-    :return: Dictionary mit Kontextelementen des Views
+    :return:
     """
     context = super().get_context_data(**kwargs)
-    context['model_verbose_name_plural'] = self.model._meta.verbose_name_plural
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
     return context
 
   def get_object(self, *args, **kwargs):
     """
-    liefert Objekt zurück, das gelöscht werden soll;
-    bei fehlenden Rechten wird PermissionDenied()-Exeption geworfen
+    returns object to be deleted;
+    if rights are missing, a ``PermissionDenied()`` exception is thrown
 
     :param args:
     :param kwargs:
-    :return: Objekt, das gelöscht werden soll
+    :return: object to be deleted
     """
-    obj = super(DataDeleteView, self).get_object(*args, **kwargs)
-    userperm_delete = self.request.user.has_perm(
-        'datenmanagement.delete_' + self.model.__name__.lower())
-    if not userperm_delete:
+    obj = super().get_object(*args, **kwargs)
+    if not self.request.user.has_perm('datenmanagement.delete_' + self.model.__name__.lower()):
       raise PermissionDenied()
     return obj
 
   def form_valid(self, form):
     """
-    sendet eine HTTP-Response, wenn Formular valide ist
+    sends HTTP response if passed form is valid
 
-    :param form: Formular, das geprüft werden soll
-    :return: Success-URL als HTTP-Response, falls Formular valide
+    :param form: form
+    :return: HTTP response if passed form is valid
     """
     success(
       self.request,
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich gelöscht!' % str(self.object)
     )
-    return super(DataDeleteView, self).form_valid(form)
+    return super().form_valid(form)

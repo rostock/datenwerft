@@ -84,7 +84,7 @@
   {% endif %}
   <form class="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
-    <div {% if geometry_type %}id="custom-form"{% endif %}>
+    <div {% if model_geometry_type %}id="custom-form"{% endif %}>
       <table class="table">
         {% for field in form %}
           {% if not field|is_field_address_related_field and not field|is_field_geometry_field %}
@@ -107,7 +107,7 @@
                     {% endwith %}
                   {% endif %}
                   {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
-                    {% if geometry_type and foreign_model|has_model_geometry_field %}
+                    {% if model_geometry_type and foreign_model|has_model_geometry_field %}
                       <span> <i id="{{ field.name }}-value-assigner" data-foreign-model="{{ foreign_model }}" data-field-title="{{ field.label }}" data-field-name="{{ field.name }}" class="fa-solid fa-map-location-dot text-primary enabled value-assigner" title="{{ field.label }} via Karte auswählen"></i></span>
                     {% endif %}
                   {% endwith %}
@@ -153,19 +153,19 @@
         {% endif %}
       </table>
     </div>
-    {% if geometry_type %}
+    {% if model_geometry_type %}
       <div id="map-addresssearch-container-form">
         <label hidden for="id_geometrie" class="form-label">Geometrie</label>
         {% if geometry %}
           <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
         {% else %}
-          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ geometry_type }}", "coordinates": [] }</textarea>
+          <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ model_geometry_type }}", "coordinates": [] }</textarea>
         {% endif %}
         {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          {% if geometry_type == 'Point' or address_type and not address_mandatory %}
+          {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
-              {% if geometry_type == 'Point' %}
+              {% if model_geometry_type == 'Point' %}
                 <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
               {% endif %}
               {% if not address_mandatory %}
@@ -231,7 +231,7 @@
         {% if object and user|user_has_model_delete_permission:model_name_lower %}
           <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not is_mobile %}Datensatz {% endif %}löschen</a>
         {% endif %}
-        <a class="btn btn-warning" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
+        <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
     </div>
     {% include "modal-error.html" %}
@@ -315,10 +315,10 @@
 
       // Leaflet-Geoman konfigurieren
       {% if not gpx_input %}
-        {% if 'LineString' in geometry_type %}
+        {% if 'LineString' in model_geometry_type %}
           configureLeafletGeoman(map, 'LineString')
-        {% elif geometry_type == 'Point' or geometry_type == 'Polygon' or geometry_type == 'MultiPolygon' %}
-          configureLeafletGeoman(map, '{{ geometry_type }}')
+        {% elif model_geometry_type == 'Point' or model_geometry_type == 'Polygon' or model_geometry_type == 'MultiPolygon' %}
+          configureLeafletGeoman(map, '{{ model_geometry_type }}')
         {% else %}
           configureLeafletGeoman(map)
         {% endif %}
@@ -478,7 +478,7 @@
        * prüft beim Start des Modus „Zeichnen“, ob es bereits einen Leaflet-Geoman-Layer gibt, und löscht diesen gegebenenfalls
        */
       map.on('pm:drawstart', function () {
-        {% if geometry_type == 'Point' or geometry_type == 'LineString' or geometry_type == 'Polygon' %}
+        {% if model_geometry_type == 'Point' or model_geometry_type == 'LineString' or model_geometry_type == 'Polygon' %}
           if (map.pm.getGeomanLayers().length > 0) {
             map.pm.getGeomanLayers().forEach((item) => {
               if (item._drawnByGeoman === true)
@@ -504,7 +504,7 @@
             // Adressenbezug für gesetze Geometrie setzen
             setAddressReference('{{ address_type }}', layer);
             // bei Bewegungs-Event Adressenbezug neu setzen
-            {% if geometry_type == 'Point' %}
+            {% if model_geometry_type == 'Point' %}
               layer.on('pm:dragend', (e) => {
                 setAddressReference('{{ address_type }}', e.layer);
               });
@@ -741,7 +741,7 @@
 
       // bei Desktop und bei vorhandener Karte:
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
-      {% if not forms_in_mobile_mode and not is_mobile and geometry_type %}
+      {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
         setButtonsPosition();
       {% endif %}
 
@@ -768,7 +768,7 @@
                   link.prop('hidden', false);
                 } else
                   link.prop('hidden', true);
-                {% if geometry_type and foreign_model|has_model_geometry_field %}
+                {% if model_geometry_type and foreign_model|has_model_geometry_field %}
                   currMap.pm.getGeomanLayers().forEach((layer) => {
                     if (layer.toGeoJSON().properties.foreignkey === '{{ foreign_model }}') {
                       layer.remove();
@@ -870,7 +870,7 @@
       addDeleteFieldButton(field);
       // bei Desktop und bei vorhandener Karte:
       // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
-      {% if not forms_in_mobile_mode and not is_mobile and geometry_type %}
+      {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
         setButtonsPosition();
       {% endif %}
     }
@@ -953,7 +953,7 @@
             layer.setLatLng(latLng);
         }
       } else {
-        {% if geometry_type == 'Point' %}
+        {% if model_geometry_type == 'Point' %}
           let layer = new L.Marker(getFeatureGeometryLatLng(featureGeometry), {
             icon: redMarker
           });
@@ -990,7 +990,7 @@
      */
     function setAddressReference(addressType, layer) {
       let geoJson = layer.toGeoJSON();
-      let geometryType = '{{ geometry_type|lower }}';
+      let geometryType = '{{ model_geometry_type|lower }}';
       if (geometryType.indexOf('point') !== -1)
         geometryType = 'Point';
       else if (geometryType.indexOf('line') !== -1)
@@ -1079,23 +1079,23 @@
      * übernimmt erstellte Geometrie(n) aus der Karte final in Feld #id_geometry
      */
     function setFinalGeometry() {
-      {% if geometry_type %}
+      {% if model_geometry_type %}
         let jsonGeometrie;
         if (currMap.pm.getGeomanDrawLayers().length < 1) {
           let coordinates;
-          {% if geometry_type == 'Point' %}
+          {% if model_geometry_type == 'Point' %}
             coordinates = [0, 0];
-          {% elif geometry_type == 'Polygon' %}
+          {% elif model_geometry_type == 'Polygon' %}
             coordinates = [[]];
           {% else %}
             coordinates = [];
           {% endif %}
           jsonGeometrie = {
-            'type': '{{ geometry_type }}',
+            'type': '{{ model_geometry_type }}',
             'coordinates': coordinates
           };
         } else {
-          {% if geometry_type == 'MultiPolygon' or geometry_type == 'MultiPoint' or geometry_type == 'MultiLineString' %}
+          {% if model_geometry_type == 'MultiPolygon' or model_geometry_type == 'MultiPoint' or model_geometry_type == 'MultiLineString' %}
             let coordinates = [];
             let temp;
             currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
@@ -1109,7 +1109,7 @@
               }
             });
             jsonGeometrie = {
-              'type': '{{ geometry_type }}',
+              'type': '{{ model_geometry_type }}',
               'coordinates': coordinates,
             };
           {% else %}
@@ -1255,7 +1255,7 @@
       // und die Geometrie auf die Karte gezeichnet
       $('#postcode-assigner').parent('span').click(function () {
         let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
-        let geometryType = '{{ geometry_type|lower }}';
+        let geometryType = '{{ model_geometry_type|lower }}';
         if (geometryType.indexOf('point') !== -1)
           geometryType = 'Point';
         else if (geometryType.indexOf('line') !== -1)
