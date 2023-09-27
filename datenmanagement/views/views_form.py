@@ -257,6 +257,7 @@ class DataChangeView(UpdateView):
     :return: dictionary with all context elements for this view
     """
     model_name = self.model.__name__
+    model_name_lower = model_name.lower()
     context = super().get_context_data(**kwargs)
     # add user agent related elements to context
     context = add_user_agent_context_elements(context, self.request)
@@ -309,6 +310,11 @@ class DataChangeView(UpdateView):
     # create a new context and insert a JSON-serialized dictionary for all array fields
     # and their contents that contain more than one value
     context['array_fields_values'] = dumps(array_fields_values)
+    if self.request.user.has_perm('datenmanagement.add_' + model_name_lower):
+      context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
+    if self.request.user.has_perm('datenmanagement.delete_' + model_name_lower):
+      context['url_model_delete_object'] = reverse(
+        'datenmanagement:' + model_name + '_delete', args=[self.object.pk])
     context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     return context
 
@@ -412,9 +418,12 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     :param kwargs:
     :return:
     """
+    model_name = self.model.__name__
     context = super().get_context_data(**kwargs)
     # add basic model related elements to context
     context = add_basic_model_context_elements(context, self.model)
+    # add further elements to context
+    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     return context
 
   def get_object(self, *args, **kwargs):

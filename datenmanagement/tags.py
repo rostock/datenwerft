@@ -1,11 +1,35 @@
 from django import template
 from django.apps import apps
 from django.template.defaultfilters import stringfilter
+from django.urls import reverse
 from re import sub
 
 from datenmanagement.utils import is_address_related_field, is_geometry_field
 
 register = template.Library()
+
+
+@register.filter
+def build_change_link(model_name, object_id):
+  """
+  builds link to form page for updating object with passed ID of passed model and returns it
+
+  :param model_name: model name
+  :param object_id: object ID
+  :return: link to form page for updating object with passed ID of passed model
+  """
+  return reverse('datenmanagement:' + model_name + '_change', args=[object_id])
+
+
+@register.filter
+def build_geometry_link(model_name):
+  """
+  builds link for querying the geometries of passed model and returns it
+
+  :param model_name: model name
+  :return: link for querying the geometries of passed model
+  """
+  return reverse('datenmanagement:' + model_name + '_geometry')
 
 
 @register.filter
@@ -32,17 +56,6 @@ def clean_error_message(value):
 
 
 @register.filter
-def get_class_foreign_key_label(value):
-  """
-  returns label of foreign key field of passed model
-
-  :param value: model
-  :return: label of foreign key field of passed model
-  """
-  return value.__class__.BasemodelMeta.foreign_key_label
-
-
-@register.filter
 def get_class_name(value):
   """
   returns class name of passed model
@@ -51,28 +64,6 @@ def get_class_name(value):
   :return: class name of passed model
   """
   return value.__class__.__name__
-
-
-@register.filter
-def get_class_object_title(value):
-  """
-  returns text module for deletion form view of passed model
-
-  :param value: model
-  :return: text module for deletion form view of passed model
-  """
-  return value.__class__.BasemodelMeta.object_title
-
-
-@register.filter
-def get_class_verbose_name_plural(value):
-  """
-  returns verbose name plural of passed model
-
-  :param value: model
-  :return: verbose name plural of passed model
-  """
-  return value.__class__._meta.verbose_name_plural
 
 
 @register.filter
@@ -174,7 +165,7 @@ def has_model_geometry_field(model_name):
   """
   checks if passed model has a geometry related field
 
-  :param model_name:  model class name
+  :param model_name: model class name
   :return: passed model has a geometry related field?
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)

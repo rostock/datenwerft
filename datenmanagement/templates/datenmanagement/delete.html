@@ -8,19 +8,12 @@
     {% csrf_token %}
     <h5>
       <small>
-        {% if object|get_class_object_title or object|get_class_foreign_key_label %}
-          Möchten Sie {% if object|get_class_object_title %}{{object|get_class_object_title}}{% else %}den Datensatz{% endif %} zu {% if object|get_class_foreign_key_label %}{{object|get_class_foreign_key_label}}{% else %}Datensatz{% endif %}
-        {% else %}
-          Möchten Sie den Datensatz
-        {% endif %}
-        <strong><em>{{ object }}</em></strong> des Datenthemas <strong>{{object|get_class_verbose_name_plural}}</strong> wirklich löschen?
+        Möchten Sie den Datensatz <strong><em>{{ object }}</em></strong> des Datenthemas <strong>{{ model_verbose_name_plural }}</strong> wirklich löschen?
       </small>
     </h5>
     <div class="d-grid mt-4 gap-2 d-md-block">
       <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i> Datensatz löschen</button>
-      {% with model_name=object|get_class_name %}
-        <a class="btn btn-warning" href="{% url 'datenmanagement:'|add:model_name|add:'_start' %}"><i class="fas fa-hand"></i> abbrechen</a>
-      {% endwith %}
+      <a class="btn btn-warning" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
     </div>
 	</form>
 {% endblock %}

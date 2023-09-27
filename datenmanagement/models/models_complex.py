@@ -2236,6 +2236,8 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
+    object_title = 'der Parkscheinautomat'
+    foreign_key_label = 'Tarif'
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -2699,6 +2701,8 @@ class RSAG_Quertraeger(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['mast']
+    object_title = 'der RSAG-Querträger'
+    foreign_key_label = 'RSAG-Mast'
     geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
@@ -2756,6 +2760,8 @@ class RSAG_Spanndraehte(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['mast']
+    object_title = 'der RSAG-Spanndraht'
+    foreign_key_label = 'RSAG-Mast'
     geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',

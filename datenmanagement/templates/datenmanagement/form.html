@@ -60,7 +60,7 @@
       {% if object and associated_objects %}
         <ul>
           {% for associated_object in associated_objects %}
-            <li>{{ associated_object.title }} {{ associated_object.name }} <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
+            <li>{{ associated_object.title }} <em>{{ associated_object.name }}</em> <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
             {% if associated_object.preview_img_url %}
               <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">
                 <img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px">
@@ -99,11 +99,11 @@
                   {% if object and user|user_has_model_change_permission:model_name_lower and object|get_value_of_field:field.name %}
                     {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
                       {{ field.label_tag }}
-                      <a href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' field.value %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      <a href="{{ foreign_model|build_change_link:field.value }}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% else %}
                     {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
-                      {{ field.label_tag }}<a hidden href="{% url 'datenmanagement:'|add:foreign_model|add:'_change' foreign_model %}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                      {{ field.label_tag }}<a hidden href="{{ foreign_model|build_change_link:foreign_model }}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
                     {% endwith %}
                   {% endif %}
                   {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
@@ -225,11 +225,11 @@
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not is_mobile %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
-        {% if object and user|user_has_model_add_permission:model_name_lower %}
+        {% if url_model_add %}
           <button class="btn btn-primary" type="submit" onclick="cloneObject(); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not is_mobile %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
-        {% if object and user|user_has_model_delete_permission:model_name_lower %}
-          <a class="btn btn-danger" role="button" href="{% url 'datenmanagement:'|add:model_name|add:'_delete' object.pk %}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not is_mobile %}Datensatz {% endif %}löschen</a>
+        {% if url_model_delete_object %}
+          <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not is_mobile %}Datensatz {% endif %}löschen</a>
         {% endif %}
         <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
@@ -244,16 +244,14 @@
      * @function
      * @name mapCallbackFunction
      *
-     * behandelt als Callback-Funktion die übergebene Karte
+     * handles (as a callback function) passed map
      *
-     * @param {Object} map - Karte
+     * @param {Object} map - map
      */
     function mapCallbackFunction(map) {
-      // Konstanten für Karte setzen
       setMapConstants(map);
 
-      // ggf. zusätzliche WMS-Layer definieren,
-      // die dann beim Konfigurieren der Karte zu den Overlay-Karten hinzugefügt werden
+      // define WMS which shall be selectable as additional overlay layers in the map
       let additionalWMSLayers = {}, additionalWMSLayerUrl;
       {% for additional_wms_layer in additional_wms_layers %}
         additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
@@ -270,20 +268,16 @@
       {% empty %}
       {% endfor %}
 
-      // Karte konfigurieren
       configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWMSLayers);
 
-      // Karte auch in anderen Scopes
-      // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+      // make map globally available
       window.currMap = map;
 
-      // bei mobilen Geräten: Standortbestimmung hinzufügen
       {% if is_mobile %}
         enableMapLocate(map)
       {% endif %}
 
-      // globale Marker für Leaflet konfigurieren und auch in anderen Scopes
-      // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+       // configure globally available markers for Leaflet
       window.redMarker = new L.Icon({
         shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
         iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
@@ -309,37 +303,46 @@
         shadowSize: [41, 41]
       });
 
-      // globale Variable für Feature-Geometrie auch in anderen Scopes
-      // bzw. außerhalb der Funktion mapCallbackFunction verfügbar machen
+      // define several globally available variables
+      window.geometryType = '{{ model_geometry_type }}';
       window.featureGeometry = [];
-
-      // Leaflet-Geoman konfigurieren
-      {% if not gpx_input %}
-        {% if 'LineString' in model_geometry_type %}
-          configureLeafletGeoman(map, 'LineString')
-        {% elif model_geometry_type == 'Point' or model_geometry_type == 'Polygon' or model_geometry_type == 'MultiPolygon' %}
-          configureLeafletGeoman(map, '{{ model_geometry_type }}')
-        {% else %}
-          configureLeafletGeoman(map)
-        {% endif %}
-      {% else %}
-        configureLeafletGeoman(map)
+      window.addressType = '';
+      {% if address_type %}
+        window.addressType = '{{ address_type }}'
+      {% endif %}
+      window.addressMandatory = false;
+      {% if address_mandatory %}
+        window.addressMandatory = true
+      {% endif %}
+      window.gpxInput = false;
+      {% if gpx_input %}
+        window.gpxInput = true
+      {% endif %}
+      window.postcodeAssigner = '';
+      {% if postcode_assigner %}
+        window.postcodeAssigner = '{{ postcode_assigner }}'
       {% endif %}
 
-      // falls Geometrie vorhanden...
+      if (!window.gpxInput && window.geometryType.includes('LineString'))
+        configureLeafletGeoman(map, 'LineString');
+      else if (!window.gpxInput && (window.geometryType === 'Point' || window.geometryType.includes('Polygon')))
+        configureLeafletGeoman(map, window.geometryType);
+      else
+        configureLeafletGeoman(map);
+
+      // if geometry already exists...
       {% if geometry %}
-        // vorhandene Geometrie auf Karte anzeigen
+        // show existing geometry on map
         map.loadGeometryFromField('#id_geometrie')
-        // ggf. Geometrien der Zielobjekte von Fremdschlüsseln auf Karte anzeigen
+        // if necessary, display geometries of target objects of foreign keys on map, too
         {% if fields_with_foreign_key_to_linkify %}
           {% for field in fields_with_foreign_key_to_linkify %}
-            {% if object|get_value_of_field:field %}
+            {% if object and object|get_value_of_field:field %}
               {% with foreign_model=field|get_foreign_key_field_class_name:model_name %}
                 {% if foreign_model|has_model_geometry_field %}
-                  let url = "{% url 'datenmanagement:'|add:foreign_model|add:'_geometry' %}" + '?pk=' + '{{ object|get_foreign_key_object_pk:field }}';
                   {% with field_title=field|get_field_verbose_name:model_name %}
                     map.loadGeometryFromForeignKeyFieldObjects(
-                      url,
+                      '{{ foreign_model|build_geometry_link }}' + '?pk=' + '{{ object|get_foreign_key_object_pk:field }}',
                       '{{ foreign_model }}',
                       '{{ field }}',
                       '{{ field_title }}',
@@ -353,34 +356,33 @@
         {% endif %}
       {% endif %}
 
-      // ggf. zusätzliche Datenthemen definieren,
-      // die dann zum Zuschalten in der Karte angeboten werden
+      // if necessary, define additional data themes which are then offered for activation in the map
       {% if model_list and not gpx_input %}
-        // Layer-Control hinzufügen zum Zuschalten zusätzlicher Datenthemen
+        // add layer control to enable additional data themes
         let dataThemeControl = new L.control.layers({}, {}).addTo(map);
-        // alle zusätzlichen Datenthemen durchgehen...
+        // iterate all additional data themes...
         {% for key, value in model_list.items %}
           {% with datenthema_name_lower=key|lower %}
             map._themaUrl = {
               ...map._themaUrl,
-              '{{ value }}': '{% url 'datenmanagement:'|add:key|add:'_geometry' %}'
+              '{{ value }}': '{{ key|build_geometry_link }}'
             };
-            // neuen GeoJSON-Layer für Datenthema initialisieren und mit Namen versehen
+            // initialize and name new GeoJSON layer for data theme
             let {{ datenthema_name_lower }} = new L.Proj.geoJson();
             {{ datenthema_name_lower }}.name = '{{ value }}';
-            // GeoJSON-Layer für Datenthema zur Layer-Control hinzufügen
+            // add GeoJSON layer for data theme to layer control
             dataThemeControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
-            // beim Zuschalten des GeoJSON-Layers Datenthema-Features laden
+            // load data theme features when activating the GeoJSON layer
             {{ datenthema_name_lower }}.on('add', function () {
               if (map.getZoom() > map._minLayerZoomForDataThemes) {
-                // Datenthema-Features zum entsprechenden GeoJSON-Layer hinzufügen
+                // add data theme features to GeoJSON layer
                 map.loadExternalData(
                   '{{ value }}',
-                  '{% url 'datenmanagement:'|add:key|add:'_geometry' %}',
+                  '{{ key|build_geometry_link }}',
                   this
                 );
                 map.eachLayer((layer) => {
-                  // GeoJSON-Layer „anheben“, der bearbeitet wird
+                  // "lift" GeoJSON layer being edited
                   if (layer._drawnByGeoman === true) {
                     if (layer instanceof L.Marker)
                       layer.setZIndexOffset(1000);
@@ -402,18 +404,17 @@
           {% endwith %}
         {% endfor %}
 
-        // beim Bewegen der Karte Datenthema-Features nachladen
+        // reload data theme features on moving the map
         map.on('moveend', () => {
           map.updateMap(dataThemeControl);
         });
       {% endif %}
 
-      // ggf. zusätzliche WFS-Feature-Types definieren,
-      // die dann zum Zuschalten in der Karte angeboten werden
+      // if necessary, define additional WFS feature types which are then offered for activation in the map
       {% if additional_wfs_featuretypes %}
-        // Layer-Control hinzufügen zum Zuschalten zusätzlicher WFS-Feature-Types
+        // add layer control to enable additional WFS feature types
         let featureTypeControl = new L.control.layers({}, {}).addTo(map);
-        // alle zusätzlichen WFS-Feature-Types durchgehen...
+        // iterate all additional WFS feature types...
         {% for additional_wfs_featuretype in additional_wfs_featuretypes %}
           if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true') {
             map._themaUrl = {
@@ -426,15 +427,15 @@
               '{{ additional_wfs_featuretype.title }}': '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}')
             };
           }
-          // neuen GeoJSON-Layer für WFS-Feature-Type initialisieren und mit Namen versehen
+          // initialize and name new GeoJSON layer for WFS feature type
           let {{ additional_wfs_featuretype.name }} = new L.Proj.geoJson();
           {{ additional_wfs_featuretype.name }}.name = '{{ additional_wfs_featuretype.title }}';
-          // GeoJSON-Layer für WFS-Feature-Type zur Layer-Control hinzufügen
+          // add GeoJSON layer for WFS feature type to layer control
           featureTypeControl.addOverlay({{ additional_wfs_featuretype.name }}, '{{ additional_wfs_featuretype.title }}')
-          // beim Zuschalten des GeoJSON-Layers WFS-Features laden
+          // load WFS features when activating the GeoJSON layer
           {{ additional_wfs_featuretype.name }}.on('add', function () {
             if (map.getZoom() > map._minLayerZoomForWFSFeaturetypes) {
-              // WFS-Features zum entsprechenden GeoJSON-Layer hinzufügen
+              // add WFS features to GeoJSON layer
               let url = '{{ additional_wfs_featuretype.url }}' + map._wfsDefaultParameters.replace('TYPENAMES', '{{ additional_wfs_featuretype.featuretypes }}');
               if ('{{ additional_wfs_featuretype.proxy }}'.toLowerCase() === 'true')
                 url = '{% url "toolbox:owsproxy" %}' + url;
@@ -445,7 +446,7 @@
                 true
               );
               map.eachLayer((layer) => {
-                // GeoJSON-Layer „anheben“, der bearbeitet wird
+                // "lift" GeoJSON layer being edited
                 if (layer._drawnByGeoman === true) {
                   if (layer instanceof L.Marker)
                     layer.setZIndexOffset(1000);
@@ -466,7 +467,7 @@
           });
         {% endfor %}
 
-        // beim Bewegen der Karte WFS-Features nachladen
+        // reload WFS features on moving the map
         map.on('moveend', () => {
           map.updateMap(featureTypeControl, true);
         });
@@ -475,83 +476,82 @@
       /**
        * @function
        *
-       * prüft beim Start des Modus „Zeichnen“, ob es bereits einen Leaflet-Geoman-Layer gibt, und löscht diesen gegebenenfalls
+       * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
+       * and deletes it if necessary
        */
       map.on('pm:drawstart', function () {
-        {% if model_geometry_type == 'Point' or model_geometry_type == 'LineString' or model_geometry_type == 'Polygon' %}
-          if (map.pm.getGeomanLayers().length > 0) {
-            map.pm.getGeomanLayers().forEach((item) => {
-              if (item._drawnByGeoman === true)
-                map.removeLayer(item);
-            })
-          }
-        {% endif %}
+        if ((window.geometryType === 'Point' || window.geometryType === 'LineString' || window.geometryType === 'Polygon') && map.pm.getGeomanLayers().length > 0) {
+          map.pm.getGeomanLayers().forEach((item) => {
+            if (item._drawnByGeoman === true)
+              map.removeLayer(item);
+          })
+        }
       });
 
-      // falls Datenmodell Adressenbezug vorsieht...
-      {% if address_type %}
+      // if model provides address reference...
+      if (window.addressType) {
         /**
          * @function
          *
-         * setzt, falls der Adressenbezug verpflichtend ist,
-         * beim Hinzufügen oder Editieren einer Geometrie die Adresse oder die Straße
-         * und schaltet bei Bedarf die Postleitzahl-Auto-Zuweisung frei
+         * if address reference is mandatory,
+         * sets (on creating a Leaflet-Geoman layer) address or street
+         * and, if necessary, enables postcode auto-assignment;
+         * otherwise, enables (on creating a Leaflet-Geoman layer) address reference button
          *
-         * @param {Object} layer - Layer (= Feature)
+         * @param {Object} layer - layer (= feature)
          */
         map.on('pm:create', function ({layer}) {
-          {% if address_mandatory %}
-            // Adressenbezug für gesetze Geometrie setzen
-            setAddressReference('{{ address_type }}', layer);
-            // bei Bewegungs-Event Adressenbezug neu setzen
-            {% if model_geometry_type == 'Point' %}
+          if (window.addressMandatory) {
+            // set address reference for current geometry in the map
+            setAddressReference(window.addressType, layer);
+            // reset address reference in case of movement event on current geometry in the map
+            if (window.geometryType === 'Point') {
               layer.on('pm:dragend', (e) => {
-                setAddressReference('{{ address_type }}', e.layer);
+                setAddressReference(window.addressType, e.layer);
               });
-            {% else %}
+            } else {
               layer.on('pm:update', (e) => {
-                setAddressReference('{{ address_type }}', e.layer);
+                setAddressReference(window.addressType, e.layer);
               });
-            {% endif %}
-            // bei Bedarf Postleitzahl-Auto-Zuweisung freischalten
-            {% if postcode_assigner %}
+            }
+            // if necessary, enable postcode auto-assignment
+            if (window.postcodeAssigner)
               enablePostcodeAssigner();
-            {% endif %}
-          {% else %}
-            // passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte freischalten
+          } else {
+            // enable address reference button
             enableAddressReferenceButton();
-          {% endif %}
+          }
         });
-      {% endif %}
+      }
     }
 
     /**
      * @function
      *
-     * Hauptfunktion
+     * main function
      */
     $(document).ready(function () {
-      // Variable definieren für Array-Felder und deren Inhalte, die als Inhalt mehr als einen Wert umfassen
+      // define variable for array fields and their values
+      // (i.e. for those array fields containing more than one value)
       let arrayFieldsValues = [];
       {% if object and array_fields_values %}
         arrayFieldsValues = {{ array_fields_values|safe }};
       {% endif %}
 
-      // globale Variablen für die Anzeige des Hinweis-Modals
-      // in Bezug auf das Zuschalten zusätzlicher Datenthemen und/oder WFS-Feature-Types
+      // global variables for displaying the hint modal regarding the activation of additional data themes and/or WFS feature types
       window.showWFSZoomModal = true;
       window.showDataThemesZoomModal = true;
 
-      // falls Gruppe von Benutzern gesetzt ist, die für das Feld Ansprechpartner:in/Bearbeiter:in in einer entsprechenden Auswahlliste genutzt werden sollen...
+      // if a group of users is set that should be used for the contact person/processor field in a corresponding selection list...
       {% if group_with_users_for_choice_field %}
-        // alle Felder durchgehen...
+        // iterate all fields...
         {% for field in form %}
-          // beim Feld Ansprechpartner:in/Bearbeiter:in...
+          // if contact person/processor field...
           {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
             let select = $('select#id_' + '{{ field.name }}');
-            // Bootstratp-5-CSS-Klasse ergänzen
+            // add Bootstrap 5 CSS class
             select.addClass('form-select');
-            // passenden Wert vorauswählen, wenn die darin enthaltende E-Mail-Adresse mit dem Feldwert übereinstimmt
+            // preselect the appropriate value if the email address contained therein matches the field value
             {% if object %}
               select.children().each(function () {
                 let optionValue = $(this).val();
@@ -563,12 +563,12 @@
         {% endfor %}
       {% endif %}
 
-      // Checkboxen in Multiple-Choice-Feldern an Bootstrap 5 anpassen
+      // adapt checkboxes in multiple choice fields to Bootstrap 5
       $('ul input[type="checkbox"]').each(function () {
         $(this).addClass('form-check-input');
       });
 
-      // Read-only-Felder behandeln
+      // handle read-only fields...
       {% if readonly_fields %}
         let inputField;
         {% for field in readonly_fields %}
@@ -601,9 +601,8 @@
         {% endfor %}
       {% endif %}
 
-      // falls Benutzer kein Änderungsrecht am Datenmodell hat...
+      // disable all fields if the user does not have the right to change the model...
       {% if not user|user_has_model_change_permission:model_name_lower %}
-        // alle Felder deaktivieren
         $('input').each(function () {
           $(this).prop('disabled', true);
         });
@@ -615,37 +614,35 @@
         });
       {% endif %}
 
-      // Array-Felder behandeln
+      // handle array fields...
       $('[is_array_field="true"]').each(function () {
         let currentField = $(this);
         let currentFieldId = currentField.attr('id');
         let currentFieldName = currentField.attr('name');
-        // sofern Array-Feld mehr als einen Wert umfasst
-        // (und damit in der Variable für Array-Felder und deren Inhalte existiert,
-        // die als Inhalt mehr als einen Wert umfassen)...
+        // if array field contains more than one value (and therefore exists in the variable for array fields and their contents that contain more than one value as content)...
         if (arrayFieldsValues[currentFieldName]) {
           let valuesParsed = arrayFieldsValues[currentFieldName];
-          // für jeden Wert...
+          // for each value...
           for (let i = 0; i < valuesParsed.length; i++) {
-            // erstes (ursprüngliches) Feld klonen und als neues Feld definieren
+            // clone the first (original) field and define it as a new field
             let newField = currentField.clone();
             cleanField(newField, i + 1, currentFieldId, currentFieldName);
-            // passenden Wert in neues Feld schreiben
+            // write appropriate value in new field
             newField.attr('value', valuesParsed[i]);
             newField.val(valuesParsed[i]);
-            // neues Feld an richtiger Stelle einfügen und mit Button zum Löschen des Feldes versehen
+            // insert new field in the correct place and provide a button to delete the field
             addField(newField, currentField);
             currentField = newField;
           }
         }
-        // falls Benutzer Änderungsrecht am Datenmodell hat...
+        // if the user has the right to change the model...
         {% if user|user_has_model_change_permission:model_name_lower %}
-          // Button zum Hinzufügen eines weiteren Feldes ergänzen
+          // add button to add another field
           let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
           addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
-          // bei Klick auf zuvor ergänzten Button...
+          // by clicking on the previously added button...
           addAnotherField.click(function () {
-            // vorheriges Feld klonen und als neues, leeres Feld definieren
+            // clone previous field and define it as a new, empty field
             let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
             let newField = currentField.clone();
             let i = 1;
@@ -654,13 +651,13 @@
             cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
             newField.removeAttr('value');
             newField.val('');
-            // neues Feld an richtiger Stelle einfügen und mit Button zum Löschen des Feldes versehen
+            // insert new field in the correct place and provide a button to delete the field
             addField(newField, currentField);
           });
         {% endif %}
       });
 
-      // Multi-Foto-Upload-Feld behandeln
+      // handle multi-photo upload field...
       let fotoField = $('input#id_foto');
       if (fotoField.length) {
         fotoField.attr('accept', 'image/*');
@@ -670,14 +667,13 @@
         {% endif %}
       }
 
-      // PDF-Upload-Feld behandeln
+      // handle PDF upload field...
       let pdfField = $('input#id_pdf');
       if (pdfField.length) {
         pdfField.attr('accept', 'application/pdf');
       }
 
-      // Adressensuche initialisieren
-      // dabei Resultate der Adressensuche auch in anderen Scopes bzw. außerhalb der Hauptfunktion verfügbar machen
+      // initialize address search (and make its results globally available)
       window.results = $('div.results');
       {% if address_type %}
         window.addressType = '{{ address_type }}';
@@ -703,56 +699,54 @@
       }
       initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType, addressUuidField);
 
-      // bei Klick auf Button „Marker setzen“...
+      // on clicking the map reference (i.e. address to map) button...
       $('#addressToMap').on('click', function () {
-        // Marker in die Karte setzen, und zwar zentriert auf Ergebnis der Adressensuche
+        // place a marker on the map, centered on the result of the address search
         setMarkerToAddressSearchResult(window.currMap);
-        // passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte freischalten
+        // enable the appropriate button to take over the current address reference of the geometry in the map
         enableAddressReferenceButton();
-        // bei Bedarf Postleitzahl-Auto-Zuweisung freischalten
-        {% if postcode_assigner %}
+        // if necessary, enable postcode auto-assignment
+        if (window.postcodeAssigner)
           enablePostcodeAssigner();
-        {% endif %}
       });
 
-      // bei Klick auf Button „Adresse übernehmen“...
+      // on clicking the address reference (i.e. map to address) button...
       $('#mapToAddress').on('click', function () {
-        // aktuelle Adresse der Geometrie in der Karte übernehmen
+        // adopt the current address of the geometry in the map
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
-      // bei Klick auf Button „Straße übernehmen“...
+      // on clicking the street reference (i.e. map to street) button...
       $('#mapToStreet').on('click', function () {
-        // aktuelle Straße der Geometrie in der Karte übernehmen
+        // adopt the current street of the geometry in the map
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
-      // bei Klick auf Button „Gemeindeteil übernehmen“...
+      // on clicking the district reference (i.e. map to district) button...
       $('#mapToDistrict').on('click', function () {
-        // aktuellen Gemeindeteil der Geometrie in der Karte übernehmen
+        // adopt the current district of the geometry in the map
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
 
-      // verhindern, dass HTML5-/jQuery-Fehlermeldungen bei Pflichtfeldern die Django-Fehlermeldungen überdecken
+      // prevent HTML5/jQuery error messages for mandatory fields from covering Django error messages
       $('[required]').removeAttr('required');
 
-      // bei Desktop und bei vorhandener Karte:
-      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
+      // dynamically set vertical positions of buttons
       {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
         setButtonsPosition();
       {% endif %}
 
-      // Labels für verpflichtende Boolean-Felder anpassen
+      // customize labels for mandatory Boolean fields
       $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
 
-      // Fremdschlüssel behandeln je nach aktueller Auswahl in entsprechendem Auswahlfeld:
-      // a) Link auf Zielobjekt dynamisch anpassen
-      //    (bei leerer Auswahl: Link verstecken)
-      // b) ggf. Geometrie des Zielobjekts dynamisch auf Karte anzeigen (mit Tooltip = Auswahltext)
-      //    (bei leerer Auswahl bzw. wenn Zieldatenmodell keine Geometrie aufweist: keine Geometrie anzeigen)
+      // handle foreign keys in the appropriate selection field depending on the current selection:
+      // a) dynamically adjust link to target object
+      //    (if the selection is empty: hide link)
+      // b) if necessary, display the geometry of the target object dynamically on the map (with tooltip = selection text)
+      //    (if the selection is empty or if the target model has no geometry: do not display geometry)
       {% if fields_with_foreign_key_to_linkify %}
         {% for field in fields_with_foreign_key_to_linkify %}
           {% with foreign_model=field|get_foreign_key_field_class_name:model_name %}
@@ -775,7 +769,7 @@
                     }
                   });
                   if (value) {
-                    let url = "{% url 'datenmanagement:'|add:foreign_model|add:'_geometry' %}" + '?pk=' + value;
+                    let url = "{{ foreign_model|build_geometry_link }}" + '?pk=' + value;
                     {% with field_title=field|get_field_verbose_name:model_name %}
                       currMap.loadGeometryFromForeignKeyFieldObjects(
                         url,
@@ -794,12 +788,12 @@
         {% endfor %}
       {% endif %}
 
-      // Links auf vorhandene Fotos, PDF etc. immer in neuem Tab öffnen
+      // always open links to existing photos, PDFs, etc. in a new tab
       $('td').find('a').attr('title', 'in neuem Tab öffnen…');
       $('td').find('a').attr('target', '_blank');
       $('td').find('a').attr('rel', 'noopener noreferrer');
 
-      // Links auf vorhandene Fotos, PDF etc. sowie entsprechende Upload-Buttons mit ordentlichem Text versehen
+      // provide links to existing photos, PDFs, etc. as well as the corresponding upload buttons with proper text
       $('td').find('a').parent().contents().filter(function () {
         return this.nodeType === 3
       }).remove();
@@ -808,7 +802,7 @@
       $('label[for$="-clear_id"]').addClass('label-with-margin');
       $('label[for$="-clear_id"]').text('löschen');
 
-      // bestimmte Werte in Auswahllisten mit Kleinbuchstaben versehen
+      // lowercase certain values in selection lists
       $('td').find('option').each(function () {
         if ($(this).text() === 'Unbekannt')
           $(this).text('unbekannt');
@@ -823,8 +817,7 @@
      * @function
      * @name setButtonsPosition
      *
-     * setzt vertikale Position der Buttons dynamisch anhand von Position und Größe des Formulars
-     * (plus „Puffer“ von 20 Pixeln)
+     * dynamically set vertical positions of buttons by means of position and size of the form element (plus 20 pixels extra "buffer")
      */
     function setButtonsPosition() {
       let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
@@ -837,12 +830,12 @@
      * @function
      * @name cleanField
      *
-     * @param {Object} field - Feld
-     * @param {number} i - laufende Nummer für Attribute id und name des Feldes
-     * @param {string} id - Basistext für Attribut id des Feldes
-     * @param {string} name - Basistext für Attribut name des Feldes
+     * @param {Object} field - single field
+     * @param {number} i - current number for HTML attributes id and name of field
+     * @param {string} id - base text for HTML attribute id of field
+     * @param {string} name - base text for HTML attribute name of field
      *
-     * bereinigt ein Einzelfeld innerhalb eines Array-Feld-Komplexes
+     * cleans the passed single field within an array field complex
      */
     function cleanField(field, i, id, name) {
       field.attr('id', id + '_' + i);
@@ -854,22 +847,21 @@
      * @function
      * @name addField
      *
-     * @param {Object} field - einzufügendes Feld
-     * @param {Object} fieldToInsertAfter - Feld, nach dem der Wrapper mit dem einzufügenden Feld eingefügt werden soll
+     * @param {Object} field - single field
+     * @param {Object} fieldToInsertAfter - field after which the passed single field (i.e. its wrapper) shall be inserted
      *
-     * fügt ein Feld an richtiger Stelle innerhalb eines Array-Feld-Komplexes ein
+     * inserts the passed single field into an array field complex
      */
     function addField(field, fieldToInsertAfter) {
-      // Wrapper bauen
+      // create wrapper
       let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
-      // übergebenes, einzufügendes Feld in Wrapper einfügen
+      // insert passed single field into created wrapper
       wrapper.append(field);
-      // Wrapper nach übergebenem Feld einfügen, nach dem er eingefügt werden soll
+      // insert created wrapper after passed field after which the wrapper shall be inserted
       wrapper.insertAfter(fieldToInsertAfter.parent().is('.input-group') ? fieldToInsertAfter.parent() : fieldToInsertAfter);
-      // Button zum Löschen des Feldes ergänzen
+      // add a deletion button
       addDeleteFieldButton(field);
-      // bei Desktop und bei vorhandener Karte:
-      // vertikale Position der Buttons dynamisch setzen anhand von Position und Größe des Formulars (plus „Puffer“ von 20 Pixeln)
+      // dynamically set vertical positions of buttons
       {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
         setButtonsPosition();
       {% endif %}
@@ -879,18 +871,18 @@
      * @function
      * @name addDeleteFieldButton
      *
-     * @param {Object} field - Feld
+     * @param {Object} field - single field
      *
-     * ergänzt einen Button zum Löschen eines Einzelfeldes innerhalb eines Array-Feld-Komplexes
+     * inserts a deletion button for the passed single field within an array field complex
      */
     function addDeleteFieldButton(field) {
-      // Button erzeugen
+      // create button
       let deleteFieldButton = $('<button class="input-reset btn btn-warning" title="Wert löschen"{% if not user|user_has_model_change_permission:model_name_lower %} disabled{% endif %}><i class="fas fa-trash"></i></button></div>');
-      // Button nach dem übergebenen Feld einfügen
+      // insert created button after passed single field
       deleteFieldButton.insertAfter(field);
-      // bei Klick auf Button...
+      // on clicking the created button...
       deleteFieldButton.click(function () {
-        // übergebenes Feld sowie Button selbst löschen
+        // delete passed single field and the button itself
         field.parent().remove();
       });
     }
@@ -899,9 +891,9 @@
      * @function
      * @name disableValueAssigner
      *
-     * @param {Object} valueAssigner - Auswählen-via-Karte-Icon
+     * @param {Object} valueAssigner - value assignment icon
      *
-     * deaktiviert Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
+     * disables value assignment icon on a selection field for a foreign key
      */
     function disableValueAssigner(valueAssigner) {
       valueAssigner.removeClass('text-primary enabled');
@@ -913,10 +905,10 @@
      * @function
      * @name enableValueAssigner
      *
-     * @param {Object} valueAssigner - Auswählen-via-Karte-Icon
-     * @param {string} tooltip - Tooltip
+     * @param {Object} valueAssigner - value assignment icon
+     * @param {string} tooltip - tooltip
      *
-     * aktiviert Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
+     * enables value assignment icon on a selection field for a foreign key
      */
     function enableValueAssigner(valueAssigner, tooltip) {
       valueAssigner.removeClass('text-secondary');
@@ -928,7 +920,7 @@
      * @function
      * @name enablePostcodeAssigner
      *
-     * aktiviert Postleitzahl-Auto-Zuweisung
+     * enables postcode auto-assignment
      */
     function enablePostcodeAssigner() {
       $('#postcode-assigner').removeClass('text-secondary');
@@ -940,9 +932,9 @@
      * @function
      * @name setMarkerToAddressSearchResult
      *
-     * @param {Object} map - Karte
+     * @param {Object} map - map
      *
-     * setzt Marker in die Karte, und zwar zentriert auf Ergebnis der Adressensuche
+     * sets marker into map, located on address search result
      */
     function setMarkerToAddressSearchResult(map) {
       if (map.pm.getGeomanLayers().length > 0) {
@@ -967,7 +959,7 @@
      * @function
      * @name enableAddressReferenceButton
      *
-     * schaltet passenden Button zur Übernahme des aktuellen Adressenbezugs der Geometrie in der Karte frei
+     * enables address reference (i.e. map to address, street or district) button
      */
     function enableAddressReferenceButton() {
       {% if address_type == 'Adresse' %}
@@ -983,10 +975,10 @@
      * @function
      * @name setAddressReference
      *
-     * @param addressType - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
-     * @param {Object} layer - Layer
+     * @param addressType - address reference type (i.e. address, street or district)
+     * @param {Object} layer - layer
      *
-     * übernimmt aktuellen Adressenbezug der Geometrie in der Karte
+     * adopts the current address reference of the geometry in the map
      */
     function setAddressReference(addressType, layer) {
       let geoJson = layer.toGeoJSON();
@@ -1014,10 +1006,10 @@
      * @function
      * @name adoptReverseSearchResult
      *
-     * @param {JSON} geoJson - Resultate der Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
-     * @param {string} addressType - Typ des Adressenbezugs (Adresse, Straße oder Gemeindeteil)
+     * @param {JSON} geoJson - results of search for objects within a certain radius around passed coordinates
+     * @param {string} addressType - address reference type (i.e. address, street or district)
      *
-     * adaptiert die Resultate der Suche nach Objekten in bestimmtem Radius um gegebene Koordinaten
+     * adopts results of search for objects within a certain radius around passed coordinates
      */
     function adoptReverseSearchResult(geoJson, addressType) {
       let erfolg = false;
@@ -1045,28 +1037,25 @@
      * @function
      * @name setFinalArrayFields
      *
-     * übernimmt auf mehrere Formularfelder verteilte Werte final in Array-Felder
+     * gets values distributed over different corresponding fields, combines them and writes them to main array fields
      */
     function setFinalArrayFields() {
       // alle Array-Felder durchgehen...
       $('[is_array_field="true"]').each(function () {
         let parentField = $(this);
         let parentFieldId = parentField.attr('id');
-        // Array für Werte anlegen
         let values = [];
-        // Werte aus allen zugehörigen Formularfeldern in Array einfügen
-        // (dabei leere Formularfelder ignorieren)
+        // get values distributed over different corresponding fields and combine them
+        // (ignoring empty fields)
         $('[id^=' + parentFieldId + ']').each(function () {
           if ($(this).val())
             values.push($(this).val());
         });
-        // sofern Werte vorhanden sind...
         if (values.length > 0) {
-          // bei Datumsfeld zunächst Typ des Hauptformularfelds anpassen,
-          // damit keine JavaScript-Fehler auftreten
+          // for date fields, first adjust the type of the main form field so that no JavaScript errors occur
           if (parentField.attr('type') === 'date')
             parentField.attr('type', 'text');
-          // Wert des Hauptformularfeldes direkt auf Array mit allen Werten setzen
+          // write combined values to main array field
           parentField.val(JSON.stringify(values));
         }
       });
@@ -1076,7 +1065,7 @@
      * @function
      * @name setFinalGeometry
      *
-     * übernimmt erstellte Geometrie(n) aus der Karte final in Feld #id_geometry
+     * ügets map geometry and writes it to geometry field
      */
     function setFinalGeometry() {
       {% if model_geometry_type %}
@@ -1120,8 +1109,7 @@
         if (addressUuidField && $.trim(searchField.val()).length) {
           // keep current address, street or district temporarily
           addressTempField.val(searchField.val());
-          // setzt Referenz aus Feld mit UUID der referenzierten Adresse,
-          // der referenzierten Straße oder des referenzierten Gemeindeteils
+          // sets reference from field with UUID of the referenced address, street or district
           searchField.val(addressUuidField.val());
         }
       {% endif %}
@@ -1131,21 +1119,21 @@
      * @function
      * @name cloneObject
      *
-     * klont den gesamten Datensatz als neuen Datensatz
+     * clones the entire data set as a new data set
      */
     function cloneObject() {
-      $('form').attr('action', "{% url 'datenmanagement:'|add:model_name|add:'_add' %}");
+      $('form').attr('action', "{{ url_model_add }}");
     }
 
-    // beim Klick auf das Auswählen-via-Karte-Icon an einem Auswahlfeld zu einem Fremdschlüssel
-    // werden alle Geometrien der Zielobjekte des Fremdschlüssels auf der Karte angezeigt
-    // (mit Ausnahme der Geometrie jenes Zielobjekts des Fremdschlüssels, das gerade ausgewählt ist
-    // und somit ohnehin schon auf der Karte angezeigt wird)
+    // when clicking on the select via map icon on a selection field for a foreign key,
+    // all geometries of the target objects of the foreign key are displayed on the map
+    // (with the exception of the geometry of the target object of the foreign key
+    // that is currently selected and is therefore already displayed on the map anyway)
     $('.value-assigner').parent('span').click(function () {
       let valueAssigner = $(this).children();
       let foreignModel = valueAssigner.data('foreign-model');
       let fieldName = valueAssigner.data('field-name');
-      let url = "{% url 'datenmanagement:'|add:model_name|add:'_geometry' %}";
+      let url = "{{ model_name|build_geometry_link }}";
       let modelName = '{{ model_name }}';
       let pattern = new RegExp(modelName);
       url = url.replace(pattern, foreignModel);
@@ -1165,17 +1153,16 @@
       let mode = '';
       let modeName = '';
       {% if geojson_input %}
-        // bei Auswahl einer Datei im GeoJSON-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben
-        // und die ausgewählte GeoJSON-Datei zum Server geschickt; als Antwort des Servers wird die Geometrie der GeoJSON-Datei als GeoJSON erwartet;
-        // die Geometrie wird nach dem erfolgreichen Empfangen der Antwort des Servers auf die Karte gezeichnet und ersetzt dort ggf. bereits vorhande Geometrien
+        // when selecting a file in the GeoJSON upload field, its label is overwritten with the name of the file and the selected GeoJSON file is sent to the server;
+        // the geometry of the GeoJSON file is expected as a GeoJSON response from the server
+        // the geometry is drawn on the map after the server's response has been successfully received and, if necessary, replaces existing geometries there
         mode = 'geojson';
         modeName = 'GeoJSON';
       {% else %}
-        // bei Auswahl einer Datei im GPX-Upload-Feld wird dessen Label mit dem Namen der Datei überschrieben
-        // und die ausgewählte GPX-Datei zum Server geschickt; als Antwort des Servers wird der Inhalt der GPX-Datei
-        // als GeoJSON mit den zusätzlichen Attributen mit Start- und Endzeitpunkt erwartet;
-        // diese Attribute werden nach dem erfolgreichen Empfangen der Antwort des Servers in die dafür vorgesehenen Input-Felder geschrieben
-        // und die Geometrie auf die Karte gezeichnet
+        // when selecting a file in the GPX upload field, its label is overwritten with the name of the file and the selected GPX file is sent to the server;
+        // the contents of the GPX file are expected as a GeoJSON response from the server, containing both start and end times as attributes;
+        // the geometry is drawn on the map after the server's response has been successfully received and, if necessary, replaces existing geometries there;
+        // the start and end times attributes are written into the designated input fields after the server's response has been successfully received
         mode = 'gpx';
         modeName = 'GPX';
       {% endif %}
@@ -1188,13 +1175,13 @@
         let file = e.target.files[0];
         let formData = new FormData();
         formData.append(mode, file);
-        // Leaflet-Geoman-Layer von Karte entfernen (falls zuvor schon eine Datei hochgeladen wurde)
+        // remove Leaflet-Geoman draw layer from map (if a file has already been uploaded)
         currMap.pm.getGeomanLayers().forEach((layer) => {
           if (!layer.toGeoJSON().properties.foreignkey) {
             layer.remove();
           }
         });
-        // Upload der Datei und Warten auf Antwort des Servers
+        // upload the file and wait for a response from the server
         fetch(
           '{% url "datenmanagement:gisfiletogeojson" %}', {
             method: 'POST',
@@ -1206,30 +1193,30 @@
           }
         ).then(
           (data) => {
-            // falls Fehler bei der Kommunikation mit FME Server auftrat...
+            // if an error occurred during communication with FME Server...
             if (data.status_code) {
-              // Ausgabe der Fehlermeldung
+              // output of the error message
               console.log('Fehler bei Kommunikation mit FME Server');
               console.log(data.error_log);
-              // ansonsten...
+              // otherwise...
             } else {
               if (mode === 'gpx') {
-                // Start- und Endzeitpunkt aus GeoJSON auslesen und in die dafür vorgesehenen Input-Felder schreiben
+                // read the start and end times from GeoJSON and write them into the designated input fields
                 $('#id_startzeitpunkt').val(data.features[0].properties.startzeitpunkt.slice(0, 19));
                 $('#id_endzeitpunkt').val(data.features[0].properties.endzeitpunkt.slice(0, 19));
               }
-              // Layer erzeugen
+              // create layer
               let geometry = new L.geoJSON(data, {
                 color: 'red'
               });
-              // erzeugten Layer und alle Sublayer zu Leaflet-Geoman-Draw-Layer hinzufügen
+              // add created layer and all sublayers to Leaflet-Geoman draw layer
               geometry._changeGeom = true;
               geometry.eachLayer((layer) => {
                 layer._drawnByGeoman = true;
               });
-              // Leaflet-Geoman-Draw-Layer zur Karte hinzufügen
+              // add Leaflet-Geoman draw layer to map
               geometry.addTo(currMap);
-              // Kartenausschnitt auf Bounding-Box des Leaflet-Geoman-Draw-Layers setzen
+              // set map extent to bounding box of Leaflet-Geoman draw layer
               setMapExtentByLeafletBounds(geometry.getBounds());
             }
             toggleModal($('#loading-modal'));
@@ -1249,10 +1236,9 @@
     {% endif %}
 
     {% if postcode_assigner %}
-      // beim Klick auf das Icon für die automatische Zuweisung einer Postleitzahl wird der Server entsprechend angefragt;
-      // als Antwort des Servers wird ein GeoJSON mit einem Attribut mit der Postleitzahl erwartet;
-      // dieses Attribute wird nach dem erfolgreichen Empfangen der Antwort des Servers in das dafür vorgesehene Input-Feld geschrieben
-      // und die Geometrie auf die Karte gezeichnet
+      // when clicking on the icon for the automatic assignment of postcode, the server is requested accordingly;
+      // the server's response is expected to be a GeoJSON with an attribute containing the postcode;
+      // this attribute is written into the input field provided after the server's response has been successfully received
       $('#postcode-assigner').parent('span').click(function () {
         let geoJson = currMap.pm.getGeomanLayers()[0].toGeoJSON();
         let geometryType = '{{ model_geometry_type|lower }}';
@@ -1263,7 +1249,7 @@
         else
           geometryType = 'Polygon';
         let ort = getFeatureCenter(geoJson, geometryType);
-        // Anfragen des Servers und Warten auf Antwort des Servers
+        // requesting the server and waiting for its response
         let params = {
           search_class: 'postcode_areas',
           x: ort[0],
