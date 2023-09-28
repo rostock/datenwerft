@@ -30,6 +30,7 @@
   <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
   <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
   <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/form.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -226,7 +227,7 @@
           <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not is_mobile %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
         {% endif %}
         {% if url_model_add %}
-          <button class="btn btn-primary" type="submit" onclick="cloneObject(); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not is_mobile %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not is_mobile %}als neuen Datensatz {% endif %}klonen</button>
         {% endif %}
         {% if url_model_delete_object %}
           <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not is_mobile %}Datensatz {% endif %}löschen</a>
@@ -304,6 +305,8 @@
       });
 
       // define several globally available variables
+      window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }};
+      window.reverseSearchUrl = '{% url "toolbox:reversesearch" %}';
       window.geometryType = '{{ model_geometry_type }}';
       window.featureGeometry = [];
       window.addressType = '';
@@ -531,6 +534,14 @@
      * main function
      */
     $(document).ready(function () {
+      keepDjangoRequiredMessages();
+
+      // define available variable for the necessity of dynamically setting vertical positions of buttons
+      let buttonsPosition = false;
+      {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
+        buttonsPosition = true
+      {% endif %}
+
       // define variable for array fields and their values
       // (i.e. for those array fields containing more than one value)
       let arrayFieldsValues = [];
@@ -538,9 +549,13 @@
         arrayFieldsValues = {{ array_fields_values|safe }};
       {% endif %}
 
-      // global variables for displaying the hint modal regarding the activation of additional data themes and/or WFS feature types
+      // define several globally available variables
       window.showWFSZoomModal = true;
       window.showDataThemesZoomModal = true;
+      window.userHasModelChangePermission = false;
+      {% if user|user_has_model_change_permission:model_name_lower %}
+        window.userHasModelChangePermission = true
+      {% endif %}
 
       // if a group of users is set that should be used for the contact person/processor field in a corresponding selection list...
       {% if group_with_users_for_choice_field %}
@@ -602,7 +617,7 @@
       {% endif %}
 
       // disable all fields if the user does not have the right to change the model...
-      {% if not user|user_has_model_change_permission:model_name_lower %}
+      if (!window.userHasModelChangePermission) {
         $('input').each(function () {
           $(this).prop('disabled', true);
         });
@@ -612,7 +627,7 @@
         $('textarea').each(function () {
           $(this).prop('disabled', true);
         });
-      {% endif %}
+      }
 
       // handle array fields...
       $('[is_array_field="true"]').each(function () {
@@ -631,12 +646,12 @@
             newField.attr('value', valuesParsed[i]);
             newField.val(valuesParsed[i]);
             // insert new field in the correct place and provide a button to delete the field
-            addField(newField, currentField);
+            addField(newField, currentField, buttonsPosition);
             currentField = newField;
           }
         }
         // if the user has the right to change the model...
-        {% if user|user_has_model_change_permission:model_name_lower %}
+        if (window.userHasModelChangePermission) {
           // add button to add another field
           let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
           addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
@@ -652,9 +667,9 @@
             newField.removeAttr('value');
             newField.val('');
             // insert new field in the correct place and provide a button to delete the field
-            addField(newField, currentField);
+            addField(newField, currentField, buttonsPosition);
           });
-        {% endif %}
+        }
       });
 
       // handle multi-photo upload field...
@@ -697,7 +712,7 @@
         window.addressUuidField = null;
         window.addressTempField = null;
       }
-      initializeAddressSearch(searchField, '{% url "toolbox:addresssearch" %}', addressType, addressUuidField);
+      initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField);
 
       // on clicking the map reference (i.e. address to map) button...
       $('#addressToMap').on('click', function () {
@@ -731,13 +746,9 @@
         $('#addressToMap').prop('disabled', false);
       });
 
-      // prevent HTML5/jQuery error messages for mandatory fields from covering Django error messages
-      $('[required]').removeAttr('required');
-
       // dynamically set vertical positions of buttons
-      {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
+      if (buttonsPosition)
         setButtonsPosition();
-      {% endif %}
 
       // customize labels for mandatory Boolean fields
       $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
@@ -812,318 +823,6 @@
           $(this).text('nein');
       });
     });
-
-    /**
-     * @function
-     * @name setButtonsPosition
-     *
-     * dynamically set vertical positions of buttons by means of position and size of the form element (plus 20 pixels extra "buffer")
-     */
-    function setButtonsPosition() {
-      let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
-      $('#buttons').offset({
-        top: top
-      });
-    }
-
-    /**
-     * @function
-     * @name cleanField
-     *
-     * @param {Object} field - single field
-     * @param {number} i - current number for HTML attributes id and name of field
-     * @param {string} id - base text for HTML attribute id of field
-     * @param {string} name - base text for HTML attribute name of field
-     *
-     * cleans the passed single field within an array field complex
-     */
-    function cleanField(field, i, id, name) {
-      field.attr('id', id + '_' + i);
-      field.attr('name', name + '_' + i);
-      field.removeAttr('is_array_field');
-    }
-
-    /**
-     * @function
-     * @name addField
-     *
-     * @param {Object} field - single field
-     * @param {Object} fieldToInsertAfter - field after which the passed single field (i.e. its wrapper) shall be inserted
-     *
-     * inserts the passed single field into an array field complex
-     */
-    function addField(field, fieldToInsertAfter) {
-      // create wrapper
-      let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
-      // insert passed single field into created wrapper
-      wrapper.append(field);
-      // insert created wrapper after passed field after which the wrapper shall be inserted
-      wrapper.insertAfter(fieldToInsertAfter.parent().is('.input-group') ? fieldToInsertAfter.parent() : fieldToInsertAfter);
-      // add a deletion button
-      addDeleteFieldButton(field);
-      // dynamically set vertical positions of buttons
-      {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
-        setButtonsPosition();
-      {% endif %}
-    }
-
-    /**
-     * @function
-     * @name addDeleteFieldButton
-     *
-     * @param {Object} field - single field
-     *
-     * inserts a deletion button for the passed single field within an array field complex
-     */
-    function addDeleteFieldButton(field) {
-      // create button
-      let deleteFieldButton = $('<button class="input-reset btn btn-warning" title="Wert löschen"{% if not user|user_has_model_change_permission:model_name_lower %} disabled{% endif %}><i class="fas fa-trash"></i></button></div>');
-      // insert created button after passed single field
-      deleteFieldButton.insertAfter(field);
-      // on clicking the created button...
-      deleteFieldButton.click(function () {
-        // delete passed single field and the button itself
-        field.parent().remove();
-      });
-    }
-
-    /**
-     * @function
-     * @name disableValueAssigner
-     *
-     * @param {Object} valueAssigner - value assignment icon
-     *
-     * disables value assignment icon on a selection field for a foreign key
-     */
-    function disableValueAssigner(valueAssigner) {
-      valueAssigner.removeClass('text-primary enabled');
-      valueAssigner.addClass('text-secondary');
-      valueAssigner.attr('title', '');
-    }
-
-    /**
-     * @function
-     * @name enableValueAssigner
-     *
-     * @param {Object} valueAssigner - value assignment icon
-     * @param {string} tooltip - tooltip
-     *
-     * enables value assignment icon on a selection field for a foreign key
-     */
-    function enableValueAssigner(valueAssigner, tooltip) {
-      valueAssigner.removeClass('text-secondary');
-      valueAssigner.addClass('text-primary enabled');
-      valueAssigner.attr('title', tooltip);
-    }
-
-    /**
-     * @function
-     * @name enablePostcodeAssigner
-     *
-     * enables postcode auto-assignment
-     */
-    function enablePostcodeAssigner() {
-      $('#postcode-assigner').removeClass('text-secondary');
-      $('#postcode-assigner').addClass('text-primary enabled');
-      $('#postcode-assigner').attr('title', 'Postleitzahl automatisch zuweisen');
-    }
-
-    /**
-     * @function
-     * @name setMarkerToAddressSearchResult
-     *
-     * @param {Object} map - map
-     *
-     * sets marker into map, located on address search result
-     */
-    function setMarkerToAddressSearchResult(map) {
-      if (map.pm.getGeomanLayers().length > 0) {
-        let layer = map.pm.getGeomanLayers()[0];
-        if (layer._drawnByGeoman && layer._latlng) {
-          let latLng = getFeatureGeometryLatLng(featureGeometry);
-          if (latLng[0] !== 0 && latLng[1] !== 0)
-            layer.setLatLng(latLng);
-        }
-      } else {
-        {% if model_geometry_type == 'Point' %}
-          let layer = new L.Marker(getFeatureGeometryLatLng(featureGeometry), {
-            icon: redMarker
-          });
-          layer._drawnByGeoman = true;
-          layer.addTo(window.currMap);
-        {% endif %}
-      }
-    }
-
-    /**
-     * @function
-     * @name enableAddressReferenceButton
-     *
-     * enables address reference (i.e. map to address, street or district) button
-     */
-    function enableAddressReferenceButton() {
-      {% if address_type == 'Adresse' %}
-        $('#mapToAddress').prop('disabled', false);
-      {% elif address_type == 'Straße' %}
-        $('#mapToStreet').prop('disabled', false);
-      {% elif address_type == 'Gemeindeteil' %}
-        $('#mapToDistrict').prop('disabled', false);
-      {% endif %}
-    }
-
-    /**
-     * @function
-     * @name setAddressReference
-     *
-     * @param addressType - address reference type (i.e. address, street or district)
-     * @param {Object} layer - layer
-     *
-     * adopts the current address reference of the geometry in the map
-     */
-    function setAddressReference(addressType, layer) {
-      let geoJson = layer.toGeoJSON();
-      let geometryType = '{{ model_geometry_type|lower }}';
-      if (geometryType.indexOf('point') !== -1)
-        geometryType = 'Point';
-      else if (geometryType.indexOf('line') !== -1)
-        geometryType = 'LineString';
-      else
-        geometryType = 'Polygon';
-      let ort = getFeatureCenter(geoJson, geometryType);
-      let url = '{% url "toolbox:reversesearch" %}';
-      fetch(url + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
-        method: 'GET'
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (ort[0] !== 0 && ort[1] !== 0)
-          adoptReverseSearchResult(data, addressType);
-      })
-      .catch(error => console.log(error))
-    }
-
-    /**
-     * @function
-     * @name adoptReverseSearchResult
-     *
-     * @param {JSON} geoJson - results of search for objects within a certain radius around passed coordinates
-     * @param {string} addressType - address reference type (i.e. address, street or district)
-     *
-     * adopts results of search for objects within a certain radius around passed coordinates
-     */
-    function adoptReverseSearchResult(geoJson, addressType) {
-      let erfolg = false;
-      jQuery.each(geoJson.features, function (index, item) {
-        if (item.properties.objektgruppe === addressType) {
-          let text = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
-          if (item.properties.gemeindeteil_abkuerzung)
-            text += ' (' + item.properties.gemeindeteil_abkuerzung + ')';
-          searchField.val(text);
-          if (addressUuidField)
-            addressUuidField.val(item.properties.uuid);
-          erfolg = true;
-          return false;
-        }
-      });
-      if (erfolg === false)
-        toggleModal(
-          $('#error-modal'),
-          'Keine automatische Zuordnung ' + (addressType === 'Gemeindeteil' ? 'eines ' : 'einer ') + addressType + (addressType === 'Gemeindeteil' ? 's' : '') + ' möglich!',
-          'Bitte setzen Sie den Marker bzw. zeichnen Sie die Linie oder Fläche in der Karte {{ REVERSE_SEARCH_RADIUS }} m oder dichter an ' + (addressType === 'Gemeindeteil' ? 'den nächsten ' : 'die nächste ') + addressType +  ' heran.'
-        );
-    }
-
-    /**
-     * @function
-     * @name setFinalArrayFields
-     *
-     * gets values distributed over different corresponding fields, combines them and writes them to main array fields
-     */
-    function setFinalArrayFields() {
-      // alle Array-Felder durchgehen...
-      $('[is_array_field="true"]').each(function () {
-        let parentField = $(this);
-        let parentFieldId = parentField.attr('id');
-        let values = [];
-        // get values distributed over different corresponding fields and combine them
-        // (ignoring empty fields)
-        $('[id^=' + parentFieldId + ']').each(function () {
-          if ($(this).val())
-            values.push($(this).val());
-        });
-        if (values.length > 0) {
-          // for date fields, first adjust the type of the main form field so that no JavaScript errors occur
-          if (parentField.attr('type') === 'date')
-            parentField.attr('type', 'text');
-          // write combined values to main array field
-          parentField.val(JSON.stringify(values));
-        }
-      });
-    }
-
-    /**
-     * @function
-     * @name setFinalGeometry
-     *
-     * ügets map geometry and writes it to geometry field
-     */
-    function setFinalGeometry() {
-      {% if model_geometry_type %}
-        let jsonGeometrie;
-        if (currMap.pm.getGeomanDrawLayers().length < 1) {
-          let coordinates;
-          {% if model_geometry_type == 'Point' %}
-            coordinates = [0, 0];
-          {% elif model_geometry_type == 'Polygon' %}
-            coordinates = [[]];
-          {% else %}
-            coordinates = [];
-          {% endif %}
-          jsonGeometrie = {
-            'type': '{{ model_geometry_type }}',
-            'coordinates': coordinates
-          };
-        } else {
-          {% if model_geometry_type == 'MultiPolygon' or model_geometry_type == 'MultiPoint' or model_geometry_type == 'MultiLineString' %}
-            let coordinates = [];
-            let temp;
-            currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
-              temp = layer.toGeoJSON().geometry;
-              if (temp.type.search('Multi') > -1) {
-                for (let i = 0; i < temp.coordinates.length; i++) {
-                  coordinates.push(temp.coordinates[i]);
-                }
-              } else {
-                coordinates.push(temp.coordinates);
-              }
-            });
-            jsonGeometrie = {
-              'type': '{{ model_geometry_type }}',
-              'coordinates': coordinates,
-            };
-          {% else %}
-            jsonGeometrie = currMap.pm.getGeomanDrawLayers()[0].toGeoJSON().geometry;
-          {% endif %}
-        }
-        $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
-        if (addressUuidField && $.trim(searchField.val()).length) {
-          // keep current address, street or district temporarily
-          addressTempField.val(searchField.val());
-          // sets reference from field with UUID of the referenced address, street or district
-          searchField.val(addressUuidField.val());
-        }
-      {% endif %}
-    }
-
-    /**
-     * @function
-     * @name cloneObject
-     *
-     * clones the entire data set as a new data set
-     */
-    function cloneObject() {
-      $('form').attr('action', "{{ url_model_add }}");
-    }
 
     // when clicking on the select via map icon on a selection field for a foreign key,
     // all geometries of the target objects of the foreign key are displayed on the map

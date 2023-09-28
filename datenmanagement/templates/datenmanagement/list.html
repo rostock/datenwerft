@@ -55,13 +55,13 @@
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
           <tr>
-            {% if model_is_editable %}
+            {% if actions %}
               <th id="check-all" class="no-export no-search no-sort"><i class="fas fa-check-square"></i></th>
             {% endif %}
             {% for column_title in column_titles %}
               <th>{{ column_title }}</th>
             {% endfor %}
-            {% if model_is_editable %}
+            {% if column_actions %}
               <th class="no-export no-search no-sort">Aktionen</th>
             {% endif %}
           </tr>

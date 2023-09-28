@@ -251,6 +251,15 @@ class TableListView(TemplateView):
       self.model.BasemodelMeta.list_fields) else None
     if (
         self.model.BasemodelMeta.editable
+        and (
+          self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
+          or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
+          or self.request.user.has_perm('datenmanagement.view_' + model_name_lower)
+        )
+    ):
+      context['column_actions'] = True
+    if (
+        self.model.BasemodelMeta.editable
         and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)
     ):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
