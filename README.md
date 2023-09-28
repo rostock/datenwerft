@@ -9,6 +9,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 * [*GDAL*](https://gdal.org/)
 * [*PostgreSQL*](https://www.postgresql.org/) mit der Erweiterung [*PostGIS*](https://postgis.net/)
 * [*npm*](https://www.npmjs.com/)
+* für App _Toolbox_ siehe [hier](toolbox/README.md)
 
 ## Installation
 
@@ -30,7 +31,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 5.  leere *PostgreSQL*-Datenbank für die Anwendungsadministration anlegen
 6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *BEMAS* anlegen
-6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
+7.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
 
 ## Konfiguration
 
@@ -117,6 +118,10 @@ Für die App *BEMAS* kann optional ein Cronjob eingerichtet werden, der folgende
         python manage.py deletepersons
 
 Dieser Befehl führt dazu, dass alle Personen gelöscht werden, die nicht als Ansprechpartner:innen mit Organisationen verknüpft sind, nicht als Betreiber:innen mit Verursachern verknüpft sind und die als Beschwerdeführer:innen nur noch mit Beschwerden verknüpft sind, die seit `BEMAS_STATUS_CHANGE_DEADLINE_DAYS` (siehe `secrets.template`) abgeschlossen sind.
+
+## PDF-Export mit eigenen Templates
+
+Für den Export von PDF-Dateien mit eigenen Templates aus der App *Datenmanagement* mittels der App *Toolbox* siehe [hier](toolbox/README.md).
 
 ## Entwicklung
 
