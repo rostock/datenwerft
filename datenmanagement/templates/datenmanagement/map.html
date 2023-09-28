@@ -232,6 +232,7 @@
         {% endif %}
 
         // define several globally available variables
+        window.modelPrimaryKeyFieldName = '{{ model_pk_field_name }}';
         window.geometryType = '{{ model_geometry_type }}';
         window.objectsExtent = map.getBounds();
         window.removedLayers = [];
@@ -399,13 +400,13 @@
           filterField.type = $(this).data('type');
           // if it is an interval filter field...
           if ($(this).data('intervalside') === 'left' || $(this).data('intervalside') === 'right') {
-            // if it is a "lefty" interval filter field (i.e. for lower/smaller/earlier values)...
+            // if it is a "left" interval filter field (i.e. for lower/smaller/earlier values)...
             if ($(this).data('intervalside') === 'left') {
               // set the value of the field object accordingly
               filterField.value = '{{ interval_filter_min }}';
               // add field object to variable for minimum values of corresponding interval filter fields
               intervalFilterMin.push(filterField);
-            // if it is a "righty" interval filter field (i.e. for higher/larger/later values)...
+            // if it is a "right" interval filter field (i.e. for higher/larger/later values)...
             } else if ($(this).data('intervalside') === 'right') {
               // set the value of the field object accordingly
               filterField.value = '{{ interval_filter_max }}';
@@ -573,7 +574,7 @@
           // iterate all filters (except Boolean and checkbox filters)...
           $('.filter-input').each(function() {
             if ($(this).val()) {
-              // create filter as an object with name, type, "lefty/righty" and value
+              // create filter as an object with name, type, "left/right" and value
               let filterAttribute = {};
               filterAttribute.name = $(this).attr('name');
               filterAttribute.type = $(this).data('type');
@@ -586,7 +587,7 @@
 
           // iterate all Boolean filters...
           $('.filter-input input[type="checkbox"]').each(function() {
-            // create filter as an object with name, type, "lefty/righty" and value
+            // create filter as an object with name, type, "left/right" and value
             let filterAttribute = {};
             filterAttribute.name = $(this).attr('name');
             filterAttribute.type = $(this).data('type');
@@ -604,7 +605,7 @@
           // iterate all checkbox filters...
           $('.filter-checkbox-fieldset').each(function() {
             let checkedObjectsAtAll = false;
-            // create filter as an object with name, type, "lefty/righty" and values (as a list)
+            // create filter as an object with name, type, "left/right" and values (as a list)
             let filterAttribute = {};
             let name = $(this).attr('name');
             filterAttribute.name = name;

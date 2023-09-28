@@ -130,13 +130,13 @@ function filterApplication(model) {
 function filterGeoJsonFeatures(model, filterObjectsList, layer, isSubLayer, clusterLayer = layer) {
   let stillVisible = true;
   for (let i = 0; i < filterObjectsList.length; i++) {
-    // "lefty" interval date filter
+    // "left" interval date filter
     if (filterObjectsList[i].intervalside === 'left') {
       if (filterObjectsList[i].type === 'date') {
         if (new Date(filterObjectsList[i].value) > new Date(layer.feature.properties['_' + filterObjectsList[i].name + '_']))
           stillVisible = false;
       }
-    // "righty" interval date filter
+    // "right" interval date filter
     } else if (filterObjectsList[i].intervalside === 'right') {
       if (filterObjectsList[i].type === 'date') {
         if (new Date(layer.feature.properties['_' + filterObjectsList[i].name + '_']) > new Date(filterObjectsList[i].value))

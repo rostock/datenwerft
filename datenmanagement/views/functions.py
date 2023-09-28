@@ -204,7 +204,8 @@ def get_model_objects(model, subset_id=None, count_only=False):
   :param count_only: only return the count and not the data objects themselves?
   :return: either all data objects of the passed model or a subset of it
   """
-  if subset_id is not None and isinstance(subset_id, int):
+  if subset_id is not None:
+    subset_id = subset_id if isinstance(subset_id, int) else int(subset_id)
     subset = Subsets.objects.filter(id=subset_id)[0]
     if (
         subset is not None

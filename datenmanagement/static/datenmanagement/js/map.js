@@ -3,7 +3,7 @@
  * @function
  * @name applyFilters
  *
- * applies filters for passed model based on passed filter objects list
+ * applies filters based on passed filter objects list
  *
  * @param {Object[]} filterObjectsList - filter objects list
  */
@@ -85,7 +85,7 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
     if (filterObjectsList[i].name === 'deadline') {
       if (!(new Date(filterObjectsList[i].value) > new Date(layer.feature.properties['deadline_0'])) || !(new Date(layer.feature.properties['deadline_1']) > new Date(filterObjectsList[i].value)))
         stillVisible = false;
-    // "lefty" interval filter
+    // "left" interval filter
     } else if (filterObjectsList[i].intervalside === 'left') {
       if (filterObjectsList[i].type === 'date') {
         if (new Date(filterObjectsList[i].value) > new Date(layer.feature.properties[filterObjectsList[i].name]))
@@ -97,7 +97,7 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
         if (filterObjectsList[i].value > layer.feature.properties[filterObjectsList[i].name])
           stillVisible = false;
       }
-    // "righty" interval filter
+    // "right" interval filter
     } else if (filterObjectsList[i].intervalside === 'right') {
       if (filterObjectsList[i].type === 'date') {
         if (new Date(layer.feature.properties[filterObjectsList[i].name]) > new Date(filterObjectsList[i].value))
@@ -169,7 +169,7 @@ function filterGeoJsonFeatures(filterObjectsList, layer, isSubLayer, clusterLaye
   // if feature is not marked for hiding and shall therefore continue to be visible...
   if (stillVisible) {
      // update variables for primary keys and map extent of currently filtered data
-    window.currentFilterPrimaryKeys.push(layer.feature.properties['{{ model_pk_field_name }}']);
+    window.currentFilterPrimaryKeys.push(layer.feature.properties[window.modelPrimaryKeyFieldName]);
     let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
     let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
     let south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());

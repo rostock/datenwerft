@@ -42,7 +42,7 @@ class TableDataCompositionView(BaseDatatableView):
 
   def get_initial_queryset(self):
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
-      return get_model_objects(self.model, int(self.kwargs['subset_id']))
+      return get_model_objects(self.model, self.kwargs['subset_id'])
     else:
       return get_model_objects(self.model)
 
@@ -260,7 +260,7 @@ class TableListView(TemplateView):
           'datenmanagement:' + model_name + '_map_subset', args=['worschdsupp'])
     context['url_model_tabledata'] = reverse('datenmanagement:' + model_name + '_data')
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
-      subset_id = int(kwargs['subset_id'])
+      subset_id = kwargs['subset_id']
       context['subset_id'] = subset_id
       context['objects_count'] = get_model_objects(self.model, subset_id, True)
       context['url_model_tabledata_subset'] = reverse(
@@ -305,7 +305,7 @@ class MapDataCompositionView(JsonView):
     if self.request.GET.get('offset'):
       offset = int(self.request.GET.get('offset'))
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
-      objects = get_model_objects(self.model, int(self.kwargs['subset_id']))
+      objects = get_model_objects(self.model, self.kwargs['subset_id'])
     else:
       objects = get_model_objects(self.model)
     # handle objects
@@ -556,7 +556,7 @@ class MapListView(TemplateView):
     # add further elements to context
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
-      subset_id = int(kwargs['subset_id'])
+      subset_id = kwargs['subset_id']
       context['subset_id'] = subset_id
       context['objects_count'] = get_model_objects(self.model, subset_id, True)
       context['url_model_mapdata_subset'] = reverse(
