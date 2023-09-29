@@ -75,6 +75,7 @@
           window.dataUrl = '{{ url_model_tabledata }}';
         {% endif %}
         window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+        window.checkAllTarget = true;
       </script>
       <script>
         /**
@@ -126,9 +127,46 @@
               'Bei der Übernahme der aktuellen Filtermenge auf die Karte ist ein Serverfehler aufgetreten.'
             );
           });
+
+          // fetch PDF file on clicking the "OK" button in the PDF export confirmation modal...
+          $('#confirm-export-modal-ok').on('click', () => fetchPdf(
+            '{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}'
+          ));
+
+          // fetch PDF file on clicking the PDF export button...
+          $('#template-button').on('click', function() {
+            let checkedBoxes = $('.action-checkbox').filter(':checked');
+            let tplSelector = $('#template-selector');
+            let desiredTplId = tplSelector.value;
+            window.renderParams= {
+              'pks': [],
+              'templateid': desiredTplId,
+              'datenthema': '{{ model_name }}',
+              'onlyactive': !$('#onlyactive').prop('checked'),
+            };
+            if (checkedBoxes.length > 0) {
+              for (let i = 0; i < checkedBoxes.length; i++)
+                window.renderParams.pks.push(checkedBoxes[i].value);
+              fetchPdf(
+                '{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}'
+              );
+            }
+            else {
+              $('#confirm-export-modal').modal('toggle');
+            }
+          });
+
+          // select or unselect all rows (= records)
+          $('#check-all').on('click', function() {
+            let target = window.checkAllTarget;
+            $('.action-checkbox').each(function() {
+              $(this).prop('checked', target);
+            });
+            window.checkAllTarget = !target;
+          });
         });
 
-        // as soon as a row (= record) has been selected or deselected...
+        // as soon as a row (= record) has been selected or unselected...
         $('body').on('change', '.action-checkbox', function() {
           let actionCheckboxes = $('.action-checkbox').filter(':checked');
           // adjust information texts accordingly
@@ -157,5 +195,6 @@
       </div>
     {% endif %}
     {% include "modal-error.html" %}
+    {% include "modal-confirm-export.html" with objcount=objects_count %}
   {% endif %}
 {% endblock %}

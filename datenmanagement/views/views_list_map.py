@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.serializers import serialize
 from django.urls import reverse
 from django.utils.html import escape
@@ -13,6 +14,7 @@ from time import time
 from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_data, get_thumb_url, localize_number
+from toolbox.models import SuitableFor
 from toolbox.utils import optimize_datatable_filter
 from .functions import add_basic_model_context_elements, add_user_agent_context_elements, \
   get_model_objects
@@ -277,6 +279,9 @@ class TableListView(TemplateView):
     else:
       context['objects_count'] = get_model_objects(self.model, None, True)
     context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
+    content_type = ContentType.objects.get_for_model(self.model)
+    suitable_templates = SuitableFor.objects.filter(datenthema=content_type)
+    context['suitables'] = suitable_templates
     return context
 
 

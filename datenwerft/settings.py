@@ -242,6 +242,23 @@ BEMAS_COLORS = {
 }
 
 
+# Toolbox app:
+# PDF export
+
+PDF_ESCAPE = [
+  ('&', r'\&'),
+  (chr(8211), '--')
+]
+PDF_JINJASTRINGS = {
+  'block_start': r'\JINJA{',
+  'block_end': '}',
+  'variable_start': r'\VAR{',
+  'variable_end': '}',
+  'comment_start': r'\JCMNT{',
+  'comment_end': '}'
+}
+
+
 # configuration file with additional parameters
 # which must not fall under Git version control
 

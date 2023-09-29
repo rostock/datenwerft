@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, re_path
 from rest_framework import routers
 
-from .views import AddressSearchView, AddSubsetView, OWSProxyView, ReverseSearchView
+from .views import AddressSearchView, AddSubsetView, OWSProxyView, ReverseSearchView, renderpdf
 
 router = routers.DefaultRouter()
 
@@ -34,5 +34,11 @@ urlpatterns = [
     'reversesearch',
     view=login_required(ReverseSearchView.as_view()),
     name='reversesearch'
+  ),
+  # render PDF files from templates and data
+  path(
+    'renderpdf',
+    view=login_required(renderpdf),
+    name='renderpdf'
   )
 ]

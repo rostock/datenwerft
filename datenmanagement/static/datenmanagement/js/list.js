@@ -23,6 +23,34 @@ function formatData(data, brReplacement) {
 
 /**
  * @function
+ * @name fetchPdf
+ *
+ * fetches PDF file
+ *
+ * @param {string} url - URL
+ * @param {string} csrfToken - CSRF token
+ * @param {string} host - host
+ */
+function fetchPdf(url, csrfToken, host){
+  const response = fetch(
+    url, {
+      method: 'POST',
+      headers: {
+        contentType: 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      redirect: 'follow',
+      origin: host,
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(window.renderParams)
+    }
+  );
+  response.then(response => response.blob())
+  .then(myblob => window.open(URL.createObjectURL(myblob)));
+}
+
+/**
+ * @function
  * @name initDataTable
  *
  * initializes data table and returns it
