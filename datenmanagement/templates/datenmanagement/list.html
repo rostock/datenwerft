@@ -41,6 +41,18 @@
     <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-backward"></i> zurück</a>
   </div>
   {% if objects_count > 0 %}
+    {% if suitables|length > 0 %}
+    <div class="mt-1">
+      <label hidden for="template-selector" class="form-label">mit Vorlage</label>
+      <select name="template-selector" id="template-selector" class="form-select align-middle w-auto d-inline">
+        {% for suit in suitables %}
+          <option value={{ suit.id }}>{{ suit.template.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" class="btn btn-secondary" id="template-button">exportieren</button>
+      <label for="onlyactive">inaktive auch exportieren: </label><input type="checkbox" class="form-checkbox-input ms-1" id="onlyactive">
+    </div>
+    {% endif %}
     <div class="d-grid mt-5{% if not actions %} mb-3{% endif %} gap-2 mx-auto">
       {% if subset_id %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
