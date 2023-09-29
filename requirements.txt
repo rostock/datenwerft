@@ -10,5 +10,6 @@ psycopg2-binary
 PyYAML
 requests
 Sphinx
+sphinx-rtd-theme
 ua-parser
 user-agents
