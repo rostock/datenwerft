@@ -7,8 +7,7 @@ Auf eine *Datenthema-Startseite* gelangen Sie immer dann, wenn Sie in der :doc:`
 
 * :doc:`neuen Datensatz anlegen <../work/datensatz-anlegen>` in diesem Datenthema
 * alle Datensätze dieses Datenthemas :doc:`in einer Tabelle auflisten <datensaetze-tabelle>`
-* alle Datensätze dieses Datenthemas :doc:`auf einer Karte anzeigen <datensaetze-karte>`
-
+* sofern das Datenthema einen räumlichen Bezug aufweist: alle Datensätze dieses Datenthemas :doc:`auf einer Karte anzeigen <datensaetze-karte>`
 
 Wie gelange ich zu einer Datenthema-Startseite (zurück)?
 --------------------------------------------------------
