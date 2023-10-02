@@ -243,7 +243,7 @@ class ReverseSearchView(View):
 
 def renderpdf(request):
   if request.method != 'POST':
-    ret = HttpResponseNotAllowed(['POST'], open('toolbox/405.html'))
+    ret = HttpResponseNotAllowed(['POST'])
     ret.reason_phrase = 'Need JSON for render info in POST body!'
     return ret
   else:

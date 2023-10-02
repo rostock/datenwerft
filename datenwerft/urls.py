@@ -8,7 +8,18 @@ from toolbox import urls as toolbox_urls
 from datenmanagement import urls as datenmanagement_urls
 from bemas import urls as bemas_urls
 
-from .views import IndexView
+from .views import IndexView, error_400, error_403, error_404, error_405, error_410, \
+  error_500, error_501, error_502, error_503
+
+handler400 = error_400
+handler403 = error_403
+handler404 = error_404
+handler405 = error_405
+handler410 = error_410
+handler500 = error_500
+handler501 = error_501
+handler502 = error_502
+handler503 = error_503
 
 api_urlpatterns = []
 api_urlpatterns += accounts_urls.api_urlpatterns
