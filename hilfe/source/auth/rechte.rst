@@ -10,7 +10,6 @@ Was darf ich sehen?
 
 Sie dürfen alle Datenthemen sehen, für die wir Ihnen *Leserechte* gegeben haben: Diese erscheinen in Ihrer :doc:`Datenthemen-Übersicht <../nav/datenthemen-uebersicht>`. Innerhalb dieser Datenthemen wiederum dürfen Sie :doc:`alle Datensätze sehen <../nav/datenthema-startseite>`, für die wir Ihnen Leserechte gegeben haben: In der Regel sind dies **alle** Datensätze **eines** Datenthemas.
 
-
 .. _schreibrechte:
 
 Was darf ich tun?

@@ -5,7 +5,6 @@ Hilfe
    :glob:
    :maxdepth: 2
 
-
 Anmeldung und Rechte
 --------------------
 
@@ -15,7 +14,6 @@ Anmeldung und Rechte
 
    auth/anmeldung
    auth/rechte
-
 
 Zurechtfinden
 -------------
@@ -30,7 +28,6 @@ Zurechtfinden
    nav/datensaetze-tabelle
    nav/datensaetze-karte
 
-
 Arbeiten
 --------
 
@@ -40,8 +37,8 @@ Arbeiten
 
    work/datensatz-anlegen
    work/datensatz-bearbeiten
+   work/datensatz-klonen
    work/datensatz-loeschen
-
 
 Indizes und Übersichten
 =======================
