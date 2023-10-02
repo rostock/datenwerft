@@ -4,13 +4,15 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.utils import IntegrityError
-from django.http import HttpResponse, HttpResponseServerError, JsonResponse
+from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseServerError, \
+  FileResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from json import dumps, loads
 from re import sub
 
-from .models import Subsets
+from .models import Subsets, SuitableFor
+from .pdfs import baudenkmalefull, fetchdata, preparecontext, render
 
 
 class AddSubsetView(View):
@@ -237,3 +239,40 @@ class ReverseSearchView(View):
       return HttpResponse(response, content_type='application/json')
     except Exception:
       return HttpResponseServerError()
+
+
+def renderpdf(request):
+  if request.method != 'POST':
+    ret = HttpResponseNotAllowed(['POST'])
+    ret.reason_phrase = 'Need JSON for render info in POST body!'
+    return ret
+  else:
+    params = preparecontext(request)
+    print(params)
+    d, display_names = fetchdata(**params)
+    print('Templatename: ', SuitableFor.objects.get(pk=params['templateid']).template.name)
+    print('Datenthema.lower(): ', params['datenthema'].lower())
+    if (params['datenthema'].lower() == 'baudenkmale'
+        and params['suitable'].template.name == 'Custom-Baudenkmale'):
+      print('Spezialsortierung für Baudenkmale')
+      data = baudenkmalefull(params['pks'], onlyactive=True)
+    else:
+      data = dict()
+      data['datenthema'] = params['datenthema']
+      data['records'] = d
+      data['usedkeys'] = params['usedkeys']
+      data['display_names'] = display_names
+    rendersuccess, responsefile = render(
+            data,
+            params['suitable'].template.templatefile,
+            pdfdir='toolbox/mkpdf')
+    if rendersuccess:
+      ret = FileResponse(responsefile, status=200)
+      ret['Content-Disposition'] = f'attachment, filename={params["datenthema"]}'
+      ret['Content-Type'] = 'application/pdf'
+    else:
+      ret = FileResponse(responsefile, status=409)
+      ret.reason_phrase = 'keine PDF-Datei erzeugt, wahrscheinlich ist das Template defekt'
+      ret['Content-Disposition'] = f'attachment, filename={params["datenthema"]}.errorlog'
+      ret['Content-Type'] = 'text/plain'
+    return ret

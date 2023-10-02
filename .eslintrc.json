@@ -19,6 +19,7 @@
     "enableMapLocate": true,
     "featureGeometry": true,
     "fetchGeoJsonFeatureCollection": true,
+    "fetchPdf": true,
     "filterApplication": true,
     "filterReset": true,
     "getFeatureCenter": true,

@@ -41,19 +41,19 @@
       </div>
     </div>
   {% else %}
-      <div class="mt-4 text-center">
-        <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} me-2 main-logo" src="{% static 'img/logo.svg' %}" alt="Logo">
-        <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} ms-2 main-logo" src="{% static 'img/rostock.svg' %}" alt="Rostock">
-      </div>
-      <div class="d-grid mt-4 mx-auto">
-        <h2 class="text-center">
-          Willkommen bei <em><strong>Datenwerft.HRO,</strong></em><br>
-          der Web-Anwendung zur Datenerfassung<br>
-          der Hanse- und Universitätsstadt Rostock!
-        </h2>
-      </div>
-      <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}3{% endif %} mt-4 mx-auto">
-        <a class="btn btn-lg btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
-      </div>
+    <div class="mt-4 text-center">
+      <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} me-2 main-logo" src="{% static 'img/logo.svg' %}" alt="Logo">
+      <img class="mx-auto col-{% if request.user_agent.is_mobile %}4{% else %}1{% endif %} ms-2 main-logo" src="{% static 'img/rostock.svg' %}" alt="Rostock">
+    </div>
+    <div class="d-grid mt-4 mx-auto">
+      <h2 class="text-center">
+        Willkommen bei <em><strong>Datenwerft.HRO,</strong></em><br>
+        der Web-Anwendung zur Datenerfassung<br>
+        der Hanse- und Universitätsstadt Rostock!
+      </h2>
+    </div>
+    <div class="d-grid col-{% if request.user_agent.is_mobile %}8{% else %}3{% endif %} mt-4 mx-auto">
+      <a class="btn btn-lg btn-primary" role="button" href="{% url 'accounts:login' %}"><i class="fas fa-right-to-bracket"></i> Anmeldung</a>
+    </div>
   {% endif %}
 {% endblock %}

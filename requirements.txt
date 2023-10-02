@@ -5,6 +5,7 @@ django-jsonview
 django-leaflet
 django-user-agents
 djangorestframework
+Jinja2
 Pillow
 psycopg2-binary
 PyYAML
