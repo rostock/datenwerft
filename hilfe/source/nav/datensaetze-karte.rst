@@ -1,4 +1,4 @@
-.. index:: Adresse, Adressensuche, Datensätze-Karte, Filtermenge, Filterung, Gemeindeteil, Hintergrundkarte, Karte, Kartenausschnitt, Kartenhintergrund, Karteninhalt, Kartennavigation, Maßstab, Straße, Zoom
+.. index:: Adressensuche, Datensätze-Karte, Hintergrundkarte, Karte, Kartenausschnitt, Kartenfilter, Kartenhintergrund, Karteninhalt, Kartennavigation, Maßstab, Zoom
 
 Datensätze-Karte
 ================

@@ -1,4 +1,4 @@
-.. index:: Adresse, Adressensuche, Attribute, Datensatz anlegen, Fläche, Gemeindeteil, Geometrien adoptieren, Karte, Linie, neuer Datensatz, Pflichtattribute, Punkt, Punktfang, Sachdaten, Speichern, Straße, Stützpunkte, Syntax, Verortung
+.. index:: Adresse, Attribute, Datensatz anlegen, Fläche, Gemeindeteil, Geometrien adoptieren, Linie, neuer Datensatz, Pflichtattribute, Punkt, Punktfang, Sachdaten, Speichern, Straße, Stützpunkte, Syntax, Verortung
 
 Datensatz anlegen
 =================

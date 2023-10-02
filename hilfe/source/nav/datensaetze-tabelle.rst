@@ -1,4 +1,4 @@
-.. index:: Aktionen, Auge, Bleistift, CSV, Datensätze-Tabelle, Excel, Export, Filtermenge, Filterung, Paginierung, Papierkorb, PDF, Sortierung, Tabelle, Tabellenspalten
+.. index:: Aktionen, Auge, Bleistift, CSV, Datensätze-Tabelle, Excel, Export, Paginierung, Papierkorb, PDF, Sortierung, Tabelle, Tabellenfilter, Tabellenspalten
 
 Datensätze-Tabelle
 ==================

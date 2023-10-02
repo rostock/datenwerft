@@ -1,5 +1,5 @@
-Hilfe
-=====
+Hilfe zu *Datenwerft.HRO*
+=========================
 
 .. toctree::
    :glob:
