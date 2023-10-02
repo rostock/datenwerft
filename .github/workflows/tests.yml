@@ -79,7 +79,6 @@ jobs:
       - name: Create HTML files for help
         run: |
           cd hilfe
-          mkdir source/_static
           make html
           cd ..
       - name: Collect static files
