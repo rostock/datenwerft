@@ -305,6 +305,10 @@
       });
 
       // define several globally available variables
+      window.enableMapTools = false;
+      {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+        window.enableMapTools = true
+      {% endif %}
       window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }};
       window.reverseSearchUrl = '{% url "toolbox:reversesearch" %}';
       window.geometryType = '{{ model_geometry_type }}';
@@ -326,9 +330,9 @@
         window.postcodeAssigner = '{{ postcode_assigner }}'
       {% endif %}
 
-      if (!window.gpxInput && window.geometryType.includes('LineString'))
+      if (window.enableMapTools && !window.gpxInput && window.geometryType.includes('LineString'))
         configureLeafletGeoman(map, 'LineString');
-      else if (!window.gpxInput && (window.geometryType === 'Point' || window.geometryType.includes('Polygon')))
+      else if (window.enableMapTools && !window.gpxInput && (window.geometryType === 'Point' || window.geometryType.includes('Polygon')))
         configureLeafletGeoman(map, window.geometryType);
       else
         configureLeafletGeoman(map);
