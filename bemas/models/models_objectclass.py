@@ -102,7 +102,7 @@ class Organization(Objectclass):
   )
   dms_link = CharField(
     ' d.3',
-    max_length=16,
+    max_length=15,
     blank=True,
     null=True,
     validators=[
@@ -404,7 +404,7 @@ class Originator(GeometryObjectclass):
   )
   dms_link = CharField(
     ' d.3',
-    max_length=16,
+    max_length=15,
     blank=True,
     null=True,
     validators=[
@@ -524,7 +524,7 @@ class Complaint(GeometryObjectclass):
   )
   dms_link = CharField(
     ' d.3',
-    max_length=16,
+    max_length=15,
     blank=True,
     null=True,
     validators=[
@@ -617,7 +617,7 @@ class Event(Objectclass):
   )
   dms_link = CharField(
     ' d.3',
-    max_length=16,
+    max_length=15,
     blank=True,
     null=True,
     validators=[

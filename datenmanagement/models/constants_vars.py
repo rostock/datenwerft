@@ -51,9 +51,6 @@ hydranten_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> ' \
                                 '<em>HSA</em> beginnen, gefolgt von genau ' \
                                 'einem Leerzeichen. Die übrigen Zeichen ' \
                                 'können beliebig gewählt werden.'
-kleinklaeranlagen_d3_regex = r'^[0-9]{3}\.[0-9]{3}-[0-9]{3}$'
-kleinklaeranlagen_d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss folgendes Format ' \
-                               'aufweisen (Beispiel): 538.111-022'
 kleinklaeranlagen_zulassung_regex = r'^Z-55\.[0-9]{1,2}-[0-9]{1,3}$'
 kleinklaeranlagen_zulassung_message = 'Die <strong><em>Zulassung</em></strong> muss folgendes ' \
                                       'Format aufweisen (Beispiel): Z-55.32-608'

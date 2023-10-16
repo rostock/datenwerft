@@ -21,8 +21,7 @@ from .base import Basemodel, SimpleModel
 from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, \
   erdwaermesonden_aktenzeichen_regex, erdwaermesonden_aktenzeichen_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
-  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, kleinklaeranlagen_d3_regex, \
-  kleinklaeranlagen_d3_message, kleinklaeranlagen_zulassung_regex, \
+  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, kleinklaeranlagen_zulassung_regex, \
   kleinklaeranlagen_zulassung_message, poller_nummer_regex, poller_nummer_message, \
   trinkwassernotbrunnen_nummer_regex, trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
@@ -1541,7 +1540,7 @@ class Erdwaermesonden(SimpleModel):
   )
   d3 = CharField(
     ' d.3',
-    max_length=16,
+    max_length=15,
     blank=True,
     null=True,
     validators=[
@@ -3182,11 +3181,11 @@ class Kleinklaeranlagen(SimpleModel):
   )
   d3 = CharField(
     ' d.3',
-    max_length=11,
+    max_length=15,
     validators=[
       RegexValidator(
-        regex=kleinklaeranlagen_d3_regex,
-        message=kleinklaeranlagen_d3_message
+        regex=d3_regex,
+        message=d3_message
       )
     ]
   )
