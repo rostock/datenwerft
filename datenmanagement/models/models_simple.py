@@ -20,6 +20,7 @@ from toolbox.constants_vars import personennamen_validators, standard_validators
 from .base import Basemodel, SimpleModel
 from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, \
   erdwaermesonden_aktenzeichen_regex, erdwaermesonden_aktenzeichen_message, \
+  erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
   hydranten_bezeichnung_regex, hydranten_bezeichnung_message, kleinklaeranlagen_zulassung_regex, \
   kleinklaeranlagen_zulassung_message, poller_nummer_regex, poller_nummer_message, \
@@ -1540,13 +1541,13 @@ class Erdwaermesonden(SimpleModel):
   )
   d3 = CharField(
     ' d.3',
-    max_length=15,
+    max_length=16,
     blank=True,
     null=True,
     validators=[
       RegexValidator(
-        regex=d3_regex,
-        message=d3_message
+        regex=erdwaermesonden_d3_regex,
+        message=erdwaermesonden_d3_message
       )
     ]
   )

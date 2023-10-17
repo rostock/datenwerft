@@ -9,10 +9,10 @@ from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
 
-from datenmanagement.models.fields import ChoiceArrayField
-from datenmanagement.utils import is_geometry_field
-from toolbox.models import Subsets
 from .fields import ArrayDateField
+from toolbox.models import Subsets
+from toolbox.utils import is_geometry_field
+from datenmanagement.models.fields import ChoiceArrayField
 
 
 def add_basic_model_context_elements(context, model):

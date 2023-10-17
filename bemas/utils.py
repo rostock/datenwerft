@@ -1,8 +1,6 @@
 from datetime import date, datetime, timedelta, timezone
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.gis.db.models.fields import PointField as ModelPointField
-from django.contrib.gis.forms.fields import PointField as FormPointField
 from django.utils import timezone as tz
 from zoneinfo import ZoneInfo
 
@@ -240,19 +238,6 @@ def is_bemas_user(user, only_bemas_user_check=False):
       return in_bemas_groups.count() == user.groups.all().count()
     else:
       return True
-  else:
-    return False
-
-
-def is_geometry_field(field):
-  """
-  checks if passed field is a geometry related field
-
-  :param field: field
-  :return: passed field is a geometry related field?
-  """
-  if issubclass(field, FormPointField) or issubclass(field, ModelPointField):
-    return True
   else:
     return False
 

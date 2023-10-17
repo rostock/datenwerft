@@ -64,7 +64,8 @@ TEMPLATES = [
       ],
       'libraries': {
         'datenmanagement_tags': 'datenmanagement.tags',
-        'bemas_tags': 'bemas.tags'
+        'bemas_tags': 'bemas.tags',
+        'toolbox_tags': 'toolbox.tags'
       },
     },
   },

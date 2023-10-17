@@ -8,14 +8,15 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
 
-from bemas.models import GeometryObjectclass, Complaint, Contact, Event, LogEntry, Organization, \
-  Originator, Sector, Status
 from .forms import GenericForm
 from .functions import add_default_context_elements, add_generic_objectclass_context_elements, \
   add_sector_examples_context_element, add_table_context_elements, assign_widget, \
   create_log_entry, generate_foreign_key_objects_list, \
   set_generic_objectclass_create_update_delete_context, set_log_action_and_content
-from bemas.utils import generate_user_string, is_geometry_field, shorten_string
+from toolbox.utils import is_geometry_field
+from bemas.models import GeometryObjectclass, Complaint, Contact, Event, LogEntry, Organization, \
+  Originator, Sector, Status
+from bemas.utils import generate_user_string, shorten_string
 
 
 class GenericObjectclassTableView(TemplateView):

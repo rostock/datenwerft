@@ -4,7 +4,7 @@ from django.template.defaultfilters import stringfilter
 from django.urls import reverse
 from re import sub
 
-from datenmanagement.utils import is_address_related_field, is_geometry_field
+from datenmanagement.utils import is_address_related_field
 from toolbox.constants_vars import standard_validators
 
 register = template.Library()
@@ -65,18 +65,6 @@ def get_class_name(value):
   :return: class name of passed model
   """
   return value.__class__.__name__
-
-
-@register.filter
-def get_dict_value_by_key(arg_dict, key):
-  """
-  returns value of passed key in passed dictionary
-
-  :param arg_dict: dictionary
-  :param key: key in dictionary
-  :return: value of passed key in passed dictionary
-  """
-  return arg_dict.get(key)
 
 
 @register.filter
@@ -185,17 +173,6 @@ def is_field_address_related_field(field):
 
 
 @register.filter
-def is_field_geometry_field(field):
-  """
-  checks if passed field is a geometry related field
-
-  :param field: field
-  :return: passed field is a geometry related field?
-  """
-  return is_geometry_field(field.field.__class__)
-
-
-@register.filter
 def is_field_hours_related_field(field):
   """
   checks if passed field is an (opening) hours related field
@@ -230,22 +207,6 @@ def is_linebreak_error(errors):
   if str(errors).count('<li>') == len(standard_validators):
     return True
   return False
-
-
-@register.filter
-@stringfilter
-def replace(value, arg):
-  """
-  replaces string in passed value
-
-  :param value: value
-  :param arg: source string and target string
-  :return: value with replaced strings
-  """
-  if len(arg.split('|')) != 2:
-    return value
-  source, target = arg.split('|')
-  return value.replace(source, target)
 
 
 @register.filter

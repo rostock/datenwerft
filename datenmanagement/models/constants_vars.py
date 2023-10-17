@@ -30,6 +30,9 @@ erdwaermesonden_aktenzeichen_message = 'Das <strong><em>Aktenzeichen</em></stron
                                        'eines der folgenden Formate aufweisen (Beispiele): ' \
                                        'B/EW/02/2005, WST/20/2015, 73.40.01.05-2001 oder ' \
                                        '73.40.01.05-2102-Ä'
+erdwaermesonden_d3_regex = r'^[0-9]{3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
+erdwaermesonden_d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss folgendes ' \
+                             'Format aufweisen (Beispiel): 552.6#04-004/008'
 fahrbahnwinterdienst_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
                                     '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'

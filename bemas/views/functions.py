@@ -10,11 +10,12 @@ from json import dumps, loads
 from leaflet.forms.widgets import LeafletWidget
 from operator import itemgetter
 
+from toolbox.utils import is_geometry_field
 from bemas.models import Codelist, GeometryObjectclass, Complaint, Contact, Event, LogEntry, \
   Originator, Status
 from bemas.utils import LOG_ACTIONS, format_date_datetime, generate_user_string, \
   get_foreign_key_target_model, get_foreign_key_target_object, get_icon_from_settings, \
-  get_json_data, is_bemas_admin, is_bemas_user, is_geometry_field
+  get_json_data, is_bemas_admin, is_bemas_user
 
 
 def add_codelist_context_elements(context, model, curr_object=None):

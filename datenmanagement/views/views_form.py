@@ -10,11 +10,12 @@ from json import dumps
 from re import sub
 from time import time
 
-from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
-  is_address_related_field, is_geometry_field
 from .forms import GenericForm
 from .functions import add_basic_model_context_elements, add_model_form_context_elements, \
   add_user_agent_context_elements, assign_widgets, set_form_attributes
+from toolbox.utils import is_geometry_field
+from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
+  is_address_related_field
 
 
 class DataAddView(CreateView):
