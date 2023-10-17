@@ -42,14 +42,14 @@
   </div>
   {% if objects_count > 0 %}
     {% if suitables|length > 0 %}
-    <div class="mt-1">
+    <div class="mt-3">
       <label hidden for="template-selector" class="form-label">mit Vorlage</label>
       <select name="template-selector" id="template-selector" class="form-select align-middle w-auto d-inline">
         {% for suit in suitables %}
           <option value={{ suit.id }}>{{ suit.template.name }}</option>
         {% endfor %}
       </select>
-      <button type="button" class="btn btn-secondary" id="template-button">exportieren</button>
+      <button type="button" class="btn btn-success" id="template-button">exportieren</button>
       <label for="onlyactive">inaktive auch exportieren: </label><input type="checkbox" class="form-checkbox-input ms-1" id="onlyactive">
     </div>
     {% endif %}
@@ -68,7 +68,7 @@
         <thead>
           <tr>
             {% if actions %}
-              <th id="check-all" class="no-export no-search no-sort"><i class="fas fa-check-square"></i></th>
+              <th id="check-all" class="no-export no-search no-sort" title="alle (sichtbaren) Datensätze für Export aus-/abwählen"><i class="fas fa-check-square"></i></th>
             {% endif %}
             {% for column_title in column_titles %}
               <th>{{ column_title }}</th>
@@ -148,8 +148,7 @@
           // fetch PDF file on clicking the PDF export button...
           $('#template-button').on('click', function() {
             let checkedBoxes = $('.action-checkbox').filter(':checked');
-            let tplSelector = $('#template-selector');
-            let desiredTplId = tplSelector.value;
+            let desiredTplId = $('#template-selector').val();
             window.renderParams= {
               'pks': [],
               'templateid': desiredTplId,

@@ -97,7 +97,7 @@ def render(
 
 
 def prep4latex(string):
-  for esc in settings.PDF_REPLACES:
+  for esc in settings.PDF_ESCAPE:
     string = string.replace(esc[0], esc[1])
   return string
 
@@ -105,9 +105,7 @@ def prep4latex(string):
 def fetchdata(datenthema, pks, onlyactive=True, order=None, usedkeys=None, **kwargs):
   if order is None:
     order = []
-  print(datenthema)
   dt = ContentType.objects.get(app_label="datenmanagement", model=datenthema.lower())
-  print(dt)
   thema = dt.model_class()
 
   display_names = dict()

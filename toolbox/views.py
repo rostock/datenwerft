@@ -248,13 +248,11 @@ def renderpdf(request):
     return ret
   else:
     params = preparecontext(request)
-    print(params)
     d, display_names = fetchdata(**params)
-    print('Templatename: ', SuitableFor.objects.get(pk=params['templateid']).template.name)
-    print('Datenthema.lower(): ', params['datenthema'].lower())
-    if (params['datenthema'].lower() == 'baudenkmale'
-        and params['suitable'].template.name == 'Custom-Baudenkmale'):
-      print('Spezialsortierung für Baudenkmale')
+    if (
+        params['datenthema'].lower() == 'baudenkmale'
+        and params['suitable'].template.name == 'Custom-Baudenkmale'
+    ):
       data = baudenkmalefull(params['pks'], onlyactive=True)
     else:
       data = dict()
