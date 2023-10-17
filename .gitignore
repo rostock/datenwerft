@@ -8,8 +8,7 @@ db.sqlite3
 # Datenwerft.HRO
 datenwerft/secrets.py
 hilfe/build
-toolbox/mkpdf/*.latex
-toolbox/mkpdf/*.txt
+toolbox/mkpdf/tmp_*
 /static
 /uploads
 

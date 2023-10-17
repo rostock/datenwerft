@@ -59,7 +59,7 @@ def render(
     data,
     templatefiledescriptor,
     outfilename="tmp_",
-    pdfdir="toolbox/mkpdf/"):
+    pdfdir="toolbox/mkpdf"):
   data["jetzt"] = datetime.now().strftime("%d.%m.%Y")
   uid = uuid1()
   outfilename += str(uid)
@@ -75,7 +75,7 @@ def render(
   f = open(joinpath(settings.BASE_DIR, pdfdir, outfilename+".latex"), "w")
   f.write(tpl.render(data))
   f.close()
-  log = open(f"toolbox/mkpdf/tmp_{uid}_texlog.txt", "w")
+  log = open(joinpath(settings.BASE_DIR, pdfdir, outfilename+"_texlog.txt"), "w")
   subprocess.run(
       ["latexmk", outfilename+".latex", "-interaction=batchmode"],
       cwd=joinpath(settings.BASE_DIR, pdfdir),
@@ -90,7 +90,6 @@ def render(
     return success, f
   except FileNotFoundError:
     success = False
-    print(" versuche texlog.txt zurückzugeben")
     f = open(joinpath(settings.BASE_DIR, pdfdir, f"tmp_{uid}.log"), "r", encoding='latin-1')
     ret = f.read()
   return success, ret
