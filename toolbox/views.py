@@ -250,10 +250,7 @@ def renderpdf(request):
   else:
     params = preparecontext(request)
     d, display_names = fetchdata(**params)
-    if (
-        params['datenthema'].lower() == 'baudenkmale'
-        and params['suitable'].template.name == 'Denkmalliste'
-    ):
+    if params['suitable'].template.name == 'Denkmalliste':
       data = baudenkmalefull(params['pks'], onlyactive=True)
     else:
       data = dict()
