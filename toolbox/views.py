@@ -254,7 +254,6 @@ def renderpdf(request):
         params['datenthema'].lower() == 'baudenkmale'
         and params['suitable'].template.name == 'Denkmalliste'
     ):
-      print('sepp')
       data = baudenkmalefull(params['pks'], onlyactive=True)
     else:
       data = dict()
@@ -266,13 +265,14 @@ def renderpdf(request):
             data,
             params['suitable'].template.templatefile,
             pdfdir=joinpath('toolbox', 'mkpdf'))
+    filename = params['suitable'].template.name.lower()
     if rendersuccess:
       ret = FileResponse(responsefile, status=200)
-      ret['Content-Disposition'] = f'attachment, filename={params["datenthema"]}'
+      ret['Content-Disposition'] = f'attachment; filename={filename}.pdf'
       ret['Content-Type'] = 'application/pdf'
     else:
       ret = FileResponse(responsefile, status=409)
       ret.reason_phrase = 'keine PDF-Datei erzeugt, wahrscheinlich ist das Template defekt'
-      ret['Content-Disposition'] = f'attachment, filename={params["datenthema"]}.errorlog'
+      ret['Content-Disposition'] = f'attachment; filename={filename}.log'
       ret['Content-Type'] = 'text/plain'
     return ret

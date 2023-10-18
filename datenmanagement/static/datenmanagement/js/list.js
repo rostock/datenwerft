@@ -1,5 +1,27 @@
 /**
  * @function
+ * @name downloadFile
+ *
+ * download a file
+ *
+ * @param {Blob} file - file
+ * @param {string} [fileName='file'] - file name
+ */
+function downloadFile(file, fileName = 'file') {
+  let href = URL.createObjectURL(file);
+  let a = Object.assign(document.createElement('a'), {
+    href,
+    style: 'display:none',
+    download: fileName
+  });
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(href);
+  a.remove();
+}
+
+/**
+ * @function
  * @name formatData
  *
  * formats data for export
@@ -32,7 +54,8 @@ function formatData(data, brReplacement) {
  * @param {string} host - host
  */
 function fetchPdf(url, csrfToken, host){
-  const response = fetch(
+  let fileName = '';
+  fetch(
     url, {
       method: 'POST',
       headers: {
@@ -44,9 +67,12 @@ function fetchPdf(url, csrfToken, host){
       referrerPolicy: 'no-referrer',
       body: JSON.stringify(window.renderParams)
     }
-  );
-  response.then(response => response.blob())
-  .then(myblob => window.open(URL.createObjectURL(myblob)));
+  )
+  .then(response => {
+    fileName = response.headers.get('Content-Disposition').split('filename=')[1];
+    return response.blob();
+  })
+  .then(file => downloadFile(file, fileName));
 }
 
 /**
