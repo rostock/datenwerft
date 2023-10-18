@@ -1,0 +1,65 @@
+\documentclass{article}
+
+\usepackage[a4paper, bottom=30mm]{geometry}
+\usepackage{fancyhdr}
+%\usepackage{fontspec}
+\usepackage[x11names]{xcolor}
+\usepackage{graphicx}
+\usepackage[ngerman]{babel}
+\usepackage{lastpage}
+
+\graphicspath{ {./} }
+
+\setcounter{secnumdepth}{0} %keine Kapitelnummern
+%\setlength{\parskip}{0cm}
+\setlength{\headheight}{32pt}
+\renewcommand{\footrulewidth}{.1pt} %schmale Linie unten
+\fancyfoot[R]{Seite \thepage\ von \pageref{LastPage}}
+
+\fancyfoot[L]{{\footnotesize *) entspricht gemäß § 2 Abs. 2 DschG M-V \\
+einem Denkmal der Garten- und Landschaftsgestaltung}}
+
+\fancyfoot[C]{}
+
+\renewcommand{\headrulewidth}{2pt} %dicke Linie oben
+\fancyhead[L]{\noindent \color{RoyalBlue4} \textbf{\Large{\emph{Denkmalliste der Hanse- und Universitätsstadt Rostock}}} \vspace{12pt}}
+
+\fancyhead[R]{ \color{RoyalBlue3} \small{Stand: \VAR{jetzt}} }
+
+\pagestyle{fancy}
+
+%\newcommand{\mpar}[1]{\paragraph{#1}\mbox{}\\}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {-2.5ex\@plus -1ex \@minus -.25ex}%
+  {1.25ex \@plus .25ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+%\setlength{\parskip}{0cm}
+
+\begin{document}
+
+\JINJA{for kat in kategorien}
+  \setlength{\leftskip}{0cm}
+  \fancyhead[C]{\color{RoyalBlue4}\emph{\VAR{kat.name}}}
+  \section{\VAR{kat.name}}
+  \JINJA{for ort in kat.orte}
+    \setlength{\leftskip}{1cm}
+    \subsection{ \color{RoyalBlue4}\emph{\VAR{ort.name}} }
+    \JINJA{for anfang in ort.byletter.keys() | sort}
+      \JINJA{set dictkey = anfang}
+      \setlength{\leftskip}{2cm}
+      \subsubsection{\Large{\VAR{anfang}}}
+      \JINJA{for eintrag in ort.byletter[dictkey]}
+        \setlength{\leftskip}{3cm}
+        \paragraph{\noindent\color{RoyalBlue3}\large{\emph{ \VAR{eintrag.position} }}}
+        \setlength{\leftskip}{4cm}
+        \VAR{eintrag.beschreibung}
+      \JINJA{endfor}
+    \JINJA{endfor}
+  \JINJA{endfor}
+\JINJA{endfor}
+
+\end{document}

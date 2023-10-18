@@ -69,7 +69,7 @@ Es können mit Hilfe der *Jinja2*-Sprache nun die verschiedenen Daten ins Templa
 
 -  der *LaTeX*-Befehl `\begin{longtable}`,
 -  die `for`-Schleife von *Jinja2,* bei uns mit `\JINJA{for}, \JINJA{endfor}` und
--  die Möglichkeit, im Template Variablen zu setzen; so kann über eine Liste von Schlüsseln iteriert werden, die im Schleifenkörper nochmals als Schlüssel verwendet werden (z.B. für die Verarbeitung baumartiger Strukturen, siehe `pdfs.py: sortforbaudenkmale()` und das Template `Custom-Baudenkmale`)
+-  die Möglichkeit, im Template Variablen zu setzen; so kann über eine Liste von Schlüsseln iteriert werden, die im Schleifenkörper nochmals als Schlüssel verwendet werden (z.B. für die Verarbeitung baumartiger Strukturen, siehe `pdfs.py: sortforbaudenkmale()` und das Template `Denkmalliste`)
 
 Für eine Einführung in *Jinja2* sei auf die die *Jinja2*-Dokumentation, [Abschnitt Template-Designer](https://jinja.palletsprojects.com/en/3.0.x/templates/), verwiesen und für *LaTeX* auf die große Menge an brauchbarer Literatur und Handbüchern, insbesondere [diesen Kurzeinstieg](https://www.ctan.org/pkg/lshort-german). Für gewöhnlich gibt es zu jeder erdenklichen Frage, die einem beim *LaTeX*-Schreiben einfallen könnte, einen Thread in einem Forum oder einen Artikel in den [Hilfeseiten von Overleaf](https://overleaf.com/learn/).
 

@@ -9,9 +9,10 @@ from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseServer
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from json import dumps, loads
+from os.path import join as joinpath
 from re import sub
 
-from .models import Subsets, SuitableFor
+from .models import Subsets
 from .pdfs import baudenkmalefull, fetchdata, preparecontext, render
 
 
@@ -251,8 +252,9 @@ def renderpdf(request):
     d, display_names = fetchdata(**params)
     if (
         params['datenthema'].lower() == 'baudenkmale'
-        and params['suitable'].template.name == 'Custom-Baudenkmale'
+        and params['suitable'].template.name == 'Denkmalliste'
     ):
+      print('sepp')
       data = baudenkmalefull(params['pks'], onlyactive=True)
     else:
       data = dict()
@@ -263,7 +265,7 @@ def renderpdf(request):
     rendersuccess, responsefile = render(
             data,
             params['suitable'].template.templatefile,
-            pdfdir='toolbox/mkpdf')
+            pdfdir=joinpath('toolbox', 'mkpdf'))
     if rendersuccess:
       ret = FileResponse(responsefile, status=200)
       ret['Content-Disposition'] = f'attachment, filename={params["datenthema"]}'

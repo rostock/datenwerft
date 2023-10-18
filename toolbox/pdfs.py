@@ -59,7 +59,7 @@ def render(
     data,
     templatefiledescriptor,
     outfilename="tmp_",
-    pdfdir="toolbox/mkpdf"):
+    pdfdir=joinpath("toolbox", "mkpdf")):
   data["jetzt"] = datetime.now().strftime("%d.%m.%Y")
   uid = uuid1()
   outfilename += str(uid)
@@ -77,7 +77,7 @@ def render(
   f.close()
   log = open(joinpath(settings.BASE_DIR, pdfdir, outfilename+"_texlog.txt"), "w")
   subprocess.run(
-      ["latexmk", outfilename+".latex", "-interaction=batchmode"],
+      ["latexmk", outfilename+".latex", "-interaction=batchmode", "-pdf"],
       cwd=joinpath(settings.BASE_DIR, pdfdir),
       stdout=log,
       stdin=subprocess.DEVNULL,
@@ -154,7 +154,7 @@ def cleanqueryrecord(datum):
   ret = dict()
   ret['lage'] = prep4latex(str(datum.bezeichnung))
   ret['beschreibung'] = prep4latex(str(datum.beschreibung))
-  ret['landschaftsdenkmal'] = True
+  ret['gartendenkmal'] = True
   if chkforwmd(datum):
     ret['adresse'] = "(Wmd)"
   return ret
@@ -209,7 +209,7 @@ def baudenkmalefull(pks=None, onlyactive=True):
     else:
       rec['wmd'] = False
     rec['beschreibung'] = prep4latex(str(bdm.beschreibung))
-    if bdm.landschaftsdenkmal:
+    if bdm.gartendenkmal:
       rec['beschreibung'] += '*'
 
     if rec['wmd']:
@@ -270,12 +270,12 @@ def sortforbaudenkmale(data, brdauch=False):
     key = position[0].upper()
     val = {'adresse': position, 'beschreibung': bschrbng}
     if item.get('adresse') is not None and item['adresse'][len(item['adresse'])-5:] == "(Wmd)":
-      if item['landschaftsdenkmal']:
+      if item['gartendenkmal']:
         insert_or_append(bere_wamue_byl, key, val)
       else:
         insert_or_append(baud_wamue_byl, key, val)
     else:
-      if item['landschaftsdenkmal']:
+      if item['gartendenkmal']:
         insert_or_append(bere_rost_byl, key, val)
       else:
         insert_or_append(baud_rost_byl, key, val)
