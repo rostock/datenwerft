@@ -42,7 +42,8 @@ class PdfTemplate(Model):
     auto_now=True
   )
   templatefile = FileField(
-    'tatsächliche Templatedatei'
+    'tatsächliche Templatedatei',
+    upload_to='latex_templates/'
   )
   suitedfor = ManyToManyField(
     ContentType,
