@@ -890,6 +890,34 @@ class Fundamenttypen_RSAG(Codelist):
     return self.typ
 
 
+class Gebaeudearten_Meldedienst_punkthaft(Codelist):
+  """
+  Gebäudearten für den Meldedienst (punkthaft)
+  """
+
+  bezeichnung = CharField(
+    'Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"gebaeudearten_meldedienst_punkthaft'
+    ordering = ['bezeichnung']
+    verbose_name = 'Gebäudeart für den Meldedienst (punkthaft)'
+    verbose_name_plural = 'Gebäudearten für den Meldedienst (punkthaft)'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Gebäudearten für den Meldedienst (punkthaft)'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
+
+
 class Gebaeudebauweisen(Codelist):
   """
   Gebäudebauweisen

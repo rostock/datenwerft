@@ -31,15 +31,16 @@ from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinFiel
 from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
   set_pre_save_instance, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
-  Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, Arten_Feldsportanlagen, \
-  Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
+  Anbieter_Carsharing, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
+  Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
   Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
   Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
-  Anbieter_Carsharing, Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, \
-  Hersteller_Poller, Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
-  Sportarten, Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, \
-  Typen_Abfallbehaelter, Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
+  Gebaeudearten_Meldedienst_punkthaft, Gebaeudebauweisen, Gebaeudefunktionen, \
+  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Materialien_Denksteine, \
+  Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
+  Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
+  Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
   Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
   Zustaende_Schutzzaeune_Tierseuchen
 from .storage import OverwriteStorage
@@ -3616,6 +3617,33 @@ class Meldedienst_punkthaft(SimpleModel):
     max_length=255,
     validators=standard_validators
   )
+  gebaeudeart = ForeignKey(
+    Gebaeudearten_Meldedienst_punkthaft,
+    verbose_name='Gebäudeart',
+    on_delete=RESTRICT,
+    db_column='gebaeudeart',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_gebaeudearten',
+    blank=True,
+    null=True
+  )
+  flaeche = DecimalField(
+    'Fläche (in m²)',
+    max_digits=6,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('9999.99'),
+        'Die <strong><em>Fläche</em></strong> darf höchstens 9.999,99 m² betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
   bemerkungen = CharField(
     'Bemerkungen',
     max_length=255,
@@ -3647,13 +3675,17 @@ class Meldedienst_punkthaft(SimpleModel):
       'adresse': 'Adresse',
       'art': 'Art',
       'bearbeiter': 'Bearbeiter:in',
+      'gebaeudeart': 'Gebäudeart',
+      'flaeche': 'Fläche (in m²)',
       'bemerkungen': 'Bemerkungen',
       'datum': 'Datum'
     }
     list_fields_with_date = ['deaktiviert', 'datum']
+    list_fields_with_number = ['flaeche']
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
-      'art': 'art'
+      'art': 'art',
+      'gebaeudeart': 'bezeichnung'
     }
     heavy_load_limit = 600
     map_feature_tooltip_field = 'art'
@@ -3661,9 +3693,11 @@ class Meldedienst_punkthaft(SimpleModel):
       'aktiv': 'aktiv?',
       'art': 'Art',
       'bearbeiter': 'Bearbeiter:in',
+      'gebaeudeart': 'Gebäudeart',
+      'bemerkungen': 'Bemerkungen',
       'datum': 'Datum'
     }
-    map_filter_fields_as_list = ['art']
+    map_filter_fields_as_list = ['art', 'gebaeudeart']
 
   def __str__(self):
     return str(self.art) + \

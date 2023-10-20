@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -788,6 +788,18 @@ CREATE TABLE codelisten.fundamenttypen_rsag (
     erstellt date DEFAULT (now())::date NOT NULL,
     typ character varying(255),
     erlaeuterung character varying(255)
+);
+
+
+--
+-- Name: gebaeudearten_meldedienst_punkthaft; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.gebaeudearten_meldedienst_punkthaft (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -3071,7 +3083,9 @@ CREATE TABLE fachdaten_adressbezug.meldedienst_punkthaft_hro (
     bearbeiter character varying(255) NOT NULL,
     bemerkungen character varying(255),
     datum date NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    gebaeudeart uuid,
+    flaeche numeric(6,2)
 );
 
 
@@ -4109,6 +4123,14 @@ ALTER TABLE ONLY codelisten.fundamenttypen_rsag
 
 ALTER TABLE ONLY codelisten.fundamenttypen_rsag
     ADD CONSTRAINT fundamenttypen_rsag_typ_unique UNIQUE (typ);
+
+
+--
+-- Name: gebaeudearten_meldedienst_punkthaft gebaeudearten_meldedienst_punkthaft_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.gebaeudearten_meldedienst_punkthaft
+    ADD CONSTRAINT gebaeudearten_meldedienst_punkthaft_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6913,6 +6935,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.ladestationen_elektrofahrzeuge_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.meldedienst_punkthaft_hro
     ADD CONSTRAINT meldedienst_punkthaft_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_meldedienst_punkthaft(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: meldedienst_punkthaft_hro meldedienst_punkthaft_hro_gebaeudearten_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.meldedienst_punkthaft_hro
+    ADD CONSTRAINT meldedienst_punkthaft_hro_gebaeudearten_fk FOREIGN KEY (gebaeudeart) REFERENCES codelisten.gebaeudearten_meldedienst_punkthaft(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
