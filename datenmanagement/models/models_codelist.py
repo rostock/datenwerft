@@ -1,14 +1,18 @@
 from decimal import Decimal
 from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, \
   RegexValidator
-from django.db.models.fields import CharField, DecimalField
+from django.db.models.fields import BooleanField, CharField, DateField, DecimalField
 
-from toolbox.constants_vars import personennamen_validators, standard_validators, email_message
+from toolbox.constants_vars import personennamen_validators, standard_validators, email_message, \
+  hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
+  rufnummer_regex, rufnummer_message
+from toolbox.utils import concat_address
 from .base import Metamodel, Codelist, Art, Befestigungsart, Material, Schlagwort, Status, Typ
-from .constants_vars import fahrbahnwinterdienst_code_regex, fahrbahnwinterdienst_code_message, \
-  haefen_abkuerzung_regex, haefen_abkuerzung_message, linien_linie_regex, linien_linie_message, \
-  parkscheinautomaten_zone_regex, parkscheinautomaten_zone_message, quartiere_code_regex, \
-  quartiere_code_message
+from .constants_vars import bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex, \
+  bevollmaechtigte_bezirksschornsteinfeger_bezirk_message, fahrbahnwinterdienst_code_regex, \
+  fahrbahnwinterdienst_code_message, haefen_abkuerzung_regex, haefen_abkuerzung_message, \
+  linien_linie_regex, linien_linie_message, parkscheinautomaten_zone_regex, \
+  parkscheinautomaten_zone_message, quartiere_code_regex, quartiere_code_message
 from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   multipolygon_field
 
@@ -669,6 +673,138 @@ class Betriebszeiten(Codelist):
 
   def __str__(self):
     return self.betriebszeit
+
+
+class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
+  """
+  bevollmächtigte Bezirksschornsteinfeger
+  """
+
+  bezirk = CharField(
+    'Bezirk',
+    max_length=6,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex,
+        message=bevollmaechtigte_bezirksschornsteinfeger_bezirk_message
+      )
+    ]
+  )
+  auswaertig = BooleanField(
+    ' auswärtig?'
+  )
+  bestellungszeitraum_beginn = DateField('Beginn des Bestellungszeitraums')
+  bestellungszeitraum_ende = DateField('Ende des Bestellungszeitraums')
+  vorname = CharField(
+    'Vorname',
+    max_length=255,
+    validators=personennamen_validators
+  )
+  nachname = CharField(
+    'Nachname',
+    max_length=255,
+    validators=personennamen_validators
+  )
+  anschrift_strasse = CharField(
+    'Straße',
+    max_length=255,
+    validators=standard_validators
+  )
+  anschrift_hausnummer = CharField(
+    'Hausnummer',
+    max_length=4,
+    validators=[
+      RegexValidator(
+        regex=hausnummer_regex,
+        message=hausnummer_message
+      )
+    ]
+  )
+  anschrift_postleitzahl = CharField(
+    'Postleitzahl',
+    max_length=5,
+    validators=[
+      RegexValidator(
+        regex=postleitzahl_regex,
+        message=postleitzahl_message
+      )
+    ]
+  )
+  anschrift_ort = CharField(
+    'Ort',
+    max_length=255,
+    validators=standard_validators
+  )
+  telefon_festnetz = CharField(
+    'Telefon (Festnetz)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  telefon_mobil = CharField(
+    'Telefon (mobil)',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    'E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"bevollmaechtigte_bezirksschornsteinfeger'
+    ordering = [
+      'nachname',
+      'vorname'
+    ]
+    verbose_name = 'bevollmächtigter Bezirksschornsteinfeger'
+    verbose_name_plural = 'bevollmächtigte Bezirksschornsteinfeger'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'bevollmächtigte Bezirksschornsteinfeger'
+    list_fields = {
+      'bezirk': 'Bezirk',
+      'auswaertig': 'auswärtig?',
+      'bestellungszeitraum_beginn': 'Beginn des Bestellungszeitraums',
+      'bestellungszeitraum_ende': 'Ende des Bestellungszeitraums',
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'anschrift': 'Anschrift',
+      'telefon_festnetz': 'Telefon (Festnetz)',
+      'telefon_mobil': 'Telefon (mobil)',
+      'email': 'E-Mail-Adresse'
+    }
+    list_fields_with_date = ['bestellungszeitraum_beginn', 'bestellungszeitraum_ende']
+
+  def __str__(self):
+    bezirk = ' (Bezirk ' + self.bezirk + ')' if self.bezirk else ''
+    return self.vorname + ' ' + self.nachname + bezirk
+
+  def address(self):
+    return concat_address(self.anschrift_strasse, self.anschrift_hausnummer,
+                          self.anschrift_postleitzahl, self.anschrift_ort)
 
 
 class Bewirtschafter_Betreiber_Traeger_Eigentuemer(Codelist):

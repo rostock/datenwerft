@@ -51,7 +51,7 @@ postleitzahl_regex = r'^[0-9]{5}$'
 postleitzahl_message = 'Die <strong><em>Postleitzahl</em></strong> ' \
                        'muss aus genau fünf Ziffern bestehen.'
 rufnummer_regex = r'^\+(1 )?([0-9]{1,3}) [1-9][0-9]{1,5} [0-9]{1,13}$'
-rufnummer_message = 'Die Schreibweise von Telefonnummern müssen ' \
+rufnummer_message = 'Die Schreibweise von Telefonnummern muss ' \
                     'der Empfehlung E.123 der Internationalen Fernmeldeunion entsprechen ' \
                     'und daher folgendes Format aufweisen (Beispiel): ' \
                     '+49 381 3816256'

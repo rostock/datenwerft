@@ -19,28 +19,6 @@ LOG_ACTIONS = {
 }
 
 
-def concat_address(street=None, house_number=None, postal_code=None, place=None):
-  """
-  concats passed address string parts and returns address string
-
-  :param street: street name
-  :param house_number: house number
-  :param postal_code: postal code
-  :param place: place
-  :return: address string
-  """
-  first_part = (street + ' ' if street else '') + (house_number if house_number else '')
-  second_part = (postal_code + ' ' if postal_code else '') + (place if place else '')
-  if first_part and second_part:
-    return first_part.strip() + ', ' + second_part.strip()
-  elif first_part:
-    return first_part.strip()
-  elif second_part:
-    return second_part.strip()
-  else:
-    return None
-
-
 def format_date_datetime(value, time_string_only=False):
   """
   formats date or datetime and returns appropriate date, datetime or time string

@@ -12,7 +12,8 @@ from datenmanagement.models.fields import NullTextField
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   d3_regex, d3_message, email_message, hausnummer_regex, hausnummer_message, \
   postleitzahl_regex, postleitzahl_message, rufnummer_regex, rufnummer_message
-from bemas.utils import LOG_ACTIONS, concat_address, shorten_string
+from toolbox.utils import concat_address
+from bemas.utils import LOG_ACTIONS, shorten_string
 from .base import GeometryObjectclass, Objectclass
 from .functions import store_complaint_search_content
 from .models_codelist import Sector, Status, TypeOfEvent, TypeOfImmission

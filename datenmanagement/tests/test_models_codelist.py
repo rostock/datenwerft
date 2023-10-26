@@ -8,13 +8,14 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
   Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
   Befestigungsarten_Warteflaeche_Haltestellenkataster, Betriebsarten, Betriebszeiten, \
-  Bewirtschafter_Betreiber_Traeger_Eigentuemer, E_Anschluesse_Parkscheinautomaten, \
-  Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
-  Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, Gebaeudebauweisen, \
-  Gebaeudefunktionen, Genehmigungsbehoerden_UVP_Vorhaben, Geschlechter_Kadaverfunde, Haefen, \
-  Hersteller_Poller, Kategorien_Strassen, Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, \
-  Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Denksteine, \
-  Materialien_Durchlaesse, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
+  Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
+  E_Anschluesse_Parkscheinautomaten, Ergebnisse_UVP_Vorpruefungen, \
+  Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Fotomotive_Haltestellenkataster, \
+  Fundamenttypen_RSAG, Gebaeudebauweisen, Gebaeudefunktionen, Genehmigungsbehoerden_UVP_Vorhaben, \
+  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
+  Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, Mastkennzeichen_RSAG, Masttypen_RSAG, \
+  Masttypen_Haltestellenkataster, Materialien_Denksteine, Materialien_Durchlaesse, \
+  Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
   Raeumbreiten_Strassenreinigungssatzung_HRO, Rechtsgrundlagen_UVP_Vorhaben, \
   Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
@@ -3751,6 +3752,157 @@ class BetriebszeitenTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'betriebszeit': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
+  """
+  bevollmächtigte Bezirksschornsteinfeger
+  """
+
+  model = Bevollmaechtigte_Bezirksschornsteinfeger
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'auswaertig': False,
+    'bestellungszeitraum_beginn': VALID_DATE,
+    'bestellungszeitraum_ende': VALID_DATE,
+    'vorname': 'Vorname1',
+    'nachname': 'Nachname1',
+    'anschrift_strasse': 'Straße1',
+    'anschrift_hausnummer': '123',
+    'anschrift_postleitzahl': '12345',
+    'anschrift_ort': 'Ort1'
+  }
+  attributes_values_db_updated = {
+    'nachname': 'Nachname2'
+  }
+  attributes_values_view_initial = {
+    'auswaertig': False,
+    'bestellungszeitraum_beginn': VALID_DATE,
+    'bestellungszeitraum_ende': VALID_DATE,
+    'vorname': 'Vorname3',
+    'nachname': 'Nachname3',
+    'anschrift_strasse': 'Straße3',
+    'anschrift_hausnummer': '345',
+    'anschrift_postleitzahl': '34567',
+    'anschrift_ort': 'Ort3'
+  }
+  attributes_values_view_updated = {
+    'auswaertig': False,
+    'bestellungszeitraum_beginn': VALID_DATE,
+    'bestellungszeitraum_ende': VALID_DATE,
+    'vorname': 'Vorname4',
+    'nachname': 'Nachname4',
+    'anschrift_strasse': 'Straße4',
+    'anschrift_hausnummer': '456',
+    'anschrift_postleitzahl': '45678',
+    'anschrift_ort': 'Ort4'
+  }
+  attributes_values_view_invalid = {
+    'nachname': INVALID_STRING
   }
 
   def setUp(self):

@@ -682,6 +682,30 @@ CREATE TABLE codelisten.betriebszeiten (
 
 
 --
+-- Name: bevollmaechtigte_bezirksschornsteinfeger; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.bevollmaechtigte_bezirksschornsteinfeger (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    auswaertig boolean NOT NULL,
+    bezirk character(6),
+    bestellungszeitraum_beginn date NOT NULL,
+    bestellungszeitraum_ende date NOT NULL,
+    vorname character varying(255) NOT NULL,
+    nachname character varying(255) NOT NULL,
+    anschrift_strasse character varying(255) NOT NULL,
+    anschrift_hausnummer character varying(4) NOT NULL,
+    anschrift_postleitzahl character(5) NOT NULL,
+    anschrift_ort character varying(255) NOT NULL,
+    telefon_festnetz character varying(255),
+    telefon_mobil character varying(255),
+    email character varying(255)
+);
+
+
+--
 -- Name: bewirtschafter_betreiber_traeger_eigentuemer; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -2965,6 +2989,24 @@ CREATE TABLE fachdaten_adressbezug.hospize_hro (
 
 
 --
+-- Name: kehrbezirke_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.kehrbezirke_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    bevollmaechtigter_bezirksschornsteinfeger uuid NOT NULL,
+    vergabedatum date
+);
+
+
+--
 -- Name: kinder_jugendbetreuung_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -3979,6 +4021,14 @@ ALTER TABLE ONLY codelisten.betriebszeiten
 
 ALTER TABLE ONLY codelisten.betriebszeiten
     ADD CONSTRAINT betriebszeiten_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bevollmaechtigte_bezirksschornsteinfeger bevollmaechtigte_bezirksschornsteinfeger_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.bevollmaechtigte_bezirksschornsteinfeger
+    ADD CONSTRAINT bevollmaechtigte_bezirksschornsteinfeger_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5566,6 +5616,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.hospize_hro
 
 
 --
+-- Name: kehrbezirke_hro kehrbezirke_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.kehrbezirke_hro
+    ADD CONSTRAINT kehrbezirke_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: kinder_jugendbetreuung_hro kinder_jugendbetreuung_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -6887,6 +6945,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.feuerwachen_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.hospize_hro
     ADD CONSTRAINT hospize_hro_traeger_fk FOREIGN KEY (traeger) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: kehrbezirke_hro kehrbezirke_hro_bevollmaechtigte_bezirksschornsteinfeger_fk; Type: FK CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.kehrbezirke_hro
+    ADD CONSTRAINT kehrbezirke_hro_bevollmaechtigte_bezirksschornsteinfeger_fk FOREIGN KEY (bevollmaechtigter_bezirksschornsteinfeger) REFERENCES codelisten.bevollmaechtigte_bezirksschornsteinfeger(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

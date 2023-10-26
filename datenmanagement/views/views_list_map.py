@@ -66,97 +66,105 @@ class TableDataCompositionView(BaseDatatableView):
         item_data.append(
           '<input class="action-checkbox" type="checkbox" value="' + str(item_pk) + '">')
       for column in self.columns:
-        value = getattr(item, column)
-        data = None
-        # handle non-empty fields only!
-        if value is not None:
-          # format foreign keys
-          if (
-              self.columns_with_foreign_key
-              and column in self.columns_with_foreign_key
-              and self.fields_with_foreign_key_to_linkify
-              and column in self.fields_with_foreign_key_to_linkify
-          ):
-            foreign_model = value._meta.label
-            foreign_model_primary_key = value._meta.pk.name
-            foreign_model_title = self.columns.get(column)
-            foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
-            data = '<a href="' + reverse(
-                'datenmanagement:' + foreign_model.replace(
-                    value._meta.app_label + '.',
-                    ''
-                ) + '_change',
-                args=[getattr(value, foreign_model_primary_key)]
-            ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
-              + foreign_model_title + ' ansehen oder bearbeiten">' + str(
-                getattr(value, foreign_model_attribute_for_text)) + '</a>'
-          # format numbers
-          elif self.columns_with_number and column in self.columns_with_number:
-            if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
-              data = localize_number(Decimal(str(value)))
-            else:
-              data = value
-          # format dates
-          elif self.columns_with_date and column in self.columns_with_date:
-            data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
-          # format datetimes
-          elif self.columns_with_datetime and column in self.columns_with_datetime:
-            datetimestamp_str = sub(r'([+-][0-9]{2}):', '\\1', str(value))
-            datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').\
-              replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
-            datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-            data = datetimestamp_str
-          # handle highlight flags
-          elif self.column_as_highlight_flag and column == self.column_as_highlight_flag:
-            data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
-          # handle photo files
-          elif column == 'foto':
-            try:
-              data = ('<a href="' + value.url + '?' + str(time()) +
-                      '" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">')
-              if self.thumbs:
-                data += '<img src="' + get_thumb_url(
-                    value.url) + '?' + str(
-                    time()) + '" alt="Vorschau" />'
+        # all columns except address strings!
+        if not column == 'anschrift':
+          value = getattr(item, column)
+          data = None
+          # handle non-empty fields only!
+          if value is not None:
+            # format foreign keys
+            if (
+                self.columns_with_foreign_key
+                and column in self.columns_with_foreign_key
+                and self.fields_with_foreign_key_to_linkify
+                and column in self.fields_with_foreign_key_to_linkify
+            ):
+              foreign_model = value._meta.label
+              foreign_model_primary_key = value._meta.pk.name
+              foreign_model_title = self.columns.get(column)
+              foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
+              data = '<a href="' + reverse(
+                  'datenmanagement:' + foreign_model.replace(
+                      value._meta.app_label + '.',
+                      ''
+                  ) + '_change',
+                  args=[getattr(value, foreign_model_primary_key)]
+              ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
+                + foreign_model_title + ' ansehen oder bearbeiten">' + str(
+                  getattr(value, foreign_model_attribute_for_text)) + '</a>'
+            # format numbers
+            elif self.columns_with_number and column in self.columns_with_number:
+              if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
+                data = localize_number(Decimal(str(value)))
               else:
-                data += '<img src="' + value.url + '?' + str(
-                    time()) + '" alt="Vorschau" width="70px" />'
-              data += '</a>'
-            except ValueError:
-              pass
-          # handle PDF files
-          elif column == 'dokument' or column == 'pdf':
-            try:
-              data = '<a href="' + value.url + '?' + str(
-                  time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
-                  ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
-                  ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
-            except ValueError:
-              pass
-          # format Boolean ``True``
-          elif value is True:
-            data = 'ja'
-          # format Boolean ``False``
-          elif value is False:
-            data = 'nein'
-          # format lists
-          elif type(value) in [list, tuple]:
-            data = ', '.join(map(str, value))
-          # format external links
-          elif isinstance(value, str) and value.startswith('http'):
-            data = ('<a href="' + value +
-                    '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">' +
-                    value + '</a>')
-          # format colors
-          elif isinstance(value, str) and match(r"^#[a-f0-9]{6}$", value, IGNORECASE):
-            data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
-                   + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
-                   + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
-                   + '">&zwnj;</div>'
-          # take all other values as they are
-          else:
-            data = escape(value)
-        item_data.append(data)
+                data = value
+            # format dates
+            elif self.columns_with_date and column in self.columns_with_date:
+              data = datetime.strptime(str(value), '%Y-%m-%d').strftime('%d.%m.%Y')
+            # format datetimes
+            elif self.columns_with_datetime and column in self.columns_with_datetime:
+              datetimestamp_str = sub(r'([+-][0-9]{2}):', '\\1', str(value))
+              datetimestamp = datetime.strptime(datetimestamp_str, '%Y-%m-%d %H:%M:%S%z').\
+                replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+              datetimestamp_str = datetimestamp.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+              data = datetimestamp_str
+            # handle highlight flags
+            elif self.column_as_highlight_flag and column == self.column_as_highlight_flag:
+              data = '<p class="text-danger" title="Konflikt(e) vorhanden!">ja</p>'
+            # handle photo files
+            elif column == 'foto':
+              try:
+                data = ('<a href="' + value.url + '?' + str(time()) +
+                        '" target="_blank" rel="noopener noreferrer" ' +
+                        'title="große Ansicht öffnen…">')
+                if self.thumbs:
+                  data += '<img src="' + get_thumb_url(
+                      value.url) + '?' + str(
+                      time()) + '" alt="Vorschau" />'
+                else:
+                  data += '<img src="' + value.url + '?' + str(
+                      time()) + '" alt="Vorschau" width="70px" />'
+                data += '</a>'
+              except ValueError:
+                pass
+            # handle PDF files
+            elif column == 'dokument' or column == 'pdf':
+              try:
+                data = '<a href="' + value.url + '?' + str(
+                    time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
+                    ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
+                    ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
+              except ValueError:
+                pass
+            # format Boolean ``True``
+            elif value is True:
+              data = 'ja'
+            # format Boolean ``False``
+            elif value is False:
+              data = 'nein'
+            # format lists
+            elif type(value) in [list, tuple]:
+              data = ', '.join(map(str, value))
+            # format external links
+            elif isinstance(value, str) and value.startswith('http'):
+              data = ('<a href="' + value +
+                      '" target="_blank" rel="noopener noreferrer" title="Link öffnen…">' +
+                      value + '</a>')
+            # format colors
+            elif isinstance(value, str) and match(r"^#[a-f0-9]{6}$", value, IGNORECASE):
+              data = '<div style="background-color:' + value + '" title="Hex-Wert: ' \
+                     + value + ' || RGB-Wert: ' + str(int(value[1:3], 16)) + ', ' \
+                     + str(int(value[3:5], 16)) + ', ' + str(int(value[5:7], 16)) \
+                     + '">&zwnj;</div>'
+            # take all other values as they are
+            else:
+              data = escape(value)
+          item_data.append(data)
+        # handle address strings
+        else:
+          # append address string once
+          # instead of appending individual strings for all address related values
+          item_data.append(self.model.objects.get(pk=item_pk).address())
       # append links for updating, viewing and/or deleting
       if self.model_is_editable:
         links = ''
@@ -212,7 +220,18 @@ class TableDataCompositionView(BaseDatatableView):
     elif self.request.GET.get('order[0][column]') is not None:
       order_column = self.request.GET.get('order[0][column]')
       order_dir = self.request.GET.get('order[0][dir]', None)
-      column_names = list(self.columns.keys())
+      column_names = []
+      # careful here!
+      # use the same clauses as in prepare_results() above since otherwise,
+      # the wrong order columns could be choosed
+      address_handled = False
+      for column in self.columns:
+        # all columns except address strings!
+        if not column == 'anschrift':
+          column_names.append(column)
+        # handle address strings
+        else:
+          column_names.append('anschrift_strasse')
       column_name = column_names[int(order_column) - 1]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)

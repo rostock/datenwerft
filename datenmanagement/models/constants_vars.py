@@ -2,6 +2,10 @@
 # validators
 #
 
+bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex = r'^[A-Z]{3}-[0-9]{2}$'
+bevollmaechtigte_bezirksschornsteinfeger_bezirk_message = 'Der <strong><em>Bezirk</em></strong> ' \
+                                                          'muss aus drei Großbuchstaben, einem ' \
+                                                          'Bindestrich und zwei Ziffern bestehen.'
 denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
 denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
                             'einer Ziffer beginnen und mit einer Ziffer ' \
