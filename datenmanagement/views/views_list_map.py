@@ -73,8 +73,19 @@ class TableDataCompositionView(BaseDatatableView):
         # handle all columns except address strings!
         if not self.column_with_address_string or column != self.column_with_address_string:
           value = getattr(item, column)
+          # take care of methods
           if value.__class__.__name__ == 'method':
             value = value()
+          # take care of address related foreign key columns
+          elif (
+              self.columns_with_foreign_key
+              and self.columns_with_foreign_key.get(column) is not None
+              and (
+                  self.columns_with_foreign_key.get(column).startswith('adresse_')
+                  or self.columns_with_foreign_key.get(column).startswith('strasse_')
+              )
+          ):
+            value = getattr(getattr(item, column), self.columns_with_foreign_key.get(column))
           data = None
           # handle non-empty fields only!
           if value is not None:

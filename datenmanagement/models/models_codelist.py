@@ -30,26 +30,36 @@ class Adressen(Metamodel):
   gemeinde = CharField(
     'Gemeinde',
     max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   gemeindeteil = CharField(
     'Gemeindeteil',
     max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   strasse = CharField(
     'Straße',
     max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   hausnummer = CharField(
     'Hausnummer',
     max_length=4,
+    blank=True,
+    null=True,
     editable=False
   )
   postleitzahl = CharField(
     'Postleitzahl',
     max_length=5,
+    blank=True,
+    null=True,
     editable=False
   )
   adresse = CharField(
@@ -57,12 +67,17 @@ class Adressen(Metamodel):
     max_length=255,
     editable=False
   )
+  adresse_lang = CharField(
+    'Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
 
   class Meta(Metamodel.Meta):
     db_table = 'basisdaten\".\"adressenliste_datenwerft'
-    ordering = [
-      'gemeinde', 'gemeindeteil', 'adresse'
-    ]
+    ordering = ['adresse_lang']
     verbose_name = 'Adresse'
     verbose_name_plural = 'Adressen'
 
@@ -89,11 +104,15 @@ class Strassen(Metamodel):
   gemeinde = CharField(
     'Gemeinde',
     max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   gemeindeteil = CharField(
     'Gemeindeteil',
     max_length=255,
+    blank=True,
+    null=True,
     editable=False
   )
   strasse = CharField(
@@ -101,12 +120,17 @@ class Strassen(Metamodel):
     max_length=255,
     editable=False
   )
+  strasse_lang = CharField(
+    'Straße',
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
 
   class Meta(Metamodel.Meta):
     db_table = 'basisdaten\".\"strassenliste_datenwerft'
-    ordering = [
-      'gemeinde', 'gemeindeteil', 'strasse'
-    ]
+    ordering = ['strasse_lang']
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
 

@@ -2976,36 +2976,19 @@ class Kehrbezirke(SimpleModel):
     address_mandatory = True
     list_fields = {
       'aktiv': 'aktiv?',
-      'adresse_gemeinde': 'Gemeinde',
-      'adresse_gemeindeteil': 'Gemeindeteil',
-      'adresse_strasse': 'Straße',
-      'adresse_hausnummer': 'Hausnummer',
-      'adresse_postleitzahl': 'Postleitzahl',
+      'adresse': 'Adresse',
       'bevollmaechtigter_bezirksschornsteinfeger': 'bevollmächtigter Bezirksschornsteinfeger',
       'vergabedatum': 'Vergabedatum'
     }
     list_fields_with_date = ['vergabedatum']
     list_fields_with_foreign_key = {
+      'adresse': 'adresse_lang',
       'bevollmaechtigter_bezirksschornsteinfeger': 'nachname'
     }
 
   def __str__(self):
-    return str(self.adresse) + ' zu ' + str(self.bevollmaechtigter_bezirksschornsteinfeger)
-
-  def adresse_gemeinde(self):
-    return str(self.adresse.gemeinde)
-
-  def adresse_gemeindeteil(self):
-    return str(self.adresse.gemeindeteil)
-
-  def adresse_strasse(self):
-    return str(self.adresse.strasse)
-
-  def adresse_hausnummer(self):
-    return str(self.adresse.hausnummer)
-
-  def adresse_postleitzahl(self):
-    return str(self.adresse.postleitzahl)
+    return (str(self.adresse.adresse_lang) + ' zu ' +
+            str(self.bevollmaechtigter_bezirksschornsteinfeger))
 
 
 class Kindertagespflegeeinrichtungen(SimpleModel):

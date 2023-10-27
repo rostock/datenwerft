@@ -10,7 +10,7 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', 'public', false);
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -295,7 +295,13 @@ SET default_table_access_method = heap;
 
 CREATE TABLE basisdaten.adressenliste_datenwerft (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    adresse character varying(255) NOT NULL
+    adresse character varying(255) NOT NULL,
+    gemeinde character varying(255),
+    gemeindeteil character varying(255),
+    strasse character varying(255),
+    hausnummer character varying(4),
+    postleitzahl character(5),
+    adresse_lang character varying(255)
 );
 
 
@@ -326,7 +332,10 @@ CREATE TABLE basisdaten.inoffizielle_strassenliste_datenwerft_hro (
 
 CREATE TABLE basisdaten.strassenliste_datenwerft (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    strasse character varying(255) NOT NULL
+    strasse character varying(255) NOT NULL,
+    gemeinde character varying(255),
+    gemeindeteil character varying(255),
+    strasse_lang character varying(255)
 );
 
 
