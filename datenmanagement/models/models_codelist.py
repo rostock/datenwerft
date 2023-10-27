@@ -27,6 +27,31 @@ class Adressen(Metamodel):
   Adressen
   """
 
+  gemeinde = CharField(
+    'Gemeinde',
+    max_length=255,
+    editable=False
+  )
+  gemeindeteil = CharField(
+    'Gemeindeteil',
+    max_length=255,
+    editable=False
+  )
+  strasse = CharField(
+    'Straße',
+    max_length=255,
+    editable=False
+  )
+  hausnummer = CharField(
+    'Hausnummer',
+    max_length=4,
+    editable=False
+  )
+  postleitzahl = CharField(
+    'Postleitzahl',
+    max_length=5,
+    editable=False
+  )
   adresse = CharField(
     'Adresse',
     max_length=255,
@@ -35,13 +60,20 @@ class Adressen(Metamodel):
 
   class Meta(Metamodel.Meta):
     db_table = 'basisdaten\".\"adressenliste_datenwerft'
-    ordering = ['adresse']
+    ordering = [
+      'gemeinde', 'gemeindeteil', 'adresse'
+    ]
     verbose_name = 'Adresse'
     verbose_name_plural = 'Adressen'
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
     description = 'Adressen in Mecklenburg-Vorpommern'
     list_fields = {
+      'gemeinde': 'Gemeinde',
+      'gemeindeteil': 'Gemeindeteil',
+      'strasse': 'Straße',
+      'hausnummer': 'Hausnummer',
+      'postleitzahl': 'Postleitzahl',
       'adresse': 'Adresse'
     }
 
@@ -54,6 +86,16 @@ class Strassen(Metamodel):
   Straßen
   """
 
+  gemeinde = CharField(
+    'Gemeinde',
+    max_length=255,
+    editable=False
+  )
+  gemeindeteil = CharField(
+    'Gemeindeteil',
+    max_length=255,
+    editable=False
+  )
   strasse = CharField(
     'Straße',
     max_length=255,
@@ -62,13 +104,17 @@ class Strassen(Metamodel):
 
   class Meta(Metamodel.Meta):
     db_table = 'basisdaten\".\"strassenliste_datenwerft'
-    ordering = ['strasse']
+    ordering = [
+      'gemeinde', 'gemeindeteil', 'strasse'
+    ]
     verbose_name = 'Straße'
     verbose_name_plural = 'Straßen'
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
     description = 'Straßen in Mecklenburg-Vorpommern'
     list_fields = {
+      'gemeinde': 'Gemeinde',
+      'gemeindeteil': 'Gemeindeteil',
       'strasse': 'Straße'
     }
 
@@ -122,7 +168,7 @@ class Gemeindeteile(Metamodel):
     verbose_name_plural = 'Gemeindeteile'
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
-    description = 'Gemeindeteile in Mecklenburg-Vorpommern'
+    description = 'Gemeindeteile in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     list_fields = {
       'gemeindeteil': 'Gemeindeteil'
@@ -260,9 +306,7 @@ class Ansprechpartner_Baustellen(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"ansprechpartner_baustellen'
     ordering = [
-      'nachname',
-      'vorname',
-      'email'
+      'nachname', 'vorname', 'email'
     ]
     verbose_name = 'Ansprechpartner:in bei einer Baustelle'
     verbose_name_plural = 'Ansprechpartner:innen bei Baustellen'
@@ -776,8 +820,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"bevollmaechtigte_bezirksschornsteinfeger'
     ordering = [
-      'nachname',
-      'vorname'
+      'nachname', 'vorname'
     ]
     verbose_name = 'bevollmächtigter Bezirksschornsteinfeger'
     verbose_name_plural = 'bevollmächtigte Bezirksschornsteinfeger'
@@ -796,6 +839,8 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
       'telefon_mobil': 'Telefon (mobil)',
       'email': 'E-Mail-Adresse'
     }
+    list_field_with_address_string = 'anschrift'
+    list_field_with_address_string_fallback_field = 'anschrift_strasse'
     list_fields_with_date = ['bestellungszeitraum_beginn', 'bestellungszeitraum_ende']
 
   def __str__(self):

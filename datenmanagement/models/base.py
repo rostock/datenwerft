@@ -111,6 +111,15 @@ class Basemodel(Model):
     # which shall appear as columns in the table of the list view of this model
     # in exactly this order, with their respective labels, i.e. column headers (as values)
     list_fields = None
+    # String:
+    # name of the field appearing in ``list_fields``
+    # which shall be considered as an address string
+    # and thus be created from the respective model fields
+    list_field_with_address_string = None
+    # String:
+    # name of the field of this model
+    # which shall be used as a fallback when address strings cannot be used
+    list_field_with_address_string_fallback_field = None
     # List of strings:
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of a numeric data type and which must therefore be treated accordingly

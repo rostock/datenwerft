@@ -246,48 +246,54 @@ function setFinalArrayFields() {
  * @function
  * @name setFinalGeometry
  *
- * ügets map geometry and writes it to geometry field
+ * gets map geometry and writes it to geometry field
  */
 function setFinalGeometry() {
-  let jsonGeometrie;
-  if (currMap.pm.getGeomanDrawLayers().length < 1) {
-    let coordinates = [];
-    if (window.geometryType === 'Point')
-      coordinates = [0, 0];
-    else if (window.geometryType === 'Polygon')
-      coordinates = [[]];
-    jsonGeometrie = {
-      'type': window.geometryType,
-      'coordinates': coordinates
-    };
-  } else {
-    if (window.geometryType === 'MultiPolygon' || window.geometryType === 'MultiPoint' || window.geometryType === 'MultiLineString') {
+  // the map geometry part (only if there is a map at all, though)
+  if (typeof currMap !== 'undefined') {
+    let jsonGeometrie;
+    if (currMap.pm.getGeomanDrawLayers().length < 1) {
       let coordinates = [];
-      let temp;
-      currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
-        temp = layer.toGeoJSON().geometry;
-        if (temp.type.search('Multi') > -1) {
-          for (let i = 0; i < temp.coordinates.length; i++) {
-            coordinates.push(temp.coordinates[i]);
-          }
-        } else {
-          coordinates.push(temp.coordinates);
-        }
-      });
+      if (window.geometryType === 'Point')
+        coordinates = [0, 0];
+      else if (window.geometryType === 'Polygon')
+        coordinates = [[]];
       jsonGeometrie = {
         'type': window.geometryType,
-        'coordinates': coordinates,
+        'coordinates': coordinates
       };
     } else {
-      jsonGeometrie = currMap.pm.getGeomanDrawLayers()[0].toGeoJSON().geometry;
+      if (window.geometryType === 'MultiPolygon' || window.geometryType === 'MultiPoint' || window.geometryType === 'MultiLineString') {
+        let coordinates = [];
+        let temp;
+        currMap.pm.getGeomanDrawLayers().forEach(function (layer) {
+          temp = layer.toGeoJSON().geometry;
+          if (temp.type.search('Multi') > -1) {
+            for (let i = 0; i < temp.coordinates.length; i++) {
+              coordinates.push(temp.coordinates[i]);
+            }
+          } else {
+            coordinates.push(temp.coordinates);
+          }
+        });
+        jsonGeometrie = {
+          'type': window.geometryType,
+          'coordinates': coordinates,
+        };
+      } else {
+        jsonGeometrie = currMap.pm.getGeomanDrawLayers()[0].toGeoJSON().geometry;
+      }
     }
+    $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
   }
-  $('#id_geometrie').val(JSON.stringify(jsonGeometrie));
+  // the address part (only if there is an address related field at all, though)
   if (window.addressUuidField && $.trim(window.searchField.val()).length) {
     // keep current address, street or district temporarily
     window.addressTempField.val(window.searchField.val());
+    console.log(window.addressTempField.val());
     // sets reference from field with UUID of the referenced address, street or district
     window.searchField.val(window.addressUuidField.val());
+    console.log(window.searchField.val());
   }
 }
 

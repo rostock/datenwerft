@@ -35,10 +35,10 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Ka
   Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
   Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
-  Betriebsarten, Betriebszeiten, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
-  Gebaeudearten_Meldedienst_punkthaft, Gebaeudebauweisen, Gebaeudefunktionen, \
-  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Materialien_Denksteine, \
-  Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
+  Betriebsarten, Betriebszeiten, Bevollmaechtigte_Bezirksschornsteinfeger, \
+  Bewirtschafter_Betreiber_Traeger_Eigentuemer, Gebaeudearten_Meldedienst_punkthaft, \
+  Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
+  Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
   Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
   Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
   Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
@@ -2935,6 +2935,77 @@ class Kadaverfunde(SimpleModel):
       '%Y-%m-%d %H:%M:%S%z').replace(tzinfo=timezone.utc).astimezone(local_tz)
     zeitpunkt_str = zeitpunkt.strftime('%d.%m.%Y, %H:%M:%S Uhr')
     return str(self.tierseuche) + ' mit Zeitpunkt ' + zeitpunkt_str + ', '
+
+
+class Kehrbezirke(SimpleModel):
+  """
+  Kehrbezirke
+  """
+
+  adresse = ForeignKey(
+    Adressen,
+    verbose_name='Adresse',
+    on_delete=CASCADE,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen'
+  )
+  bevollmaechtigter_bezirksschornsteinfeger = ForeignKey(
+    Bevollmaechtigte_Bezirksschornsteinfeger,
+    verbose_name=' bevollmächtigter Bezirksschornsteinfeger',
+    on_delete=RESTRICT,
+    db_column='bevollmaechtigter_bezirksschornsteinfeger',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_bevollmaechtigte_bezirksschornsteinfeger'
+  )
+  vergabedatum = DateField(
+    'Vergabedatum',
+    blank=True,
+    null=True
+  )
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"kehrbezirke_hro'
+    verbose_name = 'Kehrbezirk'
+    verbose_name_plural = 'Kehrbezirke'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Kehrbezirke der bevollmächtigten Bezirksschornsteinfeger ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Adresse'
+    address_mandatory = True
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse_gemeinde': 'Gemeinde',
+      'adresse_gemeindeteil': 'Gemeindeteil',
+      'adresse_strasse': 'Straße',
+      'adresse_hausnummer': 'Hausnummer',
+      'adresse_postleitzahl': 'Postleitzahl',
+      'bevollmaechtigter_bezirksschornsteinfeger': 'bevollmächtigter Bezirksschornsteinfeger',
+      'vergabedatum': 'Vergabedatum'
+    }
+    list_fields_with_date = ['vergabedatum']
+    list_fields_with_foreign_key = {
+      'bevollmaechtigter_bezirksschornsteinfeger': 'nachname'
+    }
+
+  def __str__(self):
+    return str(self.adresse) + ' zu ' + str(self.bevollmaechtigter_bezirksschornsteinfeger)
+
+  def adresse_gemeinde(self):
+    return str(self.adresse.gemeinde)
+
+  def adresse_gemeindeteil(self):
+    return str(self.adresse.gemeindeteil)
+
+  def adresse_strasse(self):
+    return str(self.adresse.strasse)
+
+  def adresse_hausnummer(self):
+    return str(self.adresse.hausnummer)
+
+  def adresse_postleitzahl(self):
+    return str(self.adresse.postleitzahl)
 
 
 class Kindertagespflegeeinrichtungen(SimpleModel):

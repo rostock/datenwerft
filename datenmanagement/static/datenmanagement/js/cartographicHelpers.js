@@ -501,36 +501,38 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
       // copy the text of the result into the search field
       searchField.val($(this).children('strong').text());
     }
-    // zoom map to result
-    let resultingFeatureGeometry = json.features[$(this).data('feature')].geometry;
-    if (resultingFeatureGeometry.type === 'Point') {
-      resultingFeatureGeometry.coordinates = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates);
-      window.featureGeometry = resultingFeatureGeometry;
-      currMap.fitBounds([
-        [
-          featureGeometry.coordinates[1],
-          featureGeometry.coordinates[0]
-        ],
-        [
-          featureGeometry.coordinates[1],
-          featureGeometry.coordinates[0]
-        ]
-      ]);
-    } else {
-      for (let i = 0; i < resultingFeatureGeometry.coordinates[0].length; i++) {
-        resultingFeatureGeometry.coordinates[0][i] = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates[0][i]);
+    // zoom map to result (only if there is a map at all, though)
+    if (typeof currMap !== 'undefined') {
+      let resultingFeatureGeometry = json.features[$(this).data('feature')].geometry;
+      if (resultingFeatureGeometry.type === 'Point') {
+        resultingFeatureGeometry.coordinates = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates);
+        window.featureGeometry = resultingFeatureGeometry;
+        currMap.fitBounds([
+          [
+            featureGeometry.coordinates[1],
+            featureGeometry.coordinates[0]
+          ],
+          [
+            featureGeometry.coordinates[1],
+            featureGeometry.coordinates[0]
+          ]
+        ]);
+      } else {
+        for (let i = 0; i < resultingFeatureGeometry.coordinates[0].length; i++) {
+          resultingFeatureGeometry.coordinates[0][i] = proj4('EPSG:25833', 'EPSG:4326', resultingFeatureGeometry.coordinates[0][i]);
+        }
+        window.featureGeometry = resultingFeatureGeometry;
+        currMap.fitBounds([
+          [
+            featureGeometry.coordinates[0][0][1],
+            featureGeometry.coordinates[0][1][0]
+          ],
+          [
+            featureGeometry.coordinates[0][2][1],
+            featureGeometry.coordinates[0][0][0]
+          ]
+        ]);
       }
-      window.featureGeometry = resultingFeatureGeometry;
-      currMap.fitBounds([
-        [
-          featureGeometry.coordinates[0][0][1],
-          featureGeometry.coordinates[0][1][0]
-        ],
-        [
-          featureGeometry.coordinates[0][2][1],
-          featureGeometry.coordinates[0][0][0]
-        ]
-      ]);
     }
   });
 }

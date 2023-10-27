@@ -68,7 +68,7 @@
         <thead>
           <tr>
             {% if actions %}
-              <th id="check-all" class="no-export no-search no-sort" title="alle (sichtbaren) Datensätze für Export aus-/abwählen"><i class="fas fa-check-square"></i></th>
+              <th id="check-all" class="no-export no-search no-sort" title="alle sichtbaren Datensätze für Export aus-/abwählen"><i class="fas fa-check-square"></i></th>
             {% endif %}
             {% for column_title in column_titles %}
               <th>{{ column_title }}</th>
@@ -172,6 +172,7 @@
             let target = window.checkAllTarget;
             $('.action-checkbox').each(function() {
               $(this).prop('checked', target);
+              $(this).trigger('change');
             });
             window.checkAllTarget = !target;
           });

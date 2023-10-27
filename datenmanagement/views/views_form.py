@@ -283,11 +283,11 @@ class DataChangeView(UpdateView):
       context['geometry'] = None
     if self.model.BasemodelMeta.address_type:
       field_name_for_address_type = get_field_name_for_address_type(self.model, False)
-      if field_name_for_address_type == 'adresse' and self.object.adresse:
+      if field_name_for_address_type == 'address' and self.object.adresse:
         context['current_' + field_name_for_address_type] = self.object.adresse.pk
-      elif field_name_for_address_type == 'strasse' and self.object.strasse:
+      elif field_name_for_address_type == 'street' and self.object.strasse:
         context['current_' + field_name_for_address_type] = self.object.strasse.pk
-      elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
+      elif field_name_for_address_type == 'district' and self.object.gemeindeteil:
         context['current_' + field_name_for_address_type] = self.object.gemeindeteil.pk
     # prepare a dictionary for all array fields and their contents that contain more than one value
     array_fields_values = {}

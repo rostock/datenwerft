@@ -1,0 +1,25 @@
+{% if address_type == 'Adresse' %}
+  {% if labels %}<label for="id_adresse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>{% endif %}
+  <div class="form-floating">
+    {{ form.adresse }}
+    <label for="id_adresse">{{ address_type }} eingeben…</label>
+  </div>
+  <input id="id_adresse_uuid" type="hidden" name="adresse_uuid" value="{% if current_address %}{{ current_address }}{% endif %}">
+  <input id="id_adresse_temp" type="hidden" name="adresse_temp">
+{% elif address_type == 'Straße' %}
+  {% if labels %}<label for="id_strasse" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>{% endif %}
+  <div class="form-floating">
+    {{ form.strasse }}
+    <label for="id_strasse">{{ address_type }} eingeben…</label>
+  </div>
+  <input id="id_strasse_uuid" type="hidden" name="strasse_uuid" value="{% if current_street %}{{ current_street }}{% endif %}">
+  <input id="id_strasse_temp" type="hidden" name="strasse_temp">
+{% elif address_type == 'Gemeindeteil' %}
+  {% if labels %}<label for="id_gemeindeteil" class="form-label{% if address_mandatory %} required{% endif %}">{{ address_type }}</label>{% endif %}
+  <div class="form-floating">
+    {{ form.gemeindeteil }}
+    <label for="id_gemeindeteil">{{ address_type }} eingeben…</label>
+  </div>
+  <input id="id_gemeindeteil_uuid" type="hidden" name="gemeindeteil_uuid" value="{% if current_district %}{{ current_district }}{% endif %}">
+  <input id="id_gemeindeteil_temp" type="hidden" name="gemeindeteil_temp">
+{% endif %}

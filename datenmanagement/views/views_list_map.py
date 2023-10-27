@@ -28,12 +28,16 @@ class TableDataCompositionView(BaseDatatableView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     model_name = self.model.__name__
+    model_name_lower = model_name.lower()
     self.model_name = model_name
-    self.model_name_lower = model_name.lower()
+    self.model_name_lower = model_name_lower
     self.model_is_editable = self.model.BasemodelMeta.editable
     self.fields_with_foreign_key_to_linkify = (
       self.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
     self.columns = self.model.BasemodelMeta.list_fields
+    self.column_with_address_string = self.model.BasemodelMeta.list_field_with_address_string
+    self.address_string_fallback_column = (
+      self.model.BasemodelMeta.list_field_with_address_string_fallback_field)
     self.columns_with_number = self.model.BasemodelMeta.list_fields_with_number
     self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
     self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
@@ -66,9 +70,11 @@ class TableDataCompositionView(BaseDatatableView):
         item_data.append(
           '<input class="action-checkbox" type="checkbox" value="' + str(item_pk) + '">')
       for column in self.columns:
-        # all columns except address strings!
-        if not column == 'anschrift':
+        # handle all columns except address strings!
+        if not self.column_with_address_string or column != self.column_with_address_string:
           value = getattr(item, column)
+          if value.__class__.__name__ == 'method':
+            value = value()
           data = None
           # handle non-empty fields only!
           if value is not None:
@@ -161,10 +167,13 @@ class TableDataCompositionView(BaseDatatableView):
               data = escape(value)
           item_data.append(data)
         # handle address strings
-        else:
+        elif column == self.column_with_address_string:
           # append address string once
           # instead of appending individual strings for all address related values
-          item_data.append(self.model.objects.get(pk=item_pk).address())
+          address_string = getattr(item, self.address_string_fallback_column)
+          if hasattr(item, 'address'):
+            address_string = item.address()
+          item_data.append(address_string)
       # append links for updating, viewing and/or deleting
       if self.model_is_editable:
         links = ''
@@ -224,15 +233,22 @@ class TableDataCompositionView(BaseDatatableView):
       # careful here!
       # use the same clauses as in prepare_results() above since otherwise,
       # the wrong order columns could be choosed
-      address_handled = False
       for column in self.columns:
-        # all columns except address strings!
-        if not column == 'anschrift':
+        # handle all columns except address strings!
+        if not self.column_with_address_string or column != self.column_with_address_string:
           column_names.append(column)
         # handle address strings
-        else:
-          column_names.append('anschrift_strasse')
-      column_name = column_names[int(order_column) - 1]
+        elif column == self.column_with_address_string:
+          column_names.append(self.address_string_fallback_column)
+      # careful here!
+      # if there is a 0th column, the index of the order column is 0-based; otherwise 1-based
+      actions = False
+      if (
+          self.model.BasemodelMeta.editable
+          and self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
+      ):
+        actions = True
+      column_name = column_names[int(order_column) - (1 if actions else 0)]
       directory = '-' if order_dir is not None and order_dir == 'desc' else ''
       return qs.order_by(directory + column_name)
 
