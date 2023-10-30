@@ -55,6 +55,7 @@ def add_model_form_context_elements(context, model):
   context['catalog_link_fields'] = model.BasemodelMeta.catalog_link_fields
   if model.BasemodelMeta.catalog_link_fields:
     context['catalog_link_fields_names'] = list(model.BasemodelMeta.catalog_link_fields.keys())
+  context['address_search_class'] = model.BasemodelMeta.address_search_class
   context['address_type'] = model.BasemodelMeta.address_type
   context['address_mandatory'] = model.BasemodelMeta.address_mandatory
   context['geojson_input'] = model.BasemodelMeta.geojson_input

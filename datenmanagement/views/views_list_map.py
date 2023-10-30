@@ -76,39 +76,30 @@ class TableDataCompositionView(BaseDatatableView):
           # take care of methods
           if value.__class__.__name__ == 'method':
             value = value()
-          # take care of address related foreign key columns
-          elif (
-              self.columns_with_foreign_key
-              and self.columns_with_foreign_key.get(column) is not None
-              and (
-                  self.columns_with_foreign_key.get(column).startswith('adresse_')
-                  or self.columns_with_foreign_key.get(column).startswith('strasse_')
-              )
-          ):
-            value = getattr(getattr(item, column), self.columns_with_foreign_key.get(column))
           data = None
           # handle non-empty fields only!
           if value is not None:
             # format foreign keys
-            if (
-                self.columns_with_foreign_key
-                and column in self.columns_with_foreign_key
-                and self.fields_with_foreign_key_to_linkify
-                and column in self.fields_with_foreign_key_to_linkify
-            ):
-              foreign_model = value._meta.label
-              foreign_model_primary_key = value._meta.pk.name
-              foreign_model_title = self.columns.get(column)
-              foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
-              data = '<a href="' + reverse(
-                  'datenmanagement:' + foreign_model.replace(
-                      value._meta.app_label + '.',
-                      ''
-                  ) + '_change',
-                  args=[getattr(value, foreign_model_primary_key)]
-              ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
-                + foreign_model_title + ' ansehen oder bearbeiten">' + str(
-                  getattr(value, foreign_model_attribute_for_text)) + '</a>'
+            if self.columns_with_foreign_key and column in self.columns_with_foreign_key:
+              if column in {'adresse', 'strasse'}:
+                data = getattr(getattr(item, column), self.columns_with_foreign_key.get(column))
+              elif (
+                  self.fields_with_foreign_key_to_linkify
+                  and column in self.fields_with_foreign_key_to_linkify
+              ):
+                foreign_model = value._meta.label
+                foreign_model_primary_key = value._meta.pk.name
+                foreign_model_title = self.columns.get(column)
+                foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
+                data = '<a href="' + reverse(
+                    'datenmanagement:' + foreign_model.replace(
+                        value._meta.app_label + '.',
+                        ''
+                    ) + '_change',
+                    args=[getattr(value, foreign_model_primary_key)]
+                ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
+                  + foreign_model_title + ' ansehen oder bearbeiten">' + str(
+                    getattr(value, foreign_model_attribute_for_text)) + '</a>'
             # format numbers
             elif self.columns_with_number and column in self.columns_with_number:
               if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
@@ -218,10 +209,11 @@ class TableDataCompositionView(BaseDatatableView):
         qs_params_inner = None
         for column in self.columns:
           # take care of foreign key columns
-          if self.columns_with_foreign_key:
-            column_with_foreign_key = self.columns_with_foreign_key.get(column)
-            if column_with_foreign_key is not None:
-              column = column + str('__') + column_with_foreign_key
+          if (
+              self.columns_with_foreign_key
+              and self.columns_with_foreign_key.get(column) is not None
+          ):
+            column = column + str('__') + self.columns_with_foreign_key.get(column)
           qs_params_inner = optimize_datatable_filter(search_element, column, qs_params_inner)
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)

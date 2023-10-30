@@ -323,9 +323,9 @@ function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
  * @param {string} url - URL of the address search
  * @param {string} [addressType=''] - address reference type (i.e. address, street or district)
  * @param {Object} [addressUuidField=null] - field with UUID of referenced address, street or district
- * oder Gemeindeteils
+ * @param {Object} [searchClass='address_hro'] - address search class
  */
-function initializeAddressSearch(searchField, url, addressType = '', addressUuidField = null) {
+function initializeAddressSearch(searchField, url, addressType = '', addressUuidField = null, searchClass = 'address_hro') {
   // clicking on a location outside of the address search...
   results.click(function(e) {
     $('html').one('click',function() {
@@ -340,11 +340,11 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
   searchField.keyup(function() {
     if ($(this).val().length >= 3) {
       let searchText = searchField.val();
-      fetch(url + '?query=' + searchText, {
+      fetch(url + '?class=' + searchClass + '&query=' + searchText, {
         method: 'GET'
       })
       .then(response => response.json())
-      .then(data => showAddressSearchResults(data, addressType, searchField, addressUuidField))
+      .then(data => showAddressSearchResults(data, addressType, searchField, addressUuidField, searchClass))
       .catch(error => console.log(error))
     } else {
       results.children().remove();
@@ -442,8 +442,9 @@ function setMapExtentByLeafletBounds(leafletBounds) {
  * @param {string} addressType - address reference type (i.e. address, street or district)
  * @param {Object} searchField - search input field of the address search
  * @param {Object} addressUuidField - field with UUID of referenced address, street or district
+ * @param {Object} searchClass - address search class
  */
-function showAddressSearchResults(json, addressType, searchField, addressUuidField) {
+function showAddressSearchResults(json, addressType, searchField, addressUuidField, searchClass) {
   // empty results
   results.children().remove();
 
@@ -456,6 +457,14 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
         titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
       else
         titel = item.properties._title_;
+      if (searchClass !== 'address_hro') {
+        let gemeinde;
+        if (item.properties.gemeinde_name.indexOf(',') !== -1)
+          gemeinde = item.properties.gemeinde_name.substring(0, item.properties.gemeinde_name.indexOf(','));
+        else
+          gemeinde = item.properties.gemeinde_name;
+        titel = gemeinde + ', ' + item.properties.gemeindeteil_name + ', ' + titel + ', ' + item.properties.postleitzahl;
+      }
       let result = '';
       // if model provides address reference...
       if (addressType !== '') {

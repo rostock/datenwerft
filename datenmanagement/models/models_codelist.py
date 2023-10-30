@@ -88,8 +88,7 @@ class Adressen(Metamodel):
       'gemeindeteil': 'Gemeindeteil',
       'strasse': 'Straße',
       'hausnummer': 'Hausnummer',
-      'postleitzahl': 'Postleitzahl',
-      'adresse': 'Adresse'
+      'postleitzahl': 'Postleitzahl'
     }
 
   def __str__(self):

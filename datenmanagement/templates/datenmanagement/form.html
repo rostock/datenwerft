@@ -704,7 +704,7 @@
         window.addressUuidField = null;
         window.addressTempField = null;
       }
-      initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField);
+      initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField, '{{ address_search_class }}');
 
       // on clicking the map reference (i.e. address to map) button...
       $('#addressToMap').on('click', function () {

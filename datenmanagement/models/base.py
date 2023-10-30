@@ -83,6 +83,9 @@ class Basemodel(Model):
     # (only relevant for models with foreign keys)
     foreign_key_label = None
     # String:
+    # address search class
+    address_search_class = 'address_hro'
+    # String:
     # address reference type of this model (i.e. address, street or district)
     address_type = None
     # Boolean:

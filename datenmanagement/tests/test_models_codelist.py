@@ -50,6 +50,7 @@ class AdressenTest(DefaultMetaModelTestCase):
   model = Adressen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
+    'gemeinde': 'Gemeinde1',
     'adresse': 'Adresse1'
   }
   attributes_values_db_updated = {
@@ -98,7 +99,7 @@ class AdressenTest(DefaultMetaModelTestCase):
       DATA_VIEW_PARAMS,
       200,
       'application/json',
-      'Adresse1'
+      'Gemeinde1'
     )
 
 

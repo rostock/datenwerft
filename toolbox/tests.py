@@ -185,6 +185,7 @@ class SearchesTestCase(TestCase):
   """
 
   ADDRESS_SEARCH_PARAMS = {
+    'class': 'address_hro',
     'query': 'Holbeinplatz 14'
   }
   REVERSE_SEARCH_PARAMS = {

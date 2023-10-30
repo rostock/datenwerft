@@ -151,7 +151,7 @@ class AddressSearchView(View):
     :return:
     """
     self.addresssearch_type = 'search'
-    self.addresssearch_class = 'address_hro'
+    self.addresssearch_class = request.GET.get('class', '')
     self.addresssearch_query = request.GET.get('query', '')
     self.addresssearch_shape = 'bbox'
     self.addresssearch_limit = '5'
