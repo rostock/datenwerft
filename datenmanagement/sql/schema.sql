@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -710,7 +710,8 @@ CREATE TABLE codelisten.bevollmaechtigte_bezirksschornsteinfeger (
     anschrift_ort character varying(255) NOT NULL,
     telefon_festnetz character varying(255),
     telefon_mobil character varying(255),
-    email character varying(255)
+    email character varying(255),
+    farbe character(7)
 );
 
 

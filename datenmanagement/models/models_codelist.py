@@ -759,6 +759,12 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
       )
     ]
   )
+  farbe = CharField(
+    'Farbe',
+    max_length=7,
+    blank=True,
+    null=True
+  )
   auswaertig = BooleanField(
     ' auswärtig?'
   )
@@ -852,6 +858,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     description = 'bevollmächtigte Bezirksschornsteinfeger'
     list_fields = {
       'bezirk': 'Bezirk',
+      'farbe': 'Farbe',
       'auswaertig': 'auswärtig?',
       'bestellungszeitraum_beginn': 'Beginn des Bestellungszeitraums',
       'bestellungszeitraum_ende': 'Ende des Bestellungszeitraums',
