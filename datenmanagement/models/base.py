@@ -85,6 +85,9 @@ class Basemodel(Model):
     # String:
     # address search class
     address_search_class = 'address_hro'
+    # Boolean:
+    # shall address search results be shown in their long versions?
+    address_search_long_results = False
     # String:
     # address reference type of this model (i.e. address, street or district)
     address_type = None

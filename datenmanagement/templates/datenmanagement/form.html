@@ -682,6 +682,11 @@
 
       // initialize address search (and make its results globally available)
       window.results = $('div.results');
+      {% if address_search_long_results %}
+        window.addressSearchLongResults = true;
+      {% else %}
+        window.addressSearchLongResults = false;
+      {% endif %}
       {% if address_type %}
         window.addressType = '{{ address_type }}';
       {% else %}

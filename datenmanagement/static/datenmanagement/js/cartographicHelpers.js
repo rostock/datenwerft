@@ -308,7 +308,7 @@ function enableMapLocate(map) {
  */
 function getAddressSearchResult(index, uuid, titel, gemeindeteil_abkuerzung) {
   let result = '<div class="result-element" data-feature="' + index + '" data-uuid="' + uuid + '"><strong>' + titel + '</strong>';
-  if (gemeindeteil_abkuerzung)
+  if (gemeindeteil_abkuerzung && (typeof window.addressSearchLongResults === 'undefined' || window.addressSearchLongResults === false))
     result += ' <small>(' + gemeindeteil_abkuerzung + ')</small>';
   return result;
 }
@@ -457,13 +457,16 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
         titel = item.properties._title_.substring(item.properties._title_.lastIndexOf(', ') + 2);
       else
         titel = item.properties._title_;
-      if (searchClass !== 'address_hro') {
-        let gemeinde;
-        if (item.properties.gemeinde_name.indexOf(',') !== -1)
-          gemeinde = item.properties.gemeinde_name.substring(0, item.properties.gemeinde_name.indexOf(','));
-        else
-          gemeinde = item.properties.gemeinde_name;
-        titel = gemeinde + ', ' + item.properties.gemeindeteil_name + ', ' + titel + ', ' + item.properties.postleitzahl;
+      if (typeof window.addressSearchLongResults !== 'undefined' && window.addressSearchLongResults === true) {
+        let gemeinde = '';
+        if (searchClass !== 'address_hro') {
+          if (item.properties.gemeinde_name.indexOf(',') !== -1)
+            gemeinde = item.properties.gemeinde_name.substring(0, item.properties.gemeinde_name.indexOf(','));
+          else
+            gemeinde = item.properties.gemeinde_name;
+          gemeinde += ', ';
+        }
+        titel = gemeinde + item.properties.gemeindeteil_name + ', ' + titel + ', ' + item.properties.postleitzahl;
       }
       let result = '';
       // if model provides address reference...
