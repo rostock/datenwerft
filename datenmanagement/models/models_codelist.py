@@ -768,8 +768,16 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
   auswaertig = BooleanField(
     ' auswärtig?'
   )
-  bestellungszeitraum_beginn = DateField('Beginn des Bestellungszeitraums')
-  bestellungszeitraum_ende = DateField('Ende des Bestellungszeitraums')
+  bestellungszeitraum_beginn = DateField(
+    'Beginn des Bestellungszeitraums',
+    blank=True,
+    null=True
+  )
+  bestellungszeitraum_ende = DateField(
+    'Ende des Bestellungszeitraums',
+    blank=True,
+    null=True
+  )
   vorname = CharField(
     'Vorname',
     max_length=255,
