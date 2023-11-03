@@ -332,9 +332,15 @@ class DataChangeView(UpdateView):
       # add the appropriate initial field value for address, street or district to the dictionary
       field_name_for_address_type = get_field_name_for_address_type(self.model)
       if field_name_for_address_type == 'adresse' and self.object.adresse:
-        curr_dict[field_name_for_address_type] = self.object.adresse
+        if self.model.BasemodelMeta.address_search_long_results:
+          curr_dict[field_name_for_address_type] = self.object.adresse.adresse_lang
+        else:
+          curr_dict[field_name_for_address_type] = self.object.adresse
       elif field_name_for_address_type == 'strasse' and self.object.strasse:
-        curr_dict[field_name_for_address_type] = self.object.strasse
+        if self.model.BasemodelMeta.address_search_long_results:
+          curr_dict[field_name_for_address_type] = self.object.strasse.strasse_lang
+        else:
+          curr_dict[field_name_for_address_type] = self.object.strasse
       elif field_name_for_address_type == 'gemeindeteil' and self.object.gemeindeteil:
         curr_dict[field_name_for_address_type] = self.object.gemeindeteil
     for field in self.model._meta.get_fields():

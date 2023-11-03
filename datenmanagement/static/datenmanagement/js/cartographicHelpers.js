@@ -466,7 +466,10 @@ function showAddressSearchResults(json, addressType, searchField, addressUuidFie
             gemeinde = item.properties.gemeinde_name;
           gemeinde += ', ';
         }
-        titel = gemeinde + item.properties.gemeindeteil_name + ', ' + titel + ', ' + item.properties.postleitzahl;
+        let appendix = '';
+        if (addressType === 'Adresse')
+          appendix = ', ' + item.properties.postleitzahl;
+        titel = gemeinde + item.properties.gemeindeteil_name + ', ' + titel + appendix;
       }
       let result = '';
       // if model provides address reference...

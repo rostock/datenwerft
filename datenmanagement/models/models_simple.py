@@ -2972,6 +2972,7 @@ class Kehrbezirke(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kehrbezirke der bevollmächtigten Bezirksschornsteinfeger ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    address_search_long_results = True
     address_type = 'Adresse'
     address_mandatory = True
     list_fields = {
