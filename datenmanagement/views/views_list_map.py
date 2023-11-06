@@ -325,6 +325,8 @@ class TableListView(TemplateView):
     content_type = ContentType.objects.get_for_model(self.model)
     suitable_templates = SuitableFor.objects.filter(datenthema=content_type)
     context['suitables'] = suitable_templates
+    # if model = Kehrbezirke
+    # context['action_assign_values'] = pk als key, str als val
     return context
 
 
