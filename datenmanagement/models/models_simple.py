@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, OneToOneField
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, TextField
 from django.db.models.fields.files import FileField, ImageField
@@ -2942,7 +2942,7 @@ class Kehrbezirke(SimpleModel):
   Kehrbezirke
   """
 
-  adresse = ForeignKey(
+  adresse = OneToOneField(
     Adressen,
     verbose_name='Adresse',
     on_delete=CASCADE,

@@ -81,8 +81,10 @@ class TableDataCompositionView(BaseDatatableView):
           if value is not None:
             # format foreign keys
             if self.columns_with_foreign_key and column in self.columns_with_foreign_key:
+              # format foreign keys to addresses
               if column in {'adresse', 'strasse'}:
                 data = getattr(getattr(item, column), self.columns_with_foreign_key.get(column))
+              # format foreign keys as links
               elif (
                   self.fields_with_foreign_key_to_linkify
                   and column in self.fields_with_foreign_key_to_linkify
@@ -100,6 +102,9 @@ class TableDataCompositionView(BaseDatatableView):
                 ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
                   + foreign_model_title + ' ansehen oder bearbeiten">' + str(
                     getattr(value, foreign_model_attribute_for_text)) + '</a>'
+              # take all foreign key values as they are
+              else:
+                data = escape(value)
             # format numbers
             elif self.columns_with_number and column in self.columns_with_number:
               if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):

@@ -5909,14 +5909,15 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse = Adressen.objects.create(
-      adresse='Adresse'
+    adresse1 = Adressen.objects.create(
+      adresse='Adresse1'
+    )
+    adresse2 = Adressen.objects.create(
+      adresse='Adresse1'
     )
     bevollmaechtigter_bezirksschornsteinfeger = (
       Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
         auswaertig=False,
-        bestellungszeitraum_beginn=VALID_DATE,
-        bestellungszeitraum_ende=VALID_DATE,
         vorname='Vorname1',
         nachname='Nachname1',
         anschrift_strasse='Straße1',
@@ -5926,7 +5927,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       )
     )
     cls.attributes_values_db_initial = {
-      'adresse': adresse,
+      'adresse': adresse1,
       'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger
     }
     cls.attributes_values_db_updated = {
@@ -5934,13 +5935,13 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
-      'adresse': str(adresse.pk),
+      'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
         bevollmaechtigter_bezirksschornsteinfeger.pk)
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
-      'adresse': str(adresse.pk),
+      'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
         bevollmaechtigter_bezirksschornsteinfeger.pk),
       'vergabedatum': VALID_DATE

@@ -3868,8 +3868,6 @@ class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'auswaertig': False,
-    'bestellungszeitraum_beginn': VALID_DATE,
-    'bestellungszeitraum_ende': VALID_DATE,
     'vorname': 'Vorname1',
     'nachname': 'Nachname1',
     'anschrift_strasse': 'Straße1',
@@ -3882,8 +3880,6 @@ class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
   }
   attributes_values_view_initial = {
     'auswaertig': False,
-    'bestellungszeitraum_beginn': VALID_DATE,
-    'bestellungszeitraum_ende': VALID_DATE,
     'vorname': 'Vorname3',
     'nachname': 'Nachname3',
     'anschrift_strasse': 'Straße3',
@@ -3893,8 +3889,6 @@ class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
   }
   attributes_values_view_updated = {
     'auswaertig': False,
-    'bestellungszeitraum_beginn': VALID_DATE,
-    'bestellungszeitraum_ende': VALID_DATE,
     'vorname': 'Vorname4',
     'nachname': 'Nachname4',
     'anschrift_strasse': 'Straße4',

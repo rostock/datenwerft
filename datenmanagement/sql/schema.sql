@@ -700,8 +700,8 @@ CREATE TABLE codelisten.bevollmaechtigte_bezirksschornsteinfeger (
     erstellt date DEFAULT (now())::date NOT NULL,
     auswaertig boolean NOT NULL,
     bezirk character(6),
-    bestellungszeitraum_beginn date NOT NULL,
-    bestellungszeitraum_ende date NOT NULL,
+    bestellungszeitraum_beginn date,
+    bestellungszeitraum_ende date,
     vorname character varying(255) NOT NULL,
     nachname character varying(255) NOT NULL,
     anschrift_strasse character varying(255) NOT NULL,
@@ -5623,6 +5623,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.gutachterfotos_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.hospize_hro
     ADD CONSTRAINT hospize_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: kehrbezirke_hro kehrbezirke_hro_adresse_unique; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.kehrbezirke_hro
+    ADD CONSTRAINT kehrbezirke_hro_adresse_unique UNIQUE (adresse);
 
 
 --
