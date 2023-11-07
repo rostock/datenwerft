@@ -2956,7 +2956,9 @@ class Kehrbezirke(SimpleModel):
     on_delete=RESTRICT,
     db_column='bevollmaechtigter_bezirksschornsteinfeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_bevollmaechtigte_bezirksschornsteinfeger'
+    related_name='%(app_label)s_%(class)s_bevollmaechtigte_bezirksschornsteinfeger',
+    blank=True,
+    null=True
   )
   vergabedatum = DateField(
     'Vergabedatum',

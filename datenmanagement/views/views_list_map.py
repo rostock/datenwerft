@@ -290,7 +290,7 @@ class TableListView(TemplateView):
         and (
             self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
             or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
-      )
+        )
     ):
       context['actions'] = True
       context['url_model_assign_placeholder'] = reverse(

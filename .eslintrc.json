@@ -36,6 +36,7 @@
     "proj4": true,
     "Promise": true,
     "redMarker": true,
+    "reloadDataTable": true,
     "results": true,
     "searchField": true,
     "setAddressToMarkerAddress": true,
