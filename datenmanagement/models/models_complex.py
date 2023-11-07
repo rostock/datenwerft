@@ -3197,6 +3197,12 @@ class Strassen_Simple_Historie(ComplexModel):
     list_fields_with_foreign_key = {
       'strasse_simple': 'bezeichnung'
     }
+    list_additional_foreign_key_field = {
+      'insert_after_field': 'strasse_simple',
+      'insert_as': 'Straßenschlüssel',
+      'source_field': 'strasse_simple',
+      'target_field': 'schluessel'
+    }
 
   def __str__(self):
     return str(self.strasse_simple)
@@ -3328,6 +3334,12 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     }
     list_fields_with_foreign_key = {
       'strasse_simple': 'bezeichnung'
+    }
+    list_additional_foreign_key_field = {
+      'insert_after_field': 'strasse_simple',
+      'insert_as': 'Straßenschlüssel',
+      'source_field': 'strasse_simple',
+      'target_field': 'schluessel'
     }
 
   def __str__(self):

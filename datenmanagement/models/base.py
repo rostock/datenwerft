@@ -147,14 +147,19 @@ class Basemodel(Model):
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
     list_fields_with_foreign_key = None
-    # List of dictionaries:
-    # properties of assignment actions which shall be selectable in the list view of this model
-    list_actions_assign = None
+    # Dictionary:
+    # details of a foreign key field of this model
+    # which shall appear as an additional column in the table of the list view of this model
+    list_additional_foreign_key_field = None
     # String:
     # name of that Boolean field of this model
     # whose values (only if ``True``) shall be used as a flag for highlighting
     # both in the table of the list view of this model and in the map view of this model
     highlight_flag = None
+    # List of dictionaries:
+    # properties of assignment actions
+    # which shall be selectable below the table of the list view of this model
+    list_actions_assign = None
     # Number:
     # limit for individual map feature loading steps
     # (i.e. maximum number of map features to be loaded in one step at once)

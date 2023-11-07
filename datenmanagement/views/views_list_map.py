@@ -42,6 +42,7 @@ class TableDataCompositionView(BaseDatatableView):
     self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
     self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
     self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
+    self.additional_foreign_key_column = self.model.BasemodelMeta.list_additional_foreign_key_field
     self.column_as_highlight_flag = self.model.BasemodelMeta.highlight_flag
     self.thumbs = self.model.BasemodelMeta.thumbs
     super().__init__(*args, **kwargs)
@@ -72,11 +73,10 @@ class TableDataCompositionView(BaseDatatableView):
       for column in self.columns:
         # handle all columns except address strings!
         if not self.column_with_address_string or column != self.column_with_address_string:
-          value = getattr(item, column)
+          value, data = getattr(item, column), None
           # take care of methods
           if value.__class__.__name__ == 'method':
             value = value()
-          data = None
           # handle non-empty fields only!
           if value is not None:
             # format foreign keys
@@ -179,6 +179,16 @@ class TableDataCompositionView(BaseDatatableView):
           if hasattr(item, 'address'):
             address_string = item.address()
           item_data.append(address_string)
+        # handle additional foreign key columns (if any)
+        if (
+            self.additional_foreign_key_column
+            and column == self.additional_foreign_key_column['insert_after_field']
+            and self.additional_foreign_key_column['source_field']
+        ):
+          value, data = getattr(item, self.additional_foreign_key_column['source_field']), None
+          if value is not None and self.additional_foreign_key_column['target_field']:
+            data = getattr(value, self.additional_foreign_key_column['target_field'])
+          item_data.append(data)
       # append links for updating, viewing and/or deleting
       if self.model_is_editable:
         links = ''
@@ -218,6 +228,16 @@ class TableDataCompositionView(BaseDatatableView):
           ):
             column = column + str('__') + self.columns_with_foreign_key.get(column)
           qs_params_inner = optimize_datatable_filter(search_element, column, qs_params_inner)
+        # take care of additional foreign key columns (if any)
+        if (
+            self.additional_foreign_key_column
+            and self.additional_foreign_key_column['source_field']
+            and self.additional_foreign_key_column['target_field']
+        ):
+          additional_column = (self.additional_foreign_key_column['source_field'] + str('__') +
+                               self.additional_foreign_key_column['target_field'])
+          qs_params_inner = optimize_datatable_filter(
+            search_element, additional_column, qs_params_inner)
         qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
       qs = qs.filter(qs_params)
     return qs
@@ -246,6 +266,12 @@ class TableDataCompositionView(BaseDatatableView):
         # handle address strings
         elif column == self.column_with_address_string:
           column_names.append(self.address_string_fallback_column)
+        if (
+            self.additional_foreign_key_column
+            and column == self.additional_foreign_key_column['insert_after_field']
+            and self.additional_foreign_key_column['source_field']
+        ):
+          column_names.append(self.additional_foreign_key_column['source_field'])
       # careful here!
       # if there is a 0th column, the index of the order column is 0-based; otherwise 1-based
       actions = False
@@ -316,6 +342,14 @@ class TableListView(TemplateView):
         context['actions_assign_values'] = actions_assign_values
     context['column_titles'] = list(self.model.BasemodelMeta.list_fields.values()) if (
       self.model.BasemodelMeta.list_fields) else None
+    if self.model.BasemodelMeta.list_additional_foreign_key_field:
+      columns = self.model.BasemodelMeta.list_fields
+      after_column = self.model.BasemodelMeta.list_additional_foreign_key_field[
+        'insert_after_field']
+      additional_column_title = self.model.BasemodelMeta.list_additional_foreign_key_field[
+        'insert_as']
+      index = list(columns).index(after_column) + 1
+      context['column_titles'].insert(index, additional_column_title)
     if (
         self.model.BasemodelMeta.editable
         and (
