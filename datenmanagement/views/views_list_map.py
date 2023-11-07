@@ -92,7 +92,6 @@ class TableDataCompositionView(BaseDatatableView):
                 foreign_model = value._meta.label
                 foreign_model_primary_key = value._meta.pk.name
                 foreign_model_title = self.columns.get(column)
-                foreign_model_attribute_for_text = self.columns_with_foreign_key.get(column)
                 data = '<a href="' + reverse(
                     'datenmanagement:' + foreign_model.replace(
                         value._meta.app_label + '.',
@@ -100,8 +99,7 @@ class TableDataCompositionView(BaseDatatableView):
                     ) + '_change',
                     args=[getattr(value, foreign_model_primary_key)]
                 ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
-                  + foreign_model_title + ' ansehen oder bearbeiten">' + str(
-                    getattr(value, foreign_model_attribute_for_text)) + '</a>'
+                  + foreign_model_title + ' ansehen oder bearbeiten">' + str(value) + '</a>'
               # take all foreign key values as they are
               else:
                 data = escape(value)
