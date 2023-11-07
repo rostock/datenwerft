@@ -287,25 +287,35 @@ class TableListView(TemplateView):
     # add further elements to context
     if (
         self.model.BasemodelMeta.editable
-        and self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
+        and (
+            self.request.user.has_perm('datenmanagement.change_' + model_name_lower)
+            or self.request.user.has_perm('datenmanagement.delete_' + model_name_lower)
+      )
     ):
       context['actions'] = True
+      context['url_model_assign_placeholder'] = reverse(
+        'datenmanagement:' + model_name + '_assign', args=['worschdsupp'])
       context['url_model_deleteimmediately_placeholder'] = reverse(
         'datenmanagement:' + model_name + '_deleteimmediately', args=['worschdsupp'])
       # handle assignment actions (if any)
       if self.model.BasemodelMeta.list_actions_assign:
         actions_assign = self.model.BasemodelMeta.list_actions_assign
+        # add assignment actions to context as they are
+        # (in order to automatically create actions in template)
         context['actions_assign'] = actions_assign
+        # prepare list of objects of suitable source models of all assignment actions
+        actions_assign_values = []
         # for each assignment action...
         for action_assign in actions_assign:
           # identify suitable source model
-          source_model = self.model._meta.get_field(
-            action_assign['assignment_target_field']).remote_field.model
+          source_model = self.model._meta.get_field(action_assign['field']).remote_field.model
           # get all objects of suitable source model
           # (i.e. primary keys and textual representations)
-          # and add them to context
+          # and append them to prepared list
           oo = source_model.objects.all()
-          context['action_assign_values'] = [{'pk': str(o.pk), 'text': str(o)} for o in oo]
+          actions_assign_values.append([{'pk': str(o.pk), 'text': str(o)} for o in oo])
+        # add list of objects of suitable source models of all assignment actions to context
+        context['actions_assign_values'] = actions_assign_values
     context['column_titles'] = list(self.model.BasemodelMeta.list_fields.values()) if (
       self.model.BasemodelMeta.list_fields) else None
     if (

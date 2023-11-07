@@ -2991,7 +2991,7 @@ class Kehrbezirke(SimpleModel):
         'action_name': 'kehrbezirke-schornsteinfeger',
         'action_title': 'ausgewählten Datensätzen bevollmächtigten '
                         'Bezirksschornsteinfeger direkt zuweisen',
-        'assignment_target_field': 'bevollmaechtigter_bezirksschornsteinfeger'
+        'field': 'bevollmaechtigter_bezirksschornsteinfeger'
       }
     ]
 
@@ -3220,7 +3220,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
       {
         'action_name': 'kinder_hugendbetreuung-traeger',
         'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
-        'assignment_target_field': 'traeger'
+        'field': 'traeger'
       }
     ]
     map_feature_tooltip_field = 'bezeichnung'

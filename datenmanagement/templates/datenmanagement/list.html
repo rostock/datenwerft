@@ -98,10 +98,15 @@
           <button id="action-button" class="btn btn-danger" disabled>Aktion ausführen</button>
         </div>
       </div>
+      {% for action_assign_values in actions_assign_values %}
+        {% with action_assign=actions_assign|get_list_item_by_index:forloop.counter0 %}
+          {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name select_name=action_assign.field select_values=action_assign_values %}
+        {% endwith %}
+      {% empty %}
+      {% endfor %}
     {% endif %}
     {% include "modal-error.html" %}
     {% include "modal-confirm-export.html" with objcount=objects_count %}
-    {% include "datenmanagement/modal-action-assign.html" with select_values=action_assign_values %}
     <!-- eslint-disable-next-script -->
     <script>
       {% if subset_id %}
@@ -128,10 +133,18 @@
           if (actionCheckboxes.length > 0) {
             // if selected action is assigning a specific value to a specific field of all selected rows (= records)...
             if ($('#action-select').val().startsWith('assign-selected-')) {
-              $('#action-assign-modal').modal('toggle');
+              // get name of corresponding modal
+              let modalName = $('#action-select').val().replace('assign-selected-', '');
+              $('#action-assign-' + modalName + '-modal').modal('toggle');
               // execute the assignment action on clicking the "OK" button in the assignment action modal...
-              $('#action-assign-modal-ok').on('click', function() {
-                console.log('pumuckl');
+              $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
+                // go through all selected rows (= records)...
+                actionCheckboxes.each(function() {
+                  // change row (= record)
+                  let url = '{{ url_model_assign_placeholder }}'.replace(/worschdsupp/, $(this).val().toString());
+                  let select = $('#action-assign-' + modalName + '-modal-select');
+                  jQuery.get(url + '?field=' + select.attr('name') + '&value=' + select.val());
+                });
                 // wait briefly and reload the table so that row (= record) changes become visible
                 reloadDataTable(table);
               });

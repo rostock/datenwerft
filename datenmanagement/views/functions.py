@@ -91,6 +91,29 @@ def add_user_agent_context_elements(context, request):
   return context
 
 
+def assign_object_value(request, pk):
+  """
+  assigns passed value to passed field of the database object with the passed primary key
+  and throws a corresponding exception if permissions are missing
+
+  :param request: WSGI request
+  :param pk: primary key of the affected database object
+  :return: HTTP code 204 (No Content)
+  """
+  model_name = sub('^.*/', '', sub('/assign.*$', '', request.path_info))
+  model = apps.get_app_config('datenmanagement').get_model(model_name)
+  obj = get_object_or_404(model, pk=pk)
+  if request.user.has_perm('datenmanagement.change_' + model_name.lower()):
+    if request.GET.get('field') and request.GET.get('value'):
+      field, value = request.GET.get('field'), request.GET.get('value')
+      value_object = getattr(obj, field).__class__.objects.get(pk=value)
+      setattr(obj, field, value_object)
+      obj.save()
+  else:
+    raise PermissionDenied()
+  return HttpResponse(status=204)
+
+
 def assign_widgets(field):
   """
   creates corresponding form field (widget) to passed model field and returns it
@@ -180,13 +203,7 @@ def delete_object_immediately(request, pk):
   :return: HTTP code 204 (No Content)
   """
   model_name = sub(
-    pattern='^.*\\/',
-    repl='',
-    string=sub(
-      pattern='\\/deleteimmediately.*$',
-      repl='',
-      string=request.path_info
-    )
+    '^.*/', '', sub('/deleteimmediately.*$', '', request.path_info)
   )
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   obj = get_object_or_404(model, pk=pk)

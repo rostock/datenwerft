@@ -1,13 +1,13 @@
-<div id="action-assign-modal" class="modal fade" tabindex="-1" aria-labelledby="action-assign-modal-label" aria-hidden="true">
+<div id="action-assign-{{ modal_name }}-modal" class="modal fade" tabindex="-1" aria-labelledby="action-assign-{{ modal_name }}-modal-label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div id="action-assign-modal-header" class="modal-header">
+      <div id="action-assign-{{ modal_name }}-modal-header" class="modal-header">
         <h5 id="confirmexport-modal-title" class="modal-title">Wert für Direktzuweisung auswählen</h5>
       </div>
-      <div id="action-assign-modal-body" class="modal-body">
+      <div id="action-assign-{{ modal_name }}-modal-body" class="modal-body">
         <div class="text-center">
-          <label hidden for="value-select" class="form-label"></label>
-          <select class="form-select" id="value-select" name="value">
+          <label hidden for="action-assign-{{ modal_name }}-modal-select" class="form-label"></label>
+          <select class="form-select" id="action-assign-{{ modal_name }}-modal-select" name="{{ select_name }}">
             {% for select_value in select_values %}
                 <option value="{{ select_value.pk }}">{{ select_value.text }}</option>
             {% endfor %}
@@ -15,8 +15,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" id="action-assign-modal-ok" data-bs-dismiss="modal">Direktzuweisung durchführen</button>
-        <button class="btn btn-warning" id="action-assign-modal-cancel" data-bs-dismiss="modal">abbrechen</button>
+        <button class="btn btn-primary" id="action-assign-{{ modal_name }}-modal-ok" data-bs-dismiss="modal">Direktzuweisung durchführen</button>
+        <button class="btn btn-warning" id="action-assign-{{ modal_name }}-modal-cancel" data-bs-dismiss="modal">abbrechen</button>
       </div>
     </div>
   </div>
