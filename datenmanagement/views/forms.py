@@ -125,10 +125,8 @@ class GenericForm(ModelForm):
         choices_model_name = self.choices_models_for_choices_fields.get(field.name)
         if choices_model_name is not None:
           choices_model = apps.get_app_config('datenmanagement').get_model(choices_model_name)
-          choices = []
-          for choices_model_object in choices_model.objects.all():
-            choices.append((choices_model_object, choices_model_object))
-          self.fields[field.name].choices = choices
+          oo = choices_model.objects.all()
+          self.fields[field.name].choices = [(o, o) for o in oo]
 
     # customize messages
     for field in self.fields.values():
