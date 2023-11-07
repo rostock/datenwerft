@@ -1,0 +1,23 @@
+<div id="action-assign-{{ modal_name }}-modal" class="modal fade" tabindex="-1" aria-labelledby="action-assign-{{ modal_name }}-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div id="action-assign-{{ modal_name }}-modal-header" class="modal-header">
+        <h5 id="confirmexport-modal-title" class="modal-title">Wert für Direktzuweisung auswählen</h5>
+      </div>
+      <div id="action-assign-{{ modal_name }}-modal-body" class="modal-body">
+        <div class="text-center">
+          <label hidden for="action-assign-{{ modal_name }}-modal-select" class="form-label"></label>
+          <select class="form-select" id="action-assign-{{ modal_name }}-modal-select" name="{{ select_name }}">
+            {% for select_value in select_values %}
+                <option value="{{ select_value.pk }}">{{ select_value.text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="action-assign-{{ modal_name }}-modal-ok" data-bs-dismiss="modal">Direktzuweisung durchführen</button>
+        <button class="btn btn-warning" id="action-assign-{{ modal_name }}-modal-cancel" data-bs-dismiss="modal">abbrechen</button>
+      </div>
+    </div>
+  </div>
+</div>

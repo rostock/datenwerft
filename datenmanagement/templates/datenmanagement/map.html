@@ -56,7 +56,7 @@
     {% if subset_id %}
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze auf der Karte angezeigt, sondern nur die <strong><em>aus der Tabelle übernommenen</em></strong> Datensätze!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     {% endif %}
     <div id="map-side-container" class="mb-3">
@@ -644,7 +644,7 @@
           // (re)enable button to apply the filters
           $('#filter-apply').prop('disabled', false);
 
-          // enable button for passing the current filter set to the table
+          // disable button for passing the current filter set to the table
           $('#subsetter').prop('disabled', true);
 
           // hide indication of additive effect of the filters

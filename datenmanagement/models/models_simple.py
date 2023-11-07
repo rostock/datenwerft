@@ -2956,7 +2956,9 @@ class Kehrbezirke(SimpleModel):
     on_delete=RESTRICT,
     db_column='bevollmaechtigter_bezirksschornsteinfeger',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_bevollmaechtigte_bezirksschornsteinfeger'
+    related_name='%(app_label)s_%(class)s_bevollmaechtigte_bezirksschornsteinfeger',
+    blank=True,
+    null=True
   )
   vergabedatum = DateField(
     'Vergabedatum',
@@ -2986,6 +2988,14 @@ class Kehrbezirke(SimpleModel):
       'adresse': 'adresse_lang',
       'bevollmaechtigter_bezirksschornsteinfeger': 'nachname'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'kehrbezirke-schornsteinfeger',
+        'action_title': 'ausgewählten Datensätzen bevollmächtigten '
+                        'Bezirksschornsteinfeger direkt zuweisen',
+        'field': 'bevollmaechtigter_bezirksschornsteinfeger'
+      }
+    ]
 
   def __str__(self):
     return (str(self.adresse.adresse_lang) + ' zu ' +
@@ -3208,6 +3218,13 @@ class Kinder_Jugendbetreuung(SimpleModel):
       'adresse': 'adresse',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'kinder_hugendbetreuung-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',

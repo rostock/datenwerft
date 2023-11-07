@@ -3011,7 +3011,7 @@ CREATE TABLE fachdaten_adressbezug.kehrbezirke_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     adresse uuid NOT NULL,
-    bevollmaechtigter_bezirksschornsteinfeger uuid NOT NULL,
+    bevollmaechtigter_bezirksschornsteinfeger uuid,
     vergabedatum date
 );
 

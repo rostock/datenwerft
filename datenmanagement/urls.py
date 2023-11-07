@@ -4,7 +4,7 @@ from django.urls import path, reverse_lazy
 from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
-from .views.functions import delete_object_immediately
+from .views.functions import assign_object_value, delete_object_immediately
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView
 from .views.views_list_map import MapDataCompositionView, MapListView, TableDataCompositionView, \
@@ -235,6 +235,17 @@ for model in models:
         success_url=reverse_lazy('datenmanagement:' + model_name + '_start')
       )),
       name=model_name + '_delete'
+    )
+  )
+
+  # assigns a specific value to a specific field of an object of a model
+  urlpatterns.append(
+    path(
+      model_name + '/assign/<pk>',
+      view=permission_required(
+        'datenmanagement.change_' + model_name_lower
+      )(assign_object_value),
+      name=model_name + '_assign'
     )
   )
 

@@ -1,5 +1,5 @@
 {% load bemas_tags %}
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
   <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Es werden <strong><em>nicht alle</em></strong> Kartendaten angezeigt, sondern nur die <strong><em>aus der Tabelle übernommenen {% if model == 'complaint' %}Beschwerden{% elif model == 'originator' %}Verursacher{% endif %}!</em></strong>
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>

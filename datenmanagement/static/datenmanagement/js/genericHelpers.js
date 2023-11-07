@@ -115,7 +115,7 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
     modal.find('.spinner-border').remove();
     modal.find('.modal-body').after(
       '<div class="modal-footer">' +
-        '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
+        '<button class="btn btn-primary" data-bs-dismiss="modal">OK</button>' +
       '</div>'
     );
   }

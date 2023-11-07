@@ -49,7 +49,7 @@
           <option value={{ suit.id }}>{{ suit.template.name }}</option>
         {% endfor %}
       </select>
-      <button type="button" class="btn btn-success" id="template-button">exportieren</button>
+      <button class="btn btn-success" id="template-button">exportieren</button>
       <label for="onlyactive">inaktive auch exportieren: </label><input type="checkbox" class="form-checkbox-input ms-1" id="onlyactive">
     </div>
     {% endif %}
@@ -57,12 +57,12 @@
       {% if subset_id %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       {% endif %}
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze <strong><em>unten links</em></strong> steuerbar
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
@@ -79,117 +79,6 @@
           </tr>
         </thead>
       </table>
-      <!-- eslint-disable-next-script -->
-      <script>
-        {% if subset_id %}
-          window.dataUrl = '{{ url_model_tabledata_subset }}';
-        {% else %}
-          window.dataUrl = '{{ url_model_tabledata }}';
-        {% endif %}
-        window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
-        window.checkAllTarget = true;
-      </script>
-      <script>
-        /**
-         * @function
-         *
-         * main function
-         */
-        $(document).ready(function() {
-          let numberOfColumns = $('#datasets > thead > tr th').length;
-          let table = initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
-
-          // on clicking the button to execute the selected action...
-          $('#action-button').click(function() {
-            // if selected action is deleting all selected rows (= records)...
-            if ($('#action-select').val() === 'delete-selected') {
-              let actionCheckboxes = $('.action-checkbox').filter(':checked');
-              if (actionCheckboxes.length > 0) {
-                // go through all selected rows (= records)...
-                actionCheckboxes.each(function() {
-                  // delete row (= record)
-                  let id = $(this).val();
-                  jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, id.toString()));
-                });
-                // wait briefly and reload the table so that deleted rows (= records) disappear
-                setTimeout(function() {
-                  table.ajax.reload();
-                  $('#action-count').text('kein Datensatz ausgewählt');
-                }, 1000);
-              }
-            }
-          });
-
-          // on clicking the button to transfer currently filtered data to map...
-          $('#subsetter').on('click', function() {
-            // collect primary keys of currently filtered data
-            let currentTablePrimaryKeys = [];
-            let tableData = table.rows().data();
-            for (let i = 0; i < tableData.length; i++) {
-              let stringWithPrimaryKeys = tableData[i][0];
-              currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value="/, '').replace(/">/, ''));
-            }
-            // create subset of currently filtered data and transfer it to map
-            subsetting(
-              currentTablePrimaryKeys,
-              '{% url "toolbox:subset_add" %}',
-              '{{ model_name }}',
-              '{{ model_pk_field_name }}',
-              '{{ url_model_map_subset_placeholder }}',
-              'Bei der Übernahme der aktuellen Filtermenge auf die Karte ist ein Serverfehler aufgetreten.'
-            );
-          });
-
-          // fetch PDF file on clicking the "OK" button in the PDF export confirmation modal...
-          $('#confirm-export-modal-ok').on('click', () => fetchPdf(
-            '{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}'
-          ));
-
-          // fetch PDF file on clicking the PDF export button...
-          $('#template-button').on('click', function() {
-            let checkedBoxes = $('.action-checkbox').filter(':checked');
-            let desiredTplId = $('#template-selector').val();
-            window.renderParams= {
-              'pks': [],
-              'templateid': desiredTplId,
-              'datenthema': '{{ model_name }}',
-              'onlyactive': !$('#onlyactive').prop('checked'),
-            };
-            if (checkedBoxes.length > 0) {
-              for (let i = 0; i < checkedBoxes.length; i++)
-                window.renderParams.pks.push(checkedBoxes[i].value);
-              fetchPdf(
-                '{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}'
-              );
-            }
-            else {
-              $('#confirm-export-modal').modal('toggle');
-            }
-          });
-
-          // select or unselect all rows (= records)
-          $('#check-all').on('click', function() {
-            let target = window.checkAllTarget;
-            $('.action-checkbox').each(function() {
-              $(this).prop('checked', target);
-              $(this).trigger('change');
-            });
-            window.checkAllTarget = !target;
-          });
-        });
-
-        // as soon as a row (= record) has been selected or unselected...
-        $('body').on('change', '.action-checkbox', function() {
-          let actionCheckboxes = $('.action-checkbox').filter(':checked');
-          // adjust information texts accordingly
-          if (actionCheckboxes.length === 1)
-            $('#action-count').text('1 Datensatz ausgewählt');
-          else if (actionCheckboxes.length === 0)
-            $('#action-count').text('kein Datensatz ausgewählt');
-          else
-            $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
-        });
-      </script>
     </div>
     {% if actions %}
       <div class="d-grid mt-4">
@@ -200,13 +89,153 @@
           <label hidden for="action-select" class="form-label"></label>
           <select class="form-select" id="action-select" name="action">
             <option selected>Aktion wählen…</option>
+            {% for action_assign in actions_assign %}
+              <option value="assign-selected-{{ action_assign.action_name }}">{{ action_assign.action_title }}</option>
+            {% empty %}
+            {% endfor %}
             <option value="delete-selected">ausgewählte Datensätze löschen</option>
           </select>
-          <button id="action-button" class="btn btn-danger" type="button">Aktion ausführen</button>
+          <button id="action-button" class="btn btn-danger" disabled>Aktion ausführen</button>
         </div>
       </div>
+      {% for action_assign_values in actions_assign_values %}
+        {% with action_assign=actions_assign|get_list_item_by_index:forloop.counter0 %}
+          {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name select_name=action_assign.field select_values=action_assign_values %}
+        {% endwith %}
+      {% empty %}
+      {% endfor %}
     {% endif %}
     {% include "modal-error.html" %}
     {% include "modal-confirm-export.html" with objcount=objects_count %}
+    <!-- eslint-disable-next-script -->
+    <script>
+      {% if subset_id %}
+        window.dataUrl = '{{ url_model_tabledata_subset }}';
+      {% else %}
+        window.dataUrl = '{{ url_model_tabledata }}';
+      {% endif %}
+      window.languageUrl = '{% static 'datatables/datatables.german.lang' %}';
+      window.checkAllTarget = true;
+    </script>
+    <script>
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function() {
+        let numberOfColumns = $('#datasets > thead > tr th').length;
+        let table = initDataTable(window.dataUrl, window.languageUrl, numberOfColumns);
+
+        // on clicking the button to execute the selected action...
+        $('#action-button').click(function() {
+          let actionCheckboxes = $('.action-checkbox').filter(':checked');
+          if (actionCheckboxes.length > 0) {
+            // if selected action is assigning a specific value to a specific field of all selected rows (= records)...
+            if ($('#action-select').val().startsWith('assign-selected-')) {
+              // get name of corresponding modal
+              let modalName = $('#action-select').val().replace('assign-selected-', '');
+              $('#action-assign-' + modalName + '-modal').modal('toggle');
+              // execute the assignment action on clicking the "OK" button in the assignment action modal...
+              $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
+                // go through all selected rows (= records)...
+                actionCheckboxes.each(function() {
+                  // change row (= record)
+                  let url = '{{ url_model_assign_placeholder }}'.replace(/worschdsupp/, $(this).val().toString());
+                  let select = $('#action-assign-' + modalName + '-modal-select');
+                  jQuery.get(url + '?field=' + select.attr('name') + '&value=' + select.val());
+                });
+                // wait briefly and reload the table so that row (= record) changes become visible
+                reloadDataTable(table);
+              });
+            // if selected action is deleting all selected rows (= records)...
+            } else if ($('#action-select').val() === 'delete-selected') {
+              // go through all selected rows (= records)...
+              actionCheckboxes.each(function() {
+                // delete row (= record)
+                jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, $(this).val().toString()));
+              });
+              // wait briefly and reload the table so that deleted rows (= records) disappear
+              reloadDataTable(table);
+            }
+          }
+        });
+
+        // on clicking the button to transfer currently filtered data to map...
+        $('#subsetter').on('click', function() {
+          // collect primary keys of currently filtered data
+          let currentTablePrimaryKeys = [];
+          let tableData = table.rows().data();
+          for (let i = 0; i < tableData.length; i++) {
+            let stringWithPrimaryKeys = tableData[i][0];
+            currentTablePrimaryKeys.push(stringWithPrimaryKeys.replace(/.*value="/, '').replace(/">/, ''));
+          }
+          // create subset of currently filtered data and transfer it to map
+          subsetting(
+            currentTablePrimaryKeys,
+            '{% url "toolbox:subset_add" %}',
+            '{{ model_name }}',
+            '{{ model_pk_field_name }}',
+            '{{ url_model_map_subset_placeholder }}',
+            'Bei der Übernahme der aktuellen Filtermenge auf die Karte ist ein Serverfehler aufgetreten.'
+          );
+        });
+
+        // fetch PDF file on clicking the "OK" button in the PDF export confirmation modal...
+        $('#confirm-export-modal-ok').on('click', () => fetchPdf(
+          '{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}'
+        ));
+
+        // fetch PDF file on clicking the PDF export button...
+        $('#template-button').on('click', function() {
+          let actionCheckboxes = $('.action-checkbox').filter(':checked');
+          let desiredTplId = $('#template-selector').val();
+          window.renderParams= {
+            'pks': [],
+            'templateid': desiredTplId,
+            'datenthema': '{{ model_name }}',
+            'onlyactive': !$('#onlyactive').prop('checked'),
+          };
+          if (actionCheckboxes.length > 0) {
+            // go through all selected rows (= records)...
+            actionCheckboxes.each(function() {
+              // add primary key of record to corresponding global variable
+              window.renderParams.pks.push($(this).val());
+            });
+            fetchPdf('{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}');
+          }
+          else {
+            $('#confirm-export-modal').modal('toggle');
+          }
+        });
+
+        // select or unselect all rows (= records)
+        $('#check-all').on('click', function() {
+          let target = window.checkAllTarget;
+          $('.action-checkbox').each(function() {
+            $(this).prop('checked', target);
+            $(this).trigger('change');
+          });
+          window.checkAllTarget = !target;
+        });
+      });
+
+      // as soon as a row (= record) has been selected or unselected...
+      $('body').on('change', '.action-checkbox', function() {
+        let actionCheckboxes = $('.action-checkbox').filter(':checked');
+        // enable or disable button for executing selected action
+        if (actionCheckboxes.length > 0)
+          $('#action-button').prop('disabled', false);
+        else
+          $('#action-button').prop('disabled', true);
+        // adjust information texts accordingly
+        if (actionCheckboxes.length === 1)
+          $('#action-count').text('1 Datensatz ausgewählt');
+        else if (actionCheckboxes.length === 0)
+          $('#action-count').text('kein Datensatz ausgewählt');
+        else
+          $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
+      });
+    </script>
   {% endif %}
 {% endblock %}

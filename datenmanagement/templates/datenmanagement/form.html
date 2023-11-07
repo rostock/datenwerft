@@ -179,15 +179,15 @@
           {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
               {% if model_geometry_type == 'Point' %}
-                <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
+                <button disabled id="addressToMap" class="btn btn-primary"><i class="fas fa-location-dot"></i> Marker setzen</button>
               {% endif %}
               {% if not address_mandatory %}
                 {% if address_type == 'Adresse' %}
-                  <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
+                  <button disabled id="mapToAddress" class="btn btn-primary"><i class="fas fa-house"></i> Adresse übernehmen</button>
                 {% elif address_type == 'Straße' %}
-                  <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
+                  <button disabled id="mapToStreet" class="btn btn-primary"><i class="fas fa-road"></i> Straße übernehmen</button>
                 {% elif address_type == 'Gemeindeteil' %}
-                  <button disabled id="mapToDistrict" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
+                  <button disabled id="mapToDistrict" class="btn btn-primary"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
                 {% endif %}
               {% endif %}
             </div>
