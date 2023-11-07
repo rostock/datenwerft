@@ -3220,7 +3220,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
     }
     list_actions_assign = [
       {
-        'action_name': 'kinder_hugendbetreuung-traeger',
+        'action_name': 'kinder_jugendbetreuung-traeger',
         'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
         'field': 'traeger'
       }

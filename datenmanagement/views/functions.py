@@ -104,11 +104,14 @@ def assign_object_value(request, pk):
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   obj = get_object_or_404(model, pk=pk)
   if request.user.has_perm('datenmanagement.change_' + model_name.lower()):
-    if request.GET.get('field') and request.GET.get('value'):
+    if request.GET.get('field'):
       field, value = request.GET.get('field'), request.GET.get('value')
       source_model = model._meta.get_field(field).remote_field.model
-      value_object = source_model.objects.get(pk=value)
-      setattr(obj, field, value_object)
+      if value:
+        value_object = source_model.objects.get(pk=value)
+        setattr(obj, field, value_object)
+      else:
+        setattr(obj, field, None)
       obj.save()
   else:
     raise PermissionDenied()

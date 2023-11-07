@@ -179,6 +179,7 @@ function reloadDataTable(dataTable) {
   setTimeout(function() {
     dataTable.ajax.reload();
     $('#action-count').text('kein Datensatz ausgewählt');
+    $('#action-select').prop('selectedIndex', 0);
     $('#action-button').prop('disabled', true);
   }, 1000);
 }

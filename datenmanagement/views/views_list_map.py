@@ -227,6 +227,9 @@ class TableDataCompositionView(BaseDatatableView):
               and self.columns_with_foreign_key.get(column) is not None
           ):
             column = column + str('__') + self.columns_with_foreign_key.get(column)
+          # handle address strings
+          elif column == self.column_with_address_string:
+            column = self.address_string_fallback_column
           qs_params_inner = optimize_datatable_filter(search_element, column, qs_params_inner)
         # take care of additional foreign key columns (if any)
         if (
@@ -331,13 +334,18 @@ class TableListView(TemplateView):
         actions_assign_values = []
         # for each assignment action...
         for action_assign in actions_assign:
+          # get source field
+          source_field = self.model._meta.get_field(action_assign['field'])
           # identify suitable source model
-          source_model = self.model._meta.get_field(action_assign['field']).remote_field.model
+          source_model = source_field.remote_field.model
           # get all objects of suitable source model
           # (i.e. primary keys and textual representations)
           # and append them to prepared list
           oo = source_model.objects.all()
           actions_assign_values.append([{'pk': str(o.pk), 'text': str(o)} for o in oo])
+          # add NULL/empty value if source field is NULLable
+          if source_field.null:
+            actions_assign_values[-1].insert(0, {'pk': '', 'text': ''})
         # add list of objects of suitable source models of all assignment actions to context
         context['actions_assign_values'] = actions_assign_values
     context['column_titles'] = list(self.model.BasemodelMeta.list_fields.values()) if (

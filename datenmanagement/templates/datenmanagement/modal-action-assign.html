@@ -9,7 +9,7 @@
           <label hidden for="action-assign-{{ modal_name }}-modal-select" class="form-label"></label>
           <select class="form-select" id="action-assign-{{ modal_name }}-modal-select" name="{{ select_name }}">
             {% for select_value in select_values %}
-                <option value="{{ select_value.pk }}">{{ select_value.text }}</option>
+                <option value{% if select_value.pk %}="{{ select_value.pk }}"{% endif %}>{% if select_value.text %}{{ select_value.text }}{% else %}---------{% endif %}</option>
             {% endfor %}
           </select>
         </div>

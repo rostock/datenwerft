@@ -105,6 +105,13 @@ class Adressunsicherheiten(ComplexModel):
       'adresse': 'adresse',
       'art': 'art'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'adressunsicherheiten-art',
+        'action_title': 'ausgewählten Datensätzen Art direkt zuweisen',
+        'field': 'art'
+      }
+    ]
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -282,6 +289,13 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
       'strasse': 'strasse',
       'auftraggeber': 'auftraggeber'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'baustellen_fotodokumentation_baustellen-auftraggeber',
+        'action_title': 'ausgewählten Datensätzen Auftraggeber direkt zuweisen',
+        'field': 'auftraggeber'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -361,6 +375,13 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
       'baustellen_fotodokumentation_baustelle': 'bezeichnung',
       'status': 'status'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'baustellen_fotodokumentation_fotos-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status'
+      }
+    ]
 
   def __str__(self):
     return str(self.baustellen_fotodokumentation_baustelle) + \
@@ -513,6 +534,18 @@ class Baustellen_geplant(ComplexModel):
       'auftraggeber': 'auftraggeber',
       'status': 'status'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'baustellen_geplant-auftraggeber',
+        'action_title': 'ausgewählten Datensätzen Auftraggeber direkt zuweisen',
+        'field': 'auftraggeber'
+      },
+      {
+        'action_name': 'baustellen_geplant-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status'
+      }
+    ]
     highlight_flag = 'konflikt'
     map_feature_tooltip_field = 'bezeichnung'
     map_one_click_filters = True
