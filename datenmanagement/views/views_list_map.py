@@ -13,7 +13,6 @@ from re import IGNORECASE, match, sub
 from time import time
 from zoneinfo import ZoneInfo
 
-from datenmanagement.models import Bevollmaechtigte_Bezirksschornsteinfeger, Kehrbezirke
 from datenmanagement.utils import get_data, get_thumb_url, localize_number
 from toolbox.models import SuitableFor
 from toolbox.utils import optimize_datatable_filter
@@ -293,6 +292,20 @@ class TableListView(TemplateView):
       context['actions'] = True
       context['url_model_deleteimmediately_placeholder'] = reverse(
         'datenmanagement:' + model_name + '_deleteimmediately', args=['worschdsupp'])
+      # handle assignment actions (if any)
+      if self.model.BasemodelMeta.list_actions_assign:
+        actions_assign = self.model.BasemodelMeta.list_actions_assign
+        context['actions_assign'] = actions_assign
+        # for each assignment action...
+        for action_assign in actions_assign:
+          # identify suitable source model
+          source_model = self.model._meta.get_field(
+            action_assign['assignment_target_field']).remote_field.model
+          # get all objects of suitable source model
+          # (i.e. primary keys and textual representations)
+          # and add them to context
+          oo = source_model.objects.all()
+          context['action_assign_values'] = [{'pk': str(o.pk), 'text': str(o)} for o in oo]
     context['column_titles'] = list(self.model.BasemodelMeta.list_fields.values()) if (
       self.model.BasemodelMeta.list_fields) else None
     if (
@@ -326,9 +339,6 @@ class TableListView(TemplateView):
     content_type = ContentType.objects.get_for_model(self.model)
     suitable_templates = SuitableFor.objects.filter(datenthema=content_type)
     context['suitables'] = suitable_templates
-    if issubclass(self.model, Kehrbezirke):
-      bb = Bevollmaechtigte_Bezirksschornsteinfeger.objects.all()
-      context['action_assign_values'] = [{'pk': str(b.pk), 'text': str(b)} for b in bb]
     return context
 
 

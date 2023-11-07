@@ -2986,6 +2986,14 @@ class Kehrbezirke(SimpleModel):
       'adresse': 'adresse_lang',
       'bevollmaechtigter_bezirksschornsteinfeger': 'nachname'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'kehrbezirke-schornsteinfeger',
+        'action_title': 'ausgewählten Datensätzen bevollmächtigten '
+                        'Bezirksschornsteinfeger direkt zuweisen',
+        'assignment_target_field': 'bevollmaechtigter_bezirksschornsteinfeger'
+      }
+    ]
 
   def __str__(self):
     return (str(self.adresse.adresse_lang) + ' zu ' +
@@ -3208,6 +3216,13 @@ class Kinder_Jugendbetreuung(SimpleModel):
       'adresse': 'adresse',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'kinder_hugendbetreuung-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'assignment_target_field': 'traeger'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',

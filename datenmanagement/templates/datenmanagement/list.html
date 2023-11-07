@@ -89,9 +89,10 @@
           <label hidden for="action-select" class="form-label"></label>
           <select class="form-select" id="action-select" name="action">
             <option selected>Aktion wählen…</option>
-            {% if model_name == 'Kehrbezirke' %}
-              <option value="assign-selected-kehrbezirke-schornsteinfeger">ausgewählten Datensätzen bevollmächtigten Bezirksschornsteinfeger direkt zuweisen</option>
-            {% endif %}
+            {% for action_assign in actions_assign %}
+              <option value="assign-selected-{{ action_assign.action_name }}">{{ action_assign.action_title }}</option>
+            {% empty %}
+            {% endfor %}
             <option value="delete-selected">ausgewählte Datensätze löschen</option>
           </select>
           <button id="action-button" class="btn btn-danger" disabled>Aktion ausführen</button>
@@ -126,10 +127,10 @@
           let actionCheckboxes = $('.action-checkbox').filter(':checked');
           if (actionCheckboxes.length > 0) {
             // if selected action is assigning a specific value to a specific field of all selected rows (= records)...
-            if ($('#action-select').val() === 'assign-selected-kehrbezirke-schornsteinfeger') {
-              $('#action-modal').modal('toggle');
-              // fetch PDF file on clicking the "OK" button in the assign action modal...
-              $('#action-modal-ok').on('click', function() {
+            if ($('#action-select').val().startsWith('assign-selected-')) {
+              $('#action-assign-modal').modal('toggle');
+              // execute the assignment action on clicking the "OK" button in the assignment action modal...
+              $('#action-assign-modal-ok').on('click', function() {
                 console.log('pumuckl');
                 // wait briefly and reload the table so that row (= record) changes become visible
                 reloadDataTable(table);

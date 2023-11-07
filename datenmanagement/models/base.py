@@ -147,6 +147,9 @@ class Basemodel(Model):
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
     list_fields_with_foreign_key = None
+    # List of dictionaries:
+    # properties of assignment actions which shall be selectable in the list view of this model
+    list_actions_assign = None
     # String:
     # name of that Boolean field of this model
     # whose values (only if ``True``) shall be used as a flag for highlighting
