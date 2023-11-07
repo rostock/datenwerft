@@ -5915,7 +5915,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
     adresse2 = Adressen.objects.create(
       adresse='Adresse1'
     )
-    bevollmaechtigter_bezirksschornsteinfeger = (
+    bevollmaechtigter_bezirksschornsteinfeger1 = (
       Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
         auswaertig=False,
         vorname='Vorname1',
@@ -5926,24 +5926,36 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
         anschrift_ort='Ort1'
       )
     )
+    bevollmaechtigter_bezirksschornsteinfeger2 = (
+      Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
+        auswaertig=True,
+        vorname='Vorname2',
+        nachname='Nachname2',
+        anschrift_strasse='Straße2',
+        anschrift_hausnummer='456',
+        anschrift_postleitzahl='23456',
+        anschrift_ort='Ort2'
+      )
+    )
+    cls.bevollmaechtigter_bezirksschornsteinfeger2 = bevollmaechtigter_bezirksschornsteinfeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse1,
-      'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger
+      'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger1
     }
     cls.attributes_values_db_updated = {
-      'vergabedatum': VALID_DATE
+      'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
-        bevollmaechtigter_bezirksschornsteinfeger.pk)
+        bevollmaechtigter_bezirksschornsteinfeger1.pk)
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
-        bevollmaechtigter_bezirksschornsteinfeger.pk),
+        bevollmaechtigter_bezirksschornsteinfeger1.pk),
       'vergabedatum': VALID_DATE
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
@@ -6043,6 +6055,18 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_updated,
+      'bevollmaechtigter_bezirksschornsteinfeger',
+      str(self.bevollmaechtigter_bezirksschornsteinfeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -6310,31 +6334,36 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -6497,6 +6526,18 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_updated,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):

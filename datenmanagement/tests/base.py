@@ -283,7 +283,7 @@ class DefaultModelTestCase(DefaultTestCase):
     self.login_assign_permissions(model)
     # clean object filter
     object_filter = clean_object_filter(model, object_filter)
-    # prepare the POST
+    # prepare the GET/POST
     deletion_object = get_object(model, object_filter)
     if immediately:
       response = self.client.get(
@@ -315,6 +315,41 @@ class DefaultModelTestCase(DefaultTestCase):
     self.assertEqual(response['content-type'].lower(), content_type)
     # no more test objects left?
     self.assertEqual(model.objects.filter(**object_filter).count(), 0)
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  def generic_assign_view_test(self, model, target_object_filter, updated_object_filter,
+                               field, value, status_code, content_type, object_count):
+    """
+    tests a view for assigning a specific value to a specific field of an object via GET
+
+    :param self
+    :param model: model
+    :param target_object_filter: target object filter
+    :param updated_object_filter: updated object filter
+    :param field: specific field to which the specific value is to be assigned
+    :param value: specific value to be assigned
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    :param object_count: expected number of objects passing the object filter
+    """
+    # perform login and set all necessary rights on the passed model
+    self.login_assign_permissions(model)
+    # clean object filters
+    target_object_filter = clean_object_filter(model, target_object_filter)
+    updated_object_filter = clean_object_filter(model, updated_object_filter)
+    # prepare the GET
+    target_object = get_object(model, target_object_filter)
+    response = self.client.get(
+      reverse(
+        'datenmanagement:' + self.model.__name__ + '_assign', args=[target_object.pk]
+      ) + '?field=' + field + '&value=' + value
+    )
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # updated object contains specific value which was assigned to its specific field?
+    self.assertEqual(model.objects.filter(**updated_object_filter).count(), object_count)
 
 
 class DefaultMetaModelTestCase(DefaultModelTestCase):
