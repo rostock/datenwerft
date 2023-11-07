@@ -100,7 +100,7 @@
     {% endif %}
     {% include "modal-error.html" %}
     {% include "modal-confirm-export.html" with objcount=objects_count %}
-    {% include "datenmanagement/modal-action-assign.html" with values=action_assign_values %}
+    {% include "datenmanagement/modal-action-assign.html" with select_values=action_assign_values %}
     <!-- eslint-disable-next-script -->
     <script>
       {% if subset_id %}
@@ -128,6 +128,12 @@
             // if selected action is assigning a specific value to a specific field of all selected rows (= records)...
             if ($('#action-select').val() === 'assign-selected-kehrbezirke-schornsteinfeger') {
               $('#action-modal').modal('toggle');
+              // fetch PDF file on clicking the "OK" button in the assign action modal...
+              $('#action-modal-ok').on('click', function() {
+                console.log('pumuckl');
+                // wait briefly and reload the table so that row (= record) changes become visible
+                reloadDataTable(table);
+              });
             // if selected action is deleting all selected rows (= records)...
             } else if ($('#action-select').val() === 'delete-selected') {
               // go through all selected rows (= records)...
@@ -136,11 +142,7 @@
                 jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, $(this).val().toString()));
               });
               // wait briefly and reload the table so that deleted rows (= records) disappear
-              setTimeout(function() {
-                table.ajax.reload();
-                $('#action-count').text('kein Datensatz ausgewählt');
-                $('#action-button').prop('disabled', true);
-              }, 1000);
+              reloadDataTable(table);
             }
           }
         });

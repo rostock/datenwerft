@@ -6,12 +6,11 @@
       </div>
       <div id="action-modal-body" class="modal-body">
         <div class="text-center">
-          {{ values }}
-          <select class="form-select">
-            <option selected>Open this select menu</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+          <label hidden for="value-select" class="form-label"></label>
+          <select class="form-select" id="value-select" name="value">
+            {% for select_value in select_values %}
+                <option value="{{ select_value.pk }}">{{ select_value.text }}</option>
+            {% endfor %}
           </select>
         </div>
       </div>

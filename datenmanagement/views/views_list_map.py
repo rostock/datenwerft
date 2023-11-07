@@ -13,6 +13,7 @@ from re import IGNORECASE, match, sub
 from time import time
 from zoneinfo import ZoneInfo
 
+from datenmanagement.models import Bevollmaechtigte_Bezirksschornsteinfeger, Kehrbezirke
 from datenmanagement.utils import get_data, get_thumb_url, localize_number
 from toolbox.models import SuitableFor
 from toolbox.utils import optimize_datatable_filter
@@ -325,8 +326,9 @@ class TableListView(TemplateView):
     content_type = ContentType.objects.get_for_model(self.model)
     suitable_templates = SuitableFor.objects.filter(datenthema=content_type)
     context['suitables'] = suitable_templates
-    # if model = Kehrbezirke
-    # context['action_assign_values'] = pk als key, str als val
+    if issubclass(self.model, Kehrbezirke):
+      bb = Bevollmaechtigte_Bezirksschornsteinfeger.objects.all()
+      context['action_assign_values'] = [{'pk': str(b.pk), 'text': str(b)} for b in bb]
     return context
 
 

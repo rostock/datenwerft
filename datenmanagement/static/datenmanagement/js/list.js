@@ -84,7 +84,7 @@ function fetchPdf(url, csrfToken, host){
  * @param {string} dataUrl - data URL
  * @param {string} languageUrl - language URL
  * @param {number} numberOfColumns - number of columns
- * @returns {Object} - table
+ * @returns {Object} - data table
  */
 function initDataTable(dataUrl, languageUrl, numberOfColumns) {
   return $('#datasets').DataTable({
@@ -165,4 +165,20 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
     serverSide: true,
     stateSave: true
   });
+}
+
+/**
+ * @function
+ * @name reloadDataTable
+ *
+ * reloads data table and resets action controls
+ *
+ * @param {Object} dataTable - data table
+ */
+function reloadDataTable(dataTable) {
+  setTimeout(function() {
+    dataTable.ajax.reload();
+    $('#action-count').text('kein Datensatz ausgewählt');
+    $('#action-button').prop('disabled', true);
+  }, 1000);
 }
