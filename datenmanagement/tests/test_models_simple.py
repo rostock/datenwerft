@@ -5913,7 +5913,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       adresse='Adresse1'
     )
     adresse2 = Adressen.objects.create(
-      adresse='Adresse1'
+      adresse='Adresse2'
     )
     bevollmaechtigter_bezirksschornsteinfeger1 = (
       Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
@@ -5943,7 +5943,14 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger1
     }
     cls.attributes_values_db_updated = {
+      'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger2,
+      'vergabedatum': VALID_DATE
+    }
+    cls.attributes_values_db_assigned_bevollmaechtigter_bezirksschornsteinfeger = {
       'bevollmaechtigter_bezirksschornsteinfeger': bevollmaechtigter_bezirksschornsteinfeger2
+    }
+    cls.attributes_values_db_assigned_vergabedatum = {
+      'vergabedatum': VALID_DATE
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -5955,7 +5962,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'adresse': str(adresse2.pk),
       'bevollmaechtigter_bezirksschornsteinfeger': str(
-        bevollmaechtigter_bezirksschornsteinfeger1.pk),
+        bevollmaechtigter_bezirksschornsteinfeger2.pk),
       'vergabedatum': VALID_DATE
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
@@ -6057,13 +6064,25 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
       'text/html; charset=utf-8'
     )
 
-  def test_view_assign(self):
+  def test_view_assign_bevollmaechtigter_bezirksschornsteinfeger(self):
     self.generic_assign_view_test(
       self.model,
       self.attributes_values_db_initial,
-      self.attributes_values_db_updated,
+      self.attributes_values_db_assigned_bevollmaechtigter_bezirksschornsteinfeger,
       'bevollmaechtigter_bezirksschornsteinfeger',
       str(self.bevollmaechtigter_bezirksschornsteinfeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_vergabedatum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_vergabedatum,
+      'vergabedatum',
+      str(VALID_DATE),
       204,
       'text/html; charset=utf-8',
       1
@@ -6350,6 +6369,10 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned = {
       'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
@@ -6363,7 +6386,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger1.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -6532,7 +6555,7 @@ class KinderJugendbetreuungTest(DefaultSimpleModelTestCase):
     self.generic_assign_view_test(
       self.model,
       self.attributes_values_db_initial,
-      self.attributes_values_db_updated,
+      self.attributes_values_db_assigned,
       'traeger',
       str(self.traeger2.pk),
       204,

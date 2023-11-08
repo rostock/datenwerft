@@ -5,17 +5,21 @@
         <h5 id="confirmexport-modal-title" class="modal-title">Wert für Direktzuweisung auswählen</h5>
       </div>
       <div id="action-assign-{{ modal_name }}-modal-body" class="modal-body">
-        <div class="text-center">
-          <label hidden for="action-assign-{{ modal_name }}-modal-select" class="form-label"></label>
-          <select class="form-select" id="action-assign-{{ modal_name }}-modal-select" name="{{ select_name }}">
-            {% for select_value in select_values %}
-                <option value{% if select_value.pk %}="{{ select_value.pk }}"{% endif %}>{% if select_value.text %}{{ select_value.text }}{% else %}---------{% endif %}</option>
-            {% endfor %}
-          </select>
-        </div>
+        <form class="form needs-validation" action="">
+          {% if type == 'foreignkey' %}
+            <label hidden for="action-assign-{{ modal_name }}-modal-input-field" class="form-label"></label>
+            <select class="form-select" id="action-assign-{{ modal_name }}-modal-input-field" name="{{ field_name }}">
+              {% for select_value in select_values %}
+                  <option value{% if select_value.pk %}="{{ select_value.pk }}"{% endif %}>{% if select_value.text %}{{ select_value.text }}{% else %}---------{% endif %}</option>
+              {% endfor %}
+            </select>
+          {% else %}
+            <input type="{{ type }}" class="form-control" id="action-assign-{{ modal_name }}-modal-input-field" name="{{ field_name }}"{% if value_required %} required{% endif %}>
+          {% endif %}
+          <button class="btn btn-primary" type="submit" id="action-assign-{{ modal_name }}-modal-ok">Direktzuweisung durchführen</button>
+        </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" id="action-assign-{{ modal_name }}-modal-ok" data-bs-dismiss="modal">Direktzuweisung durchführen</button>
         <button class="btn btn-warning" id="action-assign-{{ modal_name }}-modal-cancel" data-bs-dismiss="modal">abbrechen</button>
       </div>
     </div>

@@ -2990,10 +2990,17 @@ class Kehrbezirke(SimpleModel):
     }
     list_actions_assign = [
       {
-        'action_name': 'kehrbezirke-schornsteinfeger',
+        'action_name': 'kehrbezirke-bevollmaechtigter_bezirksschornsteinfeger',
         'action_title': 'ausgewählten Datensätzen bevollmächtigten '
                         'Bezirksschornsteinfeger direkt zuweisen',
-        'field': 'bevollmaechtigter_bezirksschornsteinfeger'
+        'field': 'bevollmaechtigter_bezirksschornsteinfeger',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'kehrbezirke-vergabedatum',
+        'action_title': 'ausgewählten Datensätzen Vergabedatum direkt zuweisen',
+        'field': 'vergabedatum',
+        'type': 'date'
       }
     ]
 
@@ -3222,7 +3229,8 @@ class Kinder_Jugendbetreuung(SimpleModel):
       {
         'action_name': 'kinder_jugendbetreuung-traeger',
         'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
-        'field': 'traeger'
+        'field': 'traeger',
+        'type': 'foreignkey'
       }
     ]
     map_feature_tooltip_field = 'bezeichnung'

@@ -33,10 +33,13 @@ def adressunsicherheit_data():
   adresse = Adressen.objects.create(
     adresse='Adresse'
   )
-  art = Arten_Adressunsicherheiten.objects.create(
-    art='Art'
+  art1 = Arten_Adressunsicherheiten.objects.create(
+    art='Art1'
   )
-  return adresse, art
+  art2 = Arten_Adressunsicherheiten.objects.create(
+    art='Art2'
+  )
+  return adresse, art1, art2
 
 
 class AdressunsicherheitenTest(DefaultComplexModelTestCase):
@@ -52,27 +55,32 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse, art = adressunsicherheit_data()
+    adresse, art1, art2 = adressunsicherheit_data()
+    cls.art2 = art2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
-      'art': art,
+      'art': art1,
       'beschreibung': 'Beschreibung1',
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'beschreibung': 'Beschreibung2'
+      'beschreibung': 'Beschreibung2',
+      'art': art2
+    }
+    cls.attributes_values_db_assigned = {
+      'art': art2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'art': str(art.pk),
+      'art': str(art1.pk),
       'beschreibung': 'Beschreibung3',
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'art': str(art.pk),
+      'art': str(art2.pk),
       'beschreibung': 'Beschreibung4',
       'geometrie': VALID_POINT_VIEW
     }
@@ -238,6 +246,18 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'art',
+      str(self.art2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -292,10 +312,10 @@ class AdressunsicherheitenFotosTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    adresse, art = adressunsicherheit_data()
+    adresse, art1, art2 = adressunsicherheit_data()
     adressunsicherheit = Adressunsicherheiten.objects.create(
       adresse=adresse,
-      art=art,
+      art=art1,
       beschreibung='Beschreibung',
       geometrie=VALID_POINT_DB
     )
@@ -507,10 +527,13 @@ def baustelle_data():
   sparte2 = Sparten_Baustellen.objects.create(
     sparte='Sparte 2'
   )
-  auftraggeber = Auftraggeber_Baustellen.objects.create(
-    auftraggeber='Auftraggeber'
+  auftraggeber1 = Auftraggeber_Baustellen.objects.create(
+    auftraggeber='Auftraggeber1'
   )
-  return verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber
+  auftraggeber2 = Auftraggeber_Baustellen.objects.create(
+    auftraggeber='Auftraggeber2'
+  )
+  return verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber1, auftraggeber2
 
 
 class BaustellenFotodokumentationBaustellenTest(DefaultComplexModelTestCase):
@@ -526,24 +549,30 @@ class BaustellenFotodokumentationBaustellenTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber = baustelle_data()
+    verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber1, auftraggeber2 = (
+      baustelle_data())
+    cls.auftraggeber2 = auftraggeber2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'Bezeichnung1',
       'verkehrliche_lagen': [verkehrliche_lage1, verkehrliche_lage2],
       'sparten': [sparte1, sparte2],
-      'auftraggeber': auftraggeber,
+      'auftraggeber': auftraggeber1,
       'ansprechpartner': 'Ansprechpartner1',
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'auftraggeber': auftraggeber2
+    }
+    cls.attributes_values_db_assigned = {
+      'auftraggeber': auftraggeber2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung3',
       'verkehrliche_lagen': [verkehrliche_lage1, verkehrliche_lage2],
       'sparten': [sparte1, sparte2],
-      'auftraggeber': str(auftraggeber.pk),
+      'auftraggeber': str(auftraggeber1.pk),
       'ansprechpartner': 'Ansprechpartner3',
       'geometrie': VALID_POINT_VIEW
     }
@@ -552,7 +581,7 @@ class BaustellenFotodokumentationBaustellenTest(DefaultComplexModelTestCase):
       'bezeichnung': 'Bezeichnung4',
       'verkehrliche_lagen': [verkehrliche_lage1, verkehrliche_lage2],
       'sparten': [sparte1, sparte2],
-      'auftraggeber': str(auftraggeber.pk),
+      'auftraggeber': str(auftraggeber2.pk),
       'ansprechpartner': 'Ansprechpartner4',
       'geometrie': VALID_POINT_VIEW
     }
@@ -718,6 +747,18 @@ class BaustellenFotodokumentationBaustellenTest(DefaultComplexModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'auftraggeber',
+      str(self.auftraggeber2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -772,13 +813,13 @@ class BaustellenFotodokumentationFotosTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber = \
-      baustelle_data()
+    verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber1, auftraggeber2 = (
+      baustelle_data())
     baustelle = Baustellen_Fotodokumentation_Baustellen.objects.create(
       bezeichnung='Bezeichnung',
       verkehrliche_lagen=[verkehrliche_lage1, verkehrliche_lage2],
       sparten=[sparte1, sparte2],
-      auftraggeber=auftraggeber,
+      auftraggeber=auftraggeber1,
       ansprechpartner='Ansprechpartner',
       geometrie=VALID_POINT_DB
     )
@@ -788,6 +829,7 @@ class BaustellenFotodokumentationFotosTest(DefaultComplexModelTestCase):
     status2 = Status_Baustellen_Fotodokumentation_Fotos.objects.create(
       status='Status 2'
     )
+    cls.status2 = status2
     status3 = Status_Baustellen_Fotodokumentation_Fotos.objects.create(
       status='Status 3'
     )
@@ -806,6 +848,9 @@ class BaustellenFotodokumentationFotosTest(DefaultComplexModelTestCase):
     )
     cls.attributes_values_db_updated = {
       'status': status2
+    }
+    cls.attributes_values_db_assigned_aufnahmedatum = {
+      'aufnahmedatum': VALID_DATE
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -977,6 +1022,32 @@ class BaustellenFotodokumentationFotosTest(DefaultComplexModelTestCase):
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
+  def test_view_assign_status(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      self.attributes_values_db_updated,
+      'status',
+      str(self.status2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+  def test_view_assign_aufnahmedatum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      self.attributes_values_db_assigned_aufnahmedatum,
+      'aufnahmedatum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -993,7 +1064,8 @@ class BaustellenFotodokumentationFotosTest(DefaultComplexModelTestCase):
 #
 
 def create_baustelle_geplant():
-  verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber = baustelle_data()
+  verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber1, auftraggeber2 = (
+    baustelle_data())
   status = Status_Baustellen_geplant.objects.create(
     status='Status'
   )
@@ -1003,7 +1075,7 @@ def create_baustelle_geplant():
     sparten=[sparte1, sparte2],
     beginn=VALID_DATE,
     ende=VALID_DATE,
-    auftraggeber=auftraggeber,
+    auftraggeber=auftraggeber1,
     ansprechpartner='Ansprechpartner',
     status=status,
     geometrie=VALID_MULTIPOLYGON_DB
@@ -1023,23 +1095,37 @@ class BaustellenGeplantTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber = baustelle_data()
-    status = Status_Baustellen_geplant.objects.create(
-      status='Status'
+    verkehrliche_lage1, verkehrliche_lage2, sparte1, sparte2, auftraggeber1, auftraggeber2 = (
+      baustelle_data())
+    cls.auftraggeber2 = auftraggeber2
+    status1 = Status_Baustellen_geplant.objects.create(
+      status='Status1'
     )
+    status2 = Status_Baustellen_geplant.objects.create(
+      status='Status2'
+    )
+    cls.status2 = status2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'Bezeichnung1',
       'verkehrliche_lagen': [verkehrliche_lage1, verkehrliche_lage2],
       'sparten': [sparte1, sparte2],
       'beginn': VALID_DATE,
       'ende': VALID_DATE,
-      'auftraggeber': auftraggeber,
+      'auftraggeber': auftraggeber1,
       'ansprechpartner': 'Ansprechpartner1',
-      'status': status,
+      'status': status1,
       'geometrie': VALID_MULTIPOLYGON_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'auftraggeber': auftraggeber2,
+      'status': status2
+    }
+    cls.attributes_values_db_assigned_auftraggeber = {
+      'auftraggeber': auftraggeber2
+    }
+    cls.attributes_values_db_assigned_status = {
+      'status': status2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -1048,9 +1134,9 @@ class BaustellenGeplantTest(DefaultComplexModelTestCase):
       'sparten': [sparte1, sparte2],
       'beginn': VALID_DATE,
       'ende': VALID_DATE,
-      'auftraggeber': str(auftraggeber.pk),
+      'auftraggeber': str(auftraggeber1.pk),
       'ansprechpartner': 'Ansprechpartner3',
-      'status': str(status.pk),
+      'status': str(status1.pk),
       'geometrie': VALID_MULTIPOLYGON_VIEW
     }
     cls.attributes_values_view_updated = {
@@ -1060,9 +1146,9 @@ class BaustellenGeplantTest(DefaultComplexModelTestCase):
       'sparten': [sparte1, sparte2],
       'beginn': VALID_DATE,
       'ende': VALID_DATE,
-      'auftraggeber': str(auftraggeber.pk),
+      'auftraggeber': str(auftraggeber2.pk),
       'ansprechpartner': 'Ansprechpartner4',
-      'status': str(status.pk),
+      'status': str(status2.pk),
       'geometrie': VALID_MULTIPOLYGON_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -1225,6 +1311,30 @@ class BaustellenGeplantTest(DefaultComplexModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_auftraggeber(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_auftraggeber,
+      'auftraggeber',
+      str(self.auftraggeber2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_status(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_status,
+      'status',
+      str(self.status2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):

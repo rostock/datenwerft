@@ -8,7 +8,7 @@
  */
 function addDeleteFieldButton(field) {
   // create button
-  let deleteFieldButton = $('<button class="input-reset btn btn-warning" title="Wert löschen"><i class="fas fa-trash"></i></button></div>');
+  let deleteFieldButton = $('<button class="input-reset btn btn-warning" type="button" title="Wert löschen"><i class="fas fa-trash"></i></button></div>');
   // insert created button after passed single field
   deleteFieldButton.insertAfter(field);
   // on clicking the created button...

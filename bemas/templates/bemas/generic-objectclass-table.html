@@ -43,7 +43,7 @@
         <a class="btn btn-primary" role="button" href="{% url 'bemas:contact_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neue:n Ansprechpartner:in anlegen</a>
       {% endif %}
       {% if objects_count > 0 and objectclass_name == 'Complaint' or objects_count > 0 and objectclass_name == 'Originator' %}
-        <button id="subsetter" class="btn btn-secondary"><i class="fas fa-{{ 'map'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
+        <button id="subsetter" class="btn btn-secondary" type="button"><i class="fas fa-{{ 'map'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
       {% endif %}
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>

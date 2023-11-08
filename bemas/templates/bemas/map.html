@@ -38,9 +38,9 @@
     {% endif %}
     <div class="d-grid mt-3 mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
       <a class="btn btn-secondary" role="button" href="{% url 'bemas:complaint_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Beschwerden</a>
-      <button id="complaints-subsetter" class="btn btn-secondary" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
+      <button id="complaints-subsetter" class="btn btn-secondary" type="button" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
       <a class="btn btn-secondary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Verursacher</a>
-      <button id="originators-subsetter" class="btn btn-secondary" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
+      <button id="originators-subsetter" class="btn btn-secondary" type="button" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
       <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
     </div>
     {% if objects_count > 0 %}
@@ -52,7 +52,7 @@
         <div class="accordion accordion-flush{% if not is_mobile %} side{% endif %}">
           <div id="filter-one-click" class="accordion-item">
             <h2 id="heading-filter-one-click" class="accordion-header">
-              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-filter-one-click" aria-expanded="false" aria-controls="collapse-filter-one-click">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-filter-one-click" aria-expanded="false" aria-controls="collapse-filter-one-click">
                 Ein-Klick-Filter
               </button>
             </h2>
@@ -70,7 +70,7 @@
           </div>
           <div id="complaints-filter" class="accordion-item">
             <h2 id="heading-complaints-filter" class="accordion-header">
-              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-complaints-filter" aria-expanded="false" aria-controls="collapse-complaints-filter">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-complaints-filter" aria-expanded="false" aria-controls="collapse-complaints-filter">
                 Filter für <i class="ms-1 me-1 fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerden
               </button>
             </h2>
@@ -160,7 +160,7 @@
           </div>
           <div id="originators-filter" class="accordion-item">
             <h2 id="heading-originators-filter" class="accordion-header">
-              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-originators-filter" aria-expanded="false" aria-controls="collapse-originators-filter">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-originators-filter" aria-expanded="false" aria-controls="collapse-originators-filter">
                 Filter für <i class="ms-1 me-1 fas fa-{{ 'originator'|get_icon }}"></i> Verursacher
               </button>
             </h2>
@@ -229,7 +229,7 @@
           </div>
           <div id="map-control" class="accordion-item">
             <h2 id="heading-map-control" class="accordion-header">
-              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-map-control" aria-expanded="false" aria-controls="collapse-map-control">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-map-control" aria-expanded="false" aria-controls="collapse-map-control">
                 Kartenausschnitt
               </button>
             </h2>
@@ -245,7 +245,7 @@
           </div>
           <div id="address-search" class="accordion-item">
             <h2 id="heading-address-search" class="accordion-header">
-              <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-address-search" aria-expanded="false" aria-controls="collapse-address-search">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-address-search" aria-expanded="false" aria-controls="collapse-address-search">
                 Adressensuche
               </button>
             </h2>

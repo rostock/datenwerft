@@ -109,7 +109,8 @@ class Adressunsicherheiten(ComplexModel):
       {
         'action_name': 'adressunsicherheiten-art',
         'action_title': 'ausgewählten Datensätzen Art direkt zuweisen',
-        'field': 'art'
+        'field': 'art',
+        'type': 'foreignkey'
       }
     ]
     map_feature_tooltip_field = 'art'
@@ -293,7 +294,8 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
       {
         'action_name': 'baustellen_fotodokumentation_baustellen-auftraggeber',
         'action_title': 'ausgewählten Datensätzen Auftraggeber direkt zuweisen',
-        'field': 'auftraggeber'
+        'field': 'auftraggeber',
+        'type': 'foreignkey'
       }
     ]
     map_feature_tooltip_field = 'bezeichnung'
@@ -379,7 +381,15 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
       {
         'action_name': 'baustellen_fotodokumentation_fotos-status',
         'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status'
+        'field': 'status',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'baustellen_fotodokumentation_fotos-aufnahmedatum',
+        'action_title': 'ausgewählten Datensätzen Aufnahmedatum direkt zuweisen',
+        'field': 'aufnahmedatum',
+        'type': 'date',
+        'value_required': True
       }
     ]
 
@@ -538,12 +548,14 @@ class Baustellen_geplant(ComplexModel):
       {
         'action_name': 'baustellen_geplant-auftraggeber',
         'action_title': 'ausgewählten Datensätzen Auftraggeber direkt zuweisen',
-        'field': 'auftraggeber'
+        'field': 'auftraggeber',
+        'type': 'foreignkey'
       },
       {
         'action_name': 'baustellen_geplant-status',
         'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
-        'field': 'status'
+        'field': 'status',
+        'type': 'foreignkey'
       }
     ]
     highlight_flag = 'konflikt'

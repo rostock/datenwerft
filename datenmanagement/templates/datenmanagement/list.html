@@ -49,7 +49,7 @@
           <option value={{ suit.id }}>{{ suit.template.name }}</option>
         {% endfor %}
       </select>
-      <button class="btn btn-success" id="template-button">exportieren</button>
+      <button class="btn btn-success" type="button" id="template-button">exportieren</button>
       <label for="onlyactive">inaktive auch exportieren: </label><input type="checkbox" class="form-checkbox-input ms-1" id="onlyactive">
     </div>
     {% endif %}
@@ -57,12 +57,12 @@
       {% if subset_id %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <i class="fa-solid fa-triangle-exclamation"></i> Es werden <strong><em>nicht alle</em></strong> Datensätze in der Tabelle gelistet, sondern nur die <strong><em>aus der Karte übernommenen</em></strong> Datensätze!
-          <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       {% endif %}
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-triangle-exclamation"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Tabelle exportiert wird – Anzahl der aktuell sichtbaren Datensätze <strong><em>unten links</em></strong> steuerbar
-        <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <table id="datasets" class="table table-bordered table-striped">
         <thead>
@@ -95,13 +95,17 @@
             {% endfor %}
             <option value="delete-selected">ausgewählte Datensätze löschen</option>
           </select>
-          <button id="action-button" class="btn btn-danger" disabled>Aktion ausführen</button>
+          <button id="action-button" class="btn btn-danger" type="button" disabled>Aktion ausführen</button>
         </div>
       </div>
       {% for action_assign_values in actions_assign_values %}
         {% with action_assign=actions_assign|get_list_item_by_index:forloop.counter0 %}
-          {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name select_name=action_assign.field select_values=action_assign_values %}
+          {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name type=action_assign.type field_name=action_assign.field value_required=action_assign.value_required select_values=action_assign_values %}
         {% endwith %}
+      {% empty %}
+      {% endfor %}
+      {% for action_assign in actions_assign %}
+        {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name type=action_assign.type field_name=action_assign.field value_required=action_assign.value_required %}
       {% empty %}
       {% endfor %}
     {% endif %}
@@ -138,15 +142,18 @@
               $('#action-assign-' + modalName + '-modal').modal('toggle');
               // execute the assignment action on clicking the "OK" button in the assignment action modal...
               $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
-                // go through all selected rows (= records)...
-                actionCheckboxes.each(function() {
-                  // change row (= record)
-                  let url = '{{ url_model_assign_placeholder }}'.replace(/worschdsupp/, $(this).val().toString());
-                  let select = $('#action-assign-' + modalName + '-modal-select');
-                  jQuery.get(url + '?field=' + select.attr('name') + '&value=' + select.val());
-                });
-                // wait briefly and reload the table so that row (= record) changes become visible
-                reloadDataTable(table);
+                let field = $('#action-assign-' + modalName + '-modal-input-field');
+                // ...but only if all required form data has been passed, though
+                if (!field.prop('required') || (field.prop('required') && field.val())){
+                  // go through all selected rows (= records)...
+                  actionCheckboxes.each(function () {
+                    // change row (= record)
+                    let url = '{{ url_model_assign_placeholder }}'.replace(/worschdsupp/, $(this).val().toString());
+                    jQuery.get(url + '?field=' + field.attr('name') + '&value=' + field.val());
+                  });
+                  // wait briefly and reload the table so that row (= record) changes become visible
+                  reloadDataTable(table);
+                }
               });
             // if selected action is deleting all selected rows (= records)...
             } else if ($('#action-select').val() === 'delete-selected') {

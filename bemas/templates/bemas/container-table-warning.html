@@ -1,5 +1,5 @@
 {% load bemas_tags %}
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
   <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i> Tabelle wird Server-seitig erzeugt, weshalb nur die <strong><em>aktuell sichtbare</em></strong> Tabelle exportiert wird – Anzahl der aktuell sichtbaren {% if objectclass_verbose_name_plural %}{{ objectclass_verbose_name_plural }}{% else %}Codelisteneinträge{% endif %} <strong><em>unten links</em></strong> steuerbar
-  <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>

@@ -106,10 +106,10 @@ def assign_object_value(request, pk):
   if request.user.has_perm('datenmanagement.change_' + model_name.lower()):
     if request.GET.get('field'):
       field, value = request.GET.get('field'), request.GET.get('value')
-      source_model = model._meta.get_field(field).remote_field.model
       if value:
-        value_object = source_model.objects.get(pk=value)
-        setattr(obj, field, value_object)
+        if model._meta.get_field(field).remote_field:
+          value = model._meta.get_field(field).remote_field.model.objects.get(pk=value)
+        setattr(obj, field, value)
       else:
         setattr(obj, field, None)
       obj.save()
