@@ -183,18 +183,14 @@ function keepDjangoRequiredMessages() {
  * adopts the current address reference of the geometry in the map
  */
 function setAddressReference(addressType, layer) {
-  console.log(addressType);
   let geoJson = layer.toGeoJSON();
-  console.log(geoJson);
   let geometryType = 'Polygon';
   if (window.geometryType.toLowerCase().indexOf('point') !== -1)
     geometryType = 'Point';
   else if (window.geometryTypetoLowerCase().indexOf('line') !== -1)
     geometryType = 'LineString';
-  console.log(geometryType);
   let ort = getFeatureCenter(geoJson, geometryType);
-  console.log(ort);
-  /*fetch(window.reverseSearchUrl + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
+  fetch(window.reverseSearchUrl + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
     method: 'GET'
   })
   .then(response => response.json())
@@ -202,7 +198,7 @@ function setAddressReference(addressType, layer) {
     if (ort[0] !== 0 && ort[1] !== 0)
       adoptReverseSearchResult(data, addressType);
   })
-  .catch(error => console.log(error))*/
+  .catch(error => console.log(error))
 }
 
 /**
