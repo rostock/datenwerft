@@ -252,6 +252,20 @@ class Abfallbehaelter(SimpleModel):
       'eigentuemer': 'bezeichnung',
       'bewirtschafter': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'abfallbehaelter-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'abfallbehaelter-bewirtschafter',
+        'action_title': 'ausgewählten Datensätzen Bewirtschafter direkt zuweisen',
+        'field': 'bewirtschafter',
+        'type': 'foreignkey'
+      }
+    ]
     heavy_load_limit = 500
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
@@ -386,6 +400,23 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
+    list_actions_assign = [
+      {
+        'action_name':
+          'aufteilungsplaene_wohnungseigentumsgesetz-datum_abgeschlossenheitserklaerung',
+        'action_title': 'ausgewählten Datensätzen Datum der Abgeschlossenheitserklärung'
+                        'direkt zuweisen',
+        'field': 'datum_abgeschlossenheitserklaerung',
+        'type': 'date'
+      },
+      {
+        'action_name': 'aufteilungsplaene_wohnungseigentumsgesetz-datum',
+        'action_title': 'ausgewählten Datensätzen Datum direkt zuweisen',
+        'field': 'datum',
+        'type': 'date',
+        'value_required': True
+      }
+    ]
     map_feature_tooltip_field = 'datum'
     map_filter_fields = {
       'aktenzeichen': 'Aktenzeichen',
@@ -523,6 +554,14 @@ class Baudenkmale(SimpleModel):
       'status': 'status',
       'adresse': 'adresse'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'baudenkmale-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -656,6 +695,14 @@ class Behinderteneinrichtungen(SimpleModel):
       'adresse': 'adresse',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'behinderteneinrichtungen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -982,6 +1029,14 @@ class Carsharing_Stationen(SimpleModel):
       'adresse': 'adresse',
       'anbieter': 'anbieter'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'behinderteneinrichtungen-anbieter',
+        'action_title': 'ausgewählten Datensätzen Anbieter direkt zuweisen',
+        'field': 'anbieter',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -1375,6 +1430,14 @@ class Denkmalbereiche(SimpleModel):
     list_fields_with_foreign_key = {
       'status': 'status'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'denkmalbereiche-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'id'
     map_filter_fields = {
       'aktiv': 'aktiv?',
@@ -1683,6 +1746,11 @@ class Fahrradabstellanlagen(SimpleModel):
   ueberdacht = BooleanField(
     ' überdacht?'
   )
+  ebike_lademoeglichkeiten = BooleanField(
+    'E-Bike-Lademöglichkeiten?',
+    blank=True,
+    null=True
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -1699,7 +1767,8 @@ class Fahrradabstellanlagen(SimpleModel):
       'art': 'Art',
       'stellplaetze': 'Stellplätze',
       'gebuehren': 'Gebühren?',
-      'ueberdacht': 'überdacht?'
+      'ueberdacht': 'überdacht?',
+      'ebike_lademoeglichkeiten': 'E-Bike-Lademöglichkeiten?'
     }
     list_fields_with_number = ['stellplaetze']
     list_fields_with_foreign_key = {
@@ -1711,7 +1780,8 @@ class Fahrradabstellanlagen(SimpleModel):
       'art': 'Art',
       'stellplaetze': 'Stellplätze',
       'gebuehren': 'Gebühren?',
-      'ueberdacht': 'überdacht?'
+      'ueberdacht': 'überdacht?',
+      'ebike_lademoeglichkeiten': 'E-Bike-Lademöglichkeiten?'
     }
     map_filter_fields_as_list = ['art']
 
@@ -1904,6 +1974,14 @@ class Feldsportanlagen(SimpleModel):
       'art': 'art',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'feldsportanlagen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'art': 'Art',
@@ -2181,6 +2259,14 @@ class Geraetespielanlagen(SimpleModel):
     list_fields_with_foreign_key = {
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'geraetespielanlagen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -2270,6 +2356,22 @@ class Gutachterfotos(SimpleModel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'gutachterfotos-datum',
+        'action_title': 'ausgewählten Datensätzen Datum direkt zuweisen',
+        'field': 'datum',
+        'type': 'date',
+        'value_required': True
+      },
+      {
+        'action_name': 'gutachterfotos-aufnahmedatum',
+        'action_title': 'ausgewählten Datensätzen Aufnahmedatum direkt zuweisen',
+        'field': 'aufnahmedatum',
+        'type': 'date',
+        'value_required': True
+      }
+    ]
     heavy_load_limit = 800
     map_feature_tooltip_field = 'datum'
     map_filter_fields = {
@@ -2456,6 +2558,15 @@ class Hausnummern(SimpleModel):
       'gebaeude_bauweise': 'bezeichnung',
       'gebaeude_funktion': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'hausnummern-vergabe_datum',
+        'action_title': 'ausgewählten Datensätzen Datum der Vergabe direkt zuweisen',
+        'field': 'vergabe_datum',
+        'type': 'date',
+        'value_required': True
+      }
+    ]
     heavy_load_limit = 800
     map_feature_tooltip_fields = [
       'strasse',
@@ -2584,6 +2695,14 @@ class Hospize(SimpleModel):
       'adresse': 'adresse',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'hospize-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -2797,6 +2916,26 @@ class Hydranten(SimpleModel):
       'bewirtschafter': 'bezeichnung',
       'betriebszeit': 'betriebszeit'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'hydranten-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'hydranten-bewirtschafter',
+        'action_title': 'ausgewählten Datensätzen Bewirtschafter direkt zuweisen',
+        'field': 'bewirtschafter',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'hydranten-betriebszeit',
+        'action_title': 'ausgewählten Datensätzen Betriebszeit direkt zuweisen',
+        'field': 'betriebszeit',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'aktiv': 'aktiv?',

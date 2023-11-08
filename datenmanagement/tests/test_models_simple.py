@@ -43,32 +43,46 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    bewirtschafter_eigentuemer = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    cls.bewirtschafter_eigentuemer1 = bewirtschafter_eigentuemer1
+    bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
     cls.attributes_values_db_initial = {
-      'eigentuemer': bewirtschafter_eigentuemer,
-      'bewirtschafter': bewirtschafter_eigentuemer,
+      'eigentuemer': bewirtschafter_eigentuemer1,
+      'bewirtschafter': bewirtschafter_eigentuemer1,
       'pflegeobjekt': 'Pflegeobjekt1',
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
+      'eigentuemer': bewirtschafter_eigentuemer2,
+      'bewirtschafter': bewirtschafter_eigentuemer2,
       'pflegeobjekt': 'Pflegeobjekt2'
+    }
+    cls.attributes_values_db_assigned_eigentuemer = {
+      'eigentuemer': bewirtschafter_eigentuemer1
+    }
+    cls.attributes_values_db_assigned_bewirtschafter = {
+      'bewirtschafter': bewirtschafter_eigentuemer2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'id': '00000000',
-      'eigentuemer': str(bewirtschafter_eigentuemer.pk),
-      'bewirtschafter': str(bewirtschafter_eigentuemer.pk),
+      'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
+      'bewirtschafter': str(bewirtschafter_eigentuemer1.pk),
       'pflegeobjekt': 'Pflegeobjekt3',
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'id': '00000000',
-      'eigentuemer': str(bewirtschafter_eigentuemer.pk),
-      'bewirtschafter': str(bewirtschafter_eigentuemer.pk),
+      'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
+      'bewirtschafter': str(bewirtschafter_eigentuemer1.pk),
       'pflegeobjekt': 'Pflegeobjekt4',
       'geometrie': VALID_POINT_VIEW
     }
@@ -232,6 +246,30 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_eigentuemer(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_eigentuemer,
+      'eigentuemer',
+      str(self.bewirtschafter_eigentuemer1.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_bewirtschafter(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_bewirtschafter,
+      'bewirtschafter',
+      str(self.bewirtschafter_eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -709,6 +747,19 @@ class AufteilungsplaeneWohnungseigentumsgesetzTest(DefaultSimpleModelTestCase):
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_initial,
+      'datum_abgeschlossenheitserklaerung',
+      '',
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -765,22 +816,30 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    status_baudenkmal = Status_Baudenkmale_Denkmalbereiche.objects.create(
-      status='Status'
+    status1 = Status_Baudenkmale_Denkmalbereiche.objects.create(
+      status='Status1'
     )
+    status2 = Status_Baudenkmale_Denkmalbereiche.objects.create(
+      status='Status2'
+    )
+    cls.status2 = status2
     cls.attributes_values_db_initial = {
-      'status': status_baudenkmal,
+      'status': status1,
       'beschreibung': 'Beschreibung1',
       'gartendenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_DB
     }
     cls.attributes_values_db_updated = {
+      'status': status2,
       'beschreibung': 'Beschreibung2'
+    }
+    cls.attributes_values_db_assigned = {
+      'status': status2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'id': 2,
-      'status': str(status_baudenkmal.pk),
+      'status': str(status1.pk),
       'beschreibung': 'Beschreibung3',
       'gartendenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
@@ -788,7 +847,7 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'id': 3,
-      'status': str(status_baudenkmal.pk),
+      'status': str(status2.pk),
       'beschreibung': 'Beschreibung4',
       'gartendenkmal': False,
       'geometrie': VALID_MULTIPOLYGON_VIEW
@@ -955,6 +1014,18 @@ class BaudenkmaleTest(DefaultSimpleModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'status',
+      str(self.status2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -1010,31 +1081,40 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
+      'traeger': traeger2,
       'bezeichnung': 'Bezeichnung2'
+    }
+    cls.attributes_values_db_assigned = {
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -1197,6 +1277,18 @@ class BehinderteneinrichtungenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -1743,27 +1835,35 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    anbieter = Anbieter_Carsharing.objects.create(
-      anbieter='Anbieter'
+    anbieter1 = Anbieter_Carsharing.objects.create(
+      anbieter='Anbieter1'
     )
+    anbieter2 = Anbieter_Carsharing.objects.create(
+      anbieter='Anbieter2'
+    )
+    cls.anbieter2 = anbieter2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'Bezeichnung1',
-      'anbieter': anbieter,
+      'anbieter': anbieter1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'anbieter': anbieter2
+    }
+    cls.attributes_values_db_assigned = {
+      'anbieter': anbieter2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung3',
-      'anbieter': str(anbieter.pk),
+      'anbieter': str(anbieter1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung4',
-      'anbieter': str(anbieter.pk),
+      'anbieter': str(anbieter2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -1926,6 +2026,18 @@ class CarsharingStationenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'anbieter',
+      str(self.anbieter2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -2208,23 +2320,31 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    status_denkmalbereich = Status_Baudenkmale_Denkmalbereiche.objects.create(
-      status='Status'
+    status1 = Status_Baudenkmale_Denkmalbereiche.objects.create(
+      status='Status1'
     )
+    status2 = Status_Baudenkmale_Denkmalbereiche.objects.create(
+      status='Status2'
+    )
+    cls.status2 = status2
     cls.attributes_values_db_initial = {
-      'status': status_denkmalbereich,
+      'status': status1,
       'bezeichnung': 'Bezeichnung1',
       'beschreibung': 'Beschreibung1',
       'geometrie': VALID_MULTIPOLYGON_DB
     }
     cls.attributes_values_db_updated = {
+      'status': status2,
       'bezeichnung': 'Bezeichnung2',
       'beschreibung': 'Beschreibung2'
+    }
+    cls.attributes_values_db_assigned = {
+      'status': status2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'id': 2,
-      'status': str(status_denkmalbereich.pk),
+      'status': str(status1.pk),
       'bezeichnung': 'Bezeichnung3',
       'beschreibung': 'Beschreibung3',
       'geometrie': VALID_MULTIPOLYGON_VIEW
@@ -2232,7 +2352,7 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'id': 3,
-      'status': str(status_denkmalbereich.pk),
+      'status': str(status2.pk),
       'bezeichnung': 'Bezeichnung4',
       'beschreibung': 'Beschreibung4',
       'geometrie': VALID_MULTIPOLYGON_VIEW
@@ -2397,6 +2517,18 @@ class DenkmalbereicheTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'status',
+      str(self.status2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -3435,31 +3567,40 @@ class FeldsportanlagenTest(DefaultSimpleModelTestCase):
     art = Arten_Feldsportanlagen.objects.create(
       art='Art'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'art': art,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned = {
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -3622,6 +3763,18 @@ class FeldsportanlagenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -4158,28 +4311,37 @@ class GeraetespielanlagenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned = {
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -4342,6 +4504,18 @@ class GeraetespielanlagenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -4600,6 +4774,32 @@ class GutachterfotosTest(DefaultSimpleModelTestCase):
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
+  def test_view_assign_datum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_initial,
+      'datum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+  def test_view_assign_aufnahmedatum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_initial,
+      'aufnahmedatum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -4850,6 +5050,18 @@ class HausnummernTest(DefaultSimpleModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_initial,
+      'vergabe_datum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -4905,31 +5117,40 @@ class HospizeTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned = {
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -5092,6 +5313,18 @@ class HospizeTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -5392,40 +5625,62 @@ class HydrantenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    bewirtschafter_eigentuemer = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    bewirtschafter_eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
-    betriebszeit = Betriebszeiten.objects.create(
-      betriebszeit='Betriebszeit'
+    cls.bewirtschafter_eigentuemer1 = bewirtschafter_eigentuemer1
+    bewirtschafter_eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
     )
+    cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
+    betriebszeit1 = Betriebszeiten.objects.create(
+      betriebszeit='Betriebszeit1'
+    )
+    betriebszeit2 = Betriebszeiten.objects.create(
+      betriebszeit='Betriebszeit2'
+    )
+    cls.betriebszeit2 = betriebszeit2
     cls.attributes_values_db_initial = {
       'bezeichnung': 'HSA 1',
-      'eigentuemer': bewirtschafter_eigentuemer,
-      'bewirtschafter': bewirtschafter_eigentuemer,
+      'eigentuemer': bewirtschafter_eigentuemer1,
+      'bewirtschafter': bewirtschafter_eigentuemer1,
       'feuerloeschgeeignet': True,
-      'betriebszeit': betriebszeit,
+      'betriebszeit': betriebszeit1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'HSA 2'
+      'bezeichnung': 'HSA 2',
+      'eigentuemer': bewirtschafter_eigentuemer2,
+      'bewirtschafter': bewirtschafter_eigentuemer2,
+      'betriebszeit': betriebszeit2
+    }
+    cls.attributes_values_db_assigned_eigentuemer = {
+      'eigentuemer': bewirtschafter_eigentuemer2
+    }
+    cls.attributes_values_db_assigned_bewirtschafter = {
+      'bewirtschafter': bewirtschafter_eigentuemer2
+    }
+    cls.attributes_values_db_assigned_betriebszeit = {
+      'betriebszeit': betriebszeit2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'bezeichnung': 'HSA 3',
-      'eigentuemer': str(bewirtschafter_eigentuemer.pk),
-      'bewirtschafter': str(bewirtschafter_eigentuemer.pk),
+      'eigentuemer': str(bewirtschafter_eigentuemer1.pk),
+      'bewirtschafter': str(bewirtschafter_eigentuemer1.pk),
       'feuerloeschgeeignet': True,
-      'betriebszeit': str(betriebszeit.pk),
+      'betriebszeit': str(betriebszeit1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'bezeichnung': 'HSA 4',
-      'eigentuemer': str(bewirtschafter_eigentuemer.pk),
-      'bewirtschafter': str(bewirtschafter_eigentuemer.pk),
+      'eigentuemer': str(bewirtschafter_eigentuemer2.pk),
+      'bewirtschafter': str(bewirtschafter_eigentuemer2.pk),
       'feuerloeschgeeignet': True,
-      'betriebszeit': str(betriebszeit.pk),
+      'betriebszeit': str(betriebszeit2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -5588,6 +5843,42 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_eigentuemer(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_eigentuemer,
+      'eigentuemer',
+      str(self.bewirtschafter_eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_bewirtschafter(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_bewirtschafter,
+      'bewirtschafter',
+      str(self.bewirtschafter_eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_betriebszeit(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_betriebszeit,
+      'betriebszeit',
+      str(self.betriebszeit2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):

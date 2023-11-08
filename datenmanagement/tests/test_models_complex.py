@@ -1927,6 +1927,18 @@ class DurchlaesseDurchlaesseTest(DefaultComplexModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_initial,
+      'kontrolle',
+      '',
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -1998,6 +2010,9 @@ class DurchlaesseFotosTest(DefaultComplexModelTestCase):
     )
     cls.attributes_values_db_updated = {
       'bemerkungen': 'Bemerkung2'
+    }
+    cls.attributes_values_db_assigned_aufnahmedatum = {
+      'aufnahmedatum': VALID_DATE
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -2165,6 +2180,19 @@ class DurchlaesseFotosTest(DefaultComplexModelTestCase):
       self.attributes_values_db_initial_cleaned,
       302,
       'text/html; charset=utf-8'
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      self.attributes_values_db_assigned_aufnahmedatum,
+      'aufnahmedatum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -3386,6 +3414,7 @@ class HaltestellenkatasterFotosTest(DefaultComplexModelTestCase):
     motiv2 = Fotomotive_Haltestellenkataster.objects.create(
       fotomotiv='Fotomotiv 2'
     )
+    cls.motiv2 = motiv2
     motiv3 = Fotomotive_Haltestellenkataster.objects.create(
       fotomotiv='Fotomotiv 3'
     )
@@ -3404,6 +3433,9 @@ class HaltestellenkatasterFotosTest(DefaultComplexModelTestCase):
     )
     cls.attributes_values_db_updated = {
       'motiv': motiv2
+    }
+    cls.attributes_values_db_assigned_aufnahmedatum = {
+      'aufnahmedatum': VALID_DATE
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -3572,6 +3604,32 @@ class HaltestellenkatasterFotosTest(DefaultComplexModelTestCase):
       self.attributes_values_db_initial_cleaned,
       302,
       'text/html; charset=utf-8'
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+  def test_view_assign_status(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      self.attributes_values_db_updated,
+      'motiv',
+      str(self.motiv2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+  def test_view_assign_aufnahmedatum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      self.attributes_values_db_assigned_aufnahmedatum,
+      'aufnahmedatum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -5177,30 +5235,40 @@ class StrassenSimpleTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    kategorie = Kategorien_Strassen.objects.create(
+    kategorie1 = Kategorien_Strassen.objects.create(
       code=1,
-      bezeichnung='Bezeichnung',
-      erlaeuterung='Erläuterung'
+      bezeichnung='Bezeichnung1',
+      erlaeuterung='Erläuterung1'
     )
+    kategorie2 = Kategorien_Strassen.objects.create(
+      code=2,
+      bezeichnung='Bezeichnung2',
+      erlaeuterung='Erläuterung2'
+    )
+    cls.kategorie2 = kategorie2
     cls.attributes_values_db_initial = {
-      'kategorie': kategorie,
+      'kategorie': kategorie1,
       'bezeichnung': 'Bezeichnung1',
       'schluessel': '12345',
       'geometrie': VALID_MULTILINE_DB
     }
     cls.attributes_values_db_updated = {
+      'kategorie': kategorie2,
       'bezeichnung': 'Bezeichnung2'
+    }
+    cls.attributes_values_db_assigned = {
+      'kategorie': kategorie2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
-      'kategorie': str(kategorie.pk),
+      'kategorie': str(kategorie1.pk),
       'bezeichnung': 'Bezeichnung3',
       'schluessel': '54321',
       'geometrie': VALID_MULTILINE_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
-      'kategorie': str(kategorie.pk),
+      'kategorie': str(kategorie2.pk),
       'bezeichnung': 'Bezeichnung4',
       'schluessel': '35142',
       'geometrie': VALID_MULTILINE_VIEW
@@ -5365,6 +5433,18 @@ class StrassenSimpleTest(DefaultComplexModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'kategorie',
+      str(self.kategorie2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -6541,15 +6621,20 @@ class UVPVorpruefungenTest(DefaultComplexModelTestCase):
       typ=typ,
       geometrie=VALID_POLYGON_DB
     )
-    art = Arten_UVP_Vorpruefungen.objects.create(
-      art='Art'
+    art1 = Arten_UVP_Vorpruefungen.objects.create(
+      art='Art1'
     )
+    art2 = Arten_UVP_Vorpruefungen.objects.create(
+      art='Art2'
+    )
+    cls.art2 = art2
     ergebnis1 = Ergebnisse_UVP_Vorpruefungen.objects.create(
       ergebnis='Ergebnis1'
     )
     ergebnis2 = Ergebnisse_UVP_Vorpruefungen.objects.create(
       ergebnis='Ergebnis2'
     )
+    cls.ergebnis2 = ergebnis2
     ergebnis3 = Ergebnisse_UVP_Vorpruefungen.objects.create(
       ergebnis='Ergebnis3'
     )
@@ -6558,18 +6643,31 @@ class UVPVorpruefungenTest(DefaultComplexModelTestCase):
     )
     cls.attributes_values_db_initial = {
       'uvp_vorhaben': uvp_vorhaben,
-      'art': art,
+      'art': art1,
       'datum_posteingang': VALID_DATE,
       'datum': VALID_DATE,
       'ergebnis': ergebnis1
     }
     cls.attributes_values_db_updated = {
+      'art': art2,
+      'ergebnis': ergebnis2
+    }
+    cls.attributes_values_db_assigned_art = {
+      'art': art2
+    }
+    cls.attributes_values_db_assigned_datum_posteingang = {
+      'datum_posteingang': VALID_DATE
+    }
+    cls.attributes_values_db_assigned_datum = {
+      'datum': VALID_DATE
+    }
+    cls.attributes_values_db_assigned_ergebnis = {
       'ergebnis': ergebnis2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'uvp_vorhaben': str(uvp_vorhaben.pk),
-      'art': str(art.pk),
+      'art': str(art1.pk),
       'datum_posteingang': VALID_DATE,
       'datum': VALID_DATE,
       'ergebnis': str(ergebnis3.pk)
@@ -6577,7 +6675,7 @@ class UVPVorpruefungenTest(DefaultComplexModelTestCase):
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'uvp_vorhaben': str(uvp_vorhaben.pk),
-      'art': str(art.pk),
+      'art': str(art2.pk),
       'datum_posteingang': VALID_DATE,
       'datum': VALID_DATE,
       'ergebnis': str(ergebnis4.pk)
@@ -6701,6 +6799,54 @@ class UVPVorpruefungenTest(DefaultComplexModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_art(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_art,
+      'art',
+      str(self.art2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_datum_posteingang(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_datum_posteingang,
+      'datum_posteingang',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_datum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_datum,
+      'datum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_ergebnis(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_ergebnis,
+      'ergebnis',
+      str(self.ergebnis2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):

@@ -850,14 +850,24 @@ class Durchlaesse_Durchlaesse(ComplexModel):
       'baujahr': 'Baujahr',
       'nennweite': 'Nennweite (in mm)',
       'laenge': 'Länge (in m)',
+      'kontrolle': 'Kontrolle',
       'zustaendigkeit': 'Zuständigkeit',
       'bearbeiter': 'Bearbeiter:in'
     }
+    list_fields_with_date = ['kontrolle']
     list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
     list_fields_with_foreign_key = {
       'art': 'art',
       'material': 'material'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'durchlaesse_durchlaesse-kontrolle',
+        'action_title': 'ausgewählten Datensätzen Kontrolle direkt zuweisen',
+        'field': 'kontrolle',
+        'type': 'date'
+      }
+    ]
     map_feature_tooltip_field = 'aktenzeichen'
     map_filter_fields = {
       'art': 'Art',
@@ -866,6 +876,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
       'baujahr': 'Baujahr',
       'nennweite': 'Nennweite (in mm)',
       'laenge': 'Länge (in m)',
+      'kontrolle': 'Kontrolle',
       'zustaendigkeit': 'Zuständigkeit',
       'bearbeiter': 'Bearbeiter:in'
     }
@@ -941,6 +952,14 @@ class Durchlaesse_Fotos(ComplexModel):
     list_fields_with_foreign_key = {
       'durchlaesse_durchlass': 'aktenzeichen'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'durchlaesse_fotos-aufnahmedatum',
+        'action_title': 'ausgewählten Datensätzen Aufnahmedatum direkt zuweisen',
+        'field': 'aufnahmedatum',
+        'type': 'date'
+      }
+    ]
 
   def __str__(self):
     return str(self.durchlaesse_durchlass) + \
@@ -1981,6 +2000,21 @@ class Haltestellenkataster_Fotos(ComplexModel):
       'haltestellenkataster_haltestelle': 'id',
       'motiv': 'fotomotiv'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'haltestellenkataster_fotos-motiv',
+        'action_title': 'ausgewählten Datensätzen Motiv direkt zuweisen',
+        'field': 'motiv',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'haltestellenkataster_fotos-aufnahmedatum',
+        'action_title': 'ausgewählten Datensätzen Aufnahmedatum direkt zuweisen',
+        'field': 'aufnahmedatum',
+        'type': 'date',
+        'value_required': True
+      }
+    ]
 
   def __str__(self):
     return str(self.haltestellenkataster_haltestelle) + ' mit Motiv ' + str(self.motiv) + \
@@ -3105,6 +3139,14 @@ class Strassen_Simple(ComplexModel):
     list_fields_with_foreign_key = {
       'kategorie': 'code'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'strassen_simple-kategorie',
+        'action_title': 'ausgewählten Datensätzen Kategorie direkt zuweisen',
+        'field': 'kategorie',
+        'type': 'foreignkey'
+      }
+    ]
     heavy_load_limit = 600
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
@@ -3592,6 +3634,34 @@ class UVP_Vorpruefungen(ComplexModel):
       'art': 'art',
       'ergebnis': 'ergebnis'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'uvp_vorpruefungen-art',
+        'action_title': 'ausgewählten Datensätzen Art direkt zuweisen',
+        'field': 'art',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'uvp_vorpruefungen-datum_posteingang',
+        'action_title': 'ausgewählten Datensätzen Datum des Posteingangs direkt zuweisen',
+        'field': 'datum_posteingang',
+        'type': 'date',
+        'value_required': True
+      },
+      {
+        'action_name': 'uvp_vorpruefungen-datum',
+        'action_title': 'ausgewählten Datensätzen Datum direkt zuweisen',
+        'field': 'datum',
+        'type': 'date',
+        'value_required': True
+      },
+      {
+        'action_name': 'uvp_vorpruefungen-ergebnis',
+        'action_title': 'ausgewählten Datensätzen Ergebnis direkt zuweisen',
+        'field': 'ergebnis',
+        'type': 'foreignkey'
+      }
+    ]
 
   def __str__(self):
     return str(self.uvp_vorhaben) + ' mit Datum ' + \

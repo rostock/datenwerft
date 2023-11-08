@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -1835,6 +1835,7 @@ CREATE TABLE fachdaten.fahrradabstellanlagen_hro (
     stellplaetze smallint,
     gebuehren boolean NOT NULL,
     ueberdacht boolean NOT NULL,
+    ebike_lademoeglichkeiten boolean,
     geometrie public.geometry(Point,25833) NOT NULL
 );
 
