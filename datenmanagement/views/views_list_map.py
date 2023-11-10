@@ -334,20 +334,25 @@ class TableListView(TemplateView):
         actions_assign_values = []
         # for each assignment action...
         for action_assign in actions_assign:
-          # only if type of assignment action is foreign key
-          if action_assign['type'] == 'foreignkey':
+          # only if type of assignment action is foreign key or Boolean
+          if action_assign['type'] in {'boolean', 'foreignkey'}:
             # get source field
             source_field = self.model._meta.get_field(action_assign['field'])
-            # identify suitable source model
-            source_model = source_field.remote_field.model
-            # get all objects of suitable source model
-            # (i.e. primary keys and textual representations)
-            # and append them to prepared list
-            oo = source_model.objects.all()
-            actions_assign_values.append([{'pk': str(o.pk), 'text': str(o)} for o in oo])
+            if action_assign['type'] == 'boolean':
+              actions_assign_values.append([
+                {'value': 'True', 'text': 'ja'}, {'value': 'False', 'text': 'nein'}
+              ])
+            elif action_assign['type'] == 'foreignkey':
+              # identify suitable source model
+              source_model = source_field.remote_field.model
+              # get all objects of suitable source model
+              # (i.e. primary keys and textual representations)
+              # and append them to prepared list
+              oo = source_model.objects.all()
+              actions_assign_values.append([{'value': str(o.pk), 'text': str(o)} for o in oo])
             # add NULL/empty value if source field is NULLable
             if source_field.null:
-              actions_assign_values[-1].insert(0, {'pk': '', 'text': ''})
+              actions_assign_values[-1].insert(0, {'value': '', 'text': ''})
         # add list of objects of suitable source models of all assignment actions to context
         if actions_assign_values:
           context['actions_assign_values'] = actions_assign_values

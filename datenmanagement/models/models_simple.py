@@ -2930,6 +2930,12 @@ class Hydranten(SimpleModel):
         'type': 'foreignkey'
       },
       {
+        'action_name': 'hydranten-feuerloeschgeeignet',
+        'action_title': 'ausgewählten Datensätzen feuerlöschgeeignet (ja/nein) direkt zuweisen',
+        'field': 'feuerloeschgeeignet',
+        'type': 'boolean'
+      },
+      {
         'action_name': 'hydranten-betriebszeit',
         'action_title': 'ausgewählten Datensätzen Betriebszeit direkt zuweisen',
         'field': 'betriebszeit',
@@ -3724,6 +3730,32 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'verbund': 'verbund',
       'betriebsart': 'betriebsart'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'ladestationen_elektrofahrzeuge-geplant',
+        'action_title': 'ausgewählten Datensätzen geplant (ja/nein) direkt zuweisen',
+        'field': 'geplant',
+        'type': 'boolean'
+      },
+      {
+        'action_name': 'ladestationen_elektrofahrzeuge-betreiber',
+        'action_title': 'ausgewählten Datensätzen Betreiber direkt zuweisen',
+        'field': 'betreiber',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'ladestationen_elektrofahrzeuge-verbund',
+        'action_title': 'ausgewählten Datensätzen Verbund direkt zuweisen',
+        'field': 'verbund',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'ladestationen_elektrofahrzeuge-betriebsart',
+        'action_title': 'ausgewählten Datensätzen Betriebsart direkt zuweisen',
+        'field': 'betriebsart',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'geplant': 'geplant?',
@@ -3906,6 +3938,21 @@ class Meldedienst_punkthaft(SimpleModel):
       'art': 'art',
       'gebaeudeart': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'meldedienst_punkthaft-gebaeudeart',
+        'action_title': 'ausgewählten Datensätzen Gebäudeart direkt zuweisen',
+        'field': 'gebaeudeart',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'meldedienst_punkthaft-datum',
+        'action_title': 'ausgewählten Datensätzen Datum direkt zuweisen',
+        'field': 'datum',
+        'type': 'date',
+        'value_required': True
+      }
+    ]
     heavy_load_limit = 600
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
@@ -4385,6 +4432,14 @@ class Poller(SimpleModel):
       'hersteller': 'bezeichnung',
       'typ': 'typ'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'poller-status',
+        'action_title': 'ausgewählten Datensätzen Status direkt zuweisen',
+        'field': 'status',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'art': 'Art',
@@ -4576,6 +4631,14 @@ class Rettungswachen(SimpleModel):
       'adresse': 'adresse',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'rettungswachen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -4771,6 +4834,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Schutzzäune gegen Tierseuchen in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
+    readonly_fields = ['laenge']
     geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -4783,7 +4847,14 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
       'tierseuche': 'bezeichnung',
       'zustand': 'zustand'
     }
-    readonly_fields = ['laenge']
+    list_actions_assign = [
+      {
+        'action_name': 'schutzzaeune_tierseuchen-zustand',
+        'action_title': 'ausgewählten Datensätzen Zustand direkt zuweisen',
+        'field': 'zustand',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'zustand'
     map_filter_fields = {
       'tierseuche': 'Tierseuche',

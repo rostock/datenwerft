@@ -12,18 +12,19 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
   Bildungstraeger, Carsharing_Stationen, Containerstellplaetze, Denkmalbereiche, Denksteine, \
   Erdwaermesonden, Fahrradabstellanlagen, FairTrade, Feldsportanlagen, Feuerwachen, \
-  Fliessgewaesser, Geraetespielanlagen, Geschlechter_Kadaverfunde, Gutachterfotos, Haefen, \
-  Hausnummern, Hospize, Hundetoiletten, Hydranten, Kadaverfunde, Kehrbezirke, \
-  Kindertagespflegeeinrichtungen, Kinder_Jugendbetreuung, Kleinklaeranlagen, \
-  Kunst_im_oeffentlichen_Raum, Ladestationen_Elektrofahrzeuge, Materialien_Denksteine, \
-  Meldedienst_flaechenhaft, Meldedienst_punkthaft, Mobilpunkte, Parkmoeglichkeiten, \
-  Pflegeeinrichtungen, Poller, Quartiere, Reinigungsreviere, Rettungswachen, Schiffsliegeplaetze, \
-  Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, Schutzzaeune_Tierseuchen, Sportarten, \
-  Sporthallen, Stadtteil_Begegnungszentren, Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
+  Fliessgewaesser, Gebaeudearten_Meldedienst_punkthaft, Geraetespielanlagen, \
+  Geschlechter_Kadaverfunde, Gutachterfotos, Haefen, Hausnummern, Hospize, Hundetoiletten, \
+  Hydranten, Kadaverfunde, Kehrbezirke, Kindertagespflegeeinrichtungen, Kinder_Jugendbetreuung, \
+  Kleinklaeranlagen, Kunst_im_oeffentlichen_Raum, Ladestationen_Elektrofahrzeuge, \
+  Materialien_Denksteine, Meldedienst_flaechenhaft, Meldedienst_punkthaft, Mobilpunkte, \
+  Parkmoeglichkeiten, Pflegeeinrichtungen, Poller, Quartiere, Reinigungsreviere, Rettungswachen, \
+  Schiffsliegeplaetze, Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, \
+  Schutzzaeune_Tierseuchen, Sportarten, Sporthallen, Stadtteil_Begegnungszentren, \
+  Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
   Standortqualitaeten_Wohnlagen_Sanierungsgebiet, Status_Baudenkmale_Denkmalbereiche, \
   Status_Poller, Strassen, Thalasso_Kurwege, Tierseuchen, Toiletten, Trinkwassernotbrunnen, \
-  Typen_Kleinklaeranlagen, Vereine, Verkaufstellen_Angelberechtigungen, Zustaende_Kadaverfunde, \
-  Zustaende_Schutzzaeune_Tierseuchen
+  Typen_Kleinklaeranlagen, Verbuende_Ladestationen_Elektrofahrzeuge, Vereine, \
+  Verkaufstellen_Angelberechtigungen, Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen
 from datenmanagement.utils import get_current_year
 
 from .base import DefaultSimpleModelTestCase
@@ -5646,7 +5647,7 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       'bezeichnung': 'HSA 1',
       'eigentuemer': bewirtschafter_eigentuemer1,
       'bewirtschafter': bewirtschafter_eigentuemer1,
-      'feuerloeschgeeignet': True,
+      'feuerloeschgeeignet': False,
       'betriebszeit': betriebszeit1,
       'geometrie': VALID_POINT_DB
     }
@@ -5661,6 +5662,9 @@ class HydrantenTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_db_assigned_bewirtschafter = {
       'bewirtschafter': bewirtschafter_eigentuemer2
+    }
+    cls.attributes_values_db_assigned_feuerloeschgeeignet = {
+      'feuerloeschgeeignet': True
     }
     cls.attributes_values_db_assigned_betriebszeit = {
       'betriebszeit': betriebszeit2
@@ -5864,6 +5868,18 @@ class HydrantenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_assigned_bewirtschafter,
       'bewirtschafter',
       str(self.bewirtschafter_eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_feuerloeschgeeignet(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_feuerloeschgeeignet,
+      'feuerloeschgeeignet',
+      str(True),
       204,
       'text/html; charset=utf-8',
       1
@@ -7376,33 +7392,74 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    betriebsart = Betriebsarten.objects.create(
-      betriebsart='Betriebsart'
+    betreiber1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    betreiber2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.betreiber2 = betreiber2
+    verbund1 = Verbuende_Ladestationen_Elektrofahrzeuge.objects.create(
+      verbund='Verbund1'
+    )
+    verbund2 = Verbuende_Ladestationen_Elektrofahrzeuge.objects.create(
+      verbund='Verbund2'
+    )
+    cls.verbund2 = verbund2
+    betriebsart1 = Betriebsarten.objects.create(
+      betriebsart='Betriebsart1'
+    )
+    betriebsart2 = Betriebsarten.objects.create(
+      betriebsart='Betriebsart2'
+    )
+    cls.betriebsart2 = betriebsart2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'geplant': False,
       'bezeichnung': 'Bezeichnung1',
-      'betriebsart': betriebsart,
+      'betreiber': betreiber1,
+      'verbund': verbund1,
+      'betriebsart': betriebsart1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'betreiber': betreiber2,
+      'verbund': verbund2,
+      'betriebsart': betriebsart2
+    }
+    cls.attributes_values_db_assigned_geplant = {
+      'geplant': True
+    }
+    cls.attributes_values_db_assigned_betreiber = {
+      'betreiber': betreiber2
+    }
+    cls.attributes_values_db_assigned_verbund = {
+      'verbund': verbund2
+    }
+    cls.attributes_values_db_assigned_betriebsart = {
+      'betriebsart': betriebsart2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'geplant': False,
       'bezeichnung': 'Bezeichnung3',
-      'betriebsart': str(betriebsart.pk),
+      'betreiber': str(betreiber1.pk),
+      'verbund': str(verbund1.pk),
+      'betriebsart': str(betriebsart1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
-      'geplant': False,
+      'geplant': True,
       'bezeichnung': 'Bezeichnung4',
-      'betriebsart': str(betriebsart.pk),
+      'betreiber': str(betreiber2.pk),
+      'verbund': str(verbund2.pk),
+      'betriebsart': str(betriebsart2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -7565,6 +7622,54 @@ class LadestationenElektrofahrzeugeTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_geplant(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_geplant,
+      'geplant',
+      str(True),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_betreiber(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_betreiber,
+      'betreiber',
+      str(self.betreiber2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_verbund(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_verbund,
+      'verbund',
+      str(self.verbund2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_betriebsart(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_betriebsart,
+      'betriebsart',
+      str(self.betriebsart2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -7862,19 +7967,35 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
     art = Arten_Meldedienst_punkthaft.objects.create(
       art='Art'
     )
+    gebaeudeart1 = Gebaeudearten_Meldedienst_punkthaft.objects.create(
+      bezeichnung='Bezeichnung1'
+    )
+    gebaeudeart2 = Gebaeudearten_Meldedienst_punkthaft.objects.create(
+      bezeichnung='Bezeichnung2'
+    )
+    cls.gebaeudeart2 = gebaeudeart2
     cls.attributes_values_db_initial = {
       'art': art,
       'bearbeiter': 'Bearbeiter1',
+      'gebaeudeart': gebaeudeart1,
       'datum': VALID_DATE,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bearbeiter': 'Bearbeiter2'
+      'bearbeiter': 'Bearbeiter2',
+      'gebaeudeart': gebaeudeart2
+    }
+    cls.attributes_values_db_assigned_gebaeudeart = {
+      'gebaeudeart': gebaeudeart2
+    }
+    cls.attributes_values_db_assigned_datum = {
+      'datum': VALID_DATE
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter3',
+      'gebaeudeart': str(gebaeudeart1.pk),
       'datum': VALID_DATE,
       'geometrie': VALID_POINT_VIEW
     }
@@ -7882,6 +8003,7 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'art': str(art.pk),
       'bearbeiter': 'Bearbeiter4',
+      'gebaeudeart': str(gebaeudeart2.pk),
       'datum': VALID_DATE,
       'geometrie': VALID_POINT_VIEW
     }
@@ -8045,6 +8167,30 @@ class MeldedienstPunkthaftTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_gebaeudeart(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_gebaeudeart,
+      'gebaeudeart',
+      str(self.gebaeudeart2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_datum(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_datum,
+      'datum',
+      str(VALID_DATE),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -8825,24 +8971,32 @@ class PollerTest(DefaultSimpleModelTestCase):
     art = Arten_Poller.objects.create(
       art='Art'
     )
-    status = Status_Poller.objects.create(
-      status='Status'
+    status1 = Status_Poller.objects.create(
+      status='Status1'
     )
+    status2 = Status_Poller.objects.create(
+      status='Status2'
+    )
+    cls.status2 = status2
     cls.attributes_values_db_initial = {
       'art': art,
       'bezeichnung': 'Bezeichnung1',
-      'status': status,
+      'status': status1,
       'anzahl': 42,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'status': status2
+    }
+    cls.attributes_values_db_assigned = {
+      'status': status2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung3',
-      'status': str(status.pk),
+      'status': str(status1.pk),
       'anzahl': 23,
       'geometrie': VALID_POINT_VIEW
     }
@@ -8850,7 +9004,7 @@ class PollerTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'art': str(art.pk),
       'bezeichnung': 'Bezeichnung4',
-      'status': str(status.pk),
+      'status': str(status2.pk),
       'anzahl': 4711,
       'geometrie': VALID_POINT_VIEW
     }
@@ -9014,6 +9168,18 @@ class PollerTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'status',
+      str(self.status2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -9294,31 +9460,40 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned = {
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -9481,6 +9656,18 @@ class RettungswachenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -9788,6 +9975,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       ordinalzahl=2,
       zustand='Zustand2'
     )
+    cls.zustand2 = zustand2
     cls.attributes_values_db_initial = {
       'tierseuche': tierseuche,
       'zustand': zustand1,
@@ -9806,7 +9994,7 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'tierseuche': str(tierseuche.pk),
-      'zustand': str(zustand1.pk),
+      'zustand': str(zustand2.pk),
       'laenge': 0,
       'geometrie': VALID_MULTILINE_VIEW
     }
@@ -9970,6 +10158,18 @@ class SchutzzaeuneTierseuchenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_updated,
+      'zustand',
+      str(self.zustand2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):

@@ -87,7 +87,7 @@
       <div class="d-grid mt-2 mb-3">
         <div class="input-group">
           <label hidden for="action-select" class="form-label"></label>
-          <select class="form-select" id="action-select" name="action">
+          <select class="form-select" id="action-select" name="action" disabled>
             <option selected>Aktion wählen…</option>
             {% for action_assign in actions_assign %}
               <option value="assign-selected-{{ action_assign.action_name }}">{{ action_assign.action_title }}</option>
@@ -232,15 +232,13 @@
         let actionCheckboxes = $('.action-checkbox').filter(':checked');
         // enable or disable button for executing selected action
         if (actionCheckboxes.length > 0)
-          $('#action-button').prop('disabled', false);
+          enableActionsControls();
         else
-          $('#action-button').prop('disabled', true);
+          disableActionsControls();
         // adjust information texts accordingly
         if (actionCheckboxes.length === 1)
           $('#action-count').text('1 Datensatz ausgewählt');
-        else if (actionCheckboxes.length === 0)
-          $('#action-count').text('kein Datensatz ausgewählt');
-        else
+        else if (actionCheckboxes.length > 1)
           $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
       });
     </script>

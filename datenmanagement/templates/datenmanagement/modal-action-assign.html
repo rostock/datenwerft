@@ -6,11 +6,11 @@
       </div>
       <div id="action-assign-{{ modal_name }}-modal-body" class="modal-body">
         <form class="form needs-validation text-center" action="">
-          {% if type == 'foreignkey' %}
+          {% if type == 'boolean' or type == 'foreignkey' %}
             <label hidden for="action-assign-{{ modal_name }}-modal-input-field" class="form-label"></label>
             <select class="form-select" id="action-assign-{{ modal_name }}-modal-input-field" name="{{ field_name }}">
               {% for select_value in select_values %}
-                  <option value{% if select_value.pk %}="{{ select_value.pk }}"{% endif %}>{% if select_value.text %}{{ select_value.text }}{% else %}---------{% endif %}</option>
+                  <option value{% if select_value.value %}="{{ select_value.value }}"{% endif %}>{% if select_value.text %}{{ select_value.text }}{% else %}{% if type == 'boolean' %}unbekannt{% else %}---------{% endif %}{% endif %}</option>
               {% endfor %}
             </select>
           {% else %}

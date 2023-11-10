@@ -1,5 +1,19 @@
 /**
  * @function
+ * @name disableActionsControls
+ *
+ * disables action controls
+ *
+ */
+function disableActionsControls() {
+  $('#action-count').text('kein Datensatz ausgewählt');
+  $('#action-select').prop('selectedIndex', 0);
+  $('#action-select').prop('disabled', true);
+  $('#action-button').prop('disabled', true);
+}
+
+/**
+ * @function
  * @name downloadFile
  *
  * download a file
@@ -18,6 +32,18 @@ function downloadFile(file, fileName = 'file') {
   a.click();
   URL.revokeObjectURL(href);
   a.remove();
+}
+
+/**
+ * @function
+ * @name enableActionsControls
+ *
+ * enables action controls
+ *
+ */
+function enableActionsControls() {
+  $('#action-select').prop('disabled', false);
+  $('#action-button').prop('disabled', false);
 }
 
 /**
@@ -171,15 +197,13 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
  * @function
  * @name reloadDataTable
  *
- * reloads data table and resets action controls
+ * reloads data table and disables action controls
  *
  * @param {Object} dataTable - data table
  */
 function reloadDataTable(dataTable) {
   setTimeout(function() {
     dataTable.ajax.reload();
-    $('#action-count').text('kein Datensatz ausgewählt');
-    $('#action-select').prop('selectedIndex', 0);
-    $('#action-button').prop('disabled', true);
+    disableActionsControls();
   }, 1000);
 }
