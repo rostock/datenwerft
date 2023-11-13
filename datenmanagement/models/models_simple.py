@@ -4949,6 +4949,20 @@ class Sporthallen(SimpleModel):
       'traeger': 'bezeichnung',
       'sportart': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'sporthallen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'sporthallen-sportart',
+        'action_title': 'ausgewählten Datensätzen Sportart direkt zuweisen',
+        'field': 'sportart',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -5079,6 +5093,14 @@ class Stadtteil_Begegnungszentren(SimpleModel):
       'adresse': 'adresse',
       'traeger': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'stadtteil_begegnungszentren-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -5663,6 +5685,14 @@ class Thalasso_Kurwege(SimpleModel):
       'laenge': 'Länge (in m)'
     }
     list_fields_with_number = ['laenge']
+    list_actions_assign = [
+      {
+        'action_name': 'thalasso_kurwege-barrierefrei',
+        'action_title': 'ausgewählten Datensätzen barrierefrei (ja/nein) direkt zuweisen',
+        'field': 'barrierefrei',
+        'type': 'boolean'
+      }
+    ]
     map_feature_tooltip_field = 'bezeichnung'
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
@@ -5730,6 +5760,14 @@ class Toiletten(SimpleModel):
       'art': 'art',
       'bewirtschafter': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'toiletten-bewirtschafter',
+        'action_title': 'ausgewählten Datensätzen Bewirtschafter direkt zuweisen',
+        'field': 'bewirtschafter',
+        'type': 'foreignkey'
+      }
+    ]
     map_feature_tooltip_field = 'art'
     map_filter_fields = {
       'art': 'Art',
@@ -5840,6 +5878,26 @@ class Trinkwassernotbrunnen(SimpleModel):
       'eigentuemer': 'bezeichnung',
       'betreiber': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'trinkwassernotbrunnen-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'trinkwassernotbrunnen-betreiber',
+        'action_title': 'ausgewählten Datensätzen Betreiber direkt zuweisen',
+        'field': 'betreiber',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'trinkwassernotbrunnen-betriebsbereit',
+        'action_title': 'ausgewählten Datensätzen betriebsbereit (ja/nein) direkt zuweisen',
+        'field': 'betriebsbereit',
+        'type': 'boolean'
+      }
+    ]
     map_feature_tooltip_field = 'nummer'
     map_filter_fields = {
       'nummer': 'Nummer',

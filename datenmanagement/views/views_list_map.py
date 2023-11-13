@@ -69,7 +69,9 @@ class TableDataCompositionView(BaseDatatableView):
           self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower)
       ):
         item_data.append(
-          '<input class="action-checkbox" type="checkbox" value="' + str(item_pk) + '">')
+          '<input id="' + str(item_pk) + '" class="action-checkbox" ' +
+          'type="checkbox" value="' + str(item_pk) + '">'
+        )
       for column in self.columns:
         # handle all columns except address strings!
         if not self.column_with_address_string or column != self.column_with_address_string:

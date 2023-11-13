@@ -98,6 +98,7 @@
           <button id="action-button" class="btn btn-danger" type="button" disabled>Aktion ausführen</button>
         </div>
       </div>
+      {% include "datenmanagement/modal-action-delete.html" %}
       {% for action_assign_values in actions_assign_values %}
         {% with action_assign=actions_assign|get_list_item_by_index:forloop.counter0 %}
           {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name type=action_assign.type field_name=action_assign.field value_required=action_assign.value_required select_values=action_assign_values %}
@@ -105,7 +106,9 @@
       {% empty %}
       {% endfor %}
       {% for action_assign in actions_assign %}
-        {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name type=action_assign.type field_name=action_assign.field value_required=action_assign.value_required %}
+        {% if action_assign.type != 'boolean' and action_assign.type != 'foreignkey' %}
+          {% include "datenmanagement/modal-action-assign.html" with modal_name=action_assign.action_name type=action_assign.type field_name=action_assign.field value_required=action_assign.value_required %}
+        {% endif %}
       {% empty %}
       {% endfor %}
     {% endif %}
@@ -137,33 +140,45 @@
           if (actionCheckboxes.length > 0) {
             // if selected action is assigning a specific value to a specific field of all selected rows (= records)...
             if ($('#action-select').val().startsWith('assign-selected-')) {
-              // get name of corresponding modal
+              // get name of corresponding modal and open it
               let modalName = $('#action-select').val().replace('assign-selected-', '');
               $('#action-assign-' + modalName + '-modal').modal('toggle');
               // execute the assignment action on clicking the "OK" button in the assignment action modal...
               $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
                 let field = $('#action-assign-' + modalName + '-modal-input-field');
                 // ...but only if all required form data has been passed, though
-                if (!field.prop('required') || (field.prop('required') && field.val())){
+                if (!field.prop('required') || (field.prop('required') && field.val())) {
                   // go through all selected rows (= records)...
                   actionCheckboxes.each(function () {
                     // change row (= record)
                     let url = '{{ url_model_assign_placeholder }}'.replace(/worschdsupp/, $(this).val().toString());
                     jQuery.get(url + '?field=' + field.attr('name') + '&value=' + field.val());
                   });
+                  // close corresponding modal
+                  $('#action-assign-' + modalName + '-modal').modal('toggle');
                   // wait briefly and reload the table so that row (= record) changes become visible
                   reloadDataTable(table);
+                // otherwise, show hint on required form data
+                } else {
+                  $('#action-assign-' + modalName + '-modal-required-alert').prop('hidden', false);
                 }
               });
             // if selected action is deleting all selected rows (= records)...
             } else if ($('#action-select').val() === 'delete-selected') {
-              // go through all selected rows (= records)...
-              actionCheckboxes.each(function() {
-                // delete row (= record)
-                jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, $(this).val().toString()));
+              // open corresponding modal
+              $('#action-delete-modal').modal('toggle');
+              // execute the deletion action on clicking the "OK" button in the deletion action modal...
+              $('#action-delete-modal-ok').on('click', function() {
+                // go through all selected rows (= records)...
+                actionCheckboxes.each(function() {
+                  // delete row (= record)
+                  jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, $(this).val().toString()));
+                });
+                // close corresponding modal
+                $('#action-delete-modal').modal('toggle');
+                // wait briefly and reload the table so that deleted rows (= records) disappear
+                reloadDataTable(table);
               });
-              // wait briefly and reload the table so that deleted rows (= records) disappear
-              reloadDataTable(table);
             }
           }
         });
@@ -236,10 +251,17 @@
         else
           disableActionsControls();
         // adjust information texts accordingly
-        if (actionCheckboxes.length === 1)
+        if (actionCheckboxes.length === 1) {
           $('#action-count').text('1 Datensatz ausgewählt');
-        else if (actionCheckboxes.length > 1)
+          $('#action-select option[value="delete-selected"]').text('ausgewählten Datensatz löschen');
+          $('#action-delete-modal-title').text('Ausgewählten Datensatz löschen?');
+          $('#action-delete-modal-body p').text('Sie haben 1 Datensatz ausgewählt. Soll dieser wirklich gelöscht werden?');
+        } else if (actionCheckboxes.length > 1) {
           $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
+          $('#action-select option[value="delete-selected"]').text('ausgewählte Datensätze löschen');
+          $('#action-delete-modal-title').text('Ausgewählte Datensätze löschen?');
+          $('#action-delete-modal-body p').text('Sie haben ' + actionCheckboxes.length + ' Datensätze ausgewählt. Sollen diese wirklich gelöscht werden?');
+        }
       });
     </script>
   {% endif %}

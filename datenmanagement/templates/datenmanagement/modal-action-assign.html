@@ -2,10 +2,11 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div id="action-assign-{{ modal_name }}-modal-header" class="modal-header">
-        <h5 id="confirmexport-modal-title" class="modal-title">Wert für Direktzuweisung auswählen</h5>
+        <h5 id="action-assign-{{ modal_name }}-modal-title" class="modal-title">Wert für Direktzuweisung auswählen</h5>
       </div>
       <div id="action-assign-{{ modal_name }}-modal-body" class="modal-body">
-        <form class="form needs-validation text-center" action="">
+        <div class="text-center">
+          <div hidden id="action-assign-{{ modal_name }}-modal-required-alert" class="alert alert-danger" role="alert">Es muss ein Wert eingeben bzw. ausgewählt werden!</div>
           {% if type == 'boolean' or type == 'foreignkey' %}
             <label hidden for="action-assign-{{ modal_name }}-modal-input-field" class="form-label"></label>
             <select class="form-select" id="action-assign-{{ modal_name }}-modal-input-field" name="{{ field_name }}">
@@ -16,11 +17,11 @@
           {% else %}
             <input type="{{ type }}" class="form-control" id="action-assign-{{ modal_name }}-modal-input-field" name="{{ field_name }}"{% if value_required %} required{% endif %}>
           {% endif %}
-          <button class="mt-3 btn btn-primary" type="submit" id="action-assign-{{ modal_name }}-modal-ok">Direktzuweisung durchführen</button>
-        </form>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-warning" id="action-assign-{{ modal_name }}-modal-cancel" data-bs-dismiss="modal">abbrechen</button>
+        <button class="btn btn-success" type="button" id="action-assign-{{ modal_name }}-modal-ok">Direktzuweisung durchführen</button>
+        <button class="btn btn-warning" type="button" id="action-assign-{{ modal_name }}-modal-cancel" data-bs-dismiss="modal">abbrechen</button>
       </div>
     </div>
   </div>

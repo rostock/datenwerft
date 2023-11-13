@@ -10227,37 +10227,54 @@ class SporthallenTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
-    sportart = Sportarten.objects.create(
-      bezeichnung='Bezeichnung'
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
     )
+    cls.traeger2 = traeger2
+    sportart1 = Sportarten.objects.create(
+      bezeichnung='Bezeichnung1'
+    )
+    sportart2 = Sportarten.objects.create(
+      bezeichnung='Bezeichnung2'
+    )
+    cls.sportart2 = sportart2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
-      'sportart': sportart,
+      'traeger': traeger1,
+      'sportart': sportart1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2,
+      'sportart': sportart2
+    }
+    cls.attributes_values_db_assigned_traeger = {
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned_sportart = {
+      'sportart': sportart2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
-      'sportart': str(sportart.pk),
+      'traeger': str(traeger1.pk),
+      'sportart': str(sportart1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
-      'sportart': str(sportart.pk),
+      'traeger': str(traeger2.pk),
+      'sportart': str(sportart2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -10420,6 +10437,30 @@ class SporthallenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_traeger(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_traeger,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_sportart(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_sportart,
+      'sportart',
+      str(self.sportart2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -10477,31 +10518,40 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
     adresse = Adressen.objects.create(
       adresse='Adresse'
     )
-    traeger = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    traeger1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    traeger2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.traeger2 = traeger2
     cls.attributes_values_db_initial = {
       'adresse': adresse,
       'bezeichnung': 'Bezeichnung1',
-      'traeger': traeger,
+      'traeger': traeger1,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'traeger': traeger2
+    }
+    cls.attributes_values_db_assigned = {
+      'traeger': traeger2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung3',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger1.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'adresse': str(adresse.pk),
       'bezeichnung': 'Bezeichnung4',
-      'traeger': str(traeger.pk),
+      'traeger': str(traeger2.pk),
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -10664,6 +10714,18 @@ class StadtteilBegegnungszentrenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'traeger',
+      str(self.traeger2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
@@ -11260,17 +11322,21 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
   model = Thalasso_Kurwege
   attributes_values_db_initial = {
     'bezeichnung': 'Bezeichnung1',
-    'barrierefrei': True,
+    'barrierefrei': False,
     'farbe': '#FF0011',
     'geometrie': VALID_LINE_DB
   }
   attributes_values_db_updated = {
-    'bezeichnung': 'Bezeichnung2'
+    'bezeichnung': 'Bezeichnung2',
+    'barrierefrei': True
+  }
+  attributes_values_db_assigned = {
+    'barrierefrei': True
   }
   attributes_values_view_initial = {
     'aktiv': True,
     'bezeichnung': 'Bezeichnung3',
-    'barrierefrei': True,
+    'barrierefrei': False,
     'farbe': '#FF0011',
     'laenge': 0,
     'geometrie': VALID_LINE_VIEW
@@ -11443,6 +11509,18 @@ class ThalassoKurwegeTest(DefaultSimpleModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'barrierefrei',
+      str(True),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -11498,19 +11576,34 @@ class ToilettenTest(DefaultSimpleModelTestCase):
     art = Arten_Toiletten.objects.create(
       art='Art'
     )
+    bewirtschafter1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
+    )
+    bewirtschafter2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.bewirtschafter2 = bewirtschafter2
     cls.attributes_values_db_initial = {
       'art': art,
+      'bewirtschafter': bewirtschafter1,
       'behindertengerecht': False,
       'duschmoeglichkeit': True,
       'wickelmoeglichkeit': False,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
+      'bewirtschafter': bewirtschafter2,
       'behindertengerecht': True
+    }
+    cls.attributes_values_db_assigned = {
+      'bewirtschafter': bewirtschafter2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'art': str(art.pk),
+      'bewirtschafter': str(bewirtschafter1.pk),
       'behindertengerecht': False,
       'duschmoeglichkeit': True,
       'wickelmoeglichkeit': False,
@@ -11519,6 +11612,7 @@ class ToilettenTest(DefaultSimpleModelTestCase):
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'art': str(art.pk),
+      'bewirtschafter': str(bewirtschafter2.pk),
       'behindertengerecht': False,
       'duschmoeglichkeit': True,
       'wickelmoeglichkeit': True,
@@ -11686,6 +11780,18 @@ class ToilettenTest(DefaultSimpleModelTestCase):
       'text/html; charset=utf-8'
     )
 
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'bewirtschafter',
+      str(self.bewirtschafter2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
       True,
@@ -11738,28 +11844,56 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    betreiber = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
-      bezeichnung='Bezeichnung',
-      art='Art'
+    eigentuemer1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung1',
+      art='Art1'
     )
+    eigentuemer2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung2',
+      art='Art2'
+    )
+    cls.eigentuemer2 = eigentuemer2
+    betreiber1 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung3',
+      art='Art3'
+    )
+    betreiber2 = Bewirtschafter_Betreiber_Traeger_Eigentuemer.objects.create(
+      bezeichnung='Bezeichnung4',
+      art='Art4'
+    )
+    cls.betreiber2 = betreiber2
     cls.attributes_values_db_initial = {
       'nummer': '13003000-001',
       'bezeichnung': 'Bezeichnung1',
-      'betreiber': betreiber,
-      'betriebsbereit': True,
+      'eigentuemer': eigentuemer1,
+      'betreiber': betreiber1,
+      'betriebsbereit': False,
       'bohrtiefe': 5.21,
       'ausbautiefe': 89.79,
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
-      'bezeichnung': 'Bezeichnung2'
+      'bezeichnung': 'Bezeichnung2',
+      'eigentuemer': eigentuemer2,
+      'betreiber': betreiber2,
+      'betriebsbereit': True
+    }
+    cls.attributes_values_db_assigned_eigentuemer = {
+      'eigentuemer': eigentuemer2
+    }
+    cls.attributes_values_db_assigned_betreiber = {
+      'betreiber': betreiber2
+    }
+    cls.attributes_values_db_assigned_betriebsbereit = {
+      'betriebsbereit': True
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'nummer': '13003000-003',
       'bezeichnung': 'Bezeichnung3',
-      'betreiber': str(betreiber.pk),
-      'betriebsbereit': True,
+      'eigentuemer': str(eigentuemer1.pk),
+      'betreiber': str(betreiber1.pk),
+      'betriebsbereit': False,
       'bohrtiefe': 5.21,
       'ausbautiefe': 89.79,
       'geometrie': VALID_POINT_VIEW
@@ -11768,7 +11902,8 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       'aktiv': True,
       'nummer': '13003000-004',
       'bezeichnung': 'Bezeichnung4',
-      'betreiber': str(betreiber.pk),
+      'eigentuemer': str(eigentuemer2.pk),
+      'betreiber': str(betreiber2.pk),
       'betriebsbereit': True,
       'bohrtiefe': 5.21,
       'ausbautiefe': 89.79,
@@ -11934,6 +12069,42 @@ class TrinkwassernotbrunnenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_eigentuemer(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_eigentuemer,
+      'eigentuemer',
+      str(self.eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_betreiber(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_betreiber,
+      'betreiber',
+      str(self.betreiber2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_betriebsbereit(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_betriebsbereit,
+      'betriebsbereit',
+      str(True),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):
