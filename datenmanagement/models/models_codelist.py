@@ -1577,6 +1577,34 @@ class Materialien_Durchlaesse(Material):
     description = 'Materialien von Durchlässen'
 
 
+class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):
+  """
+  Objektarten innerhalb einer Lichtwellenleiterinfrastruktur
+  """
+
+  objektart = CharField(
+    'Objektart',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"objektarten_lichtwellenleiterinfrastruktur'
+    ordering = ['objektart']
+    verbose_name = 'Objektart innerhalb einer Lichtwellenleiterinfrastruktur'
+    verbose_name_plural = 'Objektarten innerhalb einer Lichtwellenleiterinfrastruktur'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Objektarten innerhalb einer Lichtwellenleiterinfrastruktur'
+    list_fields = {
+      'objektart': 'Objektart'
+    }
+
+  def __str__(self):
+    return self.objektart
+
+
 class Ordnungen_Fliessgewaesser(Codelist):
   """
   Ordnungen von Fließgewässern

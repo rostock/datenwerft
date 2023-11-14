@@ -38,10 +38,10 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Ka
   Betriebsarten, Betriebszeiten, Bevollmaechtigte_Bezirksschornsteinfeger, \
   Bewirtschafter_Betreiber_Traeger_Eigentuemer, Gebaeudearten_Meldedienst_punkthaft, \
   Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
-  Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
-  Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
-  Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
-  Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
+  Materialien_Denksteine, Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, \
+  Personentitel, Quartiere, Sportarten, Status_Baudenkmale_Denkmalbereiche, Status_Poller, \
+  Tierseuchen, Typen_Abfallbehaelter, Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, \
+  Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
   Zustaende_Schutzzaeune_Tierseuchen
 from .storage import OverwriteStorage
 
@@ -3770,6 +3770,57 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
+
+
+class Lichtwellenleiterinfrastruktur(SimpleModel):
+  """
+  Lichtwellenleiterinfrastruktur
+  """
+
+  objektart = ForeignKey(
+    Objektarten_Lichtwellenleiterinfrastruktur,
+    verbose_name='Objektart',
+    on_delete=RESTRICT,
+    db_column='objektart',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_objektarten'
+  )
+  geometrie = line_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"lichtwellenleiterinfrastruktur_hro'
+    verbose_name = 'Lichtwellenleiterinfrastruktur'
+    verbose_name_plural = 'Lichtwellenleiterinfrastruktur'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Lichtwellenleiterinfrastruktur in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'LineString'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'uuid': 'UUID',
+      'objektart': 'Objektart'
+    }
+    list_fields_with_foreign_key = {
+      'objektart': 'objektart'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'lichtwellenleiterinfrastruktur-objektart',
+        'action_title': 'ausgewählten Datensätzen Objektart direkt zuweisen',
+        'field': 'objektart',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['objektart', 'uuid']
+    map_filter_fields = {
+      'uuid': 'UUID',
+      'objektart': 'Objektart'
+    }
+    map_filter_fields_as_list = ['objektart']
+
+  def __str__(self):
+    return str(self.objektart) + ' ' + str(self.pk)
 
 
 class Meldedienst_flaechenhaft(SimpleModel):

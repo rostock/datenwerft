@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -1015,6 +1015,18 @@ CREATE TABLE codelisten.materialien_durchlaesse (
 
 
 --
+-- Name: objektarten_lichtwellenleiterinfrastruktur; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.objektarten_lichtwellenleiterinfrastruktur (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    objektart character varying(255) NOT NULL
+);
+
+
+--
 -- Name: ordnungen_fliessgewaesser; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1835,8 +1847,8 @@ CREATE TABLE fachdaten.fahrradabstellanlagen_hro (
     stellplaetze smallint,
     gebuehren boolean NOT NULL,
     ueberdacht boolean NOT NULL,
-    ebike_lademoeglichkeiten boolean,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    ebike_lademoeglichkeiten boolean
 );
 
 
@@ -2152,6 +2164,23 @@ CREATE TABLE fachdaten.kunst_im_oeffentlichen_raum_hro (
     schoepfer character varying(255),
     entstehungsjahr smallint,
     geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: lichtwellenleiterinfrastruktur_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.lichtwellenleiterinfrastruktur_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    objektart uuid NOT NULL,
+    geometrie public.geometry(LineString,25833) NOT NULL
 );
 
 
@@ -4427,6 +4456,22 @@ ALTER TABLE ONLY codelisten.materialien_durchlaesse
 
 
 --
+-- Name: objektarten_lichtwellenleiterinfrastruktur objektarten_lichtwellenleiterinfrastruktur_objektart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.objektarten_lichtwellenleiterinfrastruktur
+    ADD CONSTRAINT objektarten_lichtwellenleiterinfrastruktur_objektart_unique UNIQUE (objektart);
+
+
+--
+-- Name: objektarten_lichtwellenleiterinfrastruktur objektarten_lichtwellenleiterinfrastruktur_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.objektarten_lichtwellenleiterinfrastruktur
+    ADD CONSTRAINT objektarten_lichtwellenleiterinfrastruktur_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: ordnungen_fliessgewaesser ordnungen_fliessgewaesser_ordnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5320,6 +5365,14 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 ALTER TABLE ONLY fachdaten.kunst_im_oeffentlichen_raum_hro
     ADD CONSTRAINT kunst_im_oeffentlichen_raum_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: lichtwellenleiterinfrastruktur_hro lichtwellenleiterinfrastruktur_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_hro
+    ADD CONSTRAINT lichtwellenleiterinfrastruktur_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6596,6 +6649,14 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 ALTER TABLE ONLY fachdaten.kadaverfunde_hro
     ADD CONSTRAINT kadaverfunde_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_kadaverfunde(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: lichtwellenleiterinfrastruktur_hro lichtwellenleiterinfrastruktur_hro_objektarten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_hro
+    ADD CONSTRAINT lichtwellenleiterinfrastruktur_hro_objektarten_fk FOREIGN KEY (objektart) REFERENCES codelisten.objektarten_lichtwellenleiterinfrastruktur(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

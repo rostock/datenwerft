@@ -15,8 +15,8 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Kategorien_Strassen, \
   Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, Mastkennzeichen_RSAG, Masttypen_RSAG, \
   Masttypen_Haltestellenkataster, Materialien_Denksteine, Materialien_Durchlaesse, \
-  Ordnungen_Fliessgewaesser, Personentitel, Quartiere, \
-  Raeumbreiten_Strassenreinigungssatzung_HRO, Rechtsgrundlagen_UVP_Vorhaben, \
+  Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, Personentitel, \
+  Quartiere, Raeumbreiten_Strassenreinigungssatzung_HRO, Rechtsgrundlagen_UVP_Vorhaben, \
   Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
   Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, Schliessungen_Poller, \
@@ -6620,6 +6620,133 @@ class MaterialienDurchlaesseTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'material': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class ObjektartenLichtwellenleiterinfrastrukturTest(DefaultCodelistTestCase):
+  """
+  Objektarten innerhalb einer Lichtwellenleiterinfrastruktur
+  """
+
+  model = Objektarten_Lichtwellenleiterinfrastruktur
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'objektart': 'Objektart1'
+  }
+  attributes_values_db_updated = {
+    'objektart': 'Objektart2'
+  }
+  attributes_values_view_initial = {
+    'objektart': 'Objektart3'
+  }
+  attributes_values_view_updated = {
+    'objektart': 'Objektart4'
+  }
+  attributes_values_view_invalid = {
+    'objektart': INVALID_STRING
   }
 
   def setUp(self):
