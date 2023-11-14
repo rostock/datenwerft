@@ -1347,6 +1347,34 @@ class Hersteller_Poller(Codelist):
     return self.bezeichnung
 
 
+class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
+  """
+  Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur
+  """
+
+  kabeltyp = CharField(
+    'Kabeltyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"kabeltypen_lichtwellenleiterinfrastruktur'
+    ordering = ['kabeltyp']
+    verbose_name = 'Kabeltyp innerhalb einer Lichtwellenleiterinfrastruktur'
+    verbose_name_plural = 'Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Kabeltypen innerhalb einer Lichtwellenleiterinfrastruktur'
+    list_fields = {
+      'kabeltyp': 'Kabeltyp'
+    }
+
+  def __str__(self):
+    return self.kabeltyp
+
+
 class Kategorien_Strassen(Codelist):
   """
   Kategorien von Straßen

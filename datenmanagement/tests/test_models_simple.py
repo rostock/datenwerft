@@ -14,14 +14,14 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Erdwaermesonden, Fahrradabstellanlagen, FairTrade, Feldsportanlagen, Feuerwachen, \
   Fliessgewaesser, Gebaeudearten_Meldedienst_punkthaft, Geraetespielanlagen, \
   Geschlechter_Kadaverfunde, Gutachterfotos, Haefen, Hausnummern, Hospize, Hundetoiletten, \
-  Hydranten, Kadaverfunde, Kehrbezirke, Kindertagespflegeeinrichtungen, Kinder_Jugendbetreuung, \
-  Kleinklaeranlagen, Kunst_im_oeffentlichen_Raum, Ladestationen_Elektrofahrzeuge, \
-  Lichtwellenleiterinfrastruktur, Materialien_Denksteine, Meldedienst_flaechenhaft, \
-  Meldedienst_punkthaft, Mobilpunkte, Objektarten_Lichtwellenleiterinfrastruktur, \
-  Parkmoeglichkeiten, Pflegeeinrichtungen, Poller, Quartiere, Reinigungsreviere, \
-  Rettungswachen, Schiffsliegeplaetze, Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, \
-  Schutzzaeune_Tierseuchen, Sportarten, Sporthallen, Stadtteil_Begegnungszentren, \
-  Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
+  Hydranten, Kabeltypen_Lichtwellenleiterinfrastruktur, Kadaverfunde, Kehrbezirke, \
+  Kindertagespflegeeinrichtungen, Kinder_Jugendbetreuung, Kleinklaeranlagen, \
+  Kunst_im_oeffentlichen_Raum, Ladestationen_Elektrofahrzeuge, Lichtwellenleiterinfrastruktur, \
+  Materialien_Denksteine, Meldedienst_flaechenhaft, Meldedienst_punkthaft, Mobilpunkte, \
+  Objektarten_Lichtwellenleiterinfrastruktur, Parkmoeglichkeiten, Pflegeeinrichtungen, Poller, \
+  Quartiere, Reinigungsreviere, Rettungswachen, Schiffsliegeplaetze, \
+  Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, Schutzzaeune_Tierseuchen, Sportarten, \
+  Sporthallen, Stadtteil_Begegnungszentren, Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
   Standortqualitaeten_Wohnlagen_Sanierungsgebiet, Status_Baudenkmale_Denkmalbereiche, \
   Status_Poller, Strassen, Thalasso_Kurwege, Tierseuchen, Toiletten, Trinkwassernotbrunnen, \
   Typen_Kleinklaeranlagen, Verbuende_Ladestationen_Elektrofahrzeuge, Vereine, \
@@ -7732,21 +7732,38 @@ class LichtwellenleiterinfrastrukturTest(DefaultSimpleModelTestCase):
       objektart='Objektart2'
     )
     cls.objektart2 = objektart2
+    kabeltyp1 = Kabeltypen_Lichtwellenleiterinfrastruktur.objects.create(
+      kabeltyp='Kabeltyp1'
+    )
+    kabeltyp2 = Kabeltypen_Lichtwellenleiterinfrastruktur.objects.create(
+      kabeltyp='Kabeltyp2'
+    )
+    cls.kabeltyp2 = kabeltyp2
     cls.attributes_values_db_initial = {
       'objektart': objektart1,
+      'kabeltyp': kabeltyp1,
       'geometrie': VALID_LINE_DB
     }
     cls.attributes_values_db_updated = {
+      'objektart': objektart2,
+      'kabeltyp': kabeltyp2
+    }
+    cls.attributes_values_db_assigned_objektart = {
       'objektart': objektart2
+    }
+    cls.attributes_values_db_assigned_kabeltyp = {
+      'kabeltyp': kabeltyp2
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'objektart': str(objektart1.pk),
+      'kabeltyp': str(kabeltyp1.pk),
       'geometrie': VALID_LINE_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'objektart': str(objektart2.pk),
+      'kabeltyp': str(kabeltyp2.pk),
       'geometrie': VALID_LINE_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -7910,13 +7927,25 @@ class LichtwellenleiterinfrastrukturTest(DefaultSimpleModelTestCase):
       'text/html; charset=utf-8'
     )
 
-  def test_view_assign(self):
+  def test_view_assign_objektart(self):
     self.generic_assign_view_test(
       self.model,
       self.attributes_values_db_initial,
-      self.attributes_values_db_updated,
+      self.attributes_values_db_assigned_objektart,
       'objektart',
       str(self.objektart2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_kabeltyp(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_kabeltyp,
+      'kabeltyp',
+      str(self.kabeltyp2.pk),
       204,
       'text/html; charset=utf-8',
       1

@@ -915,6 +915,18 @@ CREATE TABLE codelisten.hersteller_poller (
 
 
 --
+-- Name: kabeltypen_lichtwellenleiterinfrastruktur; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.kabeltypen_lichtwellenleiterinfrastruktur (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    kabeltyp character varying(255) NOT NULL
+);
+
+
+--
 -- Name: kategorien_strassen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -2180,7 +2192,8 @@ CREATE TABLE fachdaten.lichtwellenleiterinfrastruktur_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     objektart uuid NOT NULL,
-    geometrie public.geometry(LineString,25833) NOT NULL
+    geometrie public.geometry(LineString,25833) NOT NULL,
+    kabeltyp uuid
 );
 
 
@@ -4325,6 +4338,22 @@ ALTER TABLE ONLY codelisten.hersteller_poller
 
 ALTER TABLE ONLY codelisten.hersteller_poller
     ADD CONSTRAINT hersteller_poller_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: kabeltypen_lichtwellenleiterinfrastruktur kabeltypen_lichtwellenleiterinfrastruktur_kabeltyp_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kabeltypen_lichtwellenleiterinfrastruktur
+    ADD CONSTRAINT kabeltypen_lichtwellenleiterinfrastruktur_kabeltyp_unique UNIQUE (kabeltyp);
+
+
+--
+-- Name: kabeltypen_lichtwellenleiterinfrastruktur kabeltypen_lichtwellenleiterinfrastruktur_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.kabeltypen_lichtwellenleiterinfrastruktur
+    ADD CONSTRAINT kabeltypen_lichtwellenleiterinfrastruktur_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6649,6 +6678,14 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 ALTER TABLE ONLY fachdaten.kadaverfunde_hro
     ADD CONSTRAINT kadaverfunde_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_kadaverfunde(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: lichtwellenleiterinfrastruktur_hro lichtwellenleiterinfrastruktur_hro_kabeltypen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_hro
+    ADD CONSTRAINT lichtwellenleiterinfrastruktur_hro_kabeltypen_fk FOREIGN KEY (kabeltyp) REFERENCES codelisten.kabeltypen_lichtwellenleiterinfrastruktur(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

@@ -38,10 +38,11 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Ka
   Betriebsarten, Betriebszeiten, Bevollmaechtigte_Bezirksschornsteinfeger, \
   Bewirtschafter_Betreiber_Traeger_Eigentuemer, Gebaeudearten_Meldedienst_punkthaft, \
   Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
-  Materialien_Denksteine, Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, \
-  Personentitel, Quartiere, Sportarten, Status_Baudenkmale_Denkmalbereiche, Status_Poller, \
-  Tierseuchen, Typen_Abfallbehaelter, Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, \
-  Typen_Poller, Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
+  Kabeltypen_Lichtwellenleiterinfrastruktur, Materialien_Denksteine, \
+  Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, Personentitel, \
+  Quartiere, Sportarten, Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, \
+  Typen_Abfallbehaelter, Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
+  Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
   Zustaende_Schutzzaeune_Tierseuchen
 from .storage import OverwriteStorage
 
@@ -3785,6 +3786,16 @@ class Lichtwellenleiterinfrastruktur(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_objektarten'
   )
+  kabeltyp = ForeignKey(
+    Kabeltypen_Lichtwellenleiterinfrastruktur,
+    verbose_name='Kabeltyp',
+    on_delete=SET_NULL,
+    db_column='kabeltyp',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kabeltypen',
+    blank=True,
+    null=True
+  )
   geometrie = line_field
 
   class Meta(SimpleModel.Meta):
@@ -3799,10 +3810,12 @@ class Lichtwellenleiterinfrastruktur(SimpleModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'uuid': 'UUID',
-      'objektart': 'Objektart'
+      'objektart': 'Objektart',
+      'kabeltyp': 'Kabeltyp'
     }
     list_fields_with_foreign_key = {
-      'objektart': 'objektart'
+      'objektart': 'objektart',
+      'kabeltyp': 'kabeltyp'
     }
     list_actions_assign = [
       {
@@ -3810,14 +3823,21 @@ class Lichtwellenleiterinfrastruktur(SimpleModel):
         'action_title': 'ausgewählten Datensätzen Objektart direkt zuweisen',
         'field': 'objektart',
         'type': 'foreignkey'
+      },
+      {
+        'action_name': 'lichtwellenleiterinfrastruktur-kabeltyp',
+        'action_title': 'ausgewählten Datensätzen Kabeltyp direkt zuweisen',
+        'field': 'kabeltyp',
+        'type': 'foreignkey'
       }
     ]
     map_feature_tooltip_fields = ['objektart', 'uuid']
     map_filter_fields = {
       'uuid': 'UUID',
-      'objektart': 'Objektart'
+      'objektart': 'Objektart',
+      'kabeltyp': 'Kabeltyp'
     }
-    map_filter_fields_as_list = ['objektart']
+    map_filter_fields_as_list = ['objektart', 'kabeltyp']
 
   def __str__(self):
     return str(self.objektart) + ' ' + str(self.pk)
