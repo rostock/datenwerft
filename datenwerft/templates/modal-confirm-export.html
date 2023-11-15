@@ -7,7 +7,7 @@
       <div id="confirm-export-modal-body" class="modal-body">
         <div class="text-center">
           <p>Sie haben keine Datensätze ausgewählt. Es werden daher alle vorhandenen Datensätze dieses Datenthemas exportiert. Dies kann lange dauern und ungewollt große Dokumente erzeugen.</p>
-          <p><strong>{{ objcount }} Datensätze werden exportiert</strong></p>
+          <p><strong>{{ objcount }} {% if objcount == 1 %}Datensatz wird{% else %}Datensätze werden{% endif %} exportiert</strong></p>
         </div>
       </div>
       <div class="modal-footer">

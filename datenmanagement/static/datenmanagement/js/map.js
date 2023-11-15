@@ -56,11 +56,13 @@ async function fetchGeoJsonFeatureCollection(heavyLoad = false, limit = 0, offse
     if (heavyLoad) {
       window.count += data.features.length;
       $('#loading-modal-map-data-count').text(window.count);
-      if (window.count === window.border) {
-        toggleModal($('#loading-modal'));
-      }
-    } else
-      toggleModal($('#loading-modal'));
+      if (window.count === window.border)
+        $('#loading-modal-close').click();
+    } else {
+      setTimeout(function () {
+        $('#loading-modal-close').click();
+      }, 1000);
+    }
     return data;
   } catch (error) {
     console.error(error);

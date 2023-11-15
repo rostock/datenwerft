@@ -142,7 +142,7 @@
             if ($('#action-select').val().startsWith('assign-selected-')) {
               // get name of corresponding modal and open it
               let modalName = $('#action-select').val().replace('assign-selected-', '');
-              $('#action-assign-' + modalName + '-modal').modal('toggle');
+              $('#action-assign-' + modalName + '-modal');
               // execute the assignment action on clicking the "OK" button in the assignment action modal...
               $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
                 let field = $('#action-assign-' + modalName + '-modal-input-field');
@@ -155,7 +155,7 @@
                     jQuery.get(url + '?field=' + field.attr('name') + '&value=' + field.val());
                   });
                   // close corresponding modal
-                  $('#action-assign-' + modalName + '-modal').modal('toggle');
+                  toggleModal($('#action-assign-' + modalName + '-modal'));
                   // wait briefly and reload the table so that row (= record) changes become visible
                   reloadDataTable(table);
                 // otherwise, show hint on required form data
@@ -166,7 +166,7 @@
             // if selected action is deleting all selected rows (= records)...
             } else if ($('#action-select').val() === 'delete-selected') {
               // open corresponding modal
-              $('#action-delete-modal').modal('toggle');
+              toggleModal($('#action-delete-modal'));
               // execute the deletion action on clicking the "OK" button in the deletion action modal...
               $('#action-delete-modal-ok').on('click', function() {
                 // go through all selected rows (= records)...
@@ -175,7 +175,7 @@
                   jQuery.get('{{ url_model_deleteimmediately_placeholder }}'.replace(/worschdsupp/, $(this).val().toString()));
                 });
                 // close corresponding modal
-                $('#action-delete-modal').modal('toggle');
+                toggleModal($('#action-delete-modal'));
                 // wait briefly and reload the table so that deleted rows (= records) disappear
                 reloadDataTable(table);
               });
@@ -226,9 +226,8 @@
             });
             fetchPdf('{% url "toolbox:renderpdf" %}', '{{ csrf_token }}', '{{ request.get_host }}');
           }
-          else {
-            $('#confirm-export-modal').modal('toggle');
-          }
+          else
+            toggleModal($('#confirm-export-modal'));
         });
 
         // select or unselect all rows (= records)

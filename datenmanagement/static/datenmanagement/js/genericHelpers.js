@@ -134,7 +134,8 @@ function refreshModal(modal, title = '', body = '', addFooter = false) {
  * @param {string} [customLoadingContent=null] - additional content for loading view
  */
 function toggleModal(modal, title = '', body = '', customLoadingContent = '') {
-  refreshModal(modal, title, body);
+  if (title || body)
+    refreshModal(modal, title, body);
   if (customLoadingContent)
     modal.find(customLoadingContent).prop('hidden', false);
   modal.modal('toggle');

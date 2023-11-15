@@ -246,7 +246,7 @@
         else
           window.mapDataUrl = '{{ url_model_mapdata }}'
         window.heavyLoadLimit = false;
-        {% if heavy_load_limit %}
+        {% if heavy_load_limit and objects_count > heavy_load_limit %}
           window.heavyLoadLimit = true
         {% endif %}
         if (window.heavyLoadLimit) {
