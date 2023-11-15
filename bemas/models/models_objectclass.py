@@ -25,20 +25,20 @@ class Organization(Objectclass):
   """
 
   name = CharField(
-    'Name',
+    verbose_name='Name',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   address_street = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   address_house_number = CharField(
-    'Hausnummer',
+    verbose_name='Hausnummer',
     max_length=4,
     blank=True,
     null=True,
@@ -50,7 +50,7 @@ class Organization(Objectclass):
     ]
   )
   address_postal_code = CharField(
-    'Postleitzahl',
+    verbose_name='Postleitzahl',
     max_length=5,
     blank=True,
     null=True,
@@ -62,7 +62,7 @@ class Organization(Objectclass):
     ]
   )
   address_place = CharField(
-    'Ort',
+    verbose_name='Ort',
     max_length=255,
     blank=True,
     null=True,
@@ -102,7 +102,7 @@ class Organization(Objectclass):
     null=True
   )
   dms_link = CharField(
-    ' d.3',
+    verbose_name=' d.3',
     max_length=15,
     blank=True,
     null=True,
@@ -172,26 +172,26 @@ class Person(Objectclass):
   """
 
   first_name = CharField(
-    'Vorname',
+    verbose_name='Vorname',
     max_length=255,
     blank=True,
     null=True,
     validators=personennamen_validators
   )
   last_name = CharField(
-    'Nachname',
+    verbose_name='Nachname',
     max_length=255,
     validators=personennamen_validators
   )
   address_street = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   address_house_number = CharField(
-    'Hausnummer',
+    verbose_name='Hausnummer',
     max_length=4,
     blank=True,
     null=True,
@@ -203,7 +203,7 @@ class Person(Objectclass):
     ]
   )
   address_postal_code = CharField(
-    'Postleitzahl',
+    verbose_name='Postleitzahl',
     max_length=5,
     blank=True,
     null=True,
@@ -215,7 +215,7 @@ class Person(Objectclass):
     ]
   )
   address_place = CharField(
-    'Ort',
+    verbose_name='Ort',
     max_length=255,
     blank=True,
     null=True,
@@ -303,17 +303,17 @@ class Contact(Objectclass):
   """
 
   organization = ForeignKey(
-    Organization,
+    to=Organization,
     verbose_name='Organisation',
     on_delete=CASCADE
   )
   person = ForeignKey(
-    Person,
+    to=Person,
     verbose_name='Person',
     on_delete=CASCADE
   )
   function = CharField(
-    'Funktion',
+    verbose_name='Funktion',
     max_length=255,
     blank=True,
     null=True,
@@ -372,39 +372,39 @@ class Originator(GeometryObjectclass):
   """
 
   sector = ForeignKey(
-    Sector,
+    to=Sector,
     verbose_name='Branche',
     on_delete=PROTECT
   )
   operator_organization = ForeignKey(
-    Organization,
+    to=Organization,
     verbose_name='Organisation als Betreiberin',
     on_delete=PROTECT,
     blank=True,
     null=True
   )
   operator_person = ForeignKey(
-    Person,
+    to=Person,
     verbose_name='Person als Betreiber:in',
     on_delete=PROTECT,
     blank=True,
     null=True
   )
   description = TextField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     validators=standard_validators
   )
   emission_point = PointField(
-    'Emissionsort'
+    verbose_name='Emissionsort'
   )
   address = CharField(
-    'Adresse',
+    verbose_name='Adresse',
     max_length=255,
     blank=True,
     null=True
   )
   dms_link = CharField(
-    ' d.3',
+    verbose_name=' d.3',
     max_length=15,
     blank=True,
     null=True,
@@ -475,35 +475,35 @@ class Complaint(GeometryObjectclass):
   """
 
   date_of_receipt = DateField(
-    'Eingangsdatum',
+    verbose_name='Eingangsdatum',
     default=date.today
   )
   status = ForeignKey(
-    Status,
+    to=Status,
     verbose_name='Bearbeitungsstatus',
     on_delete=PROTECT
   )
   status_updated_at = DateTimeField(
-    'letzte Änderung Bearbeitungsstatus',
+    verbose_name='letzte Änderung Bearbeitungsstatus',
     auto_now_add=True,
     editable=False
   )
   type_of_immission = ForeignKey(
-    TypeOfImmission,
+    to=TypeOfImmission,
     verbose_name='Immissionsart',
     on_delete=PROTECT
   )
   immission_point = PointField(
-    'Immissionsort'
+    verbose_name='Immissionsort'
   )
   address = CharField(
-    'Adresse',
+    verbose_name='Adresse',
     max_length=255,
     blank=True,
     null=True
   )
   originator = ForeignKey(
-    Originator,
+    to=Originator,
     verbose_name='Verursacher',
     on_delete=PROTECT
   )
@@ -520,11 +520,11 @@ class Complaint(GeometryObjectclass):
     blank=True
   )
   description = TextField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     validators=standard_validators
   )
   dms_link = CharField(
-    ' d.3',
+    verbose_name=' d.3',
     max_length=15,
     blank=True,
     null=True,
@@ -536,7 +536,7 @@ class Complaint(GeometryObjectclass):
     ]
   )
   storage_location = CharField(
-    'Ablageort analog',
+    verbose_name='Ablageort analog',
     max_length=255,
     blank=True,
     null=True,
@@ -597,27 +597,27 @@ class Event(Objectclass):
   """
 
   complaint = ForeignKey(
-    Complaint,
+    to=Complaint,
     verbose_name='Beschwerde',
     on_delete=CASCADE
   )
   type_of_event = ForeignKey(
-    TypeOfEvent,
+    to=TypeOfEvent,
     verbose_name='Ereignisart',
     on_delete=PROTECT
   )
   user = CharField(
-    'Benutzer:in',
+    verbose_name='Benutzer:in',
     max_length=255
   )
   description = NullTextField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     blank=True,
     null=True,
     validators=standard_validators
   )
   dms_link = CharField(
-    ' d.3',
+    verbose_name=' d.3',
     max_length=15,
     blank=True,
     null=True,
@@ -670,28 +670,28 @@ class LogEntry(Objectclass):
   """
 
   model = CharField(
-    'Objektklasse',
+    verbose_name='Objektklasse',
     max_length=255,
     editable=False
   )
   object_pk = BigIntegerField(
-    'ID des Objekts',
+    verbose_name='ID des Objekts',
     editable=False
   )
   action = CharField(
-    'Aktion',
+    verbose_name='Aktion',
     max_length=255,
     editable=False
   )
   content = CharField(
-    'Inhalt',
+    verbose_name='Inhalt',
     max_length=255,
     blank=True,
     null=True,
     editable=False
   )
   user = CharField(
-    'Benutzer:in',
+    verbose_name='Benutzer:in',
     max_length=255,
     editable=False
   )

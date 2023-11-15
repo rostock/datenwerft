@@ -53,18 +53,18 @@ class Abfallbehaelter(SimpleModel):
   """
 
   deaktiviert = DateField(
-    'Außerbetriebstellung',
+    verbose_name='Außerbetriebstellung',
     blank=True,
     null=True
   )
   id = CharField(
-    'ID',
+    verbose_name='ID',
     max_length=8,
     unique=True,
     default='00000000'
   )
   typ = ForeignKey(
-    Typen_Abfallbehaelter,
+    to=Typen_Abfallbehaelter,
     verbose_name='Typ',
     on_delete=SET_NULL,
     db_column='typ',
@@ -74,13 +74,13 @@ class Abfallbehaelter(SimpleModel):
     null=True
   )
   aufstellungsjahr = PositiveSmallIntegerRangeField(
-    'Aufstellungsjahr',
+    verbose_name='Aufstellungsjahr',
     max_value=get_current_year(),
     blank=True,
     null=True
   )
   eigentuemer = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=RESTRICT,
     db_column='eigentuemer',
@@ -88,7 +88,7 @@ class Abfallbehaelter(SimpleModel):
     related_name='%(app_label)s_%(class)s_eigentuemer'
   )
   bewirtschafter = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=RESTRICT,
     db_column='bewirtschafter',
@@ -96,12 +96,12 @@ class Abfallbehaelter(SimpleModel):
     related_name='%(app_label)s_%(class)s_bewirtschafter'
   )
   pflegeobjekt = CharField(
-    'Pflegeobjekt',
+    verbose_name='Pflegeobjekt',
     max_length=255,
     validators=standard_validators
   )
   inventarnummer = CharField(
-    'Inventarnummer',
+    verbose_name='Inventarnummer',
     max_length=8,
     blank=True,
     null=True,
@@ -113,7 +113,7 @@ class Abfallbehaelter(SimpleModel):
     ]
   )
   anschaffungswert = DecimalField(
-    'Anschaffungswert (in €)',
+    verbose_name='Anschaffungswert (in €)',
     max_digits=6,
     decimal_places=2,
     validators=[
@@ -130,96 +130,96 @@ class Abfallbehaelter(SimpleModel):
     null=True
   )
   haltestelle = BooleanField(
-    'Lage an einer Haltestelle?',
+    verbose_name='Lage an einer Haltestelle?',
     blank=True,
     null=True
   )
   sommer_mo = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen montags im Sommer',
+    verbose_name='Anzahl Leerungen montags im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   sommer_di = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen dienstags im Sommer',
+    verbose_name='Anzahl Leerungen dienstags im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   sommer_mi = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen mittwochs im Sommer',
+    verbose_name='Anzahl Leerungen mittwochs im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   sommer_do = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen donnerstags im Sommer',
+    verbose_name='Anzahl Leerungen donnerstags im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   sommer_fr = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen freitags im Sommer',
+    verbose_name='Anzahl Leerungen freitags im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   sommer_sa = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen samstags im Sommer',
+    verbose_name='Anzahl Leerungen samstags im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   sommer_so = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen sonntags im Sommer',
+    verbose_name='Anzahl Leerungen sonntags im Sommer',
     min_value=1,
     blank=True,
     null=True
   )
   winter_mo = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen montags im Winter',
+    verbose_name='Anzahl Leerungen montags im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   winter_di = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen dienstags im Winter',
+    verbose_name='Anzahl Leerungen dienstags im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   winter_mi = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen mittwochs im Winter',
+    verbose_name='Anzahl Leerungen mittwochs im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   winter_do = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen donnerstags im Winter',
+    verbose_name='Anzahl Leerungen donnerstags im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   winter_fr = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen freitags im Winter',
+    verbose_name='Anzahl Leerungen freitags im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   winter_sa = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen samstags im Winter',
+    verbose_name='Anzahl Leerungen samstags im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   winter_so = PositiveSmallIntegerRangeField(
-    'Anzahl Leerungen sonntags im Winter',
+    verbose_name='Anzahl Leerungen sonntags im Winter',
     min_value=1,
     blank=True,
     null=True
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
@@ -247,7 +247,6 @@ class Abfallbehaelter(SimpleModel):
       'pflegeobjekt': 'Pflegeobjekt'
     }
     list_fields_with_date = ['deaktiviert']
-    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'typ': 'typ',
       'eigentuemer': 'bezeichnung',
@@ -267,8 +266,8 @@ class Abfallbehaelter(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    heavy_load_limit = 500
-    map_feature_tooltip_field = 'id'
+    map_heavy_load_limit = 500
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -289,14 +288,14 @@ class Angelverbotsbereiche(SimpleModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   beschreibung = NullTextField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=1000,
     blank=True,
     null=True,
@@ -318,7 +317,7 @@ class Angelverbotsbereiche(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
     return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + \
@@ -331,7 +330,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -341,35 +340,35 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     null=True
   )
   aktenzeichen = CharField(
-    'Aktenzeichen',
+    verbose_name='Aktenzeichen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   datum_abgeschlossenheitserklaerung = DateField(
-    'Datum der Abgeschlossenheitserklärung',
+    verbose_name='Datum der Abgeschlossenheitserklärung',
     blank=True,
     null=True
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   datum = DateField(
-    'Datum',
+    verbose_name='Datum',
     default=date.today
   )
   pdf = FileField(
-    'PDF',
+    verbose_name='PDF',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PDF_PATH_PREFIX_PRIVATE + 'aufteilungsplaene_wohnungseigentumsgesetz'
@@ -418,7 +417,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
         'value_required': True
       }
     ]
-    map_feature_tooltip_field = 'datum'
+    map_feature_tooltip_fields = ['datum']
     map_filter_fields = {
       'aktenzeichen': 'Aktenzeichen',
       'datum_abgeschlossenheitserklaerung': 'Datum der Abgeschlossenheitserklärung',
@@ -440,12 +439,12 @@ class Baudenkmale(SimpleModel):
   """
 
   id = PositiveIntegerField(
-    'ID',
+    verbose_name='ID',
     unique=True,
     default=0
   )
   status = ForeignKey(
-    Status_Baudenkmale_Denkmalbereiche,
+    to=Status_Baudenkmale_Denkmalbereiche,
     verbose_name='Status',
     on_delete=RESTRICT,
     db_column='status',
@@ -453,7 +452,7 @@ class Baudenkmale(SimpleModel):
     related_name='%(app_label)s_%(class)s_status'
   )
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -463,19 +462,19 @@ class Baudenkmale(SimpleModel):
     null=True
   )
   beschreibung = CharField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=255,
     validators=standard_validators
   )
   vorherige_beschreibung = CharField(
-    ' vorherige Beschreibung',
+    verbose_name=' vorherige Beschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   lage = CharField(
-    'Lage',
+    verbose_name='Lage',
     max_length=255,
     blank=True,
     null=True,
@@ -515,14 +514,14 @@ class Baudenkmale(SimpleModel):
   )
   gartendenkmal = BooleanField(' Gartendenkmal?')
   hinweise = NullTextField(
-    'Hinweise',
+    verbose_name='Hinweise',
     max_length=500,
     blank=True,
     null=True,
     validators=standard_validators
   )
   aenderungen = NullTextField(
-    'Änderungen',
+    verbose_name='Änderungen',
     max_length=500,
     blank=True,
     null=True,
@@ -550,7 +549,6 @@ class Baudenkmale(SimpleModel):
       'lage': 'Lage',
       'beschreibung': 'Beschreibung'
     }
-    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'status': 'status',
       'adresse': 'adresse'
@@ -563,7 +561,7 @@ class Baudenkmale(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -600,7 +598,7 @@ class Behinderteneinrichtungen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -610,12 +608,12 @@ class Behinderteneinrichtungen(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -623,13 +621,13 @@ class Behinderteneinrichtungen(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   plaetze = PositiveSmallIntegerMinField(
-    'Plätze',
+    verbose_name='Plätze',
     min_value=1,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -641,7 +639,7 @@ class Behinderteneinrichtungen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -653,7 +651,7 @@ class Behinderteneinrichtungen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -664,7 +662,7 @@ class Behinderteneinrichtungen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -704,7 +702,7 @@ class Behinderteneinrichtungen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger'
@@ -723,7 +721,7 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -733,23 +731,23 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
     null=True
   )
   beschlussjahr = PositiveSmallIntegerRangeField(
-    'Beschlussjahr',
+    verbose_name='Beschlussjahr',
     min_value=1990,
     max_value=get_current_year(),
     default=get_current_year()
   )
   vorhabenbezeichnung = CharField(
-    'Bezeichnung des Vorhabens',
+    verbose_name='Bezeichnung des Vorhabens',
     max_length=255,
     validators=standard_validators
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
   pdf = FileField(
-    'PDF',
+    verbose_name='PDF',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PDF_PATH_PREFIX_PRIVATE + 'beschluesse_bau_planungsausschuss'
@@ -777,11 +775,10 @@ class Beschluesse_Bau_Planungsausschuss(SimpleModel):
       'bearbeiter': 'Bearbeiter:in',
       'pdf': 'PDF'
     }
-    list_fields_with_number = ['beschlussjahr']
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    map_feature_tooltip_field = 'vorhabenbezeichnung'
+    map_feature_tooltip_fields = ['vorhabenbezeichnung']
     map_filter_fields = {
       'beschlussjahr': 'Beschlussjahr',
       'vorhabenbezeichnung': 'Bezeichnung des Vorhabens'
@@ -801,7 +798,7 @@ class Bildungstraeger(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -811,36 +808,36 @@ class Bildungstraeger(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   betreiber = CharField(
-    'Betreiber:in',
+    verbose_name='Betreiber:in',
     max_length=255,
     validators=standard_validators
   )
   schlagwoerter = ChoiceArrayField(
     CharField(
-      'Schlagwörter',
+      verbose_name='Schlagwörter',
       max_length=255,
       choices=()
     ),
     verbose_name='Schlagwörter'
   )
   barrierefrei = BooleanField(
-    ' barrierefrei?',
+    verbose_name=' barrierefrei?',
     blank=True,
     null=True
   )
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -852,7 +849,7 @@ class Bildungstraeger(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -864,7 +861,7 @@ class Bildungstraeger(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -875,7 +872,7 @@ class Bildungstraeger(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -909,7 +906,7 @@ class Bildungstraeger(SimpleModel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'schlagwoerter': 'Schlagwörter'
@@ -925,7 +922,7 @@ class Carsharing_Stationen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -935,12 +932,12 @@ class Carsharing_Stationen(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   anbieter = ForeignKey(
-    Anbieter_Carsharing,
+    to=Anbieter_Carsharing,
     verbose_name='Anbieter',
     on_delete=RESTRICT,
     db_column='anbieter',
@@ -948,20 +945,20 @@ class Carsharing_Stationen(SimpleModel):
     related_name='%(app_label)s_%(class)s_anbieter'
   )
   anzahl_fahrzeuge = PositiveSmallIntegerMinField(
-    'Anzahl der Fahrzeuge',
+    verbose_name='Anzahl der Fahrzeuge',
     min_value=1,
     blank=True,
     null=True
   )
   bemerkungen = NullTextField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
     validators=standard_validators
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -973,7 +970,7 @@ class Carsharing_Stationen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -985,7 +982,7 @@ class Carsharing_Stationen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -996,7 +993,7 @@ class Carsharing_Stationen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -1025,7 +1022,6 @@ class Carsharing_Stationen(SimpleModel):
       'anbieter': 'Anbieter',
       'anzahl_fahrzeuge': 'Anzahl der Fahrzeuge'
     }
-    list_fields_with_number = ['anzahl_fahrzeuge']
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
       'anbieter': 'anbieter'
@@ -1038,7 +1034,7 @@ class Carsharing_Stationen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'anbieter': 'Anbieter'
@@ -1057,24 +1053,24 @@ class Containerstellplaetze(SimpleModel):
   """
 
   deaktiviert = DateField(
-    'Außerbetriebstellung',
+    verbose_name='Außerbetriebstellung',
     blank=True,
     null=True
   )
   id = CharField(
-    'ID',
+    verbose_name='ID',
     max_length=5,
     unique=True,
     default='00-00'
   )
   privat = BooleanField(' privat?')
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   bewirtschafter_grundundboden = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Grund und Boden',
     on_delete=SET_NULL,
     db_column='bewirtschafter_grundundboden',
@@ -1084,7 +1080,7 @@ class Containerstellplaetze(SimpleModel):
     null=True
   )
   bewirtschafter_glas = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Glas',
     on_delete=SET_NULL,
     db_column='bewirtschafter_glas',
@@ -1094,19 +1090,19 @@ class Containerstellplaetze(SimpleModel):
     null=True
   )
   anzahl_glas = PositiveSmallIntegerMinField(
-    'Anzahl Glas normal',
+    verbose_name='Anzahl Glas normal',
     min_value=1,
     blank=True,
     null=True
   )
   anzahl_glas_unterflur = PositiveSmallIntegerMinField(
-    'Anzahl Glas unterflur',
+    verbose_name='Anzahl Glas unterflur',
     min_value=1,
     blank=True,
     null=True
   )
   bewirtschafter_papier = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Papier',
     on_delete=SET_NULL,
     db_column='bewirtschafter_papier',
@@ -1116,19 +1112,19 @@ class Containerstellplaetze(SimpleModel):
     null=True
   )
   anzahl_papier = PositiveSmallIntegerMinField(
-    'Anzahl Papier normal',
+    verbose_name='Anzahl Papier normal',
     min_value=1,
     blank=True,
     null=True
   )
   anzahl_papier_unterflur = PositiveSmallIntegerMinField(
-    'Anzahl Papier unterflur',
+    verbose_name='Anzahl Papier unterflur',
     min_value=1,
     blank=True,
     null=True
   )
   bewirtschafter_altkleider = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter Altkleider',
     on_delete=SET_NULL,
     db_column='bewirtschafter_altkleider',
@@ -1138,19 +1134,19 @@ class Containerstellplaetze(SimpleModel):
     null=True
   )
   anzahl_altkleider = PositiveSmallIntegerMinField(
-    'Anzahl Altkleider',
+    verbose_name='Anzahl Altkleider',
     min_value=1,
     blank=True,
     null=True
   )
   inbetriebnahmejahr = PositiveSmallIntegerRangeField(
-    'Inbetriebnahmejahr',
+    verbose_name='Inbetriebnahmejahr',
     max_value=get_current_year(),
     blank=True,
     null=True
   )
   inventarnummer = CharField(
-    'Inventarnummer Stellplatz',
+    verbose_name='Inventarnummer Stellplatz',
     max_length=8,
     blank=True,
     null=True,
@@ -1162,7 +1158,7 @@ class Containerstellplaetze(SimpleModel):
     ]
   )
   inventarnummer_grundundboden = CharField(
-    'Inventarnummer Grund und Boden',
+    verbose_name='Inventarnummer Grund und Boden',
     max_length=8,
     blank=True,
     null=True,
@@ -1174,7 +1170,7 @@ class Containerstellplaetze(SimpleModel):
     ]
   )
   inventarnummer_zaun = CharField(
-    'Inventarnummer Zaun',
+    verbose_name='Inventarnummer Zaun',
     max_length=8,
     blank=True,
     null=True,
@@ -1186,7 +1182,7 @@ class Containerstellplaetze(SimpleModel):
     ]
   )
   anschaffungswert = DecimalField(
-    'Anschaffungswert (in €)',
+    verbose_name='Anschaffungswert (in €)',
     max_digits=7,
     decimal_places=2,
     validators=[
@@ -1203,63 +1199,63 @@ class Containerstellplaetze(SimpleModel):
     null=True
   )
   oeffentliche_widmung = BooleanField(
-    ' öffentliche Widmung?',
+    verbose_name=' öffentliche Widmung?',
     blank=True,
     null=True
   )
   bga = BooleanField(
-    'Zuordnung BgA Stellplatz?',
+    verbose_name='Zuordnung BgA Stellplatz?',
     blank=True,
     null=True
   )
   bga_grundundboden = BooleanField(
-    'Zuordnung BgA Grund und Boden?',
+    verbose_name='Zuordnung BgA Grund und Boden?',
     blank=True,
     null=True
   )
   bga_zaun = BooleanField(
-    'Zuordnung BgA Zaun?',
+    verbose_name='Zuordnung BgA Zaun?',
     blank=True,
     null=True
   )
   art_eigentumserwerb = CharField(
-    'Art des Eigentumserwerbs Stellplatz',
+    verbose_name='Art des Eigentumserwerbs Stellplatz',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   art_eigentumserwerb_zaun = CharField(
-    'Art des Eigentumserwerbs Zaun',
+    verbose_name='Art des Eigentumserwerbs Zaun',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   vertraege = CharField(
-    'Verträge',
+    verbose_name='Verträge',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   winterdienst_a = BooleanField(
-    'Winterdienst A?',
+    verbose_name='Winterdienst A?',
     blank=True,
     null=True
   )
   winterdienst_b = BooleanField(
-    'Winterdienst B?',
+    verbose_name='Winterdienst B?',
     blank=True,
     null=True
   )
   winterdienst_c = BooleanField(
-    'Winterdienst C?',
+    verbose_name='Winterdienst C?',
     blank=True,
     null=True
   )
   flaeche = DecimalField(
-    'Fläche (in m²)',
+    verbose_name='Fläche (in m²)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -1276,14 +1272,14 @@ class Containerstellplaetze(SimpleModel):
     null=True
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   foto = ImageField(
-    'Foto',
+    verbose_name='Foto',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE + 'containerstellplaetze'
@@ -1304,7 +1300,6 @@ class Containerstellplaetze(SimpleModel):
     as_overlay = True
     readonly_fields = ['deaktiviert', 'id']
     geometry_type = 'Point'
-    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'deaktiviert': 'Außerbetriebstellung',
@@ -1314,7 +1309,7 @@ class Containerstellplaetze(SimpleModel):
       'foto': 'Foto'
     }
     list_fields_with_date = ['deaktiviert']
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'id': 'ID',
       'privat': 'privat?',
@@ -1340,12 +1335,12 @@ class Denkmalbereiche(SimpleModel):
   """
 
   id = PositiveIntegerField(
-    'ID',
+    verbose_name='ID',
     unique=True,
     default=0
   )
   status = ForeignKey(
-    Status_Baudenkmale_Denkmalbereiche,
+    to=Status_Baudenkmale_Denkmalbereiche,
     verbose_name='Status',
     on_delete=RESTRICT,
     db_column='status',
@@ -1353,12 +1348,12 @@ class Denkmalbereiche(SimpleModel):
     related_name='%(app_label)s_%(class)s_status'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   beschreibung = CharField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=255,
     validators=standard_validators
   )
@@ -1395,14 +1390,14 @@ class Denkmalbereiche(SimpleModel):
     null=True
   )
   hinweise = NullTextField(
-    'Hinweise',
+    verbose_name='Hinweise',
     max_length=500,
     blank=True,
     null=True,
     validators=standard_validators
   )
   aenderungen = NullTextField(
-    'Änderungen',
+    verbose_name='Änderungen',
     max_length=500,
     blank=True,
     null=True,
@@ -1427,7 +1422,6 @@ class Denkmalbereiche(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung'
     }
-    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'status': 'status'
     }
@@ -1439,7 +1433,7 @@ class Denkmalbereiche(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -1459,7 +1453,7 @@ class Denksteine(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -1469,7 +1463,7 @@ class Denksteine(SimpleModel):
     null=True
   )
   nummer = CharField(
-    'Nummer',
+    verbose_name='Nummer',
     max_length=255,
     validators=[
       RegexValidator(
@@ -1479,7 +1473,7 @@ class Denksteine(SimpleModel):
     ]
   )
   titel = ForeignKey(
-    Personentitel,
+    to=Personentitel,
     verbose_name='Titel',
     on_delete=SET_NULL,
     db_column='titel',
@@ -1489,41 +1483,41 @@ class Denksteine(SimpleModel):
     null=True
   )
   vorname = CharField(
-    'Vorname',
+    verbose_name='Vorname',
     max_length=255,
     validators=personennamen_validators
   )
   nachname = CharField(
-    'Nachname',
+    verbose_name='Nachname',
     max_length=255,
     validators=personennamen_validators
   )
   geburtsjahr = PositiveSmallIntegerRangeField(
-    'Geburtsjahr',
+    verbose_name='Geburtsjahr',
     min_value=1850,
     max_value=1945
   )
   sterbejahr = PositiveSmallIntegerRangeField(
-    'Sterbejahr',
+    verbose_name='Sterbejahr',
     min_value=1933,
     max_value=1945,
     blank=True,
     null=True
   )
   text_auf_dem_stein = CharField(
-    'Text auf dem Stein',
+    verbose_name='Text auf dem Stein',
     max_length=255,
     validators=standard_validators
   )
   ehemalige_adresse = CharField(
-    ' ehemalige Adresse',
+    verbose_name=' ehemalige Adresse',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   material = ForeignKey(
-    Materialien_Denksteine,
+    to=Materialien_Denksteine,
     verbose_name='Material',
     on_delete=RESTRICT,
     db_column='material',
@@ -1531,12 +1525,12 @@ class Denksteine(SimpleModel):
     related_name='%(app_label)s_%(class)s_materialien'
   )
   erstes_verlegejahr = PositiveSmallIntegerRangeField(
-    ' erstes Verlegejahr',
+    verbose_name=' erstes Verlegejahr',
     min_value=2002,
     max_value=get_current_year()
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     validators=[
       URLValidator(
@@ -1566,7 +1560,6 @@ class Denksteine(SimpleModel):
       'geburtsjahr': 'Geburtsjahr',
       'sterbejahr': 'Sterbejahr'
     }
-    list_fields_with_number = ['geburtsjahr', 'sterbejahr']
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
       'titel': 'bezeichnung'
@@ -1595,7 +1588,7 @@ class Erdwaermesonden(SimpleModel):
   """
 
   aktenzeichen = CharField(
-    'Aktenzeichen',
+    verbose_name='Aktenzeichen',
     max_length=18,
     validators=[
       RegexValidator(
@@ -1605,7 +1598,7 @@ class Erdwaermesonden(SimpleModel):
     ]
   )
   d3 = CharField(
-    ' d.3',
+    verbose_name=' d.3',
     max_length=16,
     blank=True,
     null=True,
@@ -1617,7 +1610,7 @@ class Erdwaermesonden(SimpleModel):
     ]
   )
   art = ForeignKey(
-    Arten_Erdwaermesonden,
+    to=Arten_Erdwaermesonden,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -1625,7 +1618,7 @@ class Erdwaermesonden(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   typ = ForeignKey(
-    Typen_Erdwaermesonden,
+    to=Typen_Erdwaermesonden,
     verbose_name='Typ',
     on_delete=SET_NULL,
     db_column='typ',
@@ -1635,24 +1628,24 @@ class Erdwaermesonden(SimpleModel):
     null=True
   )
   awsv_anlage = BooleanField(
-    'AwSV-Anlage?',
+    verbose_name='AwSV-Anlage?',
     blank=True,
     null=True
   )
   anzahl_sonden = PositiveSmallIntegerMinField(
-    'Anzahl der Sonden',
+    verbose_name='Anzahl der Sonden',
     min_value=1,
     blank=True,
     null=True
   )
   sondenfeldgroesse = PositiveSmallIntegerMinField(
-    'Sondenfeldgröße (in m²)',
+    verbose_name='Sondenfeldgröße (in m²)',
     min_value=1,
     blank=True,
     null=True
   )
   endteufe = DecimalField(
-    'Endteufe (in m)',
+    verbose_name='Endteufe (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -1669,7 +1662,7 @@ class Erdwaermesonden(SimpleModel):
     null=True
   )
   hinweis = CharField(
-    'Hinweis',
+    verbose_name='Hinweis',
     max_length=255,
     blank=True,
     null=True,
@@ -1698,12 +1691,12 @@ class Erdwaermesonden(SimpleModel):
       'endteufe': 'Endteufe (in m)',
       'hinweis': 'Hinweis'
     }
-    list_fields_with_number = ['anzahl_sonden', 'sondenfeldgroesse']
+    list_fields_with_decimal = ['endteufe']
     list_fields_with_foreign_key = {
       'art': 'art',
       'typ': 'typ'
     }
-    map_feature_tooltip_field = 'aktenzeichen'
+    map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
@@ -1728,7 +1721,7 @@ class Fahrradabstellanlagen(SimpleModel):
   """
 
   art = ForeignKey(
-    Arten_Fahrradabstellanlagen,
+    to=Arten_Fahrradabstellanlagen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -1736,19 +1729,19 @@ class Fahrradabstellanlagen(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   stellplaetze = PositiveSmallIntegerMinField(
-    'Stellplätze',
+    verbose_name='Stellplätze',
     min_value=1,
     blank=True,
     null=True
   )
   gebuehren = BooleanField(
-    'Gebühren?'
+    verbose_name='Gebühren?'
   )
   ueberdacht = BooleanField(
-    ' überdacht?'
+    verbose_name=' überdacht?'
   )
   ebike_lademoeglichkeiten = BooleanField(
-    'E-Bike-Lademöglichkeiten?',
+    verbose_name='E-Bike-Lademöglichkeiten?',
     blank=True,
     null=True
   )
@@ -1771,11 +1764,9 @@ class Fahrradabstellanlagen(SimpleModel):
       'ueberdacht': 'überdacht?',
       'ebike_lademoeglichkeiten': 'E-Bike-Lademöglichkeiten?'
     }
-    list_fields_with_number = ['stellplaetze']
     list_fields_with_foreign_key = {
       'art': 'art'
     }
-    map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -1796,7 +1787,7 @@ class FairTrade(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -1806,7 +1797,7 @@ class FairTrade(SimpleModel):
     null=True
   )
   art = ForeignKey(
-    Arten_FairTrade,
+    to=Arten_FairTrade,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -1814,30 +1805,30 @@ class FairTrade(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   betreiber = CharField(
-    'Betreiber:in',
+    verbose_name='Betreiber:in',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   barrierefrei = BooleanField(
-    ' barrierefrei?',
+    verbose_name=' barrierefrei?',
     blank=True,
     null=True
   )
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -1849,7 +1840,7 @@ class FairTrade(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -1861,7 +1852,7 @@ class FairTrade(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -1872,7 +1863,7 @@ class FairTrade(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -1904,7 +1895,7 @@ class FairTrade(SimpleModel):
       'adresse': 'adresse',
       'art': 'art'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'art': 'Art',
       'bezeichnung': 'Bezeichnung'
@@ -1923,7 +1914,7 @@ class Feldsportanlagen(SimpleModel):
   """
 
   art = ForeignKey(
-    Arten_Feldsportanlagen,
+    to=Arten_Feldsportanlagen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -1931,12 +1922,12 @@ class Feldsportanlagen(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -1944,7 +1935,7 @@ class Feldsportanlagen(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   foto = ImageField(
-    'Foto',
+    verbose_name='Foto',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC + 'feldsportanlagen'
@@ -1963,7 +1954,6 @@ class Feldsportanlagen(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Feldsportanlagen in der Hanse- und Universitätsstadt Rostock'
     geometry_type = 'Point'
-    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -1983,7 +1973,7 @@ class Feldsportanlagen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
@@ -2010,7 +2000,7 @@ class Feuerwachen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2020,7 +2010,7 @@ class Feuerwachen(SimpleModel):
     null=True
   )
   art = ForeignKey(
-    Arten_Feuerwachen,
+    to=Arten_Feuerwachen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -2028,12 +2018,12 @@ class Feuerwachen(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -2045,7 +2035,7 @@ class Feuerwachen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -2057,7 +2047,7 @@ class Feuerwachen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -2068,7 +2058,7 @@ class Feuerwachen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -2100,7 +2090,7 @@ class Feuerwachen(SimpleModel):
       'adresse': 'adresse',
       'art': 'art'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'art': 'Art',
       'bezeichnung': 'Bezeichnung'
@@ -2119,12 +2109,12 @@ class Fliessgewaesser(SimpleModel):
   """
 
   nummer = CharField(
-    'Nummer',
+    verbose_name='Nummer',
     max_length=255,
     validators=standard_validators
   )
   art = ForeignKey(
-    Arten_Fliessgewaesser,
+    to=Arten_Fliessgewaesser,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -2132,7 +2122,7 @@ class Fliessgewaesser(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   ordnung = ForeignKey(
-    Ordnungen_Fliessgewaesser,
+    to=Ordnungen_Fliessgewaesser,
     verbose_name='Ordnung',
     on_delete=SET_NULL,
     db_column='ordnung',
@@ -2142,24 +2132,24 @@ class Fliessgewaesser(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   nennweite = PositiveSmallIntegerMinField(
-    'Nennweite (in mm)',
+    verbose_name='Nennweite (in mm)',
     min_value=100,
     blank=True,
     null=True
   )
   laenge = PositiveIntegerField(
-    'Länge (in m)',
+    verbose_name='Länge (in m)',
     default=0
   )
   laenge_in_hro = PositiveIntegerField(
-    'Länge innerhalb Rostocks (in m)',
+    verbose_name='Länge innerhalb Rostocks (in m)',
     blank=True,
     null=True
   )
@@ -2184,13 +2174,12 @@ class Fliessgewaesser(SimpleModel):
       'laenge': 'Länge (in m)',
       'laenge_in_hro': 'Länge innerhalb Rostocks (in m)'
     }
-    list_fields_with_number = ['laenge', 'laenge_in_hro']
     list_fields_with_foreign_key = {
       'art': 'art',
       'ordnung': 'ordnung'
     }
-    heavy_load_limit = 500
-    map_feature_tooltip_field = 'nummer'
+    map_heavy_load_limit = 500
+    map_feature_tooltip_fields = ['nummer']
     map_filter_fields = {
       'nummer': 'Nummer',
       'art': 'Art',
@@ -2210,12 +2199,12 @@ class Geraetespielanlagen(SimpleModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -2223,14 +2212,14 @@ class Geraetespielanlagen(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   beschreibung = CharField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   foto = ImageField(
-    'Foto',
+    verbose_name='Foto',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC + 'geraetespielanlagen'
@@ -2249,7 +2238,6 @@ class Geraetespielanlagen(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Gerätespielanlagen in der Hanse- und Universitätsstadt Rostock'
     geometry_type = 'Point'
-    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2268,7 +2256,7 @@ class Geraetespielanlagen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
@@ -2295,7 +2283,7 @@ class Gutachterfotos(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2305,27 +2293,27 @@ class Gutachterfotos(SimpleModel):
     null=True
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   datum = DateField(
-    'Datum',
+    verbose_name='Datum',
     default=date.today
   )
   aufnahmedatum = DateField(
-    'Aufnahmedatum',
+    verbose_name='Aufnahmedatum',
     default=date.today
   )
   foto = ImageField(
-    'Foto',
+    verbose_name='Foto',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE + 'gutachterfotos'
@@ -2344,7 +2332,6 @@ class Gutachterfotos(SimpleModel):
     address_type = 'Adresse'
     address_mandatory = False
     geometry_type = 'Point'
-    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -2373,8 +2360,8 @@ class Gutachterfotos(SimpleModel):
         'value_required': True
       }
     ]
-    heavy_load_limit = 800
-    map_feature_tooltip_field = 'datum'
+    map_heavy_load_limit = 800
+    map_feature_tooltip_fields = ['datum']
     map_filter_fields = {
       'datum': 'Datum',
       'aufnahmedatum': 'Aufnahmedatum'
@@ -2397,7 +2384,7 @@ class Hausnummern(SimpleModel):
   """
 
   strasse = ForeignKey(
-    Strassen,
+    to=Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -2407,26 +2394,26 @@ class Hausnummern(SimpleModel):
     null=True
   )
   deaktiviert = DateField(
-    'Datum der Löschung',
+    verbose_name='Datum der Löschung',
     blank=True,
     null=True
   )
   loeschung_details = CharField(
-    'Details zur Löschung',
+    verbose_name='Details zur Löschung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   vorherige_adresse = CharField(
-    ' vorherige Adresse',
+    verbose_name=' vorherige Adresse',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   vorherige_antragsnummer = CharField(
-    ' vorherige Antragsnummer',
+    verbose_name=' vorherige Antragsnummer',
     max_length=6,
     blank=True,
     null=True,
@@ -2438,12 +2425,12 @@ class Hausnummern(SimpleModel):
     ]
   )
   hausnummer = PositiveSmallIntegerRangeField(
-    'Hausnummer',
+    verbose_name='Hausnummer',
     min_value=1,
     max_value=999
   )
   hausnummer_zusatz = CharField(
-    'Hausnummernzusatz',
+    verbose_name='Hausnummernzusatz',
     max_length=1,
     blank=True,
     null=True,
@@ -2455,7 +2442,7 @@ class Hausnummern(SimpleModel):
     ]
   )
   postleitzahl = CharField(
-    'Postleitzahl',
+    verbose_name='Postleitzahl',
     max_length=5,
     validators=[
       RegexValidator(
@@ -2465,11 +2452,11 @@ class Hausnummern(SimpleModel):
     ]
   )
   vergabe_datum = DateField(
-    'Datum der Vergabe',
+    verbose_name='Datum der Vergabe',
     default=date.today
   )
   antragsnummer = CharField(
-    'Antragsnummer',
+    verbose_name='Antragsnummer',
     max_length=6,
     blank=True,
     null=True,
@@ -2481,7 +2468,7 @@ class Hausnummern(SimpleModel):
     ]
   )
   gebaeude_bauweise = ForeignKey(
-    Gebaeudebauweisen,
+    to=Gebaeudebauweisen,
     verbose_name='Bauweise des Gebäudes',
     on_delete=SET_NULL,
     db_column='gebaeude_bauweise',
@@ -2491,7 +2478,7 @@ class Hausnummern(SimpleModel):
     null=True
   )
   gebaeude_funktion = ForeignKey(
-    Gebaeudefunktionen,
+    to=Gebaeudefunktionen,
     verbose_name='Funktion des Gebäudes',
     on_delete=SET_NULL,
     db_column='gebaeude_funktion',
@@ -2501,19 +2488,19 @@ class Hausnummern(SimpleModel):
     null=True
   )
   hinweise_gebaeude = CharField(
-    ' weitere Hinweise zum Gebäude',
+    verbose_name=' weitere Hinweise zum Gebäude',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
@@ -2553,7 +2540,6 @@ class Hausnummern(SimpleModel):
       'deaktiviert',
       'vergabe_datum'
     ]
-    list_fields_with_number = ['hausnummer']
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
       'gebaeude_bauweise': 'bezeichnung',
@@ -2568,7 +2554,7 @@ class Hausnummern(SimpleModel):
         'value_required': True
       }
     ]
-    heavy_load_limit = 800
+    map_heavy_load_limit = 800
     map_feature_tooltip_fields = [
       'strasse',
       'hausnummer',
@@ -2600,7 +2586,7 @@ class Hospize(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -2610,12 +2596,12 @@ class Hospize(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -2623,13 +2609,13 @@ class Hospize(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   plaetze = PositiveSmallIntegerMinField(
-    'Plätze',
+    verbose_name='Plätze',
     min_value=1,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -2641,7 +2627,7 @@ class Hospize(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -2653,7 +2639,7 @@ class Hospize(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -2664,7 +2650,7 @@ class Hospize(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -2704,7 +2690,7 @@ class Hospize(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger'
@@ -2723,18 +2709,18 @@ class Hundetoiletten(SimpleModel):
   """
 
   deaktiviert = DateField(
-    'Außerbetriebstellung',
+    verbose_name='Außerbetriebstellung',
     blank=True,
     null=True
   )
   id = CharField(
-    'ID',
+    verbose_name='ID',
     max_length=8,
     unique=True,
     default='00000000'
   )
   art = ForeignKey(
-    Arten_Hundetoiletten,
+    to=Arten_Hundetoiletten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -2742,13 +2728,13 @@ class Hundetoiletten(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   aufstellungsjahr = PositiveSmallIntegerRangeField(
-    'Aufstellungsjahr',
+    verbose_name='Aufstellungsjahr',
     max_value=get_current_year(),
     blank=True,
     null=True
   )
   bewirtschafter = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=RESTRICT,
     db_column='bewirtschafter',
@@ -2756,12 +2742,12 @@ class Hundetoiletten(SimpleModel):
     related_name='%(app_label)s_%(class)s_bewirtschafter'
   )
   pflegeobjekt = CharField(
-    'Pflegeobjekt',
+    verbose_name='Pflegeobjekt',
     max_length=255,
     validators=standard_validators
   )
   inventarnummer = CharField(
-    'Inventarnummer',
+    verbose_name='Inventarnummer',
     max_length=8,
     blank=True,
     null=True,
@@ -2773,7 +2759,7 @@ class Hundetoiletten(SimpleModel):
     ]
   )
   anschaffungswert = DecimalField(
-    'Anschaffungswert (in €)',
+    verbose_name='Anschaffungswert (in €)',
     max_digits=6,
     decimal_places=2,
     validators=[
@@ -2790,7 +2776,7 @@ class Hundetoiletten(SimpleModel):
     null=True
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
@@ -2817,12 +2803,11 @@ class Hundetoiletten(SimpleModel):
       'pflegeobjekt': 'Pflegeobjekt'
     }
     list_fields_with_date = ['deaktiviert']
-    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'art': 'art',
       'bewirtschafter': 'bezeichnung'
     }
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'id': 'ID',
@@ -2842,7 +2827,7 @@ class Hydranten(SimpleModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=[
@@ -2853,7 +2838,7 @@ class Hydranten(SimpleModel):
     ]
   )
   eigentuemer = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=RESTRICT,
     db_column='eigentuemer',
@@ -2861,7 +2846,7 @@ class Hydranten(SimpleModel):
     related_name='%(app_label)s_%(class)s_eigentuemer'
   )
   bewirtschafter = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=RESTRICT,
     db_column='bewirtschafter',
@@ -2870,7 +2855,7 @@ class Hydranten(SimpleModel):
   )
   feuerloeschgeeignet = BooleanField(' feuerlöschgeeignet?')
   betriebszeit = ForeignKey(
-    Betriebszeiten,
+    to=Betriebszeiten,
     verbose_name='Betriebszeit',
     on_delete=RESTRICT,
     db_column='betriebszeit',
@@ -2878,14 +2863,14 @@ class Hydranten(SimpleModel):
     related_name='%(app_label)s_%(class)s_betriebszeiten'
   )
   entnahme = CharField(
-    'Entnahme',
+    verbose_name='Entnahme',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   hauptwasserzaehler = CharField(
-    'Hauptwasserzähler',
+    verbose_name='Hauptwasserzähler',
     max_length=255,
     blank=True,
     null=True,
@@ -2943,7 +2928,7 @@ class Hydranten(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2967,7 +2952,7 @@ class Kadaverfunde(SimpleModel):
 
   zeitpunkt = DateTimeField('Zeitpunkt')
   tierseuche = ForeignKey(
-    Tierseuchen,
+    to=Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=RESTRICT,
     db_column='tierseuche',
@@ -2975,7 +2960,7 @@ class Kadaverfunde(SimpleModel):
     related_name='%(app_label)s_%(class)s_tierseuchen'
   )
   geschlecht = ForeignKey(
-    Geschlechter_Kadaverfunde,
+    to=Geschlechter_Kadaverfunde,
     verbose_name='Geschlecht',
     on_delete=RESTRICT,
     db_column='geschlecht',
@@ -2983,7 +2968,7 @@ class Kadaverfunde(SimpleModel):
     related_name='%(app_label)s_%(class)s_geschlechter'
   )
   altersklasse = ForeignKey(
-    Altersklassen_Kadaverfunde,
+    to=Altersklassen_Kadaverfunde,
     verbose_name='Altersklasse',
     on_delete=RESTRICT,
     db_column='altersklasse',
@@ -2991,13 +2976,13 @@ class Kadaverfunde(SimpleModel):
     related_name='%(app_label)s_%(class)s_altersklassen'
   )
   gewicht = PositiveSmallIntegerRangeField(
-    ' geschätztes Gewicht (in kg)',
+    verbose_name=' geschätztes Gewicht (in kg)',
     min_value=1,
     blank=True,
     null=True
   )
   zustand = ForeignKey(
-    Zustaende_Kadaverfunde,
+    to=Zustaende_Kadaverfunde,
     verbose_name='Zustand',
     on_delete=RESTRICT,
     db_column='zustand',
@@ -3005,7 +2990,7 @@ class Kadaverfunde(SimpleModel):
     related_name='%(app_label)s_%(class)s_zustaende'
   )
   art_auffinden = ForeignKey(
-    Arten_Fallwildsuchen_Kontrollen,
+    to=Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art des Auffindens',
     on_delete=RESTRICT,
     db_column='art_auffinden',
@@ -3013,14 +2998,14 @@ class Kadaverfunde(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten_auffinden'
   )
   witterung = CharField(
-    'Witterung vor Ort',
+    verbose_name='Witterung vor Ort',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   bemerkungen = NullTextField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
@@ -3048,7 +3033,6 @@ class Kadaverfunde(SimpleModel):
       'zeitpunkt': 'Zeitpunkt'
     }
     list_fields_with_datetime = ['zeitpunkt']
-    list_fields_with_number = ['gewicht']
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung',
       'geschlecht': 'bezeichnung',
@@ -3056,7 +3040,7 @@ class Kadaverfunde(SimpleModel):
       'zustand': 'zustand',
       'art_auffinden': 'art'
     }
-    map_feature_tooltip_field = 'tierseuche'
+    map_feature_tooltip_fields = ['tierseuche', 'zeitpunkt']
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
       'geschlecht': 'Geschlecht',
@@ -3089,7 +3073,7 @@ class Kehrbezirke(SimpleModel):
   """
 
   adresse = OneToOneField(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=CASCADE,
     db_column='adresse',
@@ -3097,7 +3081,7 @@ class Kehrbezirke(SimpleModel):
     related_name='%(app_label)s_%(class)s_adressen'
   )
   bevollmaechtigter_bezirksschornsteinfeger = ForeignKey(
-    Bevollmaechtigte_Bezirksschornsteinfeger,
+    to=Bevollmaechtigte_Bezirksschornsteinfeger,
     verbose_name=' bevollmächtigter Bezirksschornsteinfeger',
     on_delete=RESTRICT,
     db_column='bevollmaechtigter_bezirksschornsteinfeger',
@@ -3107,7 +3091,7 @@ class Kehrbezirke(SimpleModel):
     null=True
   )
   vergabedatum = DateField(
-    'Vergabedatum',
+    verbose_name='Vergabedatum',
     blank=True,
     null=True
   )
@@ -3161,7 +3145,7 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3171,29 +3155,29 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     null=True
   )
   vorname = CharField(
-    'Vorname',
+    verbose_name='Vorname',
     max_length=255,
     validators=personennamen_validators
   )
   nachname = CharField(
-    'Nachname',
+    verbose_name='Nachname',
     max_length=255,
     validators=personennamen_validators
   )
   plaetze = PositiveSmallIntegerMinField(
-    'Plätze',
+    verbose_name='Plätze',
     min_value=1,
     blank=True,
     null=True
   )
   zeiten = CharField(
-    'Betreuungszeiten',
+    verbose_name='Betreuungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -3205,7 +3189,7 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -3217,7 +3201,7 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -3228,7 +3212,7 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -3259,7 +3243,6 @@ class Kindertagespflegeeinrichtungen(SimpleModel):
       'plaetze': 'Plätze',
       'zeiten': 'Betreuungszeiten'
     }
-    list_fields_with_number = ['plaetze']
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
@@ -3281,7 +3264,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3291,12 +3274,12 @@ class Kinder_Jugendbetreuung(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -3304,7 +3287,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -3316,7 +3299,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -3328,7 +3311,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -3339,7 +3322,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -3379,7 +3362,7 @@ class Kinder_Jugendbetreuung(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger'
@@ -3398,7 +3381,7 @@ class Kleinklaeranlagen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3408,7 +3391,7 @@ class Kleinklaeranlagen(SimpleModel):
     null=True
   )
   d3 = CharField(
-    ' d.3',
+    verbose_name=' d.3',
     max_length=15,
     validators=[
       RegexValidator(
@@ -3418,23 +3401,23 @@ class Kleinklaeranlagen(SimpleModel):
     ]
   )
   we_datum = DateField(
-    'Datum der wasserrechtlichen Erlaubnis',
+    verbose_name='Datum der wasserrechtlichen Erlaubnis',
     default=date.today
   )
   we_aktenzeichen = CharField(
-    'Aktenzeichen der wasserrechtlichen Erlaubnis',
+    verbose_name='Aktenzeichen der wasserrechtlichen Erlaubnis',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   we_befristung = DateField(
-    'Befristung der wasserrechtlichen Erlaubnis',
+    verbose_name='Befristung der wasserrechtlichen Erlaubnis',
     blank=True,
     null=True
   )
   typ = ForeignKey(
-    Typen_Kleinklaeranlagen,
+    to=Typen_Kleinklaeranlagen,
     verbose_name='Anlagetyp',
     on_delete=RESTRICT,
     db_column='typ',
@@ -3442,15 +3425,15 @@ class Kleinklaeranlagen(SimpleModel):
     related_name='%(app_label)s_%(class)s_typen'
   )
   einleitstelle = CharField(
-    'Einleitstelle',
+    verbose_name='Einleitstelle',
     max_length=255,
     validators=standard_validators
   )
   gewaesser_berichtspflichtig = BooleanField(
-    ' berichtspflichtiges Gewässer?',
+    verbose_name=' berichtspflichtiges Gewässer?',
   )
   umfang_einleitung = DecimalField(
-    'Umfang der Einleitung (in m³/d)',
+    verbose_name='Umfang der Einleitung (in m³/d)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -3467,7 +3450,7 @@ class Kleinklaeranlagen(SimpleModel):
     null=True
   )
   einwohnerwert = DecimalField(
-    'Einwohnerwert',
+    verbose_name='Einwohnerwert',
     max_digits=3,
     decimal_places=1,
     validators=[
@@ -3484,7 +3467,7 @@ class Kleinklaeranlagen(SimpleModel):
     null=True
   )
   zulassung = CharField(
-    'Zulassung',
+    verbose_name='Zulassung',
     max_length=11,
     blank=True,
     null=True,
@@ -3523,12 +3506,12 @@ class Kleinklaeranlagen(SimpleModel):
       'zulassung': 'Zulassung'
     }
     list_fields_with_date = ['we_datum', 'we_befristung']
-    list_fields_with_number = ['umfang_einleitung', 'einwohnerwert']
+    list_fields_with_decimal = ['umfang_einleitung', 'einwohnerwert']
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
       'typ': 'typ'
     }
-    map_feature_tooltip_field = 'd3'
+    map_feature_tooltip_fields = ['d3']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'd3': 'd.3',
@@ -3554,26 +3537,26 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   ausfuehrung = CharField(
-    'Ausführung',
+    verbose_name='Ausführung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   schoepfer = CharField(
-    'Schöpfer',
+    verbose_name='Schöpfer',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   entstehungsjahr = PositiveSmallIntegerRangeField(
-    'Entstehungsjahr',
+    verbose_name='Entstehungsjahr',
     max_value=get_current_year(),
     blank=True,
     null=True
@@ -3595,8 +3578,7 @@ class Kunst_im_oeffentlichen_Raum(SimpleModel):
       'schoepfer': 'Schöpfer',
       'entstehungsjahr': 'Entstehungsjahr'
     }
-    list_fields_with_number = ['entstehungsjahr']
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
     return self.bezeichnung
@@ -3608,7 +3590,7 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3619,12 +3601,12 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
   )
   geplant = BooleanField(' geplant?')
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   betreiber = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=SET_NULL,
     db_column='betreiber',
@@ -3634,7 +3616,7 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     null=True
   )
   verbund = ForeignKey(
-    Verbuende_Ladestationen_Elektrofahrzeuge,
+    to=Verbuende_Ladestationen_Elektrofahrzeuge,
     verbose_name='Verbund',
     on_delete=SET_NULL,
     db_column='verbund',
@@ -3644,7 +3626,7 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     null=True
   )
   betriebsart = ForeignKey(
-    Betriebsarten,
+    to=Betriebsarten,
     verbose_name='Betriebsart',
     on_delete=RESTRICT,
     db_column='betriebsart',
@@ -3652,13 +3634,13 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     related_name='%(app_label)s_%(class)s_betriebsarten'
   )
   anzahl_ladepunkte = PositiveSmallIntegerMinField(
-    'Anzahl an Ladepunkten',
+    verbose_name='Anzahl an Ladepunkten',
     min_value=1,
     blank=True,
     null=True
   )
   arten_ladepunkte = CharField(
-    'Arten der Ladepunkte',
+    verbose_name='Arten der Ladepunkte',
     max_length=255,
     blank=True,
     null=True,
@@ -3666,7 +3648,7 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
   )
   ladekarten = ChoiceArrayField(
     CharField(
-      'Ladekarten',
+      verbose_name='Ladekarten',
       max_length=255,
       choices=()
     ),
@@ -3675,20 +3657,20 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     null=True
   )
   kosten = CharField(
-    'Kosten',
+    verbose_name='Kosten',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -3724,7 +3706,6 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
       'anzahl_ladepunkte': 'Anzahl an Ladepunkten',
       'ladekarten': 'Ladekarten'
     }
-    list_fields_with_number = ['anzahl_ladepunkte']
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
       'betreiber': 'bezeichnung',
@@ -3757,7 +3738,7 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'geplant': 'geplant?',
       'bezeichnung': 'Bezeichnung',
@@ -3779,7 +3760,7 @@ class Lichtwellenleiterinfrastruktur(SimpleModel):
   """
 
   objektart = ForeignKey(
-    Objektarten_Lichtwellenleiterinfrastruktur,
+    to=Objektarten_Lichtwellenleiterinfrastruktur,
     verbose_name='Objektart',
     on_delete=RESTRICT,
     db_column='objektart',
@@ -3787,7 +3768,7 @@ class Lichtwellenleiterinfrastruktur(SimpleModel):
     related_name='%(app_label)s_%(class)s_objektarten'
   )
   kabeltyp = ForeignKey(
-    Kabeltypen_Lichtwellenleiterinfrastruktur,
+    to=Kabeltypen_Lichtwellenleiterinfrastruktur,
     verbose_name='Kabeltyp',
     on_delete=SET_NULL,
     db_column='kabeltyp',
@@ -3849,7 +3830,7 @@ class Meldedienst_flaechenhaft(SimpleModel):
   """
 
   art = ForeignKey(
-    Arten_Meldedienst_flaechenhaft,
+    to=Arten_Meldedienst_flaechenhaft,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -3857,19 +3838,19 @@ class Meldedienst_flaechenhaft(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   datum = DateField(
-    'Datum',
+    verbose_name='Datum',
     default=date.today
   )
   geometrie = polygon_field
@@ -3893,7 +3874,7 @@ class Meldedienst_flaechenhaft(SimpleModel):
     list_fields_with_foreign_key = {
       'art': 'art'
     }
-    map_feature_tooltip_field = 'art'
+    map_feature_tooltip_fields = ['art']
     map_filter_fields = {
       'art': 'Art',
       'bearbeiter': 'Bearbeiter:in',
@@ -3912,12 +3893,12 @@ class Meldedienst_punkthaft(SimpleModel):
   """
 
   deaktiviert = DateField(
-    'Zurückstellung',
+    verbose_name='Zurückstellung',
     blank=True,
     null=True
   )
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -3927,7 +3908,7 @@ class Meldedienst_punkthaft(SimpleModel):
     null=True
   )
   art = ForeignKey(
-    Arten_Meldedienst_punkthaft,
+    to=Arten_Meldedienst_punkthaft,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -3935,12 +3916,12 @@ class Meldedienst_punkthaft(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
   gebaeudeart = ForeignKey(
-    Gebaeudearten_Meldedienst_punkthaft,
+    to=Gebaeudearten_Meldedienst_punkthaft,
     verbose_name='Gebäudeart',
     on_delete=RESTRICT,
     db_column='gebaeudeart',
@@ -3950,7 +3931,7 @@ class Meldedienst_punkthaft(SimpleModel):
     null=True
   )
   flaeche = DecimalField(
-    'Fläche (in m²)',
+    verbose_name='Fläche (in m²)',
     max_digits=6,
     decimal_places=2,
     validators=[
@@ -3967,14 +3948,14 @@ class Meldedienst_punkthaft(SimpleModel):
     null=True
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   datum = DateField(
-    'Datum',
+    verbose_name='Datum',
     default=date.today
   )
   geometrie = point_field
@@ -4003,7 +3984,7 @@ class Meldedienst_punkthaft(SimpleModel):
       'datum': 'Datum'
     }
     list_fields_with_date = ['deaktiviert', 'datum']
-    list_fields_with_number = ['flaeche']
+    list_fields_with_decimal = ['flaeche']
     list_fields_with_foreign_key = {
       'adresse': 'adresse',
       'art': 'art',
@@ -4024,8 +4005,8 @@ class Meldedienst_punkthaft(SimpleModel):
         'value_required': True
       }
     ]
-    heavy_load_limit = 600
-    map_feature_tooltip_field = 'art'
+    map_heavy_load_limit = 600
+    map_feature_tooltip_fields = ['art']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -4048,20 +4029,20 @@ class Mobilpunkte(SimpleModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   angebote = ChoiceArrayField(
     CharField(
-      'Angebote',
+      verbose_name='Angebote',
       max_length=255,
       choices=()
     ),
     verbose_name='Angebote'
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -4090,7 +4071,7 @@ class Mobilpunkte(SimpleModel):
       'angebote': 'Angebote',
       'website': 'Website'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
 
   def __str__(self):
     return self.bezeichnung
@@ -4102,7 +4083,7 @@ class Parkmoeglichkeiten(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4112,7 +4093,7 @@ class Parkmoeglichkeiten(SimpleModel):
     null=True
   )
   art = ForeignKey(
-    Arten_Parkmoeglichkeiten,
+    to=Arten_Parkmoeglichkeiten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -4120,12 +4101,12 @@ class Parkmoeglichkeiten(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   standort = CharField(
-    'Standort',
+    verbose_name='Standort',
     max_length=255,
     validators=standard_validators
   )
   betreiber = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=SET_NULL,
     db_column='betreiber',
@@ -4135,25 +4116,25 @@ class Parkmoeglichkeiten(SimpleModel):
     null=True
   )
   stellplaetze_pkw = PositiveSmallIntegerMinField(
-    'Pkw-Stellplätze',
+    verbose_name='Pkw-Stellplätze',
     min_value=1,
     blank=True,
     null=True
   )
   stellplaetze_wohnmobil = PositiveSmallIntegerMinField(
-    'Wohnmobilstellplätze',
+    verbose_name='Wohnmobilstellplätze',
     min_value=1,
     blank=True,
     null=True
   )
   stellplaetze_bus = PositiveSmallIntegerMinField(
-    'Busstellplätze',
+    verbose_name='Busstellplätze',
     min_value=1,
     blank=True,
     null=True
   )
   gebuehren_halbe_stunde = DecimalField(
-    'Gebühren pro ½ h (in €)',
+    verbose_name='Gebühren pro ½ h (in €)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -4170,7 +4151,7 @@ class Parkmoeglichkeiten(SimpleModel):
     null=True
   )
   gebuehren_eine_stunde = DecimalField(
-    'Gebühren pro 1 h (in €)',
+    verbose_name='Gebühren pro 1 h (in €)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -4187,7 +4168,7 @@ class Parkmoeglichkeiten(SimpleModel):
     null=True
   )
   gebuehren_zwei_stunden = DecimalField(
-    'Gebühren pro 2 h (in €)',
+    verbose_name='Gebühren pro 2 h (in €)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -4204,7 +4185,7 @@ class Parkmoeglichkeiten(SimpleModel):
     null=True
   )
   gebuehren_ganztags = DecimalField(
-    'Gebühren ganztags (in €)',
+    verbose_name='Gebühren ganztags (in €)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -4221,7 +4202,7 @@ class Parkmoeglichkeiten(SimpleModel):
     null=True
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
@@ -4270,7 +4251,7 @@ class Pflegeeinrichtungen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4280,7 +4261,7 @@ class Pflegeeinrichtungen(SimpleModel):
     null=True
   )
   art = ForeignKey(
-    Arten_Pflegeeinrichtungen,
+    to=Arten_Pflegeeinrichtungen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -4288,23 +4269,23 @@ class Pflegeeinrichtungen(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   betreiber = CharField(
-    'Betreiber:in',
+    verbose_name='Betreiber:in',
     max_length=255,
     validators=standard_validators
   )
   plaetze = PositiveSmallIntegerMinField(
-    'Plätze',
+    verbose_name='Plätze',
     min_value=1,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -4316,7 +4297,7 @@ class Pflegeeinrichtungen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -4328,7 +4309,7 @@ class Pflegeeinrichtungen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -4339,7 +4320,7 @@ class Pflegeeinrichtungen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -4372,7 +4353,7 @@ class Pflegeeinrichtungen(SimpleModel):
       'adresse': 'adresse',
       'art': 'art'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'art': 'Art',
       'bezeichnung': 'Bezeichnung',
@@ -4392,7 +4373,7 @@ class Poller(SimpleModel):
   """
 
   art = ForeignKey(
-    Arten_Poller,
+    to=Arten_Poller,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -4400,7 +4381,7 @@ class Poller(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   nummer = CharField(
-    'Nummer',
+    verbose_name='Nummer',
     max_length=3,
     blank=True,
     null=True,
@@ -4412,12 +4393,12 @@ class Poller(SimpleModel):
     ]
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   status = ForeignKey(
-    Status_Poller,
+    to=Status_Poller,
     verbose_name='Status',
     on_delete=RESTRICT,
     db_column='status',
@@ -4425,13 +4406,13 @@ class Poller(SimpleModel):
     related_name='%(app_label)s_%(class)s_status'
   )
   zeiten = CharField(
-    'Lieferzeiten',
+    verbose_name='Lieferzeiten',
     max_length=255,
     blank=True,
     null=True
   )
   hersteller = ForeignKey(
-    Hersteller_Poller,
+    to=Hersteller_Poller,
     verbose_name='Hersteller',
     on_delete=SET_NULL,
     db_column='hersteller',
@@ -4441,7 +4422,7 @@ class Poller(SimpleModel):
     null=True
   )
   typ = ForeignKey(
-    Typen_Poller,
+    to=Typen_Poller,
     verbose_name='Typ',
     on_delete=SET_NULL,
     db_column='typ',
@@ -4451,12 +4432,12 @@ class Poller(SimpleModel):
     null=True
   )
   anzahl = PositiveSmallIntegerMinField(
-    'Anzahl',
+    verbose_name='Anzahl',
     min_value=1
   )
   schliessungen = ChoiceArrayField(
     CharField(
-      'Schließungen',
+      verbose_name='Schließungen',
       max_length=255,
       choices=()
     ),
@@ -4465,7 +4446,7 @@ class Poller(SimpleModel):
     null=True
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
@@ -4496,7 +4477,6 @@ class Poller(SimpleModel):
       'anzahl': 'Anzahl',
       'schliessungen': 'Schließungen'
     }
-    list_fields_with_number = ['anzahl']
     list_fields_with_foreign_key = {
       'art': 'art',
       'status': 'status',
@@ -4511,7 +4491,7 @@ class Poller(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'art': 'Art',
       'nummer': 'Nummer',
@@ -4535,7 +4515,7 @@ class Reinigungsreviere(SimpleModel):
   """
 
   gemeindeteil = ForeignKey(
-    Gemeindeteile,
+    to=Gemeindeteile,
     verbose_name='Gemeindeteil',
     on_delete=SET_NULL,
     db_column='gemeindeteil',
@@ -4545,14 +4525,14 @@ class Reinigungsreviere(SimpleModel):
     null=True
   )
   nummer = PositiveSmallIntegerMinField(
-    'Nummer',
+    verbose_name='Nummer',
     min_value=1,
     unique=True,
     blank=True,
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
@@ -4575,11 +4555,10 @@ class Reinigungsreviere(SimpleModel):
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung'
     }
-    list_fields_with_number = ['nummer']
     list_fields_with_foreign_key = {
       'gemeindeteil': 'gemeindeteil'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'gemeindeteil': 'Gemeindeteil',
       'nummer': 'Nummer',
@@ -4612,7 +4591,7 @@ class Rettungswachen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4622,12 +4601,12 @@ class Rettungswachen(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -4635,7 +4614,7 @@ class Rettungswachen(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -4647,7 +4626,7 @@ class Rettungswachen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -4659,7 +4638,7 @@ class Rettungswachen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -4670,7 +4649,7 @@ class Rettungswachen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -4710,7 +4689,7 @@ class Rettungswachen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger'
@@ -4729,7 +4708,7 @@ class Schiffsliegeplaetze(SimpleModel):
   """
 
   hafen = ForeignKey(
-    Haefen,
+    to=Haefen,
     verbose_name='Hafen',
     on_delete=CASCADE,
     db_column='hafen',
@@ -4737,17 +4716,17 @@ class Schiffsliegeplaetze(SimpleModel):
     related_name='%(app_label)s_%(class)s_haefen'
   )
   liegeplatznummer = CharField(
-    'Liegeplatz',
+    verbose_name='Liegeplatz',
     max_length=255,
     validators=standard_validators
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   liegeplatzlaenge = DecimalField(
-    'Liegeplatzlänge (in m)',
+    verbose_name='Liegeplatzlänge (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -4764,7 +4743,7 @@ class Schiffsliegeplaetze(SimpleModel):
     null=True
   )
   zulaessiger_tiefgang = DecimalField(
-    ' zulässiger Tiefgang (in m)',
+    verbose_name=' zulässiger Tiefgang (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -4781,7 +4760,7 @@ class Schiffsliegeplaetze(SimpleModel):
     null=True
   )
   zulaessige_schiffslaenge = DecimalField(
-    ' zulässige Schiffslänge (in m)',
+    verbose_name=' zulässige Schiffslänge (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -4798,7 +4777,7 @@ class Schiffsliegeplaetze(SimpleModel):
     null=True
   )
   kaihoehe = DecimalField(
-    'Kaihöhe (in m)',
+    verbose_name='Kaihöhe (in m)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -4815,21 +4794,21 @@ class Schiffsliegeplaetze(SimpleModel):
     null=True
   )
   pollerzug = CharField(
-    'Pollerzug',
+    verbose_name='Pollerzug',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   poller_von = CharField(
-    'Poller (von)',
+    verbose_name='Poller (von)',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   poller_bis = CharField(
-    'Poller (bis)',
+    verbose_name='Poller (bis)',
     max_length=255,
     blank=True,
     null=True,
@@ -4853,11 +4832,11 @@ class Schiffsliegeplaetze(SimpleModel):
       'bezeichnung': 'Bezeichnung',
       'zulaessiger_tiefgang': 'zulässiger Tiefgang (in m)'
     }
-    list_fields_with_number = ['zulaessiger_tiefgang']
+    list_fields_with_decimal = ['zulaessiger_tiefgang']
     list_fields_with_foreign_key = {
       'hafen': 'bezeichnung'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'hafen': 'Hafen',
       'liegeplatznummer': 'Liegeplatz',
@@ -4876,7 +4855,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
   """
 
   tierseuche = ForeignKey(
-    Tierseuchen,
+    to=Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=RESTRICT,
     db_column='tierseuche',
@@ -4884,7 +4863,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
     related_name='%(app_label)s_%(class)s_tierseuchen'
   )
   zustand = ForeignKey(
-    Zustaende_Schutzzaeune_Tierseuchen,
+    to=Zustaende_Schutzzaeune_Tierseuchen,
     verbose_name='Zustand',
     on_delete=RESTRICT,
     db_column='zustand',
@@ -4892,7 +4871,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
     related_name='%(app_label)s_%(class)s_zustaende'
   )
   laenge = PositiveIntegerField(
-    'Länge (in m)',
+    verbose_name='Länge (in m)',
     default=0
   )
   geometrie = multiline_field
@@ -4913,7 +4892,6 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
       'laenge': 'Länge (in m)',
       'zustand': 'Zustand'
     }
-    list_fields_with_number = ['laenge']
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung',
       'zustand': 'zustand'
@@ -4926,7 +4904,7 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'zustand'
+    map_feature_tooltip_fields = ['zustand']
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
       'zustand': 'Zustand'
@@ -4943,7 +4921,7 @@ class Sporthallen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -4953,12 +4931,12 @@ class Sporthallen(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -4966,7 +4944,7 @@ class Sporthallen(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   sportart = ForeignKey(
-    Sportarten,
+    to=Sportarten,
     verbose_name='Sportart',
     on_delete=RESTRICT,
     db_column='sportart',
@@ -4974,18 +4952,18 @@ class Sporthallen(SimpleModel):
     related_name='%(app_label)s_%(class)s_sportarten'
   )
   barrierefrei = BooleanField(
-    ' barrierefrei?',
+    verbose_name=' barrierefrei?',
     blank=True,
     null=True
   )
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   foto = ImageField(
-    'Foto',
+    verbose_name='Foto',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC + 'sporthallen'
@@ -5006,7 +4984,6 @@ class Sporthallen(SimpleModel):
     address_type = 'Adresse'
     address_mandatory = True
     geometry_type = 'Point'
-    thumbs = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
@@ -5034,7 +5011,7 @@ class Sporthallen(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger',
@@ -5063,7 +5040,7 @@ class Stadtteil_Begegnungszentren(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -5073,12 +5050,12 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   traeger = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Träger',
     on_delete=RESTRICT,
     db_column='traeger',
@@ -5086,18 +5063,18 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     related_name='%(app_label)s_%(class)s_traeger'
   )
   barrierefrei = BooleanField(
-    ' barrierefrei?',
+    verbose_name=' barrierefrei?',
     blank=True,
     null=True
   )
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -5109,7 +5086,7 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -5121,7 +5098,7 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -5132,7 +5109,7 @@ class Stadtteil_Begegnungszentren(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -5172,7 +5149,7 @@ class Stadtteil_Begegnungszentren(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'traeger': 'Träger'
@@ -5191,7 +5168,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -5201,13 +5178,13 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     null=True
   )
   bewertungsjahr = PositiveSmallIntegerRangeField(
-    'Bewertungsjahr',
+    verbose_name='Bewertungsjahr',
     min_value=1990,
     max_value=get_current_year(),
     default=get_current_year()
   )
   quartier = ForeignKey(
-    Quartiere,
+    to=Quartiere,
     verbose_name='Quartier',
     on_delete=RESTRICT,
     db_column='quartier',
@@ -5215,7 +5192,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     related_name='%(app_label)s_%(class)s_quartiere'
   )
   kundschaftskontakte_anfangswert = DecimalField(
-    'Kundschaftskontakte (Anfangswert)',
+    verbose_name='Kundschaftskontakte (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5232,7 +5209,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   kundschaftskontakte_endwert = DecimalField(
-    'Kundschaftskontakte (Endwert)',
+    verbose_name='Kundschaftskontakte (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5249,7 +5226,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   verkehrsanbindung_anfangswert = DecimalField(
-    'Verkehrsanbindung (Anfangswert)',
+    verbose_name='Verkehrsanbindung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5266,7 +5243,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   verkehrsanbindung_endwert = DecimalField(
-    'Verkehrsanbindung (Endwert)',
+    verbose_name='Verkehrsanbindung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5283,7 +5260,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   ausstattung_anfangswert = DecimalField(
-    'Ausstattung (Anfangswert)',
+    verbose_name='Ausstattung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5300,7 +5277,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   ausstattung_endwert = DecimalField(
-    'Ausstattung (Endwert)',
+    verbose_name='Ausstattung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5317,7 +5294,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   beeintraechtigung_anfangswert = DecimalField(
-    'Beeinträchtigung (Anfangswert)',
+    verbose_name='Beeinträchtigung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5334,7 +5311,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   beeintraechtigung_endwert = DecimalField(
-    'Beeinträchtigung (Endwert)',
+    verbose_name='Beeinträchtigung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5351,7 +5328,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   standortnutzung_anfangswert = DecimalField(
-    'Standortnutzung (Anfangswert)',
+    verbose_name='Standortnutzung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5368,7 +5345,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   standortnutzung_endwert = DecimalField(
-    'Standortnutzung (Endwert)',
+    verbose_name='Standortnutzung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5413,8 +5390,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
       'standortnutzung_anfangswert': 'Standortnutzung (Anfangswert)',
       'standortnutzung_endwert': 'Standortnutzung (Endwert)'
     }
-    list_fields_with_number = [
-      'bewertungsjahr',
+    list_fields_with_decimal = [
       'kundschaftskontakte_anfangswert',
       'kundschaftskontakte_endwert',
       'verkehrsanbindung_anfangswert',
@@ -5430,7 +5406,7 @@ class Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet(SimpleModel):
       'adresse': 'adresse',
       'quartier': 'code'
     }
-    map_feature_tooltip_field = 'adresse'
+    map_feature_tooltip_fields = ['adresse']
     map_filter_fields = {
       'adresse': 'Adresse',
       'bewertungsjahr': 'Bewertungsjahr',
@@ -5448,7 +5424,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -5458,13 +5434,13 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     null=True
   )
   bewertungsjahr = PositiveSmallIntegerRangeField(
-    'Bewertungsjahr',
+    verbose_name='Bewertungsjahr',
     min_value=1990,
     max_value=get_current_year(),
     default=get_current_year()
   )
   quartier = ForeignKey(
-    Quartiere,
+    to=Quartiere,
     verbose_name='Quartier',
     on_delete=RESTRICT,
     db_column='quartier',
@@ -5472,7 +5448,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     related_name='%(app_label)s_%(class)s_quartiere'
   )
   gesellschaftslage_anfangswert = DecimalField(
-    'Gesellschaftslage (Anfangswert)',
+    verbose_name='Gesellschaftslage (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5489,7 +5465,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   gesellschaftslage_endwert = DecimalField(
-    'Gesellschaftslage (Endwert)',
+    verbose_name='Gesellschaftslage (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5506,7 +5482,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   verkehrsanbindung_anfangswert = DecimalField(
-    'Verkehrsanbindung (Anfangswert)',
+    verbose_name='Verkehrsanbindung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5523,7 +5499,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   verkehrsanbindung_endwert = DecimalField(
-    'Verkehrsanbindung (Endwert)',
+    verbose_name='Verkehrsanbindung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5540,7 +5516,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   ausstattung_anfangswert = DecimalField(
-    'Ausstattung (Anfangswert)',
+    verbose_name='Ausstattung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5557,7 +5533,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   ausstattung_endwert = DecimalField(
-    'Ausstattung (Endwert)',
+    verbose_name='Ausstattung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5574,7 +5550,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   beeintraechtigung_anfangswert = DecimalField(
-    'Beeinträchtigung (Anfangswert)',
+    verbose_name='Beeinträchtigung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5591,7 +5567,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   beeintraechtigung_endwert = DecimalField(
-    'Beeinträchtigung (Endwert)',
+    verbose_name='Beeinträchtigung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5608,7 +5584,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   standortnutzung_anfangswert = DecimalField(
-    'Standortnutzung (Anfangswert)',
+    verbose_name='Standortnutzung (Anfangswert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5625,7 +5601,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
     ]
   )
   standortnutzung_endwert = DecimalField(
-    'Standortnutzung (Endwert)',
+    verbose_name='Standortnutzung (Endwert)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5670,8 +5646,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
       'standortnutzung_anfangswert': 'Standortnutzung (Anfangswert)',
       'standortnutzung_endwert': 'Standortnutzung (Endwert)'
     }
-    list_fields_with_number = [
-      'bewertungsjahr',
+    list_fields_with_decimal = [
       'gesellschaftslage_anfangswert',
       'gesellschaftslage_endwert',
       'verkehrsanbindung_anfangswert',
@@ -5687,7 +5662,7 @@ class Standortqualitaeten_Wohnlagen_Sanierungsgebiet(SimpleModel):
       'adresse': 'adresse',
       'quartier': 'code'
     }
-    map_feature_tooltip_field = 'adresse'
+    map_feature_tooltip_fields = ['adresse']
     map_filter_fields = {
       'adresse': 'Adresse',
       'bewertungsjahr': 'Bewertungsjahr',
@@ -5705,34 +5680,34 @@ class Thalasso_Kurwege(SimpleModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   streckenbeschreibung = CharField(
-    'Streckenbeschreibung',
+    verbose_name='Streckenbeschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   barrierefrei = BooleanField(
-    ' barrierefrei?',
+    verbose_name=' barrierefrei?',
     default=False
   )
   farbe = CharField(
-    'Farbe',
+    verbose_name='Farbe',
     max_length=7
   )
   beschriftung = CharField(
-    'Beschriftung',
+    verbose_name='Beschriftung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   laenge = PositiveIntegerField(
-    'Länge (in m)',
+    verbose_name='Länge (in m)',
     default=0
   )
   geometrie = line_field
@@ -5755,7 +5730,6 @@ class Thalasso_Kurwege(SimpleModel):
       'beschriftung': 'Beschriftung',
       'laenge': 'Länge (in m)'
     }
-    list_fields_with_number = ['laenge']
     list_actions_assign = [
       {
         'action_name': 'thalasso_kurwege-barrierefrei',
@@ -5764,7 +5738,7 @@ class Thalasso_Kurwege(SimpleModel):
         'type': 'boolean'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'streckenbeschreibung': 'Streckenbeschreibung',
@@ -5781,7 +5755,7 @@ class Toiletten(SimpleModel):
   """
 
   art = ForeignKey(
-    Arten_Toiletten,
+    to=Arten_Toiletten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -5789,7 +5763,7 @@ class Toiletten(SimpleModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   bewirtschafter = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Bewirtschafter',
     on_delete=SET_NULL,
     db_column='bewirtschafter',
@@ -5802,7 +5776,7 @@ class Toiletten(SimpleModel):
   duschmoeglichkeit = BooleanField('Duschmöglichkeit vorhanden?')
   wickelmoeglichkeit = BooleanField('Wickelmöglichkeit vorhanden?')
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
@@ -5839,7 +5813,7 @@ class Toiletten(SimpleModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'art'
+    map_feature_tooltip_fields = ['art']
     map_filter_fields = {
       'art': 'Art',
       'bewirtschafter': 'Bewirtschafter',
@@ -5861,7 +5835,7 @@ class Trinkwassernotbrunnen(SimpleModel):
   """
 
   nummer = CharField(
-    'Nummer',
+    verbose_name='Nummer',
     max_length=12,
     validators=[
       RegexValidator(
@@ -5871,12 +5845,12 @@ class Trinkwassernotbrunnen(SimpleModel):
     ]
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   eigentuemer = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
     on_delete=SET_NULL,
     db_column='eigentuemer',
@@ -5886,7 +5860,7 @@ class Trinkwassernotbrunnen(SimpleModel):
     null=True
   )
   betreiber = ForeignKey(
-    Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Betreiber',
     on_delete=RESTRICT,
     db_column='betreiber',
@@ -5895,7 +5869,7 @@ class Trinkwassernotbrunnen(SimpleModel):
   )
   betriebsbereit = BooleanField(' betriebsbereit?')
   bohrtiefe = DecimalField(
-    'Bohrtiefe (in m)',
+    verbose_name='Bohrtiefe (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5910,7 +5884,7 @@ class Trinkwassernotbrunnen(SimpleModel):
     ]
   )
   ausbautiefe = DecimalField(
-    'Ausbautiefe (in m)',
+    verbose_name='Ausbautiefe (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -5944,7 +5918,7 @@ class Trinkwassernotbrunnen(SimpleModel):
       'bohrtiefe': 'Bohrtiefe (in m)',
       'ausbautiefe': 'Ausbautiefe (in m)'
     }
-    list_fields_with_number = ['bohrtiefe', 'ausbautiefe']
+    list_fields_with_decimal = ['bohrtiefe', 'ausbautiefe']
     list_fields_with_foreign_key = {
       'eigentuemer': 'bezeichnung',
       'betreiber': 'bezeichnung'
@@ -5969,7 +5943,7 @@ class Trinkwassernotbrunnen(SimpleModel):
         'type': 'boolean'
       }
     ]
-    map_feature_tooltip_field = 'nummer'
+    map_feature_tooltip_fields = ['nummer']
     map_filter_fields = {
       'nummer': 'Nummer',
       'bezeichnung': 'Bezeichnung',
@@ -5991,7 +5965,7 @@ class Vereine(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -6001,31 +5975,31 @@ class Vereine(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   vereinsregister_id = PositiveSmallIntegerMinField(
-    'ID im Vereinsregister',
+    verbose_name='ID im Vereinsregister',
     min_value=1,
     blank=True,
     null=True
   )
   vereinsregister_datum = DateField(
-    'Datum des Eintrags im Vereinsregister',
+    verbose_name='Datum des Eintrags im Vereinsregister',
     blank=True,
     null=True
   )
   schlagwoerter = ChoiceArrayField(
     CharField(
-      'Schlagwörter',
+      verbose_name='Schlagwörter',
       max_length=255,
       choices=()
     ),
     verbose_name='Schlagwörter'
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -6037,7 +6011,7 @@ class Vereine(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -6049,7 +6023,7 @@ class Vereine(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -6060,7 +6034,7 @@ class Vereine(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -6094,7 +6068,7 @@ class Vereine(SimpleModel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'schlagwoerter': 'Schlagwörter'
@@ -6110,7 +6084,7 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -6120,13 +6094,13 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   berechtigungen = ChoiceArrayField(
     CharField(
-      ' verkaufte Berechtigung(en)',
+      verbose_name=' verkaufte Berechtigung(en)',
       max_length=255,
       choices=()
     ),
@@ -6135,18 +6109,18 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     null=True
   )
   barrierefrei = BooleanField(
-    ' barrierefrei?',
+    verbose_name=' barrierefrei?',
     blank=True,
     null=True
   )
   zeiten = CharField(
-    'Öffnungszeiten',
+    verbose_name='Öffnungszeiten',
     max_length=255,
     blank=True,
     null=True
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -6158,7 +6132,7 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -6170,7 +6144,7 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -6181,7 +6155,7 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     ]
   )
   website = CharField(
-    'Website',
+    verbose_name='Website',
     max_length=255,
     blank=True,
     null=True,
@@ -6216,7 +6190,7 @@ class Verkaufstellen_Angelberechtigungen(SimpleModel):
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'berechtigungen': 'verkaufte Berechtigung(en)'
@@ -6262,7 +6236,7 @@ BEMAS_ALTDATEN_VERURSACHER_TARGET_SECTOR_CHOICES = (
 
 class Bemas_Altdaten_Verursacher(Basemodel):
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -6272,69 +6246,69 @@ class Bemas_Altdaten_Verursacher(Basemodel):
     null=True
   )
   id = PositiveIntegerField(
-    ' aus altem BEMAS: ID',
+    verbose_name=' aus altem BEMAS: ID',
     default=0
   )
   bearbeitet = BooleanField(
-    ' bearbeitet?'
+    verbose_name=' bearbeitet?'
   )
   reason_sector = BooleanField(
-    'Mangel in altem BEMAS: Branche fehlte'
+    verbose_name='Mangel in altem BEMAS: Branche fehlte'
   )
   reason_emission_point = BooleanField(
-    'Mangel in altem BEMAS: Verortung fehlte'
+    verbose_name='Mangel in altem BEMAS: Verortung fehlte'
   )
   target_sector = CharField(
-    ' für neues BEMAS: Branche',
+    verbose_name=' für neues BEMAS: Branche',
     choices=BEMAS_ALTDATEN_VERURSACHER_TARGET_SECTOR_CHOICES
   )
   target_description = TextField(
-    ' für neues BEMAS: Beschreibung',
+    verbose_name=' für neues BEMAS: Beschreibung',
     validators=standard_validators
   )
   source_verursacher_strasse = CharField(
-    ' aus altem BEMAS: Verursacher Straße',
+    verbose_name=' aus altem BEMAS: Verursacher Straße',
     blank=True,
     null=True
   )
   source_verursacher_plz = CharField(
-    ' aus altem BEMAS: Verursacher PLZ',
+    verbose_name=' aus altem BEMAS: Verursacher PLZ',
     blank=True,
     null=True
   )
   source_verursacher_ort = CharField(
-    ' aus altem BEMAS: Verursacher Ort',
+    verbose_name=' aus altem BEMAS: Verursacher Ort',
     blank=True,
     null=True
   )
   source_betreiber_name = CharField(
-    ' aus altem BEMAS: Betreiber Name',
+    verbose_name=' aus altem BEMAS: Betreiber Name',
     blank=True,
     null=True
   )
   source_betreiber_strasse = CharField(
-    ' aus altem BEMAS: Betreiber Straße',
+    verbose_name=' aus altem BEMAS: Betreiber Straße',
     blank=True,
     null=True
   )
   source_betreiber_plz = CharField(
-    ' aus altem BEMAS: Betreiber PLZ',
+    verbose_name=' aus altem BEMAS: Betreiber PLZ',
     blank=True,
     null=True
   )
   source_betreiber_ort = CharField(
-    ' aus altem BEMAS: Betreiber Ort',
+    verbose_name=' aus altem BEMAS: Betreiber Ort',
     blank=True,
     null=True
   )
   target_operator_organization_id = PositiveIntegerField(
-    ' aus altem BEMAS: Betreiber Organisation',
+    verbose_name=' aus altem BEMAS: Betreiber Organisation',
     default=0,
     blank=True,
     null=True
   )
   target_operator_person_id = PositiveIntegerField(
-    ' aus altem BEMAS: Betreiber Person',
+    verbose_name=' aus altem BEMAS: Betreiber Person',
     default=0,
     blank=True,
     null=True
@@ -6366,11 +6340,10 @@ class Bemas_Altdaten_Verursacher(Basemodel):
       'target_sector': 'Branche',
       'target_description': 'Beschreibung'
     }
-    list_fields_with_number = ['id']
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
 
   def __str__(self):
     return str(self.id)
@@ -6396,7 +6369,7 @@ BEMAS_ALTDATEN_BESCHWERDEN_TARGET_TYPE_OF_IMMISSION_CHOICES = (
 
 class Bemas_Altdaten_Beschwerden(Basemodel):
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -6406,59 +6379,59 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
     null=True
   )
   id = PositiveIntegerField(
-    ' aus altem BEMAS: ID',
+    verbose_name=' aus altem BEMAS: ID',
     default=0
   )
   bearbeitet = BooleanField(
-    ' bearbeitet?'
+    verbose_name=' bearbeitet?'
   )
   reason_date_of_receipt = BooleanField(
-    'Mangel in altem BEMAS: Eingangsdatum fehlte'
+    verbose_name='Mangel in altem BEMAS: Eingangsdatum fehlte'
   )
   reason_type_of_immission = BooleanField(
-    'Mangel in altem BEMAS: Immissionsart fehlte'
+    verbose_name='Mangel in altem BEMAS: Immissionsart fehlte'
   )
   reason_originator_id = BooleanField(
-    'Mangel in altem BEMAS: Verursacher ebenfalls mit Mängeln'
+    verbose_name='Mangel in altem BEMAS: Verursacher ebenfalls mit Mängeln'
   )
   reason_immission_point = BooleanField(
-    'Mangel in altem BEMAS: Verortung fehlte'
+    verbose_name='Mangel in altem BEMAS: Verortung fehlte'
   )
   target_date_of_receipt = DateField(
-    ' für neues BEMAS: Eingangsdatum'
+    verbose_name=' für neues BEMAS: Eingangsdatum'
   )
   target_status = CharField(
-    ' für neues BEMAS: Bearbeitungsstatus',
+    verbose_name=' für neues BEMAS: Bearbeitungsstatus',
     choices=BEMAS_ALTDATEN_BESCHWERDEN_TARGET_STATUS_CHOICES
   )
   target_type_of_immission = CharField(
-    ' für neues BEMAS: Immissionsart',
+    verbose_name=' für neues BEMAS: Immissionsart',
     choices=BEMAS_ALTDATEN_BESCHWERDEN_TARGET_TYPE_OF_IMMISSION_CHOICES
   )
   target_originator_id = PositiveIntegerField(
-    ' aus altem BEMAS/für neues BEMAS: Verursacher'
+    verbose_name=' aus altem BEMAS/für neues BEMAS: Verursacher'
   )
   target_description = TextField(
-    ' für neues BEMAS: Beschreibung',
+    verbose_name=' für neues BEMAS: Beschreibung',
     validators=standard_validators
   )
   source_beschwerdefuehrer_strasse = CharField(
-    ' aus altem BEMAS: Beschwerdeführer Straße',
+    verbose_name=' aus altem BEMAS: Beschwerdeführer Straße',
     blank=True,
     null=True
   )
   source_beschwerdefuehrer_plz = CharField(
-    ' aus altem BEMAS: Beschwerdeführer PLZ',
+    verbose_name=' aus altem BEMAS: Beschwerdeführer PLZ',
     blank=True,
     null=True
   )
   source_beschwerdefuehrer_ort = CharField(
-    ' aus altem BEMAS: Beschwerdeführer Ort',
+    verbose_name=' aus altem BEMAS: Beschwerdeführer Ort',
     blank=True,
     null=True
   )
   source_immissionsart = CharField(
-    ' aus altem BEMAS: Immissionsart',
+    verbose_name=' aus altem BEMAS: Immissionsart',
     blank=True,
     null=True
   )
@@ -6494,11 +6467,10 @@ class Bemas_Altdaten_Beschwerden(Basemodel):
       'target_description': 'Beschreibung'
     }
     list_fields_with_date = ['target_date_of_receipt']
-    list_fields_with_number = ['id', 'target_originator_id']
     list_fields_with_foreign_key = {
       'adresse': 'adresse'
     }
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
 
   def __str__(self):
     return str(self.id)
@@ -6515,24 +6487,24 @@ BEMAS_ALTDATEN_JOURNALEREIGNISSE_TARGET_TYPE_OF_EVENT = (
 
 class Bemas_Altdaten_Journalereignisse(Basemodel):
   id = PositiveIntegerField(
-    ' aus altem BEMAS: ID',
+    verbose_name=' aus altem BEMAS: ID',
     default=0
   )
   bearbeitet = BooleanField(
-    ' bearbeitet?'
+    verbose_name=' bearbeitet?'
   )
   target_created_at = DateTimeField(
-    ' für neues BEMAS: Zeitstempel'
+    verbose_name=' für neues BEMAS: Zeitstempel'
   )
   target_complaint_id = PositiveIntegerField(
-    ' aus altem BEMAS/für neues BEMAS: Beschwerde'
+    verbose_name=' aus altem BEMAS/für neues BEMAS: Beschwerde'
   )
   target_type_of_event = CharField(
-    ' für neues BEMAS: Ereignisart',
+    verbose_name=' für neues BEMAS: Ereignisart',
     choices=BEMAS_ALTDATEN_JOURNALEREIGNISSE_TARGET_TYPE_OF_EVENT
   )
   target_description = TextField(
-    ' für neues BEMAS: Beschreibung',
+    verbose_name=' für neues BEMAS: Beschreibung',
     validators=standard_validators
   )
 
@@ -6553,7 +6525,6 @@ class Bemas_Altdaten_Journalereignisse(Basemodel):
       'target_description': 'Beschreibung'
     }
     list_fields_with_datetime = ['target_created_at']
-    list_fields_with_number = ['id', 'target_complaint_id']
 
   def __str__(self):
     return str(self.id)

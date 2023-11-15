@@ -12,7 +12,7 @@ class Subsets(Model):
     auto_now=True
   )
   model = ForeignKey(
-    ContentType,
+    to=ContentType,
     on_delete=CASCADE
   )
   pk_field = CharField(
@@ -38,24 +38,24 @@ class PdfTemplate(Model):
     primary_key=True
   )
   created_at = DateTimeField(
-    'Erstellungszeitpunkt',
+    verbose_name='Erstellungszeitpunkt',
     auto_now=True
   )
   templatefile = FileField(
-    'tatsächliche Templatedatei',
+    verbose_name='tatsächliche Templatedatei',
     upload_to='latex_templates/'
   )
   suitedfor = ManyToManyField(
-    ContentType,
+    to=ContentType,
     through='SuitableFor',
     verbose_name='geeignet für Datenthemen'
   )
   name = TextField(
-    'Name des Templates',
+    verbose_name='Name des Templates',
     default='noch nicht benannt'
   )
   description = TextField(
-    'Kurzbeschreibung des Templates'
+    verbose_name='Kurzbeschreibung des Templates'
   )
 
   class Meta:
@@ -71,7 +71,7 @@ class SuitableFor(Model):
     primary_key=True
   )
   datenthema = ForeignKey(
-    ContentType,
+    to=ContentType,
     on_delete=CASCADE,
     limit_choices_to={'app_label': 'datenmanagement'}
   )
@@ -80,12 +80,12 @@ class SuitableFor(Model):
     on_delete=CASCADE
   )
   usedkeys = JSONField(
-    'ins Template zu speisende Attribute',
+    verbose_name='ins Template zu speisende Attribute',
     blank=True,
     null=True
   )
   sortby = JSONField(
-    'Sortierung der Einträge',
+    verbose_name='Sortierung der Einträge',
     blank=True,
     null=True
   )

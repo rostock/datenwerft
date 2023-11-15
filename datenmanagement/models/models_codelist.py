@@ -28,47 +28,47 @@ class Adressen(Metamodel):
   """
 
   gemeinde = CharField(
-    'Gemeinde',
+    verbose_name='Gemeinde',
     max_length=255,
     blank=True,
     null=True,
     editable=False
   )
   gemeindeteil = CharField(
-    'Gemeindeteil',
+    verbose_name='Gemeindeteil',
     max_length=255,
     blank=True,
     null=True,
     editable=False
   )
   strasse = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     blank=True,
     null=True,
     editable=False
   )
   hausnummer = CharField(
-    'Hausnummer',
+    verbose_name='Hausnummer',
     max_length=4,
     blank=True,
     null=True,
     editable=False
   )
   postleitzahl = CharField(
-    'Postleitzahl',
+    verbose_name='Postleitzahl',
     max_length=5,
     blank=True,
     null=True,
     editable=False
   )
   adresse = CharField(
-    'Adresse',
+    verbose_name='Adresse',
     max_length=255,
     editable=False
   )
   adresse_lang = CharField(
-    'Adresse',
+    verbose_name='Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -101,26 +101,26 @@ class Strassen(Metamodel):
   """
 
   gemeinde = CharField(
-    'Gemeinde',
+    verbose_name='Gemeinde',
     max_length=255,
     blank=True,
     null=True,
     editable=False
   )
   gemeindeteil = CharField(
-    'Gemeindeteil',
+    verbose_name='Gemeindeteil',
     max_length=255,
     blank=True,
     null=True,
     editable=False
   )
   strasse = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     editable=False
   )
   strasse_lang = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     blank=True,
     null=True,
@@ -151,7 +151,7 @@ class Inoffizielle_Strassen(Metamodel):
   """
 
   strasse = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     editable=False
   )
@@ -178,7 +178,7 @@ class Gemeindeteile(Metamodel):
   """
 
   gemeindeteil = CharField(
-    'Gemeindeteil',
+    verbose_name='Gemeindeteil',
     max_length=255,
     editable=False
   )
@@ -212,11 +212,11 @@ class Altersklassen_Kadaverfunde(Codelist):
   """
 
   ordinalzahl = PositiveSmallIntegerRangeField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     min_value=1
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -246,7 +246,7 @@ class Angebote_Mobilpunkte(Codelist):
   """
 
   angebot = CharField(
-    'Angebot',
+    verbose_name='Angebot',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -274,7 +274,7 @@ class Angelberechtigungen(Codelist):
   """
 
   angelberechtigung = CharField(
-    'Angelberechtigung',
+    verbose_name='Angelberechtigung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -302,21 +302,21 @@ class Ansprechpartner_Baustellen(Codelist):
   """
 
   vorname = CharField(
-    'Vorname',
+    verbose_name='Vorname',
     max_length=255,
     blank=True,
     null=True,
     validators=personennamen_validators
   )
   nachname = CharField(
-    'Nachname',
+    verbose_name='Nachname',
     max_length=255,
     blank=True,
     null=True,
     validators=personennamen_validators
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     unique=True,
     validators=[
@@ -607,7 +607,7 @@ class Auftraggeber_Baustellen(Codelist):
   """
 
   auftraggeber = CharField(
-    'Auftraggeber',
+    verbose_name='Auftraggeber',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -635,7 +635,7 @@ class Ausfuehrungen_Haltestellenkataster(Codelist):
   """
 
   ausfuehrung = CharField(
-    'Ausführung',
+    verbose_name='Ausführung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -692,7 +692,7 @@ class Betriebsarten(Codelist):
   """
 
   betriebsart = CharField(
-    'Betriebsart',
+    verbose_name='Betriebsart',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -720,7 +720,7 @@ class Betriebszeiten(Codelist):
   """
 
   betriebszeit = CharField(
-    'Betriebszeit',
+    verbose_name='Betriebszeit',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -748,7 +748,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
   """
 
   bezirk = CharField(
-    'Bezirk',
+    verbose_name='Bezirk',
     max_length=6,
     blank=True,
     null=True,
@@ -760,41 +760,41 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     ]
   )
   farbe = CharField(
-    'Farbe',
+    verbose_name='Farbe',
     max_length=7,
     blank=True,
     null=True
   )
   auswaertig = BooleanField(
-    ' auswärtig?'
+    verbose_name=' auswärtig?'
   )
   bestellungszeitraum_beginn = DateField(
-    'Beginn des Bestellungszeitraums',
+    verbose_name='Beginn des Bestellungszeitraums',
     blank=True,
     null=True
   )
   bestellungszeitraum_ende = DateField(
-    'Ende des Bestellungszeitraums',
+    verbose_name='Ende des Bestellungszeitraums',
     blank=True,
     null=True
   )
   vorname = CharField(
-    'Vorname',
+    verbose_name='Vorname',
     max_length=255,
     validators=personennamen_validators
   )
   nachname = CharField(
-    'Nachname',
+    verbose_name='Nachname',
     max_length=255,
     validators=personennamen_validators
   )
   anschrift_strasse = CharField(
-    'Straße',
+    verbose_name='Straße',
     max_length=255,
     validators=standard_validators
   )
   anschrift_hausnummer = CharField(
-    'Hausnummer',
+    verbose_name='Hausnummer',
     max_length=4,
     validators=[
       RegexValidator(
@@ -804,7 +804,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     ]
   )
   anschrift_postleitzahl = CharField(
-    'Postleitzahl',
+    verbose_name='Postleitzahl',
     max_length=5,
     validators=[
       RegexValidator(
@@ -814,12 +814,12 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     ]
   )
   anschrift_ort = CharField(
-    'Ort',
+    verbose_name='Ort',
     max_length=255,
     validators=standard_validators
   )
   telefon_festnetz = CharField(
-    'Telefon (Festnetz)',
+    verbose_name='Telefon (Festnetz)',
     max_length=255,
     blank=True,
     null=True,
@@ -831,7 +831,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     ]
   )
   telefon_mobil = CharField(
-    'Telefon (mobil)',
+    verbose_name='Telefon (mobil)',
     max_length=255,
     blank=True,
     null=True,
@@ -843,7 +843,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
     ]
   )
   email = CharField(
-    'E-Mail-Adresse',
+    verbose_name='E-Mail-Adresse',
     max_length=255,
     blank=True,
     null=True,
@@ -896,13 +896,13 @@ class Bewirtschafter_Betreiber_Traeger_Eigentuemer(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   art = CharField(
-    'Art',
+    verbose_name='Art',
     max_length=255,
     validators=standard_validators
   )
@@ -930,7 +930,7 @@ class Anbieter_Carsharing(Codelist):
   """
 
   anbieter = CharField(
-    'Anbieter',
+    verbose_name='Anbieter',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -958,7 +958,7 @@ class E_Anschluesse_Parkscheinautomaten(Codelist):
   """
 
   e_anschluss = CharField(
-    'E-Anschluss',
+    verbose_name='E-Anschluss',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -986,7 +986,7 @@ class Ergebnisse_UVP_Vorpruefungen(Codelist):
   """
 
   ergebnis = CharField(
-    'Ergebnis',
+    verbose_name='Ergebnis',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1014,7 +1014,7 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   code = CharField(
-    'Code',
+    verbose_name='Code',
     max_length=1,
     unique=True,
     validators=[
@@ -1050,7 +1050,7 @@ class Fotomotive_Haltestellenkataster(Codelist):
   """
 
   fotomotiv = CharField(
-    'Fotomotiv',
+    verbose_name='Fotomotiv',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1078,13 +1078,13 @@ class Fundamenttypen_RSAG(Codelist):
   """
 
   typ = CharField(
-    'Typ',
+    verbose_name='Typ',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   erlaeuterung = CharField(
-    'Erläuterung',
+    verbose_name='Erläuterung',
     max_length=255,
     validators=standard_validators
   )
@@ -1115,7 +1115,7 @@ class Gebaeudearten_Meldedienst_punkthaft(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1143,14 +1143,14 @@ class Gebaeudebauweisen(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code',
+    verbose_name='Code',
     min_value=1,
     unique=True,
     blank=True,
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
@@ -1167,7 +1167,6 @@ class Gebaeudebauweisen(Codelist):
       'bezeichnung': 'Bezeichnung',
       'code': 'Code'
     }
-    list_fields_with_number = ['code']
 
   def __str__(self):
     return self.bezeichnung
@@ -1179,14 +1178,14 @@ class Gebaeudefunktionen(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code',
+    verbose_name='Code',
     min_value=1,
     unique=True,
     blank=True,
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
@@ -1203,7 +1202,6 @@ class Gebaeudefunktionen(Codelist):
       'bezeichnung': 'Bezeichnung',
       'code': 'Code'
     }
-    list_fields_with_number = ['code']
 
   def __str__(self):
     return self.bezeichnung
@@ -1215,7 +1213,7 @@ class Genehmigungsbehoerden_UVP_Vorhaben(Codelist):
   """
 
   genehmigungsbehoerde = CharField(
-    'Genehmigungsbehörde',
+    verbose_name='Genehmigungsbehörde',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1243,11 +1241,11 @@ class Geschlechter_Kadaverfunde(Codelist):
   """
 
   ordinalzahl = PositiveSmallIntegerRangeField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     min_value=1
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1277,12 +1275,12 @@ class Haefen(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   abkuerzung = CharField(
-    'Abkürzung',
+    verbose_name='Abkürzung',
     max_length=5,
     unique=True,
     validators=[
@@ -1293,7 +1291,7 @@ class Haefen(Codelist):
     ]
   )
   code = PositiveSmallIntegerRangeField(
-    'Code',
+    verbose_name='Code',
     min_value=1,
     unique=True,
     blank=True,
@@ -1313,7 +1311,6 @@ class Haefen(Codelist):
       'abkuerzung': 'Abkürzung',
       'code': 'Code'
     }
-    list_fields_with_number = ['code']
 
   def __str__(self):
     return self.bezeichnung
@@ -1325,7 +1322,7 @@ class Hersteller_Poller(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1353,7 +1350,7 @@ class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):
   """
 
   kabeltyp = CharField(
-    'Kabeltyp',
+    verbose_name='Kabeltyp',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1381,17 +1378,17 @@ class Kategorien_Strassen(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code',
+    verbose_name='Code',
     min_value=1,
     unique=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   erlaeuterung = CharField(
-    'Erläuterung',
+    verbose_name='Erläuterung',
     max_length=255,
     validators=standard_validators
   )
@@ -1410,7 +1407,6 @@ class Kategorien_Strassen(Codelist):
       'bezeichnung': 'Bezeichnung',
       'erlaeuterung': 'Erläuterung'
     }
-    list_fields_with_number = ['code']
 
   def __str__(self):
     return self.bezeichnung
@@ -1422,7 +1418,7 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(Codelist):
   """
 
   ladekarte = CharField(
-    'Ladekarte',
+    verbose_name='Ladekarte',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1450,7 +1446,7 @@ class Linien(Codelist):
   """
 
   linie = CharField(
-    'Linie',
+    verbose_name='Linie',
     max_length=4,
     unique=True,
     validators=[
@@ -1483,13 +1479,13 @@ class Mastkennzeichen_RSAG(Codelist):
   """
 
   kennzeichen = CharField(
-    'Kennzeichen',
+    verbose_name='Kennzeichen',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   erlaeuterung = CharField(
-    'Erläuterung',
+    verbose_name='Erläuterung',
     max_length=255,
     validators=standard_validators
   )
@@ -1520,13 +1516,13 @@ class Masttypen_RSAG(Codelist):
   """
 
   typ = CharField(
-    'Typ',
+    verbose_name='Typ',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   erlaeuterung = CharField(
-    'Erläuterung',
+    verbose_name='Erläuterung',
     max_length=255,
     validators=standard_validators
   )
@@ -1555,7 +1551,7 @@ class Masttypen_Haltestellenkataster(Codelist):
   """
 
   masttyp = CharField(
-    'Masttyp',
+    verbose_name='Masttyp',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1611,7 +1607,7 @@ class Objektarten_Lichtwellenleiterinfrastruktur(Codelist):
   """
 
   objektart = CharField(
-    'Objektart',
+    verbose_name='Objektart',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1639,7 +1635,7 @@ class Ordnungen_Fliessgewaesser(Codelist):
   """
 
   ordnung = PositiveSmallIntegerMinField(
-    'Ordnung',
+    verbose_name='Ordnung',
     min_value=1,
     unique=True
   )
@@ -1655,7 +1651,6 @@ class Ordnungen_Fliessgewaesser(Codelist):
     list_fields = {
       'ordnung': 'Ordnung'
     }
-    list_fields_with_number = ['ordnung']
 
   def __str__(self):
     return str(self.ordnung)
@@ -1667,7 +1662,7 @@ class Personentitel(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1695,7 +1690,7 @@ class Quartiere(Codelist):
   """
 
   code = CharField(
-    'Code',
+    verbose_name='Code',
     max_length=3,
     unique=True,
     validators=[
@@ -1728,7 +1723,7 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   raeumbreite = DecimalField(
-    'Räumbreite (in m)',
+    verbose_name='Räumbreite (in m)',
     max_digits=4,
     decimal_places=2,
     unique=True,
@@ -1756,9 +1751,9 @@ class Raeumbreiten_Strassenreinigungssatzung_HRO(Codelist):
     description = 'Räumbreiten gemäß Straßenreinigungssatzung ' \
                   'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
-      'raeumbreite': 'Räumbreite'
+      'raeumbreite': 'Räumbreite (in m)'
     }
-    list_fields_with_number = ['raeumbreite']
+    list_fields_with_decimal = ['raeumbreite']
 
   def __str__(self):
     return str(self.raeumbreite)
@@ -1770,7 +1765,7 @@ class Rechtsgrundlagen_UVP_Vorhaben(Codelist):
   """
 
   rechtsgrundlage = CharField(
-    'Rechtsgrundlage',
+    verbose_name='Rechtsgrundlage',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1798,13 +1793,13 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code',
+    verbose_name='Code',
     min_value=1,
     max_value=7,
     unique=True
   )
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    'Reinigungshäufigkeit pro Jahr',
+    verbose_name='Reinigungshäufigkeit pro Jahr',
     min_value=1
   )
 
@@ -1823,7 +1818,6 @@ class Reinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
       'code': 'Code',
       'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['code', 'reinigungshaeufigkeit_pro_jahr']
 
   def __str__(self):
     return str(self.code)
@@ -1835,17 +1829,17 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   ordinalzahl = PositiveSmallIntegerRangeField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     min_value=1,
     unique=True
   )
   reinigungsrhythmus = CharField(
-    'Reinigungsrhythmus',
+    verbose_name='Reinigungsrhythmus',
     max_length=255,
     validators=standard_validators
   )
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    'Reinigungshäufigkeit pro Jahr',
+    verbose_name='Reinigungshäufigkeit pro Jahr',
     min_value=1,
     blank=True,
     null=True
@@ -1868,7 +1862,6 @@ class Reinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
       'reinigungsrhythmus': 'Reinigungsrhythmus',
       'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['ordinalzahl', 'reinigungshaeufigkeit_pro_jahr']
 
   def __str__(self):
     return str(self.reinigungsrhythmus)
@@ -1880,7 +1873,7 @@ class Schaeden_Haltestellenkataster(Codelist):
   """
 
   schaden = CharField(
-    'Schaden',
+    verbose_name='Schaden',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1936,7 +1929,7 @@ class Schliessungen_Poller(Codelist):
   """
 
   schliessung = CharField(
-    'Schließung',
+    verbose_name='Schließung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1964,7 +1957,7 @@ class Sitzbanktypen_Haltestellenkataster(Codelist):
   """
 
   sitzbanktyp = CharField(
-    'Sitzbanktyp',
+    verbose_name='Sitzbanktyp',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -1992,7 +1985,7 @@ class Sparten_Baustellen(Codelist):
   """
 
   sparte = CharField(
-    'Sparte',
+    verbose_name='Sparte',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2020,7 +2013,7 @@ class Sportarten(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2104,7 +2097,7 @@ class Tierseuchen(Codelist):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2146,7 +2139,7 @@ class DFI_Typen_Haltestellenkataster(Codelist):
   """
 
   dfi_typ = CharField(
-    'DFI-Typ',
+    verbose_name='DFI-Typ',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2205,7 +2198,7 @@ class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
   """
 
   fahrgastunterstandstyp = CharField(
-    'Fahrgastunterstandstyp',
+    verbose_name='Fahrgastunterstandstyp',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2233,7 +2226,7 @@ class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
   """
 
   fahrplanvitrinentyp = CharField(
-    'Fahrplanvitrinentyp',
+    verbose_name='Fahrplanvitrinentyp',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2303,7 +2296,7 @@ class Verbuende_Ladestationen_Elektrofahrzeuge(Codelist):
   """
 
   verbund = CharField(
-    'Verbund',
+    verbose_name='Verbund',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2331,7 +2324,7 @@ class Verkehrliche_Lagen_Baustellen(Codelist):
   """
 
   verkehrliche_lage = CharField(
-    ' verkehrliche Lage',
+    verbose_name=' verkehrliche Lage',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2359,7 +2352,7 @@ class Verkehrsmittelklassen(Codelist):
   """
 
   verkehrsmittelklasse = CharField(
-    'Verkehrsmittelklasse',
+    verbose_name='Verkehrsmittelklasse',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2387,7 +2380,7 @@ class Vorgangsarten_UVP_Vorhaben(Codelist):
   """
 
   vorgangsart = CharField(
-    'Vorgangsart',
+    verbose_name='Vorgangsart',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2415,7 +2408,7 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   wegebreite = DecimalField(
-    'Wegebreite (in m)',
+    verbose_name='Wegebreite (in m)',
     max_digits=4,
     decimal_places=2,
     unique=True,
@@ -2443,9 +2436,9 @@ class Wegebreiten_Strassenreinigungssatzung_HRO(Codelist):
     description = 'Wegebreiten gemäß Straßenreinigungssatzung ' \
                   'der Hanse- und Universitätsstadt Rostock'
     list_fields = {
-      'wegebreite': 'Wegebreite'
+      'wegebreite': 'Wegebreite (in m)'
     }
-    list_fields_with_number = ['wegebreite']
+    list_fields_with_decimal = ['wegebreite']
 
   def __str__(self):
     return str(self.wegebreite)
@@ -2457,13 +2450,13 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   code = PositiveSmallIntegerRangeField(
-    'Code',
+    verbose_name='Code',
     min_value=1,
     max_value=7,
     unique=True
   )
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    'Reinigungshäufigkeit pro Jahr',
+    verbose_name='Reinigungshäufigkeit pro Jahr',
     min_value=1
   )
 
@@ -2482,7 +2475,6 @@ class Wegereinigungsklassen_Strassenreinigungssatzung_HRO(Codelist):
       'code': 'Code',
       'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['code', 'reinigungshaeufigkeit_pro_jahr']
 
   def __str__(self):
     return str(self.code)
@@ -2494,17 +2486,17 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   ordinalzahl = PositiveSmallIntegerRangeField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     min_value=1,
     unique=True
   )
   reinigungsrhythmus = CharField(
-    'Reinigungsrhythmus',
+    verbose_name='Reinigungsrhythmus',
     max_length=255,
     validators=standard_validators
   )
   reinigungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
-    'Reinigungshäufigkeit pro Jahr',
+    verbose_name='Reinigungshäufigkeit pro Jahr',
     min_value=1,
     blank=True,
     null=True
@@ -2527,7 +2519,6 @@ class Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO(Codelist):
       'reinigungsrhythmus': 'Reinigungsrhythmus',
       'reinigungshaeufigkeit_pro_jahr': 'Reinigungshäufigkeit pro Jahr'
     }
-    list_fields_with_number = ['ordinalzahl', 'reinigungshaeufigkeit_pro_jahr']
 
   def __str__(self):
     return str(self.reinigungsrhythmus)
@@ -2539,7 +2530,7 @@ class Wegetypen_Strassenreinigungssatzung_HRO(Codelist):
   """
 
   wegetyp = CharField(
-    'Wegetyp',
+    verbose_name='Wegetyp',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2570,13 +2561,13 @@ class Zeiteinheiten(Codelist):
   """
 
   zeiteinheit = CharField(
-    'Zeiteinheit',
+    verbose_name='Zeiteinheit',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   erlaeuterung = CharField(
-    'Erläuterung',
+    verbose_name='Erläuterung',
     max_length=255,
     validators=standard_validators
   )
@@ -2604,7 +2595,7 @@ class ZH_Typen_Haltestellenkataster(Codelist):
   """
 
   zh_typ = CharField(
-    'ZH-Typ',
+    verbose_name='ZH-Typ',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2632,7 +2623,7 @@ class Zonen_Parkscheinautomaten(Codelist):
   """
 
   zone = CharField(
-    'Zone',
+    verbose_name='Zone',
     max_length=1,
     unique=True,
     validators=[
@@ -2665,11 +2656,11 @@ class Zustaende_Kadaverfunde(Codelist):
   """
 
   ordinalzahl = PositiveSmallIntegerRangeField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     min_value=1
   )
   zustand = CharField(
-    'Zustand',
+    verbose_name='Zustand',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2688,7 +2679,6 @@ class Zustaende_Kadaverfunde(Codelist):
       'ordinalzahl': 'Ordinalzahl',
       'zustand': 'Zustand'
     }
-    list_fields_with_number = ['ordinalzahl']
 
   def __str__(self):
     return str(self.zustand)
@@ -2700,11 +2690,11 @@ class Zustaende_Schutzzaeune_Tierseuchen(Codelist):
   """
 
   ordinalzahl = PositiveSmallIntegerRangeField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     min_value=1
   )
   zustand = CharField(
-    'Zustand',
+    verbose_name='Zustand',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -2723,7 +2713,6 @@ class Zustaende_Schutzzaeune_Tierseuchen(Codelist):
       'ordinalzahl': 'Ordinalzahl',
       'zustand': 'Zustand'
     }
-    list_fields_with_number = ['ordinalzahl']
 
   def __str__(self):
     return str(self.zustand)
@@ -2735,7 +2724,7 @@ class Zustandsbewertungen(Codelist):
   """
 
   zustandsbewertung = PositiveSmallIntegerMinField(
-    'Zustandsbewertung',
+    verbose_name='Zustandsbewertung',
     min_value=1,
     unique=True
   )

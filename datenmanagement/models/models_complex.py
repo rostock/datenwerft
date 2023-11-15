@@ -56,7 +56,7 @@ class Adressunsicherheiten(ComplexModel):
   """
 
   adresse = ForeignKey(
-    Adressen,
+    to=Adressen,
     verbose_name='Adresse',
     on_delete=SET_NULL,
     db_column='adresse',
@@ -66,7 +66,7 @@ class Adressunsicherheiten(ComplexModel):
     null=True
   )
   art = ForeignKey(
-    Arten_Adressunsicherheiten,
+    to=Arten_Adressunsicherheiten,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -74,7 +74,7 @@ class Adressunsicherheiten(ComplexModel):
     related_name='%(app_label)s_%(class)s_arten'
   )
   beschreibung = CharField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=255,
     validators=standard_validators
   )
@@ -113,7 +113,7 @@ class Adressunsicherheiten(ComplexModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'art'
+    map_feature_tooltip_fields = ['art']
     map_filter_fields = {
       'aktiv': 'aktiv?',
       'art': 'Art',
@@ -132,7 +132,7 @@ class Adressunsicherheiten_Fotos(ComplexModel):
   """
 
   adressunsicherheit = ForeignKey(
-    Adressunsicherheiten,
+    to=Adressunsicherheiten,
     verbose_name='Adressunsicherheit',
     on_delete=CASCADE,
     db_column='adressunsicherheit',
@@ -140,16 +140,16 @@ class Adressunsicherheiten_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_adressunsicherheiten'
   )
   aufnahmedatum = DateField(
-    'Aufnahmedatum',
+    verbose_name='Aufnahmedatum',
     default=date.today
   )
   dateiname_original = CharField(
-    'Original-Dateiname',
+    verbose_name='Original-Dateiname',
     max_length=255,
     default='ohne'
   )
   foto = ImageField(
-    'Foto(s)',
+    verbose_name='Foto(s)',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE + 'adressunsicherheiten'
@@ -165,12 +165,10 @@ class Adressunsicherheiten_Fotos(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos der Adressunsicherheiten ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['adressunsicherheit']
-    object_title = 'das Foto'
-    foreign_key_label = 'Adressunsicherheit'
-    thumbs = True
-    multi_foto_field = True
+    multi_photos = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adressunsicherheit': 'Adressunsicherheit',
@@ -205,7 +203,7 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
   """
 
   strasse = ForeignKey(
-    Strassen,
+    to=Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -215,13 +213,13 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     null=True
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   verkehrliche_lagen = ChoiceArrayField(
     CharField(
-      ' verkehrliche Lage(n)',
+      verbose_name=' verkehrliche Lage(n)',
       max_length=255,
       choices=()
     ),
@@ -229,14 +227,14 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
   )
   sparten = ChoiceArrayField(
     CharField(
-      'Sparte(n)',
+      verbose_name='Sparte(n)',
       max_length=255,
       choices=()
     ),
     verbose_name='Sparte(n)'
   )
   auftraggeber = ForeignKey(
-    Auftraggeber_Baustellen,
+    to=Auftraggeber_Baustellen,
     verbose_name='Auftraggeber',
     on_delete=RESTRICT,
     db_column='auftraggeber',
@@ -244,12 +242,12 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
     related_name='%(app_label)s_%(class)s_auftraggeber'
   )
   ansprechpartner = CharField(
-    'Ansprechpartner:in',
+    verbose_name='Ansprechpartner:in',
     max_length=255,
     validators=ansprechpartner_validators
   )
   bemerkungen = CharField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
@@ -298,7 +296,7 @@ class Baustellen_Fotodokumentation_Baustellen(ComplexModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'sparten': 'Sparte(n)',
@@ -317,7 +315,7 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
   """
 
   baustellen_fotodokumentation_baustelle = ForeignKey(
-    Baustellen_Fotodokumentation_Baustellen,
+    to=Baustellen_Fotodokumentation_Baustellen,
     verbose_name='Baustelle',
     on_delete=CASCADE,
     db_column='baustellen_fotodokumentation_baustelle',
@@ -325,7 +323,7 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_baustellen_fotodokumentation_baustellen'
   )
   status = ForeignKey(
-    Status_Baustellen_Fotodokumentation_Fotos,
+    to=Status_Baustellen_Fotodokumentation_Fotos,
     verbose_name='Status',
     on_delete=RESTRICT,
     db_column='status',
@@ -333,16 +331,16 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_status'
   )
   aufnahmedatum = DateField(
-    'Aufnahmedatum',
+    verbose_name='Aufnahmedatum',
     default=date.today
   )
   dateiname_original = CharField(
-    'Original-Dateiname',
+    verbose_name='Original-Dateiname',
     max_length=255,
     default='ohne'
   )
   foto = ImageField(
-    'Foto(s)',
+    verbose_name='Foto(s)',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE + 'baustellen_fotodokumentation'
@@ -358,12 +356,10 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos der Baustellen-Fotodokumentation ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
-    object_title = 'das Foto'
-    foreign_key_label = 'Baustelle'
-    thumbs = True
-    multi_foto_field = True
+    multi_photos = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baustellen_fotodokumentation_baustelle': 'Baustelle',
@@ -415,7 +411,7 @@ class Baustellen_geplant(ComplexModel):
   """
 
   strasse = ForeignKey(
-    Strassen,
+    to=Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -425,26 +421,26 @@ class Baustellen_geplant(ComplexModel):
     null=True
   )
   projektbezeichnung = CharField(
-    'Projektbezeichnung',
+    verbose_name='Projektbezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   kurzbeschreibung = NullTextField(
-    'Kurzbeschreibung',
+    verbose_name='Kurzbeschreibung',
     max_length=500,
     blank=True,
     null=True,
     validators=standard_validators
   )
   lagebeschreibung = CharField(
-    'Lagebeschreibung',
+    verbose_name='Lagebeschreibung',
     max_length=255,
     blank=True,
     null=True,
@@ -452,7 +448,7 @@ class Baustellen_geplant(ComplexModel):
   )
   verkehrliche_lagen = ChoiceArrayField(
     CharField(
-      ' verkehrliche Lage(n)',
+      verbose_name=' verkehrliche Lage(n)',
       max_length=255,
       choices=()
     ),
@@ -460,7 +456,7 @@ class Baustellen_geplant(ComplexModel):
   )
   sparten = ChoiceArrayField(
     CharField(
-      'Sparte(n)',
+      verbose_name='Sparte(n)',
       max_length=255,
       choices=()
     ),
@@ -469,7 +465,7 @@ class Baustellen_geplant(ComplexModel):
   beginn = DateField('Beginn')
   ende = DateField('Ende')
   auftraggeber = ForeignKey(
-    Auftraggeber_Baustellen,
+    to=Auftraggeber_Baustellen,
     verbose_name='Auftraggeber',
     on_delete=RESTRICT,
     db_column='auftraggeber',
@@ -477,12 +473,12 @@ class Baustellen_geplant(ComplexModel):
     related_name='%(app_label)s_%(class)s_auftraggeber'
   )
   ansprechpartner = CharField(
-    'Ansprechpartner:in',
+    verbose_name='Ansprechpartner:in',
     max_length=255,
     validators=ansprechpartner_validators
   )
   status = ForeignKey(
-    Status_Baustellen_geplant,
+    to=Status_Baustellen_geplant,
     verbose_name='Status',
     on_delete=RESTRICT,
     db_column='status',
@@ -490,13 +486,13 @@ class Baustellen_geplant(ComplexModel):
     related_name='%(app_label)s_%(class)s_status'
   )
   konflikt = BooleanField(
-    'Konflikt?',
+    verbose_name='Konflikt?',
     blank=True,
     null=True,
     editable=False
   )
   konflikt_tolerieren = BooleanField(
-    ' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren?',
+    verbose_name=' räumliche(n)/zeitliche(n) Konflikt(e) mit anderem/anderen Vorhaben tolerieren?',
     blank=True,
     null=True
   )
@@ -559,7 +555,7 @@ class Baustellen_geplant(ComplexModel):
       }
     ]
     highlight_flag = 'konflikt'
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_one_click_filters = True
     map_deadlinefilter_fields = ['beginn', 'ende']
     map_filter_fields = {
@@ -588,7 +584,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
   """
 
   baustelle_geplant = ForeignKey(
-    Baustellen_geplant,
+    to=Baustellen_geplant,
     verbose_name='Baustelle (geplant)',
     on_delete=CASCADE,
     db_column='baustelle_geplant',
@@ -596,12 +592,12 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     related_name='%(app_label)s_%(class)s_baustellen_geplant'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   dokument = FileField(
-    'Dokument',
+    verbose_name='Dokument',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PDF_PATH_PREFIX_PUBLIC + 'baustellen_geplant'
@@ -617,9 +613,8 @@ class Baustellen_geplant_Dokumente(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Dokumente der Baustellen (geplant) ' \
                   'in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    short_name = 'Dokument'
     fields_with_foreign_key_to_linkify = ['baustelle_geplant']
-    object_title = 'das Dokument'
-    foreign_key_label = 'Baustelle (geplant)'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
@@ -644,7 +639,7 @@ class Baustellen_geplant_Links(ComplexModel):
   """
 
   baustelle_geplant = ForeignKey(
-    Baustellen_geplant,
+    to=Baustellen_geplant,
     verbose_name='Baustelle (geplant)',
     on_delete=CASCADE,
     db_column='baustelle_geplant',
@@ -652,12 +647,12 @@ class Baustellen_geplant_Links(ComplexModel):
     related_name='%(app_label)s_%(class)s_baustellen_geplant'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   link = CharField(
-    'Link',
+    verbose_name='Link',
     max_length=255,
     validators=[
       URLValidator(
@@ -674,9 +669,8 @@ class Baustellen_geplant_Links(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Links der Baustellen (geplant) ' \
                   'in der Hanse- und Universitätsstadt Rostock und Umgebung'
+    short_name = 'Link'
     fields_with_foreign_key_to_linkify = ['baustelle_geplant']
-    object_title = 'der Link'
-    foreign_key_label = 'Baustelle (geplant)'
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
@@ -702,7 +696,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
   """
 
   art = ForeignKey(
-    Arten_Durchlaesse,
+    to=Arten_Durchlaesse,
     verbose_name='Art',
     on_delete=SET_NULL,
     db_column='art',
@@ -712,7 +706,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     null=True
   )
   aktenzeichen = CharField(
-    'Aktenzeichen',
+    verbose_name='Aktenzeichen',
     max_length=255,
     unique=True,
     validators=[
@@ -723,7 +717,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     ]
   )
   material = ForeignKey(
-    Materialien_Durchlaesse,
+    to=Materialien_Durchlaesse,
     verbose_name='Material',
     on_delete=SET_NULL,
     db_column='material',
@@ -733,19 +727,19 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     null=True
   )
   baujahr = PositiveSmallIntegerRangeField(
-    'Baujahr',
+    verbose_name='Baujahr',
     max_value=get_current_year(),
     blank=True,
     null=True
   )
   nennweite = PositiveSmallIntegerMinField(
-    'Nennweite (in mm)',
+    verbose_name='Nennweite (in mm)',
     min_value=100,
     blank=True,
     null=True
   )
   laenge = DecimalField(
-    'Länge (in m)',
+    verbose_name='Länge (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -762,21 +756,21 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     null=True
   )
   nebenanlagen = NullTextField(
-    'Nebenanlagen',
+    verbose_name='Nebenanlagen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   zubehoer = NullTextField(
-    'Zubehör',
+    verbose_name='Zubehör',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   zustand_durchlass = ForeignKey(
-    Zustandsbewertungen,
+    to=Zustandsbewertungen,
     verbose_name='Zustand des Durchlasses',
     on_delete=SET_NULL,
     db_column='zustand_durchlass',
@@ -786,7 +780,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     null=True
   )
   zustand_nebenanlagen = ForeignKey(
-    Zustandsbewertungen,
+    to=Zustandsbewertungen,
     verbose_name='Zustand der Nebenanlagen',
     on_delete=SET_NULL,
     db_column='zustand_nebenanlagen',
@@ -796,7 +790,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     null=True
   )
   zustand_zubehoer = ForeignKey(
-    Zustandsbewertungen,
+    to=Zustandsbewertungen,
     verbose_name='Zustand des Zubehörs',
     on_delete=SET_NULL,
     db_column='zustand_zubehoer',
@@ -806,24 +800,24 @@ class Durchlaesse_Durchlaesse(ComplexModel):
     null=True
   )
   kontrolle = DateField(
-    'Kontrolle',
+    verbose_name='Kontrolle',
     blank=True,
     null=True
   )
   bemerkungen = NullTextField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   zustaendigkeit = CharField(
-    'Zuständigkeit',
+    verbose_name='Zuständigkeit',
     max_length=255,
     validators=standard_validators
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     validators=standard_validators
   )
@@ -855,7 +849,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
       'bearbeiter': 'Bearbeiter:in'
     }
     list_fields_with_date = ['kontrolle']
-    list_fields_with_number = ['baujahr', 'nennweite', 'laenge']
+    list_fields_with_decimal = ['laenge']
     list_fields_with_foreign_key = {
       'art': 'art',
       'material': 'material'
@@ -868,7 +862,7 @@ class Durchlaesse_Durchlaesse(ComplexModel):
         'type': 'date'
       }
     ]
-    map_feature_tooltip_field = 'aktenzeichen'
+    map_feature_tooltip_fields = ['aktenzeichen']
     map_filter_fields = {
       'art': 'Art',
       'aktenzeichen': 'Aktenzeichen',
@@ -893,7 +887,7 @@ class Durchlaesse_Fotos(ComplexModel):
   """
 
   durchlaesse_durchlass = ForeignKey(
-    Durchlaesse_Durchlaesse,
+    to=Durchlaesse_Durchlaesse,
     verbose_name='Durchlass',
     on_delete=CASCADE,
     db_column='durchlaesse_durchlass',
@@ -901,25 +895,25 @@ class Durchlaesse_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_durchlaesse_durchlaesse'
   )
   aufnahmedatum = DateField(
-    'Aufnahmedatum',
+    verbose_name='Aufnahmedatum',
     default=date.today,
     blank=True,
     null=True
   )
   bemerkungen = NullTextField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   dateiname_original = CharField(
-    'Original-Dateiname',
+    verbose_name='Original-Dateiname',
     max_length=255,
     default='ohne'
   )
   foto = ImageField(
-    'Foto(s)',
+    verbose_name='Foto(s)',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PUBLIC + 'durchlaesse'
@@ -934,12 +928,10 @@ class Durchlaesse_Fotos(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos der Durchlässe in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
-    object_title = 'das Foto'
-    foreign_key_label = 'Durchlass'
-    thumbs = True
-    multi_foto_field = True
+    multi_photos = True
     list_fields = {
       'aktiv': 'aktiv?',
       'durchlaesse_durchlass': 'Durchlass',
@@ -984,7 +976,7 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
   """
 
   tierseuche = ForeignKey(
-    Tierseuchen,
+    to=Tierseuchen,
     verbose_name='Tierseuche',
     on_delete=RESTRICT,
     db_column='tierseuche',
@@ -992,7 +984,7 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     related_name='%(app_label)s_%(class)s_tierseuchen'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
@@ -1020,7 +1012,7 @@ class Fallwildsuchen_Kontrollgebiete(ComplexModel):
     list_fields_with_foreign_key = {
       'tierseuche': 'bezeichnung'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'tierseuche': 'Tierseuche',
       'bezeichnung': 'Bezeichnung'
@@ -1038,7 +1030,7 @@ class Fallwildsuchen_Nachweise(ComplexModel):
   """
 
   kontrollgebiet = ForeignKey(
-    Fallwildsuchen_Kontrollgebiete,
+    to=Fallwildsuchen_Kontrollgebiete,
     verbose_name='Kontrollgebiet',
     on_delete=CASCADE,
     db_column='kontrollgebiet',
@@ -1046,7 +1038,7 @@ class Fallwildsuchen_Nachweise(ComplexModel):
     related_name='%(app_label)s_%(class)s_kontrollgebiete'
   )
   art_kontrolle = ForeignKey(
-    Arten_Fallwildsuchen_Kontrollen,
+    to=Arten_Fallwildsuchen_Kontrollen,
     verbose_name='Art der Kontrolle',
     on_delete=RESTRICT,
     db_column='art_kontrolle',
@@ -1065,10 +1057,9 @@ class Fallwildsuchen_Nachweise(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Nachweise im Rahmen von Fallwildsuchen ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Nachweis'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['kontrollgebiet']
-    object_title = 'der Nachweis im Rahmen einer Fallwildsuche'
-    foreign_key_label = 'Kontrollgebiet'
     geometry_type = 'MultiLineString'
     gpx_input = True
     list_fields = {
@@ -1083,7 +1074,7 @@ class Fallwildsuchen_Nachweise(ComplexModel):
       'kontrollgebiet': 'bezeichnung',
       'art_kontrolle': 'art'
     }
-    map_feature_tooltip_field = 'art_kontrolle'
+    map_feature_tooltip_fields = ['art_kontrolle']
     map_intervalfilter_fields = {
       'startzeitpunkt': 'Startzeitpunkt',
       'endzeitpunkt': 'Endzeitpunkt'
@@ -1120,12 +1111,12 @@ class Geh_Radwegereinigung(ComplexModel):
   """
 
   id = CharField(
-    'ID',
+    verbose_name='ID',
     max_length=14,
     default='0000000000-000'
   )
   gemeindeteil = ForeignKey(
-    Gemeindeteile,
+    to=Gemeindeteile,
     verbose_name='Gemeindeteil',
     on_delete=RESTRICT,
     db_column='gemeindeteil',
@@ -1134,7 +1125,7 @@ class Geh_Radwegereinigung(ComplexModel):
     default='00000000-0000-0000-0000-000000000000'
   )
   strasse = ForeignKey(
-    Strassen,
+    to=Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -1144,7 +1135,7 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   inoffizielle_strasse = ForeignKey(
-    Inoffizielle_Strassen,
+    to=Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
     on_delete=SET_NULL,
     db_column='inoffizielle_strasse',
@@ -1154,21 +1145,21 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   nummer = CharField(
-    'Nummer',
+    verbose_name='Nummer',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   beschreibung = CharField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   wegeart = ForeignKey(
-    Arten_Wege,
+    to=Arten_Wege,
     verbose_name='Wegeart',
     on_delete=RESTRICT,
     db_column='wegeart',
@@ -1176,7 +1167,7 @@ class Geh_Radwegereinigung(ComplexModel):
     related_name='%(app_label)s_%(class)s_wegearten'
   )
   wegetyp = ForeignKey(
-    Wegetypen_Strassenreinigungssatzung_HRO,
+    to=Wegetypen_Strassenreinigungssatzung_HRO,
     verbose_name='Wegetyp',
     on_delete=RESTRICT,
     db_column='wegetyp',
@@ -1186,7 +1177,7 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   reinigungsklasse = ForeignKey(
-    Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
+    to=Wegereinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
     on_delete=SET_NULL,
     db_column='reinigungsklasse',
@@ -1196,7 +1187,7 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   reinigungsrhythmus = ForeignKey(
-    Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    to=Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
     on_delete=SET_NULL,
     db_column='reinigungsrhythmus',
@@ -1206,13 +1197,13 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   laenge = DecimalField(
-    'Länge (in m)',
+    verbose_name='Länge (in m)',
     max_digits=7,
     decimal_places=2,
     default=0
   )
   breite = ForeignKey(
-    Wegebreiten_Strassenreinigungssatzung_HRO,
+    to=Wegebreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Breite (in m)',
     on_delete=RESTRICT,
     db_column='breite',
@@ -1222,7 +1213,7 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   reinigungsflaeche = DecimalField(
-    'Reinigungsfläche (in m²)',
+    verbose_name='Reinigungsfläche (in m²)',
     max_digits=7,
     decimal_places=2,
     validators=[
@@ -1239,12 +1230,12 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   winterdienst = BooleanField(
-    'Winterdienst?',
+    verbose_name='Winterdienst?',
     blank=True,
     null=True
   )
   raeumbreite = ForeignKey(
-    Raeumbreiten_Strassenreinigungssatzung_HRO,
+    to=Raeumbreiten_Strassenreinigungssatzung_HRO,
     verbose_name='Räumbreite im Winterdienst (in m)',
     on_delete=RESTRICT,
     db_column='raeumbreite',
@@ -1254,7 +1245,7 @@ class Geh_Radwegereinigung(ComplexModel):
     null=True
   )
   winterdienstflaeche = DecimalField(
-    'Winterdienstfläche (in m²)',
+    verbose_name='Winterdienstfläche (in m²)',
     max_digits=7,
     decimal_places=2,
     validators=[
@@ -1303,7 +1294,7 @@ class Geh_Radwegereinigung(ComplexModel):
       'breite': 'Breite (in m)',
       'winterdienst': 'Winterdienst?'
     }
-    list_fields_with_number = ['id', 'laenge', 'breite']
+    list_fields_with_decimal = ['laenge', 'breite']
     list_fields_with_foreign_key = {
       'gemeindeteil': 'gemeindeteil',
       'strasse': 'strasse',
@@ -1314,7 +1305,7 @@ class Geh_Radwegereinigung(ComplexModel):
       'reinigungsrhythmus': 'reinigungsrhythmus',
       'breite': 'wegebreite'
     }
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'id': 'ID',
       'gemeindeteil': 'Gemeindeteil',
@@ -1327,7 +1318,7 @@ class Geh_Radwegereinigung(ComplexModel):
       'reinigungsklasse': 'Reinigungsklasse',
       'reinigungsrhythmus': 'Reinigungsrhythmus',
       'breite': 'Breite (in m)',
-      'winterdienst': 'Winterdienst?',
+      'winterdienst': 'Winterdienst?'
     }
     map_filter_fields_as_list = [
       'strasse',
@@ -1375,7 +1366,7 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
   """
 
   geh_und_radwegereinigung = ForeignKey(
-    Geh_Radwegereinigung,
+    to=Geh_Radwegereinigung,
     verbose_name='Geh- und Radwegereinigung',
     on_delete=CASCADE,
     db_column='geh_und_radwegereinigung',
@@ -1391,10 +1382,9 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Flächen zur Geh- und Radwegereinigung der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Fläche'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['geh_und_radwegereinigung']
-    object_title = 'die Fläche'
-    foreign_key_label = 'Geh- und Radwegereinigung'
     geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -1403,7 +1393,7 @@ class Geh_Radwegereinigung_Flaechen(ComplexModel):
     list_fields_with_foreign_key = {
       'geh_und_radwegereinigung': 'id'
     }
-    map_feature_tooltip_field = 'geh_und_radwegereinigung'
+    map_feature_tooltip_fields = ['geh_und_radwegereinigung']
 
   def __str__(self):
     return str(self.geh_und_radwegereinigung)
@@ -1420,22 +1410,22 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   """
 
   deaktiviert = DateField(
-    'Außerbetriebstellung',
+    verbose_name='Außerbetriebstellung',
     blank=True,
     null=True
   )
   id = PositiveIntegerField(
-    'ID',
+    verbose_name='ID',
     unique=True,
     default=0
   )
   hst_bezeichnung = CharField(
-    'Haltestellenbezeichnung',
+    verbose_name='Haltestellenbezeichnung',
     max_length=255,
     validators=standard_validators
   )
   hst_hafas_id = CharField(
-    'HAFAS-ID',
+    verbose_name='HAFAS-ID',
     max_length=8,
     blank=True,
     null=True,
@@ -1447,21 +1437,21 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     ]
   )
   hst_bus_bahnsteigbezeichnung = CharField(
-    'Bus-/Bahnsteigbezeichnung',
+    verbose_name='Bus-/Bahnsteigbezeichnung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   hst_richtung = CharField(
-    'Richtungsinformation',
+    verbose_name='Richtungsinformation',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   hst_kategorie = CharField(
-    'Haltestellenkategorie',
+    verbose_name='Haltestellenkategorie',
     max_length=255,
     blank=True,
     null=True,
@@ -1469,7 +1459,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
   )
   hst_linien = ChoiceArrayField(
     CharField(
-      ' bedienende Linie(n)',
+      verbose_name=' bedienende Linie(n)',
       max_length=4,
       choices=()
     ),
@@ -1478,53 +1468,53 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   hst_rsag = BooleanField(
-    ' bedient durch Rostocker Straßenbahn AG?',
+    verbose_name=' bedient durch Rostocker Straßenbahn AG?',
     blank=True,
     null=True
   )
   hst_rebus = BooleanField(
-    ' bedient durch rebus Regionalbus Rostock GmbH?',
+    verbose_name=' bedient durch rebus Regionalbus Rostock GmbH?',
     blank=True,
     null=True
   )
   hst_nur_ausstieg = BooleanField(
-    ' nur Ausstieg?',
+    verbose_name=' nur Ausstieg?',
     blank=True,
     null=True
   )
   hst_nur_einstieg = BooleanField(
-    ' nur Einstieg?',
+    verbose_name=' nur Einstieg?',
     blank=True,
     null=True
   )
   hst_verkehrsmittelklassen = ChoiceArrayField(
     CharField(
-      'Verkehrsmittelklasse(n)',
+      verbose_name='Verkehrsmittelklasse(n)',
       max_length=255,
       choices=()
     ),
     verbose_name='Verkehrsmittelklasse(n)'
   )
   hst_abfahrten = PositiveSmallIntegerMinField(
-    ' durchschnittliche tägliche Zahl an Abfahrten',
+    verbose_name=' durchschnittliche tägliche Zahl an Abfahrten',
     min_value=1,
     blank=True,
     null=True
   )
   hst_fahrgastzahl_einstieg = PositiveSmallIntegerMinField(
-    ' durchschnittliche tägliche Fahrgastzahl (Einstieg)',
+    verbose_name=' durchschnittliche tägliche Fahrgastzahl (Einstieg)',
     min_value=1,
     blank=True,
     null=True
   )
   hst_fahrgastzahl_ausstieg = PositiveSmallIntegerMinField(
-    ' durchschnittliche tägliche Fahrgastzahl (Ausstieg)',
+    verbose_name=' durchschnittliche tägliche Fahrgastzahl (Ausstieg)',
     min_value=1,
     blank=True,
     null=True
   )
   bau_typ = ForeignKey(
-    Typen_Haltestellen,
+    to=Typen_Haltestellen,
     verbose_name='Typ',
     on_delete=SET_NULL,
     db_column='bau_typ',
@@ -1534,7 +1524,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bau_wartebereich_laenge = DecimalField(
-    'Länge des Wartebereichs (in m)',
+    verbose_name='Länge des Wartebereichs (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -1551,7 +1541,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bau_wartebereich_breite = DecimalField(
-    'Breite des Wartebereichs (in m)',
+    verbose_name='Breite des Wartebereichs (in m)',
     max_digits=5,
     decimal_places=2,
     validators=[
@@ -1568,7 +1558,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bau_befestigungsart_aufstellflaeche_bus = ForeignKey(
-    Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster,
+    to=Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster,
     verbose_name='Befestigungsart der Aufstellfläche Bus',
     on_delete=SET_NULL,
     db_column='bau_befestigungsart_aufstellflaeche_bus',
@@ -1578,7 +1568,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bau_zustand_aufstellflaeche_bus = ForeignKey(
-    Schaeden_Haltestellenkataster,
+    to=Schaeden_Haltestellenkataster,
     verbose_name='Zustand der Aufstellfläche Bus',
     on_delete=SET_NULL,
     db_column='bau_zustand_aufstellflaeche_bus',
@@ -1588,7 +1578,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bau_befestigungsart_warteflaeche = ForeignKey(
-    Befestigungsarten_Warteflaeche_Haltestellenkataster,
+    to=Befestigungsarten_Warteflaeche_Haltestellenkataster,
     verbose_name='Befestigungsart der Wartefläche',
     on_delete=SET_NULL,
     db_column='bau_befestigungsart_warteflaeche',
@@ -1598,7 +1588,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bau_zustand_warteflaeche = ForeignKey(
-    Schaeden_Haltestellenkataster,
+    to=Schaeden_Haltestellenkataster,
     verbose_name='Zustand der Wartefläche',
     on_delete=SET_NULL,
     db_column='bau_zustand_warteflaeche',
@@ -1608,27 +1598,27 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   bf_einstieg = BooleanField(
-    ' barrierefreier Einstieg vorhanden?',
+    verbose_name=' barrierefreier Einstieg vorhanden?',
     blank=True,
     null=True
   )
   bf_zu_abgaenge = BooleanField(
-    ' barrierefreie Zu- und Abgänge vorhanden?',
+    verbose_name=' barrierefreie Zu- und Abgänge vorhanden?',
     blank=True,
     null=True
   )
   bf_bewegungsraum = BooleanField(
-    ' barrierefreier Bewegungsraum vorhanden?',
+    verbose_name=' barrierefreier Bewegungsraum vorhanden?',
     blank=True,
     null=True
   )
   tl_auffindestreifen = BooleanField(
-    'Taktiles Leitsystem: Auffindestreifen vorhanden?',
+    verbose_name='Taktiles Leitsystem: Auffindestreifen vorhanden?',
     blank=True,
     null=True
   )
   tl_auffindestreifen_ausfuehrung = ForeignKey(
-    Ausfuehrungen_Haltestellenkataster,
+    to=Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Auffindestreifen',
     on_delete=SET_NULL,
     db_column='tl_auffindestreifen_ausfuehrung',
@@ -1638,18 +1628,18 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   tl_auffindestreifen_breite = PositiveIntegerMinField(
-    'Taktiles Leitsystem: Breite des Auffindestreifens (in cm)',
+    verbose_name='Taktiles Leitsystem: Breite des Auffindestreifens (in cm)',
     min_value=1,
     blank=True,
     null=True
   )
   tl_einstiegsfeld = BooleanField(
-    'Taktiles Leitsystem: Einstiegsfeld vorhanden?',
+    verbose_name='Taktiles Leitsystem: Einstiegsfeld vorhanden?',
     blank=True,
     null=True
   )
   tl_einstiegsfeld_ausfuehrung = ForeignKey(
-    Ausfuehrungen_Haltestellenkataster,
+    to=Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Einstiegsfeld',
     on_delete=SET_NULL,
     db_column='tl_einstiegsfeld_ausfuehrung',
@@ -1659,18 +1649,18 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   tl_einstiegsfeld_breite = PositiveIntegerMinField(
-    'Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)',
+    verbose_name='Taktiles Leitsystem: Breite des Einstiegsfelds (in cm)',
     min_value=1,
     blank=True,
     null=True
   )
   tl_leitstreifen = BooleanField(
-    'Taktiles Leitsystem: Leitstreifen vorhanden?',
+    verbose_name='Taktiles Leitsystem: Leitstreifen vorhanden?',
     blank=True,
     null=True
   )
   tl_leitstreifen_ausfuehrung = ForeignKey(
-    Ausfuehrungen_Haltestellenkataster,
+    to=Ausfuehrungen_Haltestellenkataster,
     verbose_name='Taktiles Leitsystem: Ausführung Leitstreifen',
     on_delete=SET_NULL,
     db_column='tl_leitstreifen_ausfuehrung',
@@ -1680,28 +1670,28 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   tl_leitstreifen_laenge = PositiveIntegerMinField(
-    'Taktiles Leitsystem: Länge des Leitstreifens (in cm)',
+    verbose_name='Taktiles Leitsystem: Länge des Leitstreifens (in cm)',
     min_value=1,
     blank=True,
     null=True
   )
   tl_aufmerksamkeitsfeld = BooleanField(
-    'Aufmerksamkeitsfeld (1. Tür) vorhanden?',
+    verbose_name='Aufmerksamkeitsfeld (1. Tür) vorhanden?',
     blank=True,
     null=True
   )
   tl_bahnsteigkante_visuell = BooleanField(
-    'Bahnsteigkante visuell erkennbar?',
+    verbose_name='Bahnsteigkante visuell erkennbar?',
     blank=True,
     null=True
   )
   tl_bahnsteigkante_taktil = BooleanField(
-    'Bahnsteigkante taktil erkennbar?',
+    verbose_name='Bahnsteigkante taktil erkennbar?',
     blank=True,
     null=True
   )
   as_zh_typ = ForeignKey(
-    ZH_Typen_Haltestellenkataster,
+    to=ZH_Typen_Haltestellenkataster,
     verbose_name='ZH-Typ',
     on_delete=SET_NULL,
     db_column='as_zh_typ',
@@ -1711,12 +1701,12 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   as_h_mast = BooleanField(
-    'Mast vorhanden?',
+    verbose_name='Mast vorhanden?',
     blank=True,
     null=True
   )
   as_h_masttyp = ForeignKey(
-    Masttypen_Haltestellenkataster,
+    to=Masttypen_Haltestellenkataster,
     verbose_name='Masttyp',
     on_delete=SET_NULL,
     db_column='as_h_masttyp',
@@ -1726,17 +1716,17 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   as_papierkorb = BooleanField(
-    'Papierkorb vorhanden?',
+    verbose_name='Papierkorb vorhanden?',
     blank=True,
     null=True
   )
   as_fahrgastunterstand = BooleanField(
-    'Fahrgastunterstand vorhanden?',
+    verbose_name='Fahrgastunterstand vorhanden?',
     blank=True,
     null=True
   )
   as_fahrgastunterstandstyp = ForeignKey(
-    Fahrgastunterstandstypen_Haltestellenkataster,
+    to=Fahrgastunterstandstypen_Haltestellenkataster,
     verbose_name='Typ des Fahrgastunterstand',
     on_delete=SET_NULL,
     db_column='as_fahrgastunterstandstyp',
@@ -1746,17 +1736,17 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   as_sitzbank_mit_armlehne = BooleanField(
-    'Sitzbank mit Armlehne vorhanden?',
+    verbose_name='Sitzbank mit Armlehne vorhanden?',
     blank=True,
     null=True
   )
   as_sitzbank_ohne_armlehne = BooleanField(
-    'Sitzbank ohne Armlehne vorhanden?',
+    verbose_name='Sitzbank ohne Armlehne vorhanden?',
     blank=True,
     null=True
   )
   as_sitzbanktyp = ForeignKey(
-    Sitzbanktypen_Haltestellenkataster,
+    to=Sitzbanktypen_Haltestellenkataster,
     verbose_name='Typ der Sitzbank',
     on_delete=SET_NULL,
     db_column='as_sitzbanktyp',
@@ -1766,17 +1756,17 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   as_gelaender = BooleanField(
-    'Geländer vorhanden?',
+    verbose_name='Geländer vorhanden?',
     blank=True,
     null=True
   )
   as_fahrplanvitrine = BooleanField(
-    'Fahrplanvitrine vorhanden?',
+    verbose_name='Fahrplanvitrine vorhanden?',
     blank=True,
     null=True
   )
   as_fahrplanvitrinentyp = ForeignKey(
-    Fahrplanvitrinentypen_Haltestellenkataster,
+    to=Fahrplanvitrinentypen_Haltestellenkataster,
     verbose_name='Typ der Fahrplanvitrine',
     on_delete=SET_NULL,
     db_column='as_fahrplanvitrinentyp',
@@ -1786,37 +1776,37 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   as_tarifinformation = BooleanField(
-    'Tarifinformation vorhanden?',
+    verbose_name='Tarifinformation vorhanden?',
     blank=True,
     null=True
   )
   as_liniennetzplan = BooleanField(
-    'Liniennetzplan vorhanden?',
+    verbose_name='Liniennetzplan vorhanden?',
     blank=True,
     null=True
   )
   as_fahrplan = BooleanField(
-    'Fahrplan vorhanden?',
+    verbose_name='Fahrplan vorhanden?',
     blank=True,
     null=True
   )
   as_fahrausweisautomat = BooleanField(
-    'Fahrausweisautomat vorhanden?',
+    verbose_name='Fahrausweisautomat vorhanden?',
     blank=True,
     null=True
   )
   as_lautsprecher = BooleanField(
-    'Lautsprecher vorhanden?',
+    verbose_name='Lautsprecher vorhanden?',
     blank=True,
     null=True
   )
   as_dfi = BooleanField(
-    'Dynamisches Fahrgastinformationssystem vorhanden?',
+    verbose_name='Dynamisches Fahrgastinformationssystem vorhanden?',
     blank=True,
     null=True
   )
   as_dfi_typ = ForeignKey(
-    DFI_Typen_Haltestellenkataster,
+    to=DFI_Typen_Haltestellenkataster,
     verbose_name='Typ des Dynamischen Fahrgastinformationssystems',
     on_delete=SET_NULL,
     db_column='as_dfi_typ',
@@ -1826,69 +1816,69 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
     null=True
   )
   as_anfragetaster = BooleanField(
-    'Anfragetaster vorhanden?',
+    verbose_name='Anfragetaster vorhanden?',
     blank=True,
     null=True
   )
   as_blindenschrift = BooleanField(
-    'Haltestellen-/Linieninformationen in Blindenschrift vorhanden?',
+    verbose_name='Haltestellen-/Linieninformationen in Blindenschrift vorhanden?',
     blank=True,
     null=True
   )
   as_beleuchtung = BooleanField(
-    'Beleuchtung vorhanden?',
+    verbose_name='Beleuchtung vorhanden?',
     blank=True,
     null=True
   )
   as_hinweis_warnblinklicht_ein = BooleanField(
-    'Hinweis „Warnblinklicht ein“ vorhanden?',
+    verbose_name='Hinweis „Warnblinklicht ein“ vorhanden?',
     blank=True,
     null=True
   )
   bfe_park_and_ride = BooleanField(
-    'P+R-Parkplatz in Umgebung vorhanden?',
+    verbose_name='P+R-Parkplatz in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bfe_fahrradabstellmoeglichkeit = BooleanField(
-    'Fahrradabstellmöglichkeit in Umgebung vorhanden?',
+    verbose_name='Fahrradabstellmöglichkeit in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bfe_querungshilfe = BooleanField(
-    'Querungshilfe in Umgebung vorhanden?',
+    verbose_name='Querungshilfe in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bfe_fussgaengerueberweg = BooleanField(
-    'Fußgängerüberweg in Umgebung vorhanden?',
+    verbose_name='Fußgängerüberweg in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bfe_seniorenheim = BooleanField(
-    'Seniorenheim in Umgebung vorhanden?',
+    verbose_name='Seniorenheim in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bfe_pflegeeinrichtung = BooleanField(
-    'Pflegeeinrichtung in Umgebung vorhanden?',
+    verbose_name='Pflegeeinrichtung in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bfe_medizinische_versorgungseinrichtung = BooleanField(
-    'Medizinische Versorgungseinrichtung in Umgebung vorhanden?',
+    verbose_name='Medizinische Versorgungseinrichtung in Umgebung vorhanden?',
     blank=True,
     null=True
   )
   bearbeiter = CharField(
-    'Bearbeiter:in',
+    verbose_name='Bearbeiter:in',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   bemerkungen = NullTextField(
-    'Bemerkungen',
+    verbose_name='Bemerkungen',
     max_length=500,
     blank=True,
     null=True,
@@ -1924,8 +1914,7 @@ class Haltestellenkataster_Haltestellen(ComplexModel):
       'hst_bus_bahnsteigbezeichnung': 'Bus-/Bahnsteigbezeichnung'
     }
     list_fields_with_date = ['deaktiviert']
-    list_fields_with_number = ['id']
-    map_feature_tooltip_field = 'hst_bezeichnung'
+    map_feature_tooltip_fields = ['hst_bezeichnung']
 
   def __str__(self):
     return self.hst_bezeichnung + ' [ID: ' + str(self.id) + \
@@ -1941,7 +1930,7 @@ class Haltestellenkataster_Fotos(ComplexModel):
   """
 
   haltestellenkataster_haltestelle = ForeignKey(
-    Haltestellenkataster_Haltestellen,
+    to=Haltestellenkataster_Haltestellen,
     verbose_name='Haltestelle',
     on_delete=CASCADE,
     db_column='haltestellenkataster_haltestelle',
@@ -1949,7 +1938,7 @@ class Haltestellenkataster_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_haltestellenkataster_haltestellen'
   )
   motiv = ForeignKey(
-    Fotomotive_Haltestellenkataster,
+    to=Fotomotive_Haltestellenkataster,
     verbose_name='Motiv',
     on_delete=RESTRICT,
     db_column='motiv',
@@ -1957,16 +1946,16 @@ class Haltestellenkataster_Fotos(ComplexModel):
     related_name='%(app_label)s_%(class)s_motive'
   )
   aufnahmedatum = DateField(
-    'Aufnahmedatum',
+    verbose_name='Aufnahmedatum',
     default=date.today
   )
   dateiname_original = CharField(
-    'Original-Dateiname',
+    verbose_name='Original-Dateiname',
     max_length=255,
     default='ohne'
   )
   foto = ImageField(
-    'Foto(s)',
+    verbose_name='Foto(s)',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
       settings.PHOTO_PATH_PREFIX_PRIVATE + 'haltestellenkataster'
@@ -1981,12 +1970,10 @@ class Haltestellenkataster_Fotos(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Fotos des Haltestellenkatasters der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
-    object_title = 'das Foto'
-    foreign_key_label = 'Haltestelle'
-    thumbs = True
-    multi_foto_field = True
+    multi_photos = True
     list_fields = {
       'aktiv': 'aktiv?',
       'haltestellenkataster_haltestelle': 'Haltestelle',
@@ -2038,21 +2025,21 @@ class Parkscheinautomaten_Tarife(ComplexModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   zeiten = CharField(
-    'Bewirtschaftungszeiten',
+    verbose_name='Bewirtschaftungszeiten',
     max_length=255
   )
   normaltarif_parkdauer_min = PositiveSmallIntegerMinField(
-    'Mindestparkdauer Normaltarif',
+    verbose_name='Mindestparkdauer Normaltarif',
     min_value=1
   )
   normaltarif_parkdauer_min_einheit = ForeignKey(
-    Zeiteinheiten,
+    to=Zeiteinheiten,
     verbose_name='Einheit der Mindestparkdauer Normaltarif',
     on_delete=RESTRICT,
     db_column='normaltarif_parkdauer_min_einheit',
@@ -2060,11 +2047,11 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_min_einheiten'
   )
   normaltarif_parkdauer_max = PositiveSmallIntegerMinField(
-    'Maximalparkdauer Normaltarif',
+    verbose_name='Maximalparkdauer Normaltarif',
     min_value=1
   )
   normaltarif_parkdauer_max_einheit = ForeignKey(
-    Zeiteinheiten,
+    to=Zeiteinheiten,
     verbose_name='Einheit der Maximalparkdauer Normaltarif',
     on_delete=RESTRICT,
     db_column='normaltarif_parkdauer_max_einheit',
@@ -2072,7 +2059,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     related_name='%(app_label)s_%(class)s_normaltarif_parkdauer_max_einheiten'
   )
   normaltarif_gebuehren_max = DecimalField(
-    'Maximalgebühren Normaltarif (in €)',
+    verbose_name='Maximalgebühren Normaltarif (in €)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2091,7 +2078,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True
   )
   normaltarif_gebuehren_pro_stunde = DecimalField(
-    'Gebühren pro Stunde Normaltarif (in €)',
+    verbose_name='Gebühren pro Stunde Normaltarif (in €)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -2110,17 +2097,17 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True
   )
   normaltarif_gebuehrenschritte = CharField(
-    'Gebührenschritte Normaltarif', max_length=255,
+    verbose_name='Gebührenschritte Normaltarif', max_length=255,
     blank=True,
     null=True
   )
   veranstaltungstarif_parkdauer_min = PositiveSmallIntegerMinField(
-    'Mindestparkdauer Veranstaltungstarif', min_value=1,
+    verbose_name='Mindestparkdauer Veranstaltungstarif', min_value=1,
     blank=True,
     null=True
   )
   veranstaltungstarif_parkdauer_min_einheit = ForeignKey(
-    Zeiteinheiten,
+    to=Zeiteinheiten,
     verbose_name='Einheit der Mindestparkdauer Veranstaltungstarif',
     on_delete=SET_NULL,
     db_column='veranstaltungstarif_parkdauer_min_einheit',
@@ -2130,12 +2117,12 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True
   )
   veranstaltungstarif_parkdauer_max = PositiveSmallIntegerMinField(
-    'Maximalparkdauer Veranstaltungstarif', min_value=1,
+    verbose_name='Maximalparkdauer Veranstaltungstarif', min_value=1,
     blank=True,
     null=True
   )
   veranstaltungstarif_parkdauer_max_einheit = ForeignKey(
-    Zeiteinheiten,
+    to=Zeiteinheiten,
     verbose_name='Einheit der Maximalparkdauer Veranstaltungstarif',
     on_delete=SET_NULL,
     db_column='veranstaltungstarif_parkdauer_max_einheit',
@@ -2145,7 +2132,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True
   )
   veranstaltungstarif_gebuehren_max = DecimalField(
-    'Maximalgebühren Veranstaltungstarif (in €)',
+    verbose_name='Maximalgebühren Veranstaltungstarif (in €)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2164,7 +2151,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True
   )
   veranstaltungstarif_gebuehren_pro_stunde = DecimalField(
-    'Gebühren pro Stunde Veranstaltungstarif (in €)',
+    verbose_name='Gebühren pro Stunde Veranstaltungstarif (in €)',
     max_digits=3,
     decimal_places=2,
     validators=[
@@ -2183,13 +2170,13 @@ class Parkscheinautomaten_Tarife(ComplexModel):
     null=True
   )
   veranstaltungstarif_gebuehrenschritte = CharField(
-    'Gebührenschritte Veranstaltungstarif',
+    verbose_name='Gebührenschritte Veranstaltungstarif',
     max_length=255,
     blank=True,
     null=True
   )
   zugelassene_muenzen = CharField(
-    ' zugelassene Münzen',
+    verbose_name=' zugelassene Münzen',
     max_length=255
   )
 
@@ -2221,7 +2208,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
   """
 
   parkscheinautomaten_tarif = ForeignKey(
-    Parkscheinautomaten_Tarife,
+    to=Parkscheinautomaten_Tarife,
     verbose_name='Tarif',
     on_delete=CASCADE,
     db_column='parkscheinautomaten_tarif',
@@ -2230,12 +2217,12 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
   )
   nummer = PositiveSmallIntegerField('Nummer')
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   zone = ForeignKey(
-    Zonen_Parkscheinautomaten,
+    to=Zonen_Parkscheinautomaten,
     verbose_name='Zone',
     on_delete=RESTRICT,
     db_column='zone',
@@ -2243,12 +2230,12 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     related_name='%(app_label)s_%(class)s_zonen'
   )
   handyparkzone = PositiveIntegerRangeField(
-    'Handyparkzone',
+    verbose_name='Handyparkzone',
     min_value=100000,
     max_value=999999
   )
   bewohnerparkgebiet = CharField(
-    'Bewohnerparkgebiet',
+    verbose_name='Bewohnerparkgebiet',
     max_length=255,
     blank=True,
     null=True,
@@ -2260,7 +2247,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     ]
   )
   geraetenummer = CharField(
-    'Gerätenummer',
+    verbose_name='Gerätenummer',
     max_length=8,
     validators=[
       RegexValidator(
@@ -2270,12 +2257,12 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     ]
   )
   inbetriebnahme = DateField(
-    'Inbetriebnahme',
+    verbose_name='Inbetriebnahme',
     blank=True,
     null=True
   )
   e_anschluss = ForeignKey(
-    E_Anschluesse_Parkscheinautomaten,
+    to=E_Anschluesse_Parkscheinautomaten,
     verbose_name='E-Anschluss',
     on_delete=RESTRICT,
     db_column='e_anschluss',
@@ -2283,24 +2270,24 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     related_name='%(app_label)s_%(class)s_e_anschluesse'
   )
   stellplaetze_pkw = PositiveSmallIntegerMinField(
-    'Pkw-Stellplätze', min_value=1,
+    verbose_name='Pkw-Stellplätze', min_value=1,
     blank=True,
     null=True
   )
   stellplaetze_bus = PositiveSmallIntegerMinField(
-    'Bus-Stellplätze', min_value=1,
+    verbose_name='Bus-Stellplätze', min_value=1,
     blank=True,
     null=True
   )
   haendlerkartennummer = PositiveIntegerRangeField(
-    'Händlerkartennummer',
+    verbose_name='Händlerkartennummer',
     min_value=1000000000,
     max_value=9999999999,
     blank=True,
     null=True
   )
   laufzeit_geldkarte = DateField(
-    'Laufzeit der Geldkarte',
+    verbose_name='Laufzeit der Geldkarte',
     blank=True,
     null=True
   )
@@ -2315,8 +2302,6 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
     description = 'Parkscheinautomaten der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['parkscheinautomaten_tarif']
-    object_title = 'der Parkscheinautomat'
-    foreign_key_label = 'Tarif'
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -2329,7 +2314,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
       'parkscheinautomaten_tarif': 'bezeichnung',
       'zone': 'zone'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'parkscheinautomaten_tarif': 'Tarif',
       'nummer': 'Nummer',
@@ -2353,7 +2338,7 @@ class RSAG_Gleise(ComplexModel):
   """
 
   quelle = CharField(
-    'Quelle',
+    verbose_name='Quelle',
     max_length=255,
     blank=True,
     null=True,
@@ -2376,8 +2361,7 @@ class RSAG_Gleise(ComplexModel):
       'aktiv': 'aktiv?',
       'quelle': 'Quelle'
     }
-    heavy_load_limit = 800
-    map_feature_tooltip_field = 'uuid'
+    map_heavy_load_limit = 800
     map_filter_fields = {
       'uuid': 'UUID',
       'quelle': 'Quelle'
@@ -2394,18 +2378,18 @@ class RSAG_Masten(ComplexModel):
   """
 
   mastnummer = CharField(
-    'Mastnummer',
+    verbose_name='Mastnummer',
     max_length=255,
     validators=standard_validators
   )
   moment_am_fundament = PositiveSmallIntegerRangeField(
-    'Moment am Fundament (in kNm)',
+    verbose_name='Moment am Fundament (in kNm)',
     min_value=1,
     blank=True,
     null=True
   )
   spitzenzug_errechnet = DecimalField(
-    'Spitzenzug P - Errechnet (in kN)',
+    verbose_name='Spitzenzug P - Errechnet (in kN)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2422,7 +2406,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   spitzenzug_gewaehlt = DecimalField(
-    'Spitzenzug P - Gewählt (in kN)',
+    verbose_name='Spitzenzug P - Gewählt (in kN)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2439,7 +2423,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   gesamtlaenge = DecimalField(
-    'Gesamtlänge L (in m)',
+    verbose_name='Gesamtlänge L (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2456,7 +2440,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   einsatztiefe = DecimalField(
-    'Einsatztiefe T (in m)',
+    verbose_name='Einsatztiefe T (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2473,7 +2457,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   so_bis_fundament = DecimalField(
-    'Schienenoberkante bis Fundament e (in m)',
+    verbose_name='Schienenoberkante bis Fundament e (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2492,7 +2476,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   boeschung = DecimalField(
-    'Böschungshöhe z (in m)',
+    verbose_name='Böschungshöhe z (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2509,7 +2493,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   freie_laenge = DecimalField(
-    'Freie Länge H (in m)',
+    verbose_name='Freie Länge H (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2526,7 +2510,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   masttyp = ForeignKey(
-    Masttypen_RSAG,
+    to=Masttypen_RSAG,
     verbose_name='Masttyp',
     on_delete=RESTRICT,
     db_column='masttyp',
@@ -2534,19 +2518,19 @@ class RSAG_Masten(ComplexModel):
     related_name='%(app_label)s_%(class)s_masttypen'
   )
   nennmass_ueber_so = PositiveSmallIntegerRangeField(
-    'Nennmaß über Schienenoberkante (in mm)',
+    verbose_name='Nennmaß über Schienenoberkante (in mm)',
     min_value=1,
     blank=True,
     null=True
   )
   mastgewicht = PositiveSmallIntegerRangeField(
-    'Mastgewicht (in kg)',
+    verbose_name='Mastgewicht (in kg)',
     min_value=1,
     blank=True,
     null=True
   )
   fundamenttyp = ForeignKey(
-    Fundamenttypen_RSAG,
+    to=Fundamenttypen_RSAG,
     verbose_name='Fundamenttyp',
     on_delete=SET_NULL,
     db_column='fundamenttyp',
@@ -2556,7 +2540,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   fundamentlaenge = DecimalField(
-    'Länge des Fundamentes t (in m)',
+    verbose_name='Länge des Fundamentes t (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2573,14 +2557,14 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   fundamentdurchmesser = CharField(
-    'Durchmesser des Fundaments',
+    verbose_name='Durchmesser des Fundaments',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   nicht_tragfaehiger_boden = DecimalField(
-    'Tiefe des nicht tragfähiger Boden (in m)',
+    verbose_name='Tiefe des nicht tragfähiger Boden (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2599,7 +2583,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   mastkennzeichen_1 = ForeignKey(
-    Mastkennzeichen_RSAG,
+    to=Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 1',
     on_delete=SET_NULL,
     db_column='mastkennzeichen_1',
@@ -2609,7 +2593,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   mastkennzeichen_2 = ForeignKey(
-    Mastkennzeichen_RSAG,
+    to=Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 2',
     on_delete=SET_NULL,
     db_column='mastkennzeichen_2',
@@ -2619,7 +2603,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   mastkennzeichen_3 = ForeignKey(
-    Mastkennzeichen_RSAG,
+    to=Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 3',
     on_delete=SET_NULL,
     db_column='mastkennzeichen_3',
@@ -2629,7 +2613,7 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   mastkennzeichen_4 = ForeignKey(
-    Mastkennzeichen_RSAG,
+    to=Mastkennzeichen_RSAG,
     verbose_name='Mastkennzeichen 4',
     on_delete=SET_NULL,
     db_column='mastkennzeichen_4',
@@ -2639,14 +2623,14 @@ class RSAG_Masten(ComplexModel):
     null=True
   )
   quelle = CharField(
-    'Quelle',
+    verbose_name='Quelle',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   dgm_hoehe = DecimalField(
-    'Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
+    verbose_name='Höhenwert des Durchstoßpunktes auf dem DGM (in m)',
     max_digits=5,
     decimal_places=2,
     blank=True,
@@ -2682,7 +2666,7 @@ class RSAG_Masten(ComplexModel):
       'mastkennzeichen_4': 'Mastkennzeichen 4',
       'quelle': 'Quelle'
     }
-    list_fields_with_number = ['gesamtlaenge']
+    list_fields_with_decimal = ['gesamtlaenge']
     list_fields_with_foreign_key = {
       'masttyp': 'typ',
       'fundamenttyp': 'typ',
@@ -2691,7 +2675,7 @@ class RSAG_Masten(ComplexModel):
       'mastkennzeichen_3': 'kennzeichen',
       'mastkennzeichen_4': 'kennzeichen'
     }
-    map_feature_tooltip_field = 'mastnummer'
+    map_feature_tooltip_fields = ['mastnummer']
     map_filter_fields = {
       'uuid': 'UUID',
       'mastnummer': 'Mastnummer',
@@ -2738,7 +2722,6 @@ class RSAG_Leitungen(ComplexModel):
       'uuid': 'UUID',
       'aktiv': 'aktiv?'
     }
-    map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'uuid': 'UUID'
     }
@@ -2754,7 +2737,7 @@ class RSAG_Quertraeger(ComplexModel):
   """
 
   mast = ForeignKey(
-    RSAG_Masten,
+    to=RSAG_Masten,
     verbose_name='Mast',
     on_delete=RESTRICT,
     db_column='mast',
@@ -2762,7 +2745,7 @@ class RSAG_Quertraeger(ComplexModel):
     related_name='%(app_label)s_%(class)s_masten'
   )
   quelle = CharField(
-    'Quelle',
+    verbose_name='Quelle',
     max_length=255,
     blank=True,
     null=True,
@@ -2780,8 +2763,6 @@ class RSAG_Quertraeger(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['mast']
-    object_title = 'der RSAG-Querträger'
-    foreign_key_label = 'RSAG-Mast'
     geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
@@ -2792,7 +2773,6 @@ class RSAG_Quertraeger(ComplexModel):
     list_fields_with_foreign_key = {
       'mast': 'mastnummer'
     }
-    map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'uuid': 'UUID',
       'mast': 'Mast',
@@ -2811,7 +2791,7 @@ class RSAG_Spanndraehte(ComplexModel):
   """
 
   mast = ForeignKey(
-    RSAG_Masten,
+    to=RSAG_Masten,
     verbose_name='Mast',
     on_delete=SET_NULL,
     db_column='mast',
@@ -2821,7 +2801,7 @@ class RSAG_Spanndraehte(ComplexModel):
     null=True
   )
   quelle = CharField(
-    'Quelle',
+    verbose_name='Quelle',
     max_length=255,
     blank=True,
     null=True,
@@ -2839,8 +2819,6 @@ class RSAG_Spanndraehte(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['mast']
-    object_title = 'der RSAG-Spanndraht'
-    foreign_key_label = 'RSAG-Mast'
     geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
@@ -2851,7 +2829,6 @@ class RSAG_Spanndraehte(ComplexModel):
     list_fields_with_foreign_key = {
       'mast': 'mastnummer'
     }
-    map_feature_tooltip_field = 'uuid'
     map_filter_fields = {
       'uuid': 'UUID',
       'mast': 'Mast',
@@ -2874,12 +2851,12 @@ class Strassenreinigung(ComplexModel):
   """
 
   id = CharField(
-    'ID',
+    verbose_name='ID',
     max_length=14,
     default='0000000000-000'
   )
   gemeindeteil = ForeignKey(
-    Gemeindeteile,
+    to=Gemeindeteile,
     verbose_name='Gemeindeteil',
     on_delete=RESTRICT,
     db_column='gemeindeteil',
@@ -2888,7 +2865,7 @@ class Strassenreinigung(ComplexModel):
     default='00000000-0000-0000-0000-000000000000'
   )
   strasse = ForeignKey(
-    Strassen,
+    to=Strassen,
     verbose_name='Straße',
     on_delete=SET_NULL,
     db_column='strasse',
@@ -2898,7 +2875,7 @@ class Strassenreinigung(ComplexModel):
     null=True
   )
   inoffizielle_strasse = ForeignKey(
-    Inoffizielle_Strassen,
+    to=Inoffizielle_Strassen,
     verbose_name=' inoffizielle Straße',
     on_delete=SET_NULL,
     db_column='inoffizielle_strasse',
@@ -2908,7 +2885,7 @@ class Strassenreinigung(ComplexModel):
     null=True
   )
   beschreibung = CharField(
-    'Beschreibung',
+    verbose_name='Beschreibung',
     max_length=255,
     blank=True,
     null=True,
@@ -2916,7 +2893,7 @@ class Strassenreinigung(ComplexModel):
   )
   ausserhalb = BooleanField(' außerhalb geschlossener Ortslage?')
   reinigungsklasse = ForeignKey(
-    Reinigungsklassen_Strassenreinigungssatzung_HRO,
+    to=Reinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',
     on_delete=SET_NULL,
     db_column='reinigungsklasse',
@@ -2926,7 +2903,7 @@ class Strassenreinigung(ComplexModel):
     null=True
   )
   reinigungsrhythmus = ForeignKey(
-    Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
+    to=Reinigungsrhythmen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsrhythmus',
     on_delete=SET_NULL,
     db_column='reinigungsrhythmus',
@@ -2936,7 +2913,7 @@ class Strassenreinigung(ComplexModel):
     null=True
   )
   fahrbahnwinterdienst = ForeignKey(
-    Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
+    to=Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO,
     verbose_name='Fahrbahnwinterdienst',
     on_delete=SET_NULL,
     db_column='fahrbahnwinterdienst',
@@ -2946,7 +2923,7 @@ class Strassenreinigung(ComplexModel):
     null=True
   )
   laenge = DecimalField(
-    'Länge (in m)',
+    verbose_name='Länge (in m)',
     max_digits=7,
     decimal_places=2,
     default=0
@@ -2982,7 +2959,7 @@ class Strassenreinigung(ComplexModel):
       'fahrbahnwinterdienst': 'Fahrbahnwinterdienst',
       'laenge': 'Länge (in m)'
     }
-    list_fields_with_number = ['id', 'laenge']
+    list_fields_with_decimal = ['laenge']
     list_fields_with_foreign_key = {
       'gemeindeteil': 'gemeindeteil',
       'strasse': 'strasse',
@@ -2991,7 +2968,7 @@ class Strassenreinigung(ComplexModel):
       'reinigungsrhythmus': 'reinigungsrhythmus',
       'fahrbahnwinterdienst': 'code'
     }
-    map_feature_tooltip_field = 'id'
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'id': 'ID',
       'gemeindeteil': 'Gemeindeteil',
@@ -3045,7 +3022,7 @@ class Strassenreinigung_Flaechen(ComplexModel):
   """
 
   strassenreinigung = ForeignKey(
-    Strassenreinigung,
+    to=Strassenreinigung,
     verbose_name='Straßenreinigung',
     on_delete=CASCADE,
     db_column='strassenreinigung',
@@ -3061,10 +3038,9 @@ class Strassenreinigung_Flaechen(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Flächen zur Straßenreinigung der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Fläche'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['strassenreinigung']
-    object_title = 'die Fläche'
-    foreign_key_label = 'Straßenreinigung'
     geometry_type = 'MultiPolygon'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -3073,7 +3049,7 @@ class Strassenreinigung_Flaechen(ComplexModel):
     list_fields_with_foreign_key = {
       'strassenreinigung': 'id'
     }
-    map_feature_tooltip_field = 'strassenreinigung'
+    map_feature_tooltip_fields = ['strassenreinigung']
 
   def __str__(self):
     return str(self.strassenreinigung)
@@ -3090,7 +3066,7 @@ class Strassen_Simple(ComplexModel):
   """
 
   kategorie = ForeignKey(
-    Kategorien_Strassen,
+    to=Kategorien_Strassen,
     verbose_name='Kategorie',
     on_delete=RESTRICT,
     db_column='kategorie',
@@ -3098,12 +3074,12 @@ class Strassen_Simple(ComplexModel):
     related_name='%(app_label)s_%(class)s_kategorien'
   )
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   schluessel = CharField(
-    'Schlüssel',
+    verbose_name='Schlüssel',
     max_length=5,
     unique=True,
     validators=[
@@ -3147,8 +3123,8 @@ class Strassen_Simple(ComplexModel):
         'type': 'foreignkey'
       }
     ]
-    heavy_load_limit = 600
-    map_feature_tooltip_field = 'bezeichnung'
+    map_heavy_load_limit = 600
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'kategorie': 'Kategorie',
       'bezeichnung': 'Bezeichnung',
@@ -3227,7 +3203,7 @@ class Strassen_Simple_Historie(ComplexModel):
   """
 
   strasse_simple = ForeignKey(
-    Strassen_Simple,
+    to=Strassen_Simple,
     verbose_name='Straße',
     on_delete=CASCADE,
     db_column='strasse',
@@ -3235,28 +3211,28 @@ class Strassen_Simple_Historie(ComplexModel):
     related_name='%(app_label)s_%(class)s_strasse'
   )
   datum = CharField(
-    'Datum',
+    verbose_name='Datum',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   beschluss = CharField(
-    'Beschluss',
+    verbose_name='Beschluss',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   veroeffentlichung = CharField(
-    'Veröffentlichung',
+    verbose_name='Veröffentlichung',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   historie = CharField(
-    'Historie',
+    verbose_name='Historie',
     max_length=255,
     blank=True,
     null=True,
@@ -3270,9 +3246,8 @@ class Strassen_Simple_Historie(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Historie zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Historie'
     fields_with_foreign_key_to_linkify = ['strasse_simple']
-    object_title = 'die Historie'
-    foreign_key_label = 'Straße'
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse_simple': 'Straße',
@@ -3302,7 +3277,7 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
   """
 
   strasse_simple = ForeignKey(
-    Strassen_Simple,
+    to=Strassen_Simple,
     verbose_name='Straße',
     on_delete=CASCADE,
     db_column='strasse',
@@ -3310,76 +3285,76 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
     related_name='%(app_label)s_%(class)s_strasse'
   )
   person_weiblich = BooleanField(
-    'Person weiblich?',
+    verbose_name='Person weiblich?',
     blank=True,
     null=True
   )
   person_maennlich = BooleanField(
-    'Person männlich?',
+    verbose_name='Person männlich?',
     blank=True,
     null=True
   )
   beruf = BooleanField(
-    'Beruf?',
+    verbose_name='Beruf?',
     blank=True,
     null=True
   )
   literatur = BooleanField(
-    ' literarische(r) Figur oder Begriff?',
+    verbose_name=' literarische(r) Figur oder Begriff?',
     blank=True,
     null=True
   )
   historisch = BooleanField(
-    ' historischer Begriff?',
+    verbose_name=' historischer Begriff?',
     blank=True,
     null=True
   )
   flora_fauna = BooleanField(
-    'Eigenname aus der Natur?',
+    verbose_name='Eigenname aus der Natur?',
     blank=True,
     null=True
   )
   orte_landschaften = BooleanField(
-    'Eigenname von Orten oder Landschaften?',
+    verbose_name='Eigenname von Orten oder Landschaften?',
     blank=True,
     null=True
   )
   gesellschaft = BooleanField(
-    'Begriff gesellschaftlicher Werte?',
+    verbose_name='Begriff gesellschaftlicher Werte?',
     blank=True,
     null=True
   )
   lagehinweis = BooleanField(
-    'Lagehinweis?',
+    verbose_name='Lagehinweis?',
     blank=True,
     null=True
   )
   religion = BooleanField(
-    ' religiöse(r) Figur oder Begriff?',
+    verbose_name=' religiöse(r) Figur oder Begriff?',
     blank=True,
     null=True
   )
   niederdeutsch = BooleanField(
-    ' niederdeutscher Begriff?',
+    verbose_name=' niederdeutscher Begriff?',
     blank=True,
     null=True
   )
   erlaeuterungen_intern = NullTextField(
-    'Erläuterungen (intern)',
+    verbose_name='Erläuterungen (intern)',
     max_length=1000,
     blank=True,
     null=True,
     validators=standard_validators
   )
   erlaeuterungen_richter = NullTextField(
-    'Erläuterungen (J. Richter)',
+    verbose_name='Erläuterungen (J. Richter)',
     max_length=1000,
     blank=True,
     null=True,
     validators=standard_validators
   )
   wikipedia = CharField(
-    'Link auf Wikipedia',
+    verbose_name='Link auf Wikipedia',
     max_length=255,
     blank=True,
     null=True,
@@ -3398,9 +3373,8 @@ class Strassen_Simple_Namensanalyse(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Namensanalyse zu Straßen in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Namensanalyse'
     fields_with_foreign_key_to_linkify = ['strasse_simple']
-    object_title = 'die Namensanalyse'
-    foreign_key_label = 'Straße'
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse_simple': 'Straße',
@@ -3444,12 +3418,12 @@ class UVP_Vorhaben(ComplexModel):
   """
 
   bezeichnung = CharField(
-    'Bezeichnung',
+    verbose_name='Bezeichnung',
     max_length=255,
     validators=standard_validators
   )
   vorgangsart = ForeignKey(
-    Vorgangsarten_UVP_Vorhaben,
+    to=Vorgangsarten_UVP_Vorhaben,
     verbose_name='Vorgangsart',
     on_delete=RESTRICT,
     db_column='vorgangsart',
@@ -3457,7 +3431,7 @@ class UVP_Vorhaben(ComplexModel):
     related_name='%(app_label)s_%(class)s_vorgangsarten'
   )
   genehmigungsbehoerde = ForeignKey(
-    Genehmigungsbehoerden_UVP_Vorhaben,
+    to=Genehmigungsbehoerden_UVP_Vorhaben,
     verbose_name='Genehmigungsbehörde',
     on_delete=RESTRICT,
     db_column='genehmigungsbehoerde',
@@ -3465,10 +3439,10 @@ class UVP_Vorhaben(ComplexModel):
     related_name='%(app_label)s_%(class)s_genehmigungsbehoerden'
   )
   datum_posteingang_genehmigungsbehoerde = DateField(
-    'Datum des Posteingangs bei der Genehmigungsbehörde'
+    verbose_name='Datum des Posteingangs bei der Genehmigungsbehörde'
   )
   registriernummer_bauamt = CharField(
-    'Registriernummer des Bauamtes',
+    verbose_name='Registriernummer des Bauamtes',
     max_length=8,
     blank=True,
     null=True,
@@ -3480,14 +3454,14 @@ class UVP_Vorhaben(ComplexModel):
     ]
   )
   aktenzeichen = CharField(
-    'Aktenzeichen',
+    verbose_name='Aktenzeichen',
     max_length=255,
     blank=True,
     null=True,
     validators=standard_validators
   )
   rechtsgrundlage = ForeignKey(
-    Rechtsgrundlagen_UVP_Vorhaben,
+    to=Rechtsgrundlagen_UVP_Vorhaben,
     verbose_name='Rechtsgrundlage',
     on_delete=RESTRICT,
     db_column='rechtsgrundlage',
@@ -3495,7 +3469,7 @@ class UVP_Vorhaben(ComplexModel):
     related_name='%(app_label)s_%(class)s_rechtsgrundlagen'
   )
   typ = ForeignKey(
-    Typen_UVP_Vorhaben,
+    to=Typen_UVP_Vorhaben,
     verbose_name='Typ',
     on_delete=RESTRICT,
     db_column='typ',
@@ -3535,7 +3509,7 @@ class UVP_Vorhaben(ComplexModel):
       'rechtsgrundlage': 'rechtsgrundlage',
       'typ': 'typ'
     }
-    map_feature_tooltip_field = 'bezeichnung'
+    map_feature_tooltip_fields = ['bezeichnung']
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'vorgangsart': 'Vorgangsart',
@@ -3563,7 +3537,7 @@ class UVP_Vorpruefungen(ComplexModel):
   """
 
   uvp_vorhaben = ForeignKey(
-    UVP_Vorhaben,
+    to=UVP_Vorhaben,
     verbose_name='Vorhaben',
     on_delete=CASCADE,
     db_column='uvp_vorhaben',
@@ -3571,7 +3545,7 @@ class UVP_Vorpruefungen(ComplexModel):
     related_name='%(app_label)s_%(class)s_uvp_vorhaben'
   )
   art = ForeignKey(
-    Arten_UVP_Vorpruefungen,
+    to=Arten_UVP_Vorpruefungen,
     verbose_name='Art',
     on_delete=RESTRICT,
     db_column='art',
@@ -3580,11 +3554,11 @@ class UVP_Vorpruefungen(ComplexModel):
   )
   datum_posteingang = DateField('Datum des Posteingangs')
   datum = DateField(
-    'Datum',
+    verbose_name='Datum',
     default=date.today
   )
   ergebnis = ForeignKey(
-    Ergebnisse_UVP_Vorpruefungen,
+    to=Ergebnisse_UVP_Vorpruefungen,
     verbose_name='Ergebnis',
     on_delete=RESTRICT,
     db_column='ergebnis',
@@ -3592,17 +3566,17 @@ class UVP_Vorpruefungen(ComplexModel):
     related_name='%(app_label)s_%(class)s_ergebnisse'
   )
   datum_bekanntmachung = DateField(
-    'Datum Bekanntmachung „Städtischer Anzeiger“',
+    verbose_name='Datum Bekanntmachung „Städtischer Anzeiger“',
     blank=True,
     null=True
   )
   datum_veroeffentlichung = DateField(
-    'Datum Veröffentlichung UVP-Portal',
+    verbose_name='Datum Veröffentlichung UVP-Portal',
     blank=True,
     null=True
   )
   pruefprotokoll = CharField(
-    'Prüfprotokoll',
+    verbose_name='Prüfprotokoll',
     max_length=255,
     blank=True,
     null=True,
@@ -3618,8 +3592,6 @@ class UVP_Vorpruefungen(ComplexModel):
     description = 'Vorprüfungen der Hanse- und Universitätsstadt Rostock ' \
                   'zur Feststellung der UVP-Pflicht gemäß UVPG und LUVPG M-V'
     fields_with_foreign_key_to_linkify = ['uvp_vorhaben']
-    object_title = 'die UVP-Vorprüfung'
-    foreign_key_label = 'Vorhaben'
     list_fields = {
       'aktiv': 'aktiv?',
       'uvp_vorhaben': 'Vorhaben',

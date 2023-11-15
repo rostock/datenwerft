@@ -38,9 +38,9 @@ class TableDataCompositionView(BaseDatatableView):
     self.column_with_address_string = self.model.BasemodelMeta.list_field_with_address_string
     self.address_string_fallback_column = (
       self.model.BasemodelMeta.list_field_with_address_string_fallback_field)
-    self.columns_with_number = self.model.BasemodelMeta.list_fields_with_number
     self.columns_with_date = self.model.BasemodelMeta.list_fields_with_date
     self.columns_with_datetime = self.model.BasemodelMeta.list_fields_with_datetime
+    self.columns_with_decimal = self.model.BasemodelMeta.list_fields_with_decimal
     self.columns_with_foreign_key = self.model.BasemodelMeta.list_fields_with_foreign_key
     self.additional_foreign_key_column = self.model.BasemodelMeta.list_additional_foreign_key_field
     self.column_as_highlight_flag = self.model.BasemodelMeta.highlight_flag
@@ -106,7 +106,7 @@ class TableDataCompositionView(BaseDatatableView):
               else:
                 data = escape(value)
             # format numbers
-            elif self.columns_with_number and column in self.columns_with_number:
+            elif self.columns_with_decimal and column in self.columns_with_decimal:
               if isinstance(value, Decimal) or match(r"^[0-9]+\.[0-9]+$", str(value)):
                 data = localize_number(Decimal(str(value)))
               else:
@@ -456,21 +456,16 @@ class MapDataCompositionView(JsonView):
           # serialize object as GeoJSON
           object_serialized = loads(serialize('geojson', [curr_object], srid=25833))
           # create tooltip
-          if self.model.BasemodelMeta.map_feature_tooltip_field:
-            data = getattr(curr_object, self.model.BasemodelMeta.map_feature_tooltip_field)
-            if isinstance(data, date):
-              data = data.strftime('%d.%m.%Y')
-            elif isinstance(data, datetime):
-              data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
-            tooltip = str(data)
-          elif self.model.BasemodelMeta.map_feature_tooltip_fields:
-            previous_value = ''
-            tooltip_value = ''
-            index = 0
+          if self.model.BasemodelMeta.map_feature_tooltip_fields:
+            previous_value, tooltip_value, index = '', '', 0
             for field in self.model.BasemodelMeta.map_feature_tooltip_fields:
-              field_value = ''
-              if field and getattr(curr_object, field) is not None:
-                field_value = str(getattr(curr_object, field))
+              data, field_value = getattr(curr_object, field), ''
+              if data:
+                if isinstance(data, datetime):
+                  data = data.strftime('%d.%m.%Y, %H:%M:%S Uhr')
+                elif isinstance(data, date):
+                  data = data.strftime('%d.%m.%Y')
+                field_value = str(data)
               tooltip_value = (
                   # place spaces between individual tooltip components
                   # but not between housenumber and housenumber suffix
@@ -526,11 +521,7 @@ class MapDataCompositionView(JsonView):
           # optional: set deadline map filter as properties
           if self.model.BasemodelMeta.map_deadlinefilter_fields:
             for index, field in enumerate(self.model.BasemodelMeta.map_deadlinefilter_fields):
-              data = getattr(curr_object, field)
-              if isinstance(data, date):
-                data = data.strftime('%Y-%m-%d')
-              elif isinstance(data, datetime):
-                data = data.strftime('%Y-%m-%d %H:%M:%S')
+              data = get_data(curr_object, field)
               feature['properties']['deadline_' + str(index)] = str(data)
               # additionally set field as an ordinary map filter property, too
               feature['properties'][field] = str(data)
@@ -575,10 +566,10 @@ class MapListView(TemplateView):
       # get minimum value and insert into declared variable
       interval_filter_min = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
           field_name).values_list(field_name, flat=True).first()
-      if isinstance(interval_filter_min, date):
-        interval_filter_min = interval_filter_min.strftime('%Y-%m-%d')
-      elif isinstance(interval_filter_min, datetime):
+      if isinstance(interval_filter_min, datetime):
         interval_filter_min = interval_filter_min.strftime('%Y-%m-%d %H:%M:%S')
+      elif isinstance(interval_filter_min, date):
+        interval_filter_min = interval_filter_min.strftime('%Y-%m-%d')
       # define field for maximum values
       field_name = list(self.model.BasemodelMeta.map_intervalfilter_fields.keys())[1]
       # construct NOT NULL filter
@@ -586,10 +577,10 @@ class MapListView(TemplateView):
       # get maximum value and insert into declared variable
       interval_filter_max = self.model.objects.exclude(**{field_name_isnull: True}).order_by(
           field_name).values_list(field_name, flat=True).last()
-      if isinstance(interval_filter_max, date):
-        interval_filter_max = interval_filter_max.strftime('%Y-%m-%d')
-      elif isinstance(interval_filter_max, datetime):
+      if isinstance(interval_filter_max, datetime):
         interval_filter_max = interval_filter_max.strftime('%Y-%m-%d %H:%M:%S')
+      elif isinstance(interval_filter_max, date):
+        interval_filter_max = interval_filter_max.strftime('%Y-%m-%d')
     # declare dictionary for filter fields that are to act as selections
     list_filter_lists = {}
     if self.model.BasemodelMeta.map_filter_fields_as_list:
@@ -695,7 +686,7 @@ class MapListView(TemplateView):
     else:
       context['objects_count'] = get_model_objects(self.model, None, True)
     context['highlight_flag'] = self.model.BasemodelMeta.highlight_flag
-    context['heavy_load_limit'] = self.model.BasemodelMeta.heavy_load_limit
+    context['heavy_load_limit'] = self.model.BasemodelMeta.map_heavy_load_limit
     context['additional_wms_layers'] = self.model.BasemodelMeta.additional_wms_layers
     if (
         self.model.BasemodelMeta.editable

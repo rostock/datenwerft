@@ -7,13 +7,12 @@ from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
-from re import sub
 from time import time
 
 from .forms import GenericForm
 from .functions import add_basic_model_context_elements, add_model_form_context_elements, \
   add_user_agent_context_elements, assign_widgets, set_form_attributes
-from toolbox.utils import is_geometry_field
+from toolbox.utils import get_array_first_element, is_geometry_field
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
 
@@ -31,7 +30,7 @@ class DataAddView(CreateView):
         fields='__all__',
         formfield_callback=assign_widgets
     )
-    self.multi_foto_field = None
+    self.multi_photos = None
     self.multi_files = None
     self.file = None
     super().__init__(*args, **kwargs)
@@ -44,7 +43,7 @@ class DataAddView(CreateView):
     """
     kwargs = super().get_form_kwargs()
     self = set_form_attributes(self)
-    if self.model.BasemodelMeta.multi_foto_field and self.request.method == 'POST':
+    if self.model.BasemodelMeta.multi_photos and self.request.method == 'POST':
       self.multi_files = self.request.FILES
     if self.request.method == 'POST':
       self.file = self.request.FILES
@@ -53,7 +52,7 @@ class DataAddView(CreateView):
     kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
+    kwargs['multi_photos'] = self.model.BasemodelMeta.multi_photos
     kwargs['file'] = self.file
     kwargs['multi_files'] = self.multi_files
     return kwargs
@@ -74,7 +73,7 @@ class DataAddView(CreateView):
     # add model form related elements to context
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
-    context['multi_foto_field'] = self.model.BasemodelMeta.multi_foto_field
+    context['multi_photos'] = self.model.BasemodelMeta.multi_photos
     context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
     return context
 
@@ -200,16 +199,10 @@ class DataChangeView(UpdateView):
       for associated_model in self.associated_models:
         associated_model_model = apps.get_app_config('datenmanagement').get_model(associated_model)
         associated_model_foreign_key_field = self.associated_models.get(associated_model)
-        title = ''
-        if associated_model_model.BasemodelMeta.object_title:
-          if associated_model_model.BasemodelMeta.foreign_key_label:
-            foreign_key_label = associated_model_model.BasemodelMeta.foreign_key_label
-          else:
-            foreign_key_label = associated_model_model._meta.verbose_name
-          title = (
-            sub('^[a-z]{3} ', '', associated_model_model.BasemodelMeta.object_title) +
-            ' zu ' + foreign_key_label
-          )
+        if associated_model_model.BasemodelMeta.short_name:
+          title = associated_model_model.BasemodelMeta.short_name
+        else:
+          title = associated_model_model._meta.verbose_name
         associated_new_dict = {
             'title': title,
             'link': reverse(
@@ -345,12 +338,11 @@ class DataChangeView(UpdateView):
         curr_dict[field_name_for_address_type] = self.object.gemeindeteil
     for field in self.model._meta.get_fields():
       if field.__class__.__name__ == 'ArrayField':
-        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        if values is not None and len(values) > 0 and values[0] is not None:
-          # set initial value for this field to first array element
-          # and add it to prepared dictionary
-          initial_value = values[0]
-          curr_dict[field.name] = initial_value
+        # set initial value for this field to first array element
+        # and add it to prepared dictionary
+        curr_dict[field.name] = get_array_first_element(
+          getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        )
     return curr_dict
 
   def form_valid(self, form):
@@ -381,11 +373,9 @@ class DataChangeView(UpdateView):
     for field in self.model._meta.get_fields():
       # reset all array fields to their initial state
       if field.__class__.__name__ == 'ArrayField':
-        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        if values is not None and len(values) > 0 and values[0] is not None:
-          form.data[field.name] = values[0]
-        else:
-          form.data[field.name] = values
+        form.data[field.name] = get_array_first_element(
+          getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        )
       # keep address reference (otherwise it would be lost on re-rendering)
       elif is_address_related_field(field):
         field_name_for_address_type = get_field_name_for_address_type(self.model, False)

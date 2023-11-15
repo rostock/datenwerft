@@ -10,17 +10,17 @@ class Status(Codelist):
   """
 
   ordinal = SmallIntegerField(
-    'Ordinalzahl',
+    verbose_name='Ordinalzahl',
     unique=True
   )
   title = CharField(
-    'Titel',
+    verbose_name='Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   icon = CharField(
-    'Icon',
+    verbose_name='Icon',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -58,13 +58,13 @@ class Sector(Codelist):
   """
 
   title = CharField(
-    'Titel',
+    verbose_name='Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   examples = CharField(
-    'Beispiele',
+    verbose_name='Beispiele',
     max_length=255,
     blank=True,
     null=True,
@@ -90,13 +90,13 @@ class TypeOfEvent(Codelist):
   """
 
   title = CharField(
-    'Titel',
+    verbose_name='Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   icon = CharField(
-    'Icon',
+    verbose_name='Icon',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -121,13 +121,13 @@ class TypeOfImmission(Codelist):
   """
 
   title = CharField(
-    'Titel',
+    verbose_name='Titel',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
   icon = CharField(
-    'Icon',
+    verbose_name='Icon',
     max_length=255,
     unique=True,
     validators=standard_validators

@@ -17,7 +17,7 @@ class UserAuthToken(models.Model):
   """
 
   user = models.OneToOneField(
-    User,
+    to=User,
     primary_key=True,
     on_delete=models.CASCADE
   )
@@ -29,10 +29,12 @@ class UserAuthToken(models.Model):
     max_length=24,
     unique=True
   )
-  email_token = models.CharField(max_length=16)
+  email_token = models.CharField(
+    max_length=16
+  )
   created_at = models.DateTimeField(
     auto_now=True,
-    editable=False,
+    editable=False
   )
 
   @classmethod

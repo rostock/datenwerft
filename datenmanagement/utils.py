@@ -23,10 +23,10 @@ def get_data(curr_object, field):
   :return:  data of the passed model field for the passed object
   """
   data = getattr(curr_object, field)
-  if isinstance(data, date):
-    data = data.strftime('%Y-%m-%d')
-  elif isinstance(data, datetime):
+  if isinstance(data, datetime):
     data = data.strftime('%Y-%m-%d %H:%M:%S')
+  elif isinstance(data, date):
+    data = data.strftime('%Y-%m-%d')
   return data
 
 

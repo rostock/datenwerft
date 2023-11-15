@@ -25,7 +25,7 @@ class GenericForm(ModelForm):
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
     fields_with_foreign_key_to_linkify = kwargs.pop('fields_with_foreign_key_to_linkify', None)
     file = kwargs.pop('file', None)
-    multi_foto_field = kwargs.pop('multi_foto_field', None)
+    multi_photos = kwargs.pop('multi_photos', None)
     multi_files = kwargs.pop('multi_files', None)
     kwargs.setdefault('label_suffix', '')
     super().__init__(*args, **kwargs)
@@ -37,7 +37,7 @@ class GenericForm(ModelForm):
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.file = file
-    self.multi_foto_field = multi_foto_field
+    self.multi_photos = multi_photos
     self.multi_files = multi_files
     self.address_type = self.instance.BasemodelMeta.address_type
     self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
@@ -159,7 +159,7 @@ class GenericForm(ModelForm):
 
     :return: cleaned field with foto
     """
-    if self.multi_foto_field:
+    if self.multi_photos:
       # only carry out all further operations if all mandatory fields have been filled,
       # since otherwise the transfer for the other photo objects will not work
       ok = True
@@ -202,7 +202,7 @@ class GenericForm(ModelForm):
     :return: cleaned field with original filename
     """
     data = self.cleaned_data['dateiname_original']
-    if self.multi_foto_field and self.multi_files:
+    if self.multi_photos and self.multi_files:
         data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
     elif self.file:
         data = self.file.getlist('foto')[0].name

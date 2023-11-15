@@ -13,7 +13,7 @@ from .functions import add_default_context_elements, add_generic_objectclass_con
   add_sector_examples_context_element, add_table_context_elements, assign_widget, \
   create_log_entry, generate_foreign_key_objects_list, \
   set_generic_objectclass_create_update_delete_context, set_log_action_and_content
-from toolbox.utils import is_geometry_field
+from toolbox.utils import get_array_first_element, is_geometry_field
 from bemas.models import GeometryObjectclass, Complaint, Contact, Event, LogEntry, Organization, \
   Originator, Sector, Status
 from bemas.utils import generate_user_string, shorten_string
@@ -280,12 +280,11 @@ class GenericObjectclassUpdateView(UpdateView):
       # handle array fields and their values
       # (i.e. those array fields containing at least one value)
       if field.__class__.__name__ == 'ArrayField':
-        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        if values is not None and len(values) > 0 and values[0] is not None:
-          # set initial value for this field to first array element
-          # and add it to prepared dictionary
-          initial_field_value = values[0]
-          initial_field_values[field.name] = initial_field_value
+        # set initial value for this field to first array element
+        # and add it to prepared dictionary
+        initial_field_values[field.name] = get_array_first_element(
+          getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        )
       # handle date fields and their values
       elif field.__class__.__name__ == 'DateField':
         value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
@@ -343,11 +342,9 @@ class GenericObjectclassUpdateView(UpdateView):
     for field in self.model._meta.get_fields():
       # reset all array fields to their initial state
       if field.__class__.__name__ == 'ArrayField':
-        values = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        if values is not None and len(values) > 0 and values[0] is not None:
-          form.data[field.name] = values[0]
-        else:
-          form.data[field.name] = values
+        form.data[field.name] = get_array_first_element(
+          getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        )
     context_data['form'] = form
     return self.render_to_response(context_data)
 

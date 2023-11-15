@@ -132,7 +132,7 @@ def generate_key(
     segmented: str = SEGMENT_SEPARATOR,
     segmentlength: int = SEGMENT_LENGTH,
 ) -> str:
-  key = "".join(random.choice(CODE_CHARS) for i in range(codelength))
+  key = "".join(random.choice(CODE_CHARS) for _ in range(codelength))
   key = segmented.join(
     [key[i: i + segmentlength] for i in range(0, len(key), segmentlength)]
   )

@@ -34,6 +34,19 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return None
 
 
+def get_array_first_element(curr_array):
+  """
+  returns first element of passed array
+
+  :param curr_array: array
+  :return: first element of passed array
+  """
+  if curr_array is not None and len(curr_array) > 0 and curr_array[0] is not None:
+    return curr_array[0]
+  else:
+    return curr_array
+
+
 def is_geometry_field(field):
   """
   checks if passed field is a geometry related field

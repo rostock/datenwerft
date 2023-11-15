@@ -31,6 +31,10 @@ class Basemodel(Model):
     # String:
     # description of this model
     description = None
+    # String:
+    # short name of this model
+    # (only relevant for models with foreign keys; if not specified, verbose name is used)
+    short_name = None
     # Boolean:
     # shall this model (i.e. its geometries) be selectable as an additional overlay layer
     # in the maps of all form views?
@@ -41,10 +45,11 @@ class Basemodel(Model):
     # String:
     # name of the field of this model
     # whose value shall appear in drop-down list map filters in map views
+    # (if not specified, first element of ``ordering`` is used)
     naming = None
     # Dictionary:
     # shall other models (as keys), each referencing this model
-    # with foreign key fields (as values), be used to provide corresponding links
+    # with certain foreign key fields (as values), be used to provide corresponding links
     # in the form views and in the table of the list view of this model?
     associated_models = None
     # List of strings:
@@ -75,14 +80,6 @@ class Basemodel(Model):
     # geometry type of this model
     geometry_type = None
     # String:
-    # text module for the deletion form view of this model
-    # (only relevant for models with foreign keys)
-    object_title = None
-    # String:
-    # label of the foreign key field of this model
-    # (only relevant for models with foreign keys)
-    foreign_key_label = None
-    # String:
     # address search class
     address_search_class = 'address_hro'
     # Boolean:
@@ -96,11 +93,11 @@ class Basemodel(Model):
     address_mandatory = False
     # Boolean:
     # shall thumbnails be created from uploaded photos for this model?
-    thumbs = False
+    thumbs = True
     # Boolean:
     # shall it be possible to upload multiple photos for this model?
     # if true, multiple datasets are created, i.e. one for each photo.
-    multi_foto_field = False
+    multi_photos = False
     # Boolean:
     # shall an upload field for a GeoJSON file be available in the form views of this model?
     geojson_input = False
@@ -128,11 +125,6 @@ class Basemodel(Model):
     list_field_with_address_string_fallback_field = None
     # List of strings:
     # names of those fields of this model appearing in ``list_fields``
-    # whose values are of a numeric data type and which must therefore be treated accordingly
-    # for sorting in the table of the list view of this model to work
-    list_fields_with_number = None
-    # List of strings:
-    # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type date and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_date = None
@@ -141,6 +133,11 @@ class Basemodel(Model):
     # whose values are of data type datetime and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_datetime = None
+    # List of strings:
+    # names of those fields of this model appearing in ``list_fields``
+    # whose values are of Decimal type and which must therefore be treated accordingly
+    # for sorting in the table of the list view of this model to work
+    list_fields_with_decimal = None
     # Dictionary:
     # names of those fields appearing in ``list_fields`` (as keys)
     # which are to be converted into names of foreign key fields (as values)
@@ -151,28 +148,25 @@ class Basemodel(Model):
     # details of a foreign key field of this model
     # which shall appear as an additional column in the table of the list view of this model
     list_additional_foreign_key_field = None
+    # List of dictionaries:
+    # properties of assignment actions
+    # which shall be selectable below the table of the list view of this model
+    list_actions_assign = None
     # String:
     # name of that Boolean field of this model
     # whose values (only if ``True``) shall be used as a flag for highlighting
     # both in the table of the list view of this model and in the map view of this model
     highlight_flag = None
-    # List of dictionaries:
-    # properties of assignment actions
-    # which shall be selectable below the table of the list view of this model
-    list_actions_assign = None
     # Number:
     # limit for individual map feature loading steps
     # (i.e. maximum number of map features to be loaded in one step at once)
     # in the map view of this model
-    heavy_load_limit = None
-    # String:
-    # name of the field of this model
-    # which shall be used as the source for the map feature tooltips in the map view of this model
-    map_feature_tooltip_field = None
+    map_heavy_load_limit = None
     # List of strings:
     # names of the fields of this model
     # whose values shall concatenated
     # and as such be used as the source for the map feature tooltips in the map view of this model
+    # (if not specified, primary key is used)
     map_feature_tooltip_fields = None
     # Boolean:
     # shall the one-click map filters defined in the map view template
@@ -206,7 +200,7 @@ class Basemodel(Model):
     map_filter_fields_as_checkbox = None
     # Boolean:
     # shall those fields of this model appearing in ``map_filter_fields``
-    # which are of data type boolean
+    # which are of data type Boolean
     # appear as checkbox-set map filters in the map view of this model?
     map_filter_boolean_fields_as_checkbox = False
     # Dictionary:
@@ -257,7 +251,7 @@ class Art(Codelist):
   """
 
   art = CharField(
-    'Art',
+    verbose_name='Art',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -282,7 +276,7 @@ class Befestigungsart(Codelist):
   """
 
   befestigungsart = CharField(
-    'Befestigungsart',
+    verbose_name='Befestigungsart',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -307,7 +301,7 @@ class Material(Codelist):
   """
 
   material = CharField(
-    'Material',
+    verbose_name='Material',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -332,7 +326,7 @@ class Schlagwort(Codelist):
   """
 
   schlagwort = CharField(
-    'Schlagwort',
+    verbose_name='Schlagwort',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -357,7 +351,7 @@ class Status(Codelist):
   """
 
   status = CharField(
-    'Status',
+    verbose_name='Status',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -382,7 +376,7 @@ class Typ(Codelist):
   """
 
   typ = CharField(
-    'Typ',
+    verbose_name='Typ',
     max_length=255,
     unique=True,
     validators=standard_validators
@@ -411,7 +405,7 @@ class SimpleModel(Basemodel):
   """
 
   aktiv = BooleanField(
-    ' aktiv?',
+    verbose_name=' aktiv?',
     default=True
   )
 
