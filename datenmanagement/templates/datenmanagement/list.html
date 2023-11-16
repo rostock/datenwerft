@@ -142,7 +142,7 @@
             if ($('#action-select').val().startsWith('assign-selected-')) {
               // get name of corresponding modal and open it
               let modalName = $('#action-select').val().replace('assign-selected-', '');
-              $('#action-assign-' + modalName + '-modal');
+              toggleModal($('#action-assign-' + modalName + '-modal'));
               // execute the assignment action on clicking the "OK" button in the assignment action modal...
               $('#action-assign-' + modalName + '-modal-ok').on('click', function() {
                 let field = $('#action-assign-' + modalName + '-modal-input-field');

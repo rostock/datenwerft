@@ -59,6 +59,7 @@ class TestLoginForm(AccountTestCase):
                      ExternalAuthenticationForm.error_messages.get(error_messages_key))
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @override_settings(AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES=[])
   def test_pre_login_view(self):
     response = self.client.post(
       reverse('accounts:login'),
@@ -71,6 +72,7 @@ class TestLoginForm(AccountTestCase):
     self.assertTrue(response.wsgi_request.user.is_anonymous)
     self.assertEqual(response.wsgi_request.session['_token'], auth_tokens.session_token)
 
+  @override_settings(AUTH_LDAP_EXTENSION_INTERNAL_IP_ADDRESSES=[])
   def test_external_login_view(self):
     last_login = self.test_user.last_login
     self.assertIsNone(last_login)
