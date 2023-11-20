@@ -2180,6 +2180,22 @@ CREATE TABLE fachdaten.kunst_im_oeffentlichen_raum_hro (
 
 
 --
+-- Name: lichtwellenleiterinfrastruktur_abschnitte_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.lichtwellenleiterinfrastruktur_abschnitte_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: lichtwellenleiterinfrastruktur_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2193,7 +2209,8 @@ CREATE TABLE fachdaten.lichtwellenleiterinfrastruktur_hro (
     deaktiviert date,
     objektart uuid NOT NULL,
     geometrie public.geometry(LineString,25833) NOT NULL,
-    kabeltyp uuid
+    kabeltyp uuid,
+    abschnitt uuid
 );
 
 
@@ -5394,6 +5411,22 @@ ALTER TABLE ONLY fachdaten.kadaverfunde_hro
 
 ALTER TABLE ONLY fachdaten.kunst_im_oeffentlichen_raum_hro
     ADD CONSTRAINT kunst_im_oeffentlichen_raum_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: lichtwellenleiterinfrastruktur_abschnitte_hro lichtwellenleiterinfrastruktur_abschnitte_hro_bezeichnung_uniqu; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_abschnitte_hro
+    ADD CONSTRAINT lichtwellenleiterinfrastruktur_abschnitte_hro_bezeichnung_uniqu UNIQUE (id_fachsystem);
+
+
+--
+-- Name: lichtwellenleiterinfrastruktur_abschnitte_hro lichtwellenleiterinfrastruktur_abschnitte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.lichtwellenleiterinfrastruktur_abschnitte_hro
+    ADD CONSTRAINT lichtwellenleiterinfrastruktur_abschnitte_hro_pk PRIMARY KEY (uuid);
 
 
 --

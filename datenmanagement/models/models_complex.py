@@ -31,8 +31,9 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
   Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
   Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, Genehmigungsbehoerden_UVP_Vorhaben, \
-  Kategorien_Strassen, Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, \
-  Materialien_Durchlaesse, Raeumbreiten_Strassenreinigungssatzung_HRO, \
+  Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, Mastkennzeichen_RSAG, \
+  Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
+  Objektarten_Lichtwellenleiterinfrastruktur, Raeumbreiten_Strassenreinigungssatzung_HRO, \
   Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
   Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
@@ -2012,6 +2013,134 @@ class Haltestellenkataster_Fotos(ComplexModel):
 post_save.connect(photo_post_processing, sender=Haltestellenkataster_Fotos)
 
 post_delete.connect(delete_photo, sender=Haltestellenkataster_Fotos)
+
+
+#
+# Lichtwellenleiterinfrastruktur
+#
+
+class Lichtwellenleiterinfrastruktur_Abschnitte(ComplexModel):
+  """
+  Lichtwellenleiterinfrastruktur:
+  Abschnitte
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"lichtwellenleiterinfrastruktur_abschnitte_hro'
+    ordering = ['bezeichnung']
+    verbose_name = 'Abschnitt der Lichtwellenleiterinfrastruktur'
+    verbose_name_plural = 'Abschnitte der Lichtwellenleiterinfrastruktur'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Abschnitte der Lichtwellenleiterinfrastruktur ' \
+                   'in der Hanse- und Universitätsstadt Rostock'
+    associated_models = {
+      'Lichtwellenleiterinfrastruktur': 'abschnitt'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
+
+
+class Lichtwellenleiterinfrastruktur(ComplexModel):
+  """
+  Lichtwellenleiterinfrastruktur:
+  Lichtwellenleiterinfrastruktur
+  """
+
+  abschnitt = ForeignKey(
+    to=Lichtwellenleiterinfrastruktur_Abschnitte,
+    verbose_name='Abschnitt',
+    on_delete=SET_NULL,
+    db_column='abschnitt',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_abschnitte',
+    blank=True,
+    null=True
+  )
+  objektart = ForeignKey(
+    to=Objektarten_Lichtwellenleiterinfrastruktur,
+    verbose_name='Objektart',
+    on_delete=RESTRICT,
+    db_column='objektart',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_objektarten'
+  )
+  kabeltyp = ForeignKey(
+    to=Kabeltypen_Lichtwellenleiterinfrastruktur,
+    verbose_name='Kabeltyp',
+    on_delete=SET_NULL,
+    db_column='kabeltyp',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_kabeltypen',
+    blank=True,
+    null=True
+  )
+  geometrie = line_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"lichtwellenleiterinfrastruktur_hro'
+    verbose_name = 'Lichtwellenleiterinfrastruktur'
+    verbose_name_plural = 'Lichtwellenleiterinfrastruktur'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Lichtwellenleiterinfrastruktur in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'LineString'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'uuid': 'UUID',
+      'abschnitt': 'Abschnitt',
+      'objektart': 'Objektart',
+      'kabeltyp': 'Kabeltyp'
+    }
+    list_fields_with_foreign_key = {
+      'abschnitt': 'bezeichnung',
+      'objektart': 'objektart',
+      'kabeltyp': 'kabeltyp'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'lichtwellenleiterinfrastruktur-abschnitt',
+        'action_title': 'ausgewählten Datensätzen Abschnitt direkt zuweisen',
+        'field': 'abschnitt',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'lichtwellenleiterinfrastruktur-objektart',
+        'action_title': 'ausgewählten Datensätzen Objektart direkt zuweisen',
+        'field': 'objektart',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'lichtwellenleiterinfrastruktur-kabeltyp',
+        'action_title': 'ausgewählten Datensätzen Kabeltyp direkt zuweisen',
+        'field': 'kabeltyp',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['objektart', 'uuid']
+    map_filter_fields = {
+      'uuid': 'UUID',
+      'abschnitt': 'Abschnitt',
+      'objektart': 'Objektart',
+      'kabeltyp': 'Kabeltyp'
+    }
+    map_filter_fields_as_list = ['abschnitt', 'objektart', 'kabeltyp']
+
+  def __str__(self):
+    return str(self.objektart) + ' ' + str(self.pk)
 
 
 #

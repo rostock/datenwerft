@@ -10,13 +10,15 @@ from datenmanagement.models import Adressen, Adressunsicherheiten, Adressunsiche
   Fallwildsuchen_Kontrollgebiete, Fallwildsuchen_Nachweise, Fotomotive_Haltestellenkataster, \
   Geh_Radwegereinigung, Geh_Radwegereinigung_Flaechen, Gemeindeteile, \
   Genehmigungsbehoerden_UVP_Vorhaben, Haltestellenkataster_Fotos, \
-  Haltestellenkataster_Haltestellen, Kategorien_Strassen, Masttypen_RSAG, \
-  Parkscheinautomaten_Tarife, Parkscheinautomaten_Parkscheinautomaten, \
-  Rechtsgrundlagen_UVP_Vorhaben, RSAG_Gleise, RSAG_Leitungen, RSAG_Masten, RSAG_Quertraeger, \
-  RSAG_Spanndraehte, Sparten_Baustellen, Status_Baustellen_Fotodokumentation_Fotos, \
-  Status_Baustellen_geplant, Strassenreinigung, Strassenreinigung_Flaechen, Strassen_Simple, \
-  Strassen_Simple_Historie, Strassen_Simple_Namensanalyse, Tierseuchen, Typen_UVP_Vorhaben, \
-  UVP_Vorhaben, UVP_Vorpruefungen, Verkehrliche_Lagen_Baustellen, Verkehrsmittelklassen, \
+  Haltestellenkataster_Haltestellen, Kabeltypen_Lichtwellenleiterinfrastruktur, \
+  Kategorien_Strassen, Lichtwellenleiterinfrastruktur, Lichtwellenleiterinfrastruktur_Abschnitte, \
+  Masttypen_RSAG, Objektarten_Lichtwellenleiterinfrastruktur, Parkscheinautomaten_Tarife, \
+  Parkscheinautomaten_Parkscheinautomaten, Rechtsgrundlagen_UVP_Vorhaben, RSAG_Gleise, \
+  RSAG_Leitungen, RSAG_Masten, RSAG_Quertraeger, RSAG_Spanndraehte, Sparten_Baustellen, \
+  Status_Baustellen_Fotodokumentation_Fotos, Status_Baustellen_geplant, Strassenreinigung, \
+  Strassenreinigung_Flaechen, Strassen_Simple, Strassen_Simple_Historie, \
+  Strassen_Simple_Namensanalyse, Tierseuchen, Typen_UVP_Vorhaben, UVP_Vorhaben, \
+  UVP_Vorpruefungen, Verkehrliche_Lagen_Baustellen, Verkehrsmittelklassen, \
   Vorgangsarten_UVP_Vorhaben, Zeiteinheiten, Zonen_Parkscheinautomaten
 
 from .base import DefaultComplexModelTestCase, GenericRSAGTestCase
@@ -3642,6 +3644,464 @@ class HaltestellenkatasterFotosTest(DefaultComplexModelTestCase):
       'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+
+#
+# Lichtwellenleiterinfrastruktur
+#
+
+class LichtwellenleiterinfrastrukturAbschnitteTest(DefaultComplexModelTestCase):
+  """
+  Lichtwellenleiterinfrastruktur:
+  Abschnitte
+  """
+
+  model = Lichtwellenleiterinfrastruktur_Abschnitte
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class LichtwellenleiterinfrastrukturTest(DefaultComplexModelTestCase):
+  """
+  Lichtwellenleiterinfrastruktur:
+  Lichtwellenleiterinfrastruktur
+  """
+
+  model = Lichtwellenleiterinfrastruktur
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    abschnitt1 = Lichtwellenleiterinfrastruktur_Abschnitte.objects.create(
+      bezeichnung='Bezeichnung1'
+    )
+    abschnitt2 = Lichtwellenleiterinfrastruktur_Abschnitte.objects.create(
+      bezeichnung='Bezeichnung2'
+    )
+    cls.abschnitt2 = abschnitt2
+    objektart1 = Objektarten_Lichtwellenleiterinfrastruktur.objects.create(
+      objektart='Objektart1'
+    )
+    objektart2 = Objektarten_Lichtwellenleiterinfrastruktur.objects.create(
+      objektart='Objektart2'
+    )
+    cls.objektart2 = objektart2
+    kabeltyp1 = Kabeltypen_Lichtwellenleiterinfrastruktur.objects.create(
+      kabeltyp='Kabeltyp1'
+    )
+    kabeltyp2 = Kabeltypen_Lichtwellenleiterinfrastruktur.objects.create(
+      kabeltyp='Kabeltyp2'
+    )
+    cls.kabeltyp2 = kabeltyp2
+    cls.attributes_values_db_initial = {
+      'abschnitt': abschnitt1,
+      'objektart': objektart1,
+      'kabeltyp': kabeltyp1,
+      'geometrie': VALID_LINE_DB
+    }
+    cls.attributes_values_db_updated = {
+      'abschnitt': abschnitt2,
+      'objektart': objektart2,
+      'kabeltyp': kabeltyp2
+    }
+    cls.attributes_values_db_assigned_abschnitt = {
+      'abschnitt': abschnitt2
+    }
+    cls.attributes_values_db_assigned_objektart = {
+      'objektart': objektart2
+    }
+    cls.attributes_values_db_assigned_kabeltyp = {
+      'kabeltyp': kabeltyp2
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'abschnitt': str(abschnitt1.pk),
+      'objektart': str(objektart1.pk),
+      'kabeltyp': str(kabeltyp1.pk),
+      'geometrie': VALID_LINE_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'abschnitt': str(abschnitt2.pk),
+      'objektart': str(objektart2.pk),
+      'kabeltyp': str(kabeltyp2.pk),
+      'geometrie': VALID_LINE_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_simplemodel(self):
+    self.generic_is_complexmodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_assign_abschnitt(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_abschnitt,
+      'abschnitt',
+      str(self.abschnitt2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_objektart(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_objektart,
+      'objektart',
+      str(self.objektart2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_kabeltyp(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_kabeltyp,
+      'kabeltyp',
+      str(self.kabeltyp2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
 
 
 #
