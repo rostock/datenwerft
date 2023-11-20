@@ -2097,6 +2097,7 @@ class Lichtwellenleiterinfrastruktur(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Lichtwellenleiterinfrastruktur in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
+    fields_with_foreign_key_to_linkify = ['abschnitt']
     geometry_type = 'LineString'
     list_fields = {
       'aktiv': 'aktiv?',
