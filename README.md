@@ -4,12 +4,12 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 ## Voraussetzungen
 
-* [*Python*](https://www.python.org/) (v3.x)
-* [*pip*](https://pip.pypa.io/) (für *Python* v3.x)
+* [*Python*](https://www.python.org/) (>= v3.10)
+* [*pip*](https://pip.pypa.io/)
 * [*GDAL*](https://gdal.org/)
 * [*PostgreSQL*](https://www.postgresql.org/) mit der Erweiterung [*PostGIS*](https://postgis.net/)
 * [*npm*](https://www.npmjs.com/)
-* für App _Toolbox_ siehe [hier](toolbox/README.md)
+* optional für App _Toolbox_ siehe [hier](toolbox/README.md)
 
 ## Installation
 
