@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -2208,7 +2208,7 @@ CREATE TABLE fachdaten.lichtwellenleiterinfrastruktur_hro (
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
     objektart uuid NOT NULL,
-    geometrie public.geometry(LineString,25833) NOT NULL,
+    geometrie public.geometry(MultiLineString,25833) NOT NULL,
     kabeltyp uuid,
     abschnitt uuid
 );

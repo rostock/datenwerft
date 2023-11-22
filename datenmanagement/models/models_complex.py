@@ -2087,7 +2087,7 @@ class Lichtwellenleiterinfrastruktur(ComplexModel):
     blank=True,
     null=True
   )
-  geometrie = line_field
+  geometrie = multiline_field
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"lichtwellenleiterinfrastruktur_hro'
@@ -2098,7 +2098,7 @@ class Lichtwellenleiterinfrastruktur(ComplexModel):
     description = 'Lichtwellenleiterinfrastruktur in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     fields_with_foreign_key_to_linkify = ['abschnitt']
-    geometry_type = 'LineString'
+    geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
       'uuid': 'UUID',

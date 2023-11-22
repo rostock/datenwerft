@@ -3837,7 +3837,7 @@ class LichtwellenleiterinfrastrukturTest(DefaultComplexModelTestCase):
       'abschnitt': abschnitt1,
       'objektart': objektart1,
       'kabeltyp': kabeltyp1,
-      'geometrie': VALID_LINE_DB
+      'geometrie': VALID_MULTILINE_DB
     }
     cls.attributes_values_db_updated = {
       'abschnitt': abschnitt2,
@@ -3858,14 +3858,14 @@ class LichtwellenleiterinfrastrukturTest(DefaultComplexModelTestCase):
       'abschnitt': str(abschnitt1.pk),
       'objektart': str(objektart1.pk),
       'kabeltyp': str(kabeltyp1.pk),
-      'geometrie': VALID_LINE_VIEW
+      'geometrie': VALID_MULTILINE_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'abschnitt': str(abschnitt2.pk),
       'objektart': str(objektart2.pk),
       'kabeltyp': str(kabeltyp2.pk),
-      'geometrie': VALID_LINE_VIEW
+      'geometrie': VALID_MULTILINE_VIEW
     }
     cls.attributes_values_view_invalid = {
     }
