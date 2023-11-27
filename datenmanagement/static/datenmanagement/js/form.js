@@ -187,7 +187,7 @@ function setAddressReference(addressType, layer) {
   let geometryType = 'Polygon';
   if (window.geometryType.toLowerCase().indexOf('point') !== -1)
     geometryType = 'Point';
-  else if (window.geometryTypetoLowerCase().indexOf('line') !== -1)
+  else if (window.geometryType.toLowerCase().indexOf('line') !== -1)
     geometryType = 'LineString';
   let ort = getFeatureCenter(geoJson, geometryType);
   fetch(window.reverseSearchUrl + '?search_class=address&x=' + ort[0] + '&y=' + ort[1], {
