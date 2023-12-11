@@ -208,11 +208,12 @@ class DefaultModelTestCase(DefaultTestCase):
       if multiple_files:
         # ...the number of objects to be found at the end increases by two
         object_count += 2
-        data[file_attribute] = [
-          SimpleUploadedFile(file.name, open(file, 'rb').read(), file_content_type),
-          SimpleUploadedFile(file.name, open(file, 'rb').read(), file_content_type),
-          SimpleUploadedFile(file.name, open(file, 'rb').read(), file_content_type)
-        ]
+        with open(file, 'rb') as f1, open(file, 'rb') as f2, open(file, 'rb') as f3:
+          data[file_attribute] = [
+            SimpleUploadedFile(file.name, f1.read(), file_content_type),
+            SimpleUploadedFile(file.name, f2.read(), file_content_type),
+            SimpleUploadedFile(file.name, f3.read(), file_content_type)
+          ]
       else:
         with open(file, 'rb') as f:
           file_upload = SimpleUploadedFile(file.name, f.read(), file_content_type)

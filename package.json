@@ -1,10 +1,10 @@
 {
   "dependencies": {
     "@eslint/create-config": "^0.4.6",
-    "@fortawesome/fontawesome-free": "^6.4.2",
-    "@geoman-io/leaflet-geoman-free": "^2.14.2",
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "@geoman-io/leaflet-geoman-free": "^2.15.0",
     "bootstrap": "^5.3.2",
-    "eslint": "^8.54.0",
+    "eslint": "^8.55.0",
     "eslint-plugin-django": "^1.1.0",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-jinja2-processor": "^1.2.0",
