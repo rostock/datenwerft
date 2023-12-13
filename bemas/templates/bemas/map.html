@@ -284,7 +284,7 @@
          * @param {Object} map - map
          */
         function mapCallbackFunction(map) {
-          setMapConstants(map);
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
           configureMap(map, '{% url "toolbox:owsproxy" %}');
 
           // make map globally available

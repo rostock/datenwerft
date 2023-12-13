@@ -239,9 +239,9 @@
      */
     function mapCallbackFunction(map) {
       {% if forms_in_high_zoom_mode %}
-        setMapConstants(map, true);
+        setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }}, true);
       {% else %}
-        setMapConstants(map);
+        setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
       {% endif %}
 
       // define WMS which shall be selectable as additional overlay layers in the map

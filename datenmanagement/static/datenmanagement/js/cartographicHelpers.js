@@ -397,17 +397,18 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  * sets constants for the passed map
  *
  * @param {Object} map - map
+ * @param {number} maxLayerZoom - maximum map layer zoom
  * @param {boolean} [highZoomMode=false] - map in high zoom mode?
  */
-function setMapConstants(map, highZoomMode = false) {
+function setMapConstants(map, maxLayerZoom, highZoomMode = false) {
   // global constants
   map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
   map._wmsFormat = 'image/png';
   map._highZoomMode = highZoomMode;
+  map._maxLayerZoom = maxLayerZoom;
   if (highZoomMode === true)
-    map._maxLayerZoom = 21;
-  else
-    map._maxLayerZoom = 19;
+    (maxLayerZoom + 2 > 21) ? map._maxLayerZoom = maxLayerZoom + 2 : map._maxLayerZoom = 21;
+  console.log(map._maxLayerZoom);
   map._minLayerZoomForWFSFeaturetypes = 16;
   map._minLayerZoomForDataThemes = 13;
   map._themaUrl = {};
