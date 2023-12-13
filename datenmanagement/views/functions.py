@@ -45,6 +45,11 @@ def add_model_form_context_elements(context, model):
   context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
   context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
   context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
+  context['forms_in_high_zoom_mode'] = model.BasemodelMeta.forms_in_high_zoom_mode
+  if model.BasemodelMeta.forms_in_high_zoom_mode:
+    context['leaflet_config_overrides'] = {
+      'MAX_ZOOM': 21
+    }
   context['readonly_fields'] = model.BasemodelMeta.readonly_fields
   context['choices_models_for_choices_fields'] = (
     model.BasemodelMeta.choices_models_for_choices_fields)

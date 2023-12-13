@@ -174,7 +174,7 @@
         {% else %}
           <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ model_geometry_type }}", "coordinates": [] }</textarea>
         {% endif %}
-        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" settings_overrides=leaflet_config_overrides %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
             <div class="d-grid mt-3 gap-2 d-md-block">
@@ -238,7 +238,11 @@
      * @param {Object} map - map
      */
     function mapCallbackFunction(map) {
-      setMapConstants(map);
+      {% if forms_in_high_zoom_mode %}
+        setMapConstants(map, true);
+      {% else %}
+        setMapConstants(map);
+      {% endif %}
 
       // define WMS which shall be selectable as additional overlay layers in the map
       let additionalWMSLayers = {}, additionalWMSLayerUrl;

@@ -42,6 +42,9 @@ class Basemodel(Model):
     # Boolean:
     # shall the form views of this model always be rendered in mobile mode?
     forms_in_mobile_mode = False
+    # Boolean:
+    # shall the maps in the form views of this model enable high zoom levels?
+    forms_in_high_zoom_mode = False
     # String:
     # name of the field of this model
     # whose value shall appear in drop-down list map filters in map views

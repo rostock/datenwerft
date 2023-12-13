@@ -203,9 +203,6 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer">ODbL</a>) und LkKfS-MV'
   });
 
-  // add ORKa.MV to map by default
-  map.addLayer(orkamv);
-
   // define OpenStreetMap
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
@@ -234,14 +231,45 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: '© GeoBasis-DE/M-V'
   });
 
+  // define Luftbild 2021
+  const luftbild_2021 = L.tileLayer.wms(owsProxyUrl + '/luftbild_2021/wms', {
+    layers: 'hro.luftbild_2021.luftbild_2021',
+    format: map._wmsFormat,
+    maxZoom: map._maxLayerZoom,
+    attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
+  });
+
+  // define Luftbild 2022
+  const luftbild_2022 = L.tileLayer.wms(owsProxyUrl + '/luftbild_2022/wms', {
+    layers: 'hro.luftbild_2022.luftbild_2022',
+    format: map._wmsFormat,
+    maxZoom: map._maxLayerZoom,
+    attribution: '© GeoBasis-DE/M-V'
+  });
+
   // combine previously defined maps as background maps
-  const baseMaps = {
-    'basemap.de': basemapde,
-    'Liegenschaftskarte': liegenschaftskarte,
-    'Luftbild': luftbild,
-    'OpenStreetMap': osm,
-    'ORKa.MV': orkamv
-  };
+  // and add default map
+  let baseMaps;
+  if (map._highZoomMode === true) {
+    // set basemap.de as default map
+    map.addLayer(basemapde);
+    baseMaps = {
+      'basemap.de': basemapde,
+      'Liegenschaftskarte': liegenschaftskarte,
+      'Luftbild 2021 (6 cm)': luftbild_2021,
+      'Luftbild 2022 (10 cm)': luftbild_2022
+    };
+  } else {
+    // set ORKa.MV as default map
+    map.addLayer(orkamv);
+    baseMaps = {
+      'basemap.de': basemapde,
+      'Liegenschaftskarte': liegenschaftskarte,
+      'Luftbild': luftbild,
+      'OpenStreetMap': osm,
+      'ORKa.MV': orkamv
+    };
+  }
 
   // define Kilometerquadrate ETRS89/UTM-33N
   const kilometerquadrate = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/koordinatensysteme/wms', {
@@ -369,12 +397,17 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  * sets constants for the passed map
  *
  * @param {Object} map - map
+ * @param {boolean} [highZoomMode=false] - map in high zoom mode?
  */
-function setMapConstants(map) {
+function setMapConstants(map, highZoomMode = false) {
   // global constants
   map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
   map._wmsFormat = 'image/png';
-  map._maxLayerZoom = 19;
+  map._highZoomMode = highZoomMode;
+  if (highZoomMode === true)
+    map._maxLayerZoom = 21;
+  else
+    map._maxLayerZoom = 19;
   map._minLayerZoomForWFSFeaturetypes = 16;
   map._minLayerZoomForDataThemes = 13;
   map._themaUrl = {};
