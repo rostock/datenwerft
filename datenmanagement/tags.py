@@ -5,7 +5,6 @@ from django.urls import reverse
 from re import sub
 
 from datenmanagement.utils import is_address_related_field
-from toolbox.constants_vars import standard_validators
 
 register = template.Library()
 
@@ -194,19 +193,6 @@ def is_field_nullable(field_name, model_name):
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   return model._meta.get_field(field_name).null
-
-
-@register.filter
-def is_linebreak_error(errors):
-  """
-  checks if passed form field errors represent a line break error
-
-  :param errors: form field errors
-  :return: passed form field errors represent a line break error?
-  """
-  if str(errors).count('<li>') == len(standard_validators):
-    return True
-  return False
 
 
 @register.filter

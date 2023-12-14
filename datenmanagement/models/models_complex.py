@@ -435,10 +435,8 @@ class Baustellen_geplant(ComplexModel):
   )
   kurzbeschreibung = NullTextField(
     verbose_name='Kurzbeschreibung',
-    max_length=500,
     blank=True,
-    null=True,
-    validators=standard_validators
+    null=True
   )
   lagebeschreibung = CharField(
     verbose_name='Lagebeschreibung',

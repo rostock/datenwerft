@@ -3493,7 +3493,7 @@ CREATE TABLE fachdaten_strassenbezug.baustellen_geplant (
     strasse uuid,
     projektbezeichnung character varying(255),
     bezeichnung character varying(255) NOT NULL,
-    kurzbeschreibung character varying(500),
+    kurzbeschreibung text,
     lagebeschreibung character varying(255),
     verkehrliche_lagen character varying(255)[] NOT NULL,
     sparten character varying(255)[] NOT NULL,
