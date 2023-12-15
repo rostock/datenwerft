@@ -6,6 +6,7 @@
 {% block content %}
   <form class="form" method="post" action="">
     {% csrf_token %}
+    <input type="hidden" name="original_url_back" value="{{ url_back }}">
     <h5>
       <small>
         Möchten Sie den Datensatz <strong><em>{{ object }}</em></strong> des Datenthemas <strong>{{ model_verbose_name_plural }}</strong> wirklich löschen?

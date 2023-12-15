@@ -4,6 +4,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.forms.models import modelform_factory
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
@@ -11,7 +12,7 @@ from time import time
 
 from .forms import GenericForm
 from .functions import add_basic_model_context_elements, add_model_form_context_elements, \
-  add_user_agent_context_elements, assign_widgets, set_form_attributes
+  add_user_agent_context_elements, assign_widgets, get_url_back, set_form_attributes
 from toolbox.utils import get_array_first_element, is_geometry_field
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
@@ -74,7 +75,8 @@ class DataAddView(CreateView):
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
     context['multi_photos'] = self.model.BasemodelMeta.multi_photos
-    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
+    referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
+    context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
 
   def get_initial(self):
@@ -309,7 +311,8 @@ class DataChangeView(UpdateView):
     if self.request.user.has_perm('datenmanagement.delete_' + model_name_lower):
       context['url_model_delete_object'] = reverse(
         'datenmanagement:' + model_name + '_delete', args=[self.object.pk])
-    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
+    referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
+    context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
 
   def get_initial(self):
@@ -420,7 +423,8 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     # add basic model related elements to context
     context = add_basic_model_context_elements(context, self.model)
     # add further elements to context
-    context['url_back'] = reverse('datenmanagement:' + model_name + '_start')
+    referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
+    context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
 
   def get_object(self, *args, **kwargs):
@@ -437,16 +441,22 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
       raise PermissionDenied()
     return obj
 
-  def form_valid(self, form):
+  def form_valid(self, form, **kwargs):
     """
     sends HTTP response if passed form is valid
 
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    referer = form.data.get('original_url_back', None)
+    success_url = get_url_back(
+      referer if '/list' in referer else None,
+      'datenmanagement:' + self.model.__name__ + '_start',
+      True
+    )
     success(
       self.request,
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich gelöscht!' % str(self.object)
     )
-    return super().form_valid(form)
+    return HttpResponseRedirect(success_url)

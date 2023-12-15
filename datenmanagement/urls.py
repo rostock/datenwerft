@@ -231,8 +231,7 @@ for model in models:
         'datenmanagement.delete_' + model_name_lower
       )(DataDeleteView.as_view(
         model=model,
-        template_name='datenmanagement/delete.html',
-        success_url=reverse_lazy('datenmanagement:' + model_name + '_start')
+        template_name='datenmanagement/delete.html'
       )),
       name=model_name + '_delete'
     )

@@ -5,6 +5,7 @@ from django.db.models.fields import DateField, DateTimeField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
@@ -246,6 +247,20 @@ def get_model_objects(model, subset_id=None, count_only=False):
   else:
     objects = model.objects.all()
   return objects.count() if count_only else objects
+
+
+def get_url_back(referer, fallback, lazy=False):
+  """
+  returns URL used for buttons leading "back" (to somewehere)
+
+  :param referer: referer
+  :param fallback: fallback
+  :param lazy: lazy?
+  :return: URL used for cancel buttons
+  """
+  if referer and '/delete' not in referer:
+    return referer
+  return reverse_lazy(fallback) if lazy else reverse(fallback)
 
 
 def get_uuids_geometries_from_sql(rows):
