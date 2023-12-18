@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.urls import path, reverse_lazy
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
@@ -199,8 +199,7 @@ for model in models:
         'datenmanagement.add_' + model_name_lower
       )(DataAddView.as_view(
         model=model,
-        template_name='datenmanagement/form.html',
-        success_url=reverse_lazy('datenmanagement:' + model_name + '_start')
+        template_name='datenmanagement/form.html'
       )),
       name=model_name + '_add'
     )
@@ -216,8 +215,7 @@ for model in models:
         'datenmanagement.view_' + model_name_lower
       )(DataChangeView.as_view(
         model=model,
-        template_name='datenmanagement/form.html',
-        success_url=reverse_lazy('datenmanagement:' + model_name + '_start')
+        template_name='datenmanagement/form.html'
       )),
       name=model_name + '_change'
     )

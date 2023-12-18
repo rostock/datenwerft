@@ -31,6 +31,16 @@
 {% endblock %}
 
 {% block content %}
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags and message.tags == 'success' %}
+        <div class="alert alert-success" role="alert">
+          <i class="fa-solid fa-circle-check"></i>
+          {{ message|safe }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
   <h2>{{ model_verbose_name_plural }}</h2>
   <h4><small>{{ model_description }}</small></h4>
   <h4 class="mt-3">
@@ -212,6 +222,10 @@
     {% include "modal-loading.html" %}
     <script>
       /* eslint no-unexpected-multiline: "off" */
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
+
       /**
        * @function
        * @name mapCallbackFunction

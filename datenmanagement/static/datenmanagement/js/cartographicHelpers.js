@@ -408,7 +408,6 @@ function setMapConstants(map, maxLayerZoom, highZoomMode = false) {
   map._maxLayerZoom = maxLayerZoom;
   if (highZoomMode === true)
     (maxLayerZoom + 2 > 21) ? map._maxLayerZoom = maxLayerZoom + 2 : map._maxLayerZoom = 21;
-  console.log(map._maxLayerZoom);
   map._minLayerZoomForWFSFeaturetypes = 16;
   map._minLayerZoomForDataThemes = 13;
   map._themaUrl = {};

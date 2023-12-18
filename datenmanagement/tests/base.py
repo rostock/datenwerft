@@ -225,19 +225,16 @@ class DefaultModelTestCase(DefaultTestCase):
     request.user = self.test_user
     request._messages = storage.default_storage(request)
     template_name = 'datenmanagement/form.html'
-    success_url = reverse_lazy('datenmanagement:' + self.model.__name__ + '_start')
     # try POSTing the view
     if update_mode:
       response = DataChangeView.as_view(
         model=model,
-        template_name=template_name,
-        success_url=success_url
+        template_name=template_name
       )(request, pk=model.objects.last().pk)
     else:
       response = DataAddView.as_view(
         model=model,
-        template_name=template_name,
-        success_url=success_url
+        template_name=template_name
       )(request)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
@@ -303,12 +300,10 @@ class DefaultModelTestCase(DefaultTestCase):
       )
       request.user = self.test_user
       request._messages = storage.default_storage(request)
-      template_name = 'datenmanagement/form.html'
-      success_url = reverse_lazy('datenmanagement:' + self.model.__name__ + '_start')
+      template_name = 'datenmanagement/delete.html'
       response = DataDeleteView.as_view(
         model=model,
-        template_name=template_name,
-        success_url=success_url
+        template_name=template_name
       )(request, pk=deletion_object.pk)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)

@@ -4,7 +4,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.forms.models import modelform_factory
-from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
@@ -118,12 +117,19 @@ class DataAddView(CreateView):
     :return: HTTP response if passed form is valid
     """
     form.instance.user = self.request.user
+    referer = form.data.get('original_url_back', None)
+    self.success_url = get_url_back(
+      referer if referer else None,
+      'datenmanagement:' + self.model.__name__ + '_start',
+      True
+    )
     success(
       self.request,
       'Der neue Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich angelegt!' % str(form.instance)
     )
-    return super().form_valid(form)
+    response = super().form_valid(form)
+    return response
 
   def form_invalid(self, form, **kwargs):
     """
@@ -150,7 +156,7 @@ class DataAddView(CreateView):
         geometry = form.data.get(field.name, None)
         if geometry and '0,0' not in geometry and '[]' not in geometry:
           context_data['geometry'] = geometry
-    context_data['form'] = form
+    context_data['form'], context_data['url_back'] = form, form.data.get('original_url_back', None)
     return self.render_to_response(context_data)
 
 
@@ -356,12 +362,19 @@ class DataChangeView(UpdateView):
     :return: HTTP response if passed form is valid
     """
     form.instance.user = self.request.user
+    referer = form.data.get('original_url_back', None)
+    self.success_url = get_url_back(
+      referer if referer and '/list' in referer else None,
+      'datenmanagement:' + self.model.__name__ + '_start',
+      True
+    )
     success(
       self.request,
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich geändert!' % str(form.instance)
     )
-    return super().form_valid(form)
+    response = super().form_valid(form)
+    return response
 
   def form_invalid(self, form, **kwargs):
     """
@@ -390,7 +403,7 @@ class DataChangeView(UpdateView):
         geometry = form.data.get(field.name, None)
         if geometry and '0,0' not in geometry and '[]' not in geometry:
           context_data['geometry'] = geometry
-    context_data['form'] = form
+    context_data['form'], context_data['url_back'] = form, form.data.get('original_url_back', None)
     return self.render_to_response(context_data)
 
   def get_object(self, *args, **kwargs):
@@ -449,8 +462,8 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     :return: HTTP response if passed form is valid
     """
     referer = form.data.get('original_url_back', None)
-    success_url = get_url_back(
-      referer if '/list' in referer else None,
+    self.success_url = get_url_back(
+      referer if referer and '/list' in referer else None,
       'datenmanagement:' + self.model.__name__ + '_start',
       True
     )
@@ -459,4 +472,5 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
       'Der Datensatz <strong><em>%s</em></strong> '
       'wurde erfolgreich gelöscht!' % str(self.object)
     )
-    return HttpResponseRedirect(success_url)
+    response = super().form_valid(form)
+    return response
