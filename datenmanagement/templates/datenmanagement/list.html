@@ -268,12 +268,14 @@
           $('#action-count').text('1 Datensatz ausgewählt');
           $('#action-select option[value="delete-selected"]').text('ausgewählten Datensatz löschen');
           $('#action-delete-modal-title').text('Ausgewählten Datensatz löschen?');
-          $('#action-delete-modal-body p').text('Sie haben 1 Datensatz ausgewählt. Soll dieser wirklich gelöscht werden?');
+          $('#action-delete-modal-body').html('');
+          $('#action-delete-modal-body').append('<p>Sie haben 1 Datensatz ausgewählt. Soll dieser wirklich gelöscht werden?</p>');
         } else if (actionCheckboxes.length > 1) {
           $('#action-count').text(actionCheckboxes.length + ' Datensätze ausgewählt');
           $('#action-select option[value="delete-selected"]').text('ausgewählte Datensätze löschen');
           $('#action-delete-modal-title').text('Ausgewählte Datensätze löschen?');
-          $('#action-delete-modal-body p').text('Sie haben ' + actionCheckboxes.length + ' Datensätze ausgewählt. Sollen diese wirklich gelöscht werden?');
+          $('#action-delete-modal-body').html('');
+          $('#action-delete-modal-body').append('<p>Sie haben ' + actionCheckboxes.length + ' ' + 'Datensätze ausgewählt. Sollen diese wirklich gelöscht werden?</p>');
         }
       });
     </script>

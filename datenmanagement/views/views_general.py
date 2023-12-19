@@ -220,3 +220,34 @@ class StartView(TemplateView):
         context['url_model_map'] = reverse('datenmanagement:' + model_name + '_map')
     context['url_back'] = reverse('datenmanagement:index')
     return context
+
+
+class AddAnotherView(TemplateView):
+  """
+  view for page for creating another object of a model, based on the object just created
+
+  :param model: model
+  """
+
+  model = None
+  template_name = 'datenmanagement/add_another.html'
+
+  def __init__(self, model=None):
+    self.model = model
+    super().__init__()
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add basic model related elements to context
+    context = add_basic_model_context_elements(context, self.model)
+    context['object'] = self.request.session.get('object_just_created', None)
+    pk = self.request.session.get('object_just_created_pk', None)
+    context['url_yes'] = reverse('datenmanagement:' + self.model.__name__ + '_change', args=[pk])
+    context['url_no'] = self.request.session.get('original_url_back', None)
+    return context

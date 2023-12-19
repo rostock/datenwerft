@@ -117,16 +117,24 @@ class DataAddView(CreateView):
     :return: HTTP response if passed form is valid
     """
     form.instance.user = self.request.user
-    referer = form.data.get('original_url_back', None)
+    object_just_created = form.instance
+    # return to the page for creating another object of this model,
+    # based on the object just created
     self.success_url = get_url_back(
-      referer if referer else None,
-      'datenmanagement:' + self.model.__name__ + '_start',
+      None,
+      'datenmanagement:' + self.model.__name__ + '_add_another',
       True
     )
+    # store object just created and original referer in session
+    # for usage in next view
+    if hasattr(self.request, 'session'):
+      self.request.session['object_just_created'] = str(object_just_created)
+      self.request.session['object_just_created_pk'] = str(object_just_created.pk)
+      self.request.session['original_url_back'] = form.data.get('original_url_back', None)
     success(
       self.request,
       'Der neue Datensatz <strong><em>%s</em></strong> '
-      'wurde erfolgreich angelegt!' % str(form.instance)
+      'wurde erfolgreich angelegt!' % str(object_just_created)
     )
     response = super().form_valid(form)
     return response
@@ -362,6 +370,7 @@ class DataChangeView(UpdateView):
     :return: HTTP response if passed form is valid
     """
     form.instance.user = self.request.user
+    # return to either the original referer or a default page
     referer = form.data.get('original_url_back', None)
     self.success_url = get_url_back(
       referer if referer and '/list' in referer else None,
@@ -461,6 +470,7 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    # return to either the original referer or a default page
     referer = form.data.get('original_url_back', None)
     self.success_url = get_url_back(
       referer if referer and '/list' in referer else None,

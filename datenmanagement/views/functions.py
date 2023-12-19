@@ -252,13 +252,15 @@ def get_model_objects(model, subset_id=None, count_only=False):
 def get_url_back(referer, fallback, lazy=False):
   """
   returns URL used for buttons leading "back" (to somewehere)
+  and/or used in case of successfully submitted forms
 
   :param referer: referer
   :param fallback: fallback
   :param lazy: lazy?
-  :return: URL used for cancel buttons
+  :return: URL used for buttons leading "back" (to somewehere)
+  and/or used in case of successfully submitted forms
   """
-  if referer and '/delete' not in referer:
+  if referer and '/add_another' not in referer and '/delete' not in referer:
     return referer
   return reverse_lazy(fallback) if lazy else reverse(fallback)
 

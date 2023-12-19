@@ -6,7 +6,8 @@ from rest_framework.routers import DefaultRouter
 from .views.api import DatenmanagementViewSet
 from .views.functions import assign_object_value, delete_object_immediately
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
-from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView
+from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView, \
+  AddAnotherView
 from .views.views_list_map import MapDataCompositionView, MapListView, TableDataCompositionView, \
   TableListView
 
@@ -202,6 +203,17 @@ for model in models:
         template_name='datenmanagement/form.html'
       )),
       name=model_name + '_add'
+    )
+  )
+
+  # page for creating another object of a model, based on the object just created
+  urlpatterns.append(
+    path(
+      model_name + '/add_another',
+      view=permission_required(
+        'datenmanagement.add_' + model_name_lower
+      )(AddAnotherView.as_view(model=model)),
+      name=model_name + '_add_another'
     )
   )
 
