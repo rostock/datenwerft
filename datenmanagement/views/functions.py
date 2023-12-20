@@ -78,6 +78,7 @@ def add_model_form_context_elements(context, model):
     if app_model.BasemodelMeta.as_overlay:
       model_list[app_model.__name__] = app_model._meta.verbose_name_plural
   context['model_list'] = dict(sorted(model_list.items()))
+  context['default_overlays'] = model.BasemodelMeta.default_overlays
   return context
 
 

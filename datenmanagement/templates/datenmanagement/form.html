@@ -371,7 +371,7 @@
             let {{ datenthema_name_lower }} = new L.Proj.geoJson();
             {{ datenthema_name_lower }}.name = '{{ value }}';
             // add GeoJSON layer for data theme to layer control
-            dataThemeControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}')
+            dataThemeControl.addOverlay({{ datenthema_name_lower }}, '{{ value }}');
             // load data theme features when activating the GeoJSON layer
             {{ datenthema_name_lower }}.on('add', function () {
               if (map.getZoom() > map._minLayerZoomForDataThemes) {
@@ -401,6 +401,10 @@
                 window.showDataThemesZoomModal = false;
               }
             });
+            // activate layer by default if desired
+            {% if key in default_overlays %}
+              {{ datenthema_name_lower }}.addTo(map);
+            {% endif %}
           {% endwith %}
         {% endfor %}
 

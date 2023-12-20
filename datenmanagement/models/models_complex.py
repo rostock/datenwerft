@@ -2778,6 +2778,7 @@ class RSAG_Masten(ComplexModel):
     description = 'Masten innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG ' \
                   'in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
+    default_overlays = ['RSAG_Masten']
     forms_in_high_zoom_mode = True
     associated_models = {
       'RSAG_Quertraeger': 'mast',

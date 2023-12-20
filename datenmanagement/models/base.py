@@ -36,14 +36,19 @@ class Basemodel(Model):
     # (only relevant for models with foreign keys; if not specified, verbose name is used)
     short_name = None
     # Boolean:
-    # shall this model (i.e. its geometries) be selectable as an additional overlay layer
-    # in the maps of all form views?
+    # shall the geometries of this model be selectable as an additional overlay layer
+    # in the maps in all form views?
     as_overlay = False
+    # List of strings:
+    # names of those models the geometries of which
+    # shall be selectable and activated by default as additional overlay layers
+    # in the maps of the form views of this model
+    default_overlays = None
     # Boolean:
     # shall the form views of this model always be rendered in mobile mode?
     forms_in_mobile_mode = False
     # Boolean:
-    # shall the maps in the form views of this model enable high zoom levels?
+    # shall the maps of the form views of this model enable high zoom levels?
     forms_in_high_zoom_mode = False
     # String:
     # name of the field of this model

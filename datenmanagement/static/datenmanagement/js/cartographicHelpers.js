@@ -252,7 +252,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   let baseMaps;
   if (map._highZoomMode === true) {
     // set basemap.de as default map
-    map.addLayer(basemapde);
+    map.addLayer(luftbild_2021);
     baseMaps = {
       'basemap.de': basemapde,
       'Liegenschaftskarte': liegenschaftskarte,
