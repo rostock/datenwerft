@@ -3868,6 +3868,7 @@ class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
   model = Bevollmaechtigte_Bezirksschornsteinfeger
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
+    'bezirk': 'ABC-12',
     'auswaertig': False,
     'vorname': 'Vorname1',
     'nachname': 'Nachname1',
@@ -3880,6 +3881,7 @@ class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
     'nachname': 'Nachname2'
   }
   attributes_values_view_initial = {
+    'bezirk': 'DEF-34',
     'auswaertig': False,
     'vorname': 'Vorname3',
     'nachname': 'Nachname3',
@@ -3889,6 +3891,7 @@ class BevollmaechtigteBezirksschornsteinfegerTest(DefaultCodelistTestCase):
     'anschrift_ort': 'Ort3'
   }
   attributes_values_view_updated = {
+    'bezirk': 'GHI-56',
     'auswaertig': False,
     'vorname': 'Vorname4',
     'nachname': 'Nachname4',

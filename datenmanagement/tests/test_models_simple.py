@@ -6224,6 +6224,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
     )
     bevollmaechtigter_bezirksschornsteinfeger1 = (
       Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
+        bezirk='ABC-12',
         auswaertig=False,
         vorname='Vorname1',
         nachname='Nachname1',
@@ -6235,6 +6236,7 @@ class KehrbezirkeTest(DefaultSimpleModelTestCase):
     )
     bevollmaechtigter_bezirksschornsteinfeger2 = (
       Bevollmaechtigte_Bezirksschornsteinfeger.objects.create(
+        bezirk='DEF-34',
         auswaertig=True,
         vorname='Vorname2',
         nachname='Nachname2',
