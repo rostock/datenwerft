@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -523,6 +523,18 @@ CREATE TABLE codelisten.arten_hundetoiletten (
 
 
 --
+-- Name: arten_ingenieurbauwerke; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_ingenieurbauwerke (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_meldedienst_flaechenhaft; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -635,6 +647,18 @@ CREATE TABLE codelisten.auftraggeber_baustellen (
 --
 
 CREATE TABLE codelisten.ausfuehrungen_haltestellenkataster (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: ausfuehrungen_ingenieurbauwerke; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_ingenieurbauwerke (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -3584,6 +3608,41 @@ CREATE TABLE fachdaten_strassenbezug.hausnummern_hro (
 
 
 --
+-- Name: ingenieurbauwerke_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.ingenieurbauwerke_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    strasse uuid NOT NULL,
+    deaktiviert date,
+    nummer character varying(255) NOT NULL,
+    nummer_asb character varying(255),
+    art uuid NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    baujahr character varying(255),
+    ausfuehrung uuid,
+    oben character varying(255),
+    unten character varying(255),
+    flaeche numeric(6,2),
+    laenge numeric(5,2),
+    breite character varying(255),
+    hoehe character varying(255),
+    lichte_weite numeric(4,2),
+    lichte_hoehe character varying(255),
+    durchfahrtshoehe numeric(4,2),
+    nennweite character varying(255),
+    schwerlast boolean NOT NULL,
+    foto character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: strassenreinigung_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -3882,6 +3941,22 @@ ALTER TABLE ONLY codelisten.arten_hundetoiletten
 
 
 --
+-- Name: arten_ingenieurbauwerke arten_ingenieurbauwerke_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_ingenieurbauwerke
+    ADD CONSTRAINT arten_ingenieurbauwerke_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_ingenieurbauwerke arten_ingenieurbauwerke_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_ingenieurbauwerke
+    ADD CONSTRAINT arten_ingenieurbauwerke_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_meldedienst_flaechenhaft arten_meldedienst_flaechenhaft_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4039,6 +4114,22 @@ ALTER TABLE ONLY codelisten.ausfuehrungen_haltestellenkataster
 
 ALTER TABLE ONLY codelisten.ausfuehrungen_haltestellenkataster
     ADD CONSTRAINT ausfuehrungen_haltestellenkataster_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: ausfuehrungen_ingenieurbauwerke ausfuehrungen_ingenieurbauwerke_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_ingenieurbauwerke
+    ADD CONSTRAINT ausfuehrungen_ingenieurbauwerke_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_ingenieurbauwerke ausfuehrungen_ingenieurbauwerke_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_ingenieurbauwerke
+    ADD CONSTRAINT ausfuehrungen_ingenieurbauwerke_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5962,113 +6053,19 @@ ALTER TABLE ONLY fachdaten_strassenbezug.hausnummern_hro
 
 
 --
+-- Name: ingenieurbauwerke_hro ingenieurbauwerke_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.ingenieurbauwerke_hro
+    ADD CONSTRAINT ingenieurbauwerke_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: strassenreinigung_hro strassenreinigung_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
 
 ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
     ADD CONSTRAINT strassenreinigung_hro_pk PRIMARY KEY (uuid);
-
-
---
--- Name: geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_; Type: INDEX; Schema: fachdaten; Owner: -
---
-
-CREATE INDEX geh_und_radwegereinigung_flaechen_hro_geh_und_radwegereinigung_ ON fachdaten.geh_und_radwegereinigung_flaechen_hro USING btree (geh_und_radwegereinigung);
-
-
---
--- Name: strassenreinigung_flaechen_hro_strassenreinigung_ix; Type: INDEX; Schema: fachdaten; Owner: -
---
-
-CREATE INDEX strassenreinigung_flaechen_hro_strassenreinigung_ix ON fachdaten.strassenreinigung_flaechen_hro USING btree (strassenreinigung);
-
-
---
--- Name: reinigungsreviere_hro_gemeindeteil_ix; Type: INDEX; Schema: fachdaten_gemeindeteilbezug; Owner: -
---
-
-CREATE INDEX reinigungsreviere_hro_gemeindeteil_ix ON fachdaten_gemeindeteilbezug.reinigungsreviere_hro USING btree (gemeindeteil);
-
-
---
--- Name: reinigungsreviere_hro_geo_ix; Type: INDEX; Schema: fachdaten_gemeindeteilbezug; Owner: -
---
-
-CREATE INDEX reinigungsreviere_hro_geo_ix ON fachdaten_gemeindeteilbezug.reinigungsreviere_hro USING gist (geometrie);
-
-ALTER TABLE fachdaten_gemeindeteilbezug.reinigungsreviere_hro CLUSTER ON reinigungsreviere_hro_geo_ix;
-
-
---
--- Name: geh_und_radwegereinigung_hro_breite_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX geh_und_radwegereinigung_hro_breite_ix ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro USING btree (breite);
-
-
---
--- Name: geh_und_radwegereinigung_hro_inoffizielle_strasse_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX geh_und_radwegereinigung_hro_inoffizielle_strasse_ix ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro USING btree (inoffizielle_strasse);
-
-
---
--- Name: geh_und_radwegereinigung_hro_raeumbreite_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX geh_und_radwegereinigung_hro_raeumbreite_ix ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro USING btree (raeumbreite);
-
-
---
--- Name: geh_und_radwegereinigung_hro_wegeart_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX geh_und_radwegereinigung_hro_wegeart_ix ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro USING btree (wegeart);
-
-
---
--- Name: geh_und_radwegereinigung_hro_wegetyp_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX geh_und_radwegereinigung_hro_wegetyp_ix ON fachdaten_strassenbezug.geh_und_radwegereinigung_hro USING btree (wegetyp);
-
-
---
--- Name: hausnummern_hro_gebaeude_bauweise_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX hausnummern_hro_gebaeude_bauweise_ix ON fachdaten_strassenbezug.hausnummern_hro USING btree (gebaeude_bauweise);
-
-
---
--- Name: hausnummern_hro_gebaeude_funktion_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX hausnummern_hro_gebaeude_funktion_ix ON fachdaten_strassenbezug.hausnummern_hro USING btree (gebaeude_funktion);
-
-
---
--- Name: hausnummern_hro_geo_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX hausnummern_hro_geo_ix ON fachdaten_strassenbezug.hausnummern_hro USING gist (geometrie);
-
-ALTER TABLE fachdaten_strassenbezug.hausnummern_hro CLUSTER ON hausnummern_hro_geo_ix;
-
-
---
--- Name: hausnummern_hro_strasse_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX hausnummern_hro_strasse_ix ON fachdaten_strassenbezug.hausnummern_hro USING btree (strasse);
-
-
---
--- Name: strassenreinigung_hro_inoffizielle_strasse_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
---
-
-CREATE INDEX strassenreinigung_hro_inoffizielle_strasse_ix ON fachdaten_strassenbezug.strassenreinigung_hro USING btree (inoffizielle_strasse);
 
 
 --
@@ -7363,6 +7360,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.hausnummern_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.hausnummern_hro
     ADD CONSTRAINT hausnummern_hro_gebaeude_funktionen_fk FOREIGN KEY (gebaeude_funktion) REFERENCES codelisten.gebaeudefunktionen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: ingenieurbauwerke_hro ingenieurbauwerke_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.ingenieurbauwerke_hro
+    ADD CONSTRAINT ingenieurbauwerke_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_ingenieurbauwerke(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ingenieurbauwerke_hro ingenieurbauwerke_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.ingenieurbauwerke_hro
+    ADD CONSTRAINT ingenieurbauwerke_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_ingenieurbauwerke(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

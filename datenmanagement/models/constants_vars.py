@@ -58,6 +58,19 @@ hydranten_bezeichnung_message = 'Die <strong><em>Bezeichnung</em></strong> ' \
                                 '<em>HSA</em> beginnen, gefolgt von genau ' \
                                 'einem Leerzeichen. Die übrigen Zeichen ' \
                                 'können beliebig gewählt werden.'
+ingenieurbauwerke_baujahr_regex = r'^[0-9]{4}$|' \
+                                  r'^[0-9]{4}\/[0-9]{4}$'
+ingenieurbauwerke_baujahr_message = 'Das <strong><em>Baujahr</em></strong> muss ' \
+                                    'eines der folgenden Formate aufweisen (Beispiele): ' \
+                                    '2002 oder 1980/1999'
+ingenieurbauwerke_nummer_asb_regex = r'^[0-9]{4}\:$|' \
+                                     r'^[0-9]{4}\:[0-9]{3}$|' \
+                                     r'^[0-9]{4}\:[0-9]{3} [0-9]$|' \
+                                     r'^[0-9]{4}\:[0-9]{3} [A-Z]$|' \
+                                     r'^[0-9]{4}\:[0-9]{3} [A-Z][0-9]$'
+ingenieurbauwerke_nummer_asb_message = 'Die <strong><em>ASB-Nummer</em></strong> muss ' \
+                                       'eines der folgenden Formate aufweisen (Beispiele): ' \
+                                       '1838:, 1838:661, 1838:802 1, 1838:862 A oder 1838:520 A2'
 kleinklaeranlagen_zulassung_regex = r'^Z-55\.[0-9]{1,2}-[0-9]{1,3}$'
 kleinklaeranlagen_zulassung_message = 'Die <strong><em>Zulassung</em></strong> muss folgendes ' \
                                       'Format aufweisen (Beispiel): Z-55.32-608'

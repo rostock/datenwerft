@@ -22,9 +22,11 @@ from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, 
   erdwaermesonden_aktenzeichen_regex, erdwaermesonden_aktenzeichen_message, \
   erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
-  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, kleinklaeranlagen_zulassung_regex, \
-  kleinklaeranlagen_zulassung_message, poller_nummer_regex, poller_nummer_message, \
-  trinkwassernotbrunnen_nummer_regex, trinkwassernotbrunnen_nummer_message
+  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
+  ingenieurbauwerke_nummer_asb_regex, ingenieurbauwerke_nummer_asb_message, \
+  ingenieurbauwerke_baujahr_regex, ingenieurbauwerke_baujahr_message, \
+  kleinklaeranlagen_zulassung_regex, kleinklaeranlagen_zulassung_message, poller_nummer_regex, \
+  poller_nummer_message, trinkwassernotbrunnen_nummer_regex, trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
@@ -32,9 +34,10 @@ from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
   set_pre_save_instance, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
   Anbieter_Carsharing, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
-  Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
-  Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
+  Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Ingenieurbauwerke, \
+  Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
+  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Ausfuehrungen_Ingenieurbauwerke, \
   Betriebsarten, Betriebszeiten, Bevollmaechtigte_Bezirksschornsteinfeger, \
   Bewirtschafter_Betreiber_Traeger_Eigentuemer, Gebaeudearten_Meldedienst_punkthaft, \
   Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
@@ -2942,6 +2945,259 @@ class Hydranten(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung
+
+
+class Ingenieurbauwerke(SimpleModel):
+  """
+  Ingenieurbauwerke
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  nummer = CharField(
+    verbose_name='Nummer',
+    max_length=255,
+    validators=standard_validators
+  )
+  nummer_asb = CharField(
+    verbose_name='ASB-Nummer',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=ingenieurbauwerke_nummer_asb_regex,
+        message=ingenieurbauwerke_nummer_asb_message
+      )
+    ]
+  )
+  art = ForeignKey(
+    to=Arten_Ingenieurbauwerke,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  baujahr = CharField(
+    verbose_name='Baujahr',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=ingenieurbauwerke_baujahr_regex,
+        message=ingenieurbauwerke_baujahr_message
+      )
+    ]
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Ingenieurbauwerke,
+    verbose_name='Ausführung',
+    on_delete=SET_NULL,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen',
+    blank=True,
+    null=True
+  )
+  oben = CharField(
+    verbose_name='Verkehrsweg oben',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  unten = CharField(
+    verbose_name='Verkehrsweg unten',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  flaeche = DecimalField(
+    verbose_name='Fläche (in m²)',
+    max_digits=6,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Fläche</em></strong> muss mindestens 0,01 m² betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('9999.99'),
+        'Die <strong><em>Fläche</em></strong> darf höchstens 9.999,99 m² betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  laenge = DecimalField(
+    verbose_name='Länge (in m)',
+    max_digits=5,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('999.99'),
+        'Die <strong><em>Länge</em></strong> darf höchstens 999,99 m betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  breite = CharField(
+    verbose_name='Breite',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  hoehe = CharField(
+    verbose_name='Höhe',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  lichte_weite = DecimalField(
+    verbose_name=' lichte Weite (in m)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>lichte Weite</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('999.99'),
+        'Die <strong><em>lichte Weite</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  lichte_hoehe = CharField(
+    verbose_name=' lichte Höhe',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  durchfahrtshoehe = DecimalField(
+    verbose_name='Durchfahrtshöhe (in m)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Durchfahrtshöhe</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('999.99'),
+        'Die <strong><em>Durchfahrtshöhe</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ],
+    blank=True,
+    null=True
+  )
+  nennweite = CharField(
+    verbose_name='Nennweite',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  schwerlast = BooleanField(
+    verbose_name='Schwerlast?'
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"ingenieurbauwerke_hro'
+    verbose_name = 'Ingenieurbauwerk'
+    verbose_name_plural = 'Ingenieurbauwerke'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Ingenieurbauwerke im Eigentum der Hanse- und Universitätsstadt Rostock'
+    address_type = 'Straße'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'nummer': 'Nummer',
+      'nummer_asb': 'ASB-Nummer',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'strasse': 'Straße',
+      'baujahr': 'Baujahr',
+      'ausfuehrung': 'Ausführung',
+      'oben': 'Verkehrsweg oben',
+      'unten': 'Verkehrsweg unten',
+      'flaeche': 'Fläche (in m²)',
+      'laenge': 'Länge (in m)',
+      'breite': 'Breite',
+      'hoehe': 'Höhe',
+      'lichte_weite': 'lichte Weite (in m)',
+      'lichte_hoehe': 'lichte Höhe',
+      'durchfahrtshoehe': 'Durchfahrtshöhe (in m)',
+      'nennweite': 'Nennweite',
+      'schwerlast': 'Schwerlast'
+    }
+    list_fields_with_decimal = ['flaeche', 'laenge', 'lichte_weite', 'durchfahrtshoehe']
+    list_fields_with_foreign_key = {
+      'art': 'art',
+      'strasse': 'strasse',
+      'ausfuehrung': 'ausfuehrung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'ingenieurbauwerke-art',
+        'action_title': 'ausgewählten Datensätzen Art direkt zuweisen',
+        'field': 'art',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'ingenieurbauwerke-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['nummer']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'nummer': 'Nummer',
+      'nummer_asb': 'ASB-Nummer',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'strasse': 'Straße',
+      'baujahr': 'Baujahr',
+      'ausfuehrung': 'Ausführung',
+      'oben': 'Verkehrsweg oben',
+      'unten': 'Verkehrsweg unten',
+      'schwerlast': 'Schwerlast'
+    }
+    map_filter_fields_as_list = ['art', 'strasse', 'ausfuehrung']
+
+  def __str__(self):
+    return self.nummer
 
 
 class Kadaverfunde(SimpleModel):

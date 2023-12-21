@@ -7,7 +7,8 @@ from toolbox.constants_vars import personennamen_validators, standard_validators
   hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
   rufnummer_regex, rufnummer_message
 from toolbox.utils import concat_address
-from .base import Metamodel, Codelist, Art, Befestigungsart, Material, Schlagwort, Status, Typ
+from .base import Metamodel, Codelist, Art, Ausfuehrung, Befestigungsart, Material, Schlagwort, \
+  Status, Typ
 from .constants_vars import bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex, \
   bevollmaechtigte_bezirksschornsteinfeger_bezirk_message, fahrbahnwinterdienst_code_regex, \
   fahrbahnwinterdienst_code_message, haefen_abkuerzung_regex, haefen_abkuerzung_message, \
@@ -489,6 +490,20 @@ class Arten_Fallwildsuchen_Kontrollen(Art):
     description = 'Arten von Kontrollen im Rahmen von Fallwildsuchen'
 
 
+class Arten_Ingenieurbauwerke(Art):
+  """
+  Arten von Ingenieurbauwerken
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_ingenieurbauwerke'
+    verbose_name = 'Art eines Ingenieurbauwerks'
+    verbose_name_plural = 'Arten von Ingenieurbauwerken'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Ingenieurbauwerken'
+
+
 class Arten_Meldedienst_flaechenhaft(Art):
   """
   Arten von Meldediensten (flächenhaft)
@@ -629,32 +644,32 @@ class Auftraggeber_Baustellen(Codelist):
     return self.auftraggeber
 
 
-class Ausfuehrungen_Haltestellenkataster(Codelist):
+class Ausfuehrungen_Haltestellenkataster(Ausfuehrung):
   """
   Ausführungen innerhalb eines Haltestellenkatasters
   """
 
-  ausfuehrung = CharField(
-    verbose_name='Ausführung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
+  class Meta(Ausfuehrung.Meta):
     db_table = 'codelisten\".\"ausfuehrungen_haltestellenkataster'
-    ordering = ['ausfuehrung']
     verbose_name = 'Ausführung innerhalb eines Haltestellenkatasters'
     verbose_name_plural = 'Ausführungen innerhalb eines Haltestellenkatasters'
 
-  class BasemodelMeta(Codelist.BasemodelMeta):
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
     description = 'Ausführungen innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'ausfuehrung': 'Ausführung'
-    }
 
-  def __str__(self):
-    return self.ausfuehrung
+
+class Ausfuehrungen_Ingenieurbauwerke(Ausfuehrung):
+  """
+  Ausführungen von Ingenieurbauwerken
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten\".\"ausfuehrungen_ingenieurbauwerke'
+    verbose_name = 'Ausführung eines Ingenieurbauwerks'
+    verbose_name_plural = 'Ausführungen von Ingenieurbauwerken'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Ingenieurbauwerken'
 
 
 class Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster(Befestigungsart):

@@ -278,6 +278,31 @@ class Art(Codelist):
     return self.art
 
 
+class Ausfuehrung(Codelist):
+  """
+  abstract model class for 'Ausführung' codelists
+  """
+
+  ausfuehrung = CharField(
+    verbose_name='Ausführung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    abstract = True
+    ordering = ['ausfuehrung']
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    list_fields = {
+      'ausfuehrung': 'Ausführung'
+    }
+
+  def __str__(self):
+    return self.ausfuehrung
+
+
 class Befestigungsart(Codelist):
   """
   abstract model class for 'Befestigungsart' codelists
