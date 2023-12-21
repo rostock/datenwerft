@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.4
--- Dumped by pg_dump version 15.4
+-- Dumped from database version 15.5
+-- Dumped by pg_dump version 15.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -699,7 +699,7 @@ CREATE TABLE codelisten.bevollmaechtigte_bezirksschornsteinfeger (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     auswaertig boolean NOT NULL,
-    bezirk character(6),
+    bezirk character(6) NOT NULL,
     bestellungszeitraum_beginn date,
     bestellungszeitraum_ende date,
     vorname character varying(255) NOT NULL,
@@ -1287,6 +1287,18 @@ CREATE TABLE codelisten.typen_abfallbehaelter (
 --
 
 CREATE TABLE codelisten.typen_erdwaermesonden (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    typ character varying(255) NOT NULL
+);
+
+
+--
+-- Name: typen_feuerwehrzufahrten_schilder; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.typen_feuerwehrzufahrten_schilder (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -4094,6 +4106,14 @@ ALTER TABLE ONLY codelisten.betriebszeiten
 
 
 --
+-- Name: bevollmaechtigte_bezirksschornsteinfeger bevollmaechtigte_bezirksschornsteinfeger_bezirk_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.bevollmaechtigte_bezirksschornsteinfeger
+    ADD CONSTRAINT bevollmaechtigte_bezirksschornsteinfeger_bezirk_unique UNIQUE (bezirk);
+
+
+--
 -- Name: bevollmaechtigte_bezirksschornsteinfeger bevollmaechtigte_bezirksschornsteinfeger_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4851,6 +4871,22 @@ ALTER TABLE ONLY codelisten.typen_erdwaermesonden
 
 ALTER TABLE ONLY codelisten.typen_erdwaermesonden
     ADD CONSTRAINT typen_erdwaermesonden_typ_unique UNIQUE (typ);
+
+
+--
+-- Name: typen_feuerwehrzufahrten_schilder typen_feuerwehrzufahrten_schilder_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_feuerwehrzufahrten_schilder
+    ADD CONSTRAINT typen_feuerwehrzufahrten_schilder_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: typen_feuerwehrzufahrten_schilder typen_feuerwehrzufahrten_schilder_typ_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.typen_feuerwehrzufahrten_schilder
+    ADD CONSTRAINT typen_feuerwehrzufahrten_schilder_typ_unique UNIQUE (typ);
 
 
 --

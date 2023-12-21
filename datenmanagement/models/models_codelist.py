@@ -750,8 +750,7 @@ class Bevollmaechtigte_Bezirksschornsteinfeger(Codelist):
   bezirk = CharField(
     verbose_name='Bezirk',
     max_length=6,
-    blank=True,
-    null=True,
+    unique=True,
     validators=[
       RegexValidator(
         regex=bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex,
