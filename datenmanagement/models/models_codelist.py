@@ -84,6 +84,7 @@ class Adressen(Metamodel):
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
     description = 'Adressen in Mecklenburg-Vorpommern'
+    naming = 'adresse'
     list_fields = {
       'gemeinde': 'Gemeinde',
       'gemeindeteil': 'Gemeindeteil',
@@ -136,6 +137,7 @@ class Strassen(Metamodel):
 
   class BasemodelMeta(Metamodel.BasemodelMeta):
     description = 'Straßen in Mecklenburg-Vorpommern'
+    naming = 'strasse'
     list_fields = {
       'gemeinde': 'Gemeinde',
       'gemeindeteil': 'Gemeindeteil',

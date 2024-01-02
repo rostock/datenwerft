@@ -3618,7 +3618,7 @@ CREATE TABLE fachdaten_strassenbezug.ingenieurbauwerke_hro (
     id_fachsystem character varying(255),
     id_zielsystem character varying(255),
     aktiv boolean DEFAULT true NOT NULL,
-    strasse uuid NOT NULL,
+    strasse uuid,
     deaktiviert date,
     nummer character varying(255) NOT NULL,
     nummer_asb character varying(255),

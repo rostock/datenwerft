@@ -5,8 +5,8 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Anbieter_Carsharing, Angebote_Mobilpunkte, Angelverbotsbereiche, Arten_Erdwaermesonden, \
   Arten_Fahrradabstellanlagen, Arten_FairTrade, Arten_Fallwildsuchen_Kontrollen, \
   Arten_Feldsportanlagen, Arten_Feuerwachen, Arten_Fliessgewaesser, Arten_Hundetoiletten, \
-  Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
-  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
+  Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, \
+  Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, \
   Aufteilungsplaene_Wohnungseigentumsgesetz, Baudenkmale, Behinderteneinrichtungen, \
   Beschluesse_Bau_Planungsausschuss, Betriebsarten, Betriebszeiten, \
   Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
@@ -14,13 +14,13 @@ from datenmanagement.models import Abfallbehaelter, Adressen, Altersklassen_Kada
   Erdwaermesonden, Fahrradabstellanlagen, FairTrade, Feldsportanlagen, Feuerwachen, \
   Fliessgewaesser, Gebaeudearten_Meldedienst_punkthaft, Geraetespielanlagen, \
   Geschlechter_Kadaverfunde, Gutachterfotos, Haefen, Hausnummern, Hospize, Hundetoiletten, \
-  Hydranten, Kadaverfunde, Kehrbezirke, Kindertagespflegeeinrichtungen, Kinder_Jugendbetreuung, \
-  Kleinklaeranlagen, Kunst_im_oeffentlichen_Raum, Ladestationen_Elektrofahrzeuge, \
-  Materialien_Denksteine, Meldedienst_flaechenhaft, Meldedienst_punkthaft, Mobilpunkte, \
-  Parkmoeglichkeiten, Pflegeeinrichtungen, Poller, Quartiere, Reinigungsreviere, Rettungswachen, \
-  Schiffsliegeplaetze, Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, \
-  Schutzzaeune_Tierseuchen, Sportarten, Sporthallen, Stadtteil_Begegnungszentren, \
-  Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
+  Hydranten, Ingenieurbauwerke, Kadaverfunde, Kehrbezirke, Kindertagespflegeeinrichtungen, \
+  Kinder_Jugendbetreuung, Kleinklaeranlagen, Kunst_im_oeffentlichen_Raum, \
+  Ladestationen_Elektrofahrzeuge, Materialien_Denksteine, Meldedienst_flaechenhaft, \
+  Meldedienst_punkthaft, Mobilpunkte, Parkmoeglichkeiten, Pflegeeinrichtungen, Poller, Quartiere, \
+  Reinigungsreviere, Rettungswachen, Schiffsliegeplaetze, Schlagwoerter_Bildungstraeger, \
+  Schlagwoerter_Vereine, Schutzzaeune_Tierseuchen, Sportarten, Sporthallen, \
+  Stadtteil_Begegnungszentren, Standortqualitaeten_Geschaeftslagen_Sanierungsgebiet, \
   Standortqualitaeten_Wohnlagen_Sanierungsgebiet, Status_Baudenkmale_Denkmalbereiche, \
   Status_Poller, Strassen, Thalasso_Kurwege, Tierseuchen, Toiletten, Trinkwassernotbrunnen, \
   Typen_Kleinklaeranlagen, Verbuende_Ladestationen_Elektrofahrzeuge, Vereine, \
@@ -5572,6 +5572,271 @@ class HundetoilettenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_initial,
       302,
       'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+
+class IngenieurbauwerkeTest(DefaultSimpleModelTestCase):
+  """
+  Ingenieurbauwerke
+  """
+
+  model = Ingenieurbauwerke
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    art1 = Arten_Ingenieurbauwerke.objects.create(
+      art='Art1'
+    )
+    art2 = Arten_Ingenieurbauwerke.objects.create(
+      art='Art2'
+    )
+    cls.art2 = art2
+    cls.attributes_values_db_initial = {
+      'nummer': 'Nummer1',
+      'art': art1,
+      'bezeichnung': 'Bezeichnung1',
+      'schwerlast': False,
+      'geometrie': VALID_POINT_DB
+    }
+    cls.attributes_values_db_updated = {
+      'nummer': 'Nummer2',
+      'art': art2,
+      'bezeichnung': 'Bezeichnung2',
+      'schwerlast': True
+    }
+    cls.attributes_values_db_assigned = {
+      'art': art2
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'nummer': 'Nummer3',
+      'art': str(art1.pk),
+      'bezeichnung': 'Bezeichnung3',
+      'schwerlast': False,
+      'geometrie': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'nummer': 'Nummer4',
+      'art': str(art2.pk),
+      'bezeichnung': 'Bezeichnung4',
+      'schwerlast': True,
+      'geometrie': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'bezeichnung': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_simplemodel(self):
+    self.generic_is_simplemodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_assign(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned,
+      'art',
+      str(self.art2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_deleteimmediately(self):

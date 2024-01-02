@@ -3178,7 +3178,13 @@ class Ingenieurbauwerke(SimpleModel):
         'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
         'field': 'ausfuehrung',
         'type': 'foreignkey'
-      }
+      },
+      {
+        'action_name': 'ingenieurbauwerke-schwerlast',
+        'action_title': 'ausgewählten Datensätzen Schwerlast (ja/nein) direkt zuweisen',
+        'field': 'schwerlast',
+        'type': 'boolean'
+      },
     ]
     map_feature_tooltip_fields = ['nummer']
     map_filter_fields = {
