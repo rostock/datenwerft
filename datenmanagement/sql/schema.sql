@@ -2422,7 +2422,7 @@ CREATE TABLE fachdaten.rsag_masten_hro (
     id_zielsystem character varying(255),
     deaktiviert date,
     mastnummer character varying(255),
-    moment_am_fundament smallint,
+    moment_am_fundament numeric(5,2),
     spitzenzug_errechnet numeric(4,2),
     spitzenzug_gewaehlt numeric(4,2),
     gesamtlaenge numeric(4,2),

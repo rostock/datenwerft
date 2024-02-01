@@ -2197,7 +2197,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
         '01 € betragen.'
       ),
       MaxValueValidator(
-        Decimal('9.99'),
+        Decimal('99.99'),
         'Die <strong><em>Maximalgebühren Normaltarif</em></strong> dürfen höchstens 99,'
         '99 € betragen.'
       )
@@ -2270,7 +2270,7 @@ class Parkscheinautomaten_Tarife(ComplexModel):
         '01 € betragen.'
       ),
       MaxValueValidator(
-        Decimal('9.99'),
+        Decimal('99.99'),
         'Die <strong><em>Maximalgebühren Veranstaltungstarif</em></strong> dürfen höchstens 99,'
         '99 € betragen.'
       )
@@ -2511,9 +2511,20 @@ class RSAG_Masten(ComplexModel):
     max_length=255,
     validators=standard_validators
   )
-  moment_am_fundament = PositiveSmallIntegerRangeField(
+  moment_am_fundament = DecimalField(
     verbose_name='Moment am Fundament (in kNm)',
-    min_value=1,
+    max_digits=5,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Der <strong><em>Moment am Fundament</em></strong> muss mindestens 0,01 kNm betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('999.99'),
+        'Der <strong><em>Moment am Fundament</em></strong> darf höchstens 999,99 kNm betragen.'
+      )
+    ],
     blank=True,
     null=True
   )
@@ -2527,8 +2538,8 @@ class RSAG_Masten(ComplexModel):
         'Der <strong><em>Spitzenzug P</em></strong> muss mindestens 0,01 kN betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 999,99 kN betragen.'
+        Decimal('99.99'),
+        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 99,99 kN betragen.'
       )
     ],
     blank=True,
@@ -2544,8 +2555,8 @@ class RSAG_Masten(ComplexModel):
         'Der <strong><em>Spitzenzug P</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('99.99'),
+        'Der <strong><em>Spitzenzug P</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
@@ -2561,8 +2572,8 @@ class RSAG_Masten(ComplexModel):
         'Die <strong><em>Gesamtlänge L</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Die <strong><em>Gesamtlänge L</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('99.99'),
+        'Die <strong><em>Gesamtlänge L</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
@@ -2578,8 +2589,8 @@ class RSAG_Masten(ComplexModel):
         'Die <strong><em>Einsatztiefe T</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Die <strong><em>Einsatztiefe T</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('99.99'),
+        'Die <strong><em>Einsatztiefe T</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
@@ -2596,9 +2607,9 @@ class RSAG_Masten(ComplexModel):
         'e</em></strong> muss mindestens -1,00 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
+        Decimal('99.99'),
         'Die <strong><em>Höhendifferenz zwischen Schienenoberkante und Fundament '
-        'e</em></strong> darf höchstens 999,99 m betragen.'
+        'e</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
@@ -2614,15 +2625,15 @@ class RSAG_Masten(ComplexModel):
         'Die <strong><em>Böschungshöhe z</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Die <strong><em>Böschungshöhe z</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('99.99'),
+        'Die <strong><em>Böschungshöhe z</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
     null=True
   )
   freie_laenge = DecimalField(
-    verbose_name='Freie Länge H (in m)',
+    verbose_name=' freie Länge H (in m)',
     max_digits=4,
     decimal_places=2,
     validators=[
@@ -2631,8 +2642,8 @@ class RSAG_Masten(ComplexModel):
         'Die <strong><em>freie Länge H</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Die <strong><em>freie Länge H</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('99.99'),
+        'Die <strong><em>freie Länge H</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
@@ -2678,8 +2689,8 @@ class RSAG_Masten(ComplexModel):
         'Die <strong><em>Länge des Fundaments t</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Die <strong><em>Länge des Fundaments t</em></strong> darf höchstens 999,99 m betragen.'
+        Decimal('99.99'),
+        'Die <strong><em>Länge des Fundaments t</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
     blank=True,
@@ -2703,8 +2714,8 @@ class RSAG_Masten(ComplexModel):
         '00 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
-        'Die <strong><em>Tiefe des nicht tragfähigen Bodens</em></strong> darf höchstens 999,'
+        Decimal('99.99'),
+        'Die <strong><em>Tiefe des nicht tragfähigen Bodens</em></strong> darf höchstens 99,'
         '99 m betragen.'
       )
     ],

@@ -3086,7 +3086,7 @@ class Ingenieurbauwerke(SimpleModel):
         'Die <strong><em>lichte Weite</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
+        Decimal('99.99'),
         'Die <strong><em>lichte Weite</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
@@ -3110,7 +3110,7 @@ class Ingenieurbauwerke(SimpleModel):
         'Die <strong><em>Durchfahrtshöhe</em></strong> muss mindestens 0,01 m betragen.'
       ),
       MaxValueValidator(
-        Decimal('999.99'),
+        Decimal('99.99'),
         'Die <strong><em>Durchfahrtshöhe</em></strong> darf höchstens 99,99 m betragen.'
       )
     ],
