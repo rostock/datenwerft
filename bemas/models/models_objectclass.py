@@ -166,11 +166,24 @@ class Organization(Objectclass):
     super().delete()
 
 
+PERSON_TITLES = (
+  ('Frau', 'Frau'),
+  ('Herr', 'Herr')
+)
+
+
 class Person(Objectclass):
   """
   model class for object class person (Person)
   """
 
+  title = CharField(
+    verbose_name='Anrede',
+    max_length=255,
+    blank=True,
+    null=True,
+    choices=PERSON_TITLES
+  )
   first_name = CharField(
     verbose_name='Vorname',
     max_length=255,
@@ -269,7 +282,8 @@ class Person(Objectclass):
     new = 'neue'
 
   def __str__(self):
-    return (self.first_name + ' ' if self.first_name else '') + self.last_name
+    return ('(' + self.title + ') ' if self.title else '') + \
+           (self.first_name + ' ' if self.first_name else '') + self.last_name
 
   def address(self):
     return concat_address(self.address_street, self.address_house_number,
@@ -428,6 +442,7 @@ class Originator(GeometryObjectclass):
     verbose_name_plural = 'Verursacher'
 
   class BasemodelMeta(GeometryObjectclass.BasemodelMeta):
+    table_exclusion_fields = ['created_at', 'updated_at', 'search_content', 'emission_point']
     geometry_field = 'emission_point'
     description = 'Verursacher von Emissionen'
     definite_article = 'der'
@@ -550,6 +565,7 @@ class Complaint(GeometryObjectclass):
     verbose_name_plural = 'Beschwerden'
 
   class BasemodelMeta(GeometryObjectclass.BasemodelMeta):
+    table_exclusion_fields = ['created_at', 'updated_at', 'search_content', 'immission_point']
     geometry_field = 'immission_point'
     description = 'Folgen von Immissionen'
     definite_article = 'die'
@@ -606,6 +622,11 @@ class Event(Objectclass):
     verbose_name='Ereignisart',
     on_delete=PROTECT
   )
+  date = DateField(
+    verbose_name='Datum',
+    blank=True,
+    null=True
+  )
   user = CharField(
     verbose_name='Benutzer:in',
     max_length=255
@@ -631,7 +652,7 @@ class Event(Objectclass):
 
   class Meta(Objectclass.Meta):
     db_table = 'event'
-    ordering = ['-complaint__id', '-created_at']
+    ordering = ['-complaint__id', '-date']
     verbose_name = 'Journalereignis'
     verbose_name_plural = 'Journalereignisse'
 
@@ -703,6 +724,7 @@ class LogEntry(Objectclass):
     verbose_name_plural = 'Einträge im Bearbeitungsverlauf'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
+    table_exclusion_fields = ['updated_at', 'search_content']
     description = 'Logbucheinträge, die durch ausgewählte Ereignisse ausgelöst werden'
     definite_article = 'der'
     indefinite_article = 'ein'

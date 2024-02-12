@@ -108,14 +108,9 @@ def add_table_context_elements(context, model, kwargs=None):
   address_handled = False
   for field in model._meta.fields:
     if not field.name.startswith('address_'):
-      # handle non-geometry related fields, non-search content fields
-      # and non-operator related fields only!
-      if (
-          not is_geometry_field(field.__class__)
-          and not field.name == 'search_content'
-          and not field.name.startswith('operator_')
-      ):
-        column_titles.append(field.verbose_name)
+      # handle included fields only!
+      if field.name not in model.BasemodelMeta.table_exclusion_fields:
+        column_titles.append('Zeitpunkt' if field.name == 'created_at' else field.verbose_name)
     # handle addresses
     elif field.name.startswith('address_') and not address_handled:
       # append one column for address string

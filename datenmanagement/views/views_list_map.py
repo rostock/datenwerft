@@ -263,7 +263,7 @@ class TableDataCompositionView(BaseDatatableView):
       column_names = []
       # careful here!
       # use the same clauses as in prepare_results() above since otherwise,
-      # the wrong order columns could be choosed
+      # the wrong order columns could be chosen
       for column in self.columns:
         # handle all columns except address strings!
         if not self.column_with_address_string or column != self.column_with_address_string:

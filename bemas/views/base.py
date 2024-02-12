@@ -9,7 +9,7 @@ from jsonview.views import JsonView
 from .functions import create_geojson_feature, format_date_datetime, generate_foreign_key_link, \
   generate_foreign_key_link_simplified, get_model_objects
 from toolbox.models import Subsets
-from toolbox.utils import is_geometry_field, optimize_datatable_filter
+from toolbox.utils import optimize_datatable_filter
 from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user
@@ -57,13 +57,8 @@ class GenericTableDataView(BaseDatatableView):
         item_pk = getattr(item, self.model._meta.pk.name)
         address_handled = False
         for column in self.columns:
-          # handle non-geometry related fields, non-search content fields
-          # and non-operator related fields only!
-          if (
-              not is_geometry_field(column.__class__)
-              and not column.name == 'search_content'
-              and not column.name.startswith('operator_')
-          ):
+          # handle included fields only!
+          if column.name not in self.model.BasemodelMeta.table_exclusion_fields:
             data = None
             value = getattr(item, column.name)
             # codelist specific column "icon"
@@ -181,7 +176,7 @@ class GenericTableDataView(BaseDatatableView):
             data = '<em><i class="fas fa-' + get_icon_from_settings('anonymous_complaint') + \
                    '"></i> anonyme Beschwerde</em>'
           item_data.append(data)
-        # append links for updating and deleting
+        # append links for updating, deleting, etc.
         if (
             (
                 issubclass(self.model, Codelist)
@@ -276,11 +271,11 @@ class GenericTableDataView(BaseDatatableView):
       column_names = []
       # careful here!
       # use the same clauses as in prepare_results() above since otherwise,
-      # the wrong order columns could be choosed
+      # the wrong order columns could be chosen
       address_handled = False
       for column in self.columns:
-        # handle non-geometry related fields and non-search content fields only!
-        if not is_geometry_field(column.__class__) and not column.name == 'search_content':
+        # handle included fields only!
+        if column.name not in self.model.BasemodelMeta.table_exclusion_fields:
           # ordinary columns
           if not column.name.startswith('address_'):
             column_names.append(column.name)

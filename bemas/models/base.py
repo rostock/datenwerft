@@ -28,6 +28,7 @@ class Basemodel(Model):
     get_latest_by = 'updated_at'
 
   class BasemodelMeta:
+    table_exclusion_fields = ['created_at', 'updated_at']
     geometry_field = None
     description = None
     definite_article = None
@@ -59,6 +60,9 @@ class Objectclass(Basemodel):
 
   class Meta(Basemodel.Meta):
     abstract = True
+
+  class BasemodelMeta(Basemodel.BasemodelMeta):
+    table_exclusion_fields = ['created_at', 'updated_at', 'search_content']
 
 
 class GeometryObjectclass(Objectclass):

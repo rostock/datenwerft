@@ -288,7 +288,7 @@ class GenericObjectclassUpdateView(UpdateView):
       # handle date fields and their values
       elif field.__class__.__name__ == 'DateField':
         value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        initial_field_values[field.name] = value.strftime('%Y-%m-%d')
+        initial_field_values[field.name] = value.strftime('%Y-%m-%d') if value else None
     return initial_field_values
 
   def form_valid(self, form):
