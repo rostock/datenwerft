@@ -3,7 +3,7 @@ from django.contrib.messages import error, success
 from django.db.models import ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
@@ -71,8 +71,11 @@ class GenericObjectclassCreateView(CreateView):
     :return: dictionary with all context elements for this view
     """
     # set generic object class context for create, update and/or delete views
-    cancel_url = get_referer_url(
-      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table')
+    if issubclass(self.model, Contact):
+      fallback_url = 'bemas:organization_table'
+    else:
+      fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
+    cancel_url = get_referer_url(get_referer(self.request), fallback_url)
     context = set_generic_objectclass_create_update_delete_context(
       super().get_context_data(**kwargs),
       self.request,
@@ -122,11 +125,11 @@ class GenericObjectclassCreateView(CreateView):
     """
     # return to either the original referer or a default page
     referer = form.data.get('original_referer', None)
-    self.success_url = get_referer_url(
-      referer if referer else None,
-      'bemas:' + self.model.__name__.lower() + '_table',
-      True
-    )
+    if issubclass(self.model, Contact):
+      fallback_url = 'bemas:organization_table'
+    else:
+      fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
+    self.success_url = get_referer_url(referer if referer else None, fallback_url, True)
     # string representation of new complaint equals its primary key
     # (which is not yet available) and thus use its description here
     if issubclass(self.model, Complaint):
@@ -203,8 +206,11 @@ class GenericObjectclassUpdateView(UpdateView):
     :return: dictionary with all context elements for this view
     """
     # set generic object class context for create, update and/or delete views
-    cancel_url = get_referer_url(
-      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table')
+    if issubclass(self.model, Contact):
+      fallback_url = 'bemas:organization_table'
+    else:
+      fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
+    cancel_url = get_referer_url(get_referer(self.request), fallback_url)
     context = set_generic_objectclass_create_update_delete_context(
       super().get_context_data(**kwargs),
       self.request,
@@ -306,11 +312,11 @@ class GenericObjectclassUpdateView(UpdateView):
     """
     # return to either the original referer or a default page
     referer = form.data.get('original_referer', None)
-    self.success_url = get_referer_url(
-      referer if referer else None,
-      'bemas:' + self.model.__name__.lower() + '_table',
-      True
-    )
+    if issubclass(self.model, Contact):
+      fallback_url = 'bemas:organization_table'
+    else:
+      fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
+    self.success_url = get_referer_url(referer if referer else None, fallback_url, True)
     success(
       self.request,
       '{} {} <strong><em>{}</em></strong> wurde erfolgreich geändert!'.format(
@@ -381,8 +387,11 @@ class GenericObjectclassDeleteView(DeleteView):
     :return: dictionary with all context elements for this view
     """
     # set generic object class context for create, update and/or delete views
-    cancel_url = get_referer_url(
-      get_referer(self.request), 'bemas:' + self.model.__name__.lower() + '_table')
+    if issubclass(self.model, Contact):
+      fallback_url = 'bemas:organization_table'
+    else:
+      fallback_url = 'bemas:' + self.model.__name__.lower() + '_table'
+    cancel_url = get_referer_url(get_referer(self.request), fallback_url)
     context = set_generic_objectclass_create_update_delete_context(
       super().get_context_data(**kwargs),
       self.request,
@@ -561,33 +570,3 @@ class ComplaintDeleteView(GenericObjectclassDeleteView):
     # add custom deletion hints (shown as text to user) to context
     context['deletion_hints'] = self.deletion_hints
     return context
-
-
-class ContactCreateView(GenericObjectclassCreateView):
-  """
-  view for form page for creating an instance of object class contact
-
-  :param cancel_url: custom cancel URL
-  """
-
-  cancel_url = reverse_lazy('bemas:organization_table')
-
-
-class ContactUpdateView(GenericObjectclassUpdateView):
-  """
-  view for form page for updating an instance of object class contact
-
-  :param cancel_url: custom cancel URL
-  """
-
-  cancel_url = reverse_lazy('bemas:organization_table')
-
-
-class ContactDeleteView(GenericObjectclassDeleteView):
-  """
-  view for form page for deleting an instance of object class contact
-
-  :param cancel_url: custom cancel URL
-  """
-
-  cancel_url = reverse_lazy('bemas:organization_table')

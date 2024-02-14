@@ -541,7 +541,13 @@ def get_referer_url(referer, fallback, lazy=False):
   :return: URL used for "cancel" buttons
   and/or used in case of successfully submitted forms
   """
-  if referer and '/delete' not in referer:
+  if (
+      referer
+      and '/contact' not in referer
+      and '/event' not in referer
+      and '/logentry' not in referer
+      and '/delete' not in referer
+  ):
     return referer
   return reverse_lazy(fallback) if lazy else reverse(fallback)
 

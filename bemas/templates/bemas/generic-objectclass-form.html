@@ -45,6 +45,9 @@
     {% if form.errors %}
       {% include "bemas/container-errors.html" %}
     {% endif %}
+    {% if messages %}
+      {% include "bemas/container-messages.html" %}
+    {% endif %}
     <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
     {% if objectclass_logentry_url %}
       <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
@@ -110,6 +113,10 @@
       {% include "modal-error.html" %}
     </form>
     <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
+
       /**
        * @function
        * @name mapCallbackFunction

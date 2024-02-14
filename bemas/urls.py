@@ -8,10 +8,9 @@ from .views.base import GenericTableDataView, GenericMapDataView
 from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
   CodelistUpdateView
 from .views.views_general import CodelistsIndexView, IndexView, MapView, OrphanedDataView
-from .views.views_objectclass import ComplaintDeleteView, ContactDeleteView, ContactCreateView, \
-  ContactUpdateView, GenericObjectclassCreateView, GenericObjectclassDeleteView, \
-  GenericObjectclassTableView, GenericObjectclassUpdateView, OrganizationDeleteView, \
-  PersonDeleteView
+from .views.views_objectclass import ComplaintDeleteView, GenericObjectclassCreateView, \
+  GenericObjectclassDeleteView, GenericObjectclassTableView, GenericObjectclassUpdateView, \
+  OrganizationDeleteView, PersonDeleteView
 
 router = routers.DefaultRouter()
 
@@ -255,7 +254,7 @@ for model in models:
     urlpatterns.append(
       path(
         'contact/create',
-        view=login_required(ContactCreateView.as_view(
+        view=login_required(GenericObjectclassCreateView.as_view(
           model=model
         )),
         name='contact_create'
@@ -266,7 +265,7 @@ for model in models:
     urlpatterns.append(
       path(
         'contact/update/<pk>',
-        view=login_required(ContactUpdateView.as_view(
+        view=login_required(GenericObjectclassUpdateView.as_view(
           model=model
         )),
         name='contact_update'
@@ -277,7 +276,7 @@ for model in models:
     urlpatterns.append(
       path(
         'contact/delete/<pk>',
-        view=login_required(ContactDeleteView.as_view(
+        view=login_required(GenericObjectclassDeleteView.as_view(
           model=model
         )),
         name='contact_delete'
@@ -650,7 +649,7 @@ for model in models:
     urlpatterns.append(
       path(
         'event/delete/<pk>',
-        view=login_required(ComplaintDeleteView.as_view(
+        view=login_required(GenericObjectclassDeleteView.as_view(
           model=model
         )),
         name='event_delete'
