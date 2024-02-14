@@ -281,6 +281,8 @@ class GenericTableDataView(BaseDatatableView):
             column_names.append(column.name)
           # handle addresses
           elif column.name.startswith('address_') and not address_handled:
+            # append one column for address string
+            # instead of appending individual columns for all address related values
             column_names.append(column.name)
             address_handled = True
       column_name = column_names[int(order_column)]

@@ -62,7 +62,8 @@ class Objectclass(Basemodel):
     abstract = True
 
   class BasemodelMeta(Basemodel.BasemodelMeta):
-    table_exclusion_fields = ['created_at', 'updated_at', 'search_content']
+    table_exclusion_fields = Basemodel.BasemodelMeta.table_exclusion_fields
+    table_exclusion_fields.append('search_content')
 
 
 class GeometryObjectclass(Objectclass):

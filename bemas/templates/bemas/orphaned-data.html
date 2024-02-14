@@ -56,7 +56,7 @@
         keine verwaisten Verursacher vorhanden
       {% endif %}
     </div>
-    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+    <a class="btn btn-warning mb-3" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}

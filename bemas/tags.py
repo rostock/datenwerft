@@ -8,16 +8,17 @@ register = template.Library()
 
 
 @register.filter
-def beautify_model_string(model_name):
+def beautify_model_string(model_name, plural=True):
   """
   turns passed model name into model verbose name plural with prefixed icon
 
   :param model_name: model name
+  :param plural: title shall be model verbose name plural?
   :return: passed model name turned into model verbose name plural with prefixed icon
   """
   icon = '<i class="fas fa-{}"></i>'.format(get_icon_from_settings(model_name.lower()))
   model = apps.get_app_config('bemas').get_model(model_name)
-  model_title = model._meta.verbose_name_plural
+  model_title = model._meta.verbose_name_plural if plural else model._meta.verbose_name
   return icon + ' ' + model_title
 
 

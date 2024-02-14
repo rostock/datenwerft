@@ -121,6 +121,8 @@ class Organization(Objectclass):
     verbose_name_plural = 'Organisationen'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
+    table_exclusion_fields = Objectclass.BasemodelMeta.table_exclusion_fields
+    table_exclusion_fields += ['address_house_number', 'address_postal_code', 'address_place']
     description = 'Betreiberinnen oder Beschwerdeführerinnen'
     definite_article = 'die'
     indefinite_article = 'eine'
@@ -275,6 +277,8 @@ class Person(Objectclass):
     verbose_name_plural = 'Personen'
 
   class BasemodelMeta(Objectclass.BasemodelMeta):
+    table_exclusion_fields = Objectclass.BasemodelMeta.table_exclusion_fields
+    table_exclusion_fields += ['address_house_number', 'address_postal_code', 'address_place']
     description = 'Beschwerdeführer:innen oder Ansprechpartner:innen'
     definite_article = 'die'
     indefinite_article = 'eine'
@@ -442,7 +446,8 @@ class Originator(GeometryObjectclass):
     verbose_name_plural = 'Verursacher'
 
   class BasemodelMeta(GeometryObjectclass.BasemodelMeta):
-    table_exclusion_fields = ['created_at', 'updated_at', 'search_content', 'emission_point']
+    table_exclusion_fields = Objectclass.BasemodelMeta.table_exclusion_fields
+    table_exclusion_fields += ['operator_organization', 'operator_person', 'emission_point']
     geometry_field = 'emission_point'
     description = 'Verursacher von Emissionen'
     definite_article = 'der'
@@ -565,7 +570,8 @@ class Complaint(GeometryObjectclass):
     verbose_name_plural = 'Beschwerden'
 
   class BasemodelMeta(GeometryObjectclass.BasemodelMeta):
-    table_exclusion_fields = ['created_at', 'updated_at', 'search_content', 'immission_point']
+    table_exclusion_fields = Objectclass.BasemodelMeta.table_exclusion_fields
+    table_exclusion_fields.append('immission_point')
     geometry_field = 'immission_point'
     description = 'Folgen von Immissionen'
     definite_article = 'die'

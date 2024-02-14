@@ -41,12 +41,9 @@ class CodelistTableView(TemplateView):
 class CodelistCreateView(CreateView):
   """
   view for form page for creating a codelist instance
-
-  :param cancel_url: custom cancel URL
   """
 
   template_name = 'bemas/codelist-form.html'
-  cancel_url = None
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
@@ -93,12 +90,9 @@ class CodelistCreateView(CreateView):
 class CodelistUpdateView(UpdateView):
   """
   view for form page for updating a codelist instance
-
-  :param cancel_url: custom cancel URL
   """
 
   template_name = 'bemas/codelist-form.html'
-  cancel_url = None
 
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
@@ -145,12 +139,9 @@ class CodelistUpdateView(UpdateView):
 class CodelistDeleteView(DeleteView):
   """
   view for form page for deleting a codelist instance
-
-  :param cancel_url: custom cancel URL
   """
 
   template_name = 'bemas/codelist-delete.html'
-  cancel_url = None
 
   def get_context_data(self, **kwargs):
     """

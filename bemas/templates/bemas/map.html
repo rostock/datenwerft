@@ -41,7 +41,7 @@
       <button id="complaints-subsetter" class="btn btn-secondary" type="button" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Beschwerden</button>
       <a class="btn btn-secondary" role="button" href="{% url 'bemas:originator_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i> alle Verursacher</a>
       <button id="originators-subsetter" class="btn btn-secondary" type="button" disabled><i class="fas fa-{{ 'table'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte Verursacher</button>
-      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
     </div>
     {% if objects_count > 0 %}
       {% if model and subset_pk %}

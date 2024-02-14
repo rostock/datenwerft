@@ -6,6 +6,9 @@
 
 {% block content %}
   {% if is_bemas_user %}
+    {% if messages %}
+      {% include "bemas/container-messages.html" %}
+    {% endif %}
     {% if not is_mobile %}
       <div class="row g-4">
         <div class="col-4">
@@ -163,6 +166,11 @@
         </div>
       </div>
     {% endif %}
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
+    </script>
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}

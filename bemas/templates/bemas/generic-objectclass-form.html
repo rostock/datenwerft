@@ -56,6 +56,7 @@
     {% endif %}
     <form class="form mt-4" method="post" action="">
       {% csrf_token %}
+      <input type="hidden" name="original_referer" value="{{ objectclass_cancel_url }}">
       <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
         <table class="table">
           {% for field in form %}

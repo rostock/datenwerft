@@ -158,8 +158,7 @@ for model in models:
       path(
         'organization/create',
         view=login_required(GenericObjectclassCreateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:organization_table')
+          model=model
         )),
         name='organization_create'
       )
@@ -170,8 +169,7 @@ for model in models:
       path(
         'organization/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:organization_table')
+          model=model
         )),
         name='organization_update'
       )
@@ -182,8 +180,7 @@ for model in models:
       path(
         'organization/delete/<pk>',
         view=login_required(OrganizationDeleteView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:organization_table')
+          model=model
         )),
         name='organization_delete'
       )
@@ -221,8 +218,7 @@ for model in models:
       path(
         'person/create',
         view=login_required(GenericObjectclassCreateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:person_table')
+          model=model
         )),
         name='person_create'
       )
@@ -233,8 +229,7 @@ for model in models:
       path(
         'person/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:person_table')
+          model=model
         )),
         name='person_update'
       )
@@ -245,8 +240,7 @@ for model in models:
       path(
         'person/delete/<pk>',
         view=login_required(PersonDeleteView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:person_table')
+          model=model
         )),
         name='person_delete'
       )
@@ -262,8 +256,7 @@ for model in models:
       path(
         'contact/create',
         view=login_required(ContactCreateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:organization_table')
+          model=model
         )),
         name='contact_create'
       )
@@ -274,8 +267,7 @@ for model in models:
       path(
         'contact/update/<pk>',
         view=login_required(ContactUpdateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:organization_table')
+          model=model
         )),
         name='contact_update'
       )
@@ -286,8 +278,7 @@ for model in models:
       path(
         'contact/delete/<pk>',
         view=login_required(ContactDeleteView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:organization_table')
+          model=model
         )),
         name='contact_delete'
       )
@@ -349,8 +340,7 @@ for model in models:
       path(
         'originator/create',
         view=login_required(GenericObjectclassCreateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:originator_table')
+          model=model
         )),
         name='originator_create'
       )
@@ -361,8 +351,7 @@ for model in models:
       path(
         'originator/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:originator_table')
+          model=model
         )),
         name='originator_update'
       )
@@ -373,8 +362,7 @@ for model in models:
       path(
         'originator/delete/<pk>',
         view=login_required(GenericObjectclassDeleteView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:originator_table')
+          model=model
         )),
         name='originator_delete'
       )
@@ -459,8 +447,7 @@ for model in models:
       path(
         'complaint/create',
         view=login_required(GenericObjectclassCreateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:complaint_table')
+          model=model
         )),
         name='complaint_create'
       )
@@ -471,8 +458,7 @@ for model in models:
       path(
         'complaint/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:complaint_table')
+          model=model
         )),
         name='complaint_update'
       )
@@ -483,8 +469,7 @@ for model in models:
       path(
         'complaint/delete/<pk>',
         view=login_required(ComplaintDeleteView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:complaint_table')
+          model=model
         )),
         name='complaint_delete'
       )
@@ -644,8 +629,7 @@ for model in models:
       path(
         'event/create',
         view=login_required(GenericObjectclassCreateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:event_table')
+          model=model
         )),
         name='event_create'
       )
@@ -656,8 +640,7 @@ for model in models:
       path(
         'event/update/<pk>',
         view=login_required(GenericObjectclassUpdateView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:event_table')
+          model=model
         )),
         name='event_update'
       )
@@ -668,8 +651,7 @@ for model in models:
       path(
         'event/delete/<pk>',
         view=login_required(ComplaintDeleteView.as_view(
-          model=model,
-          success_url=reverse_lazy('bemas:event_table')
+          model=model
         )),
         name='event_delete'
       )

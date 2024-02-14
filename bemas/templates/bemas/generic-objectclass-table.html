@@ -45,7 +45,15 @@
       {% if objects_count > 0 and objectclass_name == 'Complaint' or objects_count > 0 and objectclass_name == 'Originator' %}
         <button id="subsetter" class="btn btn-secondary" type="button"><i class="fas fa-{{ 'map'|get_icon }}"></i> <i class="fas fa-{{ 'filter_on'|get_icon }}"></i> aktuell gefilterte {{ objectclass_verbose_name_plural }}</button>
       {% endif %}
-      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+      {% if objectclass_name == 'LogEntry' and model and reference_table_url %}
+        {% if object_pk and reference_object_url %}
+          <a class="btn btn-warning" role="button" href="{{ reference_object_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> <em>{{ model|beautify_model_string:False|safe }}</em> mit der ID <em>{{ object_pk }}</em></a>
+        {% endif %}
+        <a class="btn btn-warning" role="button" href="{{ reference_table_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> <em>{{ model|beautify_model_string|safe }}</em></a>
+      {% elif objectclass_name == 'Event' and complaint_pk and complaint_url %}
+         <a class="btn btn-warning" role="button" href="{{ complaint_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> <em><i class="fas fa-{{ 'complaint'|get_icon }}"></i> Beschwerde</em> mit der ID <em>{{ complaint_pk }}</em></a>
+      {% endif %}
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">

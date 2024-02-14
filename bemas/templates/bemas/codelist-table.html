@@ -32,7 +32,8 @@
       {% if is_bemas_admin %}
         <a class="btn btn-primary" role="button" href="{{ codelist_creation_url }}"><i class="fas fa-{{ 'create'|get_icon }}"></i> neuen Codelisteneintrag anlegen</a>
       {% endif %}
-      <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:codelists' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> Codelisten</a>
+      <a class="btn btn-warning" role="button" href="{% url 'bemas:index' %}"><i class="fas fa-{{ 'index'|get_icon }}"></i> Startseite</a>
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
@@ -41,7 +42,7 @@
           <thead>
             <tr>
               {% for column_title in column_titles %}
-                <th>{{ column_title }}</th>
+                <th{% if column_title == 'Icon' %} class="no-export no-search no-sort"{% endif %}>{{ column_title }}</th>
               {% endfor %}
               {% if is_bemas_admin %}
                 <th class="no-export no-search no-sort">Aktionen</th>

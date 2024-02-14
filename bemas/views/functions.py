@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.serializers import serialize
 from django.forms import Select, Textarea
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from json import dumps, loads
 from leaflet.forms.widgets import LeafletWidget
@@ -107,20 +107,26 @@ def add_table_context_elements(context, model, kwargs=None):
   column_titles = []
   address_handled = False
   for field in model._meta.fields:
-    if not field.name.startswith('address_'):
-      # handle included fields only!
-      if field.name not in model.BasemodelMeta.table_exclusion_fields:
+    # handle included fields only!
+    if field.name not in model.BasemodelMeta.table_exclusion_fields:
+      # ordinary columns
+      if not field.name.startswith('address_'):
         column_titles.append('Zeitpunkt' if field.name == 'created_at' else field.verbose_name)
-    # handle addresses
-    elif field.name.startswith('address_') and not address_handled:
-      # append one column for address string
-      # instead of appending individual columns for all address related values
-      column_titles.append('Anschrift')
-      address_handled = True
+      # handle addresses
+      elif field.name.startswith('address_') and not address_handled:
+        # append one column for address string
+        # instead of appending individual columns for all address related values
+        column_titles.append('Anschrift')
+        address_handled = True
   context['column_titles'] = column_titles
   # determine initial order
   initial_order = []
   if model._meta.ordering:
+    # reduce fields to included fields only
+    included_fields = []
+    for field in model._meta.fields:
+      if field.name not in model.BasemodelMeta.table_exclusion_fields:
+        included_fields.append(field)
     for field_name in model._meta.ordering:
       # determine order direction and clean field name
       if field_name.startswith('-'):
@@ -131,7 +137,7 @@ def add_table_context_elements(context, model, kwargs=None):
         cleaned_field_name = field_name
       # determine index of field
       order_index = 0
-      for index, field in enumerate(model._meta.fields):
+      for index, field in enumerate(included_fields):
         if field.name == cleaned_field_name:
           order_index = index
           break
@@ -151,16 +157,22 @@ def add_table_context_elements(context, model, kwargs=None):
         'bemas:logentry_tabledata_model_object',
         args=[kwargs['model'], kwargs['object_pk']]
       )
+      context['reference_table_url'] = reverse('bemas:' + kwargs['model'].lower() + '_table')
+      context['reference_object_url'] = reverse(
+        'bemas:' + kwargs['model'].lower() + '_update', args=[kwargs['object_pk']])
     elif issubclass(model, LogEntry) and 'model' in kwargs and kwargs['model']:
       context['tabledata_url'] = reverse(
         'bemas:logentry_tabledata_model',
         args=[kwargs['model']]
       )
+      context['reference_table_url'] = reverse('bemas:' + kwargs['model'].lower() + '_table')
     elif issubclass(model, Event) and 'complaint_pk' in kwargs and kwargs['complaint_pk']:
       context['tabledata_url'] = reverse(
         'bemas:event_tabledata_complaint',
         args=[kwargs['complaint_pk']]
       )
+      context['complaint_url'] = reverse(
+        'bemas:complaint_update', args=[kwargs['complaint_pk']])
     elif (
         (issubclass(model, Complaint) or issubclass(model, Originator))
         and 'subset_pk' in kwargs
@@ -508,6 +520,32 @@ def get_model_objects(model, count=False, kwargs=None):
   return objects.count() if count else objects
 
 
+def get_referer(request):
+  """
+  returns referer for passed request
+
+  :param request: request
+  :return: referer for passed request
+  """
+  return request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else None
+
+
+def get_referer_url(referer, fallback, lazy=False):
+  """
+  returns URL used for "cancel" buttons
+  and/or used in case of successfully submitted forms
+
+  :param referer: referer URL
+  :param fallback: fallback URL
+  :param lazy: lazy?
+  :return: URL used for "cancel" buttons
+  and/or used in case of successfully submitted forms
+  """
+  if referer and '/delete' not in referer:
+    return referer
+  return reverse_lazy(fallback) if lazy else reverse(fallback)
+
+
 def set_generic_objectclass_create_update_delete_context(context, request, model, cancel_url,
                                                          curr_object=None):
   """
@@ -527,9 +565,7 @@ def set_generic_objectclass_create_update_delete_context(context, request, model
   # add other necessary elements to context
   context = add_generic_objectclass_context_elements(context, model)
   # optionally add custom cancel URL (called when cancel button is clicked) to context
-  context['objectclass_cancel_url'] = (
-    cancel_url if cancel_url else reverse('bemas:' + model.__name__.lower() + '_table')
-  )
+  context['objectclass_cancel_url'] = cancel_url if cancel_url else reverse('bemas:index')
   # add deletion URL to context if object exists
   if curr_object:
     context['objectclass_deletion_url'] = reverse(
