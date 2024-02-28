@@ -26,7 +26,8 @@ function customMapFilters(filterId) {
       // add filter objects to defined list with filter objects
       filterList.push(createFilter('beginn', 'date', 'right', 'positive', currentDate));
       filterList.push(createFilter('ende', 'date', 'left', 'positive', currentDate));
-      filterList.push(createFilter('status', 'list', 'both', 'negative', 'im Bau (P8)'));
+      filterList.push(createFilter('status', 'list', 'both', 'negative', 'im Bau (LP8)'));
+      filterList.push(createFilter('status', 'list', 'both', 'negative', 'abgeschlossen'));
       break;
   }
 
