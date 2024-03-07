@@ -3352,7 +3352,7 @@ class Kehrbezirke(SimpleModel):
     null=True
   )
   vergabedatum = DateField(
-    verbose_name='Vergabedatum',
+    verbose_name='Vergabedatum der Adresse',
     blank=True,
     null=True
   )
@@ -3365,6 +3365,7 @@ class Kehrbezirke(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Kehrbezirke der bevollmächtigten Bezirksschornsteinfeger ' \
                   'in der Hanse- und Universitätsstadt Rostock'
+    readonly_fields = ['vergabedatum']
     address_search_long_results = True
     address_type = 'Adresse'
     address_mandatory = True
@@ -3372,7 +3373,7 @@ class Kehrbezirke(SimpleModel):
       'aktiv': 'aktiv?',
       'adresse': 'Adresse',
       'bevollmaechtigter_bezirksschornsteinfeger': 'bevollmächtigter Bezirksschornsteinfeger',
-      'vergabedatum': 'Vergabedatum'
+      'vergabedatum': 'Vergabedatum der Adresse'
     }
     list_fields_with_date = ['vergabedatum']
     list_fields_with_foreign_key = {
@@ -3386,12 +3387,6 @@ class Kehrbezirke(SimpleModel):
                         'Bezirksschornsteinfeger direkt zuweisen',
         'field': 'bevollmaechtigter_bezirksschornsteinfeger',
         'type': 'foreignkey'
-      },
-      {
-        'action_name': 'kehrbezirke-vergabedatum',
-        'action_title': 'ausgewählten Datensätzen Vergabedatum direkt zuweisen',
-        'field': 'vergabedatum',
-        'type': 'date'
       }
     ]
 
