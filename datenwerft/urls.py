@@ -27,7 +27,6 @@ api_urlpatterns += toolbox_urls.api_urlpatterns
 api_urlpatterns += datenmanagement_urls.api_urlpatterns
 api_urlpatterns += bemas_urls.api_urlpatterns
 
-
 # routing...
 urlpatterns = [
   # ...Django administration

@@ -142,15 +142,15 @@ LEAFLET_CONFIG = {
 
 REST_FRAMEWORK = {
   'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.IsAdminUser',
+    'rest_framework.permissions.IsAuthenticated'
   ],
   'DATETIME_FORMAT': 'iso-8601',
   'DATE_FORMAT': 'iso-8601',
   'TIME_FORMAT': 'iso-8601',
   'DEFAULT_RENDERER_CLASSES': (
     'rest_framework.renderers.JSONRenderer',
-    'rest_framework.renderers.BrowsableAPIRenderer',
-  ),
+    'rest_framework.renderers.BrowsableAPIRenderer'
+  )
 }
 
 

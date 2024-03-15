@@ -4,12 +4,11 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-  def handle(self, *args, **options):
 
+  def handle(self, *args, **options):
     verbose = False
     if options.get('verbosity') > 1:
       verbose = True
-
     rmroot = os.path.join(settings.BASE_DIR, 'toolbox', 'mkpdf')
     os.chdir(rmroot)
     fs = os.listdir()

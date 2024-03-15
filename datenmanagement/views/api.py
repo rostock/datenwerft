@@ -20,6 +20,7 @@ class DatenmanagementViewSet(ModelViewSet):
     class DatenmanagementSerializer(HyperlinkedModelSerializer):
       class Meta:
         model = self.model
+        fields = '__all__'
 
     self.serializer_class = DatenmanagementSerializer
     return self.serializer_class
