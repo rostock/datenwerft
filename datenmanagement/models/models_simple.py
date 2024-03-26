@@ -3648,7 +3648,7 @@ class Kleinklaeranlagen(SimpleModel):
   )
   d3 = CharField(
     verbose_name=' d.3',
-    max_length=15,
+    max_length=16,
     validators=[
       RegexValidator(
         regex=d3_regex,
