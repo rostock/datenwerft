@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@eslint/create-config": "^0.4.6",
-    "@fortawesome/fontawesome-free": "^6.5.1",
+    "@fortawesome/fontawesome-free": "^6.5.2",
     "@geoman-io/leaflet-geoman-free": "^2.16.0",
     "bootstrap": "^5.3.3",
     "eslint": "^8.57.0",
@@ -12,7 +12,7 @@
     "leaflet.locatecontrol": "^0.76.1",
     "leaflet.markercluster": "^1.5.3",
     "martinez-polygon-clipping": "^0.7.3",
-    "proj4": "^2.10.0",
+    "proj4": "^2.11.0",
     "proj4leaflet": "^1.0.2",
     "select2": "^4.1.0-rc.0",
     "select2-bootstrap-5-theme": "^1.3.0",

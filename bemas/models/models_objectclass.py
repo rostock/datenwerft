@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib.gis.db.models.fields import PointField
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import EmailValidator, RegexValidator
-from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
+from django.db.models import F, ForeignKey, ManyToManyField, CASCADE, PROTECT
 from django.db.models.fields import BigIntegerField, CharField, DateField, DateTimeField, TextField
 from django.db.models.signals import m2m_changed
 from django.utils import timezone
@@ -640,8 +640,7 @@ class Event(Objectclass):
   description = NullTextField(
     verbose_name='Beschreibung',
     blank=True,
-    null=True,
-    validators=standard_validators
+    null=True
   )
   dms_link = CharField(
     verbose_name=' d.3',
@@ -658,7 +657,7 @@ class Event(Objectclass):
 
   class Meta(Objectclass.Meta):
     db_table = 'event'
-    ordering = ['-complaint__id', '-date']
+    ordering = ['-complaint__id', F('date').desc(nulls_last=True)]
     verbose_name = 'Journalereignis'
     verbose_name_plural = 'Journalereignisse'
 
@@ -677,8 +676,9 @@ class Event(Objectclass):
     return str(self.type_of_event) + ' (Beschwerde: ' + str(self.complaint) + ')'
 
   def type_of_event_and_created_at(self):
-    return str(self.type_of_event) + ' vom ' + self.created_at.strftime('%d.%m.%Y') + \
-           (' (' + shorten_string(self.description) + ')' if self.description else '')
+    date_str = ' vom ' + self.date.strftime('%d.%m.%Y') if self.date else ' (ohne Datum)'
+    description_str = ': ' + shorten_string(self.description) if self.description else ''
+    return str(self.type_of_event) + date_str + description_str
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field

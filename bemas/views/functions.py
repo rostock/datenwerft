@@ -128,20 +128,22 @@ def add_table_context_elements(context, model, kwargs=None):
       if field.name not in model.BasemodelMeta.table_exclusion_fields:
         included_fields.append(field)
     for field_name in model._meta.ordering:
-      # determine order direction and clean field name
-      if field_name.startswith('-'):
-        order_direction = 'desc'
-        cleaned_field_name = field_name[1:]
-      else:
-        order_direction = 'asc'
-        cleaned_field_name = field_name
-      # determine index of field
-      order_index = 0
-      for index, field in enumerate(included_fields):
-        if field.name == cleaned_field_name:
-          order_index = index
-          break
-      initial_order.append([order_index, order_direction])
+      # skip OrderBy objects
+      if not field_name.__class__.__name__ == 'OrderBy':
+        # determine order direction and clean field name
+        if field_name.startswith('-'):
+          order_direction = 'desc'
+          cleaned_field_name = field_name[1:]
+        else:
+          order_direction = 'asc'
+          cleaned_field_name = field_name
+        # determine index of field
+        order_index = 0
+        for index, field in enumerate(included_fields):
+          if field.name == cleaned_field_name:
+            order_index = index
+            break
+        initial_order.append([order_index, order_direction])
   context['initial_order'] = initial_order
   if issubclass(model, Codelist):
     context['tabledata_url'] = reverse('bemas:codelists_' + model.__name__.lower() + '_tabledata')
