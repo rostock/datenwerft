@@ -37,11 +37,12 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Ka
   Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
   Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Ingenieurbauwerke, \
   Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
-  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Toiletten, Ausfuehrungen_Ingenieurbauwerke, \
-  Betriebsarten, Betriebszeiten, Bevollmaechtigte_Bezirksschornsteinfeger, \
-  Bewirtschafter_Betreiber_Traeger_Eigentuemer, Gebaeudearten_Meldedienst_punkthaft, \
-  Gebaeudebauweisen, Gebaeudefunktionen, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
-  Materialien_Denksteine, Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
+  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Toiletten, \
+  Ausfuehrungen_Ingenieurbauwerke, Betriebsarten, Betriebszeiten, \
+  Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
+  Gebaeudearten_Meldedienst_punkthaft, Gebaeudebauweisen, Gebaeudefunktionen, \
+  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Materialien_Denksteine, \
+  Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
   Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
   Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
   Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
@@ -4769,6 +4770,73 @@ class Reinigungsreviere(SimpleModel):
 
   def __str__(self):
     return self.bezeichnung + (' (Nummer: ' + str(self.nummer) + ')' if self.nummer else '')
+
+
+class Reisebusparkplaetze_Terminals(SimpleModel):
+  """
+  Reisebusparkplätze und -terminals
+  """
+
+  art = ForeignKey(
+    to=Arten_Reisebusparkplaetze_Terminals,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  stellplaetze = PositiveSmallIntegerMinField(
+    verbose_name='Stellplätze',
+    min_value=1
+  )
+  gebuehren = BooleanField(
+    verbose_name='Gebühren?'
+  )
+  einschraenkungen = CharField(
+    verbose_name='Einschränkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"reisebusparkplaetze_terminals_hro'
+    verbose_name = 'Reisebusparkplatz oder -terminal'
+    verbose_name_plural = 'Reisebusparkplätze und -terminals'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Reisebusparkplätze und -terminals in der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'stellplaetze': 'Stellplätze',
+      'gebuehren': 'Gebühren',
+      'einschraenkungen': 'Einschränkungen'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art'
+    }
+    map_feature_tooltip_fields = ['bezeichnung']
+    map_filter_fields = {
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'stellplaetze': 'Stellplätze',
+      'gebuehren': 'Gebühren',
+      'einschraenkungen': 'Einschränkungen'
+    }
+    map_filter_fields_as_list = ['art']
+
+  def __str__(self):
+    return str(self.art) + ' ' + self.bezeichnung
 
 
 class Rettungswachen(SimpleModel):

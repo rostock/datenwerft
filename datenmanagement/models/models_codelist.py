@@ -576,6 +576,20 @@ class Arten_Poller(Art):
     description = 'Arten von Pollern'
 
 
+class Arten_Reisebusparkplaetze_Terminals(Art):
+  """
+  Arten von Reisebusparkplätzen und -terminals
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_reisebusparkplaetze_terminals'
+    verbose_name = 'Art eines Reisebusparkplatzes oder -terminals'
+    verbose_name_plural = 'Arten von Reisebusparkplätzen und -terminals'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Reisebusparkplätzen und -terminals'
+
+
 class Arten_Toiletten(Art):
   """
   Arten von Toiletten

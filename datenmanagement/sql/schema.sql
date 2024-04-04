@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.5
--- Dumped by pg_dump version 15.5
+-- Dumped from database version 15.6
+-- Dumped by pg_dump version 15.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -587,6 +587,18 @@ CREATE TABLE codelisten.arten_pflegeeinrichtungen (
 --
 
 CREATE TABLE codelisten.arten_poller (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_reisebusparkplaetze_terminals; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_reisebusparkplaetze_terminals (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1708,24 +1720,6 @@ CREATE TABLE fachdaten.bemas_altdaten_journalereignisse (
 
 
 --
--- Name: bluehstandorte_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.bluehstandorte_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    id_zielsystem character varying(255),
-    deaktiviert date,
-    bezeichnung character varying(255) NOT NULL,
-    notizen character varying(1000),
-    geometrie public.geometry(Polygon,25833) NOT NULL
-);
-
-
---
 -- Name: containerstellplaetze_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -1866,7 +1860,7 @@ CREATE TABLE fachdaten.erdwaermesonden_hro (
     id_zielsystem character varying(255),
     aktiv boolean DEFAULT true NOT NULL,
     deaktiviert date,
-    d3 character(16),
+    d3 character varying(16),
     aktenzeichen character varying(18) NOT NULL,
     art uuid NOT NULL,
     typ uuid,
@@ -2372,6 +2366,27 @@ CREATE TABLE fachdaten.poller_hro (
     anzahl smallint NOT NULL,
     schliessungen character varying(255)[],
     bemerkungen character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: reisebusparkplaetze_terminals_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.reisebusparkplaetze_terminals_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    art uuid NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    stellplaetze smallint NOT NULL,
+    gebuehren boolean NOT NULL,
+    einschraenkungen character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL
 );
 
@@ -3172,7 +3187,7 @@ CREATE TABLE fachdaten_adressbezug.kleinklaeranlagen_hro (
     id_zielsystem character varying(255),
     aktiv boolean DEFAULT true NOT NULL,
     adresse uuid,
-    d3 character(11) NOT NULL,
+    d3 character varying(16) NOT NULL,
     we_datum date NOT NULL,
     we_aktenzeichen character varying(255),
     we_befristung date,
@@ -4034,6 +4049,22 @@ ALTER TABLE ONLY codelisten.arten_poller
 
 ALTER TABLE ONLY codelisten.arten_poller
     ADD CONSTRAINT arten_poller_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_reisebusparkplaetze_terminals arten_reisebusparkplaetze_terminals_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_reisebusparkplaetze_terminals
+    ADD CONSTRAINT arten_reisebusparkplaetze_terminals_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_reisebusparkplaetze_terminals arten_reisebusparkplaetze_terminals_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_reisebusparkplaetze_terminals
+    ADD CONSTRAINT arten_reisebusparkplaetze_terminals_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5333,14 +5364,6 @@ ALTER TABLE ONLY fachdaten.bemas_altdaten_journalereignisse
 
 
 --
--- Name: bluehstandorte_hro bluehstandorte_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.bluehstandorte_hro
-    ADD CONSTRAINT bluehstandorte_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: containerstellplaetze_hro containerstellplaetze_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5610,6 +5633,14 @@ ALTER TABLE ONLY fachdaten.parkscheinautomaten_tarife_hro
 
 ALTER TABLE ONLY fachdaten.poller_hro
     ADD CONSTRAINT poller_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: reisebusparkplaetze_terminals_hro reisebusparkplaetze_terminals_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.reisebusparkplaetze_terminals_hro
+    ADD CONSTRAINT reisebusparkplaetze_terminals_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6856,6 +6887,14 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 ALTER TABLE ONLY fachdaten.poller_hro
     ADD CONSTRAINT poller_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_poller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: reisebusparkplaetze_terminals_hro reisebusparkplaetze_terminals_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.reisebusparkplaetze_terminals_hro
+    ADD CONSTRAINT reisebusparkplaetze_terminals_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_reisebusparkplaetze_terminals(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
