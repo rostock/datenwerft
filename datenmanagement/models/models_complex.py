@@ -25,8 +25,8 @@ from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import delete_pdf, delete_photo, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
-  Arten_Adressunsicherheiten, Arten_Durchlaesse, Arten_Fallwildsuchen_Kontrollen, \
-  Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
+  Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
   Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
   Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
   Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
@@ -2983,6 +2983,83 @@ class RSAG_Spanndraehte(ComplexModel):
 
   def __str__(self):
     return str(self.uuid)
+
+
+#
+# Spielplätze
+#
+
+class Spielplaetze(ComplexModel):
+  """
+  Spielplätze:
+  Spielplätze
+  """
+
+  gruenpflegeobjekt = ForeignKey(
+    to=Gruenpflegeobjekte,
+    verbose_name='Grünpflegeobjekt',
+    on_delete=SET_NULL,
+    db_column='gruenpflegeobjekt',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_gruenpflegeobjekte',
+    blank=True,
+    null=True
+  )
+  staedtisch = BooleanField(
+    verbose_name=' städtisch?',
+    default=True
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  beschreibung = CharField(
+    verbose_name='Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"spielplaetze_hro'
+    ordering = ['staedtisch', 'gruenpflegeobjekt', 'bezeichnung']
+    verbose_name = 'Spielplatz'
+    verbose_name_plural = 'Spielplätze'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Spielplätze in der Hanse- und Universitätsstadt Rostock'
+    fields_with_foreign_key_to_linkify = ['gruenpflegeobjekt']
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'gruenpflegeobjekt': 'Grünpflegeobjekt',
+      'staedtisch': 'städtisch?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    list_fields_with_foreign_key = {
+      'gruenpflegeobjekt': 'gruenpflegeobjekt'
+    }
+    map_feature_tooltip_fields = ['gruenpflegeobjekt', 'bezeichnung']
+    map_filter_fields = {
+      'gruenpflegeobjekt': 'Grünpflegeobjekt',
+      'staedtisch': 'städtisch?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung'
+    }
+    map_filter_fields_as_list = ['gruenpflegeobjekt']
+
+  def __str__(self):
+    gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
+    bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
+    beschreibung_str = self.beschreibung + ', ' if self.beschreibung else ''
+    staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
+    return gruenpflegeobjekt_str + bezeichnung_str + beschreibung_str + staedtisch_str
 
 
 #

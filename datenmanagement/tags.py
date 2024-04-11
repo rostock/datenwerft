@@ -4,6 +4,7 @@ from django.template.defaultfilters import stringfilter
 from django.urls import reverse
 from re import sub
 
+from datenmanagement.models.base import Metamodel
 from datenmanagement.utils import is_address_related_field
 
 register = template.Library()
@@ -193,6 +194,18 @@ def is_field_nullable(field_name, model_name):
   """
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   return model._meta.get_field(field_name).null
+
+
+@register.filter
+def is_model_meta_model(model_name):
+  """
+  checks if passed model is a meta model
+
+  :param model_name: model class name
+  :return: passed model is a meta model?
+  """
+  model = apps.get_app_config('datenmanagement').get_model(model_name)
+  return issubclass(model, Metamodel)
 
 
 @register.filter

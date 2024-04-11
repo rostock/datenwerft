@@ -2013,6 +2013,22 @@ CREATE TABLE fachdaten.geraetespielanlagen_hro (
 
 
 --
+-- Name: gruenpflegeobjekte_datenwerft; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.gruenpflegeobjekte_datenwerft (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id character(17) NOT NULL,
+    art character varying(255) NOT NULL,
+    gruenpflegebezirk character varying(255) NOT NULL,
+    nummer character varying(7) NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    geometrie public.geometry(MultiPolygon,25833) NOT NULL,
+    gruenpflegeobjekt character varying(255) NOT NULL
+);
+
+
+--
 -- Name: haltestellenkataster_fotos_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2548,6 +2564,26 @@ CREATE TABLE fachdaten.schutzzaeune_tierseuchen_hro (
 --
 
 COMMENT ON COLUMN fachdaten.schutzzaeune_tierseuchen_hro.laenge IS 'Einheit: m';
+
+
+--
+-- Name: spielplaetze_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.spielplaetze_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    gruenpflegeobjekt uuid,
+    staedtisch boolean NOT NULL,
+    bezeichnung character varying(255),
+    beschreibung character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
 
 
 --
@@ -5484,6 +5520,14 @@ ALTER TABLE ONLY fachdaten.geraetespielanlagen_hro
 
 
 --
+-- Name: gruenpflegeobjekte_datenwerft gruenpflegeobjekte_datenwerft_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.gruenpflegeobjekte_datenwerft
+    ADD CONSTRAINT gruenpflegeobjekte_datenwerft_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: haltestellenkataster_fotos_hro haltestellenkataster_fotos_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5697,6 +5741,14 @@ ALTER TABLE ONLY fachdaten.schiffsliegeplaetze_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: spielplaetze_hro spielplaetze_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.spielplaetze_hro
+    ADD CONSTRAINT spielplaetze_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6983,6 +7035,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_schutzzaeune_tierseuchen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: spielplaetze_hro spielplaetze_hro_gruenpflegeobjekte_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.spielplaetze_hro
+    ADD CONSTRAINT spielplaetze_hro_gruenpflegeobjekte_fk FOREIGN KEY (gruenpflegeobjekt) REFERENCES fachdaten.gruenpflegeobjekte_datenwerft(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

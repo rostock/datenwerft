@@ -204,6 +204,68 @@ class Gemeindeteile(Metamodel):
     return self.gemeindeteil
 
 
+class Gruenpflegeobjekte(Metamodel):
+  """
+  Grünpflegeobjekte
+  """
+
+  id = CharField(
+    verbose_name='pit-KOMMUNAL-ID',
+    max_length=17,
+    editable=False
+  )
+  art = CharField(
+    verbose_name='Art',
+    max_length=255,
+    editable=False
+  )
+  gruenpflegebezirk = CharField(
+    verbose_name='Grünpflegebezirk',
+    max_length=255,
+    editable=False
+  )
+  nummer = CharField(
+    verbose_name='Nummer',
+    max_length=7,
+    editable=False
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    editable=False
+  )
+  gruenpflegeobjekt = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    editable=False
+  )
+  geometrie = multipolygon_field
+
+  class Meta(Metamodel.Meta):
+    db_table = 'fachdaten\".\"gruenpflegeobjekte_datenwerft'
+    ordering = ['gruenpflegeobjekt']
+    verbose_name = 'Grünpflegeobjekt'
+    verbose_name_plural = 'Grünpflegeobjekte'
+
+  class BasemodelMeta(Metamodel.BasemodelMeta):
+    description = 'Grünpflegeobjekte in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    associated_models = {
+      'Spielplaetze': 'gruenpflegeobjekt'
+    }
+    geometry_type = 'MultiPolygon'
+    list_fields = {
+      'id': 'pit-KOMMUNAL-ID',
+      'art': 'Art',
+      'gruenpflegebezirk': 'Grünpflegebezirk',
+      'nummer': 'Nummer',
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.gruenpflegeobjekt
+
+
 #
 # codelists
 # (not visible for ordinary users unless given explicit rights)

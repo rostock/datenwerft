@@ -1,6 +1,6 @@
 from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
-  Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, Angelberechtigungen, \
-  Ansprechpartner_Baustellen, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
+  Gruenpflegeobjekte, Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, \
+  Angelberechtigungen, Ansprechpartner_Baustellen, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
   Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Ingenieurbauwerke, \
@@ -284,6 +284,72 @@ class GemeindeteileTest(DefaultMetaModelTestCase):
       200,
       'application/json',
       'Gemeindeteil1'
+    )
+
+
+class GruenpflegeobjekteTest(DefaultMetaModelTestCase):
+  """
+  Grünpflegeobjekte
+  """
+
+  model = Gruenpflegeobjekte
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'id': '00008100:00043016',
+    'art': 'Art',
+    'gruenpflegebezirk': 'Grünpflegebezirk',
+    'nummer': 'Nummer',
+    'bezeichnung': 'Bezeichnung',
+    'gruenpflegeobjekt': 'Grünpflegeobjekt1',
+    'geometrie': VALID_MULTIPOLYGON_DB
+  }
+  attributes_values_db_updated = {
+    'gruenpflegeobjekt': 'Grünpflegeobjekt2'
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_metamodel(self):
+    self.generic_is_metamodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      'Grünpflegebezirk'
     )
 
 
