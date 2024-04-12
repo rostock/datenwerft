@@ -2567,6 +2567,27 @@ COMMENT ON COLUMN fachdaten.schutzzaeune_tierseuchen_hro.laenge IS 'Einheit: m';
 
 
 --
+-- Name: spielplaetze_fotos_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.spielplaetze_fotos_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    spielplatz uuid NOT NULL,
+    dateiname_original character varying(255) NOT NULL,
+    foto character varying(255) NOT NULL,
+    oeffentlich_sichtbar boolean NOT NULL,
+    aufnahmedatum date,
+    bemerkungen character varying(255)
+);
+
+
+--
 -- Name: spielplaetze_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -5744,6 +5765,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 
 --
+-- Name: spielplaetze_fotos_hro spielplaetze_fotos_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.spielplaetze_fotos_hro
+    ADD CONSTRAINT spielplaetze_fotos_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: spielplaetze_hro spielplaetze_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -7035,6 +7064,14 @@ ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
 
 ALTER TABLE ONLY fachdaten.schutzzaeune_tierseuchen_hro
     ADD CONSTRAINT schutzzaeune_tierseuchen_hro_zustaende_fk FOREIGN KEY (zustand) REFERENCES codelisten.zustaende_schutzzaeune_tierseuchen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: spielplaetze_fotos_hro spielplaetze_fotos_hro_spielplaetze_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.spielplaetze_fotos_hro
+    ADD CONSTRAINT spielplaetze_fotos_hro_spielplaetze_fk FOREIGN KEY (spielplatz) REFERENCES fachdaten.spielplaetze_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

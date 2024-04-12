@@ -3033,6 +3033,9 @@ class Spielplaetze(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Spielplätze in der Hanse- und Universitätsstadt Rostock'
+    associated_models = {
+      'Spielplaetze_Fotos': 'spielplatz'
+    }
     fields_with_foreign_key_to_linkify = ['gruenpflegeobjekt']
     geometry_type = 'Point'
     list_fields = {
@@ -3060,6 +3063,99 @@ class Spielplaetze(ComplexModel):
     beschreibung_str = self.beschreibung + ', ' if self.beschreibung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
     return gruenpflegeobjekt_str + bezeichnung_str + beschreibung_str + staedtisch_str
+
+
+class Spielplaetze_Fotos(ComplexModel):
+  """
+  Spielplätze:
+  Fotos
+  """
+
+  spielplatz = ForeignKey(
+    to=Spielplaetze,
+    verbose_name='Spielplatz',
+    on_delete=CASCADE,
+    db_column='spielplatz',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_spielplaetze'
+  )
+  oeffentlich_sichtbar = BooleanField(
+    verbose_name=' öffentlich sichtbar?',
+    default=True
+  )
+  aufnahmedatum = DateField(
+    verbose_name='Aufnahmedatum',
+    default=date.today,
+    blank=True,
+    null=True
+  )
+  bemerkungen = NullTextField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  foto = ImageField(
+    verbose_name='Foto(s)',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'spielplaetze'
+    ),
+    max_length=255
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"spielplaetze_fotos_hro'
+    verbose_name = 'Foto des Spielplatzes'
+    verbose_name_plural = 'Fotos der Spielplätze'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Fotos der Spielplätze in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Foto'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['spielplatz']
+    multi_photos = True
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'spielplatz': 'Spielplatz',
+      'oeffentlich_sichtbar': 'öffentlich sichtbar?',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'bemerkungen': 'Bemerkungen',
+      'dateiname_original': 'Original-Dateiname',
+      'foto': 'Foto'
+    }
+    list_fields_with_date = ['aufnahmedatum']
+    list_actions_assign = [
+      {
+        'action_name': 'spielplaetze_fotos-aufnahmedatum',
+        'action_title': 'ausgewählten Datensätzen Aufnahmedatum direkt zuweisen',
+        'field': 'aufnahmedatum',
+        'type': 'date'
+      }
+    ]
+
+  def __str__(self):
+    if self.oeffentlich_sichtbar:
+      oeffentlich_sichtbar_str = ' (öffentlich sichtbar)'
+    else:
+      oeffentlich_sichtbar_str = ' (nicht öffentlich sichtbar)'
+    if self.aufnahmedatum:
+      aufnahmedatum_str = ''
+    else:
+      aufnahmedatum_str = ' mit Aufnahmedatum ' + datetime.strptime(
+        str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    return str(self.spielplatz) + aufnahmedatum_str + oeffentlich_sichtbar_str
+
+
+post_save.connect(photo_post_processing, sender=Spielplaetze_Fotos)
+
+post_delete.connect(delete_photo, sender=Spielplaetze_Fotos)
 
 
 #
