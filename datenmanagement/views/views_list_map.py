@@ -1,5 +1,6 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.serializers import serialize
@@ -13,6 +14,7 @@ from re import IGNORECASE, match, sub
 from time import time
 from zoneinfo import ZoneInfo
 
+from datenmanagement.models.base import Metamodel
 from datenmanagement.utils import get_data, get_thumb_url, localize_number
 from toolbox.models import SuitableFor
 from toolbox.utils import optimize_datatable_filter
@@ -91,17 +93,20 @@ class TableDataCompositionView(BaseDatatableView):
                   self.fields_with_foreign_key_to_linkify
                   and column in self.fields_with_foreign_key_to_linkify
               ):
-                foreign_model = value._meta.label
-                foreign_model_primary_key = value._meta.pk.name
-                foreign_model_title = self.columns.get(column)
-                data = '<a href="' + reverse(
-                    'datenmanagement:' + foreign_model.replace(
-                        value._meta.app_label + '.',
-                        ''
-                    ) + '_change',
-                    args=[getattr(value, foreign_model_primary_key)]
-                ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
-                  + foreign_model_title + ' ansehen oder bearbeiten">' + str(value) + '</a>'
+                foreign_model = value._meta.label.replace(value._meta.app_label + '.', '')
+                # format foreign keys as links only if foreign model is editable
+                if apps.get_app_config('datenmanagement').get_model(
+                    foreign_model).BasemodelMeta.editable:
+                  foreign_model_primary_key = value._meta.pk.name
+                  foreign_model_title = self.columns.get(column)
+                  data = '<a href="' + reverse(
+                      'datenmanagement:' + foreign_model + '_change',
+                      args=[getattr(value, foreign_model_primary_key)]
+                  ) + '" target="_blank" rel="noopener noreferrer" class="required" title="'\
+                    + foreign_model_title + ' ansehen oder bearbeiten">' + str(value) + '</a>'
+                # otherwise take all foreign key values as they are
+                else:
+                  data = escape(value)
               # take all foreign key values as they are
               else:
                 data = escape(value)

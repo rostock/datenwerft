@@ -3023,6 +3023,12 @@ class Spielplaetze(ComplexModel):
     null=True,
     validators=standard_validators
   )
+  spielplatz = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
   geometrie = point_field
 
   class Meta(ComplexModel.Meta):
@@ -3057,12 +3063,25 @@ class Spielplaetze(ComplexModel):
     }
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
-  def __str__(self):
+  def string_representation(self):
     gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
     bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
     beschreibung_str = self.beschreibung + ', ' if self.beschreibung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
     return gruenpflegeobjekt_str + bezeichnung_str + beschreibung_str + staedtisch_str
+
+  def __str__(self):
+    return self.string_representation()
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    self.spielplatz = self.string_representation()
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
 
 
 class Spielplaetze_Fotos(ComplexModel):
@@ -3129,6 +3148,9 @@ class Spielplaetze_Fotos(ComplexModel):
       'bemerkungen': 'Bemerkungen',
       'dateiname_original': 'Original-Dateiname',
       'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'spielplatz': 'spielplatz'
     }
     list_fields_with_date = ['aufnahmedatum']
     list_actions_assign = [

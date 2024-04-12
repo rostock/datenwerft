@@ -2603,7 +2603,8 @@ CREATE TABLE fachdaten.spielplaetze_hro (
     staedtisch boolean NOT NULL,
     bezeichnung character varying(255),
     beschreibung character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    spielplatz character varying(255)
 );
 
 
