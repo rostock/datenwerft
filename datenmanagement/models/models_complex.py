@@ -3168,10 +3168,10 @@ class Spielplaetze_Fotos(ComplexModel):
     else:
       oeffentlich_sichtbar_str = ' (nicht öffentlich sichtbar)'
     if self.aufnahmedatum:
-      aufnahmedatum_str = ''
-    else:
       aufnahmedatum_str = ' mit Aufnahmedatum ' + datetime.strptime(
         str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    else:
+      aufnahmedatum_str = ''
     return str(self.spielplatz) + aufnahmedatum_str + oeffentlich_sichtbar_str
 
 
