@@ -30,9 +30,10 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
   Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
   Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
-  Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, Genehmigungsbehoerden_UVP_Vorhaben, \
-  Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, Mastkennzeichen_RSAG, \
-  Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
+  Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, \
+  Genehmigungsbehoerden_UVP_Vorhaben, Kabeltypen_Lichtwellenleiterinfrastruktur, \
+  Kategorien_Strassen, Mastkennzeichen_RSAG, Masttypen_RSAG, \
+  Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
   Objektarten_Lichtwellenleiterinfrastruktur, Raeumbreiten_Strassenreinigungssatzung_HRO, \
   Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
@@ -1097,6 +1098,214 @@ class Fallwildsuchen_Nachweise(ComplexModel):
     return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + \
       ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' \
       + str(self.art_kontrolle) + ']'
+
+
+#
+# Freizeitsport
+#
+
+class Freizeitsport(ComplexModel):
+  """
+  Freizeitsport:
+  Freizeitsport
+  """
+
+  gruenpflegeobjekt = ForeignKey(
+    to=Gruenpflegeobjekte,
+    verbose_name='Grünpflegeobjekt',
+    on_delete=SET_NULL,
+    db_column='gruenpflegeobjekt',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_gruenpflegeobjekte',
+    blank=True,
+    null=True
+  )
+  staedtisch = BooleanField(
+    verbose_name=' städtisch?',
+    default=True
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  beschreibung = CharField(
+    verbose_name='Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  sportarten = ChoiceArrayField(
+    CharField(
+      verbose_name='Sportarten',
+      max_length=255,
+      choices=()
+    ),
+    verbose_name='Sportarten'
+  )
+  freizeitsport = CharField(
+    max_length=255,
+    blank=True,
+    null=True,
+    editable=False
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"freizeitsport_hro'
+    ordering = ['staedtisch', 'gruenpflegeobjekt', 'bezeichnung']
+    verbose_name = 'Freizeitsport'
+    verbose_name_plural = 'Freizeitsport'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Freizeitsport in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'sportarten': 'Freizeitsportarten'
+    }
+    associated_models = {
+      'Freizeitsport_Fotos': 'freizeitsport'
+    }
+    fields_with_foreign_key_to_linkify = ['gruenpflegeobjekt']
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'gruenpflegeobjekt': 'Grünpflegeobjekt',
+      'staedtisch': 'städtisch?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'sportarten': 'Sportarten'
+    }
+    list_fields_with_foreign_key = {
+      'gruenpflegeobjekt': 'gruenpflegeobjekt'
+    }
+    map_feature_tooltip_fields = ['gruenpflegeobjekt', 'bezeichnung']
+    map_filter_fields = {
+      'gruenpflegeobjekt': 'Grünpflegeobjekt',
+      'staedtisch': 'städtisch?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'sportarten': 'Sportarten'
+    }
+    map_filter_fields_as_list = ['gruenpflegeobjekt']
+
+  def string_representation(self):
+    gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
+    bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
+    beschreibung_str = self.beschreibung + ', ' if self.beschreibung else ''
+    staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
+    return gruenpflegeobjekt_str + bezeichnung_str + beschreibung_str + staedtisch_str
+
+  def __str__(self):
+    return self.string_representation()
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    # store search content in designated field
+    self.freizeitsport = self.string_representation()
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
+
+class Freizeitsport_Fotos(ComplexModel):
+  """
+  Freizeitsport:
+  Fotos
+  """
+
+  freizeitsport = ForeignKey(
+    to=Freizeitsport,
+    verbose_name='Freizeitsport',
+    on_delete=CASCADE,
+    db_column='freizeitsport',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_freizeitsport'
+  )
+  oeffentlich_sichtbar = BooleanField(
+    verbose_name=' öffentlich sichtbar?',
+    default=True
+  )
+  aufnahmedatum = DateField(
+    verbose_name='Aufnahmedatum',
+    default=date.today,
+    blank=True,
+    null=True
+  )
+  bemerkungen = NullTextField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  foto = ImageField(
+    verbose_name='Foto(s)',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'freizeitsport'
+    ),
+    max_length=255
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"freizeitsport_fotos_hro'
+    verbose_name = 'Foto des Freizeitsports'
+    verbose_name_plural = 'Fotos des Freizeitsports'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Fotos des Freizeitsports in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Foto'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['freizeitsport']
+    multi_photos = True
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'freizeitsport': 'Freizeitsport',
+      'oeffentlich_sichtbar': 'öffentlich sichtbar?',
+      'aufnahmedatum': 'Aufnahmedatum',
+      'bemerkungen': 'Bemerkungen',
+      'dateiname_original': 'Original-Dateiname',
+      'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'freizeitsport': 'freizeitsport'
+    }
+    list_fields_with_date = ['aufnahmedatum']
+    list_actions_assign = [
+      {
+        'action_name': 'freizeitsport_fotos-aufnahmedatum',
+        'action_title': 'ausgewählten Datensätzen Aufnahmedatum direkt zuweisen',
+        'field': 'aufnahmedatum',
+        'type': 'date'
+      }
+    ]
+
+  def __str__(self):
+    if self.oeffentlich_sichtbar:
+      oeffentlich_sichtbar_str = ' (öffentlich sichtbar)'
+    else:
+      oeffentlich_sichtbar_str = ' (nicht öffentlich sichtbar)'
+    if self.aufnahmedatum:
+      aufnahmedatum_str = ' mit Aufnahmedatum ' + datetime.strptime(
+        str(self.aufnahmedatum), '%Y-%m-%d').strftime('%d.%m.%Y')
+    else:
+      aufnahmedatum_str = ''
+    return str(self.freizeitsport) + aufnahmedatum_str + oeffentlich_sichtbar_str
+
+
+post_save.connect(photo_post_processing, sender=Freizeitsport_Fotos)
+
+post_delete.connect(delete_photo, sender=Freizeitsport_Fotos)
 
 
 #

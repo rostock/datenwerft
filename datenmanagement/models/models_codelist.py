@@ -250,9 +250,6 @@ class Gruenpflegeobjekte(Metamodel):
   class BasemodelMeta(Metamodel.BasemodelMeta):
     description = 'Grünpflegeobjekte in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
-    associated_models = {
-      'Spielplaetze': 'gruenpflegeobjekt'
-    }
     geometry_type = 'MultiPolygon'
     list_fields = {
       'id': 'pit-KOMMUNAL-ID',
@@ -484,20 +481,6 @@ class Arten_FairTrade(Art):
     description = 'Arten von Fair-Trade-Einrichtungen'
 
 
-class Arten_Feldsportanlagen(Art):
-  """
-  Arten von Feldsportanlagen
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_feldsportanlagen'
-    verbose_name = 'Art einer Feldsportanlage'
-    verbose_name_plural = 'Arten von Feldsportanlagen'
-
-  class BasemodelMeta(Art.BasemodelMeta):
-    description = 'Arten von Feldsportanlagen'
-
-
 class Arten_Feuerwachen(Art):
   """
   Arten von Feuerwachen
@@ -650,6 +633,20 @@ class Arten_Reisebusparkplaetze_Terminals(Art):
 
   class BasemodelMeta(Art.BasemodelMeta):
     description = 'Arten von Reisebusparkplätzen und -terminals'
+
+
+class Arten_Sportanlagen(Art):
+  """
+  Arten von Sportanlagen
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_sportanlagen'
+    verbose_name = 'Art einer Sportanlage'
+    verbose_name_plural = 'Arten von Sportanlagen'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Sportanlagen'
 
 
 class Arten_Toiletten(Art):
@@ -1162,6 +1159,34 @@ class Fotomotive_Haltestellenkataster(Codelist):
 
   def __str__(self):
     return self.fotomotiv
+
+
+class Freizeitsportarten(Codelist):
+  """
+  Freizeitsportarten
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"freizeitsportarten'
+    ordering = ['bezeichnung']
+    verbose_name = 'Freizeitsportart'
+    verbose_name_plural = 'Freizeitsportarten'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Freizeitsportarten'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Fundamenttypen_RSAG(Codelist):

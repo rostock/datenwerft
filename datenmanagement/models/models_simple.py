@@ -34,11 +34,11 @@ from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
   set_pre_save_instance, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
   Anbieter_Carsharing, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
-  Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Ingenieurbauwerke, \
-  Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
-  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Toiletten, \
-  Ausfuehrungen_Ingenieurbauwerke, Betriebsarten, Betriebszeiten, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
+  Arten_Hundetoiletten, Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, \
+  Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, \
+  Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Sportanlagen, \
+  Arten_Toiletten, Ausfuehrungen_Ingenieurbauwerke, Betriebsarten, Betriebszeiten, \
   Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
   Gebaeudearten_Meldedienst_punkthaft, Gebaeudebauweisen, Gebaeudefunktionen, \
   Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Materialien_Denksteine, \
@@ -1909,92 +1909,6 @@ class FairTrade(SimpleModel):
     return self.bezeichnung + ' [' + \
       ('Adresse: ' + str(self.adresse) + ', ' if self.adresse else '') + \
       'Art: ' + str(self.art) + ']'
-
-
-class Feldsportanlagen(SimpleModel):
-  """
-  Feldsportanlagen
-  """
-
-  art = ForeignKey(
-    to=Arten_Feldsportanlagen,
-    verbose_name='Art',
-    on_delete=RESTRICT,
-    db_column='art',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten'
-  )
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-    validators=standard_validators
-  )
-  traeger = ForeignKey(
-    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
-    verbose_name='Träger',
-    on_delete=RESTRICT,
-    db_column='traeger',
-    to_field='uuid',
-    related_name='%(app_label)s_%(class)s_traeger'
-  )
-  foto = ImageField(
-    verbose_name='Foto',
-    storage=OverwriteStorage(),
-    upload_to=path_and_rename(
-      settings.PHOTO_PATH_PREFIX_PUBLIC + 'feldsportanlagen'
-    ),
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  geometrie = point_field
-
-  class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten\".\"feldsportanlagen_hro'
-    verbose_name = 'Feldsportanlage'
-    verbose_name_plural = 'Feldsportanlagen'
-
-  class BasemodelMeta(SimpleModel.BasemodelMeta):
-    description = 'Feldsportanlagen in der Hanse- und Universitätsstadt Rostock'
-    geometry_type = 'Point'
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'art': 'Art',
-      'bezeichnung': 'Bezeichnung',
-      'traeger': 'Träger',
-      'foto': 'Foto'
-    }
-    list_fields_with_foreign_key = {
-      'art': 'art',
-      'traeger': 'bezeichnung'
-    }
-    list_actions_assign = [
-      {
-        'action_name': 'feldsportanlagen-traeger',
-        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
-        'field': 'traeger',
-        'type': 'foreignkey'
-      }
-    ]
-    map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {
-      'art': 'Art',
-      'bezeichnung': 'Bezeichnung',
-      'traeger': 'Träger'
-    }
-    map_filter_fields_as_list = ['art', 'traeger']
-
-  def __str__(self):
-    return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
-
-
-pre_save.connect(set_pre_save_instance, sender=Feldsportanlagen)
-
-post_save.connect(photo_post_processing, sender=Feldsportanlagen)
-
-post_save.connect(delete_photo_after_emptied, sender=Feldsportanlagen)
-
-post_delete.connect(delete_photo, sender=Feldsportanlagen)
 
 
 class Feuerwachen(SimpleModel):
@@ -5083,6 +4997,92 @@ class Schutzzaeune_Tierseuchen(SimpleModel):
 
   def __str__(self):
     return str(self.tierseuche) + ', ' + str(self.zustand)
+
+
+class Sportanlagen(SimpleModel):
+  """
+  Sportanlagen
+  """
+
+  art = ForeignKey(
+    to=Arten_Sportanlagen,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  traeger = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Träger',
+    on_delete=RESTRICT,
+    db_column='traeger',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_traeger'
+  )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PUBLIC + 'sportanlagen'
+    ),
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"sportanlagen_hro'
+    verbose_name = 'Sportanlage'
+    verbose_name_plural = 'Sportanlagen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Sportanlagen in der Hanse- und Universitätsstadt Rostock'
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger',
+      'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'art': 'art',
+      'traeger': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'sportanlagen-traeger',
+        'action_title': 'ausgewählten Datensätzen Träger direkt zuweisen',
+        'field': 'traeger',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['bezeichnung']
+    map_filter_fields = {
+      'art': 'Art',
+      'bezeichnung': 'Bezeichnung',
+      'traeger': 'Träger'
+    }
+    map_filter_fields_as_list = ['art', 'traeger']
+
+  def __str__(self):
+    return self.bezeichnung + ' [Art: ' + str(self.art) + ']'
+
+
+pre_save.connect(set_pre_save_instance, sender=Sportanlagen)
+
+post_save.connect(photo_post_processing, sender=Sportanlagen)
+
+post_save.connect(delete_photo_after_emptied, sender=Sportanlagen)
+
+post_delete.connect(delete_photo, sender=Sportanlagen)
 
 
 class Sporthallen(SimpleModel):

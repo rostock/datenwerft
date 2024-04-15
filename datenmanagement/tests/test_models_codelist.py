@@ -2,10 +2,10 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Gruenpflegeobjekte, Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, \
   Angelberechtigungen, Ansprechpartner_Baustellen, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Feldsportanlagen, Arten_Feuerwachen, \
-  Arten_Fliessgewaesser, Arten_Hundetoiletten, Arten_Ingenieurbauwerke, \
-  Arten_Meldedienst_flaechenhaft, Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, \
-  Arten_Pflegeeinrichtungen, Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Toiletten, \
+  Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
+  Arten_Hundetoiletten, Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, \
+  Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, \
+  Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Sportanlagen, Arten_Toiletten, \
   Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
   Ausfuehrungen_Haltestellenkataster, Ausfuehrungen_Ingenieurbauwerke, \
   Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
@@ -13,8 +13,8 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
   E_Anschluesse_Parkscheinautomaten, Ergebnisse_UVP_Vorpruefungen, \
   Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Fotomotive_Haltestellenkataster, \
-  Fundamenttypen_RSAG, Gebaeudebauweisen, Gebaeudefunktionen, Genehmigungsbehoerden_UVP_Vorhaben, \
-  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
+  Freizeitsportarten, Fundamenttypen_RSAG, Gebaeudebauweisen, Gebaeudefunktionen, \
+  Genehmigungsbehoerden_UVP_Vorhaben, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
   Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, \
   Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, Mastkennzeichen_RSAG, Masttypen_RSAG, \
   Masttypen_Haltestellenkataster, Materialien_Denksteine, Materialien_Durchlaesse, \
@@ -1515,12 +1515,12 @@ class ArtenFairTradeTest(DefaultCodelistTestCase):
     )
 
 
-class ArtenFeldsportanlagenTest(DefaultCodelistTestCase):
+class ArtenSportanlagenTest(DefaultCodelistTestCase):
   """
-  Arten von Feldsportanlagen
+  Arten von Sportanlagen
   """
 
-  model = Arten_Feldsportanlagen
+  model = Arten_Sportanlagen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
@@ -5118,6 +5118,133 @@ class FotomotiveHaltestellenkatasterTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'fotomotiv': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class FreizeitsportartenTest(DefaultCodelistTestCase):
+  """
+  Freizeitsportarten
+  """
+
+  model = Freizeitsportarten
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):
