@@ -103,7 +103,7 @@ class StatusViewsTest(DefaultViewTestCase):
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_status_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'bearbeiten'
+      'application/json', 'ansehen oder bearbeiten'
     )
 
   def test_table_view_no_rights(self):
@@ -265,7 +265,7 @@ class SectorViewsTest(DefaultViewTestCase):
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_sector_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'bearbeiten'
+      'application/json', 'ansehen oder bearbeiten'
     )
 
   def test_table_view_no_rights(self):
@@ -432,7 +432,7 @@ class TypeOfEventViewsTest(DefaultViewTestCase):
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_typeofevent_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'bearbeiten'
+      'application/json', 'ansehen oder bearbeiten'
     )
 
   def test_table_view_no_rights(self):
@@ -599,7 +599,7 @@ class TypeOfImmissionViewsTest(DefaultViewTestCase):
   def test_tabledata_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_typeofimmission_tabledata', TABLEDATA_VIEW_PARAMS, 200,
-      'application/json', 'bearbeiten'
+      'application/json', 'ansehen oder bearbeiten'
     )
 
   def test_table_view_no_rights(self):

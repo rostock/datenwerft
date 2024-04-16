@@ -356,7 +356,18 @@ class Contact(Objectclass):
            (' mit der Funktion ' + self.function if self.function else '')
 
   def name_and_function(self):
-    return str(self.person) + (' (Funktion: ' + self.function + ')' if self.function else '')
+    function_str = ' (Funktion: ' + self.function + ')' if self.function else ''
+    if self.person.telephone_numbers or self.person.email_addresses:
+      contact_data_str = ' – Kontakt: '
+      if self.person.telephone_numbers and type(self.person.telephone_numbers) is list:
+        contact_data_str += ', '.join(self.person.telephone_numbers)
+        if self.person.email_addresses and type(self.person.email_addresses) is list:
+          contact_data_str += ', '
+      if self.person.email_addresses and type(self.person.email_addresses) is list:
+        contact_data_str += ', '.join(self.person.email_addresses)
+    else:
+      contact_data_str = ''
+    return str(self.person) + function_str + contact_data_str
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # (1/2) store search content in designated field of object class organization:

@@ -465,7 +465,7 @@ def generate_foreign_key_link_simplified(target_model, target_object, link_text=
   icon = '<i class="fas fa-' + get_icon_from_settings(target_model_name) + '"></i>'
   return '<a href="' + \
     reverse('bemas:' + target_model_name + '_update', args=[target_object.pk]) + \
-    '" title="' + target_model._meta.verbose_name + ' bearbeiten">' + \
+    '" title="' + target_model._meta.verbose_name + ' ansehen oder bearbeiten">' + \
     icon + ' ' + link_text + '</a>'
 
 
@@ -679,7 +679,7 @@ def transform_activity_objects(activity_objects):
       'action': action,
       'created_at': created_at,
       'link': link,
-      'tooltip': model_title + ' bearbeiten' if link else ''
+      'tooltip': model_title + ' ansehen oder bearbeiten' if link else ''
     }
     activity_objects_list.append(activity_object_dict)
   return activity_objects_list

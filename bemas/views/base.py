@@ -84,7 +84,7 @@ class GenericTableDataView(BaseDatatableView):
               text = str(value)
               if model.objects.filter(pk=value).exists():
                 text = '<a href="' + reverse('bemas:' + model_name + '_update', args=[value]) + \
-                       '" title="Objekt bearbeiten">' + text + '</a>'
+                       '" title="Objekt ansehen oder bearbeiten">' + text + '</a>'
               item_data.append(text)
             # log entry specific column "action"
             elif issubclass(self.model, LogEntry) and column.name == 'action':
@@ -215,7 +215,7 @@ class GenericTableDataView(BaseDatatableView):
             '<a href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('update') +
-            '" title="' + title + ' bearbeiten"></i></a>' +
+            '" title="' + title + ' ansehen oder bearbeiten"></i></a>' +
             '<a class="ms-2" href="' +
             reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +
             '"><i class="fas fa-' + get_icon_from_settings('delete') +

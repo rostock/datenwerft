@@ -14,7 +14,7 @@
         <ul class="object_list">
           {% for orphaned_organization in orphaned_organizations %}
             <li>
-              <a href="{{ orphaned_organization.link }}" title="Organisation bearbeiten">{{ orphaned_organization.text }}</a>
+              <a href="{{ orphaned_organization.link }}" title="Organisation ansehen oder bearbeiten">{{ orphaned_organization.text }}</a>
             </li>
           {% endfor %}
         </ul>
@@ -31,7 +31,7 @@
         <ul class="object_list">
           {% for orphaned_person in orphaned_persons %}
             <li>
-              <a href="{{ orphaned_person.link }}" title="Person bearbeiten">{{ orphaned_person.text }}</a>
+              <a href="{{ orphaned_person.link }}" title="Person ansehen oder bearbeiten">{{ orphaned_person.text }}</a>
             </li>
           {% endfor %}
         </ul>
@@ -48,7 +48,7 @@
         <ul class="object_list">
           {% for orphaned_originator in orphaned_originators %}
             <li>
-              <a href="{{ orphaned_originator.link }}" title="Person bearbeiten">{{ orphaned_originator.text }}</a>
+              <a href="{{ orphaned_originator.link }}" title="Person ansehen oder bearbeiten">{{ orphaned_originator.text }}</a>
             </li>
           {% endfor %}
         </ul>
