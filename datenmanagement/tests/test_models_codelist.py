@@ -9,13 +9,14 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
   Ausfuehrungen_Haltestellenkataster, Ausfuehrungen_Ingenieurbauwerke, \
   Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
-  Befestigungsarten_Warteflaeche_Haltestellenkataster, Betriebsarten, Betriebszeiten, \
+  Befestigungsarten_Warteflaeche_Haltestellenkataster, Besonderheiten_Freizeitsport, \
+  Besonderheiten_Spielplaetze, Betriebsarten, Betriebszeiten, \
   Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
-  E_Anschluesse_Parkscheinautomaten, Ergebnisse_UVP_Vorpruefungen, \
-  Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, Fotomotive_Haltestellenkataster, \
-  Freizeitsportarten, Fundamenttypen_RSAG, Gebaeudebauweisen, Gebaeudefunktionen, \
-  Genehmigungsbehoerden_UVP_Vorhaben, Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, \
-  Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, \
+  Bodenarten_Freizeitsport, Bodenarten_Spielplaetze, E_Anschluesse_Parkscheinautomaten, \
+  Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
+  Fotomotive_Haltestellenkataster, Freizeitsportarten, Fundamenttypen_RSAG, Gebaeudebauweisen, \
+  Gebaeudefunktionen, Genehmigungsbehoerden_UVP_Vorhaben, Geschlechter_Kadaverfunde, Haefen, \
+  Hersteller_Poller, Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, \
   Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, Mastkennzeichen_RSAG, Masttypen_RSAG, \
   Masttypen_Haltestellenkataster, Materialien_Denksteine, Materialien_Durchlaesse, \
   Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, Personentitel, \
@@ -23,7 +24,7 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
   Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, Schliessungen_Poller, \
-  Sitzbanktypen_Haltestellenkataster, Sparten_Baustellen, Sportarten, \
+  Sitzbanktypen_Haltestellenkataster, Sparten_Baustellen, Spielgeraete, Sportarten, \
   Status_Baudenkmale_Denkmalbereiche, Status_Baustellen_geplant, Status_Poller, \
   Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, Typen_Abfallbehaelter, \
   DFI_Typen_Haltestellenkataster, Typen_Erdwaermesonden, \
@@ -4055,6 +4056,260 @@ class BefestigungsartenWarteflaecheHaltestellenkatasterTest(DefaultCodelistTestC
     )
 
 
+class BesonderheitenFreizeitsportTest(DefaultCodelistTestCase):
+  """
+  Besonderheiten in Bezug auf Freizeitsport
+  """
+
+  model = Besonderheiten_Freizeitsport
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'besonderheit': 'Besonderheit1'
+  }
+  attributes_values_db_updated = {
+    'besonderheit': 'Besonderheit2'
+  }
+  attributes_values_view_initial = {
+    'besonderheit': 'Besonderheit3'
+  }
+  attributes_values_view_updated = {
+    'besonderheit': 'Besonderheit4'
+  }
+  attributes_values_view_invalid = {
+    'besonderheit': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class BesonderheitenSpielplaetzeTest(DefaultCodelistTestCase):
+  """
+  Besonderheiten in Bezug auf Spielplätze
+  """
+
+  model = Besonderheiten_Spielplaetze
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'besonderheit': 'Besonderheit1'
+  }
+  attributes_values_db_updated = {
+    'besonderheit': 'Besonderheit2'
+  }
+  attributes_values_view_initial = {
+    'besonderheit': 'Besonderheit3'
+  }
+  attributes_values_view_updated = {
+    'besonderheit': 'Besonderheit4'
+  }
+  attributes_values_view_invalid = {
+    'besonderheit': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
 class BetriebsartenTest(DefaultCodelistTestCase):
   """
   Betriebsarten
@@ -4483,6 +4738,260 @@ class BewirtschafterBetreiberTraegerEigentuemerTest(DefaultCodelistTestCase):
   attributes_values_view_invalid = {
     'bezeichnung': INVALID_STRING,
     'art': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class BodenartenFreizeitsportTest(DefaultCodelistTestCase):
+  """
+  Bodenarten in Bezug auf Freizeitsport
+  """
+
+  model = Bodenarten_Freizeitsport
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bodenart': 'Bodenart1'
+  }
+  attributes_values_db_updated = {
+    'bodenart': 'Bodenart2'
+  }
+  attributes_values_view_initial = {
+    'bodenart': 'Bodenart3'
+  }
+  attributes_values_view_updated = {
+    'bodenart': 'Bodenart4'
+  }
+  attributes_values_view_invalid = {
+    'bodenart': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class BodenartenSpielplaetzeTest(DefaultCodelistTestCase):
+  """
+  Bodenarten in Bezug auf Spielplätze
+  """
+
+  model = Bodenarten_Spielplaetze
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bodenart': 'Bodenart1'
+  }
+  attributes_values_db_updated = {
+    'bodenart': 'Bodenart2'
+  }
+  attributes_values_view_initial = {
+    'bodenart': 'Bodenart3'
+  }
+  attributes_values_view_updated = {
+    'bodenart': 'Bodenart4'
+  }
+  attributes_values_view_invalid = {
+    'bodenart': INVALID_STRING
   }
 
   def setUp(self):
@@ -9114,6 +9623,133 @@ class SpartenBaustellenTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'sparte': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class SpielgeraeteTest(DefaultCodelistTestCase):
+  """
+  Spielgeräte
+  """
+
+  model = Spielgeraete
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):

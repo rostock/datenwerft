@@ -703,6 +703,30 @@ CREATE TABLE codelisten.befestigungsarten_warteflaeche_haltestellenkataster (
 
 
 --
+-- Name: besonderheiten_freizeitsport; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.besonderheiten_freizeitsport (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    besonderheit character varying(255) NOT NULL
+);
+
+
+--
+-- Name: besonderheiten_spielplaetze; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.besonderheiten_spielplaetze (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    besonderheit character varying(255) NOT NULL
+);
+
+
+--
 -- Name: betriebsarten; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -761,6 +785,30 @@ CREATE TABLE codelisten.bewirtschafter_betreiber_traeger_eigentuemer (
     erstellt date DEFAULT (now())::date NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: bodenarten_freizeitsport; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.bodenarten_freizeitsport (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bodenart character varying(255) NOT NULL
+);
+
+
+--
+-- Name: bodenarten_spielplaetze; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.bodenarten_spielplaetze (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bodenart character varying(255) NOT NULL
 );
 
 
@@ -1242,6 +1290,18 @@ CREATE TABLE codelisten.sparten_baustellen (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     sparte character varying(255) NOT NULL
+);
+
+
+--
+-- Name: spielgeraete; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.spielgeraete (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2006,7 +2066,9 @@ CREATE TABLE fachdaten.freizeitsport_hro (
     beschreibung character varying(255),
     sportarten character varying(255)[] NOT NULL,
     geometrie public.geometry(Point,25833) NOT NULL,
-    freizeitsport character varying(255)
+    freizeitsport character varying(255),
+    bodenarten character varying(255)[],
+    besonderheiten character varying(255)[]
 );
 
 
@@ -2639,7 +2701,10 @@ CREATE TABLE fachdaten.spielplaetze_hro (
     bezeichnung character varying(255),
     beschreibung character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
-    spielplatz character varying(255)
+    spielplatz character varying(255),
+    spielgeraete character varying(255)[],
+    bodenarten character varying(255)[],
+    besonderheiten character varying(255)[]
 );
 
 
@@ -4309,6 +4374,38 @@ ALTER TABLE ONLY codelisten.befestigungsarten_warteflaeche_haltestellenkataster
 
 
 --
+-- Name: besonderheiten_freizeitsport besonderheiten_freizeitsport_besonderheit_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.besonderheiten_freizeitsport
+    ADD CONSTRAINT besonderheiten_freizeitsport_besonderheit_unique UNIQUE (besonderheit);
+
+
+--
+-- Name: besonderheiten_freizeitsport besonderheiten_freizeitsport_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.besonderheiten_freizeitsport
+    ADD CONSTRAINT besonderheiten_freizeitsport_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: besonderheiten_spielplaetze besonderheiten_spielplaetze_besonderheit_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.besonderheiten_spielplaetze
+    ADD CONSTRAINT besonderheiten_spielplaetze_besonderheit_unique UNIQUE (besonderheit);
+
+
+--
+-- Name: besonderheiten_spielplaetze besonderheiten_spielplaetze_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.besonderheiten_spielplaetze
+    ADD CONSTRAINT besonderheiten_spielplaetze_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: betriebsarten betriebsarten_betriebsart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4370,6 +4467,38 @@ ALTER TABLE ONLY codelisten.bewirtschafter_betreiber_traeger_eigentuemer
 
 ALTER TABLE ONLY codelisten.bewirtschafter_betreiber_traeger_eigentuemer
     ADD CONSTRAINT bewirtschafter_betreiber_traeger_eigentuemer_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bodenarten_freizeitsport bodenarten_freizeitsport_bodenart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.bodenarten_freizeitsport
+    ADD CONSTRAINT bodenarten_freizeitsport_bodenart_unique UNIQUE (bodenart);
+
+
+--
+-- Name: bodenarten_freizeitsport bodenarten_freizeitsport_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.bodenarten_freizeitsport
+    ADD CONSTRAINT bodenarten_freizeitsport_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bodenarten_spielplaetze bodenarten_spielplaetze_bodenart_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.bodenarten_spielplaetze
+    ADD CONSTRAINT bodenarten_spielplaetze_bodenart_unique UNIQUE (bodenart);
+
+
+--
+-- Name: bodenarten_spielplaetze bodenarten_spielplaetze_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.bodenarten_spielplaetze
+    ADD CONSTRAINT bodenarten_spielplaetze_pk PRIMARY KEY (uuid);
 
 
 --
@@ -4994,6 +5123,22 @@ ALTER TABLE ONLY codelisten.sparten_baustellen
 
 ALTER TABLE ONLY codelisten.sparten_baustellen
     ADD CONSTRAINT sparten_baustellen_sparte_unique UNIQUE (sparte);
+
+
+--
+-- Name: spielgeraete spielgeraete_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.spielgeraete
+    ADD CONSTRAINT spielgeraete_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: spielgeraete spielgeraete_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.spielgeraete
+    ADD CONSTRAINT spielgeraete_unique UNIQUE (bezeichnung);
 
 
 --

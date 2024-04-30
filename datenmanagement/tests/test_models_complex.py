@@ -5,7 +5,8 @@ from datenmanagement.models import Adressen, Adressunsicherheiten, Adressunsiche
   Arten_Adressunsicherheiten, Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, \
   Arten_Wege, Auftraggeber_Baustellen, Baustellen_Fotodokumentation_Baustellen, \
   Baustellen_Fotodokumentation_Fotos, Baustellen_geplant, Baustellen_geplant_Dokumente, \
-  Baustellen_geplant_Links, Durchlaesse_Durchlaesse, Durchlaesse_Fotos, \
+  Baustellen_geplant_Links, Besonderheiten_Freizeitsport, Besonderheiten_Spielplaetze, \
+  Bodenarten_Freizeitsport, Bodenarten_Spielplaetze, Durchlaesse_Durchlaesse, Durchlaesse_Fotos, \
   E_Anschluesse_Parkscheinautomaten, Ergebnisse_UVP_Vorpruefungen, \
   Fallwildsuchen_Kontrollgebiete, Fallwildsuchen_Nachweise, Fotomotive_Haltestellenkataster, \
   Freizeitsport, Freizeitsportarten, Freizeitsport_Fotos, Geh_Radwegereinigung, \
@@ -16,7 +17,7 @@ from datenmanagement.models import Adressen, Adressunsicherheiten, Adressunsiche
   Objektarten_Lichtwellenleiterinfrastruktur, Parkscheinautomaten_Tarife, \
   Parkscheinautomaten_Parkscheinautomaten, Rechtsgrundlagen_UVP_Vorhaben, RSAG_Gleise, \
   RSAG_Leitungen, RSAG_Masten, RSAG_Quertraeger, RSAG_Spanndraehte, Sparten_Baustellen, \
-  Spielplaetze, Spielplaetze_Fotos, Status_Baustellen_Fotodokumentation_Fotos, \
+  Spielgeraete, Spielplaetze, Spielplaetze_Fotos, Status_Baustellen_Fotodokumentation_Fotos, \
   Status_Baustellen_geplant, Strassenreinigung, Strassenreinigung_Flaechen, Strassen_Simple, \
   Strassen_Simple_Historie, Strassen_Simple_Namensanalyse, Tierseuchen, Typen_UVP_Vorhaben, \
   UVP_Vorhaben, UVP_Vorpruefungen, Verkehrliche_Lagen_Baustellen, Verkehrsmittelklassen, \
@@ -2659,15 +2660,29 @@ class FreizeitsportTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
+    bodenart1 = Bodenarten_Freizeitsport.objects.create(
+      bodenart='Bodenart1'
+    )
+    bodenart2 = Bodenarten_Freizeitsport.objects.create(
+      bodenart='Bodenart2'
+    )
     sportart1 = Freizeitsportarten.objects.create(
       bezeichnung='Sportart1'
     )
     sportart2 = Freizeitsportarten.objects.create(
       bezeichnung='Sportart2'
     )
+    besonderheit1 = Besonderheiten_Freizeitsport.objects.create(
+      besonderheit='Besonderheit1'
+    )
+    besonderheit2 = Besonderheiten_Freizeitsport.objects.create(
+      besonderheit='Besonderheit2'
+    )
     cls.attributes_values_db_initial = {
       'staedtisch': True,
+      'bodenarten': [bodenart1, bodenart2],
       'sportarten': [sportart1, sportart2],
+      'besonderheiten': [besonderheit1, besonderheit2],
       'geometrie': VALID_POINT_DB
     }
     cls.attributes_values_db_updated = {
@@ -2676,13 +2691,17 @@ class FreizeitsportTest(DefaultComplexModelTestCase):
     cls.attributes_values_view_initial = {
       'aktiv': True,
       'staedtisch': True,
+      'bodenarten': [bodenart1, bodenart2],
       'sportarten': [sportart1, sportart2],
+      'besonderheiten': [besonderheit1, besonderheit2],
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
       'staedtisch': False,
+      'bodenarten': [bodenart1, bodenart2],
       'sportarten': [sportart1, sportart2],
+      'besonderheiten': [besonderheit1, besonderheit2],
       'geometrie': VALID_POINT_VIEW
     }
     cls.attributes_values_view_invalid = {
@@ -6171,26 +6190,61 @@ class SpielplaetzeTest(DefaultComplexModelTestCase):
   """
 
   model = Spielplaetze
-  attributes_values_db_initial = {
-    'staedtisch': True,
-    'geometrie': VALID_POINT_DB
-  }
-  attributes_values_db_updated = {
-    'staedtisch': False
-  }
-  attributes_values_view_initial = {
-    'aktiv': True,
-    'staedtisch': True,
-    'geometrie': VALID_POINT_VIEW
-  }
-  attributes_values_view_updated = {
-    'aktiv': True,
-    'staedtisch': False,
-    'geometrie': VALID_POINT_VIEW
-  }
-  attributes_values_view_invalid = {
-    'bezeichnung': INVALID_STRING
-  }
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    bodenart1 = Bodenarten_Spielplaetze.objects.create(
+      bodenart='Bodenart1'
+    )
+    bodenart2 = Bodenarten_Spielplaetze.objects.create(
+      bodenart='Bodenart2'
+    )
+    spielgeraet1 = Spielgeraete.objects.create(
+      bezeichnung='Spielgeraet1'
+    )
+    spielgeraet2 = Spielgeraete.objects.create(
+      bezeichnung='Spielgeraet2'
+    )
+    besonderheit1 = Besonderheiten_Spielplaetze.objects.create(
+      besonderheit='Besonderheit1'
+    )
+    besonderheit2 = Besonderheiten_Spielplaetze.objects.create(
+      besonderheit='Besonderheit2'
+    )
+    cls.attributes_values_db_initial = {
+      'staedtisch': True,
+      'bodenarten': [bodenart1, bodenart2],
+      'spielgeraete': [spielgeraet1, spielgeraet2],
+      'besonderheiten': [besonderheit1, besonderheit2],
+      'geometrie': VALID_POINT_DB
+    }
+    cls.attributes_values_db_updated = {
+      'staedtisch': False
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'staedtisch': True,
+      'bodenarten': [bodenart1, bodenart2],
+      'spielgeraete': [spielgeraet1, spielgeraet2],
+      'besonderheiten': [besonderheit1, besonderheit2],
+      'geometrie': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'staedtisch': False,
+      'bodenarten': [bodenart1, bodenart2],
+      'spielgeraete': [spielgeraet1, spielgeraet2],
+      'besonderheiten': [besonderheit1, besonderheit2],
+      'geometrie': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'bezeichnung': INVALID_STRING
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
   def setUp(self):
     self.init()

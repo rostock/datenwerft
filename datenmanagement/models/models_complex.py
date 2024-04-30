@@ -1131,12 +1131,13 @@ class Freizeitsport(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  beschreibung = CharField(
-    verbose_name='Beschreibung',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+  bodenarten = ChoiceArrayField(
+    CharField(
+      verbose_name='Bodenarten',
+      max_length=255,
+      choices=()
+    ),
+    verbose_name='Bodenarten'
   )
   sportarten = ChoiceArrayField(
     CharField(
@@ -1145,6 +1146,14 @@ class Freizeitsport(ComplexModel):
       choices=()
     ),
     verbose_name='Sportarten'
+  )
+  besonderheiten = ChoiceArrayField(
+    CharField(
+      verbose_name='Besonderheiten',
+      max_length=255,
+      choices=()
+    ),
+    verbose_name='Besonderheiten'
   )
   freizeitsport = CharField(
     max_length=255,
@@ -1163,7 +1172,9 @@ class Freizeitsport(ComplexModel):
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Freizeitsport in der Hanse- und Universitätsstadt Rostock'
     choices_models_for_choices_fields = {
-      'sportarten': 'Freizeitsportarten'
+      'bodenarten': 'Bodenarten_Freizeitsport',
+      'sportarten': 'Freizeitsportarten',
+      'besonderheiten': 'Besonderheiten_Freizeitsport'
     }
     associated_models = {
       'Freizeitsport_Fotos': 'freizeitsport'
@@ -1175,8 +1186,9 @@ class Freizeitsport(ComplexModel):
       'gruenpflegeobjekt': 'Grünpflegeobjekt',
       'staedtisch': 'städtisch?',
       'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'sportarten': 'Sportarten'
+      'bodenarten': 'Bodenarten',
+      'sportarten': 'Sportarten',
+      'besonderheiten': 'Besonderheiten'
     }
     list_fields_with_foreign_key = {
       'gruenpflegeobjekt': 'gruenpflegeobjekt'
@@ -1186,17 +1198,17 @@ class Freizeitsport(ComplexModel):
       'gruenpflegeobjekt': 'Grünpflegeobjekt',
       'staedtisch': 'städtisch?',
       'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'sportarten': 'Sportarten'
+      'bodenarten': 'Bodenarten',
+      'sportarten': 'Sportarten',
+      'besonderheiten': 'Besonderheiten'
     }
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
   def string_representation(self):
     gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
     bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
-    beschreibung_str = self.beschreibung + ', ' if self.beschreibung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
-    return gruenpflegeobjekt_str + bezeichnung_str + beschreibung_str + staedtisch_str
+    return gruenpflegeobjekt_str + bezeichnung_str + staedtisch_str
 
   def __str__(self):
     return self.string_representation()
@@ -3225,12 +3237,29 @@ class Spielplaetze(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  beschreibung = CharField(
-    verbose_name='Beschreibung',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=standard_validators
+  bodenarten = ChoiceArrayField(
+    CharField(
+      verbose_name='Bodenarten',
+      max_length=255,
+      choices=()
+    ),
+    verbose_name='Bodenarten'
+  )
+  spielgeraete = ChoiceArrayField(
+    CharField(
+      verbose_name='Spielgeräte',
+      max_length=255,
+      choices=()
+    ),
+    verbose_name='Spielgeräte'
+  )
+  besonderheiten = ChoiceArrayField(
+    CharField(
+      verbose_name='Besonderheiten',
+      max_length=255,
+      choices=()
+    ),
+    verbose_name='Besonderheiten'
   )
   spielplatz = CharField(
     max_length=255,
@@ -3248,6 +3277,11 @@ class Spielplaetze(ComplexModel):
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Spielplätze in der Hanse- und Universitätsstadt Rostock'
+    choices_models_for_choices_fields = {
+      'bodenarten': 'Bodenarten_Spielplaetze',
+      'spielgeraete': 'Spielgeraete',
+      'besonderheiten': 'Besonderheiten_Spielplaetze'
+    }
     associated_models = {
       'Spielplaetze_Fotos': 'spielplatz'
     }
@@ -3258,7 +3292,9 @@ class Spielplaetze(ComplexModel):
       'gruenpflegeobjekt': 'Grünpflegeobjekt',
       'staedtisch': 'städtisch?',
       'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung'
+      'bodenarten': 'Bodenarten',
+      'spielgeraete': 'Spielgeräte',
+      'besonderheiten': 'Besonderheiten'
     }
     list_fields_with_foreign_key = {
       'gruenpflegeobjekt': 'gruenpflegeobjekt'
@@ -3268,16 +3304,17 @@ class Spielplaetze(ComplexModel):
       'gruenpflegeobjekt': 'Grünpflegeobjekt',
       'staedtisch': 'städtisch?',
       'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung'
+      'bodenarten': 'Bodenarten',
+      'spielgeraete': 'Spielgeräte',
+      'besonderheiten': 'Besonderheiten'
     }
     map_filter_fields_as_list = ['gruenpflegeobjekt']
 
   def string_representation(self):
     gruenpflegeobjekt_str = str(self.gruenpflegeobjekt) + ', ' if self.gruenpflegeobjekt else ''
     bezeichnung_str = self.bezeichnung + ', ' if self.bezeichnung else ''
-    beschreibung_str = self.beschreibung + ', ' if self.beschreibung else ''
     staedtisch_str = 'städtisch' if self.staedtisch else 'nicht städtisch'
-    return gruenpflegeobjekt_str + bezeichnung_str + beschreibung_str + staedtisch_str
+    return gruenpflegeobjekt_str + bezeichnung_str + staedtisch_str
 
   def __str__(self):
     return self.string_representation()
