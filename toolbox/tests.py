@@ -128,9 +128,9 @@ class OWSProxyTestCase(TestCase):
   abstract test class for proxy for OWS
   """
 
-  OWS_URL_PATH_VALID = '/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/' \
-                       'GLOBAL_WEBMERCATOR/18/139921/84058.png'
-  OWS_URL_PATH_INVALID = '/worschdsupp/wms'
+  OWS_URL_PATH_VALID = 'https://geo.sv.rostock.de/geodienste/luftbild_mv-20/tiles/1.0.0/' \
+                       'hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/18/139921/84058.png'
+  OWS_URL_PATH_INVALID = 'https://geo.sv.rostock.de/geodienste/worschdsupp/wms'
 
   def init(self):
     self.test_user = User.objects.create_user(
