@@ -196,7 +196,7 @@
               {% endfor %}
             </div>
           {% endif %}
-          <div id="filter-buttons" class="d-grid mt-4 gap-2 d-md-block">
+          <div id="filter-buttons" class="d-grid mt-4 gap-2">
             <button id="filter-apply" class="btn btn-success"><i class="fas fa-filter"></i> Filter anwenden</button>
             <button id="filter-reset" class="btn btn-warning"><i class="fas fa-filter-circle-xmark"></i> Filter zurücksetzen</button>
           </div>
@@ -204,7 +204,7 @@
       {% endif %}
       <div {% if map_filters_enabled %}id="map-control"{% endif %}{% if not is_mobile %} class="side"{% endif %}>
         <h5>Kartenausschnitt</h5>
-        <div class="d-grid mt-2 gap-2 d-md-block">
+        <div class="d-grid mt-2 gap-2">
           <button id="map-extent-filter" class="btn btn-success"><i class="fas fa-map-location"></i> {% if map_filters_enabled %}aktuelle Filtermenge{% else %}alle Objekte{% endif %}</button>
           <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-map"></i> gesamt</button>
         </div>

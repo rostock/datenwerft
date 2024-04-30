@@ -174,6 +174,20 @@
           </tr>
         {% endif %}
       </table>
+      {% if not forms_in_mobile_mode and not is_mobile %}
+        <div class="d-grid mt-5 mb-3 gap-2">
+          {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+            <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
+          {% endif %}
+          {% if url_model_add %}
+            <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
+          {% endif %}
+          {% if url_model_delete_object %}
+            <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
+          {% endif %}
+          <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+        </div>
+      {% endif %}
     </div>
     {% if model_geometry_type %}
       <div id="map-addresssearch-container-form">
@@ -186,17 +200,17 @@
         {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" settings_overrides=leaflet_config_overrides %}
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
           {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
-            <div class="d-grid mt-3 gap-2 d-md-block">
+            <div class="d-grid mt-3 gap-2">
               {% if model_geometry_type == 'Point' %}
-                <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker setzen</button>
+                <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-location-dot"></i> Marker auf aktuelle Adresse setzen</button>
               {% endif %}
               {% if not address_mandatory %}
                 {% if address_type == 'Adresse' %}
-                  <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-house"></i> Adresse übernehmen</button>
+                  <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-house"></i> Adresse aus Karte übernehmen</button>
                 {% elif address_type == 'Straße' %}
-                  <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fas fa-road"></i> Straße übernehmen</button>
+                  <button disabled id="mapToStreet" class="btn btn-primary" type="button"><i class="fas fa-road"></i> Straße aus Karte übernehmen</button>
                 {% elif address_type == 'Gemeindeteil' %}
-                  <button disabled id="mapToDistrict" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil übernehmen</button>
+                  <button disabled id="mapToDistrict" class="btn btn-primary" type="button"><i class="fas fa-circle-dot"></i> Gemeindeteil aus Karte übernehmen</button>
                 {% endif %}
               {% endif %}
             </div>
@@ -218,20 +232,20 @@
         </div>
       </div>
     {% endif %}
-    <div id="buttons">
-      <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
+    {% if forms_in_mobile_mode or is_mobile %}
+      <div class="d-grid mt-5 mb-3 gap-2">
         {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if not forms_in_mobile_mode and not is_mobile %}{% if object %}Änderungen{% else %}neuen Datensatz{% endif %} {% endif %}speichern</button>
+          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
         {% endif %}
         {% if url_model_add %}
-          <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> {% if not forms_in_mobile_mode and not is_mobile %}als neuen Datensatz {% endif %}klonen</button>
+          <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> klonen</button>
         {% endif %}
         {% if url_model_delete_object %}
-          <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> {% if not forms_in_mobile_mode and not is_mobile %}Datensatz {% endif %}löschen</a>
+          <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> löschen</a>
         {% endif %}
         <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
       </div>
-    </div>
+    {% endif %}
     {% include "modal-error.html" %}
     {% if geojson_input or gpx_input %}
       {% include "modal-loading.html" %}
@@ -545,12 +559,6 @@
     $(document).ready(function () {
       keepDjangoRequiredMessages();
 
-      // define available variable for the necessity of dynamically setting vertical positions of buttons
-      let buttonsPosition = false;
-      {% if not forms_in_mobile_mode and not is_mobile and model_geometry_type %}
-        buttonsPosition = true
-      {% endif %}
-
       // define variable for array fields and their values
       // (i.e. for those array fields containing more than one value)
       let arrayFieldsValues = [];
@@ -656,7 +664,7 @@
             newField.attr('value', valuesParsed[i]);
             newField.val(valuesParsed[i]);
             // insert new field in the correct place and provide a button to delete the field
-            addField(newField, currentField, buttonsPosition);
+            addField(newField, currentField);
             currentField = newField;
           }
         }
@@ -677,7 +685,7 @@
             newField.removeAttr('value');
             newField.val('');
             // insert new field in the correct place and provide a button to delete the field
-            addField(newField, currentField, buttonsPosition);
+            addField(newField, currentField);
           });
         }
       });
@@ -760,10 +768,6 @@
         setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
         $('#addressToMap').prop('disabled', false);
       });
-
-      // dynamically set vertical positions of buttons
-      if (buttonsPosition)
-        setButtonsPosition();
 
       // customize labels for mandatory Boolean fields
       $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');

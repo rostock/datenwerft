@@ -9,7 +9,8 @@
   display: none;
 }
 
-#filter-one-click {
+#filter-one-click,
+#filter-one-click-buttons {
   width: 100%;
 }
 

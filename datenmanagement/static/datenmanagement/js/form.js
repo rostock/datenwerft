@@ -29,11 +29,10 @@ function addDeleteFieldButton(field) {
  *
  * @param {Object} field - single field
  * @param {Object} fieldToInsertAfter - field after which the passed single field (i.e. its wrapper) shall be inserted
- * @param {boolean} [buttonsPosition=false] - dynamically set vertical positions of buttons?
  *
  * inserts the passed single field into an array field complex
  */
-function addField(field, fieldToInsertAfter, buttonsPosition = false) {
+function addField(field, fieldToInsertAfter) {
   // create wrapper
   let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
   // insert passed single field into created wrapper
@@ -42,9 +41,6 @@ function addField(field, fieldToInsertAfter, buttonsPosition = false) {
   wrapper.insertAfter(fieldToInsertAfter.parent().is('.input-group') ? fieldToInsertAfter.parent() : fieldToInsertAfter);
   // add a deletion button
   addDeleteFieldButton(field);
-  // dynamically set vertical positions of buttons
-  if (buttonsPosition)
-    setButtonsPosition();
 }
 
 /**
@@ -199,19 +195,6 @@ function setAddressReference(addressType, layer) {
       adoptReverseSearchResult(data, addressType);
   })
   .catch(error => console.log(error))
-}
-
-/**
- * @function
- * @name setButtonsPosition
- *
- * dynamically set vertical positions of buttons by means of position and size of the form element (plus 20 pixels extra "buffer")
- */
-function setButtonsPosition() {
-  let top = $('#custom-form').position().top + $('#custom-form').height() + 20;
-  $('#buttons').offset({
-    top: top
-  });
 }
 
 /**

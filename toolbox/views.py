@@ -100,7 +100,7 @@ class OWSProxyView(View):
     :param kwargs:
     :return:
     """
-    self.destination_url = settings.OWS_BASE + sub(
+    self.destination_url = sub(
         pattern='^.*owsproxy',
         repl='',
         string=str(request.get_full_path())

@@ -210,19 +210,17 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   });
 
   // define basemap.de
-  const basemapde = L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde', {
-    layers: 'de_basemapde_web_raster_farbe',
-    format: map._wmsFormat,
+  const basemapde = L.tileLayer('https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_farbe/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/BKG'
   });
 
   // define Liegenschaftskarte
-  const liegenschaftskarte = L.tileLayer.wms(owsProxyUrl + '/liegenschaftskarte/wms', {
-    layers: 'hro.liegenschaftskarte',
+  const liegenschaftskarte = L.tileLayer.wms(owsProxyUrl + 'https://www.geodaten-mv.de/dienste/alkis_wms', {
+    layers: 'adv_alkis_tatsaechliche_nutzung,adv_alkis_weiteres,adv_alkis_gebaeude,adv_alkis_flurstuecke',
     format: map._wmsFormat,
     maxZoom: map._maxLayerZoom,
-    attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
+    attribution: '© GeoBasis-DE/M-V'
   });
 
   // define Luftbild
@@ -232,7 +230,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   });
 
   // define Luftbild 2021
-  const luftbild_2021 = L.tileLayer.wms(owsProxyUrl + '/luftbild_2021/wms', {
+  const luftbild_2021 = L.tileLayer.wms(owsProxyUrl + 'https://geo.sv.rostock.de/geodienste/luftbild_2021/wms', {
     layers: 'hro.luftbild_2021.luftbild_2021',
     format: map._wmsFormat,
     maxZoom: map._maxLayerZoom,
@@ -240,8 +238,8 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   });
 
   // define Luftbild 2022
-  const luftbild_2022 = L.tileLayer.wms(owsProxyUrl + '/luftbild_2022/wms', {
-    layers: 'hro.luftbild_2022.luftbild_2022',
+  const luftbild_2022 = L.tileLayer.wms(owsProxyUrl + 'https://www.geodaten-mv.de/dienste/adv_dop10rgb', {
+    layers: 'mv_dop10',
     format: map._wmsFormat,
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/M-V'

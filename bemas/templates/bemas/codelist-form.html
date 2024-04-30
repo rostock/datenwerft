@@ -44,7 +44,7 @@
         </table>
       </div>
       <div id="buttons">
-        <div class="d-grid mt-5 mb-3 gap-2 d-md-block">
+        <div class="d-grid mt-5 mb-3 gap-2">
           <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
           {% if object %}
             <a class="btn btn-danger" role="button" href="{{ codelist_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
