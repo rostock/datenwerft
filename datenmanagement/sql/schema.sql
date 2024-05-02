@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL; 
+      NEW.foto := NULL;
    END IF;
    RETURN NEW;
 END;
@@ -3431,6 +3431,32 @@ CREATE TABLE fachdaten_adressbezug.meldedienst_punkthaft_hro (
 
 
 --
+-- Name: mobilfunkantennen_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.mobilfunkantennen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    stob character varying(8) NOT NULL,
+    erteilungsdatum date NOT NULL,
+    techniken character varying(255)[],
+    betreiber character varying(255)[],
+    montagehoehe character varying(255),
+    anzahl_gsm smallint,
+    anzahl_umts smallint,
+    anzahl_lte smallint,
+    anzahl_sonstige smallint,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: parkmoeglichkeiten_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -6267,6 +6293,22 @@ ALTER TABLE ONLY fachdaten_adressbezug.ladestationen_elektrofahrzeuge_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.meldedienst_punkthaft_hro
     ADD CONSTRAINT meldedienst_punkthaft_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: mobilfunkantennen_hro mobilfunkantennen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.mobilfunkantennen_hro
+    ADD CONSTRAINT mobilfunkantennen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: mobilfunkantennen_hro mobilfunkantennen_hro_stob_unique; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.mobilfunkantennen_hro
+    ADD CONSTRAINT mobilfunkantennen_hro_stob_unique UNIQUE (stob);
 
 
 --

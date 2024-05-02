@@ -78,6 +78,9 @@ linien_linie_regex = r'^[A-Z0-9]+[A-Z0-9]*$'
 linien_linie_message = 'Die <strong><em>Linie</em></strong> muss mit einer ' \
                        'Ziffer oder einem Großbuchstaben beginnen, der bzw. ' \
                        'dem optional weitere Ziffern und/oder Großbuchstaben folgen können.'
+mobilfunkantennen_stob_regex = r'^[0-9]{6,8}$'
+mobilfunkantennen_stob_message = 'Die <strong><em>Standortbescheinigungsnummer</em></strong> ' \
+                                 'muss aus sechs bis acht Ziffern bestehen.'
 parkscheinautomaten_bewohnerparkgebiet_regex = r'^[A-Z][0-9]$'
 parkscheinautomaten_bewohnerparkgebiet_message = 'Das <strong><em>Bewohnerparkgebiet</em>' \
                                                  '</strong> muss aus genau einem ' \

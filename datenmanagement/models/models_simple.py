@@ -25,7 +25,8 @@ from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, 
   hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
   ingenieurbauwerke_nummer_asb_regex, ingenieurbauwerke_nummer_asb_message, \
   ingenieurbauwerke_baujahr_regex, ingenieurbauwerke_baujahr_message, \
-  kleinklaeranlagen_zulassung_regex, kleinklaeranlagen_zulassung_message, poller_nummer_regex, \
+  kleinklaeranlagen_zulassung_regex, kleinklaeranlagen_zulassung_message, \
+  mobilfunkantennen_stob_regex, mobilfunkantennen_stob_message, poller_nummer_regex, \
   poller_nummer_message, trinkwassernotbrunnen_nummer_regex, trinkwassernotbrunnen_nummer_message
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
@@ -4038,6 +4039,138 @@ class Meldedienst_punkthaft(SimpleModel):
     return str(self.art) + \
       ' [Datum: ' + datetime.strptime(str(self.datum), '%Y-%m-%d').strftime('%d.%m.%Y') + \
       (', Adresse: ' + str(self.adresse) if self.adresse else '') + ']'
+
+
+class Mobilfunkantennen(SimpleModel):
+  """
+  Mobilfunkantennen
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True
+  )
+  stob = CharField(
+    verbose_name='Standortbescheinigungsnummer',
+    max_length=255,
+    validators=[
+      RegexValidator(
+        regex=mobilfunkantennen_stob_regex,
+        message=mobilfunkantennen_stob_message
+      )
+    ]
+  )
+  erteilungsdatum = DateField(
+    verbose_name='Erteilungsdatum',
+    default=date.today
+  )
+  techniken = ArrayField(
+    CharField(
+      verbose_name='Techniken',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators
+    ),
+    verbose_name='Techniken',
+    blank=True,
+    null=True
+  )
+  betreiber = ArrayField(
+    CharField(
+      verbose_name='Betreiber',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators
+    ),
+    verbose_name='Betreiber',
+    blank=True,
+    null=True
+  )
+  montagehoehe = CharField(
+    verbose_name='Montagehöhe',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  anzahl_gsm = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl GSM-Einheiten',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  anzahl_umts = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl UMTS-Einheiten',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  anzahl_lte = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl LTE-Einheiten',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  anzahl_sonstige = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl sonstige Einheiten',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"mobilfunkantennen_hro'
+    verbose_name = 'Mobilfunkantenne'
+    verbose_name_plural = 'Mobilfunkantennen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Mobilfunkantennen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'stob': 'Standortbescheinigungsnummer',
+      'erteilungsdatum': 'Erteilungsdatum',
+      'techniken': 'Techniken',
+      'betreiber': 'Betreiber',
+      'montagehoehe': 'Montagehöhe',
+      'anzahl_gsm': 'Anzahl GSM-Einheiten',
+      'anzahl_umts': 'Anzahl UMTS-Einheiten',
+      'anzahl_lte': 'Anzahl LTE-Einheiten',
+      'anzahl_sonstige': 'Anzahl sonstige Einheiten'
+    }
+    list_fields_with_date = ['erteilungsdatum']
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse'
+    }
+    map_feature_tooltip_fields = ['stob']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'stob': 'Standortbescheinigungsnummer',
+      'erteilungsdatum': 'Erteilungsdatum',
+      'techniken': 'Techniken',
+      'betreiber': 'Betreiber',
+      'montagehoehe': 'Montagehöhe',
+      'anzahl_gsm': 'Anzahl GSM-Einheiten',
+      'anzahl_umts': 'Anzahl UMTS-Einheiten',
+      'anzahl_lte': 'Anzahl LTE-Einheiten',
+      'anzahl_sonstige': 'Anzahl sonstige Einheiten'
+    }
+
+  def __str__(self):
+    return self.stob
 
 
 class Mobilpunkte(SimpleModel):
