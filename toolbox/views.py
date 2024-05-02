@@ -117,8 +117,20 @@ class OWSProxyView(View):
     :param kwargs:
     :return: HTTP response with proxied OWS
     """
+    url = sub(
+        pattern=r'(http[s]?):\/([A-z0-9])',
+        repl=r'\g<1>://\g<2>',
+        string=self.destination_url
+    )
     try:
-      response = requests.get(self.destination_url, timeout=60)
+      if (
+          settings.OWS_PROXY_PROXIES
+          and 'http' in settings.OWS_PROXY_PROXIES
+          and 'https' in settings.OWS_PROXY_PROXIES
+      ):
+        response = requests.get(url, proxies=settings.OWS_PROXY_PROXIES, timeout=60)
+      else:
+        response = requests.get(url, timeout=60)
       return HttpResponse(response, content_type=response.headers['content-type'])
     except Exception:
       return HttpResponseServerError()
