@@ -147,6 +147,7 @@ class OWSProxyTest(OWSProxyTestCase):
   def setUp(self):
     self.init()
 
+  @override_settings(OWS_PROXY_PROXIES={})
   def generic_view_test(self, url_path, content_type, string=None):
     """
     tests the view
