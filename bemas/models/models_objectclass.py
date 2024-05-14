@@ -174,6 +174,12 @@ PERSON_TITLES = (
 )
 
 
+PERSON_ACADEMIC_TITLES = (
+  ('Dr.', 'Dr.'),
+  ('Prof.', 'Prof.')
+)
+
+
 class Person(Objectclass):
   """
   model class for object class person (Person)
@@ -185,6 +191,13 @@ class Person(Objectclass):
     blank=True,
     null=True,
     choices=PERSON_TITLES
+  )
+  academic_title = CharField(
+    verbose_name='Titel',
+    max_length=255,
+    blank=True,
+    null=True,
+    choices=PERSON_ACADEMIC_TITLES
   )
   first_name = CharField(
     verbose_name='Vorname',
@@ -286,8 +299,10 @@ class Person(Objectclass):
     new = 'neue'
 
   def __str__(self):
-    return ('(' + self.title + ') ' if self.title else '') + \
-           (self.first_name + ' ' if self.first_name else '') + self.last_name
+    title = '(' + self.title + ') ' if self.title else ''
+    academic_title = self.academic_title + ' ' if self.academic_title else ''
+    name = (self.first_name + ' ' if self.first_name else '') + self.last_name
+    return title + academic_title + name
 
   def address(self):
     return concat_address(self.address_street, self.address_house_number,
@@ -352,8 +367,8 @@ class Contact(Objectclass):
     new = 'neue:n'
 
   def __str__(self):
-    return str(self.person) + ' in der Organisation ' + str(self.organization) + \
-           (' mit der Funktion ' + self.function if self.function else '')
+    function = ' mit der Funktion ' + self.function if self.function else ''
+    return str(self.person) + ' in der Organisation ' + str(self.organization) + function
 
   def name_and_function(self):
     function_str = ' (Funktion: ' + self.function + ')' if self.function else ''
@@ -680,16 +695,16 @@ class Event(Objectclass):
     new = 'neues'
 
   def __str__(self):
-    return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + \
-           (' (' + shorten_string(self.description) + ')' if self.description else '')
+    description = ' (' + shorten_string(self.description) + ')' if self.description else ''
+    return str(self.type_of_event) + ' zur Beschwerde ' + str(self.complaint) + description
 
   def type_of_event_and_complaint(self):
     return str(self.type_of_event) + ' (Beschwerde: ' + str(self.complaint) + ')'
 
   def type_of_event_and_created_at(self):
     date_str = ' vom ' + self.date.strftime('%d.%m.%Y') if self.date else ' (ohne Datum)'
-    description_str = ': ' + shorten_string(self.description) if self.description else ''
-    return str(self.type_of_event) + date_str + description_str
+    description = ': ' + shorten_string(self.description, 200) if self.description else ''
+    return str(self.type_of_event) + date_str + description
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
     # store search content in designated field

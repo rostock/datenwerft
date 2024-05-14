@@ -232,7 +232,7 @@ def shorten_string(string, max_chars=20, suspension_point=True):
   if len(string) <= max_chars:
     return string
   else:
-    string = string[0:20].strip()
+    string = string[0:max_chars].strip()
     if suspension_point:
       return string + '…' if len(string) < max_chars else string[:-1] + '…'
     else:
