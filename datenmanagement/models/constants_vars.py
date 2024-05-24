@@ -116,3 +116,14 @@ uvp_registriernummer_bauamt_message = 'Die <strong><em>Registriernummer ' \
 wikipedia_regex = r'^https:\/\/de.wikipedia.org\/wiki\/.*$'
 wikipedia_message = 'Der <strong><em>Link auf Wikipedia</em></strong> muss folgendes ' \
                     'Format aufweisen (Beispiel): https://de.wikipedia.org/wiki/Albert_Einstein'
+
+
+#
+# enums
+#
+
+ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG = (
+  ('ja', 'ja'),
+  ('nein', 'nein'),
+  ('prüfen', 'prüfen')
+)

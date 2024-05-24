@@ -1696,6 +1696,27 @@ CREATE TABLE fachdaten.adressunsicherheiten_fotos_hro (
 
 
 --
+-- Name: anerkennungsgebuehren_herrschend_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.anerkennungsgebuehren_herrschend_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    grundbucheintrag character varying(255) NOT NULL,
+    aktenzeichen_anerkennungsgebuehren character(12),
+    aktenzeichen_kommunalvermoegen character(10),
+    vermoegenszuordnung_hro boolean,
+    bemerkungen character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: angelverbotsbereiche_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -5621,6 +5642,14 @@ ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
 
 ALTER TABLE ONLY fachdaten.adressunsicherheiten_fotos_hro
     ADD CONSTRAINT adressunsicherheiten_fotos_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: anerkennungsgebuehren_herrschend_hro anerkennungsgebuehren_herrschend_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.anerkennungsgebuehren_herrschend_hro
+    ADD CONSTRAINT anerkennungsgebuehren_herrschend_hro_pk PRIMARY KEY (uuid);
 
 
 --

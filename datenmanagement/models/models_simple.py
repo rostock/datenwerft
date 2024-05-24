@@ -13,8 +13,10 @@ from re import sub
 from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_current_year, path_and_rename
-from toolbox.constants_vars import personennamen_validators, standard_validators, d3_regex, \
-  d3_message, email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, \
+from toolbox.constants_vars import personennamen_validators, standard_validators, \
+  aktenzeichen_anerkennungsgebuehren_regex, aktenzeichen_anerkennungsgebuehren_message, \
+  aktenzeichen_kommunalvermoegen_regex, aktenzeichen_kommunalvermoegen_message, \
+  d3_regex, d3_message, email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, \
   inventarnummer_regex, inventarnummer_message, postleitzahl_message, postleitzahl_regex, \
   rufnummer_regex, rufnummer_message, url_message
 from .base import Basemodel, SimpleModel
@@ -27,7 +29,8 @@ from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, 
   ingenieurbauwerke_baujahr_regex, ingenieurbauwerke_baujahr_message, \
   kleinklaeranlagen_zulassung_regex, kleinklaeranlagen_zulassung_message, \
   mobilfunkantennen_stob_regex, mobilfunkantennen_stob_message, poller_nummer_regex, \
-  poller_nummer_message, trinkwassernotbrunnen_nummer_regex, trinkwassernotbrunnen_nummer_message
+  poller_nummer_message, trinkwassernotbrunnen_nummer_regex, \
+  trinkwassernotbrunnen_nummer_message, ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG
 from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
@@ -284,6 +287,85 @@ class Abfallbehaelter(SimpleModel):
 
   def __str__(self):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
+
+
+class Anerkennungsgebuehren_herrschend(SimpleModel):
+  """
+  Anerkennungsgebühren (herrschendes Flurstück)
+  """
+
+  grundbucheintrag = CharField(
+    verbose_name='Grundbucheintrag',
+    max_length=255,
+    choices=ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG
+  )
+  aktenzeichen_anerkennungsgebuehren = CharField(
+    verbose_name='Aktenzeichen Anerkennungsgebühren',
+    max_length=12,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=aktenzeichen_anerkennungsgebuehren_regex,
+        message=aktenzeichen_anerkennungsgebuehren_message
+      )
+    ]
+  )
+  aktenzeichen_kommunalvermoegen = CharField(
+    verbose_name='Aktenzeichen Kommunalvermögen',
+    max_length=10,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=aktenzeichen_kommunalvermoegen_regex,
+        message=aktenzeichen_kommunalvermoegen_message
+      )
+    ]
+  )
+  vermoegenszuordnung_hro = BooleanField(
+    verbose_name='Vermögenszuordnung der Hanse- und Universitätsstadt Rostock',
+    blank=True,
+    null=True
+  )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"anerkennungsgebuehren_herrschend_hro'
+    verbose_name = 'Anerkennungsgebühr (herrschendes Flurstück)'
+    verbose_name_plural = 'Anerkennungsgebühren (herrschendes Flurstück)'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Anerkennungsgebühren (herrschendes Flurstück) ' \
+                  'der Hanse- und Universitätsstadt Rostock'
+    as_overlay = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'grundbucheintrag': 'Grundbucheintrag',
+      'aktenzeichen_anerkennungsgebuehren': 'Aktenzeichen Anerkennungsgebühren',
+      'aktenzeichen_kommunalvermoegen': 'Aktenzeichen Kommunalvermögen',
+      'vermoegenszuordnung_hro': 'Vermögenszuordnung der Hanse- und Universitätsstadt Rostock',
+      'bemerkungen': 'Bemerkungen'
+    }
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'grundbucheintrag': 'Grundbucheintrag',
+      'aktenzeichen_anerkennungsgebuehren': 'Aktenzeichen Anerkennungsgebühren',
+      'aktenzeichen_kommunalvermoegen': 'Aktenzeichen Kommunalvermögen',
+      'vermoegenszuordnung_hro': 'Vermögenszuordnung der Hanse- und Universitätsstadt Rostock',
+      'bemerkungen': 'Bemerkungen'
+    }
+
+  def __str__(self):
+    return str(self.uuid)
 
 
 class Angelverbotsbereiche(SimpleModel):

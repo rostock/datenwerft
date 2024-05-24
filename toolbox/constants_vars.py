@@ -13,6 +13,14 @@ anfuehrungszeichen_message = 'Texte dürfen keine doppelten ' \
                              'enthalten. Stattdessen müssen die ' \
                              'typographisch korrekten Anführungszeichen ' \
                              '(„“) verwendet werden.'
+aktenzeichen_anerkennungsgebuehren_regex = r'^2334NA[0-9]{6}$'
+aktenzeichen_anerkennungsgebuehren_message = 'Das <strong><em>Aktenzeichen ' \
+                         'Anerkennungsgebühren</em></strong> muss folgendes Format aufweisen ' \
+                         '(Beispiel): 2334NA100038'
+aktenzeichen_kommunalvermoegen_regex = r'^[0-9]{6}\/[0-9]{3}$'
+aktenzeichen_kommunalvermoegen_message = 'Das <strong><em>Aktenzeichen Kommunalvermögen</em>' \
+                         '</strong> muss folgendes Format aufweisen (Beispiel): ' \
+                         '009465/017'
 ansprechpartner_regex = r'^(?!.*\(.*[A-Z]+.*\)).*'
 ansprechpartner_message = 'Die E-Mail-Adresse der <strong><em>Ansprechpartnerin</em></strong> ' \
                           'oder des <strong><em>Ansprechpartners</em></strong> ' \
