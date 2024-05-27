@@ -2,6 +2,11 @@
 # validators
 #
 
+arrondierungsflaechen_registriernummer_regex = r'^[0-9]+(\.)?[0-9]+$'
+arrondierungsflaechen_registriernummer_message = 'Die <strong><em>Registriernummer</em>' \
+                                                 '</strong> muss eines der folgenden Formate ' \
+                                                 'aufweisen (Beispiele): ' \
+                                                 '10244, 484.42 oder 2456.1'
 bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex = r'^[A-Z]{3}-[0-9]{2}$'
 bevollmaechtigte_bezirksschornsteinfeger_bezirk_message = 'Der <strong><em>Bezirk</em></strong> ' \
                                                           'muss aus drei Großbuchstaben, einem ' \

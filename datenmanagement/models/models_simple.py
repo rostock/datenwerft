@@ -20,9 +20,10 @@ from toolbox.constants_vars import personennamen_validators, standard_validators
   inventarnummer_regex, inventarnummer_message, postleitzahl_message, postleitzahl_regex, \
   rufnummer_regex, rufnummer_message, url_message
 from .base import Basemodel, SimpleModel
-from .constants_vars import denksteine_nummer_regex, denksteine_nummer_message, \
-  erdwaermesonden_aktenzeichen_regex, erdwaermesonden_aktenzeichen_message, \
-  erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
+from .constants_vars import arrondierungsflaechen_registriernummer_regex, \
+  arrondierungsflaechen_registriernummer_message, denksteine_nummer_regex, \
+  denksteine_nummer_message, erdwaermesonden_aktenzeichen_regex, \
+  erdwaermesonden_aktenzeichen_message, erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
   hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
   ingenieurbauwerke_nummer_asb_regex, ingenieurbauwerke_nummer_asb_message, \
@@ -408,6 +409,53 @@ class Angelverbotsbereiche(SimpleModel):
   def __str__(self):
     return (self.bezeichnung if self.bezeichnung else 'ohne Bezeichnung') + \
       (' [Beschreibung: ' + str(self.beschreibung) + ']' if self.beschreibung else '')
+
+
+class Arrondierungsflaechen(SimpleModel):
+  """
+  Arrondierungsflächen
+  """
+
+  registriernummer = CharField(
+    verbose_name='Registriernummer',
+    max_length=6,
+    validators=[
+      RegexValidator(
+        regex=arrondierungsflaechen_registriernummer_regex,
+        message=arrondierungsflaechen_registriernummer_message
+      )
+    ]
+  )
+  jahr = PositiveSmallIntegerRangeField(
+    verbose_name='Jahr',
+    default=get_current_year(),
+    max_value=get_current_year()
+  )
+  geometrie = polygon_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"arrondierungsflaechen_hro'
+    verbose_name = 'Arrondierungsfläche'
+    verbose_name_plural = 'Arrondierungsflächen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Arrondierungsflächen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = False
+    geometry_type = 'Polygon'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'registriernummer': 'Registriernummer',
+      'jahr': 'Jahr'
+    }
+    map_feature_tooltip_fields = ['registriernummer']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'registriernummer': 'Registriernummer',
+      'jahr': 'Jahr'
+    }
+
+  def __str__(self):
+    return self.registriernummer + ' (Jahr: ' + str(self.jahr) + ')'
 
 
 class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):

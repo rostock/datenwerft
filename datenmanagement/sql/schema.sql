@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.6
--- Dumped by pg_dump version 15.6
+-- Dumped from database version 15.7
+-- Dumped by pg_dump version 15.7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1731,6 +1731,24 @@ CREATE TABLE fachdaten.angelverbotsbereiche_hro (
     bezeichnung character varying(255),
     beschreibung character varying(1000),
     geometrie public.geometry(LineString,25833) NOT NULL
+);
+
+
+--
+-- Name: arrondierungsflaechen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.arrondierungsflaechen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    registriernummer character varying(6) NOT NULL,
+    jahr smallint NOT NULL,
+    geometrie public.geometry(Polygon,25833) NOT NULL
 );
 
 
@@ -5658,6 +5676,14 @@ ALTER TABLE ONLY fachdaten.anerkennungsgebuehren_herrschend_hro
 
 ALTER TABLE ONLY fachdaten.angelverbotsbereiche_hro
     ADD CONSTRAINT angelverbotsbereiche_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arrondierungsflaechen_hro arrondierungsflaechen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.arrondierungsflaechen_hro
+    ADD CONSTRAINT arrondierungsflaechen_hro_pk PRIMARY KEY (uuid);
 
 
 --
