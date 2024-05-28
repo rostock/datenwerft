@@ -346,7 +346,6 @@ class Anerkennungsgebuehren_herrschend(SimpleModel):
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Anerkennungsgebühren (herrschendes Flurstück) ' \
                   'der Hanse- und Universitätsstadt Rostock'
-    as_overlay = False
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -440,7 +439,7 @@ class Arrondierungsflaechen(SimpleModel):
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Arrondierungsflächen in der Hanse- und Universitätsstadt Rostock'
-    as_overlay = False
+    forms_in_high_zoom_mode = True
     geometry_type = 'Polygon'
     list_fields = {
       'aktiv': 'aktiv?',
@@ -453,6 +452,15 @@ class Arrondierungsflaechen(SimpleModel):
       'registriernummer': 'Registriernummer',
       'jahr': 'Jahr'
     }
+    additional_wfs_featuretypes = [
+      {
+        'name': 'flurstuecke',
+        'title': 'Flurstücke',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
+        'featuretypes': 'hro.flurstuecke.flurstuecke',
+        'proxy': True
+      }
+    ]
 
   def __str__(self):
     return self.registriernummer + ' (Jahr: ' + str(self.jahr) + ')'
@@ -709,14 +717,14 @@ class Baudenkmale(SimpleModel):
       {
         'name': 'flurstuecke',
         'title': 'Flurstücke',
-        'url': '/flurstuecke_hro/wfs',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
         'featuretypes': 'hro.flurstuecke.flurstuecke',
         'proxy': True
       },
       {
         'name': 'gebaeude',
         'title': 'Gebäude',
-        'url': '/gebaeude/wfs',
+        'url': 'https://geo.sv.rostock.de/geodienste/gebaeude/wfs',
         'featuretypes': 'hro.gebaeude.gebaeude',
         'proxy': True
       }
