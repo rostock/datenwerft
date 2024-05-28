@@ -197,25 +197,35 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     zoomOutTitle:'herauszoomen'
   }).addTo(map);
 
-  // define ORKa.MV
+  let orkamvAttribution = 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a' + ' href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer">ODbL</a>) und LkKfS-MV';
+
+  // define ORKa.MV as tiled service
   const orkamv = L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
-    attribution: 'Kartenbild © Hanse- und Universitätsstadt Rostock (<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>)<br>Kartendaten © <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer">ODbL</a>) und LkKfS-MV'
+    attribution: orkamvAttribution
   });
 
-  // define OpenStreetMap
+  // define ORKa.MV as WMS
+  const orkamvWms = L.tileLayer.wms('https://www.orka-mv.de/geodienste/orkamv/wms', {
+    layers: 'orkamv',
+    format: map._wmsFormat,
+    maxZoom: map._maxLayerZoom,
+    attribution: orkamvAttribution
+  });
+
+  // define OpenStreetMap as tiled service
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap-Mitwirkende</a>'
   });
 
-  // define basemap.de
+  // define basemap.de as tiled service
   const basemapde = L.tileLayer('https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_farbe/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/BKG'
   });
 
-  // define Liegenschaftskarte
+  // define Liegenschaftskarte as WMS
   const liegenschaftskarte = L.tileLayer.wms(owsProxyUrl + 'https://www.geodaten-mv.de/dienste/alkis_wms', {
     layers: 'adv_alkis_tatsaechliche_nutzung,adv_alkis_weiteres,adv_alkis_gebaeude,adv_alkis_flurstuecke',
     format: map._wmsFormat,
@@ -223,13 +233,13 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: '© GeoBasis-DE/M-V'
   });
 
-  // define Luftbild
+  // define Luftbild as tiled service
   const luftbild = L.tileLayer('https://geo.sv.rostock.de/geodienste/luftbild_mv-20/tiles/1.0.0/hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/M-V'
   });
 
-  // define Luftbild 2021
+  // define Luftbild 2021 as WMS
   const luftbild_2021 = L.tileLayer.wms(owsProxyUrl + 'https://geo.sv.rostock.de/geodienste/luftbild_2021/wms', {
     layers: 'hro.luftbild_2021.luftbild_2021',
     format: map._wmsFormat,
@@ -237,7 +247,7 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: '© Hanse- und Universitätsstadt Rostock (MLV intern)'
   });
 
-  // define Luftbild 2022
+  // define Luftbild 2022 as WMS
   const luftbild_2022 = L.tileLayer.wms(owsProxyUrl + 'https://www.geodaten-mv.de/dienste/adv_dop10rgb', {
     layers: 'mv_dop10',
     format: map._wmsFormat,
@@ -249,13 +259,17 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   // and add default map
   let baseMaps;
   if (map._highZoomMode === true) {
-    // set basemap.de as default map
-    map.addLayer(luftbild_2021);
+    // set aerial image or basemap.de as default map
+    if (map._aerialDefault === true)
+      map.addLayer(luftbild_2021);
+    else
+      map.addLayer(orkamvWms);
     baseMaps = {
       'basemap.de': basemapde,
       'Liegenschaftskarte': liegenschaftskarte,
       'Luftbild 2021 (6 cm)': luftbild_2021,
-      'Luftbild 2022 (10 cm)': luftbild_2022
+      'Luftbild 2022 (10 cm)': luftbild_2022,
+      'ORKa.MV': orkamvWms
     };
   } else {
     // set ORKa.MV as default map
@@ -397,12 +411,14 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  * @param {Object} map - map
  * @param {number} maxLayerZoom - maximum map layer zoom
  * @param {boolean} [highZoomMode=false] - map in high zoom mode?
+ * @param {boolean} [aerialDefault=false] - default map shall be aerial image?
  */
-function setMapConstants(map, maxLayerZoom, highZoomMode = false) {
+function setMapConstants(map, maxLayerZoom, highZoomMode = false, aerialDefault = false) {
   // global constants
   map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
   map._wmsFormat = 'image/png';
   map._highZoomMode = highZoomMode;
+  map._aerialDefault = aerialDefault;
   map._maxLayerZoom = maxLayerZoom;
   if (highZoomMode === true)
     (maxLayerZoom + 2 > 21) ? map._maxLayerZoom = maxLayerZoom + 2 : map._maxLayerZoom = 21;

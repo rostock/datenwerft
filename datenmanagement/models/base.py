@@ -50,6 +50,10 @@ class Basemodel(Model):
     # Boolean:
     # shall the maps of the form views of this model enable high zoom levels?
     forms_in_high_zoom_mode = False
+    # Boolean:
+    # shall the default map of the maps of the form views of this model
+    # be an aerial image, if high zoom levels are enabled?
+    forms_in_high_zoom_mode_default_aerial = False
     # String:
     # name of the field of this model
     # whose value shall appear in drop-down list map filters in map views

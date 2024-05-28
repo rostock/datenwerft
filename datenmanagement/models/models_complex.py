@@ -2705,6 +2705,7 @@ class RSAG_Gleise(ComplexModel):
                   'in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     forms_in_high_zoom_mode = True
+    forms_in_high_zoom_mode_default_aerial = True
     geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
@@ -3012,6 +3013,7 @@ class RSAG_Masten(ComplexModel):
     as_overlay = True
     default_overlays = ['RSAG_Masten']
     forms_in_high_zoom_mode = True
+    forms_in_high_zoom_mode_default_aerial = True
     associated_models = {
       'RSAG_Quertraeger': 'mast',
       'RSAG_Spanndraehte': 'mast'
@@ -3081,6 +3083,7 @@ class RSAG_Leitungen(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     forms_in_high_zoom_mode = True
+    forms_in_high_zoom_mode_default_aerial = True
     geometry_type = 'LineString'
     list_fields = {
       'uuid': 'UUID',
@@ -3127,6 +3130,7 @@ class RSAG_Quertraeger(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     forms_in_high_zoom_mode = True
+    forms_in_high_zoom_mode_default_aerial = True
     fields_with_foreign_key_to_linkify = ['mast']
     geometry_type = 'LineString'
     list_fields = {
@@ -3184,6 +3188,7 @@ class RSAG_Spanndraehte(ComplexModel):
                   'der Rostocker Straßenbahn AG in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
     forms_in_high_zoom_mode = True
+    forms_in_high_zoom_mode_default_aerial = True
     fields_with_foreign_key_to_linkify = ['mast']
     geometry_type = 'LineString'
     list_fields = {

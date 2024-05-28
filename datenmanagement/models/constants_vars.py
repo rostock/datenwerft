@@ -2,7 +2,7 @@
 # validators
 #
 
-arrondierungsflaechen_registriernummer_regex = r'^[0-9]+(\.)?[0-9]+$'
+arrondierungsflaechen_registriernummer_regex = r'^[0-9]+(\.)?([0-9]+)?$'
 arrondierungsflaechen_registriernummer_message = 'Die <strong><em>Registriernummer</em>' \
                                                  '</strong> muss eines der folgenden Formate ' \
                                                  'aufweisen (Beispiele): ' \

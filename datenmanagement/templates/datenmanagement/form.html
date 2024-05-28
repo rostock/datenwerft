@@ -262,7 +262,11 @@
      */
     function mapCallbackFunction(map) {
       {% if forms_in_high_zoom_mode %}
-        setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }}, true);
+        {% if forms_in_high_zoom_mode_default_aerial %}
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }}, true, true);
+        {% else %}
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }}, true, false);
+        {% endif %}
       {% else %}
         setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
       {% endif %}

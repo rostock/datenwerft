@@ -47,6 +47,8 @@ def add_model_form_context_elements(context, model):
   context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
   context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
   context['forms_in_high_zoom_mode'] = model.BasemodelMeta.forms_in_high_zoom_mode
+  context['forms_in_high_zoom_mode_default_aerial'] = (
+    model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial)
   if model.BasemodelMeta.forms_in_high_zoom_mode:
     context['leaflet_config_overrides'] = {
       'MAX_ZOOM': 21
