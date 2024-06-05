@@ -515,7 +515,7 @@ class Baustellen_geplant(ComplexModel):
       'verkehrliche_lagen': 'Verkehrliche_Lagen_Baustellen',
       'sparten': 'Sparten_Baustellen'
     }
-    group_with_users_for_choice_field = 'baustellen_geplant_full'
+    group_with_users_for_choice_field = 'datenmanagement_baustellen_geplant_full'
     address_type = 'Straße'
     address_mandatory = False
     geometry_type = 'MultiPolygon'
