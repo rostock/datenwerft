@@ -1,35 +1,45 @@
 class DatabaseRouter:
   """
   router to control all database operations
-  on models of BEMAS and Datenmanagement apps
+  on various apps
   """
   route_app_labels = {
+    'antragsmanagement',
     'bemas',
-    'datenmanagement'
+    'datenmanagement',
+    'metadatenmanagement'
   }
 
   def db_for_read(self, model, **hints):
     """
-    all read access to models of BEMAS and Datenmanagement apps
+    all read access to models of various apps
     are routed to the corresponding database
     """
     if model._meta.app_label in self.route_app_labels:
-      if model._meta.app_label == 'bemas':
+      if model._meta.app_label == 'antragsmanagement':
+        return 'antragsmanagement'
+      elif model._meta.app_label == 'bemas':
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
+      elif model._meta.app_label == 'metadatenmanagement':
+        return 'metadatenmanagement'
     return 'default'
 
   def db_for_write(self, model, **hints):
     """
-    all write access to models of BEMAS and Datenmanagement apps
+    all write access to models of various apps
     are routed to the corresponding database
     """
     if model._meta.app_label in self.route_app_labels:
-      if model._meta.app_label == 'bemas':
+      if model._meta.app_label == 'antragsmanagement':
+        return 'antragsmanagement'
+      elif model._meta.app_label == 'bemas':
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
+      elif model._meta.app_label == 'metadatenmanagement':
+        return 'metadatenmanagement'
     return 'default'
 
   def allow_relation(self, obj1, obj2, **hints):
