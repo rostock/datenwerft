@@ -70,3 +70,21 @@ class Codelist(Base):
 
   def __str__(self):
     return self.name
+
+
+class Object(Base):
+  """
+  abstract model class for objects
+  """
+
+  class Meta(Base.Meta):
+    abstract = True
+
+
+class GeometryObject(Object):
+  """
+  abstract model class for objects with geometry related fields
+  """
+
+  class Meta(Object.Meta):
+    abstract = True

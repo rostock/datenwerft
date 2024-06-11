@@ -7,7 +7,8 @@ from .base import Codelist
 
 class CodelistRequestStatus(Codelist):
   """
-  model class for general codelist request status (Antragsstatus)
+  model class for general codelist:
+  request status (Antragsstatus)
   """
 
   class Meta(Codelist.Meta):
@@ -16,7 +17,10 @@ class CodelistRequestStatus(Codelist):
     verbose_name_plural = 'Antragsstatus'
 
   class BaseMeta(Codelist.BaseMeta):
-    description = 'Status von Anträgen'
+    description = 'Codeliste: Status von Anträgen'
+
+  def __str__(self):
+    return self.name
 
   @staticmethod
   def get_status_new():
@@ -45,3 +49,53 @@ class CodelistRequestStatus(Codelist):
       return CodelistRequestStatus.objects.get(ordinal=3)
     else:
       return None
+
+
+#
+# codelists for request type:
+# clean-up events (Müllsammelaktionen)
+#
+
+class CleanupEventCodelistWasteQuantity(Codelist):
+  """
+  model class for codelist for request type clean-up events (Müllsammelaktionen):
+  waste quantity (Abfallmenge)
+  """
+
+  class Meta(Codelist.Meta):
+    db_table = 'cleanupevent_codelist_wastequantity'
+    verbose_name = 'Abfallmenge'
+    verbose_name_plural = 'Abfallmengen'
+
+  class BaseMeta(Codelist.BaseMeta):
+    description = 'Codeliste für Müllsammelaktionen: Abfallmengen'
+
+
+class CleanupEventCodelistWasteType(Codelist):
+  """
+  model class for codelist for request type clean-up events (Müllsammelaktionen):
+  waste type (Abfallart)
+  """
+
+  class Meta(Codelist.Meta):
+    db_table = 'cleanupevent_codelist_wastetype'
+    verbose_name = 'Abfallart'
+    verbose_name_plural = 'Abfallarten'
+
+  class BaseMeta(Codelist.BaseMeta):
+    description = 'Codeliste für Müllsammelaktionen: Abfallarten'
+
+
+class CleanupEventCodelistEquipment(Codelist):
+  """
+  model class for codelist for request type clean-up events (Müllsammelaktionen):
+  equipment (Austattung)
+  """
+
+  class Meta(Codelist.Meta):
+    db_table = 'cleanupevent_codelist_equipment'
+    verbose_name = 'Austattung'
+    verbose_name_plural = 'Austattungen'
+
+  class BaseMeta(Codelist.BaseMeta):
+    description = 'Codeliste für Müllsammelaktionen: Austattungen'

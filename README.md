@@ -31,10 +31,9 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 5.  leere *PostgreSQL*-Datenbank für die Anwendungsadministration anlegen
 6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Antragsmanagement* anlegen
-6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *BEMAS* anlegen
-7.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
-7.  leere *PostgreSQL*-Datenbank für die App *Metadatenmanagement* 
-    anlegen
+7.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *BEMAS* anlegen
+8.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
+9.  leere *PostgreSQL*-Datenbank für die App *Metadatenmanagement* anlegen
 
 ## Konfiguration
 
@@ -211,6 +210,12 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
           source /usr/local/datenwerft/venv/bin/activate
           cd /usr/local/datenwerft/datenwerft
           python manage.py test datenmanagement
+
+-  Tests der App *Antragsmanagement* durchführen:
+
+        source /usr/local/datenwerft/venv/bin/activate
+        cd /usr/local/datenwerft/datenwerft
+        python manage.py test antragsmanagement
 
 -  Tests der App *BEMAS* durchführen:
 
