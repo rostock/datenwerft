@@ -1,3 +1,5 @@
+from django.utils.crypto import get_random_string
+
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
 from .base import DefaultCodelistTestCase
@@ -17,13 +19,13 @@ class CodelistRequestStatusTest(DefaultCodelistTestCase):
   count = 4
   attributes_values_db_initial = {
     'ordinal': 4,
-    'name': 'I0JBAMtz',
-    'icon': '3jw5UCfJ'
+    'name': get_random_string(length=12),
+    'icon': get_random_string(length=12)
   }
   attributes_values_db_updated = {
     'ordinal': 5,
-    'name': '4Ke2ZalC',
-    'icon': '3ZtNGShd'
+    'name': get_random_string(length=12),
+    'icon': get_random_string(length=12)
   }
 
   def setUp(self):
@@ -57,11 +59,11 @@ class CleanupEventCodelistWasteQuantityTest(DefaultCodelistTestCase):
   count = 4
   attributes_values_db_initial = {
     'ordinal': 4,
-    'name': 'I0JBAMtz'
+    'name': get_random_string(length=12)
   }
   attributes_values_db_updated = {
     'ordinal': 5,
-    'name': '4Ke2ZalC'
+    'name': get_random_string(length=12)
   }
 
   def setUp(self):
@@ -89,10 +91,10 @@ class CleanupEventCodelistWasteTypeTest(DefaultCodelistTestCase):
   model = CleanupEventCodelistWasteType
   count = 6
   attributes_values_db_initial = {
-    'name': 'I0JBAMtz'
+    'name': get_random_string(length=12)
   }
   attributes_values_db_updated = {
-    'name': '4Ke2ZalC'
+    'name': get_random_string(length=12)
   }
 
   def setUp(self):
@@ -120,10 +122,10 @@ class CleanupEventCodelistEquipmentTest(DefaultCodelistTestCase):
   model = CleanupEventCodelistEquipment
   count = 5
   attributes_values_db_initial = {
-    'name': 'I0JBAMtz'
+    'name': get_random_string(length=12)
   }
   attributes_values_db_updated = {
-    'name': '4Ke2ZalC'
+    'name': get_random_string(length=12)
   }
 
   def setUp(self):

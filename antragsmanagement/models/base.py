@@ -50,19 +50,6 @@ class Codelist(Base):
     unique=True,
     validators=standard_validators
   )
-  description = CharField(
-    verbose_name='Beschreibung',
-    blank=True,
-    null=True,
-    validators=standard_validators
-  )
-  icon = CharField(
-    verbose_name='Icon',
-    unique=True,
-    blank=True,
-    null=True,
-    validators=standard_validators
-  )
 
   class Meta(Base.Meta):
     abstract = True
@@ -88,3 +75,6 @@ class GeometryObject(Object):
 
   class Meta(Object.Meta):
     abstract = True
+
+  class BaseMeta(Object.BaseMeta):
+    geometry_field = None

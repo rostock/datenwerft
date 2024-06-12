@@ -1,3 +1,6 @@
+from django.db.models.fields import CharField
+
+from toolbox.constants_vars import standard_validators
 from .base import Codelist
 
 
@@ -10,6 +13,14 @@ class CodelistRequestStatus(Codelist):
   model class for general codelist:
   request status (Antragsstatus)
   """
+
+  icon = CharField(
+    verbose_name='Icon',
+    unique=True,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelist_requeststatus'
