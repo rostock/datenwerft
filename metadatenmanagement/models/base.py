@@ -1,4 +1,4 @@
-from django.contrib.gis.db.models import Model
+from django.db.models import Model
 from django.db.models.fields import CharField, DateTimeField, URLField, UUIDField
 from uuid import uuid4
 

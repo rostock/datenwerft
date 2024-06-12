@@ -50,19 +50,6 @@ class Codelist(Base):
     unique=True,
     validators=standard_validators
   )
-  description = CharField(
-    verbose_name='Beschreibung',
-    blank=True,
-    null=True,
-    validators=standard_validators
-  )
-  icon = CharField(
-    verbose_name='Icon',
-    unique=True,
-    blank=True,
-    null=True,
-    validators=standard_validators
-  )
 
   class Meta(Base.Meta):
     abstract = True
@@ -70,3 +57,24 @@ class Codelist(Base):
 
   def __str__(self):
     return self.name
+
+
+class Object(Base):
+  """
+  abstract model class for objects
+  """
+
+  class Meta(Base.Meta):
+    abstract = True
+
+
+class GeometryObject(Object):
+  """
+  abstract model class for objects with geometry related fields
+  """
+
+  class Meta(Object.Meta):
+    abstract = True
+
+  class BaseMeta(Object.BaseMeta):
+    geometry_field = None
