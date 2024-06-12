@@ -27,9 +27,9 @@ LOCAL_APPS = [
   'accounts',
   'toolbox',
   'datenmanagement',
+  'antragsmanagement',
   'bemas',
-  'metadatenmanagement',
-  'antragsmanagement'
+  'metadatenmanagement'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
@@ -52,8 +52,9 @@ TEMPLATES = [
     'DIRS': [
       BASE_DIR / 'datenwerft/templates',
       BASE_DIR / 'accounts/templates',
-      BASE_DIR / 'bemas/templates',
-      BASE_DIR / 'datenmanagement/templates'
+      BASE_DIR / 'datenmanagement/templates',
+      BASE_DIR / 'antragsmanagement/templates',
+      BASE_DIR / 'bemas/templates'
     ],
     'APP_DIRS': True,
     'OPTIONS': {

@@ -47,22 +47,13 @@
     {% if messages %}
       {% include "bemas/container-messages.html" %}
     {% endif %}
-    <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
-    {% if objectclass_logentry_url %}
-      <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
-    {% endif %}
-    {% if objectclass_name == 'Organization' and object %}
-      {% include "bemas/container-contacts.html" %}
-    {% elif objectclass_name == 'Complaint' and object %}
-      {% include "bemas/container-events.html" %}
-    {% endif %}
+    <h2><em>{{ objectclass_verbose_name }}</em></h2>
     <form class="form mt-4" method="post" action="">
       {% csrf_token %}
-      <input type="hidden" name="original_referer" value="{{ objectclass_cancel_url }}">
       <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
         <table class="table">
           {% for field in form %}
-            {% if not field|is_field_geometry_field and not field.name == 'address' %}
+            {% if not field|is_field_geometry_field %}
               <tr>
                 <td class="cell-label">
                   {{ field.label_tag }}
@@ -78,11 +69,8 @@
         </table>
         {% if not is_mobile %}
           <div class="d-grid mt-5 mb-3 gap-2">
-            <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} speichern</button>
-            {% if object %}
-              <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {{ objectclass_verbose_name }} löschen</a>
-            {% endif %}
-            <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} speichern</button>
+            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
           </div>
         {% endif %}
       </div>
@@ -112,10 +100,7 @@
       {% if is_mobile %}
         <div class="d-grid mt-5 mb-3 gap-2">
           <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-          {% if object %}
-            <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> löschen</a>
-          {% endif %}
-          <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+          <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
         </div>
       {% endif %}
       {% include "modal-error.html" %}
@@ -305,6 +290,6 @@
       });
     </script>
   {% else %}
-    {% include "bemas/notice-norights.html" %}
+    {% include "antragsmanagement/notice-norights.html" %}
   {% endif %}
 {% endblock %}
