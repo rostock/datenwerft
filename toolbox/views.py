@@ -118,7 +118,7 @@ class OWSProxyView(View):
     :return: HTTP response with proxied OWS
     """
     url = sub(
-        pattern=r'(http[s]?):\/([A-z0-9])',
+        pattern=r'(http[s]?):\/([a-z0-9])',
         repl=r'\g<1>://\g<2>',
         string=self.destination_url
     )

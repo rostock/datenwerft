@@ -10,7 +10,7 @@ datenwerft/secrets.py
 hilfe/build
 toolbox/mkpdf/tmp_*
 /static
-/uploads
+/uploads/latex_templates
 
 # Node.js
 *package-lock*
