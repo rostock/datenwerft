@@ -1,11 +1,11 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
 from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, RegexValidator
+from django.core.validators import RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
 from django.db.models.fields import BooleanField, CharField, DateField, EmailField, TextField
 
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
-  email_message, hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
+  hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
   rufnummer_regex, rufnummer_message
 from toolbox.utils import concat_address
 from .base import Object, GeometryObject
@@ -33,12 +33,7 @@ class Authority(Object):
     editable=False
   )
   email = EmailField(
-    verbose_name='E-Mail-Adresse',
-    validators=[
-      EmailValidator(
-        message=email_message
-      )
-    ]
+    verbose_name='E-Mail-Adresse'
   )
 
   class Meta(Object.Meta):
@@ -107,12 +102,7 @@ class Requester(Object):
     validators=personennamen_validators
   )
   email = EmailField(
-    verbose_name='E-Mail-Adresse',
-    validators=[
-      EmailValidator(
-        message=email_message
-      )
-    ]
+    verbose_name='E-Mail-Adresse'
   )
   telephone = CharField(
     verbose_name='Telefonnummer',

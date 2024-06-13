@@ -1,6 +1,8 @@
 from django.forms import ModelForm, ValidationError
+from django.forms.fields import EmailField
 
 from antragsmanagement.models import GeometryObject
+from toolbox.constants_vars import email_message
 
 
 class GenericObjectForm(ModelForm):
@@ -15,11 +17,10 @@ class GenericObjectForm(ModelForm):
     super().__init__(*args, **kwargs)
     # customize messages
     for field in self.fields.values():
-      required_message = 'Das Attribut <strong><em>{}</em></strong> ' \
-                         'ist Pflicht!'.format(field.label)
-      field.error_messages = {
-        'required': required_message
-      }
+      field.error_messages['required'] = 'Das Attribut <strong><em>{}</em></strong> ' \
+                                         'ist Pflicht!'.format(field.label)
+      if issubclass(field.__class__, EmailField):
+        field.error_messages['invalid'] = email_message
 
   def clean(self):
     """

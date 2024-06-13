@@ -155,3 +155,41 @@ class DefaultViewTestCase(DefaultTestCase):
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
     self.assertIn(string, str(response.content))
+
+
+class DefaultFormViewTestCase(DefaultModelTestCase):
+  """
+  abstract test class for form views
+  """
+
+  def init(self):
+    super().init()
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+  def generic_form_view_test(self, antragsmanagement_requester, antragsmanagement_authority,
+                        antragsmanagement_admin, view_name, status_code, content_type, string):
+    """
+    tests a form view via GET
+
+    :param self
+    :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
+    :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
+    :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
+    :param view_name: name of the view
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
+    """
+    # log test user in
+    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    # prepare the GET
+    url = reverse('antragsmanagement:' + view_name)
+    # try GETting the view
+    response = self.client.get(url)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # specific string contained in response?
+    self.assertIn(string, str(response.content))
