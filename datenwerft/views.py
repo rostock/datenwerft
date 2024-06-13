@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 
+from antragsmanagement.utils import is_antragsmanagement_user
 from bemas.utils import is_bemas_user
 
 
@@ -20,19 +21,19 @@ class IndexView(TemplateView):
     :param kwargs:
     :return:
     """
-    if (
-        request.user.is_authenticated
-        and not request.user.is_superuser
-        and not is_bemas_user(request.user)
-    ):
-      return redirect('datenmanagement:index')
-    elif (
-        request.user.is_authenticated
-        and is_bemas_user(request.user, only_bemas_user_check=True)
-    ):
-      return redirect('bemas:index')
-    else:
-      return super(IndexView, self).dispatch(request, *args, **kwargs)
+    if request.user.is_authenticated:
+      if (
+          not request.user.is_superuser
+          and not is_antragsmanagement_user(request.user)
+          and not is_bemas_user(request.user)
+      ):
+        return redirect('datenmanagement:index')
+      elif is_antragsmanagement_user(request.user, only_antragsmanagement_user_check=True):
+        return redirect('antragsmanagement:index')
+      elif is_bemas_user(request.user, only_bemas_user_check=True):
+        return redirect('bemas:index')
+
+    return super(IndexView, self).dispatch(request, *args, **kwargs)
 
 
 def error_400(request, exception=None):

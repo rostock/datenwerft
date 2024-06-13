@@ -66,9 +66,9 @@ TEMPLATES = [
         'datenwerft.context_processors.include_login_form',
       ],
       'libraries': {
+        'toolbox_tags': 'toolbox.tags',
         'datenmanagement_tags': 'datenmanagement.tags',
-        'bemas_tags': 'bemas.tags',
-        'toolbox_tags': 'toolbox.tags'
+        'bemas_tags': 'bemas.tags'
       },
     },
   },

@@ -1,0 +1,40 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}Antragsmanagement | {% endblock %}
+
+{% block content %}
+  {% if is_antragsmanagement_user %}
+    {% if is_antragsmanagement_admin %}
+      <ul>
+        <li>Authority -> List</li>
+        <li>Authority -> Update</li>
+        <li>Email -> List</li>
+        <li>Email -> Update</li>
+        <li>CleanupEventRequest -> List</li>
+        <li>CleanupEventRequest -> Map</li>
+      </ul>
+    {% elif belongs_to_antragsmanagement_authority %}
+      <ul>
+        <li>CleanupEventRequest -> List (nur zugewiesene)</li>
+        <li>CleanupEventRequest -> Map (nur zugewiesene)</li>
+        <li>CleanupEventRequest -> Update (nur zugewiesene)</li>
+      </ul>
+    {% elif is_antragsmanagement_requester %}
+      <ul>
+        <li>Requester -> Create</li>
+        <li>Requester -> Update (nur eigenen)</li>
+        <li>CleanupEventRequest -> List (nur eigene)</li>
+        <li>CleanupEventRequest -> Map (nur eigene)</li>
+        <li>CleanupEventRequest -> Create</li>
+      </ul>
+    {% endif %}
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 3000);
+    </script>
+  {% else %}
+    {% include "antragsmanagement/notice-norights.html" %}
+  {% endif %}
+{% endblock %}

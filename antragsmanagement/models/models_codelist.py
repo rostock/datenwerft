@@ -75,8 +75,8 @@ class CleanupEventCodelistWasteQuantity(Codelist):
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_wastequantity'
-    verbose_name = 'Abfallmenge'
-    verbose_name_plural = 'Abfallmengen'
+    verbose_name = 'Müllsammelaktionen: Abfallmenge'
+    verbose_name_plural = 'Müllsammelaktionen: Abfallmengen'
 
   class BaseMeta(Codelist.BaseMeta):
     description = 'Codeliste für Müllsammelaktionen: Abfallmengen'
@@ -90,8 +90,8 @@ class CleanupEventCodelistWasteType(Codelist):
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_wastetype'
-    verbose_name = 'Abfallart'
-    verbose_name_plural = 'Abfallarten'
+    verbose_name = 'Müllsammelaktionen: Abfallart'
+    verbose_name_plural = 'Müllsammelaktionen: Abfallarten'
 
   class BaseMeta(Codelist.BaseMeta):
     description = 'Codeliste für Müllsammelaktionen: Abfallarten'
@@ -105,8 +105,8 @@ class CleanupEventCodelistEquipment(Codelist):
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_equipment'
-    verbose_name = 'Austattung'
-    verbose_name_plural = 'Austattungen'
+    verbose_name = 'Müllsammelaktionen: Austattung'
+    verbose_name_plural = 'Müllsammelaktionen: Austattungen'
 
   class BaseMeta(Codelist.BaseMeta):
     description = 'Codeliste für Müllsammelaktionen: Austattungen'

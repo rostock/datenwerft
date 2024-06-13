@@ -3,27 +3,31 @@ from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
 from toolbox.utils import is_geometry_field
+from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
+  is_antragsmanagement_admin, is_antragsmanagement_requester, is_antragsmanagement_user
 
 
-def add_default_context_elements(context, user):
+def add_rbac_context_elements(context, user):
   """
-  adds default elements to a context and returns it
+  adds role-based access control (RBAC) related elements to a context and returns it
 
   :param context: context
   :param user: user
-  :return: context with default elements added
+  :return: context with role-based access control (RBAC) related elements added
   """
-  context['is_requester'], context['is_authority'], context['is_admin'] = False, False, False
+  roles = {
+    'is_antragsmanagement_user': is_antragsmanagement_user(user),
+    'is_antragsmanagement_requester': is_antragsmanagement_requester(user),
+    'belongs_to_antragsmanagement_authority': belongs_to_antragsmanagement_authority(user),
+    'is_antragsmanagement_admin': is_antragsmanagement_admin(user)
+  }
   if user.is_superuser:
-    context['is_requester'], context['is_authority'], context['is_admin'] = True, True, True
-  elif is_bemas_user(user) or is_bemas_admin(user):
-    context['is_bemas_user'] = True
-    if is_bemas_admin(user):
-      context['is_bemas_admin'] = True
+    roles = {key: True for key in roles}
+  context.update(roles)
   return context
 
 
-def add_user_agent_context_elements(context, request):
+def add_useragent_context_elements(context, request):
   """
   adds user agent related elements to a context and returns it
 
