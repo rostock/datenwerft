@@ -1,0 +1,70 @@
+{% extends "navbar.html" %}
+{% load antragsmanagement_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
+  {% if is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script src="{% static 'antragsmanagement/js/simple-form.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if has_necessary_permissions %}
+    {% if form.errors %}
+      {% include "antragsmanagement/container-errors.html" %}
+    {% endif %}
+    {% if object %}
+      <h2>ändern → {{ model_verbose_name }} <em>{{ object }}</em></h2>
+    {% else %}
+      <h2>neu → {{ model_verbose_name }}</h2>
+    {% endif %}
+    <form class="form mt-4" method="post" action="">
+      {% csrf_token %}
+      <div>
+        <table class="table">
+          {% for field in form %}
+            <tr>
+              <td class="cell-label">
+                {{ field.label_tag }}
+              </td>
+              {% autoescape off %}
+                <td class="cell-field">
+                  {{ field }}
+                </td>
+              {% endautoescape %}
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div id="buttons">
+        <div class="d-grid mt-5 mb-3 gap-2">
+          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen {% endif %}speichern</button>
+          <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+        </div>
+      </div>
+    </form>
+    <script>
+      /**
+       * @function
+       *
+       * main function
+       */
+      $(document).ready(function () {
+        keepDjangoRequiredMessages();
+      });
+    </script>
+  {% else %}
+    {% include "antragsmanagement/notice-nopermissions.html" %}
+  {% endif %}
+{% endblock %}

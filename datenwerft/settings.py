@@ -68,6 +68,7 @@ TEMPLATES = [
       'libraries': {
         'toolbox_tags': 'toolbox.tags',
         'datenmanagement_tags': 'datenmanagement.tags',
+        'antragsmanagement_tags': 'antragsmanagement.tags',
         'bemas_tags': 'bemas.tags'
       },
     },
@@ -193,6 +194,16 @@ LANGUAGE_CODE = 'de'
 TIME_ZONE = 'Europe/Berlin'
 USE_I18N = True
 USE_TZ = True
+
+
+# Antragsmanagement app:
+# icons
+
+ANTRAGSMANAGEMENT_ICONS = {
+  'cancel': 'hand',
+  'error': 'circle-exclamation',
+  'save': 'floppy-disk'
+}
 
 
 # BEMAS app:

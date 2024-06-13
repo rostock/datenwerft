@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.forms.models import modelform_factory
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 
 from .forms import GenericObjectForm
-from .functions import add_rbac_context_elements, add_useragent_context_elements, assign_widget
+from .functions import add_model_context_elements, add_permissions_context_elements, \
+  add_useragent_context_elements, assign_widget
 from antragsmanagement.models import Authority
 
 
@@ -27,7 +30,7 @@ class IndexView(TemplateView):
     """
     context = super().get_context_data(**kwargs)
     context = add_useragent_context_elements(context, self.request)
-    context = add_rbac_context_elements(context, self.request.user)
+    context = add_permissions_context_elements(context, self.request.user)
     context['cancel_url'] = '#'
     return context
 
@@ -42,7 +45,7 @@ class AuthorityUpdateView(UpdateView):
   authority (Behörde)
   """
 
-  template_name = 'antragsmanagement/complex-form.html'
+  template_name = 'antragsmanagement/simple-form.html'
 
   def __init__(self, model=Authority, *args, **kwargs):
     self.model = model
@@ -63,6 +66,8 @@ class AuthorityUpdateView(UpdateView):
     """
     context = super().get_context_data(**kwargs)
     context = add_useragent_context_elements(context, self.request)
-    # context = add_generic_context_elements(context, self.model)
-    context['cancel_url'] = '#'
+    context = add_permissions_context_elements(
+      context, self.request.user, settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    context = add_model_context_elements(context, self.model)
+    context['cancel_url'] = reverse('antragsmanagement:index')
     return context

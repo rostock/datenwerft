@@ -4,26 +4,42 @@ from leaflet.forms.widgets import LeafletWidget
 
 from toolbox.utils import is_geometry_field
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
-  is_antragsmanagement_admin, is_antragsmanagement_requester, is_antragsmanagement_user
+  has_necessary_permissions, is_antragsmanagement_admin, is_antragsmanagement_requester, \
+  is_antragsmanagement_user
 
 
-def add_rbac_context_elements(context, user):
+def add_model_context_elements(context, model):
   """
-  adds role-based access control (RBAC) related elements to a context and returns it
+  adds model related elements to a context and returns it
+
+  :param context: context
+  :param model: model
+  :return: context with generic object class related elements added
+  """
+  context['model_verbose_name'] = model._meta.verbose_name
+  return context
+
+
+def add_permissions_context_elements(context, user, necessary_group=None):
+  """
+  adds permissions related elements to a context and returns it
 
   :param context: context
   :param user: user
-  :return: context with role-based access control (RBAC) related elements added
+  :param necessary_group: group that passed user must belong to for necessary permissions
+  :return: context with permissions related elements added
   """
-  roles = {
+  permissions = {
     'is_antragsmanagement_user': is_antragsmanagement_user(user),
     'is_antragsmanagement_requester': is_antragsmanagement_requester(user),
     'belongs_to_antragsmanagement_authority': belongs_to_antragsmanagement_authority(user),
-    'is_antragsmanagement_admin': is_antragsmanagement_admin(user)
+    'is_antragsmanagement_admin': is_antragsmanagement_admin(user),
+    'has_necessary_permissions': has_necessary_permissions(user, necessary_group) if
+    necessary_group else None
   }
   if user.is_superuser:
-    roles = {key: True for key in roles}
-  context.update(roles)
+    permissions = {key: True for key in permissions}
+  context.update(permissions)
   return context
 
 

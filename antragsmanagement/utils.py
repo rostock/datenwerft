@@ -10,7 +10,31 @@ def belongs_to_antragsmanagement_authority(user):
   """
   return user.groups.filter(
     name__in=settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES
-  )
+  ).exists()
+
+
+def get_icon_from_settings(key):
+  """
+  returns icon (i.e. value) of passed key in icon dictionary
+
+  :param key: key in icon dictionary
+  :return: icon (i.e. value) of passed key in icon dictionary
+  """
+  return settings.ANTRAGSMANAGEMENT_ICONS.get(key, 'poo')
+
+
+def has_necessary_permissions(user, necessary_group):
+  """
+  checks if passed user belongs to passed group and thus has necessary permissions
+
+  :param user: user
+  :param necessary_group: group that passed user must belong to for necessary permissions
+  :return: passed user belongs to passed group and thus has necessary permissions?
+  """
+  if isinstance(necessary_group, list):
+    return user.groups.filter(name__in=necessary_group).exists()
+  else:
+    return user.groups.filter(name=necessary_group).exists()
 
 
 def is_antragsmanagement_admin(user):
@@ -20,7 +44,7 @@ def is_antragsmanagement_admin(user):
   :param user: user
   :return: passed user is an Antragsmanagement admin?
   """
-  return user.groups.filter(name=settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+  return user.groups.filter(name=settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME).exists()
 
 
 def is_antragsmanagement_requester(user):
@@ -30,7 +54,7 @@ def is_antragsmanagement_requester(user):
   :param user: user
   :return: passed user is an Antragsmanagement requester?
   """
-  return user.groups.filter(name=settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+  return user.groups.filter(name=settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME).exists()
 
 
 def is_antragsmanagement_user(user, only_antragsmanagement_user_check=False):
@@ -42,15 +66,14 @@ def is_antragsmanagement_user(user, only_antragsmanagement_user_check=False):
   :param only_antragsmanagement_user_check: check if user is an Antragsmanagement user only?
   :return: passed user is an Antragsmanagement user (only)?
   """
-  groups = settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES
+  groups = list(settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES)
   groups.extend([
     settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME
   ])
-  in_antragsmanagement_groups = user.groups.filter(name__in=groups)
-  if in_antragsmanagement_groups:
+  if user.groups.filter(name__in=groups).exists():
     if only_antragsmanagement_user_check:
       # if user is an Antragsmanagement user only, he is not a member of any other group
-      return in_antragsmanagement_groups.count() == user.groups.all().count()
+      return user.groups.filter(name__in=groups).count() == user.groups.all().count()
     else:
       return True
   else:

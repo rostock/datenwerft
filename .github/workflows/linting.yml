@@ -44,4 +44,4 @@ jobs:
       - name: Check CSS rules via Stylelint
         run: npx stylelint "datenwerft/**/*.css accounts/**/*.css" "datenmanagement/**/*.css"
       - name: Check JavaScript rules via ESLint
-        run: npx eslint "antragsmanagement/templates/antragsmanagement/*.html" "bemas/static/bemas/js/*.js" "bemas/templates/bemas/*.html" "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/*.html"
+        run: npx eslint "antragsmanagement/static/antragsmanagement/js/*.js" "antragsmanagement/templates/antragsmanagement/*.html" "bemas/static/bemas/js/*.js" "bemas/templates/bemas/*.html" "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/*.html"
