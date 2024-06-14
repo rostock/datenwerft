@@ -17,12 +17,12 @@ class CodelistRequestStatusTest(DefaultCodelistTestCase):
 
   model = CodelistRequestStatus
   count = 4
-  attributes_values_db_initial = {
+  attributes_values_db_create = {
     'ordinal': 4,
     'name': get_random_string(length=12),
     'icon': get_random_string(length=12)
   }
-  attributes_values_db_updated = {
+  attributes_values_db_update = {
     'ordinal': 5,
     'name': get_random_string(length=12),
     'icon': get_random_string(length=12)
@@ -57,11 +57,11 @@ class CleanupEventCodelistWasteQuantityTest(DefaultCodelistTestCase):
 
   model = CleanupEventCodelistWasteQuantity
   count = 4
-  attributes_values_db_initial = {
+  attributes_values_db_create = {
     'ordinal': 4,
     'name': get_random_string(length=12)
   }
-  attributes_values_db_updated = {
+  attributes_values_db_update = {
     'ordinal': 5,
     'name': get_random_string(length=12)
   }
@@ -90,10 +90,10 @@ class CleanupEventCodelistWasteTypeTest(DefaultCodelistTestCase):
 
   model = CleanupEventCodelistWasteType
   count = 6
-  attributes_values_db_initial = {
+  attributes_values_db_create = {
     'name': get_random_string(length=12)
   }
-  attributes_values_db_updated = {
+  attributes_values_db_update = {
     'name': get_random_string(length=12)
   }
 
@@ -121,10 +121,10 @@ class CleanupEventCodelistEquipmentTest(DefaultCodelistTestCase):
 
   model = CleanupEventCodelistEquipment
   count = 5
-  attributes_values_db_initial = {
+  attributes_values_db_create = {
     'name': get_random_string(length=12)
   }
-  attributes_values_db_updated = {
+  attributes_values_db_update = {
     'name': get_random_string(length=12)
   }
 

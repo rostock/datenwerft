@@ -34,13 +34,13 @@ class DefaultModelTestCase(DefaultTestCase):
   model = None
   count = 0
   create_test_object_in_classmethod = True
-  attributes_values_db_initial, attributes_values_db_updated = {}, {}
+  attributes_values_db_create, attributes_values_db_update = {}, {}
   test_object = None
 
   @classmethod
   def setUpTestData(cls):
     if cls.create_test_object_in_classmethod:
-      cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+      cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def init(self):
     super().init()
@@ -65,7 +65,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param self
     """
     # clean object filter
-    object_filter = clean_object_filter(self.attributes_values_db_initial)
+    object_filter = clean_object_filter(self.attributes_values_db_create)
     # get object by object filter
     test_object = get_object(self.model, object_filter)
     # test general existance of object
@@ -79,11 +79,11 @@ class DefaultModelTestCase(DefaultTestCase):
 
     :param self
     """
-    for key in self.attributes_values_db_updated:
-      setattr(self.test_object, key, self.attributes_values_db_updated[key])
+    for key in self.attributes_values_db_update:
+      setattr(self.test_object, key, self.attributes_values_db_update[key])
     self.test_object.save()
     # clean object filter
-    object_filter = clean_object_filter(self.attributes_values_db_updated)
+    object_filter = clean_object_filter(self.attributes_values_db_update)
     # get object by object filter
     test_object = get_object(self.model, object_filter)
     # test general existance of object
@@ -166,13 +166,14 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_form_view_test(self, antragsmanagement_requester, antragsmanagement_authority,
-                        antragsmanagement_admin, view_name, status_code, content_type, string):
+  def generic_form_view_get_test(self, update_mode, antragsmanagement_requester,
+                                 antragsmanagement_authority, antragsmanagement_admin, view_name,
+                                 status_code, content_type, string):
     """
     tests a form view via GET
 
     :param self
+    :param update_mode: update mode?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
     :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
@@ -183,8 +184,12 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     """
     # log test user in
     login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
-    # prepare the GET
-    url = reverse('antragsmanagement:' + view_name)
+    # for update mode: get primary key of last object
+    last_pk = self.model.objects.last().pk
+    if update_mode:
+      url = reverse('antragsmanagement:' + view_name, args=[last_pk])
+    else:
+      url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
     response = self.client.get(url)
     # status code of response as expected?
@@ -193,3 +198,45 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
     self.assertIn(string, str(response.content))
+
+  @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
+  @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
+  def generic_form_view_post_test(self, update_mode, antragsmanagement_requester,
+                                  antragsmanagement_authority, antragsmanagement_admin, view_name,
+                                  object_filter, count, status_code, content_type):
+    """
+    tests a form view via POST
+
+    :param self
+    :param update_mode: update mode?
+    :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
+    :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
+    :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
+    :param view_name: name of the view
+    :param object_filter: object filter
+    :param count: expected number of objects passing the object filter
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    """
+    # log test user in
+    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    # for update mode: get primary key of last object
+    last_pk = self.model.objects.last().pk
+    if update_mode:
+      url = reverse('antragsmanagement:' + view_name, args=[last_pk])
+    else:
+      url = reverse('antragsmanagement:' + view_name)
+    data = object_filter
+    # try POSTing the view
+    response = self.client.post(url, data)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # clean object filter
+    object_filter = clean_object_filter(object_filter, self.model)
+    # number of objects passing the object filter as expected?
+    if update_mode:
+      self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)
+    else:
+      self.assertEqual(self.model.objects.filter(**object_filter).count(), count)

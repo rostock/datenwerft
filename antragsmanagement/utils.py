@@ -66,14 +66,14 @@ def is_antragsmanagement_user(user, only_antragsmanagement_user_check=False):
   :param only_antragsmanagement_user_check: check if user is an Antragsmanagement user only?
   :return: passed user is an Antragsmanagement user (only)?
   """
-  groups = list(settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES)
-  groups.extend([
+  group_names = list(settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES)
+  group_names.extend([
     settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME
   ])
-  if user.groups.filter(name__in=groups).exists():
+  if user.groups.filter(name__in=group_names).exists():
     if only_antragsmanagement_user_check:
       # if user is an Antragsmanagement user only, he is not a member of any other group
-      return user.groups.filter(name__in=groups).count() == user.groups.all().count()
+      return user.groups.filter(name__in=group_names).count() == user.groups.all().count()
     else:
       return True
   else:

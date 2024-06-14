@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 
 api_urlpatterns = router.urls
 
-app_name = 'antragsmanagement'
+app_label = 'antragsmanagement'
 
 
 urlpatterns = [
@@ -23,7 +23,7 @@ urlpatterns = [
   path(
     'authority/update/<pk>',
     view=login_required(AuthorityUpdateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:index')
+      success_url=reverse_lazy(app_label + ':' + 'index')
     )),
     name='authority_update'
   )
