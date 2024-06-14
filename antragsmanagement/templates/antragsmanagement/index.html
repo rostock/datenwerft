@@ -11,8 +11,11 @@
     {% if is_antragsmanagement_requester %}
       Antragsteller:in
       <ul>
-        <li><a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a></li>
-        <li>Requester -> Update (nur eigenen)</li>
+        {% if corresponding_requester %}
+          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a></li>
+        {% else %}
+          <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a></li>
+        {% endif %}
         <li>CleanupEventRequest -> List (nur eigene)</li>
         <li>CleanupEventRequest -> Map (nur eigene)</li>
         <li>CleanupEventRequest -> Create</li>

@@ -1,5 +1,7 @@
 from django.conf import settings
 
+from .models import Requester
+
 
 def belongs_to_antragsmanagement_authority(user):
   """
@@ -11,6 +13,20 @@ def belongs_to_antragsmanagement_authority(user):
   return user.groups.filter(
     name__in=settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES
   ).exists()
+
+
+def get_corresponding_requester_pk(user):
+  """
+  returns primary key of corresponding requester object for passed user
+
+  :param user: user
+  :return: primary key of corresponding requester object for passed user
+  """
+  try:
+    requester = Requester.objects.get(user_id=user.id)
+    return requester.pk
+  except Requester.DoesNotExist:
+    return None
 
 
 def get_icon_from_settings(key):

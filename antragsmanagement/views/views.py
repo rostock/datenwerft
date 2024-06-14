@@ -4,6 +4,7 @@ from django.views.generic.base import TemplateView
 from .base import GenericObjectCreateView, GenericObjectUpdateView
 from .functions import add_permissions_context_elements, add_useragent_context_elements
 from antragsmanagement.models import Authority, Email, Requester
+from antragsmanagement.utils import get_corresponding_requester_pk
 
 
 #
@@ -29,6 +30,8 @@ class IndexView(TemplateView):
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
+    # add information about corresponding requester object for user to context
+    context['corresponding_requester'] = get_corresponding_requester_pk(self.request.user)
     context['cancel_url'] = '#'
     return context
 
@@ -90,6 +93,19 @@ class RequesterCreateView(GenericObjectCreateView):
   """
 
   model = Requester
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    if self.request.user.is_authenticated:
+      instance = form.save(commit=False)
+      # set the value of the user_id field programmatically
+      instance.user_id = self.request.user.id
+    return super().form_valid(form)
 
   def get_context_data(self, **kwargs):
     """
