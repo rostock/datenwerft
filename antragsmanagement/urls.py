@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView
+from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView, \
+  RequesterUpdateView
 
 router = routers.DefaultRouter()
 
@@ -44,5 +45,14 @@ urlpatterns = [
       success_url=reverse_lazy(app_name + ':' + 'index')
     )),
     name='requester_create'
+  ),
+  # form page for updating an instance of general object:
+  # requester (Antragsteller:in)
+  path(
+    'requester/update/<pk>',
+    view=login_required(RequesterUpdateView.as_view(
+      success_url=reverse_lazy(app_name + ':' + 'index')
+    )),
+    name='requester_update'
   )
 ]

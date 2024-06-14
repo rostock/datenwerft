@@ -104,3 +104,26 @@ class RequesterCreateView(GenericObjectCreateView):
     context = add_permissions_context_elements(
       context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
     return context
+
+
+class RequesterUpdateView(GenericObjectUpdateView):
+  """
+  view for form page for updating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+  model = Requester
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set requester permissions as necessary permissions
+    context = add_permissions_context_elements(
+      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    return context

@@ -5,6 +5,9 @@
 
 {% block content %}
   {% if is_antragsmanagement_user %}
+    {% if messages %}
+      {% include "antragsmanagement/container-messages.html" %}
+    {% endif %}
     {% if is_antragsmanagement_requester %}
       Antragsteller:in
       <ul>

@@ -202,6 +202,7 @@ USE_TZ = True
 ANTRAGSMANAGEMENT_ICONS = {
   'cancel': 'hand',
   'error': 'circle-exclamation',
+  'ok': 'circle-check',
   'save': 'floppy-disk'
 }
 

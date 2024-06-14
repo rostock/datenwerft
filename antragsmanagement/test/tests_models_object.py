@@ -83,7 +83,7 @@ class RequesterTest(DefaultModelTestCase):
     'email': VALID_EMAIL
   }
   attributes_values_db_update = {
-    'email': 'golda.meir@gov.il'
+    'organization': VALID_STRING
   }
 
   def setUp(self):

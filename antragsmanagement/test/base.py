@@ -203,7 +203,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_form_view_post_test(self, update_mode, antragsmanagement_requester,
                                   antragsmanagement_authority, antragsmanagement_admin, view_name,
-                                  object_filter, count, status_code, content_type):
+                                  object_filter, count, status_code, content_type, string):
     """
     tests a form view via POST
 
@@ -217,6 +217,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     :param count: expected number of objects passing the object filter
     :param status_code: expected status code of response
     :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
     """
     # log test user in
     login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
@@ -233,6 +234,9 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
+    # specific string contained in response?
+    if string:
+      self.assertIn(string, str(response.content))
     # clean object filter
     object_filter = clean_object_filter(object_filter, self.model)
     # number of objects passing the object filter as expected?

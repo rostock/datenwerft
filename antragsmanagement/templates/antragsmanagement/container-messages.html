@@ -1,0 +1,14 @@
+{% load antragsmanagement_tags %}
+{% for message in messages %}
+  {% if message.tags and message.tags == 'error' %}
+    <div class="alert alert-danger" role="alert">
+      <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
+      {{ message|safe }}
+    </div>
+  {% elif message.tags and message.tags == 'success' %}
+    <div class="alert alert-success" role="alert">
+      <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
+      {{ message|safe }}
+    </div>
+  {% endif %}
+{% endfor %}
