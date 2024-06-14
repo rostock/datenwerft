@@ -2,7 +2,8 @@ from django.contrib.gis.db.models.fields import PointField, PolygonField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
-from django.db.models.fields import BooleanField, CharField, DateField, EmailField, TextField
+from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
+  TextField
 
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
@@ -83,8 +84,12 @@ class Requester(Object):
   requester (Antragsteller:in)
   """
 
-  registered = BooleanField(
-    verbose_name='registriert?'
+  user_id = PositiveIntegerField(
+    verbose_name='User-ID',
+    unique=True,
+    blank=True,
+    null=True,
+    editable=False
   )
   organization = CharField(
     verbose_name='Organisation',

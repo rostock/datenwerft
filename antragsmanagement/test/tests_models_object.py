@@ -78,13 +78,12 @@ class RequesterTest(DefaultModelTestCase):
 
   model = Requester
   attributes_values_db_create = {
-    'registered': True,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL
   }
   attributes_values_db_update = {
-    'registered': False
+    'email': 'golda.meir@gov.il'
   }
 
   def setUp(self):
@@ -119,7 +118,6 @@ class CleanupEventRequestTest(DefaultModelTestCase):
     status1 = CodelistRequestStatus.get_status_new()
     status2 = CodelistRequestStatus.get_status_in_process()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -165,7 +163,6 @@ class CleanupEventEventTest(DefaultModelTestCase):
   def setUpTestData(cls):
     status = CodelistRequestStatus.get_status_processed()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -217,7 +214,6 @@ class CleanupEventVenueTest(DefaultModelTestCase):
     status1 = CodelistRequestStatus.get_status_new()
     status2 = CodelistRequestStatus.get_status_rejected()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -272,7 +268,6 @@ class CleanupEventDetailsTest(DefaultModelTestCase):
   def setUpTestData(cls):
     status = CodelistRequestStatus.get_status_rejected()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -328,7 +323,6 @@ class CleanupEventContainerTest(DefaultModelTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_in_process()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL

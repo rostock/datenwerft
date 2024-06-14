@@ -8,7 +8,7 @@
     {% if is_antragsmanagement_requester %}
       Antragsteller:in
       <ul>
-        <li>Requester -> Create</li>
+        <li><a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a></li>
         <li>Requester -> Update (nur eigenen)</li>
         <li>CleanupEventRequest -> List (nur eigene)</li>
         <li>CleanupEventRequest -> Map (nur eigene)</li>
