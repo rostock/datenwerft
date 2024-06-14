@@ -85,7 +85,7 @@ def assign_widget(field):
   # handle text areas
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
-    form_field.widget.attrs['rows'] = 5
+    form_field.widget.attrs['rows'] = 10
   # handle geometry widgets
   elif is_geometry_field(field.__class__):
     form_field = field.formfield(

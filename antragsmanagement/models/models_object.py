@@ -61,8 +61,7 @@ class Email(Object):
     editable=False
   )
   body = TextField(
-    verbose_name='Inhalt',
-    validators=standard_validators
+    verbose_name='Inhalt'
   )
 
   class Meta(Object.Meta):

@@ -2,13 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from .views.views import IndexView, AuthorityUpdateView
+from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView
 
 router = routers.DefaultRouter()
 
 api_urlpatterns = router.urls
 
-app_label = 'antragsmanagement'
+app_name = 'antragsmanagement'
 
 
 urlpatterns = [
@@ -23,8 +23,17 @@ urlpatterns = [
   path(
     'authority/update/<pk>',
     view=login_required(AuthorityUpdateView.as_view(
-      success_url=reverse_lazy(app_label + ':' + 'index')
+      success_url=reverse_lazy(app_name + ':' + 'index')
     )),
     name='authority_update'
+  ),
+  # form page for updating an instance of general object:
+  # email (E-Mail)
+  path(
+    'email/update/<pk>',
+    view=login_required(EmailUpdateView.as_view(
+      success_url=reverse_lazy(app_name + ':' + 'index')
+    )),
+    name='email_update'
   )
 ]
