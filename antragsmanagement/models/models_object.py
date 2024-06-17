@@ -222,7 +222,7 @@ class CleanupEventRequest(Request):
   class Meta(Request.Meta):
     db_table = 'cleanupevent_request'
     ordering = ['-id']
-    verbose_name = 'Müllsammelaktionen: Antrag'
+    verbose_name = 'Müllsammelaktion: Antrag'
     verbose_name_plural = 'Müllsammelaktionen: Anträge'
 
   class BaseMeta(Request.BaseMeta):
@@ -241,10 +241,10 @@ class CleanupEventEvent(GeometryObject):
     on_delete=CASCADE
   )
   from_date = DateField(
-    verbose_name='vom/am'
+    verbose_name='Startdatum/Datum'
   )
   to_date = DateField(
-    verbose_name='bis',
+    verbose_name='Enddatum',
     blank=True,
     null=True
   )
@@ -255,12 +255,12 @@ class CleanupEventEvent(GeometryObject):
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_event'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Müllsammelaktionen: Aktion zu Antrag'
-    verbose_name_plural = 'Müllsammelaktionen: Aktionen zu Anträgen'
+    verbose_name = 'Müllsammelaktion: Aktionsdaten'
+    verbose_name_plural = 'Müllsammelaktionen: Aktionsdaten'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'area'
-    description = 'Müllsammelaktionen: Aktionen zu Anträgen'
+    description = 'Müllsammelaktionen: Aktionsdaten'
 
 
 class CleanupEventVenue(GeometryObject):
@@ -281,12 +281,12 @@ class CleanupEventVenue(GeometryObject):
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_venue'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Müllsammelaktionen: Treffpunkt zu Antrag'
-    verbose_name_plural = 'Müllsammelaktionen: Treffpunkte zu Anträgen'
+    verbose_name = 'Müllsammelaktion: Treffpunkt'
+    verbose_name_plural = 'Müllsammelaktionen: Treffpunkte'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
-    description = 'Müllsammelaktionen: Treffpunkte zu Anträgen'
+    description = 'Müllsammelaktionen: Treffpunkte'
 
 
 class CleanupEventDetails(Object):
@@ -327,11 +327,11 @@ class CleanupEventDetails(Object):
   class Meta(Object.Meta):
     db_table = 'cleanupevent_details'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Müllsammelaktionen: Detailangabe zu Antrag'
-    verbose_name_plural = 'Müllsammelaktionen: Detailangaben zu Anträgen'
+    verbose_name = 'Müllsammelaktion: Detailangaben'
+    verbose_name_plural = 'Müllsammelaktionen: Detailangaben'
 
   class BaseMeta(Object.BaseMeta):
-    description = 'Müllsammelaktionen: Detailangaben zu Anträgen'
+    description = 'Müllsammelaktionen: Detailangaben'
 
   def clean(self):
     super().clean()
@@ -364,9 +364,9 @@ class CleanupEventContainer(GeometryObject):
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_container'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Müllsammelaktionen: Container zu Antrag'
-    verbose_name_plural = 'Müllsammelaktionen: Container zu Anträgen'
+    verbose_name = 'Müllsammelaktion: Container'
+    verbose_name_plural = 'Müllsammelaktionen: Container'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
-    description = 'Müllsammelaktionen: Container zu Anträgen'
+    description = 'Müllsammelaktionen: Container'

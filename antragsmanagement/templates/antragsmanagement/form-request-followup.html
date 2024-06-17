@@ -1,0 +1,96 @@
+{% extends "navbar.html" %}
+{% load antragsmanagement_tags %}
+{% if is_geometry_model %}
+  {% load leaflet_tags %}
+{% endif %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  {% if is_geometry_model %}
+    {% leaflet_css plugins="geoman,locatecontrol" %}
+  {% endif %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
+  {% if is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% if is_geometry_model %}
+    {% leaflet_js plugins="geoman,locatecontrol" %}
+    <script src="{% static 'proj4/proj4.js' %}"></script>
+    <script src="{% static 'wicket/wicket.js' %}"></script>
+    <script src="{% static 'wicket/wicket-leaflet.js' %}"></script>
+    <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+    <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+    <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+    <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
+  {% endif %}
+  <script src="{% static 'bemas/js/form.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if has_necessary_permissions %}
+    {% if messages %}
+      {% include "antragsmanagement/container-messages.html" %}
+    {% endif %}
+    {% if form.errors %}
+      {% include "antragsmanagement/container-errors.html" %}
+    {% endif %}
+    {% if corresponding_request %}
+      <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+      <form class="form mt-4" method="post" action="">
+        {% csrf_token %}
+        <div>
+          <table class="table">
+            {% for field in form %}
+              <tr>
+                <td class="cell-label">
+                  {{ field.label_tag }}
+                </td>
+                {% autoescape off %}
+                  <td class="cell-field">
+                    {{ field }}
+                  </td>
+                {% endautoescape %}
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div id="buttons">
+          <div class="d-grid mt-5 mb-3 gap-2">
+            <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
+            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+          </div>
+        </div>
+      </form>
+      <script>
+        setTimeout(function () {
+          $('.alert-success').alert('close');
+        }, 3000);
+
+        /**
+         * @function
+         *
+         * main function
+         */
+        $(document).ready(function () {
+          keepDjangoRequiredMessages();
+        });
+      </script>
+    {% else %}
+      {% include "antragsmanagement/notice-norequest.html" %}
+      <div class="d-grid mt-5 mb-3">
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+      </div>
+    {% endif %}
+  {% else %}
+    {% include "antragsmanagement/notice-nopermissions.html" %}
+  {% endif %}
+{% endblock %}

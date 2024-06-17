@@ -12,13 +12,14 @@
       Antragsteller:in
       <ul>
         {% if corresponding_requester %}
-          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a></li>
+          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a> (= Kontaktdaten ändern)</li>
         {% else %}
-          <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a></li>
+          <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= Kontaktdaten erstellen)
+          </li>
         {% endif %}
         <li>CleanupEventRequest -> List (nur eigene)</li>
         <li>CleanupEventRequest -> Map (nur eigene)</li>
-        <li><a href="{% url 'antragsmanagement:cleanupeventrequest_create' %}">CleanupEventRequest -> Create</a></li>
+        <li><a href="{% url 'antragsmanagement:cleanupeventrequest_create' %}">CleanupEventRequest -> Create</a> (= Antrag auf Müllsammelaktion erstellen)</li>
       </ul>
     {% endif %}
     {% if belongs_to_antragsmanagement_authority %}
@@ -33,9 +34,9 @@
       Admin
       <ul>
         <li>Authority -> List</li>
-        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a></li>
+        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse von Behörde ändern)</li>
         <li>Email -> List</li>
-        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a></li>
+        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt von E-Mail ändern)</li>
         <li>CleanupEventRequest -> List</li>
         <li>CleanupEventRequest -> Map</li>
       </ul>

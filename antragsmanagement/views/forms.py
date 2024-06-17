@@ -1,9 +1,14 @@
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
 
-from antragsmanagement.models import GeometryObject
+from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requester
+from antragsmanagement.utils import get_corresponding_requester
 from toolbox.constants_vars import email_message
 
+
+#
+# general objects
+#
 
 class ObjectForm(ModelForm):
   """
@@ -37,3 +42,33 @@ class ObjectForm(ModelForm):
         raise ValidationError(error_text)
       else:
         cleaned_data[geometry_field] = geometry
+
+
+class RequestForm(ObjectForm):
+  """
+  form for instances of general object:
+  request (Antrag)
+  """
+
+  def __init__(self, *args, **kwargs):
+    self.user = kwargs.pop('user', None)
+    super().__init__(*args, **kwargs)
+    # limit the status field queryset to exactly one entry (= default status)
+    self.fields['status'].queryset = CodelistRequestStatus.get_status_new(as_queryset=True)
+    # limit the requester field queryset to exactly one entry (= user)
+    user = get_corresponding_requester(self.user, only_primary_key=False)
+    self.fields['requester'].queryset = user if user else Requester.objects.order_by('-id')[:1]
+
+
+class RequestFollowUpForm(ObjectForm):
+  """
+  form for follow-up instances of general object:
+  request (Antrag)
+  """
+
+  def __init__(self, *args, **kwargs):
+    self.request_field = kwargs.pop('request_field', None)
+    self.request_object = kwargs.pop('request_object', None)
+    super().__init__(*args, **kwargs)
+    # limit the request field queryset to exactly one entry (= corresponding request)
+    self.fields[self.request_field].queryset = self.request_object

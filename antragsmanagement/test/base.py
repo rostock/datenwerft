@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from antragsmanagement.models import Codelist
+from antragsmanagement.models import Codelist, Requester, Request
 from bemas.tests.functions import clean_object_filter, get_object
 from .constants_vars import DATABASES, USERNAME, PASSWORD
 from .functions import login
@@ -221,6 +221,12 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     """
     # log test user in
     login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    # in case of request: connect test user to its requester object
+    if issubclass(self.model, Request):
+      requester = Requester.objects.last()
+      if requester:
+        requester.user_id = self.test_user.id
+        requester.save()
     # for update mode: get primary key of last object
     last_pk = self.model.objects.last().pk
     if update_mode:

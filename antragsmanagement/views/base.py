@@ -14,6 +14,7 @@ class ObjectFormMixin:
 
   template_name = 'antragsmanagement/form-simple.html'
   model = None
+  form = ObjectForm
   success_message = ''
   cancel_url = None
 
@@ -24,7 +25,7 @@ class ObjectFormMixin:
     # dynamically create the form class
     form_class = modelform_factory(
       self.model,
-      form=ObjectForm,
+      form=self.form,
       fields='__all__',
       formfield_callback=assign_widget
     )

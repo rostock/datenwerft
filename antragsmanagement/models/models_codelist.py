@@ -34,30 +34,34 @@ class CodelistRequestStatus(Codelist):
     return self.name
 
   @staticmethod
-  def get_status_new():
+  def get_status_new(as_queryset=False):
     if CodelistRequestStatus.objects.filter(ordinal=0).exists():
-      return CodelistRequestStatus.objects.get(ordinal=0)
+      return CodelistRequestStatus.objects.filter(ordinal=0) if as_queryset else (
+        CodelistRequestStatus.objects.get(ordinal=0))
     else:
       return None
 
   @staticmethod
-  def get_status_in_process():
+  def get_status_in_process(as_queryset=False):
     if CodelistRequestStatus.objects.filter(ordinal=1).exists():
-      return CodelistRequestStatus.objects.get(ordinal=1)
+      return CodelistRequestStatus.objects.filter(ordinal=1) if as_queryset else (
+        CodelistRequestStatus.objects.get(ordinal=1))
     else:
       return None
 
   @staticmethod
-  def get_status_processed():
+  def get_status_processed(as_queryset=False):
     if CodelistRequestStatus.objects.filter(ordinal=2).exists():
-      return CodelistRequestStatus.objects.get(ordinal=2)
+      return CodelistRequestStatus.objects.filter(ordinal=2) if as_queryset else (
+        CodelistRequestStatus.objects.get(ordinal=2))
     else:
       return None
 
   @staticmethod
-  def get_status_rejected():
+  def get_status_rejected(as_queryset=False):
     if CodelistRequestStatus.objects.filter(ordinal=3).exists():
-      return CodelistRequestStatus.objects.get(ordinal=3)
+      return CodelistRequestStatus.objects.filter(ordinal=3) if as_queryset else (
+        CodelistRequestStatus.objects.get(ordinal=3))
     else:
       return None
 
@@ -75,7 +79,7 @@ class CleanupEventCodelistWasteQuantity(Codelist):
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_wastequantity'
-    verbose_name = 'Müllsammelaktionen: Abfallmenge'
+    verbose_name = 'Müllsammelaktion: Abfallmenge'
     verbose_name_plural = 'Müllsammelaktionen: Abfallmengen'
 
   class BaseMeta(Codelist.BaseMeta):
@@ -90,7 +94,7 @@ class CleanupEventCodelistWasteType(Codelist):
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_wastetype'
-    verbose_name = 'Müllsammelaktionen: Abfallart'
+    verbose_name = 'Müllsammelaktion: Abfallart'
     verbose_name_plural = 'Müllsammelaktionen: Abfallarten'
 
   class BaseMeta(Codelist.BaseMeta):
@@ -105,7 +109,7 @@ class CleanupEventCodelistEquipment(Codelist):
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_equipment'
-    verbose_name = 'Müllsammelaktionen: Austattung'
+    verbose_name = 'Müllsammelaktion: Austattung'
     verbose_name_plural = 'Müllsammelaktionen: Austattungen'
 
   class BaseMeta(Codelist.BaseMeta):

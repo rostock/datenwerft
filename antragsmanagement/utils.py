@@ -15,16 +15,17 @@ def belongs_to_antragsmanagement_authority(user):
   ).exists()
 
 
-def get_corresponding_requester_pk(user):
+def get_corresponding_requester(user, only_primary_key=True):
   """
-  returns primary key of corresponding requester object for passed user
+  returns (primary key of) corresponding requester object for passed user
 
   :param user: user
-  :return: primary key of corresponding requester object for passed user
+  :param only_primary_key: return only primary key?
+  :return: (primary key of) corresponding requester object for passed user
   """
   try:
     requester = Requester.objects.get(user_id=user.id)
-    return requester.pk
+    return requester.pk if only_primary_key else Requester.objects.filter(user_id=user.id)
   except Requester.DoesNotExist:
     return None
 

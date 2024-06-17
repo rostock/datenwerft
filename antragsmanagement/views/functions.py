@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.forms import Textarea
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
 from toolbox.utils import is_geometry_field
+from antragsmanagement.models import GeometryObject
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   has_necessary_permissions, is_antragsmanagement_admin, is_antragsmanagement_requester, \
   is_antragsmanagement_user
@@ -17,6 +19,13 @@ def add_model_context_elements(context, model):
   :return: context with model related elements added
   """
   context['model_verbose_name'] = model._meta.verbose_name
+  # if object contains geometry:
+  # add geometry related information to context
+  if issubclass(model, GeometryObject):
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
+    context['is_geometry_model'] = True
+    context['geometry_field'] = model.BaseMeta.geometry_field
   return context
 
 

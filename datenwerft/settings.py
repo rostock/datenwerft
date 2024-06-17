@@ -200,8 +200,10 @@ USE_TZ = True
 # icons
 
 ANTRAGSMANAGEMENT_ICONS = {
+  'back': 'backward-step',
   'cancel': 'hand',
   'error': 'circle-exclamation',
+  'next': 'forward-step',
   'ok': 'circle-check',
   'save': 'floppy-disk'
 }
