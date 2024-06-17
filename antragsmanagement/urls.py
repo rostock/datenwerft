@@ -3,7 +3,7 @@ from django.urls import path, reverse_lazy
 from rest_framework import routers
 
 from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView, \
-  RequesterUpdateView
+  RequesterUpdateView, CleanupEventRequestCreateView
 
 router = routers.DefaultRouter()
 
@@ -54,5 +54,15 @@ urlpatterns = [
       success_url=reverse_lazy(app_name + ':' + 'index')
     )),
     name='requester_update'
+  ),
+  # form page for creating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'cleanupeventrequest/create',
+    view=login_required(CleanupEventRequestCreateView.as_view(
+      success_url=reverse_lazy(app_name + ':' + 'index')
+    )),
+    name='cleanupeventrequest_create'
   )
 ]

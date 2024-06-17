@@ -3,18 +3,19 @@ from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import GenericObjectForm
+from .forms import ObjectForm
 from .functions import add_model_context_elements, add_useragent_context_elements, assign_widget
 
 
-class GenericObjectFormMixin:
+class ObjectFormMixin:
   """
   generic mixin for form page for creating or updating an instance of a general object
   """
 
-  template_name = 'antragsmanagement/simple-form.html'
+  template_name = 'antragsmanagement/form-simple.html'
   model = None
   success_message = ''
+  cancel_url = None
 
   def get_form_class(self):
     # ensure the model is set before creating the form class
@@ -23,7 +24,7 @@ class GenericObjectFormMixin:
     # dynamically create the form class
     form_class = modelform_factory(
       self.model,
-      form=GenericObjectForm,
+      form=ObjectForm,
       fields='__all__',
       formfield_callback=assign_widget
     )
@@ -54,13 +55,23 @@ class GenericObjectFormMixin:
     context = add_useragent_context_elements(context, self.request)
     # add model related context elements
     context = add_model_context_elements(context, self.model)
-    context['cancel_url'] = reverse('antragsmanagement:index')
+    # add URLs to context
+    context['cancel_url'] = (reverse(self.cancel_url) if self.cancel_url else reverse(
+      'antragsmanagement:index'))
     return context
 
 
-class GenericObjectCreateView(GenericObjectFormMixin, CreateView):
-    success_message = '{} <strong><em>{}</em></strong> erfolgreich neu angelegt!'
+class ObjectCreateView(ObjectFormMixin, CreateView):
+  """
+  view for form page for creating an instance of a general object
+  """
+
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich neu angelegt!'
 
 
-class GenericObjectUpdateView(GenericObjectFormMixin, UpdateView):
-    success_message = '{} <strong><em>{}</em></strong> erfolgreich geändert!'
+class ObjectUpdateView(ObjectFormMixin, UpdateView):
+  """
+  view for form page for updating an instance of a general object
+  """
+
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich geändert!'

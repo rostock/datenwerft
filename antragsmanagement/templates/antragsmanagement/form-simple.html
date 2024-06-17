@@ -24,11 +24,7 @@
     {% if form.errors %}
       {% include "antragsmanagement/container-errors.html" %}
     {% endif %}
-    {% if object %}
-      <h2>ändern → {{ model_verbose_name }}: <em>{{ object }}</em></h2>
-    {% else %}
-      <h2>neu → {{ model_verbose_name }}</h2>
-    {% endif %}
+    <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
     <form class="form mt-4" method="post" action="">
       {% csrf_token %}
       <div>
@@ -49,7 +45,7 @@
       </div>
       <div id="buttons">
         <div class="d-grid mt-5 mb-3 gap-2">
-          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen {% endif %}speichern</button>
+          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
           <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
         </div>
       </div>

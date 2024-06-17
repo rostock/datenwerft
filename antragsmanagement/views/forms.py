@@ -5,7 +5,7 @@ from antragsmanagement.models import GeometryObject
 from toolbox.constants_vars import email_message
 
 
-class GenericObjectForm(ModelForm):
+class ObjectForm(ModelForm):
   """
   generic form for instances of general objects
   """

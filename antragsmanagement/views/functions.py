@@ -14,7 +14,7 @@ def add_model_context_elements(context, model):
 
   :param context: context
   :param model: model
-  :return: context with generic object class related elements added
+  :return: context with model related elements added
   """
   context['model_verbose_name'] = model._meta.verbose_name
   return context

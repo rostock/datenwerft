@@ -18,7 +18,7 @@
         {% endif %}
         <li>CleanupEventRequest -> List (nur eigene)</li>
         <li>CleanupEventRequest -> Map (nur eigene)</li>
-        <li>CleanupEventRequest -> Create</li>
+        <li><a href="{% url 'antragsmanagement:cleanupeventrequest_create' %}">CleanupEventRequest -> Create</a></li>
       </ul>
     {% endif %}
     {% if belongs_to_antragsmanagement_authority %}

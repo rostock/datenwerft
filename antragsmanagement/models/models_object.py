@@ -214,7 +214,9 @@ class CleanupEventRequest(Request):
   responsibilities = ManyToManyField(
     Authority,
     db_table='cleanupevent_responsibilities',
-    verbose_name='Zuständigkeit(en)'
+    verbose_name='Zuständigkeit(en)',
+    blank=True,
+    editable=False
   )
 
   class Meta(Request.Meta):
