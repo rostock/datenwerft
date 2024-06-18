@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 
 from .base import ObjectCreateView, ObjectUpdateView
@@ -6,7 +7,7 @@ from .forms import RequestForm, RequestFollowUpForm
 from .functions import add_permissions_context_elements, add_useragent_context_elements
 from antragsmanagement.models import CodelistRequestStatus, Authority, Email, Requester, \
   CleanupEventRequest, CleanupEventEvent
-from antragsmanagement.utils import get_corresponding_requester
+from antragsmanagement.utils import get_corresponding_requester, get_request
 
 
 #
@@ -28,11 +29,13 @@ class IndexView(TemplateView):
     :return: dictionary with all context elements for this view
     """
     context = super().get_context_data(**kwargs)
+    # remove any request ID in session
+    self.request.session.pop('request_id', None)
     # add user agent related context elements
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
-    # add information about corresponding requester object for user to context
+    # add to context: information about corresponding requester object for user
     context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     return context
 
@@ -148,9 +151,9 @@ class RequesterUpdateView(ObjectUpdateView):
     return context
 
 
-class RequestCreateView(ObjectCreateView):
+class RequestFormMixin:
   """
-  view for form page for creating an instance of general object:
+  mixin for form page for creating or updating an instance of general object:
   request (Antrag)
   """
 
@@ -195,7 +198,7 @@ class RequestCreateView(ObjectCreateView):
     # set requester permissions as necessary permissions
     context = add_permissions_context_elements(
       context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
-    # add information about corresponding requester object for user to context
+    # add to context: information about corresponding requester object for user
     context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     return context
 
@@ -213,45 +216,14 @@ class RequestCreateView(ObjectCreateView):
     }
 
 
-#
-# objects for request type:
-# clean-up events (Müllsammelaktionen)
-#
-
-class CleanupEventRequestCreateView(RequestCreateView):
+class RequestFollowUpFormMixin:
   """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
-  request (Antrag)
-  """
-
-  model = CleanupEventRequest
-
-
-class CleanupEventEventCreateView(ObjectCreateView):
-  """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  mixin for form page for creating or updating a follow-up instance of general object:
   request (Antrag)
   """
 
   template_name = 'antragsmanagement/form-request-followup.html'
-  model = CleanupEventEvent
   form = RequestFollowUpForm
-
-  def get_form_kwargs(self):
-    """
-    returns ``**kwargs`` as a dictionary with form attributes
-
-    :return: ``**kwargs`` as a dictionary with form attributes
-    """
-    kwargs = super().get_form_kwargs()
-    # pass request field to form
-    kwargs['request_field'] = 'cleanupevent_request'
-    # pass request object to form
-    kwargs['request_object'] = CleanupEventRequest.objects.filter(
-      id=self.request.session['request_id'])
-    return kwargs
 
   def get_context_data(self, **kwargs):
     """
@@ -265,8 +237,8 @@ class CleanupEventEventCreateView(ObjectCreateView):
     # set requester permissions as necessary permissions
     context = add_permissions_context_elements(
       context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
-    # add information about corresponding request object to context
-    context['corresponding_request'] = self.request.session['request_id']
+    # add to context: request ID passed in session
+    context['corresponding_request'] = self.request.session.get('request_id', None)
     return context
 
   def get_initial(self):
@@ -275,12 +247,125 @@ class CleanupEventEventCreateView(ObjectCreateView):
 
     :return: dictionary with initial field values for this view
     """
-    # set request to request passed in session
-    cleanupevent_request_id = self.request.session['request_id']
-    if CleanupEventRequest.objects.filter(id=cleanupevent_request_id).exists():
-      cleanupevent_request = CleanupEventRequest.objects.get(id=cleanupevent_request_id)
-    else:
-      cleanupevent_request = None
+    # get corresponding request object via ID passed in session
+    # and set request to it
     return {
-      'cleanupevent_request': cleanupevent_request
+      'cleanupevent_request': get_request(
+        CleanupEventRequest, self.request.session.get('request_id', None))
+    }
+
+
+#
+# objects for request type:
+# clean-up events (Müllsammelaktionen)
+#
+
+class CleanupEventRequestCreateView(RequestFormMixin, ObjectCreateView):
+  """
+  view for form page for creating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  model = CleanupEventRequest
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: information about request workflow
+    context['request_workflow'] = {
+      'steps': 5,
+      'current_step': 1,
+    }
+    return context
+
+
+class CleanupEventRequestUpdateView(RequestFormMixin, ObjectUpdateView):
+  """
+  view for form page for updating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  model = CleanupEventRequest
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: information about request workflow
+    context['request_workflow'] = {
+      'steps': 5,
+      'current_step': 1,
+    }
+    return context
+
+
+class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
+  """
+  view for form page for creating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+  model = CleanupEventEvent
+
+  def get_form_kwargs(self):
+    """
+    returns ``**kwargs`` as a dictionary with form attributes
+
+    :return: ``**kwargs`` as a dictionary with form attributes
+    """
+    kwargs = super().get_form_kwargs()
+    # pass request field to form
+    kwargs['request_field'] = 'cleanupevent_request'
+    # get corresponding request object via ID passed in session
+    # and pass it to form
+    kwargs['request_object'] = get_request(
+      CleanupEventRequest,
+      self.request.session.get('request_id', None),
+      only_primary_key=False
+    )
+    return kwargs
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: information about request workflow
+    context['request_workflow'] = {
+      'steps': 5,
+      'current_step': 2,
+    }
+    # add to context: URLs
+    context['back_url'] = reverse(
+      'antragsmanagement:cleanupeventrequest_update',
+      args=[self.request.session.get('request_id', None)]
+    )
+    return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    # get corresponding request object via ID passed in session
+    # and set request to it
+    return {
+      'cleanupevent_request': get_request(
+        CleanupEventRequest, self.request.session.get('request_id', None))
     }

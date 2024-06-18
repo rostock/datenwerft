@@ -3,7 +3,8 @@ from django.urls import path, reverse_lazy
 from rest_framework import routers
 
 from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView, \
-  RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventEventCreateView
+  RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
+  CleanupEventEventCreateView
 
 router = routers.DefaultRouter()
 
@@ -24,7 +25,7 @@ urlpatterns = [
   path(
     'authority/update/<pk>',
     view=login_required(AuthorityUpdateView.as_view(
-      success_url=reverse_lazy(app_name + ':' + 'index')
+      success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='authority_update'
   ),
@@ -33,7 +34,7 @@ urlpatterns = [
   path(
     'email/update/<pk>',
     view=login_required(EmailUpdateView.as_view(
-      success_url=reverse_lazy(app_name + ':' + 'index')
+      success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='email_update'
   ),
@@ -42,7 +43,7 @@ urlpatterns = [
   path(
     'requester/create',
     view=login_required(RequesterCreateView.as_view(
-      success_url=reverse_lazy(app_name + ':' + 'index')
+      success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='requester_create'
   ),
@@ -51,7 +52,7 @@ urlpatterns = [
   path(
     'requester/update/<pk>',
     view=login_required(RequesterUpdateView.as_view(
-      success_url=reverse_lazy(app_name + ':' + 'index')
+      success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='requester_update'
   ),
@@ -61,9 +62,19 @@ urlpatterns = [
   path(
     'cleanupeventrequest/create',
     view=login_required(CleanupEventRequestCreateView.as_view(
-      success_url=reverse_lazy(app_name + ':' + 'cleanupeventevent_create')
+      success_url=reverse_lazy('antragsmanagement:cleanupeventevent_create')
     )),
     name='cleanupeventrequest_create'
+  ),
+  # form page for updating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'cleanupeventrequest/update/<pk>',
+    view=login_required(CleanupEventRequestUpdateView.as_view(
+      success_url=reverse_lazy('antragsmanagement:index')
+    )),
+    name='cleanupeventrequest_update'
   ),
   # form page for creating an instance of object for request type clean-up events
   # (Müllsammelaktionen):
@@ -71,7 +82,7 @@ urlpatterns = [
   path(
     'cleanupeventevent/create',
     view=login_required(CleanupEventEventCreateView.as_view(
-      success_url=reverse_lazy(app_name + ':' + 'index')
+      success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='cleanupeventevent_create'
   )

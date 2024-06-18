@@ -1,7 +1,7 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
+from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
 
@@ -235,7 +235,7 @@ class CleanupEventEvent(GeometryObject):
   event (Aktion)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
@@ -269,7 +269,7 @@ class CleanupEventVenue(GeometryObject):
   venue (Treffpunkt)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
@@ -295,7 +295,7 @@ class CleanupEventDetails(Object):
   details (Detailangaben)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
@@ -346,7 +346,7 @@ class CleanupEventContainer(GeometryObject):
   container (Container)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE

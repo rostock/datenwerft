@@ -56,7 +56,7 @@ class ObjectFormMixin:
     context = add_useragent_context_elements(context, self.request)
     # add model related context elements
     context = add_model_context_elements(context, self.model)
-    # add URLs to context
+    # add to context: URLs
     context['cancel_url'] = (reverse(self.cancel_url) if self.cancel_url else reverse(
       'antragsmanagement:index'))
     return context

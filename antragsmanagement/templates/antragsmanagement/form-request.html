@@ -1,4 +1,5 @@
 {% extends "navbar.html" %}
+{% load toolbox_tags %}
 {% load antragsmanagement_tags %}
 {% load static %}
 
@@ -26,6 +27,7 @@
     {% endif %}
     {% if corresponding_requester %}
       <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+      <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }}</h4>
       <form class="form mt-4" method="post" action="">
         {% csrf_token %}
         <div>

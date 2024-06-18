@@ -40,6 +40,22 @@ def get_icon_from_settings(key):
   return settings.ANTRAGSMANAGEMENT_ICONS.get(key, 'poo')
 
 
+def get_request(model, request_id, only_primary_key=True):
+  """
+  returns (primary key of) request object of passed model with passed ID
+
+  :param model: model
+  :param request_id: ID of request object
+  :param only_primary_key: return only primary key?
+  :return: (primary key of) request object of passed model with passed ID
+  """
+  try:
+    request = model.objects.get(id=request_id)
+    return request.pk if only_primary_key else model.objects.filter(id=request_id)
+  except model.DoesNotExist:
+    return None
+
+
 def has_necessary_permissions(user, necessary_group):
   """
   checks if passed user belongs to passed group and thus has necessary permissions

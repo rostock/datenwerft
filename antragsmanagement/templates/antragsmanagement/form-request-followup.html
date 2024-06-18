@@ -1,4 +1,5 @@
 {% extends "navbar.html" %}
+{% load toolbox_tags %}
 {% load antragsmanagement_tags %}
 {% if is_geometry_model %}
   {% load leaflet_tags %}
@@ -45,6 +46,7 @@
     {% endif %}
     {% if corresponding_request %}
       <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+      <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }}</h4>
       <form class="form mt-4" method="post" action="">
         {% csrf_token %}
         <div>
@@ -66,7 +68,8 @@
         <div id="buttons">
           <div class="d-grid mt-5 mb-3 gap-2">
             <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
-            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+            <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
           </div>
         </div>
       </form>
