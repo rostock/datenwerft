@@ -4,10 +4,12 @@ from django.urls import reverse
 from django.views.generic.base import TemplateView
 
 from .base import ObjectCreateView, ObjectUpdateView
-from .forms import RequestForm, RequestFollowUpForm, CleanupEventEventForm, CleanupEventDetailsForm
+from .forms import RequestForm, RequestFollowUpForm, CleanupEventEventForm, \
+  CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_permissions_context_elements, add_useragent_context_elements
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
-  Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails
+  Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
+  CleanupEventContainer
 from antragsmanagement.utils import get_corresponding_requester, get_request
 from toolbox.utils import is_geometry_field
 
@@ -297,7 +299,6 @@ class CleanupEventRequestCreateView(RequestFormMixin, ObjectCreateView):
   """
 
   model = CleanupEventRequest
-  success_message = 'Daten erfolgreich gespeichert!'
   request_workflow = {
     'steps': 5,
     'current_step': 1
@@ -724,7 +725,7 @@ class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
 
     :return: URL called in case of successful request
     """
-    return reverse('antragsmanagement:index')
+    return reverse('antragsmanagement:cleanupeventcontainer_create')
 
   def form_valid(self, form):
     """
@@ -740,3 +741,65 @@ class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     # store ID of current object in session in order to pass it to previous view
     self.request.session['cleanupeventdetails_id'] = instance.pk
     return super().form_valid(form)
+
+
+class CleanupEventContainerCreateView(RequestFollowUpFormMixin, ObjectCreateView):
+  """
+  view for form page for creating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  container (Container)
+  """
+
+  model = CleanupEventContainer
+  form = CleanupEventContainerForm
+  request_workflow = {
+    'steps': 5,
+    'current_step': 5
+  }
+  success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
+
+  def get_form_kwargs(self):
+    """
+    returns ``**kwargs`` as a dictionary with form attributes
+
+    :return: ``**kwargs`` as a dictionary with form attributes
+    """
+    kwargs = super().get_form_kwargs()
+    # pass request field to form
+    kwargs['request_field'] = 'cleanupevent_request'
+    # get corresponding request object via ID passed in session
+    # and pass it to form
+    kwargs['request_object'] = get_request(
+      CleanupEventRequest,
+      self.request.session.get('request_id', None),
+      only_primary_key=False
+    )
+    return kwargs
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: URLs
+    context['back_url'] = reverse(
+      viewname='antragsmanagement:cleanupeventdetails_update',
+      kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
+    )
+    return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    # get corresponding request object via ID passed in session
+    # and set request to it
+    return {
+      'cleanupevent_request': get_request(
+        CleanupEventRequest, self.request.session.get('request_id', None))
+    }

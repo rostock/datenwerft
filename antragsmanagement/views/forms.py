@@ -48,12 +48,12 @@ class ObjectForm(ModelForm):
     if issubclass(self._meta.model, GeometryObject):
       geometry_field = self._meta.model.BaseMeta.geometry_field
       geometry = cleaned_data.get(geometry_field)
-      if geometry and '(0 0)' not in str(geometry):
-        cleaned_data[geometry_field] = geometry
-      else:
+      if '(0 0)' in str(geometry):
         error_text = '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
           self._meta.model._meta.get_field(geometry_field).verbose_name)
         raise ValidationError(error_text)
+      else:
+        cleaned_data[geometry_field] = geometry
 
 
 class RequestForm(ObjectForm):
@@ -112,6 +112,7 @@ class CleanupEventEventForm(RequestFollowUpForm):
       ) + ' {} weglassen, falls Aktion an einem Tag stattfindet.'.format(
         self._meta.model._meta.get_field('to_date').verbose_name)
       raise ValidationError(error_text)
+    return to_date
 
 
 class CleanupEventDetailsForm(RequestFollowUpForm):
@@ -133,3 +134,26 @@ class CleanupEventDetailsForm(RequestFollowUpForm):
       ) + ' müssen zwingend <strong><em>{}</em></strong> angegeben werden!'.format(
         self._meta.model._meta.get_field('waste_types_annotation').verbose_name)
       raise ValidationError(error_text)
+    return waste_types_annotation
+
+
+class CleanupEventContainerForm(RequestFollowUpForm):
+  """
+  form for creating or updating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  container (Container)
+  """
+
+  def clean_pickup_date(self):
+    """
+    cleans specific field
+    """
+    delivery_date = self.cleaned_data.get('delivery_date')
+    pickup_date = self.cleaned_data.get('pickup_date')
+    if delivery_date and pickup_date and pickup_date <= delivery_date:
+      error_text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
+        self._meta.model._meta.get_field('pickup_date').verbose_name,
+        self._meta.model._meta.get_field('delivery_date').verbose_name
+      )
+      raise ValidationError(error_text)
+    return pickup_date

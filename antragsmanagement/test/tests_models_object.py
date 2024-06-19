@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.utils.crypto import get_random_string
 
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
@@ -345,7 +346,7 @@ class CleanupEventContainerTest(DefaultModelTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
-      'pickup_date': VALID_DATE,
+      'pickup_date': VALID_DATE + timedelta(days=1),
       'place': VALID_POINT_DB
     }
     cls.attributes_values_db_update = {

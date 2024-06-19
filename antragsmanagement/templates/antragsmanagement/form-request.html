@@ -49,7 +49,11 @@
           </table>
         </div>
         <div class="d-grid mt-5 mb-3 gap-2">
-          <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
+          {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+            <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
+          {% else %}
+            <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
+          {% endif %}
           <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
         </div>
       </form>

@@ -348,10 +348,10 @@ class CleanupEventContainer(GeometryObject):
     on_delete=CASCADE
   )
   delivery_date = DateField(
-    verbose_name='Stellung'
+    verbose_name='Stellungsdatum'
   )
   pickup_date = DateField(
-    verbose_name='Abholung'
+    verbose_name='Abholdatum'
   )
   place = PointField(
     verbose_name='Standort'

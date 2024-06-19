@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.utils.crypto import get_random_string
 
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
@@ -938,6 +939,8 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
     cls.attributes_values_view_create_invalid = {
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+    cls.test_object.waste_types.add(waste_type)
+    cls.test_object.equipments.add(equipment)
 
   def setUp(self):
     self.init()
@@ -1087,6 +1090,106 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables={'request_id': 2}
+    )
+
+
+class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
+  """
+  test class for form page for creating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  container (Container)
+  """
+
+  model = CleanupEventContainer
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility)
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'delivery_date': VALID_DATE,
+      'pickup_date': VALID_DATE + timedelta(days=1),
+      'place': VALID_POINT_DB
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'delivery_date': VALID_DATE,
+      'pickup_date': VALID_DATE + timedelta(days=1),
+      'place': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_no_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_requester_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  def test_get_authority_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_admin_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventcontainer_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables={'request_id': 2}
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
       session_variables={'request_id': 2}
     )

@@ -5,7 +5,8 @@ from rest_framework import routers
 from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView, \
   RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
   CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \
-  CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView
+  CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
+  CleanupEventContainerCreateView
 
 router = routers.DefaultRouter()
 
@@ -99,7 +100,7 @@ urlpatterns = [
   path(
     'cleanupeventvenue/create',
     view=login_required(CleanupEventVenueCreateView.as_view(
-      success_url=reverse_lazy('cleanupeventdetails_create')
+      success_url=reverse_lazy('antragsmanagement:cleanupeventdetails_create')
     )),
     name='cleanupeventvenue_create'
   ),
@@ -117,7 +118,7 @@ urlpatterns = [
   path(
     'cleanupeventdetails/create',
     view=login_required(CleanupEventDetailsCreateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:index')
+      success_url=reverse_lazy('antragsmanagement:cleanupeventcontainer_create')
     )),
     name='cleanupeventdetails_create'
   ),
@@ -126,7 +127,19 @@ urlpatterns = [
   # details (Detailangaben)
   path(
     'cleanupeventdetails/update/<pk>',
-    view=login_required(CleanupEventDetailsUpdateView.as_view()),
+    view=login_required(CleanupEventDetailsUpdateView.as_view(
+      success_url=reverse_lazy('antragsmanagement:cleanupeventcontainer_create')
+    )),
     name='cleanupeventdetails_update'
+  ),
+  # form page for creating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'cleanupeventcontainer/create',
+    view=login_required(CleanupEventContainerCreateView.as_view(
+      success_url=reverse_lazy('antragsmanagement:index')
+    )),
+    name='cleanupeventcontainer_create'
   )
 ]
