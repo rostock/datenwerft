@@ -358,11 +358,12 @@ class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     kwargs['request_field'] = 'cleanupevent_request'
     # get corresponding request object via ID passed in session
     # and pass it to form
-    kwargs['request_object'] = get_request(
-      CleanupEventRequest,
-      self.request.session.get('request_id', None),
-      only_primary_key=False
-    )
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
     return kwargs
 
   def get_context_data(self, **kwargs):
@@ -388,10 +389,12 @@ class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     """
     # get corresponding request object via ID passed in session
     # and set request to it
-    return {
-      'cleanupevent_request': get_request(
-        CleanupEventRequest, self.request.session.get('request_id', None))
-    }
+    if self.request.session.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.request.session.get('request_id', None))
+      }
+    return {}
 
   def form_valid(self, form):
     """
@@ -505,11 +508,12 @@ class CleanupEventVenueCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     kwargs['request_field'] = 'cleanupevent_request'
     # get corresponding request object via ID passed in session
     # and pass it to form
-    kwargs['request_object'] = get_request(
-      CleanupEventRequest,
-      self.request.session.get('request_id', None),
-      only_primary_key=False
-    )
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
     return kwargs
 
   def get_context_data(self, **kwargs):
@@ -535,10 +539,12 @@ class CleanupEventVenueCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     """
     # get corresponding request object via ID passed in session
     # and set request to it
-    return {
-      'cleanupevent_request': get_request(
-        CleanupEventRequest, self.request.session.get('request_id', None))
-    }
+    if self.request.session.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.request.session.get('request_id', None))
+      }
+    return {}
 
   def form_valid(self, form):
     """
@@ -639,11 +645,12 @@ class CleanupEventDetailsCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     kwargs['request_field'] = 'cleanupevent_request'
     # get corresponding request object via ID passed in session
     # and pass it to form
-    kwargs['request_object'] = get_request(
-      CleanupEventRequest,
-      self.request.session.get('request_id', None),
-      only_primary_key=False
-    )
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
     return kwargs
 
   def get_context_data(self, **kwargs):
@@ -669,10 +676,12 @@ class CleanupEventDetailsCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     """
     # get corresponding request object via ID passed in session
     # and set request to it
-    return {
-      'cleanupevent_request': get_request(
-        CleanupEventRequest, self.request.session.get('request_id', None))
-    }
+    if self.request.session.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.request.session.get('request_id', None))
+      }
+    return {}
 
   def form_valid(self, form):
     """
@@ -769,11 +778,12 @@ class CleanupEventContainerCreateView(RequestFollowUpFormMixin, ObjectCreateView
     kwargs['request_field'] = 'cleanupevent_request'
     # get corresponding request object via ID passed in session
     # and pass it to form
-    kwargs['request_object'] = get_request(
-      CleanupEventRequest,
-      self.request.session.get('request_id', None),
-      only_primary_key=False
-    )
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
     return kwargs
 
   def get_context_data(self, **kwargs):
@@ -799,7 +809,9 @@ class CleanupEventContainerCreateView(RequestFollowUpFormMixin, ObjectCreateView
     """
     # get corresponding request object via ID passed in session
     # and set request to it
-    return {
-      'cleanupevent_request': get_request(
-        CleanupEventRequest, self.request.session.get('request_id', None))
-    }
+    if self.request.session.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.request.session.get('request_id', None))
+      }
+    return {}

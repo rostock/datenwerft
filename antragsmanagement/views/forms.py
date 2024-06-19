@@ -83,7 +83,7 @@ class RequestFollowUpForm(ObjectForm):
     self.request_object = kwargs.pop('request_object', None)
     super().__init__(*args, **kwargs)
     # limit the request field queryset to exactly one entry (= corresponding request)
-    if self.request_field:
+    if self.request_field and self.request_object:
       self.fields[self.request_field].queryset = self.request_object
 
 
@@ -150,10 +150,11 @@ class CleanupEventContainerForm(RequestFollowUpForm):
     """
     delivery_date = self.cleaned_data.get('delivery_date')
     pickup_date = self.cleaned_data.get('pickup_date')
-    if delivery_date and pickup_date and pickup_date <= delivery_date:
-      error_text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
+    if delivery_date and pickup_date and pickup_date < delivery_date:
+      error_text = '<strong><em>{}</em></strong> muss gleich <em>{}</em> sein'.format(
         self._meta.model._meta.get_field('pickup_date').verbose_name,
         self._meta.model._meta.get_field('delivery_date').verbose_name
-      )
+      ) + ' oder nach <em>{}</em> liegen!'.format(
+        self._meta.model._meta.get_field('delivery_date').verbose_name)
       raise ValidationError(error_text)
     return pickup_date

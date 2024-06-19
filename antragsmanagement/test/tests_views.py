@@ -578,7 +578,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=True, view_name='cleanupeventevent_create', status_code=200,
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
-"""
+
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
@@ -596,7 +596,6 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
       session_variables={'request_id': 2}
     )
-"""
 
 
 class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
@@ -773,7 +772,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=True, view_name='cleanupeventvenue_create', status_code=200,
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
-"""
+
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
@@ -791,7 +790,6 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
       session_variables={'request_id': 2}
     )
-"""
 
 
 class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
@@ -972,7 +970,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=True, view_name='cleanupeventdetails_create', status_code=200,
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
-"""
+
   def test_post_create_success(self):
     self.generic_form_view_post_test(
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
@@ -990,7 +988,6 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
       session_variables={'request_id': 2}
     )
-"""
 
 
 class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
