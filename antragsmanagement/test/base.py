@@ -187,7 +187,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # for update mode: get primary key of last object
     last_pk = self.model.objects.last().pk
     if update_mode:
-      url = reverse('antragsmanagement:' + view_name, args=[last_pk])
+      url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
     else:
       url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -203,7 +203,8 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
   def generic_form_view_post_test(self, update_mode, antragsmanagement_requester,
                                   antragsmanagement_authority, antragsmanagement_admin, view_name,
-                                  object_filter, count, status_code, content_type, string):
+                                  object_filter, count, status_code, content_type, string,
+                                  session_variables):
     """
     tests a form view via POST
 
@@ -218,6 +219,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     :param status_code: expected status code of response
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
+    :param session_variables: additional session variables
     """
     # log test user in
     login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
@@ -225,15 +227,21 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     if issubclass(self.model, Request):
       requester = Requester.objects.last()
       if requester:
-        requester.user_id = self.test_user.id
+        requester.user_id = self.test_user.pk
         requester.save()
     # for update mode: get primary key of last object
     last_pk = self.model.objects.last().pk
     if update_mode:
-      url = reverse('antragsmanagement:' + view_name, args=[last_pk])
+      url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
     else:
       url = reverse('antragsmanagement:' + view_name)
     data = object_filter
+    # set additional session variables
+    if session_variables:
+      session = self.client.session
+      for key, value in session_variables.items():
+        session[key] = value
+      session.save()
     # try POSTing the view
     response = self.client.post(url, data)
     # status code of response as expected?

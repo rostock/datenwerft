@@ -43,11 +43,9 @@
           {% endfor %}
         </table>
       </div>
-      <div id="buttons">
-        <div class="d-grid mt-5 mb-3 gap-2">
-          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-          <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-        </div>
+      <div class="d-grid mt-5 mb-3 gap-2">
+        <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
       </div>
     </form>
     <script>

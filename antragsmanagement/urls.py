@@ -4,7 +4,8 @@ from rest_framework import routers
 
 from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView, \
   RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
-  CleanupEventEventCreateView
+  CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \
+  CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView
 
 router = routers.DefaultRouter()
 
@@ -71,9 +72,7 @@ urlpatterns = [
   # request (Antrag)
   path(
     'cleanupeventrequest/update/<pk>',
-    view=login_required(CleanupEventRequestUpdateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:index')
-    )),
+    view=login_required(CleanupEventRequestUpdateView.as_view()),
     name='cleanupeventrequest_update'
   ),
   # form page for creating an instance of object for request type clean-up events
@@ -82,8 +81,52 @@ urlpatterns = [
   path(
     'cleanupeventevent/create',
     view=login_required(CleanupEventEventCreateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:index')
+      success_url=reverse_lazy('antragsmanagement:cleanupeventvenue_create')
     )),
     name='cleanupeventevent_create'
+  ),
+  # form page for updating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # event (Aktion)
+  path(
+    'cleanupeventevent/update/<pk>',
+    view=login_required(CleanupEventEventUpdateView.as_view()),
+    name='cleanupeventevent_update'
+  ),
+  # form page for creating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # venue (Treffpunkt)
+  path(
+    'cleanupeventvenue/create',
+    view=login_required(CleanupEventVenueCreateView.as_view(
+      success_url=reverse_lazy('cleanupeventdetails_create')
+    )),
+    name='cleanupeventvenue_create'
+  ),
+  # form page for updating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # venue (Treffpunkt)
+  path(
+    'cleanupeventvenue/update/<pk>',
+    view=login_required(CleanupEventVenueUpdateView.as_view()),
+    name='cleanupeventvenue_update'
+  ),
+  # form page for creating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # details (Detailangaben)
+  path(
+    'cleanupeventdetails/create',
+    view=login_required(CleanupEventDetailsCreateView.as_view(
+      success_url=reverse_lazy('antragsmanagement:index')
+    )),
+    name='cleanupeventdetails_create'
+  ),
+  # form page for updating an instance of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # details (Detailangaben)
+  path(
+    'cleanupeventdetails/update/<pk>',
+    view=login_required(CleanupEventDetailsUpdateView.as_view()),
+    name='cleanupeventdetails_update'
   )
 ]

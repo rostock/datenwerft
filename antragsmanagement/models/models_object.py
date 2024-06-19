@@ -196,7 +196,7 @@ class Request(Object):
     abstract = True
 
   def __str__(self):
-    return '#' + str(self.id) + ' vom ' + self.created.strftime('%d.%m.%Y') + \
+    return '#' + str(self.pk) + ' vom ' + self.created.strftime('%d.%m.%Y') + \
            ' (' + str(self.status) + ')'
 
 
@@ -260,6 +260,7 @@ class CleanupEventEvent(GeometryObject):
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'area'
+    geometry_type = 'Polygon'
     description = 'Müllsammelaktionen: Aktionsdaten'
 
 
@@ -286,6 +287,7 @@ class CleanupEventVenue(GeometryObject):
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
+    geometry_type = 'Point'
     description = 'Müllsammelaktionen: Treffpunkte'
 
 
@@ -333,12 +335,6 @@ class CleanupEventDetails(Object):
   class BaseMeta(Object.BaseMeta):
     description = 'Müllsammelaktionen: Detailangaben'
 
-  def clean(self):
-    super().clean()
-    if not self.waste_types.exists() and self.waste_types_annotation is None:
-      raise ValidationError('Wenn keine Abfallart(en) ausgewählt ist/sind, muss stattdessen '
-                            'zwingend das zugehörige Bemerkungsfeld ausgefüllt werden!')
-
 
 class CleanupEventContainer(GeometryObject):
   """
@@ -369,4 +365,5 @@ class CleanupEventContainer(GeometryObject):
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
+    geometry_type = 'Point'
     description = 'Müllsammelaktionen: Container'

@@ -5,8 +5,8 @@ from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelist
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
 from .base import DefaultModelTestCase
-from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
-  VALID_LAST_NAME, VALID_POINT, VALID_POLYGON, VALID_STRING, VALID_TEXT
+from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, VALID_LAST_NAME, \
+  VALID_POINT_DB, VALID_POLYGON_DB, VALID_STRING, VALID_TEXT
 
 
 #
@@ -180,7 +180,7 @@ class CleanupEventEventTest(DefaultModelTestCase):
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON
+      'area': VALID_POLYGON_DB
     }
     cls.attributes_values_db_update = {
       'to_date': VALID_DATE
@@ -235,7 +235,7 @@ class CleanupEventVenueTest(DefaultModelTestCase):
     cleanupevent_request2.responsibilities.add(responsibility)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT
+      'place': VALID_POINT_DB
     }
     cls.attributes_values_db_update = {
       'cleanupevent_request': cleanupevent_request2
@@ -346,7 +346,7 @@ class CleanupEventContainerTest(DefaultModelTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE,
-      'place': VALID_POINT
+      'place': VALID_POINT_DB
     }
     cls.attributes_values_db_update = {
       'cleanupevent_request': cleanupevent_request2

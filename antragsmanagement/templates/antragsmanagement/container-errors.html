@@ -19,6 +19,8 @@
 {% for error in form.non_field_errors %}
   <div class="alert alert-danger" role="alert">
     <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
-    {{ error }}
+    {% autoescape off %}
+      {{ error }}
+    {% endautoescape %}
   </div>
 {% endfor %}

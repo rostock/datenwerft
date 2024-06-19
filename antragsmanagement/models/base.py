@@ -78,3 +78,4 @@ class GeometryObject(Object):
 
   class BaseMeta(Object.BaseMeta):
     geometry_field = None
+    geometry_type = None

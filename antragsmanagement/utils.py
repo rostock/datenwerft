@@ -24,8 +24,8 @@ def get_corresponding_requester(user, only_primary_key=True):
   :return: (primary key of) corresponding requester object for passed user
   """
   try:
-    requester = Requester.objects.get(user_id=user.id)
-    return requester.pk if only_primary_key else Requester.objects.filter(user_id=user.id)
+    requester = Requester.objects.get(user_id=user.pk)
+    return requester.pk if only_primary_key else Requester.objects.filter(user_id=user.pk)
   except Requester.DoesNotExist:
     return None
 

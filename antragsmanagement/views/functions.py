@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.forms import Textarea
+from django.forms import CheckboxSelectMultiple, Textarea
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
@@ -26,6 +26,7 @@ def add_model_context_elements(context, model):
     context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
     context['is_geometry_model'] = True
     context['geometry_field'] = model.BaseMeta.geometry_field
+    context['geometry_type'] = model.BaseMeta.geometry_type
   return context
 
 
@@ -81,14 +82,13 @@ def assign_widget(field):
     form_field.widget.input_type = 'date'
   # handle inputs
   if hasattr(form_field.widget, 'input_type'):
-    if form_field.widget.input_type == 'checkbox':
-      form_field.widget.attrs['class'] = 'form-check-input'
-    # handle ordinary (single) selects
-    elif form_field.widget.input_type == 'select':
-      form_field.widget.attrs['class'] = 'form-select'
+    if form_field.widget.input_type == 'select':
       # handle multiple selects
       if form_field.widget.__class__.__name__ == 'SelectMultiple':
-        form_field.widget.attrs['size'] = 5
+        form_field.widget = CheckboxSelectMultiple()
+      # handle ordinary (single) selects
+      else:
+        form_field.widget.attrs['class'] = 'form-select'
     else:
       form_field.widget.attrs['class'] = 'form-control'
   # handle text areas

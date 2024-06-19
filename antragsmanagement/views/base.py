@@ -67,7 +67,7 @@ class ObjectCreateView(ObjectFormMixin, CreateView):
   view for form page for creating an instance of a general object
   """
 
-  success_message = '{} <strong><em>{}</em></strong> erfolgreich neu angelegt!'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich gespeichert!'
 
 
 class ObjectUpdateView(ObjectFormMixin, UpdateView):

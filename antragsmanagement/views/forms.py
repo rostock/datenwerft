@@ -1,3 +1,4 @@
+from django.contrib.gis.forms.fields import PointField, PolygonField
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
 
@@ -26,6 +27,16 @@ class ObjectForm(ModelForm):
                                          'ist Pflicht!'.format(field.label)
       if issubclass(field.__class__, EmailField):
         field.error_messages['invalid'] = email_message
+      elif issubclass(field.__class__, PointField) or issubclass(field.__class__, PolygonField):
+        field.error_messages['required'] = None
+        if issubclass(field.__class__, PointField):
+          error_text = '<strong><em>{}</em></strong> muss in Karte ' \
+                       'gesetzt werden!'.format(field.label)
+        else:
+          error_text = '<strong><em>{}</em></strong> muss in Karte ' \
+                       'gezeichnet werden!'.format(field.label)
+        field.error_messages['invalid_geom'] = error_text
+        field.error_messages['invalid_geom_type'] = error_text
 
   def clean(self):
     """
@@ -37,11 +48,12 @@ class ObjectForm(ModelForm):
     if issubclass(self._meta.model, GeometryObject):
       geometry_field = self._meta.model.BaseMeta.geometry_field
       geometry = cleaned_data.get(geometry_field)
-      error_text = 'Es muss ein Marker in der Karte gesetzt werden!'
-      if '(0 0)' in str(geometry):
-        raise ValidationError(error_text)
-      else:
+      if geometry and '(0 0)' not in str(geometry):
         cleaned_data[geometry_field] = geometry
+      else:
+        error_text = '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
+          self._meta.model._meta.get_field(geometry_field).verbose_name)
+        raise ValidationError(error_text)
 
 
 class RequestForm(ObjectForm):
@@ -71,4 +83,53 @@ class RequestFollowUpForm(ObjectForm):
     self.request_object = kwargs.pop('request_object', None)
     super().__init__(*args, **kwargs)
     # limit the request field queryset to exactly one entry (= corresponding request)
-    self.fields[self.request_field].queryset = self.request_object
+    if self.request_field:
+      self.fields[self.request_field].queryset = self.request_object
+
+
+#
+# objects for request type:
+# clean-up events (Müllsammelaktionen)
+#
+
+class CleanupEventEventForm(RequestFollowUpForm):
+  """
+  form for creating or updating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+  def clean_to_date(self):
+    """
+    cleans specific field
+    """
+    from_date = self.cleaned_data.get('from_date')
+    to_date = self.cleaned_data.get('to_date')
+    if from_date and to_date and to_date <= from_date:
+      error_text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
+        self._meta.model._meta.get_field('to_date').verbose_name,
+        self._meta.model._meta.get_field('from_date').verbose_name
+      ) + ' {} weglassen, falls Aktion an einem Tag stattfindet.'.format(
+        self._meta.model._meta.get_field('to_date').verbose_name)
+      raise ValidationError(error_text)
+
+
+class CleanupEventDetailsForm(RequestFollowUpForm):
+  """
+  form for creating or updating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
+  def clean_waste_types_annotation(self):
+    """
+    cleans specific field
+    """
+    waste_types = self.cleaned_data.get('waste_types')
+    waste_types_annotation = self.cleaned_data.get('waste_types_annotation')
+    if not waste_types and not waste_types_annotation:
+      error_text = 'Wenn keine <strong><em>{}</em></strong> ausgewählt ist/sind,'.format(
+        self._meta.model._meta.get_field('waste_types').verbose_name
+      ) + ' müssen zwingend <strong><em>{}</em></strong> angegeben werden!'.format(
+        self._meta.model._meta.get_field('waste_types_annotation').verbose_name)
+      raise ValidationError(error_text)

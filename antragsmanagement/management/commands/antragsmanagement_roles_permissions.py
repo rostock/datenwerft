@@ -66,7 +66,7 @@ class Command(BaseCommand):
       for permission_codename in permission_codenames:
         permission = Permission.objects.get(
           content_type__app_label=app_label, codename=permission_codename)
-        if group.permissions.filter(id=permission.id).exists():
+        if group.permissions.filter(id=permission.pk).exists():
           num_permissions_already_assigned += 1
         else:
           num_permissions_assigned += 1
