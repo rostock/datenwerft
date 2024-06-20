@@ -25,6 +25,8 @@ class Basemodel(Model):
 
   class BasemodelMeta:
     """
+    This class defines soma special meta information for models.
+
     Attributes:
       editable: shall this model generally be editable?
       description: description of this model
@@ -35,7 +37,44 @@ class Basemodel(Model):
       forms_in_high_zoom_mode: shall map in form view be in high zoom mode?
       forms_in_high_zoom_mode_default_aerial: shall map in form view be an aerial image, if high zoom mode active?
       naming: name shown in map filters drop-down menus
-      assiciated_models:
+      readonly_fields: shall fields be read-only?
+      geometry_type: type of the geometry represented by this model
+      address_search_class: address search class
+      address_search_long_results: shall address search results be shown in their long versions?
+      address_type: type of the address represented by this model (i.e. address, street or district)
+      address_mandatory: shall an address reference be mandatory for this model?
+      thumbs: shall thumbnails be created from uploaded photos for this model?
+      geojson_input: shall an upload field for a GeoJSON file be available in the form view?
+      gpx_input: shall an upload field for a GPX file be available in the form view?
+      associated_models: shall other models referencing this model?
+      choices_models_for_choices_fields:
+      group_with_users_for_choice_field:
+      fields_with_foreign_key_to_linkify:
+      catalog_link_fields:
+      multi_photos:
+      postcode_assigner:
+      list_fields:
+      list_field_with_address_string:
+      list_field_with_address_string_fallback_field:
+      list_fields_with_date:
+      list_fields_with_datetime:
+      list_fields_with_decimal:
+      list_fields_with_foreign_key:
+      list_additional_foreign_key_field:
+      list_actions_assign:
+      highlight_flag:
+      map_heavy_load_limit:
+      map_feature_tooltip_fields:
+      map_one_click_filters:
+      map_deadlinefilter_fields:
+      map_intervalfilter_fields:
+      map_filter_fields:
+      map_filter_fields_as_list:
+      map_filter_fields_as_checkbox:
+      map_filter_boolean_fields_as_checkbox:
+      map_filter_hide_initial:
+      additional_wms_layers:
+      additional_wfs_featuretypes:
 
     """
     editable: bool = True
@@ -47,173 +86,154 @@ class Basemodel(Model):
     forms_in_high_zoom_mode: bool = False
     forms_in_high_zoom_mode_default_aerial: bool = False
     naming: str = None
-    # Dictionary:
+    readonly_fields: list[str] = None
+    geometry_type: str = None
+    address_search_class: str = 'address_hro'
+    address_search_long_results: bool = False
+    address_type: str = None
+    address_mandatory: bool = False
+    thumbs: bool = True
+    geojson_input: bool = False
+    gpx_input: bool = False
+
     # shall other models (as keys), each referencing this model
     # with certain foreign key fields (as values), be used to provide corresponding links
     # in the form views and in the table of the list view of this model?
     associated_models: dict[str, str] = None
-    # List of strings:
-    # names of those fields of this model
-    # which shall be rendered as read-only in the form views of this model
-    readonly_fields: list[str] = None
-    # Dictionary:
+
     # names of those fields of this model (as keys)
     # to which other models (as values) are assigned,
     # whose values are to be used to fill corresponding selection lists
     # in the form views of this model
-    choices_models_for_choices_fields: dict = None
-    # String:
+    choices_models_for_choices_fields: dict[str, str] = None
+
     # name of a group of users which shall be used to fill the contact person field selection list
     # in the form views of this model
     group_with_users_for_choice_field: str = None
-    # List of strings:
+
     # names of those fields of this model
     # which shall be equipped with additional foreign key links
     # in the form views of this model
     fields_with_foreign_key_to_linkify: list[str] = None
-    # Dictionary:
+
     # names of those fields of this model (as keys)
     # which shall be equipped with additional external links (as values)
     # in the form views of this model
-    catalog_link_fields: dict = None
-    # String:
-    # geometry type of this model
-    geometry_type: str = None
-    # String:
-    # address search class
-    address_search_class: str = 'address_hro'
-    # Boolean:
-    # shall address search results be shown in their long versions?
-    address_search_long_results: bool = False
-    # String:
-    # address reference type of this model (i.e. address, street or district)
-    address_type: str = None
-    # Boolean:
-    # shall an address reference be mandatory for this model?
-    address_mandatory: bool = False
-    # Boolean:
-    # shall thumbnails be created from uploaded photos for this model?
-    thumbs: bool = True
-    # Boolean:
+    catalog_link_fields: dict[str, str] = None
+
     # shall it be possible to upload multiple photos for this model?
     # if true, multiple datasets are created, i.e. one for each photo.
     multi_photos: bool = False
-    # Boolean:
-    # shall an upload field for a GeoJSON file be available in the form views of this model?
-    geojson_input: bool = False
-    # Boolean:
-    # shall an upload field for a GPX file be available in the form views of this model?
-    gpx_input: bool = False
-    # String:
+
     # name of the field of this model
     # which shall be equipped with a postcode assignment function
     # in the form views of this model
     postcode_assigner: str = None
-    # Dictionary:
+
     # names of those fields of this model (as keys)
     # which shall appear as columns in the table of the list view of this model
     # in exactly this order, with their respective labels, i.e. column headers (as values)
-    list_fields: dict = None
-    # String:
+    list_fields: dict[str, str] = None
+
     # name of the field appearing in ``list_fields``
     # which shall be considered as an address string
     # and thus be created from the respective model fields
     list_field_with_address_string: str = None
-    # String:
+
     # name of the field of this model
     # which shall be used as a fallback when address strings cannot be used
     list_field_with_address_string_fallback_field: str = None
-    # List of strings:
+
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type date and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_date: list[str] = None
-    # List of strings:
+
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of data type datetime and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_datetime: list[str] = None
-    # List of strings:
+
     # names of those fields of this model appearing in ``list_fields``
     # whose values are of Decimal type and which must therefore be treated accordingly
     # for sorting in the table of the list view of this model to work
     list_fields_with_decimal: list[str] = None
-    # Dictionary:
+
     # names of those fields appearing in ``list_fields`` (as keys)
     # which are to be converted into names of foreign key fields (as values)
     # for the table of the list view so that they can also be found and displayed
     # in the referenced table of the corresponding list view
-    list_fields_with_foreign_key: dict = None
-    # Dictionary:
+    list_fields_with_foreign_key: dict[str, str] = None
+
     # details of a foreign key field of this model
     # which shall appear as an additional column in the table of the list view of this model
-    list_additional_foreign_key_field: dict = None
-    # List of dictionaries:
+    list_additional_foreign_key_field: dict[str, str] = None
+
     # properties of assignment actions
     # which shall be selectable below the table of the list view of this model
     list_actions_assign: list[dict] = None
-    # String:
+
     # name of that Boolean field of this model
     # whose values (only if ``True``) shall be used as a flag for highlighting
     # both in the table of the list view of this model and in the map view of this model
     highlight_flag: str = None
-    # Integer:
+
     # limit for individual map feature loading steps
     # (i.e. maximum number of map features to be loaded in one step at once)
     # in the map view of this model
     map_heavy_load_limit: int = None
-    # List of strings:
+
     # names of the fields of this model
     # whose values shall concatenated
     # and as such be used as the source for the map feature tooltips in the map view of this model
     # (if not specified, primary key is used)
     map_feature_tooltip_fields: list[str] = None
-    # Boolean:
+
     # shall the one-click map filters defined in the map view template
     # appear in the map view of this model?
     map_one_click_filters: bool = False
-    # List of strings:
+
     # names of exactly two fields of this model
     # which shall appear as a deadline map filter in the map view of this model
     # (always processed in pairs!)
     map_deadlinefilter_fields: list[str] = None
-    # Dictionary:
+
     # names of those fields of this model (as keys)
     # which shall appear as interval map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
     # (always processed in pairs!)
-    map_intervalfilter_fields: dict = None
-    # Dictionary:
+    map_intervalfilter_fields: dict[str, str] = None
+
     # names of those fields of this model (as keys)
     # which shall appear as map filters in the map view of this model
     # in exactly this order, with their respective titles (as values)
-    map_filter_fields: dict = None
-    # List of strings:
+    map_filter_fields: dict[str, str] = None
+
     # names of those fields of this model appearing in ``map_filter_fields``
     # which shall appear as drop-down list map filters in the map view of this model
     map_filter_fields_as_list: list[str] = None
-    # List of strings:
+
     # names of those fields of this model appearing in ``map_filter_fields``
     # which shall appear as checkbox-set map filters in the map view of this model
     # (but these must not be the fields from ``map_filter_fields``
     # which are already multiple selection fields!)
     map_filter_fields_as_checkbox: list[str] = None
-    # Boolean:
+
     # shall those fields of this model appearing in ``map_filter_fields``
     # which are of data type Boolean
     # appear as checkbox-set map filters in the map view of this model?
     map_filter_boolean_fields_as_checkbox: bool = False
-    # Dictionary:
+
     # name of that field of this model (as key)
     # whose specific value (as value) shall ensure that all those objects
     # that have exactly this specific value in this field
     # do not initially appear on the map in the map view of this model
-    map_filter_hide_initial: dict = None
-    # List of dictionaries:
+    map_filter_hide_initial: dict[str, str] = None
+
     # properties of WMS which shall be selectable as additional overlay layers
     # in the maps of the form views of this model
     additional_wms_layers: list[dict] = None
-    # List of dictionaries:
+
     # properties of WFS which shall be selectable as additional overlay layers
     # in the maps of the form views of this model
     additional_wfs_featuretypes: list[dict] = None
