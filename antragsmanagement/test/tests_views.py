@@ -585,7 +585,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventevent_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -594,7 +594,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventevent_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
 
@@ -683,7 +683,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -692,7 +692,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
 
@@ -779,7 +779,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -788,7 +788,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
 
@@ -875,7 +875,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -884,7 +884,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
 
@@ -977,7 +977,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -986,7 +986,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
 
@@ -1079,7 +1079,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -1088,7 +1088,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
 
@@ -1179,7 +1179,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
-      session_variables={'request_id': 2}
+      session_variables=None
     )
 
   def test_post_create_error(self):
@@ -1188,5 +1188,5 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
-      session_variables={'request_id': 2}
+      session_variables=None
     )
