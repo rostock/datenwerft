@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.forms import CheckboxSelectMultiple, Textarea
+from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
@@ -19,11 +20,11 @@ def add_model_context_elements(context, model):
   :return: context with model related elements added
   """
   context['model_verbose_name'] = model._meta.verbose_name
+  context['model_verbose_name_plural'] = model._meta.verbose_name_plural
   # if object contains geometry:
   # add geometry related information to context
   if issubclass(model, GeometryObject):
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['REVERSE_SEARCH_RADIUS'] = settings.REVERSE_SEARCH_RADIUS
     context['is_geometry_model'] = True
     context['geometry_field'] = model.BaseMeta.geometry_field
     context['geometry_type'] = model.BaseMeta.geometry_type
@@ -50,6 +51,55 @@ def add_permissions_context_elements(context, user, necessary_group=None):
   if user.is_superuser:
     permissions = {key: True for key in permissions}
   context.update(permissions)
+  return context
+
+
+def add_table_context_elements(context, model, table_data_view_name):
+  """
+  adds table related elements to a context and returns it
+
+  :param context: context
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :return: context with table related elements added
+  """
+  context['objects_count'] = get_model_objects(model, True)
+  column_titles = []
+  address_handled = False
+  for field in model._meta.fields:
+    # handle addresses
+    if field.name.startswith('address_') and not address_handled:
+      # append one column for address string
+      # instead of appending individual columns for all address related values
+      column_titles.append('Anschrift')
+      address_handled = True
+    # ordinary columns
+    elif not field.name.startswith('address_'):
+      column_titles.append(field.verbose_name)
+  context['column_titles'] = column_titles
+  # determine initial order
+  initial_order = []
+  if model._meta.ordering:
+    fields = []
+    for field in model._meta.fields:
+      fields.append(field)
+    for field_name in model._meta.ordering:
+      # determine order direction and clean field name
+      if field_name.startswith('-'):
+        order_direction = 'desc'
+        cleaned_field_name = field_name[1:]
+      else:
+        order_direction = 'asc'
+        cleaned_field_name = field_name
+      # determine index of field
+      order_index = 0
+      for index, field in enumerate(fields):
+        if field.name == cleaned_field_name:
+          order_index = index
+          break
+      initial_order.append([order_index, order_direction])
+  context['initial_order'] = initial_order
+  context['tabledata_url'] = reverse(table_data_view_name)
   return context
 
 
@@ -101,3 +151,16 @@ def assign_widget(field):
       widget=LeafletWidget()
     )
   return form_field
+
+
+def get_model_objects(model, count=False):
+  """
+  either gets all objects of passed model and returns them
+  or counts objects of passed model and returns the count
+
+  :param model: model
+  :param count: return objects count instead of objects?
+  :return: either all objects of passed model or objects count of passed model
+  """
+  objects = model.objects.all()
+  return objects.count() if count else objects

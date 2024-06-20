@@ -56,6 +56,82 @@ class IndexViewTest(DefaultViewTestCase):
 # general objects
 #
 
+class AuthorityTableDataViewTest(DefaultViewTestCase):
+  """
+  test class for composing table data out of instances of general object:
+  authority (Behörde)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
+      content_type='application/json', string='empty'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
+      content_type='application/json', string='empty'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
+      content_type='application/json', string='empty'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='authority_tabledata', status_code=200,
+      content_type='application/json', string='ok'
+    )
+
+
+class AuthorityTableViewTest(DefaultViewTestCase):
+  """
+  test class for table page for instances of general object:
+  authority (Behörde)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='authority_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='authority_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='authority_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='authority_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+
 class AuthorityUpdateViewTest(DefaultFormViewTestCase):
   """
   test class for form page for updating an instance of general object:
@@ -103,7 +179,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
     self.generic_form_view_get_test(
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='authority_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='ndern '
+      content_type='text/html; charset=utf-8', string='aktualisieren '
     )
 
   def test_post_update_success(self):
@@ -122,6 +198,82 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
       object_filter=self.attributes_values_view_update_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
       session_variables=None
+    )
+
+
+class EmailTableDataViewTest(DefaultViewTestCase):
+  """
+  test class for composing table data out of instances of general object:
+  email (E-Mail)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
+      content_type='application/json', string='empty'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
+      content_type='application/json', string='empty'
+    )
+
+  def test_email_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
+      content_type='application/json', string='empty'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='email_tabledata', status_code=200,
+      content_type='application/json', string='ok'
+    )
+
+
+class EmailTableViewTest(DefaultViewTestCase):
+  """
+  test class for table page for instances of general object:
+  email (E-Mail)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='email_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='email_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_email_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='email_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='email_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 
@@ -170,7 +322,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
     self.generic_form_view_get_test(
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='email_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='ndern '
+      content_type='text/html; charset=utf-8', string='aktualisieren '
     )
 
   def test_post_update_success(self):
@@ -298,7 +450,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
     self.generic_form_view_get_test(
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_update', status_code=200,
-      content_type='text/html; charset=utf-8', string='ndern '
+      content_type='text/html; charset=utf-8', string='aktualisieren '
     )
 
   def test_get_authority_permissions(self):

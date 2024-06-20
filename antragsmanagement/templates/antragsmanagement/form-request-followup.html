@@ -148,9 +148,6 @@
         // define several globally available variables
         window.geometryType = '{{ geometry_type }}';
         window.featureGeometry = [];
-        {% if REVERSE_SEARCH_RADIUS %}
-          window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }}
-        {% endif %}
 
         configureLeafletGeoman(map, window.geometryType);
 

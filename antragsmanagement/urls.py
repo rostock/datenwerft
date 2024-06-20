@@ -2,11 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from antragsmanagement.views.views import IndexView, AuthorityUpdateView, EmailUpdateView, \
-  RequesterCreateView, RequesterUpdateView, CleanupEventRequestCreateView, \
-  CleanupEventRequestUpdateView, CleanupEventEventCreateView, CleanupEventEventUpdateView, \
-  CleanupEventVenueCreateView, CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, \
-  CleanupEventDetailsUpdateView, CleanupEventContainerCreateView
+from antragsmanagement.views.views import IndexView, AuthorityTableDataView, AuthorityTableView, \
+  AuthorityUpdateView, EmailTableDataView, EmailTableView, EmailUpdateView, RequesterCreateView, \
+  RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
+  CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \
+  CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
+  CleanupEventContainerCreateView
 
 router = routers.DefaultRouter()
 
@@ -22,21 +23,49 @@ urlpatterns = [
     view=login_required(IndexView.as_view()),
     name='index'
   ),
+  # composing table data out of instances of general object:
+  # authority (Behörde)
+  path(
+    'authority/tabledata',
+    view=login_required(AuthorityTableDataView.as_view()),
+    name='authority_tabledata'
+  ),
+  # table page for instances of general object:
+  # authority (Behörde)
+  path(
+    'authority/table',
+    view=login_required(AuthorityTableView.as_view()),
+    name='authority_table'
+  ),
   # form page for updating an instance of general object:
   # authority (Behörde)
   path(
     'authority/update/<pk>',
     view=login_required(AuthorityUpdateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:index')
+      success_url=reverse_lazy('antragsmanagement:authority_table')
     )),
     name='authority_update'
+  ),
+  # composing table data out of instances of general object:
+  # email (E-Mail)
+  path(
+    'email/tabledata',
+    view=login_required(EmailTableDataView.as_view()),
+    name='email_tabledata'
+  ),
+  # table page for instances of general object:
+  # email (E-Mail)
+  path(
+    'email/table',
+    view=login_required(EmailTableView.as_view()),
+    name='email_table'
   ),
   # form page for updating an instance of general object:
   # email (E-Mail)
   path(
     'email/update/<pk>',
     view=login_required(EmailUpdateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:index')
+      success_url=reverse_lazy('antragsmanagement:email_table')
     )),
     name='email_update'
   ),

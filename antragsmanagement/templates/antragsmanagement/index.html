@@ -17,7 +17,7 @@
           <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= Kontaktdaten erstellen)
           </li>
         {% endif %}
-        <li>CleanupEventRequest -> List (nur eigene)</li>
+        <li>CleanupEventRequest -> Table (nur eigene)</li>
         <li>CleanupEventRequest -> Map (nur eigene)</li>
         <li><a href="{% url 'antragsmanagement:cleanupeventrequest_create' %}">CleanupEventRequest -> Create</a> (= Antrag auf Müllsammelaktion erstellen)</li>
       </ul>
@@ -25,7 +25,7 @@
     {% if belongs_to_antragsmanagement_authority %}
       Behörde
       <ul>
-        <li>CleanupEventRequest -> List (nur zugewiesene)</li>
+        <li>CleanupEventRequest -> Table (nur zugewiesene)</li>
         <li>CleanupEventRequest -> Map (nur zugewiesene)</li>
         <li>CleanupEventRequest -> Update (nur zugewiesene)</li>
       </ul>
@@ -33,11 +33,11 @@
     {% if is_antragsmanagement_admin %}
       Admin
       <ul>
-        <li>Authority -> List</li>
+        <li><a href="{% url 'antragsmanagement:authority_table' %}">Authority -> Table</a> (= Tabelle mit allen Behörden)</li>
         <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse von Behörde aktualisieren)</li>
-        <li>Email -> List</li>
+        <li><a href="{% url 'antragsmanagement:email_table' %}">Email -> Table</a> (= Tabelle mit allen E-Mails)</li>
         <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt von E-Mail aktualisieren)</li>
-        <li>CleanupEventRequest -> List</li>
+        <li>CleanupEventRequest -> Table</li>
         <li>CleanupEventRequest -> Map</li>
       </ul>
     {% endif %}

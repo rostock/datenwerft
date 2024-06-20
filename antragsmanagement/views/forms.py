@@ -14,6 +14,8 @@ from toolbox.constants_vars import email_message
 class ObjectForm(ModelForm):
   """
   generic form for instances of general objects
+
+  :param required_css_class: CSS class for required field
   """
 
   required_css_class = 'required'

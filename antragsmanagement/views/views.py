@@ -8,7 +8,8 @@ from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Auth
   CleanupEventContainer
 from antragsmanagement.utils import get_corresponding_requester, get_request
 from toolbox.utils import is_geometry_field
-from antragsmanagement.views.base import ObjectCreateView, ObjectUpdateView
+from antragsmanagement.views.base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
+  ObjectUpdateView
 from antragsmanagement.views.forms import RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from antragsmanagement.views.functions import add_permissions_context_elements, \
@@ -22,6 +23,8 @@ from antragsmanagement.views.functions import add_permissions_context_elements, 
 class IndexView(TemplateView):
   """
   view for main page
+
+  :param template_name: template name
   """
 
   template_name = 'antragsmanagement/index.html'
@@ -51,14 +54,99 @@ class IndexView(TemplateView):
 # general objects
 #
 
+class AuthorityTableDataView(ObjectTableDataView):
+  """
+  view for composing table data out of instances of general object:
+  authority (Behörde)
+
+  :param model: model
+  :param update_view_name: name of view for form page for updating
+  """
+
+  model = Authority
+  update_view_name = 'antragsmanagement:authority_update'
+
+
+class AuthorityTableView(ObjectTableView):
+  """
+  view for table page for instances of general object:
+  authority (Behörde)
+
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param icon_name: icon name
+  """
+
+  model = Authority
+  table_data_view_name = 'antragsmanagement:authority_tabledata'
+  icon_name = 'authority'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set admin permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
+    return context
+
+
 class AuthorityUpdateView(ObjectUpdateView):
   """
   view for form page for updating an instance of general object:
   authority (Behörde)
+
+  :param model: model
+  :param cancel_url: custom cancel URL
   """
 
   model = Authority
-  cancel_url = 'antragsmanagement:index'
+  cancel_url = 'antragsmanagement:authority_table'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set admin permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
+    return context
+
+
+class EmailTableDataView(ObjectTableDataView):
+  """
+  view for composing table data out of instances of general object:
+  email (E-Mail)
+
+  :param model: model
+  :param update_view_name: name of view for form page for updating
+  """
+
+  model = Email
+  update_view_name = 'antragsmanagement:email_update'
+
+
+class EmailTableView(ObjectTableView):
+  """
+  view for table page for instances of general object:
+  email (E-Mail)
+
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param icon_name: icon name
+  """
+
+  model = Email
+  table_data_view_name = 'antragsmanagement:email_tabledata'
+  icon_name = 'email'
 
   def get_context_data(self, **kwargs):
     """
@@ -78,6 +166,9 @@ class EmailUpdateView(ObjectUpdateView):
   """
   view for form page for updating an instance of general object:
   email (E-Mail)
+
+  :param model: model
+  :param cancel_url: custom cancel URL
   """
 
   model = Email
@@ -101,11 +192,13 @@ class RequesterCreateView(ObjectCreateView):
   """
   view for form page for creating an instance of general object:
   requester (Antragsteller:in)
+
+  :param model: model
+  :param success_message: custom success message
   """
 
-  success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
-
   model = Requester
+  success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
 
   def form_valid(self, form):
     """
@@ -138,11 +231,13 @@ class RequesterUpdateView(ObjectUpdateView):
   """
   view for form page for updating an instance of general object:
   requester (Antragsteller:in)
+
+  :param model: model
+  :param success_message: custom success message
   """
 
-  success_message = '<strong>Kontaktdaten</strong> erfolgreich aktualisiert!'
-
   model = Requester
+  success_message = '<strong>Kontaktdaten</strong> erfolgreich aktualisiert!'
 
   def get_context_data(self, **kwargs):
     """
@@ -162,6 +257,11 @@ class RequestFormMixin:
   """
   mixin for form page for creating or updating an instance of general object:
   request (Antrag)
+
+  :param template_name: template name
+  :param form: form
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
   """
 
   template_name = 'antragsmanagement/form-request.html'
@@ -233,6 +333,11 @@ class RequestFollowUpFormMixin:
   """
   mixin for form page for creating or updating a follow-up instance of general object:
   request (Antrag)
+
+  :param template_name: template name
+  :param form: form
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
   """
 
   template_name = 'antragsmanagement/form-request-followup.html'
@@ -295,6 +400,9 @@ class CleanupEventRequestCreateView(RequestFormMixin, ObjectCreateView):
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   request (Antrag)
+
+  :param model: model
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventRequest
@@ -309,6 +417,9 @@ class CleanupEventRequestUpdateView(RequestFormMixin, ObjectUpdateView):
   view for form page for updating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   request (Antrag)
+
+  :param model: model
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventRequest
@@ -337,6 +448,10 @@ class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   event (Aktion)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventEvent
@@ -416,6 +531,10 @@ class CleanupEventEventUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
   view for form page for updating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   event (Aktion)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventEvent
@@ -488,6 +607,9 @@ class CleanupEventVenueCreateView(RequestFollowUpFormMixin, ObjectCreateView):
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   venue (Treffpunkt)
+
+  :param model: model
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventVenue
@@ -566,6 +688,9 @@ class CleanupEventVenueUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
   view for form page for updating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   venue (Treffpunkt)
+
+  :param model: model
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventVenue
@@ -624,6 +749,10 @@ class CleanupEventDetailsCreateView(RequestFollowUpFormMixin, ObjectCreateView):
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   details (Detailangaben)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventDetails
@@ -703,6 +832,10 @@ class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
   view for form page for updating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   details (Detailangaben)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventDetails
@@ -756,6 +889,10 @@ class CleanupEventContainerCreateView(RequestFollowUpFormMixin, ObjectCreateView
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   container (Container)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventContainer
