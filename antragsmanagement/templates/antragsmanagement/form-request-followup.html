@@ -45,7 +45,7 @@
       {% include "antragsmanagement/container-errors.html" %}
     {% endif %}
     {% if corresponding_request %}
-      <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
+      <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
       {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
         <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}

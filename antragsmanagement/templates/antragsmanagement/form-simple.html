@@ -24,7 +24,7 @@
     {% if form.errors %}
       {% include "antragsmanagement/container-errors.html" %}
     {% endif %}
-    <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
     <form class="form mt-4" method="post" action="">
       {% csrf_token %}
       <div>

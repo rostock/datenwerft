@@ -103,6 +103,8 @@ class RequesterCreateView(ObjectCreateView):
   requester (Antragsteller:in)
   """
 
+  success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
+
   model = Requester
 
   def form_valid(self, form):
@@ -137,6 +139,8 @@ class RequesterUpdateView(ObjectUpdateView):
   view for form page for updating an instance of general object:
   requester (Antragsteller:in)
   """
+
+  success_message = '<strong>Kontaktdaten</strong> erfolgreich aktualisiert!'
 
   model = Requester
 

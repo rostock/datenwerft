@@ -76,4 +76,4 @@ class ObjectUpdateView(ObjectFormMixin, UpdateView):
   view for form page for updating an instance of a general object
   """
 
-  success_message = '{} <strong><em>{}</em></strong> erfolgreich geändert!'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich aktualisiert!'

@@ -9,9 +9,7 @@ REQUESTERS = getattr(
 AUTHORITIES = getattr(
   settings,
   'ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES', [
-    'antragsmanagement_authority_66',
-    'antragsmanagement_authority_67',
-    'antragsmanagement_authority_77'
+    'antragsmanagement_authority_67'
   ]
 )
 ADMINS = getattr(

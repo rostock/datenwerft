@@ -12,7 +12,7 @@
       Antragsteller:in
       <ul>
         {% if corresponding_requester %}
-          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a> (= Kontaktdaten ändern)</li>
+          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a> (= Kontaktdaten aktualisieren)</li>
         {% else %}
           <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= Kontaktdaten erstellen)
           </li>
@@ -34,9 +34,9 @@
       Admin
       <ul>
         <li>Authority -> List</li>
-        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse von Behörde ändern)</li>
+        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse von Behörde aktualisieren)</li>
         <li>Email -> List</li>
-        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt von E-Mail ändern)</li>
+        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt von E-Mail aktualisieren)</li>
         <li>CleanupEventRequest -> List</li>
         <li>CleanupEventRequest -> Map</li>
       </ul>
