@@ -30,18 +30,21 @@ class Basemodel(Model):
     Attributes:
       editable: shall this model generally be editable?
       description: description of this model
-      short_name: short name of this model (if foreign keys are used; if not specified -> verbose name)
+      short_name: short name of this model (if foreign keys are used;
+          if not specified -> verbose name)
       as_overlay: shall geometries be selectable as overlay layer in the map in all form views?
       default_overlays: list of default overlay layers in the map of form view
       forms_in_mobile_mode: shall forms for this model be in mobile mode?
       forms_in_high_zoom_mode: shall map in form view be in high zoom mode?
-      forms_in_high_zoom_mode_default_aerial: shall map in form view be an aerial image, if high zoom mode active?
+      forms_in_high_zoom_mode_default_aerial: shall map in form view be an aerial image,
+          if high zoom mode active?
       naming: name shown in map filters drop-down menus
       readonly_fields: shall fields be read-only?
       geometry_type: type of the geometry represented by this model
       address_search_class: address search class
       address_search_long_results: shall address search results be shown in their long versions?
-      address_type: type of the address represented by this model (i.e. address, street or district)
+      address_type: type of the address represented by this model
+          (i.e. address, street or district)
       address_mandatory: shall an address reference be mandatory for this model?
       thumbs: shall thumbnails be created from uploaded photos for this model?
       geojson_input: shall an upload field for a GeoJSON file be available in the form view?
