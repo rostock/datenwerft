@@ -27,9 +27,9 @@ LOCAL_APPS = [
   'accounts',
   'toolbox',
   'datenmanagement',
+  'antragsmanagement',
   'bemas',
-  'metadatenmanagement',
-  'antragsmanagement'
+  'metadatenmanagement'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
@@ -52,8 +52,9 @@ TEMPLATES = [
     'DIRS': [
       BASE_DIR / 'datenwerft/templates',
       BASE_DIR / 'accounts/templates',
-      BASE_DIR / 'bemas/templates',
-      BASE_DIR / 'datenmanagement/templates'
+      BASE_DIR / 'datenmanagement/templates',
+      BASE_DIR / 'antragsmanagement/templates',
+      BASE_DIR / 'bemas/templates'
     ],
     'APP_DIRS': True,
     'OPTIONS': {
@@ -65,9 +66,10 @@ TEMPLATES = [
         'datenwerft.context_processors.include_login_form',
       ],
       'libraries': {
+        'toolbox_tags': 'toolbox.tags',
         'datenmanagement_tags': 'datenmanagement.tags',
-        'bemas_tags': 'bemas.tags',
-        'toolbox_tags': 'toolbox.tags'
+        'antragsmanagement_tags': 'antragsmanagement.tags',
+        'bemas_tags': 'bemas.tags'
       },
     },
   },
@@ -192,6 +194,19 @@ LANGUAGE_CODE = 'de'
 TIME_ZONE = 'Europe/Berlin'
 USE_I18N = True
 USE_TZ = True
+
+
+# Antragsmanagement app:
+# icons
+
+ANTRAGSMANAGEMENT_ICONS = {
+  'back': 'backward-step',
+  'cancel': 'hand',
+  'error': 'circle-exclamation',
+  'next': 'forward-step',
+  'ok': 'circle-check',
+  'save': 'floppy-disk'
+}
 
 
 # BEMAS app:

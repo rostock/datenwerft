@@ -28,7 +28,7 @@ jobs:
       - name: Check Python rules via pycodestyle
         run: pycodestyle *.py datenwerft/*.py accounts/*.py accounts/*/*.py antragsmanagement/*.py antragsmanagement/models/*.py bemas/*.py bemas/management/*.py bemas/models/*.py bemas/tests/*.py bemas/views/*.py datenmanagement/*.py datenmanagement/*/*.py metadatenmanagement/*.py metadatenmanagement/models/*.py toolbox/*.py toolbox/*/*.py
       - name: Check Django rules via djLint
-        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html
+        run: djlint datenwerft/templates/*.html accounts/templates/accounts/log*.html accounts/templates/accounts/test.html antragsmanagement/templates/antragsmanagement/*.html bemas/templates/bemas/*.html datenmanagement/templates/datenmanagement/*.html
   linting_js_css:
     name: Linting JavaScript and CSS
     runs-on: ubuntu-latest
@@ -44,4 +44,4 @@ jobs:
       - name: Check CSS rules via Stylelint
         run: npx stylelint "datenwerft/**/*.css accounts/**/*.css" "datenmanagement/**/*.css"
       - name: Check JavaScript rules via ESLint
-        run: npx eslint "bemas/static/bemas/js/*.js" "bemas/templates/bemas/*.html" "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/*.html"
+        run: npx eslint "antragsmanagement/static/antragsmanagement/js/*.js" "antragsmanagement/templates/antragsmanagement/*.html" "bemas/static/bemas/js/*.js" "bemas/templates/bemas/*.html" "datenmanagement/static/datenmanagement/js/*.js" "datenmanagement/templates/datenmanagement/*.html"

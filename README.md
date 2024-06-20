@@ -66,6 +66,8 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
         python manage.py migrate --database=bemas bemas
         python manage.py migrate --database=metadatenmanagement metadatenmanagement
         python manage.py migrate
+        python manage.py antragsmanagement_roles_permissions
+        python manage.py bemas_roles_permissions
 
 5.  Administrator initialisieren:
 

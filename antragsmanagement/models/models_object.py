@@ -1,11 +1,12 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
 from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, RegexValidator
-from django.db.models import ForeignKey, ManyToManyField, CASCADE, PROTECT
-from django.db.models.fields import BooleanField, CharField, DateField, EmailField, TextField
+from django.core.validators import RegexValidator
+from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
+from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
+  TextField
 
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
-  email_message, hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
+  hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
   rufnummer_regex, rufnummer_message
 from toolbox.utils import concat_address
 from .base import Object, GeometryObject
@@ -33,12 +34,7 @@ class Authority(Object):
     editable=False
   )
   email = EmailField(
-    verbose_name='E-Mail-Adresse',
-    validators=[
-      EmailValidator(
-        message=email_message
-      )
-    ]
+    verbose_name='E-Mail-Adresse'
   )
 
   class Meta(Object.Meta):
@@ -66,8 +62,7 @@ class Email(Object):
     editable=False
   )
   body = TextField(
-    verbose_name='Inhalt',
-    validators=standard_validators
+    verbose_name='Inhalt'
   )
 
   class Meta(Object.Meta):
@@ -89,8 +84,12 @@ class Requester(Object):
   requester (Antragsteller:in)
   """
 
-  registered = BooleanField(
-    verbose_name='registriert?'
+  user_id = PositiveIntegerField(
+    verbose_name='User-ID',
+    unique=True,
+    blank=True,
+    null=True,
+    editable=False
   )
   organization = CharField(
     verbose_name='Organisation',
@@ -107,12 +106,7 @@ class Requester(Object):
     validators=personennamen_validators
   )
   email = EmailField(
-    verbose_name='E-Mail-Adresse',
-    validators=[
-      EmailValidator(
-        message=email_message
-      )
-    ]
+    verbose_name='E-Mail-Adresse'
   )
   telephone = CharField(
     verbose_name='Telefonnummer',
@@ -202,7 +196,7 @@ class Request(Object):
     abstract = True
 
   def __str__(self):
-    return '#' + str(self.id) + ' vom ' + self.created.strftime('%d.%m.%Y') + \
+    return '#' + str(self.pk) + ' vom ' + self.created.strftime('%d.%m.%Y') + \
            ' (' + str(self.status) + ')'
 
 
@@ -220,14 +214,16 @@ class CleanupEventRequest(Request):
   responsibilities = ManyToManyField(
     Authority,
     db_table='cleanupevent_responsibilities',
-    verbose_name='Zuständigkeit(en)'
+    verbose_name='Zuständigkeit(en)',
+    blank=True,
+    editable=False
   )
 
   class Meta(Request.Meta):
     db_table = 'cleanupevent_request'
     ordering = ['-id']
-    verbose_name = 'Antrag'
-    verbose_name_plural = 'Anträge'
+    verbose_name = 'Müllsammelaktion: Antrag'
+    verbose_name_plural = 'Müllsammelaktionen: Anträge'
 
   class BaseMeta(Request.BaseMeta):
     description = 'Müllsammelaktionen: Anträge'
@@ -239,16 +235,16 @@ class CleanupEventEvent(GeometryObject):
   event (Aktion)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
   )
   from_date = DateField(
-    verbose_name='vom/am'
+    verbose_name='Startdatum/Datum'
   )
   to_date = DateField(
-    verbose_name='bis',
+    verbose_name='Enddatum',
     blank=True,
     null=True
   )
@@ -259,12 +255,13 @@ class CleanupEventEvent(GeometryObject):
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_event'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Aktion'
-    verbose_name_plural = 'Aktionen'
+    verbose_name = 'Müllsammelaktion: Aktionsdaten'
+    verbose_name_plural = 'Müllsammelaktionen: Aktionsdaten'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'area'
-    description = 'Müllsammelaktionen: Aktionen'
+    geometry_type = 'Polygon'
+    description = 'Müllsammelaktionen: Aktionsdaten'
 
 
 class CleanupEventVenue(GeometryObject):
@@ -273,7 +270,7 @@ class CleanupEventVenue(GeometryObject):
   venue (Treffpunkt)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
@@ -285,11 +282,12 @@ class CleanupEventVenue(GeometryObject):
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_venue'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Treffpunkt'
-    verbose_name_plural = 'Treffpunkte'
+    verbose_name = 'Müllsammelaktion: Treffpunkt'
+    verbose_name_plural = 'Müllsammelaktionen: Treffpunkte'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
+    geometry_type = 'Point'
     description = 'Müllsammelaktionen: Treffpunkte'
 
 
@@ -299,7 +297,7 @@ class CleanupEventDetails(Object):
   details (Detailangaben)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
@@ -331,17 +329,11 @@ class CleanupEventDetails(Object):
   class Meta(Object.Meta):
     db_table = 'cleanupevent_details'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Detailangabe'
-    verbose_name_plural = 'Detailangaben'
+    verbose_name = 'Müllsammelaktion: Detailangaben'
+    verbose_name_plural = 'Müllsammelaktionen: Detailangaben'
 
   class BaseMeta(Object.BaseMeta):
     description = 'Müllsammelaktionen: Detailangaben'
-
-  def clean(self):
-    super().clean()
-    if not self.waste_types.exists() and self.waste_types_annotation is None:
-      raise ValidationError('Wenn keine Abfallart(en) ausgewählt ist/sind, muss stattdessen '
-                            'zwingend das zugehörige Bemerkungsfeld ausgefüllt werden!')
 
 
 class CleanupEventContainer(GeometryObject):
@@ -350,16 +342,16 @@ class CleanupEventContainer(GeometryObject):
   container (Container)
   """
 
-  cleanupevent_request = ForeignKey(
+  cleanupevent_request = OneToOneField(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
   )
   delivery_date = DateField(
-    verbose_name='Stellung'
+    verbose_name='Stellungsdatum'
   )
   pickup_date = DateField(
-    verbose_name='Abholung'
+    verbose_name='Abholdatum'
   )
   place = PointField(
     verbose_name='Standort'
@@ -368,9 +360,10 @@ class CleanupEventContainer(GeometryObject):
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_container'
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Container'
-    verbose_name_plural = 'Container'
+    verbose_name = 'Müllsammelaktion: Container'
+    verbose_name_plural = 'Müllsammelaktionen: Container'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
+    geometry_type = 'Point'
     description = 'Müllsammelaktionen: Container'

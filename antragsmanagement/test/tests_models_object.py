@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.utils.crypto import get_random_string
 
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
@@ -5,8 +6,8 @@ from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelist
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
 from .base import DefaultModelTestCase
-from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
-  VALID_LAST_NAME, VALID_POINT, VALID_POLYGON, VALID_STRING, VALID_TEXT
+from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, VALID_LAST_NAME, \
+  VALID_POINT_DB, VALID_POLYGON_DB, VALID_STRING, VALID_TEXT
 
 
 #
@@ -20,12 +21,12 @@ class AuthorityTest(DefaultModelTestCase):
   """
 
   model = Authority
-  attributes_values_db_initial = {
+  attributes_values_db_create = {
     'group': VALID_STRING,
     'name': get_random_string(length=12),
     'email': VALID_EMAIL
   }
-  attributes_values_db_updated = {
+  attributes_values_db_update = {
     'name': get_random_string(length=12)
   }
 
@@ -49,11 +50,11 @@ class EmailTest(DefaultModelTestCase):
   """
 
   model = Email
-  attributes_values_db_initial = {
+  attributes_values_db_create = {
     'key': get_random_string(length=12),
     'body': VALID_TEXT
   }
-  attributes_values_db_updated = {
+  attributes_values_db_update = {
     'key': get_random_string(length=12)
   }
 
@@ -77,14 +78,13 @@ class RequesterTest(DefaultModelTestCase):
   """
 
   model = Requester
-  attributes_values_db_initial = {
-    'registered': True,
+  attributes_values_db_create = {
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
     'email': VALID_EMAIL
   }
-  attributes_values_db_updated = {
-    'registered': False
+  attributes_values_db_update = {
+    'organization': VALID_STRING
   }
 
   def setUp(self):
@@ -119,7 +119,6 @@ class CleanupEventRequestTest(DefaultModelTestCase):
     status1 = CodelistRequestStatus.get_status_new()
     status2 = CodelistRequestStatus.get_status_in_process()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -129,14 +128,14 @@ class CleanupEventRequestTest(DefaultModelTestCase):
       name=VALID_STRING,
       email=VALID_EMAIL
     )
-    cls.attributes_values_db_initial = {
+    cls.attributes_values_db_create = {
       'status': status1,
       'requester': requester
     }
-    cls.attributes_values_db_updated = {
+    cls.attributes_values_db_update = {
       'status': status2
     }
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.responsibilities.add(responsibility)
 
   def setUp(self):
@@ -165,7 +164,6 @@ class CleanupEventEventTest(DefaultModelTestCase):
   def setUpTestData(cls):
     status = CodelistRequestStatus.get_status_processed()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -180,15 +178,15 @@ class CleanupEventEventTest(DefaultModelTestCase):
       requester=requester
     )
     cleanupevent_request.responsibilities.add(responsibility)
-    cls.attributes_values_db_initial = {
+    cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
       'from_date': VALID_DATE,
-      'area': VALID_POLYGON
+      'area': VALID_POLYGON_DB
     }
-    cls.attributes_values_db_updated = {
+    cls.attributes_values_db_update = {
       'to_date': VALID_DATE
     }
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
     self.init()
@@ -217,7 +215,6 @@ class CleanupEventVenueTest(DefaultModelTestCase):
     status1 = CodelistRequestStatus.get_status_new()
     status2 = CodelistRequestStatus.get_status_rejected()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -237,14 +234,14 @@ class CleanupEventVenueTest(DefaultModelTestCase):
       requester=requester
     )
     cleanupevent_request2.responsibilities.add(responsibility)
-    cls.attributes_values_db_initial = {
+    cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
-      'place': VALID_POINT
+      'place': VALID_POINT_DB
     }
-    cls.attributes_values_db_updated = {
+    cls.attributes_values_db_update = {
       'cleanupevent_request': cleanupevent_request2
     }
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
     self.init()
@@ -272,7 +269,6 @@ class CleanupEventDetailsTest(DefaultModelTestCase):
   def setUpTestData(cls):
     status = CodelistRequestStatus.get_status_rejected()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -290,14 +286,14 @@ class CleanupEventDetailsTest(DefaultModelTestCase):
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
-    cls.attributes_values_db_initial = {
+    cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
       'waste_quantity': waste_quantity
     }
-    cls.attributes_values_db_updated = {
+    cls.attributes_values_db_update = {
       'waste_types_annotation': VALID_STRING
     }
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
     cls.test_object.waste_types.add(waste_type)
     cls.test_object.equipments.add(equipment)
 
@@ -328,7 +324,6 @@ class CleanupEventContainerTest(DefaultModelTestCase):
     status1 = CodelistRequestStatus.get_status_processed()
     status2 = CodelistRequestStatus.get_status_in_process()
     requester = Requester.objects.create(
-      registered=True,
       first_name=VALID_FIRST_NAME,
       last_name=VALID_LAST_NAME,
       email=VALID_EMAIL
@@ -348,16 +343,16 @@ class CleanupEventContainerTest(DefaultModelTestCase):
       requester=requester
     )
     cleanupevent_request2.responsibilities.add(responsibility)
-    cls.attributes_values_db_initial = {
+    cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
-      'pickup_date': VALID_DATE,
-      'place': VALID_POINT
+      'pickup_date': VALID_DATE + timedelta(days=1),
+      'place': VALID_POINT_DB
     }
-    cls.attributes_values_db_updated = {
+    cls.attributes_values_db_update = {
       'cleanupevent_request': cleanupevent_request2
     }
-    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
 
   def setUp(self):
     self.init()

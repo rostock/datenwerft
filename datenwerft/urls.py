@@ -6,6 +6,7 @@ from django.urls import include, path
 from accounts import urls as accounts_urls
 from toolbox import urls as toolbox_urls
 from datenmanagement import urls as datenmanagement_urls
+from antragsmanagement import urls as antragsmanagement_urls
 from bemas import urls as bemas_urls
 
 from .views import IndexView, error_400, error_403, error_404, error_405, error_410, \
@@ -25,6 +26,7 @@ api_urlpatterns = []
 api_urlpatterns += accounts_urls.api_urlpatterns
 api_urlpatterns += toolbox_urls.api_urlpatterns
 api_urlpatterns += datenmanagement_urls.api_urlpatterns
+api_urlpatterns += antragsmanagement_urls.api_urlpatterns
 api_urlpatterns += bemas_urls.api_urlpatterns
 
 # routing...
@@ -46,6 +48,9 @@ urlpatterns = [
 
   # ...Datenmanagement app
   path('datenmanagement/', view=include('datenmanagement.urls')),
+
+  # ...Antragsmanagement app
+  path('antragsmanagement/', view=include('antragsmanagement.urls')),
 
   # ...BEMAS app
   path('bemas/', view=include('bemas.urls')),
