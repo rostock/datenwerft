@@ -1,17 +1,18 @@
-from django.conf import settings
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 
-from .base import ObjectCreateView, ObjectUpdateView
-from .forms import RequestForm, RequestFollowUpForm, CleanupEventEventForm, \
-  CleanupEventDetailsForm, CleanupEventContainerForm
-from .functions import add_permissions_context_elements, add_useragent_context_elements
+from antragsmanagement.constants_vars import REQUESTERS, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
 from antragsmanagement.utils import get_corresponding_requester, get_request
 from toolbox.utils import is_geometry_field
+from antragsmanagement.views.base import ObjectCreateView, ObjectUpdateView
+from antragsmanagement.views.forms import RequestForm, RequestFollowUpForm, \
+  CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
+from antragsmanagement.views.functions import add_permissions_context_elements, \
+  add_useragent_context_elements
 
 
 #
@@ -69,8 +70,7 @@ class AuthorityUpdateView(ObjectUpdateView):
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set admin permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
     return context
 
 
@@ -93,8 +93,7 @@ class EmailUpdateView(ObjectUpdateView):
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set admin permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
     return context
 
 
@@ -129,8 +128,7 @@ class RequesterCreateView(ObjectCreateView):
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
     return context
 
 
@@ -152,8 +150,7 @@ class RequesterUpdateView(ObjectUpdateView):
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
     return context
 
 
@@ -207,8 +204,7 @@ class RequestFormMixin:
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
     # add to context: information about corresponding requester object for user
     context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     # add to context: information about request workflow
@@ -269,8 +265,7 @@ class RequestFollowUpFormMixin:
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
     # add to context: request ID passed in session
     context['corresponding_request'] = self.request.session.get('request_id', None)
     # add to context: information about request workflow

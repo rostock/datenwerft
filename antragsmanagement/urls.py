@@ -2,11 +2,11 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from .views.views import IndexView, AuthorityUpdateView, EmailUpdateView, RequesterCreateView, \
-  RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
-  CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \
-  CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
-  CleanupEventContainerCreateView
+from antragsmanagement.views.views import IndexView, AuthorityUpdateView, EmailUpdateView, \
+  RequesterCreateView, RequesterUpdateView, CleanupEventRequestCreateView, \
+  CleanupEventRequestUpdateView, CleanupEventEventCreateView, CleanupEventEventUpdateView, \
+  CleanupEventVenueCreateView, CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, \
+  CleanupEventDetailsUpdateView, CleanupEventContainerCreateView
 
 router = routers.DefaultRouter()
 

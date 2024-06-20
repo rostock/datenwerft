@@ -1,17 +1,16 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
-from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
 
+from antragsmanagement.models.base import Object, GeometryObject
+from antragsmanagement.models.models_codelist import CodelistRequestStatus, \
+  CleanupEventCodelistWasteQuantity, CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
   rufnummer_regex, rufnummer_message
 from toolbox.utils import concat_address
-from .base import Object, GeometryObject
-from .models_codelist import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
-  CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
 
 
 #

@@ -5,9 +5,10 @@ from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelist
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment, Authority, Email, Requester, \
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
-from .base import DefaultViewTestCase, DefaultFormViewTestCase
-from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, VALID_LAST_NAME, \
-  VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, VALID_STRING, VALID_TEXT
+from antragsmanagement.test.base import DefaultViewTestCase, DefaultFormViewTestCase
+from antragsmanagement.test.constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
+  VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
+  VALID_STRING, VALID_TEXT
 
 
 #

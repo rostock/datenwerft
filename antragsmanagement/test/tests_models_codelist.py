@@ -2,7 +2,7 @@ from django.utils.crypto import get_random_string
 
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
-from .base import DefaultCodelistTestCase
+from antragsmanagement.test.base import DefaultCodelistTestCase
 
 
 #

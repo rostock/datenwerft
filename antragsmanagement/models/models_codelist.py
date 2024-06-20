@@ -1,7 +1,7 @@
 from django.db.models.fields import CharField
 
+from antragsmanagement.models.base import Codelist
 from toolbox.constants_vars import standard_validators
-from .base import Codelist
 
 
 #

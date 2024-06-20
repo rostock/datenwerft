@@ -1,6 +1,7 @@
 from django.conf import settings
 
-from .models import Requester
+from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
+from antragsmanagement.models import Requester
 
 
 def belongs_to_antragsmanagement_authority(user):
@@ -10,9 +11,7 @@ def belongs_to_antragsmanagement_authority(user):
   :param user: user
   :return: passed user belongs to an Antragsmanagement authority?
   """
-  return user.groups.filter(
-    name__in=settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES
-  ).exists()
+  return user.groups.filter(name__in=AUTHORITIES).exists()
 
 
 def get_corresponding_requester(user, only_primary_key=True):
@@ -37,7 +36,7 @@ def get_icon_from_settings(key):
   :param key: key in icon dictionary
   :return: icon (i.e. value) of passed key in icon dictionary
   """
-  return settings.ANTRAGSMANAGEMENT_ICONS.get(key, 'poo')
+  return getattr(settings, 'ANTRAGSMANAGEMENT_ICONS', {}).get(key, 'poo')
 
 
 def get_request(model, request_id, only_primary_key=True):
@@ -77,7 +76,7 @@ def is_antragsmanagement_admin(user):
   :param user: user
   :return: passed user is an Antragsmanagement admin?
   """
-  return user.groups.filter(name=settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME).exists()
+  return user.groups.filter(name=ADMINS).exists()
 
 
 def is_antragsmanagement_requester(user):
@@ -87,7 +86,7 @@ def is_antragsmanagement_requester(user):
   :param user: user
   :return: passed user is an Antragsmanagement requester?
   """
-  return user.groups.filter(name=settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME).exists()
+  return user.groups.filter(name=REQUESTERS).exists()
 
 
 def is_antragsmanagement_user(user, only_antragsmanagement_user_check=False):
@@ -99,10 +98,8 @@ def is_antragsmanagement_user(user, only_antragsmanagement_user_check=False):
   :param only_antragsmanagement_user_check: check if user is an Antragsmanagement user only?
   :return: passed user is an Antragsmanagement user (only)?
   """
-  group_names = list(settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES)
-  group_names.extend([
-    settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME
-  ])
+  group_names = list(AUTHORITIES)
+  group_names.extend([ADMINS, REQUESTERS])
   if user.groups.filter(name__in=group_names).exists():
     if only_antragsmanagement_user_check:
       # if user is an Antragsmanagement user only, he is not a member of any other group

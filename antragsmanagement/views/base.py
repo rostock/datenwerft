@@ -3,8 +3,9 @@ from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import ObjectForm
-from .functions import add_model_context_elements, add_useragent_context_elements, assign_widget
+from antragsmanagement.views.forms import ObjectForm
+from antragsmanagement.views.functions import add_model_context_elements, \
+  add_useragent_context_elements, assign_widget
 
 
 class ObjectFormMixin:
