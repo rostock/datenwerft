@@ -69,21 +69,21 @@ class AuthorityTableDataViewTest(DefaultViewTestCase):
     self.generic_view_test(
       antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='empty'
+      content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='empty'
+      content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='empty'
+      content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_admin_permissions(self):
@@ -214,21 +214,21 @@ class EmailTableDataViewTest(DefaultViewTestCase):
     self.generic_view_test(
       antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='empty'
+      content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='empty'
+      content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_email_permissions(self):
     self.generic_view_test(
       antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='empty'
+      content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_admin_permissions(self):

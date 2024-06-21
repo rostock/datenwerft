@@ -266,7 +266,7 @@ class RequestFormMixin:
 
   template_name = 'antragsmanagement/form-request.html'
   form = RequestForm
-  success_message = 'Daten erfolgreich gespeichert!'
+  success_message = 'Antragsdaten erfolgreich gespeichert!'
   request_workflow = {
     'steps': 5,
     'current_step': 1
@@ -342,7 +342,7 @@ class RequestFollowUpFormMixin:
 
   template_name = 'antragsmanagement/form-request-followup.html'
   form = RequestFollowUpForm
-  success_message = 'Daten erfolgreich gespeichert!'
+  success_message = 'Antragsdaten erfolgreich gespeichert!'
   request_workflow = {}
 
   def form_invalid(self, form, **kwargs):
@@ -423,6 +423,7 @@ class CleanupEventRequestUpdateView(RequestFormMixin, ObjectUpdateView):
   """
 
   model = CleanupEventRequest
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
   request_workflow = {
     'steps': 5,
     'current_step': 1
@@ -538,6 +539,7 @@ class CleanupEventEventUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
   """
 
   model = CleanupEventEvent
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
   form = CleanupEventEventForm
   request_workflow = {
     'steps': 5,
@@ -694,6 +696,7 @@ class CleanupEventVenueUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
   """
 
   model = CleanupEventVenue
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
   request_workflow = {
     'steps': 5,
     'current_step': 3
@@ -839,6 +842,7 @@ class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
   """
 
   model = CleanupEventDetails
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
   form = CleanupEventDetailsForm
   request_workflow = {
     'steps': 5,

@@ -12,9 +12,9 @@
       Antragsteller:in
       <ul>
         {% if corresponding_requester %}
-          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a> (= Kontaktdaten aktualisieren)</li>
+          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a> (= eigene Kontaktdaten aktualisieren)</li>
         {% else %}
-          <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= Kontaktdaten erstellen)
+          <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= eigene Kontaktdaten erstellen)
           </li>
         {% endif %}
         <li>CleanupEventRequest -> Table (nur eigene)</li>
@@ -34,9 +34,9 @@
       Admin
       <ul>
         <li><a href="{% url 'antragsmanagement:authority_table' %}">Authority -> Table</a> (= Tabelle mit allen Behörden)</li>
-        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse von Behörde aktualisieren)</li>
+        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse einer Behörde aktualisieren)</li>
         <li><a href="{% url 'antragsmanagement:email_table' %}">Email -> Table</a> (= Tabelle mit allen E-Mails)</li>
-        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt von E-Mail aktualisieren)</li>
+        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt einer E-Mail aktualisieren)</li>
         <li>CleanupEventRequest -> Table</li>
         <li>CleanupEventRequest -> Map</li>
       </ul>
