@@ -7,7 +7,7 @@ from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelist
   CleanupEventContainer
 from antragsmanagement.test.base import DefaultModelTestCase
 from antragsmanagement.test.constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
-  VALID_LAST_NAME, VALID_POINT_DB, VALID_POLYGON_DB, VALID_STRING, VALID_TEXT
+  VALID_LAST_NAME, VALID_POINT_DB, VALID_POLYGON_DB, VALID_STRING, VALID_TELEPHONE, VALID_TEXT
 
 
 #
@@ -81,7 +81,8 @@ class RequesterTest(DefaultModelTestCase):
   attributes_values_db_create = {
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
   }
   attributes_values_db_update = {
     'organization': VALID_STRING

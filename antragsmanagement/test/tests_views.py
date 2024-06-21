@@ -8,7 +8,7 @@ from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelist
 from antragsmanagement.test.base import DefaultViewTestCase, DefaultFormViewTestCase
 from antragsmanagement.test.constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
   VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
-  VALID_STRING, VALID_TEXT
+  VALID_STRING, VALID_TELEPHONE, VALID_TEXT
 
 
 #
@@ -354,13 +354,15 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
   attributes_values_db_create = {
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
   }
   attributes_values_view_create_valid = {
     'organization': VALID_STRING,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
   }
   attributes_values_view_create_invalid = {
   }
@@ -425,13 +427,15 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
   attributes_values_db_create = {
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
   }
   attributes_values_view_update_valid = {
     'organization': VALID_STRING,
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
   }
   attributes_values_view_update_invalid = {
   }

@@ -24,9 +24,13 @@ def add_model_context_elements(context, model):
   # if object contains geometry:
   # add geometry related information to context
   if issubclass(model, GeometryObject):
+    geometry_field_name = model.BaseMeta.geometry_field
+    geometry_field = model._meta.get_field(geometry_field_name)
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['is_geometry_model'] = True
-    context['geometry_field'] = model.BaseMeta.geometry_field
+    context['geometry_field'] = geometry_field_name
+    context['geometry_field_label'] = geometry_field.verbose_name
+    context['geometry_required'] = False if geometry_field.blank else True
     context['geometry_type'] = model.BaseMeta.geometry_type
   return context
 

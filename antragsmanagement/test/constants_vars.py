@@ -26,4 +26,5 @@ VALID_POLYGON_DB = Polygon(
 VALID_POLYGON_VIEW = 'POLYGON((12.057 54.158, 12.057 54.159, ' \
                      '12.058 54.159, 12.058 54.158, 12.057 54.158))'
 VALID_STRING = 'Consetetur'
+VALID_TELEPHONE = '+1 206 555 0199'
 VALID_TEXT = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.'

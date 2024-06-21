@@ -25,20 +25,20 @@ class ObjectForm(ModelForm):
     super().__init__(*args, **kwargs)
     # customize messages
     for field in self.fields.values():
-      field.error_messages['required'] = 'Das Attribut <strong><em>{}</em></strong> ' \
-                                         'ist Pflicht!'.format(field.label)
+      text = 'Das Attribut <strong><em>{}</em></strong> ist Pflicht!'.format(field.label)
+      field.error_messages['required'] = text
       if issubclass(field.__class__, EmailField):
         field.error_messages['invalid'] = email_message
       elif issubclass(field.__class__, PointField) or issubclass(field.__class__, PolygonField):
         field.error_messages['required'] = None
         if issubclass(field.__class__, PointField):
-          error_text = '<strong><em>{}</em></strong> muss in Karte ' \
-                       'gesetzt werden!'.format(field.label)
+          text = 'Marker für <strong><em>{}</em></strong> muss in Karte gesetzt werden!'.format(
+            field.label)
         else:
-          error_text = '<strong><em>{}</em></strong> muss in Karte ' \
-                       'gezeichnet werden!'.format(field.label)
-        field.error_messages['invalid_geom'] = error_text
-        field.error_messages['invalid_geom_type'] = error_text
+          text = '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
+            field.label)
+        field.error_messages['invalid_geom'] = text
+        field.error_messages['invalid_geom_type'] = text
 
   def clean(self):
     """
@@ -51,11 +51,45 @@ class ObjectForm(ModelForm):
       geometry_field = self._meta.model.BaseMeta.geometry_field
       geometry = cleaned_data.get(geometry_field)
       if '(0 0)' in str(geometry):
-        error_text = '<strong><em>{}</em></strong> muss in Karte gezeichnet werden!'.format(
+        text = 'Marker für <strong><em>{}</em></strong> muss in Karte gesetzt werden!'.format(
           self._meta.model._meta.get_field(geometry_field).verbose_name)
-        raise ValidationError(error_text)
+        raise ValidationError(text)
       else:
         cleaned_data[geometry_field] = geometry
+
+
+class RequesterForm(ObjectForm):
+  """
+  form for creating or updating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+  def clean_last_name(self):
+    """
+    cleans specific field
+    """
+    organization = self.cleaned_data.get('organization')
+    first_name = self.cleaned_data.get('first_name')
+    last_name = self.cleaned_data.get('last_name')
+    if not organization and not first_name and not last_name:
+      text = '<strong><em>{}</em></strong> muss gesetzt sein,'.format(
+        self._meta.model._meta.get_field('organization').verbose_name)
+      text += ' wenn <em>{}</em> und <em>{}</em> nicht gesetzt sind!'.format(
+        self._meta.model._meta.get_field('first_name').verbose_name,
+        self._meta.model._meta.get_field('last_name').verbose_name)
+      text += ' <strong><em>{}</em></strong> und <strong><em>{}</em></strong>'.format(
+        self._meta.model._meta.get_field('first_name').verbose_name,
+        self._meta.model._meta.get_field('last_name').verbose_name)
+      text += ' müssen gesetzt sein, wenn <em>{}</em> nicht gesetzt ist!'.format(
+        self._meta.model._meta.get_field('organization').verbose_name)
+      raise ValidationError(text)
+    elif (not first_name and last_name) or (first_name and not last_name):
+      text = '<strong><em>{}</em></strong> und <strong><em>{}</em></strong>'.format(
+        self._meta.model._meta.get_field('first_name').verbose_name,
+        self._meta.model._meta.get_field('last_name').verbose_name)
+      text += ' müssen immer gemeinsam gesetzt sein!'
+      raise ValidationError(text)
+    return last_name
 
 
 class RequestForm(ObjectForm):
@@ -108,12 +142,12 @@ class CleanupEventEventForm(RequestFollowUpForm):
     from_date = self.cleaned_data.get('from_date')
     to_date = self.cleaned_data.get('to_date')
     if from_date and to_date and to_date <= from_date:
-      error_text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
+      text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
         self._meta.model._meta.get_field('to_date').verbose_name,
-        self._meta.model._meta.get_field('from_date').verbose_name
-      ) + ' {} weglassen, falls Aktion an einem Tag stattfindet.'.format(
+        self._meta.model._meta.get_field('from_date').verbose_name)
+      text += ' <em>{}</em> weglassen, falls Aktion an nur einem Tag stattfinden soll.'.format(
         self._meta.model._meta.get_field('to_date').verbose_name)
-      raise ValidationError(error_text)
+      raise ValidationError(text)
     return to_date
 
 
@@ -131,11 +165,11 @@ class CleanupEventDetailsForm(RequestFollowUpForm):
     waste_types = self.cleaned_data.get('waste_types')
     waste_types_annotation = self.cleaned_data.get('waste_types_annotation')
     if not waste_types and not waste_types_annotation:
-      error_text = 'Wenn keine <strong><em>{}</em></strong> ausgewählt ist/sind,'.format(
-        self._meta.model._meta.get_field('waste_types').verbose_name
-      ) + ' müssen zwingend <strong><em>{}</em></strong> angegeben werden!'.format(
+      text = 'Wenn keine <strong><em>{}</em></strong> ausgewählt ist/sind,'.format(
+        self._meta.model._meta.get_field('waste_types').verbose_name)
+      text += ' müssen zwingend <strong><em>{}</em></strong> angegeben werden!'.format(
         self._meta.model._meta.get_field('waste_types_annotation').verbose_name)
-      raise ValidationError(error_text)
+      raise ValidationError(text)
     return waste_types_annotation
 
 
@@ -153,10 +187,10 @@ class CleanupEventContainerForm(RequestFollowUpForm):
     delivery_date = self.cleaned_data.get('delivery_date')
     pickup_date = self.cleaned_data.get('pickup_date')
     if delivery_date and pickup_date and pickup_date < delivery_date:
-      error_text = '<strong><em>{}</em></strong> muss gleich <em>{}</em> sein'.format(
+      text = '<strong><em>{}</em></strong> muss gleich <em>{}</em> sein'.format(
         self._meta.model._meta.get_field('pickup_date').verbose_name,
-        self._meta.model._meta.get_field('delivery_date').verbose_name
-      ) + ' oder nach <em>{}</em> liegen!'.format(
         self._meta.model._meta.get_field('delivery_date').verbose_name)
-      raise ValidationError(error_text)
+      text += ' oder nach <em>{}</em> liegen!'.format(
+        self._meta.model._meta.get_field('delivery_date').verbose_name)
+      raise ValidationError(text)
     return pickup_date

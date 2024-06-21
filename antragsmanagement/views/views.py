@@ -10,7 +10,7 @@ from antragsmanagement.utils import get_corresponding_requester, get_request
 from toolbox.utils import is_geometry_field
 from antragsmanagement.views.base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
   ObjectUpdateView
-from antragsmanagement.views.forms import RequestForm, RequestFollowUpForm, \
+from antragsmanagement.views.forms import RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from antragsmanagement.views.functions import add_permissions_context_elements, \
   add_useragent_context_elements
@@ -198,6 +198,7 @@ class RequesterCreateView(ObjectCreateView):
   """
 
   model = Requester
+  form = RequesterForm
   success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
 
   def form_valid(self, form):
@@ -237,6 +238,7 @@ class RequesterUpdateView(ObjectUpdateView):
   """
 
   model = Requester
+  form = RequesterForm
   success_message = '<strong>Kontaktdaten</strong> erfolgreich aktualisiert!'
 
   def get_context_data(self, **kwargs):
@@ -546,6 +548,25 @@ class CleanupEventEventUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     'current_step': 2
   }
 
+  def get_form_kwargs(self):
+    """
+    returns ``**kwargs`` as a dictionary with form attributes
+
+    :return: ``**kwargs`` as a dictionary with form attributes
+    """
+    kwargs = super().get_form_kwargs()
+    # pass request field to form
+    kwargs['request_field'] = 'cleanupevent_request'
+    # get corresponding request object via ID passed in session
+    # and pass it to form
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
+    return kwargs
+
   def get_context_data(self, **kwargs):
     """
     returns a dictionary with all context elements for this view
@@ -702,6 +723,25 @@ class CleanupEventVenueUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     'current_step': 3
   }
 
+  def get_form_kwargs(self):
+    """
+    returns ``**kwargs`` as a dictionary with form attributes
+
+    :return: ``**kwargs`` as a dictionary with form attributes
+    """
+    kwargs = super().get_form_kwargs()
+    # pass request field to form
+    kwargs['request_field'] = 'cleanupevent_request'
+    # get corresponding request object via ID passed in session
+    # and pass it to form
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
+    return kwargs
+
   def get_context_data(self, **kwargs):
     """
     returns a dictionary with all context elements for this view
@@ -848,6 +888,25 @@ class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     'steps': 5,
     'current_step': 4
   }
+
+  def get_form_kwargs(self):
+    """
+    returns ``**kwargs`` as a dictionary with form attributes
+
+    :return: ``**kwargs`` as a dictionary with form attributes
+    """
+    kwargs = super().get_form_kwargs()
+    # pass request field to form
+    kwargs['request_field'] = 'cleanupevent_request'
+    # get corresponding request object via ID passed in session
+    # and pass it to form
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        CleanupEventRequest,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
+    return kwargs
 
   def get_context_data(self, **kwargs):
     """

@@ -17,8 +17,8 @@
           <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= eigene Kontaktdaten erstellen)
           </li>
         {% endif %}
-        <li>CleanupEventRequest -> Table (nur eigene)</li>
-        <li>CleanupEventRequest -> Map (nur eigene)</li>
+        <li>CleanupEventRequest -> Table (pseudonymisiert)</li>
+        <li>CleanupEventRequest -> Map (pseudonymisiert)</li>
         <li><a href="{% url 'antragsmanagement:cleanupeventrequest_create' %}">CleanupEventRequest -> Create</a> (= Antrag auf Müllsammelaktion erstellen)</li>
       </ul>
     {% endif %}
