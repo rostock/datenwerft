@@ -1,5 +1,7 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
+
+import django.contrib.gis.forms.fields
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
@@ -10,7 +12,6 @@ from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save
 from re import sub
 from zoneinfo import ZoneInfo
-
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from .base import ComplexModel
@@ -2674,6 +2675,85 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
 
   def __str__(self):
     return self.bezeichnung
+
+
+#
+# Punktwolken (Punktwolken Dateien)
+#
+
+class Punktwolken(ComplexModel):
+  dateiname = CharField(
+    verbose_name='Dateiname',
+    max_length=255
+  )
+  dateipfad = CharField(
+    verbose_name='Dateipfad',
+    max_length=255
+  )
+  aufnahme = DateTimeField(
+    verbose_name='Aufnahmezeitpunkt',
+  )
+  aktualisiert = DateTimeField(
+    verbose_name='Zuletzt aktualisiert',
+    blank=True,
+    null=True
+  )
+  geometrie = polygon_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"punktwolken'
+    verbose_name = ('Punktwolke')
+    verbose_name_plural = ('Punktwolken')
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'dateiname': 'Dateiname',
+      'dateipfad': 'Dateipfad',
+      'aufnahme': 'Aufnahmedatum',
+      'aktualisiert': 'Letzte Aktualisierung',
+    }
+    list_fields_with_datetime = ['aufnahme', 'aktualisiert']
+    readonly_fields = ['aufnahme', 'aktualisiert']
+    associated_models = {
+      'Punktwolken_Projekte': 'punktwolken_projekte'
+    }
+
+
+#
+# Punktwolken Projekte (besteht aus mehreren Punktwolken)
+#
+
+class Punktwolken_Projekte(ComplexModel):
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+  )
+  beschreibung = NullTextField(
+    verbose_name='Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  aktualisiert = DateField(
+    verbose_name='Zuletzt aktualisiert'
+  )
+  geometrie = polygon_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"punktwolken_projekte'
+    verbose_name = 'Punktwolken Projekt'
+    verbose_name_plural = ('Punktwolken Projekte')
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'aktualisiert': 'Zuletzt aktualisiert'
+    }
+    readonly_fields = ['aktualisiert', 'geometrie']
+    geometry_type = 'Polygon'
 
 
 #
