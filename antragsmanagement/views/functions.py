@@ -4,11 +4,11 @@ from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
-from toolbox.utils import is_geometry_field
 from antragsmanagement.models import GeometryObject
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   has_necessary_permissions, is_antragsmanagement_admin, is_antragsmanagement_requester, \
   is_antragsmanagement_user
+from toolbox.utils import is_geometry_field
 
 
 def add_model_context_elements(context, model):

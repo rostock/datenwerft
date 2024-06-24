@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, reverse_lazy
 from rest_framework import routers
 
-from antragsmanagement.views.views import IndexView, AuthorityTableDataView, AuthorityTableView, \
+from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   AuthorityUpdateView, EmailTableDataView, EmailTableView, EmailUpdateView, RequesterCreateView, \
   RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
   CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \

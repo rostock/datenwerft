@@ -7,10 +7,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from antragsmanagement.constants_vars import ADMINS
-from antragsmanagement.views.forms import ObjectForm
-from antragsmanagement.views.functions import add_model_context_elements, \
+from .forms import ObjectForm
+from .functions import add_model_context_elements, \
   add_table_context_elements, add_useragent_context_elements, assign_widget, get_model_objects
+from antragsmanagement.constants_vars import ADMINS
 from antragsmanagement.utils import get_icon_from_settings, has_necessary_permissions
 from toolbox.utils import format_date_datetime, optimize_datatable_filter
 
@@ -179,7 +179,7 @@ class ObjectTableView(TemplateView):
     return context
 
 
-class ObjectFormMixin:
+class ObjectMixin:
   """
   generic mixin for form page for creating or updating an instance of an object
 
@@ -242,7 +242,7 @@ class ObjectFormMixin:
     return context
 
 
-class ObjectCreateView(ObjectFormMixin, CreateView):
+class ObjectCreateView(ObjectMixin, CreateView):
   """
   generic view for form page for creating an instance of an object
 
@@ -252,7 +252,7 @@ class ObjectCreateView(ObjectFormMixin, CreateView):
   success_message = '{} <strong><em>{}</em></strong> erfolgreich gespeichert!'
 
 
-class ObjectUpdateView(ObjectFormMixin, UpdateView):
+class ObjectUpdateView(ObjectMixin, UpdateView):
   """
   generic view for form page for updating an instance of an object
 

@@ -1,14 +1,14 @@
 from datetime import timedelta
 from django.utils.crypto import get_random_string
 
+from .base import DefaultViewTestCase, DefaultFormViewTestCase
+from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
+  VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
+  VALID_STRING, VALID_TELEPHONE, VALID_TEXT
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment, Authority, Email, Requester, \
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
-from antragsmanagement.test.base import DefaultViewTestCase, DefaultFormViewTestCase
-from antragsmanagement.test.constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
-  VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
-  VALID_STRING, VALID_TELEPHONE, VALID_TEXT
 
 
 #

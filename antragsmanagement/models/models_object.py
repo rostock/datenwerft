@@ -4,8 +4,8 @@ from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
 
-from antragsmanagement.models.base import Object, GeometryObject
-from antragsmanagement.models.models_codelist import CodelistRequestStatus, \
+from .base import Object, GeometryObject
+from .models_codelist import CodelistRequestStatus, \
   CleanupEventCodelistWasteQuantity, CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \

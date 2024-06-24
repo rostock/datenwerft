@@ -1,4 +1,4 @@
-from antragsmanagement.test.constants_vars import USERNAME, PASSWORD
+from .constants_vars import USERNAME, PASSWORD
 
 
 def login(test, antragsmanagement_requester=False, antragsmanagement_authority=False,

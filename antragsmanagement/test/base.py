@@ -2,10 +2,10 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from .constants_vars import DATABASES, USERNAME, PASSWORD
+from .functions import login
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import Codelist, Requester, Request
-from antragsmanagement.test.constants_vars import DATABASES, USERNAME, PASSWORD
-from antragsmanagement.test.functions import login
 from bemas.tests.functions import clean_object_filter, get_object
 
 
