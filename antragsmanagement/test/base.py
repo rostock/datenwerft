@@ -1,12 +1,12 @@
-from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from antragsmanagement.models import Codelist, Requester, Request
-from bemas.tests.functions import clean_object_filter, get_object
 from .constants_vars import DATABASES, USERNAME, PASSWORD
 from .functions import login
+from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
+from antragsmanagement.models import Codelist, Requester, Request
+from bemas.tests.functions import clean_object_filter, get_object
 
 
 class DefaultTestCase(TestCase):
@@ -17,12 +17,9 @@ class DefaultTestCase(TestCase):
   databases = DATABASES
 
   def init(self):
-    self.test_antragsmanagement_requester_group = Group.objects.create(
-      name=settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
-    self.test_antragsmanagement_authority_group = Group.objects.create(
-      name=settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES[0])
-    self.test_antragsmanagement_admin_group = Group.objects.create(
-      name=settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    self.test_antragsmanagement_requester_group = Group.objects.create(name=REQUESTERS)
+    self.test_antragsmanagement_authority_group = Group.objects.create(name=AUTHORITIES[0])
+    self.test_antragsmanagement_admin_group = Group.objects.create(name=ADMINS)
     self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 

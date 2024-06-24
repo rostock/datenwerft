@@ -2,11 +2,11 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.messages import storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from json import loads
 
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
-from datenmanagement.views.views_form import DataAddView, DataChangeView, DataDeleteView
+from datenmanagement.views import DataAddView, DataChangeView, DataDeleteView
 from .constants_vars import *
 from .functions import clean_object_filter, create_test_subset, get_object, load_sql_schema
 

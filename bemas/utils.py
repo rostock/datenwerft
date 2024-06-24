@@ -1,8 +1,9 @@
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone as tz
-from zoneinfo import ZoneInfo
+
+from toolbox.utils import format_date_datetime
 
 
 LOG_ACTIONS = {
@@ -17,28 +18,6 @@ LOG_ACTIONS = {
   'updated_originator': 'Verursacher geändert',
   'updated_status': 'Bearbeitungsstatus geändert'
 }
-
-
-def format_date_datetime(value, time_string_only=False):
-  """
-  formats date or datetime and returns appropriate date, datetime or time string
-
-  :param value: date or datetime
-  :param time_string_only: time string only?
-  :return: appropriate date, datetime or time string
-  """
-  # format datetimes
-  if isinstance(value, datetime):
-    value_tz = value.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
-    if time_string_only:
-      return value_tz.strftime('heute, %H:%M Uhr')
-    else:
-      return value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
-  # format dates
-  elif isinstance(value, date):
-    return value.strftime('%d.%m.%Y')
-  else:
-    return value
 
 
 def generate_user_string(user):

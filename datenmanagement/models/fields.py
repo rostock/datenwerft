@@ -2,8 +2,8 @@ from django.contrib.gis.db.models.fields import LineStringField, MultiLineString
   MultiPolygonField, PointField, PolygonField
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.db.models.fields import PositiveIntegerField, PositiveSmallIntegerField, TextField
-from django.forms import Textarea, TypedMultipleChoiceField
+from django.db.models.fields import PositiveIntegerField, PositiveSmallIntegerField
+from django.forms import TypedMultipleChoiceField
 
 
 #
@@ -47,34 +47,6 @@ class ChoiceArrayField(ArrayField):
 
     if not self.blank and value in self.empty_values:
       raise ValidationError(self.error_messages['blank'], code='blank')
-
-
-class NullTextField(TextField):
-  """
-  TextField writing NULL values to database instead of empty strings
-  """
-
-  def get_internal_type(self):
-    return 'TextField'
-
-  def to_python(self, value):
-    if value is None or value in self.empty_values:
-      return None
-    elif isinstance(value, str):
-      return value
-    return str(value)
-
-  def get_prep_value(self, value):
-    value = super(NullTextField, self).get_prep_value(value)
-    return self.to_python(value)
-
-  def formfield(self, **kwargs):
-    defaults = {
-      'max_length': self.max_length,
-      **({} if self.choices is not None else {'widget': Textarea})
-    }
-    defaults.update(kwargs)
-    return super().formfield(**defaults)
 
 
 class PositiveIntegerMinField(PositiveIntegerField):

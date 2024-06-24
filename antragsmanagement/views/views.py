@@ -1,12 +1,14 @@
-from django.conf import settings
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 
-from .base import ObjectCreateView, ObjectUpdateView
-from .forms import RequestForm, RequestFollowUpForm, CleanupEventEventForm, \
-  CleanupEventDetailsForm, CleanupEventContainerForm
-from .functions import add_permissions_context_elements, add_useragent_context_elements
+from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
+  ObjectUpdateView
+from .forms import RequesterForm, RequestForm, RequestFollowUpForm, \
+  CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
+from .functions import add_permissions_context_elements, \
+  add_useragent_context_elements
+from antragsmanagement.constants_vars import REQUESTERS, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
@@ -21,6 +23,8 @@ from toolbox.utils import is_geometry_field
 class IndexView(TemplateView):
   """
   view for main page
+
+  :param template_name: template name
   """
 
   template_name = 'antragsmanagement/index.html'
@@ -50,14 +54,32 @@ class IndexView(TemplateView):
 # general objects
 #
 
-class AuthorityUpdateView(ObjectUpdateView):
+class AuthorityTableDataView(ObjectTableDataView):
   """
-  view for form page for updating an instance of general object:
+  view for composing table data out of instances of general object:
   authority (Behörde)
+
+  :param model: model
+  :param update_view_name: name of view for form page for updating
   """
 
   model = Authority
-  cancel_url = 'antragsmanagement:index'
+  update_view_name = 'antragsmanagement:authority_update'
+
+
+class AuthorityTableView(ObjectTableView):
+  """
+  view for table page for instances of general object:
+  authority (Behörde)
+
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param icon_name: icon name
+  """
+
+  model = Authority
+  table_data_view_name = 'antragsmanagement:authority_tabledata'
+  icon_name = 'authority'
 
   def get_context_data(self, **kwargs):
     """
@@ -69,8 +91,74 @@ class AuthorityUpdateView(ObjectUpdateView):
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set admin permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
+    return context
+
+
+class AuthorityUpdateView(ObjectUpdateView):
+  """
+  view for form page for updating an instance of general object:
+  authority (Behörde)
+
+  :param model: model
+  :param cancel_url: custom cancel URL
+  """
+
+  model = Authority
+  cancel_url = 'antragsmanagement:authority_table'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set admin permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
+    return context
+
+
+class EmailTableDataView(ObjectTableDataView):
+  """
+  view for composing table data out of instances of general object:
+  email (E-Mail)
+
+  :param model: model
+  :param update_view_name: name of view for form page for updating
+  """
+
+  model = Email
+  update_view_name = 'antragsmanagement:email_update'
+
+
+class EmailTableView(ObjectTableView):
+  """
+  view for table page for instances of general object:
+  email (E-Mail)
+
+  :param model: model
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param icon_name: icon name
+  """
+
+  model = Email
+  table_data_view_name = 'antragsmanagement:email_tabledata'
+  icon_name = 'email'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set admin permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
     return context
 
 
@@ -78,6 +166,9 @@ class EmailUpdateView(ObjectUpdateView):
   """
   view for form page for updating an instance of general object:
   email (E-Mail)
+
+  :param model: model
+  :param cancel_url: custom cancel URL
   """
 
   model = Email
@@ -93,18 +184,43 @@ class EmailUpdateView(ObjectUpdateView):
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set admin permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, ADMINS)
     return context
 
 
-class RequesterCreateView(ObjectCreateView):
+class RequesterMixin:
+  """
+  mixin for form page for creating an instance of general object:
+  requester (Antragsteller:in)
+
+  :param model: model
+  :param form: form
+  :param success_message: custom success message
+  """
+
+  model = Requester
+  form = RequesterForm
+  success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set requester permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
+    return context
+
+
+class RequesterCreateView(RequesterMixin, ObjectCreateView):
   """
   view for form page for creating an instance of general object:
   requester (Antragsteller:in)
   """
-
-  model = Requester
 
   def form_valid(self, form):
     """
@@ -119,57 +235,33 @@ class RequesterCreateView(ObjectCreateView):
       instance.user_id = self.request.user.pk
     return super().form_valid(form)
 
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
 
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add permissions related context elements:
-    # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
-    return context
-
-
-class RequesterUpdateView(ObjectUpdateView):
+class RequesterUpdateView(RequesterMixin, ObjectUpdateView):
   """
   view for form page for updating an instance of general object:
   requester (Antragsteller:in)
+
+  :param success_message: custom success message
   """
 
-  model = Requester
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add permissions related context elements:
-    # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
-    return context
+  success_message = '<strong>Kontaktdaten</strong> erfolgreich aktualisiert!'
 
 
-class RequestFormMixin:
+class RequestMixin:
   """
   mixin for form page for creating or updating an instance of general object:
   request (Antrag)
+
+  :param template_name: template name
+  :param form: form
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
   """
 
   template_name = 'antragsmanagement/form-request.html'
   form = RequestForm
-  success_message = 'Daten erfolgreich gespeichert!'
-  request_workflow = {
-    'steps': 5,
-    'current_step': 1
-  }
+  success_message = 'Antragsdaten erfolgreich gespeichert!'
+  request_workflow = {}
 
   def get_form_kwargs(self):
     """
@@ -207,8 +299,7 @@ class RequestFormMixin:
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
     # add to context: information about corresponding requester object for user
     context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     # add to context: information about request workflow
@@ -229,15 +320,20 @@ class RequestFormMixin:
     }
 
 
-class RequestFollowUpFormMixin:
+class RequestFollowUpMixin:
   """
   mixin for form page for creating or updating a follow-up instance of general object:
   request (Antrag)
+
+  :param template_name: template name
+  :param form: form
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
   """
 
   template_name = 'antragsmanagement/form-request-followup.html'
   form = RequestFollowUpForm
-  success_message = 'Daten erfolgreich gespeichert!'
+  success_message = 'Antragsdaten erfolgreich gespeichert!'
   request_workflow = {}
 
   def form_invalid(self, form, **kwargs):
@@ -269,8 +365,7 @@ class RequestFollowUpFormMixin:
     context = super().get_context_data(**kwargs)
     # add permissions related context elements:
     # set requester permissions as necessary permissions
-    context = add_permissions_context_elements(
-      context, self.request.user, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
     # add to context: request ID passed in session
     context['corresponding_request'] = self.request.session.get('request_id', None)
     # add to context: information about request workflow
@@ -291,11 +386,14 @@ class RequestFollowUpFormMixin:
 # clean-up events (Müllsammelaktionen)
 #
 
-class CleanupEventRequestCreateView(RequestFormMixin, ObjectCreateView):
+class CleanupEventRequestCreateView(RequestMixin, ObjectCreateView):
   """
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   request (Antrag)
+
+  :param model: model
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventRequest
@@ -305,14 +403,19 @@ class CleanupEventRequestCreateView(RequestFormMixin, ObjectCreateView):
   }
 
 
-class CleanupEventRequestUpdateView(RequestFormMixin, ObjectUpdateView):
+class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
   """
   view for form page for updating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   request (Antrag)
+
+  :param model: model
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventRequest
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
   request_workflow = {
     'steps': 5,
     'current_step': 1
@@ -333,11 +436,15 @@ class CleanupEventRequestUpdateView(RequestFormMixin, ObjectUpdateView):
       return reverse('antragsmanagement:cleanupeventevent_create')
 
 
-class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
+class CleanupEventEventMixin(RequestFollowUpMixin):
   """
-  view for form page for creating an instance of object for request type clean-up events
+  mixin for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   event (Aktion)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventEvent
@@ -381,21 +488,6 @@ class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     )
     return context
 
-  def get_initial(self):
-    """
-    conditionally sets initial field values for this view
-
-    :return: dictionary with initial field values for this view
-    """
-    # get corresponding request object via ID passed in session
-    # and set request to it
-    if self.request.session.get('request_id', None):
-      return {
-        'cleanupevent_request': get_request(
-          CleanupEventRequest, self.request.session.get('request_id', None))
-      }
-    return {}
-
   def form_valid(self, form):
     """
     sends HTTP response if passed form is valid
@@ -412,34 +504,39 @@ class CleanupEventEventCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     return super().form_valid(form)
 
 
-class CleanupEventEventUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
+class CleanupEventEventCreateView(CleanupEventEventMixin, ObjectCreateView):
   """
-  view for form page for updating an instance of object for request type clean-up events
+  view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   event (Aktion)
   """
 
-  model = CleanupEventEvent
-  form = CleanupEventEventForm
-  request_workflow = {
-    'steps': 5,
-    'current_step': 2
-  }
-
-  def get_context_data(self, **kwargs):
+  def get_initial(self):
     """
-    returns a dictionary with all context elements for this view
+    conditionally sets initial field values for this view
 
-    :param kwargs:
-    :return: dictionary with all context elements for this view
+    :return: dictionary with initial field values for this view
     """
-    context = super().get_context_data(**kwargs)
-    # add to context: URLs
-    context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventrequest_update',
-      kwargs={'pk': self.request.session.get('request_id', None)}
-    )
-    return context
+    # get corresponding request object via ID passed in session
+    # and set request to it
+    if self.request.session.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.request.session.get('request_id', None))
+      }
+    return {}
+
+
+class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
+  """
+  view for form page for updating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  event (Aktion)
+
+  :param success_message: custom success message
+  """
+
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
 
   def get_initial(self):
     """
@@ -468,27 +565,15 @@ class CleanupEventEventUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     else:
       return reverse('antragsmanagement:cleanupeventvenue_create')
 
-  def form_valid(self, form):
-    """
-    sends HTTP response if passed form is valid
 
-    :param form: form
-    :return: HTTP response if passed form is valid
-    """
-    # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
-    instance.full_clean()
-    instance.save()
-    # store ID of current object in session in order to pass it to previous view
-    self.request.session['cleanupeventevent_id'] = instance.pk
-    return super().form_valid(form)
-
-
-class CleanupEventVenueCreateView(RequestFollowUpFormMixin, ObjectCreateView):
+class CleanupEventVenueMixin(RequestFollowUpMixin):
   """
-  view for form page for creating an instance of object for request type clean-up events
+  mixin for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   venue (Treffpunkt)
+
+  :param model: model
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventVenue
@@ -531,21 +616,6 @@ class CleanupEventVenueCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     )
     return context
 
-  def get_initial(self):
-    """
-    conditionally sets initial field values for this view
-
-    :return: dictionary with initial field values for this view
-    """
-    # get corresponding request object via ID passed in session
-    # and set request to it
-    if self.request.session.get('request_id', None):
-      return {
-        'cleanupevent_request': get_request(
-          CleanupEventRequest, self.request.session.get('request_id', None))
-      }
-    return {}
-
   def form_valid(self, form):
     """
     sends HTTP response if passed form is valid
@@ -562,33 +632,39 @@ class CleanupEventVenueCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     return super().form_valid(form)
 
 
-class CleanupEventVenueUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
+class CleanupEventVenueCreateView(CleanupEventVenueMixin, ObjectCreateView):
   """
-  view for form page for updating an instance of object for request type clean-up events
+  view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   venue (Treffpunkt)
   """
 
-  model = CleanupEventVenue
-  request_workflow = {
-    'steps': 5,
-    'current_step': 3
-  }
-
-  def get_context_data(self, **kwargs):
+  def get_initial(self):
     """
-    returns a dictionary with all context elements for this view
+    conditionally sets initial field values for this view
 
-    :param kwargs:
-    :return: dictionary with all context elements for this view
+    :return: dictionary with initial field values for this view
     """
-    context = super().get_context_data(**kwargs)
-    # add to context: URLs
-    context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventevent_update',
-      kwargs={'pk': self.request.session.get('cleanupeventevent_id', None)}
-    )
-    return context
+    # get corresponding request object via ID passed in session
+    # and set request to it
+    if self.request.session.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.request.session.get('request_id', None))
+      }
+    return {}
+
+
+class CleanupEventVenueUpdateView(CleanupEventVenueMixin, ObjectUpdateView):
+  """
+  view for form page for updating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  venue (Treffpunkt)
+
+  :param success_message: custom success message
+  """
+
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
 
   def get_success_url(self):
     """
@@ -604,27 +680,16 @@ class CleanupEventVenueUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     else:
       return reverse('antragsmanagement:cleanupeventdetails_create')
 
-  def form_valid(self, form):
-    """
-    sends HTTP response if passed form is valid
 
-    :param form: form
-    :return: HTTP response if passed form is valid
-    """
-    # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
-    instance.full_clean()
-    instance.save()
-    # store ID of current object in session in order to pass it to previous view
-    self.request.session['cleanupeventvenue_id'] = instance.pk
-    return super().form_valid(form)
-
-
-class CleanupEventDetailsCreateView(RequestFollowUpFormMixin, ObjectCreateView):
+class CleanupEventDetailsMixin(RequestFollowUpMixin):
   """
-  view for form page for creating an instance of object for request type clean-up events
+  mixin for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   details (Detailangaben)
+
+  :param model: model
+  :param form: form
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventDetails
@@ -668,6 +733,29 @@ class CleanupEventDetailsCreateView(RequestFollowUpFormMixin, ObjectCreateView):
     )
     return context
 
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    # delay necessary to allow automatic field contents to populate
+    instance = form.save(commit=False)
+    instance.full_clean()
+    instance.save()
+    # store ID of current object in session in order to pass it to previous view
+    self.request.session['cleanupeventdetails_id'] = instance.pk
+    return super().form_valid(form)
+
+
+class CleanupEventDetailsCreateView(CleanupEventDetailsMixin, ObjectCreateView):
+  """
+  view for form page for creating an instance of object for request type clean-up events
+  (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
   def get_initial(self):
     """
     conditionally sets initial field values for this view
@@ -683,50 +771,17 @@ class CleanupEventDetailsCreateView(RequestFollowUpFormMixin, ObjectCreateView):
       }
     return {}
 
-  def form_valid(self, form):
-    """
-    sends HTTP response if passed form is valid
 
-    :param form: form
-    :return: HTTP response if passed form is valid
-    """
-    # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
-    instance.full_clean()
-    instance.save()
-    # store ID of current object in session in order to pass it to previous view
-    self.request.session['cleanupeventdetails_id'] = instance.pk
-    return super().form_valid(form)
-
-
-class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
+class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
   """
   view for form page for updating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   details (Detailangaben)
+
+  :param success_message: custom success message
   """
 
-  model = CleanupEventDetails
-  form = CleanupEventDetailsForm
-  request_workflow = {
-    'steps': 5,
-    'current_step': 4
-  }
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add to context: URLs
-    context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventvenue_update',
-      kwargs={'pk': self.request.session.get('cleanupeventvenue_id', None)}
-    )
-    return context
+  success_message = 'Antragsdaten erfolgreich aktualisiert!'
 
   def get_success_url(self):
     """
@@ -736,36 +791,26 @@ class CleanupEventDetailsUpdateView(RequestFollowUpFormMixin, ObjectUpdateView):
     """
     return reverse('antragsmanagement:cleanupeventcontainer_create')
 
-  def form_valid(self, form):
-    """
-    sends HTTP response if passed form is valid
 
-    :param form: form
-    :return: HTTP response if passed form is valid
-    """
-    # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
-    instance.full_clean()
-    instance.save()
-    # store ID of current object in session in order to pass it to previous view
-    self.request.session['cleanupeventdetails_id'] = instance.pk
-    return super().form_valid(form)
-
-
-class CleanupEventContainerCreateView(RequestFollowUpFormMixin, ObjectCreateView):
+class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
   """
   view for form page for creating an instance of object for request type clean-up events
   (Müllsammelaktionen):
   container (Container)
+
+  :param model: model
+  :param form: form
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
   """
 
   model = CleanupEventContainer
   form = CleanupEventContainerForm
+  success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
   request_workflow = {
     'steps': 5,
     'current_step': 5
   }
-  success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
 
   def get_form_kwargs(self):
     """

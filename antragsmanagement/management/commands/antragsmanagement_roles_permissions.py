@@ -1,6 +1,7 @@
-from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
+
+from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 
 
 class Command(BaseCommand):
@@ -45,10 +46,8 @@ class Command(BaseCommand):
       'view_cleanupeventvenue'
     ]
     # get all relevant group names
-    group_names = list(settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES)
-    group_names.extend([
-      settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME, settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME
-    ])
+    group_names = list(AUTHORITIES)
+    group_names.extend([ADMINS, REQUESTERS])
     for group_name in group_names:
       # create group if not existing yet
       if Group.objects.filter(name=group_name).exists():
@@ -59,9 +58,9 @@ class Command(BaseCommand):
       # assign permissions if not assigned yet
       group = Group.objects.get(name=group_name)
       permission_codenames = list(permission_codenames_requester)
-      if group_name in settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES:
+      if group_name in AUTHORITIES:
         permission_codenames = list(permission_codenames_authority)
-      elif group_name == settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME:
+      elif group_name == ADMINS:
         permission_codenames = list(permission_codenames_admin)
       for permission_codename in permission_codenames:
         permission = Permission.objects.get(

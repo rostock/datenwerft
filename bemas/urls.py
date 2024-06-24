@@ -4,11 +4,9 @@ from django.urls import path, reverse_lazy
 from rest_framework import routers
 
 from bemas.models import Codelist
-from .views.base import GenericTableDataView, GenericMapDataView
-from .views.views_codelist import CodelistCreateView, CodelistDeleteView, CodelistTableView, \
-  CodelistUpdateView
-from .views.views_general import CodelistsIndexView, IndexView, MapView, OrphanedDataView
-from .views.views_objectclass import ComplaintDeleteView, GenericObjectclassCreateView, \
+from .views import GenericTableDataView, GenericMapDataView, CodelistCreateView, \
+  CodelistDeleteView, CodelistTableView, CodelistUpdateView, CodelistsIndexView, IndexView, \
+  MapView, OrphanedDataView, ComplaintDeleteView, GenericObjectclassCreateView, \
   GenericObjectclassDeleteView, GenericObjectclassTableView, GenericObjectclassUpdateView, \
   OrganizationDeleteView, PersonDeleteView
 

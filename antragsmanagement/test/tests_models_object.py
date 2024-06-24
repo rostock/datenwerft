@@ -1,13 +1,13 @@
 from datetime import timedelta
 from django.utils.crypto import get_random_string
 
+from .base import DefaultModelTestCase
+from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
+  VALID_LAST_NAME, VALID_POINT_DB, VALID_POLYGON_DB, VALID_STRING, VALID_TELEPHONE, VALID_TEXT
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment, Authority, Email, Requester, \
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
-from .base import DefaultModelTestCase
-from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, VALID_LAST_NAME, \
-  VALID_POINT_DB, VALID_POLYGON_DB, VALID_STRING, VALID_TEXT
 
 
 #
@@ -81,7 +81,8 @@ class RequesterTest(DefaultModelTestCase):
   attributes_values_db_create = {
     'first_name': VALID_FIRST_NAME,
     'last_name': VALID_LAST_NAME,
-    'email': VALID_EMAIL
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
   }
   attributes_values_db_update = {
     'organization': VALID_STRING

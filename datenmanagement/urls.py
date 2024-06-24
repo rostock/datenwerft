@@ -5,11 +5,9 @@ from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
 from .views.functions import assign_object_value, delete_object_immediately
-from .views.views_form import DataAddView, DataChangeView, DataDeleteView
-from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView, \
-  AddAnotherView
-from .views.views_list_map import MapDataCompositionView, MapListView, TableDataCompositionView, \
-  TableListView
+from .views import DataAddView, DataChangeView, DataDeleteView, GeometryView, GISFiletoGeoJSON, \
+  IndexView, StartView, AddAnotherView, MapDataCompositionView, MapListView, \
+  TableDataCompositionView, TableListView
 
 
 router = DefaultRouter()

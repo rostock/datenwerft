@@ -1,17 +1,16 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
-from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
 
+from .base import Object, GeometryObject
+from .models_codelist import CodelistRequestStatus, \
+  CleanupEventCodelistWasteQuantity, CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
 from toolbox.constants_vars import standard_validators, personennamen_validators, \
   hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
   rufnummer_regex, rufnummer_message
 from toolbox.utils import concat_address
-from .base import Object, GeometryObject
-from .models_codelist import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
-  CleanupEventCodelistWasteType, CleanupEventCodelistEquipment
 
 
 #
@@ -99,10 +98,14 @@ class Requester(Object):
   )
   first_name = CharField(
     verbose_name='Vorname',
+    blank=True,
+    null=True,
     validators=personennamen_validators
   )
   last_name = CharField(
     verbose_name='Nachname',
+    blank=True,
+    null=True,
     validators=personennamen_validators
   )
   email = EmailField(
@@ -110,15 +113,13 @@ class Requester(Object):
   )
   telephone = CharField(
     verbose_name='Telefonnummer',
-    blank=True,
-    null=True,
     validators=[
       RegexValidator(
         regex=rufnummer_regex,
         message=rufnummer_message
       )
     ]
-  ),
+  )
   address_street = CharField(
     verbose_name='Straße',
     blank=True,
@@ -166,9 +167,17 @@ class Requester(Object):
     description = 'Antragsteller:innen'
 
   def __str__(self):
-    name = (self.first_name + ' ' if self.first_name else '') + self.last_name
-    organization = ' (' + self.organization + ')' if self.organization else ''
-    return name + organization
+    organization = self.organization if self.organization else ''
+    first_name = self.first_name if self.first_name else ''
+    last_name = self.last_name if self.last_name else ''
+    if organization and not first_name and not last_name:
+      return organization
+    elif organization and first_name and last_name:
+      return first_name + ' ' + last_name + ' (' + organization + ')'
+    elif not organization and first_name and last_name:
+      return first_name + ' ' + last_name
+    else:
+      return 'unbekannt'
 
   def address(self):
     return concat_address(self.address_street, self.address_house_number,
@@ -249,7 +258,7 @@ class CleanupEventEvent(GeometryObject):
     null=True
   )
   area = PolygonField(
-    verbose_name='Fläche'
+    verbose_name='Fläche für Müllsammelaktion'
   )
 
   class Meta(GeometryObject.Meta):
@@ -276,7 +285,7 @@ class CleanupEventVenue(GeometryObject):
     on_delete=CASCADE
   )
   place = PointField(
-    verbose_name='Treffpunkt'
+    verbose_name='Treffpunkt für Müllsammelaktion'
   )
 
   class Meta(GeometryObject.Meta):
@@ -354,7 +363,7 @@ class CleanupEventContainer(GeometryObject):
     verbose_name='Abholdatum'
   )
   place = PointField(
-    verbose_name='Standort'
+    verbose_name='Containerstandort für Müllsammelaktion'
   )
 
   class Meta(GeometryObject.Meta):

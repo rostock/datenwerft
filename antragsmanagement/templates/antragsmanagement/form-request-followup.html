@@ -45,8 +45,8 @@
       {% include "antragsmanagement/container-errors.html" %}
     {% endif %}
     {% if corresponding_request %}
-      <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
-      {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+      <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
+      {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
         <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}
       <form class="form mt-4" method="post" action="">
@@ -82,7 +82,7 @@
         </div>
         {% if is_geometry_model %}
           <div id="map-addresssearch-container-form">
-            <label hidden for="id_{{ geometry_field }}" class="form-label">Geometrie</label>
+            <label for="id_{{ geometry_field }}" class="form-label{% if geometry_required %} required{% endif %}">{{ geometry_field_label }}</label>
             {% if geometry %}
               <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
             {% else %}
@@ -90,7 +90,7 @@
             {% endif %}
             {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
             <div class="mt-3">
-              <label for="address-search" class="form-label">Adressensuche</label>
+              <label for="address-search" class="form-label">Suche nach Adressen, Straßen und/oder Gemeindeteilen zur Orientierung:</label>
               <div class="form-floating">
                 <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
                 <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
@@ -148,9 +148,6 @@
         // define several globally available variables
         window.geometryType = '{{ geometry_type }}';
         window.featureGeometry = [];
-        {% if REVERSE_SEARCH_RADIUS %}
-          window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }}
-        {% endif %}
 
         configureLeafletGeoman(map, window.geometryType);
 
