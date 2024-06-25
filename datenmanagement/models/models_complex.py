@@ -1,13 +1,14 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
 
@@ -24,7 +25,8 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
 from .fields import ChoiceArrayField, PositiveIntegerMinField, PositiveIntegerRangeField, \
   PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, point_field, line_field, \
   multiline_field, polygon_field, multipolygon_field
-from .functions import delete_pdf, delete_photo, photo_post_processing
+from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
+  set_pre_save_instance, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
@@ -41,8 +43,9 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
   Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, DFI_Typen_Haltestellenkataster, \
   Fahrgastunterstandstypen_Haltestellenkataster, Fahrplanvitrinentypen_Haltestellenkataster, \
-  Typen_Haltestellen, Typen_UVP_Vorhaben, Vorgangsarten_UVP_Vorhaben, \
-  Wegebreiten_Strassenreinigungssatzung_HRO, Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Typen_Feuerwehrzufahrten_Schilder, Typen_Haltestellen, Typen_UVP_Vorhaben, \
+  Vorgangsarten_UVP_Vorhaben, Wegebreiten_Strassenreinigungssatzung_HRO, \
+  Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
 from .storage import OverwriteStorage
@@ -1099,6 +1102,223 @@ class Fallwildsuchen_Nachweise(ComplexModel):
     return str(self.kontrollgebiet) + ' mit Startzeitpunkt ' + startzeitpunkt_str + \
       ' und Endzeitpunkt ' + endzeitpunkt_str + ' [Art der Kontrolle: ' \
       + str(self.art_kontrolle) + ']'
+
+
+#
+# Feuerwehrzufahrten
+#
+
+class Feuerwehrzufahrten_Feuerwehrzufahrten(ComplexModel):
+  """
+  Feuerwehrzufahrten:
+  Feuerwehrzufahrten
+  """
+
+  registriernummer = PositiveSmallIntegerField(
+    verbose_name='Registriernummer',
+    unique=True,
+    blank=True,
+    null=True
+  )
+  bauvorhaben_aktenzeichen_bauamt = ArrayField(
+    CharField(
+      verbose_name='Bauvorhaben (Aktenzeichen Bauamt)',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators
+    ),
+    verbose_name='Bauvorhaben (Aktenzeichen Bauamt)',
+    blank=True,
+    null=True
+  )
+  bauvorhaben_adressen = ArrayField(
+    CharField(
+      verbose_name='Bauvorhaben (Adressen)',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators
+    ),
+    verbose_name='Bauvorhaben (Adressen)',
+    blank=True,
+    null=True
+  )
+  erreichbare_objekte = ArrayField(
+    CharField(
+      verbose_name=' erreichbare Objekte',
+      max_length=255,
+      blank=True,
+      null=True,
+      validators=standard_validators
+    ),
+    verbose_name=' erreichbare Objekte',
+    blank=True,
+    null=True
+  )
+  flaechen_feuerwehrzufahrt = BooleanField(
+    verbose_name='Flächen für Feuerwehrzufahrt?',
+    blank=True,
+    null=True
+  )
+  feuerwehraufstellflaechen_hubrettungsfahrzeug = BooleanField(
+    verbose_name='Aufstellflächen für Hubrettungsfahrzeug?',
+    blank=True,
+    null=True
+  )
+  feuerwehrbewegungsflaechen = BooleanField(
+    verbose_name='Feuerwehrbewegungsflächen?',
+    blank=True,
+    null=True
+  )
+  amtlichmachung = DateField(
+    verbose_name='Amtlichmachung',
+    blank=True,
+    null=True
+  )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"feuerwehrzufahrten_hro'
+    ordering = ['registriernummer', 'bemerkungen', 'uuid']
+    verbose_name = 'Feuerwehrzufahrt'
+    verbose_name_plural = 'Feuerwehrzufahrten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Feuerwehrzufahrten in der Hanse- und Universitätsstadt Rostock'
+    associated_models = {
+      'Feuerwehrzufahrten_Schilder': 'feuerwehrzufahrt'
+    }
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'registriernummer': 'Registriernummer',
+      'flaechen_feuerwehrzufahrt': 'Flächen für Feuerwehrzufahrt?',
+      'feuerwehraufstellflaechen_hubrettungsfahrzeug': 'Aufstellflächen für Hubrettungsfahrzeug?',
+      'feuerwehrbewegungsflaechen': 'Feuerwehrbewegungsflächen?',
+      'amtlichmachung': 'Amtlichmachung',
+      'bemerkungen': 'Bemerkungen'
+    }
+    list_fields_with_date = ['amtlichmachung']
+
+  def __str__(self):
+    if self.registriernummer:
+      return str(self.registriernummer)
+    elif self.bemerkungen:
+      return 'ohne Registriernummer – ' + self.bemerkungen
+    else:
+      return 'ohne Registriernummer – ohne Bemerkungen'
+
+
+class Feuerwehrzufahrten_Schilder(ComplexModel):
+  """
+  Feuerwehrzufahrten:
+  Schilder
+  """
+
+  adresse = ForeignKey(
+    to=Adressen,
+    verbose_name='Adresse',
+    on_delete=SET_NULL,
+    db_column='adresse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_adressen',
+    blank=True,
+    null=True
+  )
+  feuerwehrzufahrt = ForeignKey(
+    to=Feuerwehrzufahrten_Feuerwehrzufahrten,
+    verbose_name='Feuerwehrzufahrt',
+    on_delete=CASCADE,
+    db_column='feuerwehrzufahrt',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_feuerwehrzufahrten'
+  )
+  typ = ForeignKey(
+    to=Typen_Feuerwehrzufahrten_Schilder,
+    verbose_name='Typ',
+    on_delete=SET_NULL,
+    db_column='typ',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_typen',
+    blank=True,
+    null=True
+  )
+  hinweise_aufstellort = CharField(
+    verbose_name='Hinweise zum Aufstellort',
+    max_length=255,
+    validators=standard_validators
+  )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'feuerwehrzufahrten_schilder'
+    ),
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_adressbezug\".\"feuerwehrzufahrten_schilder_hro'
+    verbose_name = 'Schild einer Feuerwehrzufahrt'
+    verbose_name_plural = 'Schilder der Feuerwehrzufahrten'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Schilder der Feuerwehrzufahrten in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = False
+    fields_with_foreign_key_to_linkify = ['feuerwehrzufahrt']
+    address_type = 'Adresse'
+    address_mandatory = False
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'adresse': 'Adresse',
+      'feuerwehrzufahrt': 'Feuerwehrzufahrt',
+      'typ': 'Typ',
+      'hinweise_aufstellort': 'Hinweise zum Aufstellort',
+      'bemerkungen': 'Bemerkungen',
+      'foto': 'Foto'
+    }
+    list_fields_with_foreign_key = {
+      'adresse': 'adresse',
+      'feuerwehrzufahrt': 'bemerkungen',
+      'typ': 'typ'
+    }
+    map_feature_tooltip_fields = ['hinweise_aufstellort']
+    map_filter_fields = {
+      'feuerwehrzufahrt': 'Feuerwehrzufahrt',
+      'typ': 'Typ',
+      'hinweise_aufstellort': 'Hinweise zum Aufstellort',
+      'bemerkungen': 'Bemerkungen'
+    }
+    map_filter_fields_as_list = ['feuerwehrzufahrt', 'typ']
+
+  def __str__(self):
+    return self.hinweise_aufstellort
+
+
+pre_save.connect(set_pre_save_instance, sender=Feuerwehrzufahrten_Schilder)
+
+post_save.connect(photo_post_processing, sender=Feuerwehrzufahrten_Schilder)
+
+post_save.connect(delete_photo_after_emptied, sender=Feuerwehrzufahrten_Schilder)
+
+post_delete.connect(delete_photo, sender=Feuerwehrzufahrten_Schilder)
 
 
 #

@@ -2022,6 +2022,30 @@ CREATE TABLE fachdaten.fallwildsuchen_nachweise_hro (
 
 
 --
+-- Name: feuerwehrzufahrten_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.feuerwehrzufahrten_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    registriernummer smallint,
+    bauvorhaben_aktenzeichen_bauamt character varying(255)[],
+    bauvorhaben_adressen character varying(255)[],
+    erreichbare_objekte character varying(255)[],
+    flaechen_feuerwehrzufahrt boolean,
+    feuerwehraufstellflaechen_hubrettungsfahrzeug boolean,
+    feuerwehrbewegungsflaechen boolean,
+    amtlichmachung date,
+    bemerkungen character varying(255)
+);
+
+
+--
 -- Name: fliessgewaesser_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -3183,6 +3207,28 @@ CREATE TABLE fachdaten_adressbezug.feuerwachen_hro (
     telefon_mobil character varying(255),
     email character varying(255),
     website character varying(255),
+    geometrie public.geometry(Point,25833) NOT NULL,
+    deaktiviert date
+);
+
+
+--
+-- Name: feuerwehrzufahrten_schilder_hro; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.feuerwehrzufahrten_schilder_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    adresse uuid,
+    feuerwehrzufahrt uuid NOT NULL,
+    typ uuid,
+    hinweise_aufstellort character varying(255) NOT NULL,
+    bemerkungen character varying(255),
+    foto character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
     deaktiviert date
 );
@@ -5707,6 +5753,14 @@ ALTER TABLE ONLY fachdaten.fallwildsuchen_nachweise_hro
 
 
 --
+-- Name: feuerwehrzufahrten_hro feuerwehrzufahrten_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.feuerwehrzufahrten_hro
+    ADD CONSTRAINT feuerwehrzufahrten_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: fliessgewaesser_hro fliessgewaesser_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6160,6 +6214,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.fairtrade_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.feuerwachen_hro
     ADD CONSTRAINT feuerwachen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: feuerwehrzufahrten_schilder_hro feuerwehrzufahrten_schilder_hro_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.feuerwehrzufahrten_schilder_hro
+    ADD CONSTRAINT feuerwehrzufahrten_schilder_hro_pk PRIMARY KEY (uuid);
 
 
 --

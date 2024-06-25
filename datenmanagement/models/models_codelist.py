@@ -2435,20 +2435,6 @@ class Typen_Erdwaermesonden(Typ):
     description = 'Typen von Erdwärmesonden'
 
 
-class Typen_Kleinklaeranlagen(Typ):
-  """
-  Typen von Kleinkläranlagen
-  """
-
-  class Meta(Typ.Meta):
-    db_table = 'codelisten\".\"typen_kleinklaeranlagen'
-    verbose_name = 'Typ einer Kleinkläranlage'
-    verbose_name_plural = 'Typen von Kleinkläranlagen'
-
-  class BasemodelMeta(Typ.BasemodelMeta):
-    description = 'Typen von Kleinkläranlagen'
-
-
 class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
   """
   Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
@@ -2505,6 +2491,20 @@ class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
     return self.fahrplanvitrinentyp
 
 
+class Typen_Feuerwehrzufahrten_Schilder(Typ):
+  """
+  Typen von Schildern der Feuerwehrzufahrten
+  """
+
+  class Meta(Typ.Meta):
+    db_table = 'codelisten\".\"typen_feuerwehrzufahrten_schilder'
+    verbose_name = 'Typ des Schildes einer Feuerwehrzufahrt'
+    verbose_name_plural = 'Typen von Schildern der Feuerwehrzufahrten'
+
+  class BasemodelMeta(Typ.BasemodelMeta):
+    description = 'Typen von Schildern der Feuerwehrzufahrten'
+
+
 class Typen_Haltestellen(Typ):
   """
   Typen von Haltestellen
@@ -2517,6 +2517,20 @@ class Typen_Haltestellen(Typ):
 
   class BasemodelMeta(Typ.BasemodelMeta):
     description = 'Typen von Haltestellen'
+
+
+class Typen_Kleinklaeranlagen(Typ):
+  """
+  Typen von Kleinkläranlagen
+  """
+
+  class Meta(Typ.Meta):
+    db_table = 'codelisten\".\"typen_kleinklaeranlagen'
+    verbose_name = 'Typ einer Kleinkläranlage'
+    verbose_name_plural = 'Typen von Kleinkläranlagen'
+
+  class BasemodelMeta(Typ.BasemodelMeta):
+    description = 'Typen von Kleinkläranlagen'
 
 
 class Typen_Poller(Typ):
