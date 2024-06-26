@@ -2678,6 +2678,59 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
 
 
 #
+# Punktwolken Projekte (besteht aus mehreren Punktwolken)
+#
+
+class Punktwolken_Projekte(ComplexModel):
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+  )
+  beschreibung = NullTextField(
+    verbose_name='Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  projekt_update = DateTimeField(
+    verbose_name='Aktualisierung',
+    editable=False,
+    default=datetime.now().strftime('%Y-%m-%d %H:%M:%S%z')
+  )
+  geometrie = polygon_field
+  # Project geometry results from the individual geometries of the point clouds,
+  # so a project have no geometry at initialization.
+  geometrie.null = True
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"punktwolken_projekte'
+    verbose_name = 'Punktwolken Projekt'
+    verbose_name_plural = ('Punktwolken Projekte')
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    readonly_fields = ['geometrie', 'project_update']
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'projekt_update': 'Zuletzt aktualisiert'
+    }
+    list_fields_with_datetime = ['projekt_update']
+    geometry_type = 'Polygon'
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
+  def __str__(self):
+    return self.bezeichnung
+
+
+#
 # Punktwolken (Punktwolken Dateien)
 #
 
@@ -2693,10 +2746,16 @@ class Punktwolken(ComplexModel):
   aufnahme = DateTimeField(
     verbose_name='Aufnahmezeitpunkt',
   )
-  aktualisiert = DateTimeField(
+  projekt = ForeignKey(
+    to=Punktwolken_Projekte,
+    verbose_name='Punktwolken Projekt',
+    on_delete=CASCADE,
+    db_column='punktwolken_projekte',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_punktwolken_projekte'
+  )
+  vc_update = DateTimeField(
     verbose_name='Zuletzt aktualisiert',
-    blank=True,
-    null=True
   )
   geometrie = polygon_field
 
@@ -2706,54 +2765,24 @@ class Punktwolken(ComplexModel):
     verbose_name_plural = ('Punktwolken')
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Punktwolken aus LiDAR-Scans'
     list_fields = {
       'aktiv': 'aktiv?',
       'dateiname': 'Dateiname',
       'dateipfad': 'Dateipfad',
       'aufnahme': 'Aufnahmedatum',
-      'aktualisiert': 'Letzte Aktualisierung',
+      'vc_update': 'Letzte Aktualisierung',
     }
-    list_fields_with_datetime = ['aufnahme', 'aktualisiert']
-    readonly_fields = ['aufnahme', 'aktualisiert']
+    list_fields_with_datetime = ['aufnahme', 'vc_update']
+    list_fields_with_foreign_key = {
+      'projekt': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['projekt']
+    readonly_fields = ['aufnahme', 'vc_update']
     associated_models = {
       'Punktwolken_Projekte': 'punktwolken_projekte'
     }
-
-
-#
-# Punktwolken Projekte (besteht aus mehreren Punktwolken)
-#
-
-class Punktwolken_Projekte(ComplexModel):
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-  )
-  beschreibung = NullTextField(
-    verbose_name='Beschreibung',
-    max_length=255,
-    blank=True,
-    null=True
-  )
-  aktualisiert = DateField(
-    verbose_name='Zuletzt aktualisiert'
-  )
-  geometrie = polygon_field
-
-  class Meta(ComplexModel.Meta):
-    db_table = 'fachdaten\".\"punktwolken_projekte'
-    verbose_name = 'Punktwolken Projekt'
-    verbose_name_plural = ('Punktwolken Projekte')
-
-  class BasemodelMeta(ComplexModel.BasemodelMeta):
-    list_fields = {
-      'aktiv': 'aktiv?',
-      'bezeichnung': 'Bezeichnung',
-      'beschreibung': 'Beschreibung',
-      'aktualisiert': 'Zuletzt aktualisiert'
-    }
-    readonly_fields = ['aktualisiert', 'geometrie']
-    geometry_type = 'Polygon'
+    geometry_type = 'POLYGON'
 
 
 #
