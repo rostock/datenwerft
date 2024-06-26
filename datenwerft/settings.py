@@ -206,10 +206,12 @@ ANTRAGSMANAGEMENT_ICONS = {
   'email': 'envelope',
   'error': 'circle-exclamation',
   'next': 'forward-step',
+  'no': 'times',
   'ok': 'circle-check',
   'save': 'floppy-disk',
   'update': 'pen',
-  'warning': 'triangle-exclamation'
+  'warning': 'triangle-exclamation',
+  'yes': 'check'
 }
 
 

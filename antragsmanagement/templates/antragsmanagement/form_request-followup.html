@@ -39,10 +39,10 @@
 {% block content %}
   {% if has_necessary_permissions %}
     {% if messages %}
-      {% include "antragsmanagement/container-messages.html" %}
+      {% include "antragsmanagement/container_messages.html" %}
     {% endif %}
     {% if form.errors %}
-      {% include "antragsmanagement/container-errors.html" %}
+      {% include "antragsmanagement/container_errors.html" %}
     {% endif %}
     {% if corresponding_request %}
       <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
@@ -191,12 +191,12 @@
         {% endif %}
       </script>
     {% else %}
-      {% include "antragsmanagement/notice-norequest.html" %}
+      {% include "antragsmanagement/notice_no-request.html" %}
       <div class="d-grid mt-5 mb-3">
         <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
       </div>
     {% endif %}
   {% else %}
-    {% include "antragsmanagement/notice-nopermissions.html" %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
   {% endif %}
 {% endblock %}

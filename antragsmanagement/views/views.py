@@ -6,7 +6,7 @@ from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
   ObjectUpdateView
 from .forms import RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
-from .functions import add_permissions_context_elements, \
+from .functions import add_model_context_elements, add_permissions_context_elements, \
   add_useragent_context_elements
 from antragsmanagement.constants_vars import REQUESTERS, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
@@ -47,6 +47,9 @@ class IndexView(TemplateView):
     context = add_permissions_context_elements(context, self.request.user)
     # add to context: information about corresponding requester object for user
     context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    # add to context: custom success message
+    context['custom_success_message'] = self.request.session.get(
+      'custom_success_message', None)
     return context
 
 
@@ -258,7 +261,7 @@ class RequestMixin:
   :param request_workflow: request workflow informations
   """
 
-  template_name = 'antragsmanagement/form-request.html'
+  template_name = 'antragsmanagement/form_request.html'
   form = RequestForm
   success_message = 'Antragsdaten erfolgreich gespeichert!'
   request_workflow = {}
@@ -331,7 +334,7 @@ class RequestFollowUpMixin:
   :param request_workflow: request workflow informations
   """
 
-  template_name = 'antragsmanagement/form-request-followup.html'
+  template_name = 'antragsmanagement/form_request-followup.html'
   form = RequestFollowUpForm
   success_message = 'Antragsdaten erfolgreich gespeichert!'
   request_workflow = {}
@@ -789,7 +792,64 @@ class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
 
     :return: URL called in case of successful request
     """
-    return reverse('antragsmanagement:cleanupeventcontainer_create')
+    return reverse('antragsmanagement:cleanupeventcontainer_decision')
+
+
+class CleanupEventContainerDecisionView(TemplateView):
+  """
+  view for form workflow decision page in terms of object for request type clean-up events
+  (Müllsammelaktionen):
+  container (Container)
+
+  :param model: model
+  :param template_name: template name
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
+  """
+
+  model = CleanupEventContainer
+  template_name = 'antragsmanagement/decision.html'
+  success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
+  request_workflow = {
+    'steps': 5,
+    'current_step': 5
+  }
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    # add permissions related context elements:
+    # set requester permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
+    # add to context: request ID passed in session
+    context['corresponding_request'] = self.request.session.get('request_id', None)
+    # add to context: information about request workflow
+    context['request_workflow'] = self.request_workflow
+    # add to context: text describing the decision
+    decision_text = 'Ist ein Container für die Müllsammelaktion erforderlich? Falls ja, '
+    decision_text += 'klicken Sie bitte auf <em>ja,</em> falls nicht, klicken Sie bitte auf '
+    decision_text += '<em>nein,</em> um den Antrag auf Müllsammelaktion direkt abzuschließen.'
+    context['decision_text'] = decision_text
+    # add to context: URLs
+    context['yes_url'] = reverse('antragsmanagement:cleanupeventcontainer_create')
+    context['no_url'] = reverse('antragsmanagement:index')
+    context['back_url'] = reverse(
+      viewname='antragsmanagement:cleanupeventdetails_update',
+      kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
+    )
+    context['cancel_url'] = reverse('antragsmanagement:index')
+    # store custom success message in session in order to pass it to next view
+    self.request.session['custom_success_message'] = self.success_message
+    return context
 
 
 class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
@@ -840,10 +900,7 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
     """
     context = super().get_context_data(**kwargs)
     # add to context: URLs
-    context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventdetails_update',
-      kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
-    )
+    context['back_url'] = reverse('antragsmanagement:cleanupeventcontainer_decision')
     return context
 
   def get_initial(self):

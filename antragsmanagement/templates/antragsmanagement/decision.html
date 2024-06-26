@@ -1,0 +1,42 @@
+{% extends "navbar.html" %}
+{% load toolbox_tags %}
+{% load antragsmanagement_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Entscheidung | {% endblock %}
+
+{% block content %}
+  {% if has_necessary_permissions %}
+    {% if messages %}
+      {% include "antragsmanagement/container_messages.html" %}
+    {% endif %}
+    {% if form.errors %}
+      {% include "antragsmanagement/container_errors.html" %}
+    {% endif %}
+    {% if corresponding_request %}
+      <h2>Entscheidung</h2>
+      {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
+        <h4>über optionalen Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
+      {% endif %}
+      <p class="mt-4 fs-3">{% autoescape off %}{{ decision_text }}{% endautoescape %}</p>
+      <div class="d-grid mt-5 mb-3 gap-2">
+        <a class="btn btn-success" role="button" href="{{ yes_url }}"><i class="fas fa-{{ 'yes'|get_icon }}"></i> ja</a>
+        <a class="btn btn-success" role="button" href="{{ no_url }}"><i class="fas fa-{{ 'no'|get_icon }}"></i> nein</a>
+        <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+        <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+      </div>
+    <script>
+      setTimeout(function () {
+        $('.alert-success').alert('close');
+      }, 1000);
+    </script>
+    {% else %}
+      {% include "antragsmanagement/notice_no-request.html" %}
+      <div class="d-grid mt-5 mb-3">
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+      </div>
+    {% endif %}
+  {% else %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

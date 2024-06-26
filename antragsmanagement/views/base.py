@@ -156,7 +156,7 @@ class ObjectTableView(TemplateView):
   """
 
   model = None
-  template_name = 'antragsmanagement/table-simple.html'
+  template_name = 'antragsmanagement/table_simple.html'
   table_data_view_name = None
   icon_name = None
 
@@ -191,7 +191,7 @@ class ObjectMixin:
   """
 
   model = None
-  template_name = 'antragsmanagement/form-simple.html'
+  template_name = 'antragsmanagement/form_simple.html'
   form = ObjectForm
   success_message = ''
   cancel_url = None

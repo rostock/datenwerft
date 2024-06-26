@@ -7,7 +7,7 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
   CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \
   CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
-  CleanupEventContainerCreateView
+  CleanupEventContainerDecisionView, CleanupEventContainerCreateView
 
 router = routers.DefaultRouter()
 
@@ -147,7 +147,7 @@ urlpatterns = [
   path(
     'cleanupeventdetails/create',
     view=login_required(CleanupEventDetailsCreateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:cleanupeventcontainer_create')
+      success_url=reverse_lazy('antragsmanagement:cleanupeventcontainer_decision')
     )),
     name='cleanupeventdetails_create'
   ),
@@ -156,10 +156,16 @@ urlpatterns = [
   # details (Detailangaben)
   path(
     'cleanupeventdetails/update/<pk>',
-    view=login_required(CleanupEventDetailsUpdateView.as_view(
-      success_url=reverse_lazy('antragsmanagement:cleanupeventcontainer_create')
-    )),
+    view=login_required(CleanupEventDetailsUpdateView.as_view()),
     name='cleanupeventdetails_update'
+  ),
+  # form workflow decision page in terms of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'cleanupeventcontainer/decision',
+    view=login_required(CleanupEventContainerDecisionView.as_view()),
+    name='cleanupeventcontainer_decision'
   ),
   # form page for creating an instance of object for request type clean-up events
   # (Müllsammelaktionen):
