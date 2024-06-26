@@ -2695,7 +2695,7 @@ class Punktwolken_Projekte(ComplexModel):
   projekt_update = DateTimeField(
     verbose_name='Aktualisierung',
     editable=False,
-    default=datetime.now().strftime('%Y-%m-%d %H:%M:%S%z')
+    auto_now=True,
   )
   geometrie = polygon_field
   # Project geometry results from the individual geometries of the point clouds,
@@ -2708,7 +2708,7 @@ class Punktwolken_Projekte(ComplexModel):
     verbose_name_plural = ('Punktwolken Projekte')
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    readonly_fields = ['geometrie', 'project_update']
+    readonly_fields = ['geometrie']
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2717,14 +2717,6 @@ class Punktwolken_Projekte(ComplexModel):
     }
     list_fields_with_datetime = ['projekt_update']
     geometry_type = 'Polygon'
-
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-    super().save(
-      force_insert=force_insert,
-      force_update=force_update,
-      using=using,
-      update_fields=update_fields
-    )
 
   def __str__(self):
     return self.bezeichnung
