@@ -6,8 +6,7 @@
 {% block content %}
   {% if is_antragsmanagement_user %}
     {% if messages or custom_success_message %}
-      {{ custom_success_message }}
-      {% include "antragsmanagement/container_messages.html" with custom_success_message=custom_success_message %}
+      {% include "antragsmanagement/container_messages.html" %}
     {% endif %}
     {% if is_antragsmanagement_requester %}
       Antragsteller:in

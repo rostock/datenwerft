@@ -11,10 +11,4 @@
       {{ message|safe }}
     </div>
   {% endif %}
-{% if custom_success_message %}
-  <div class="alert alert-success" role="alert">
-    <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
-    {{ custom_success_message|safe }}
-  </div>
-{% endif %}
 {% endfor %}

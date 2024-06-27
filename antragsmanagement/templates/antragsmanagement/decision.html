@@ -19,17 +19,20 @@
         <h4>über optionalen Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}
       <p class="mt-4 fs-3">{% autoescape off %}{{ decision_text }}{% endautoescape %}</p>
-      <div class="d-grid mt-5 mb-3 gap-2">
-        <a class="btn btn-success" role="button" href="{{ yes_url }}"><i class="fas fa-{{ 'yes'|get_icon }}"></i> ja</a>
-        <a class="btn btn-success" role="button" href="{{ no_url }}"><i class="fas fa-{{ 'no'|get_icon }}"></i> nein</a>
-        <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-        <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-      </div>
-    <script>
-      setTimeout(function () {
-        $('.alert-success').alert('close');
-      }, 1000);
-    </script>
+      <form method="post" action="">
+        {% csrf_token %}
+        <div class="d-grid mt-5 mb-3 gap-2">
+          <a class="btn btn-success" role="button" href="{{ yes_url }}"><i class="fas fa-{{ 'yes'|get_icon }}"></i> ja</a>
+          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'no'|get_icon }}"></i> nein</button>
+          <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+          <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+        </div>
+      </form>
+      <script>
+        setTimeout(function () {
+          $('.alert-success').alert('close');
+        }, 1000);
+      </script>
     {% else %}
       {% include "antragsmanagement/notice_no-request.html" %}
       <div class="d-grid mt-5 mb-3">
