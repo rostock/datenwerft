@@ -126,12 +126,13 @@ class DefaultViewTestCase(DefaultTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_view_test(self, antragsmanagement_requester, antragsmanagement_authority,
+  def generic_view_test(self, log_in, antragsmanagement_requester, antragsmanagement_authority,
                         antragsmanagement_admin, view_name, status_code, content_type, string):
     """
     tests a view via GET
 
     :param self
+    :param log_in: log test user in?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
     :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
@@ -141,7 +142,9 @@ class DefaultViewTestCase(DefaultTestCase):
     :param string: specific string that should be contained in response
     """
     # log test user in
-    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    if log_in:
+      login(self, antragsmanagement_requester,
+            antragsmanagement_authority, antragsmanagement_admin)
     # prepare the GET
     url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -151,7 +154,8 @@ class DefaultViewTestCase(DefaultTestCase):
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
-    self.assertIn(string, str(response.content))
+    if string:
+      self.assertIn(string, str(response.content))
 
 
 class DefaultFormViewTestCase(DefaultModelTestCase):
@@ -163,13 +167,14 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_form_view_get_test(self, update_mode, antragsmanagement_requester,
+  def generic_form_view_get_test(self, log_in, update_mode, antragsmanagement_requester,
                                  antragsmanagement_authority, antragsmanagement_admin, view_name,
                                  status_code, content_type, string):
     """
     tests a form view via GET
 
     :param self
+    :param log_in: log test user in?
     :param update_mode: update mode?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
@@ -180,7 +185,9 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     :param string: specific string that should be contained in response
     """
     # log test user in
-    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    if log_in:
+      login(self, antragsmanagement_requester,
+            antragsmanagement_authority, antragsmanagement_admin)
     # for update mode: get primary key of last object
     last_pk = self.model.objects.last().pk
     if update_mode:
@@ -194,7 +201,8 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
-    self.assertIn(string, str(response.content))
+    if string:
+      self.assertIn(string, str(response.content))
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
