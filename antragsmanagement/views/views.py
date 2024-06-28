@@ -414,14 +414,15 @@ class RequestFollowUpMixin:
     context['corresponding_request'] = self.request.session.get('request_id', None)
     # add to context: information about request workflow
     context['request_workflow'] = self.request_workflow
-    # add to context: GeoJSONified geometry
-    if self.object and issubclass(self.model, GeometryObject):
-      geometry = getattr(self.object, self.model.BaseMeta.geometry_field)
-      if geometry:
-        geometry = self.model.objects.annotate(
-          geojson=AsGeoJSON(geometry)
-        ).get(pk=self.object.pk).geojson
-      context['geometry'] = geometry
+    if issubclass(self.model, GeometryObject):
+      if self.object:
+        # add to context: GeoJSONified geometry
+        geometry = getattr(self.object, self.model.BaseMeta.geometry_field)
+        if geometry:
+          geometry = self.model.objects.annotate(
+            geojson=AsGeoJSON(geometry)
+          ).get(pk=self.object.pk).geojson
+        context['geometry'] = geometry
     return context
 
 
@@ -672,6 +673,23 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
       viewname='antragsmanagement:cleanupeventevent_update',
       kwargs={'pk': self.request.session.get('cleanupeventevent_id', None)}
     )
+    # add to context: GeoJSONified geometry of event area
+    try:
+      cleanupeventevent = CleanupEventEvent.objects.get(
+        id=self.request.session.get('cleanupeventevent_id', None))
+    except CleanupEventEvent.DoesNotExist:
+      cleanupeventevent = None
+    if cleanupeventevent:
+      cleanupeventevent_geometry = getattr(
+        cleanupeventevent, CleanupEventEvent.BaseMeta.geometry_field)
+      if cleanupeventevent_geometry:
+        cleanupeventevent_geometry = CleanupEventEvent.objects.annotate(
+          geojson=AsGeoJSON(cleanupeventevent_geometry)
+        ).get(pk=cleanupeventevent.pk).geojson
+        context['previous_geometries'] = {
+          'text': 'Fläche<br>aus Schritt 2',
+          'geometry': cleanupeventevent_geometry
+        }
     return context
 
   def form_valid(self, form):
@@ -938,6 +956,42 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
     context = super().get_context_data(**kwargs)
     # add to context: URLs
     context['back_url'] = reverse('antragsmanagement:cleanupeventcontainer_decision')
+    # add to context: GeoJSONified geometries of event area and venue place
+    previous_geometries = []
+    try:
+      cleanupeventevent = CleanupEventEvent.objects.get(
+        id=self.request.session.get('cleanupeventevent_id', None))
+    except CleanupEventEvent.DoesNotExist:
+      cleanupeventevent = None
+    if cleanupeventevent:
+      cleanupeventevent_geometry = getattr(
+        cleanupeventevent, CleanupEventEvent.BaseMeta.geometry_field)
+      if cleanupeventevent_geometry:
+        cleanupeventevent_geometry = CleanupEventEvent.objects.annotate(
+          geojson=AsGeoJSON(cleanupeventevent_geometry)
+        ).get(pk=cleanupeventevent.pk).geojson
+        previous_geometries.append({
+          'text': 'Fläche<br>aus Schritt 2',
+          'geometry': cleanupeventevent_geometry
+        })
+    try:
+      cleanupeventvenue = CleanupEventVenue.objects.get(
+        id=self.request.session.get('cleanupeventvenue_id', None))
+    except CleanupEventVenue.DoesNotExist:
+      cleanupeventvenue = None
+    if cleanupeventvenue:
+      cleanupeventvenue_geometry = getattr(
+        cleanupeventvenue, CleanupEventVenue.BaseMeta.geometry_field)
+      if cleanupeventvenue_geometry:
+        cleanupeventvenue_geometry = CleanupEventVenue.objects.annotate(
+          geojson=AsGeoJSON(cleanupeventvenue_geometry)
+        ).get(pk=cleanupeventvenue.pk).geojson
+        previous_geometries.append({
+          'text': 'Treffpunkt<br>aus Schritt 3',
+          'geometry': cleanupeventvenue_geometry
+        })
+    if previous_geometries:
+      context['previous_geometries'] = previous_geometries
     return context
 
   def get_initial(self):

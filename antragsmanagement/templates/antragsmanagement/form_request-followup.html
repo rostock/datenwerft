@@ -151,6 +151,22 @@
 
         configureLeafletGeoman(map, window.geometryType);
 
+        // if previous geometries exist...
+        {% if previous_geometries %}
+          // show existing previous geometries on map
+          let zoomToPreviousGeometries;
+          {% if geometry %}
+            zoomToPreviousGeometries = false;
+          {% endif %}
+          {% if previous_geometries|is_list %}
+            {% for previous_geometry in previous_geometries %}
+              map.loadGeometryFromContextDict({{ previous_geometry|safe }}, zoomToPreviousGeometries)
+            {% endfor %}
+          {% else %}
+            map.loadGeometryFromContextDict({{ previous_geometries|safe }}, zoomToPreviousGeometries)
+          {% endif %}
+        {% endif %}
+
         // if geometry already exists...
         {% if geometry %}
           // show existing geometry on map
