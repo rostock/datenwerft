@@ -48,14 +48,14 @@ class IndexViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='index', status_code=200,
-      content_type='text/html; charset=utf-8', string='Beh'
+      content_type='text/html; charset=utf-8', string='zugewiesenen'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='index', status_code=200,
-      content_type='text/html; charset=utf-8', string='E-Mail-Adresse'
+      content_type='text/html; charset=utf-8', string='E-Mails'
     )
 
 
