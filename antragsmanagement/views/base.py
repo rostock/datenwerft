@@ -10,8 +10,9 @@ from django_datatables_view.base_datatable_view import BaseDatatableView
 from .forms import ObjectForm
 from .functions import add_model_context_elements, \
   add_table_context_elements, add_useragent_context_elements, assign_widget, get_model_objects
-from antragsmanagement.constants_vars import ADMINS
-from antragsmanagement.utils import get_icon_from_settings, has_necessary_permissions
+from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
+from antragsmanagement.utils import get_icon_from_settings, has_necessary_permissions, \
+  is_antragsmanagement_user
 from toolbox.utils import format_date_datetime, optimize_datatable_filter
 
 
@@ -21,17 +22,44 @@ class ObjectTableDataView(BaseDatatableView):
 
   :param model: model
   :param update_view_name: name of view for form page for updating
+  :param permissions_level: permissions level user has to have
   """
 
   model = None
   update_view_name = ''
+  permissions_level = ''
+
+  @staticmethod
+  def check_necessary_permissions(user, permissions_level):
+    """
+    checks if passed user has necessary permissions
+
+    :param user: user
+    :param permissions_level: permissions level passed user has to have
+    (if empty, check if  passed user is an Antragsmanagement user at least)
+    :return: passed user has necessary permissions?
+    """
+    necessary_permissions = user.is_superuser
+    if not necessary_permissions:
+      if permissions_level:
+        permissions_map = {
+          'REQUESTERS': REQUESTERS,
+          'AUTHORITIES': AUTHORITIES,
+          'ADMINS': ADMINS
+        }
+        check_group = permissions_map.get(permissions_level)
+        if check_group:
+          necessary_permissions = has_necessary_permissions(user, check_group)
+      else:
+        necessary_permissions = is_antragsmanagement_user(user)
+    return necessary_permissions
 
   def render_to_response(self, context):
     """
     returns a JSON response containing passed context as payload
     or an empty dictionary if no context is provided
     """
-    if has_necessary_permissions(self.request.user, ADMINS) or self.request.user.is_superuser:
+    if self.check_necessary_permissions(self.request.user, self.permissions_level):
       return self.get_json_response(context)
     return self.get_json_response('{"has_necessary_permissions": false}')
 
@@ -39,7 +67,7 @@ class ObjectTableDataView(BaseDatatableView):
     """
     loads initial queryset
     """
-    if has_necessary_permissions(self.request.user, ADMINS) or self.request.user.is_superuser:
+    if self.check_necessary_permissions(self.request.user, self.permissions_level):
       return get_model_objects(self.model, False)
     return self.model.objects.none()
 
@@ -51,11 +79,9 @@ class ObjectTableDataView(BaseDatatableView):
     :return: cleaned-up JSON representation of the queryset
     """
     json_data = []
-    if has_necessary_permissions(self.request.user, ADMINS) or self.request.user.is_superuser:
+    if self.check_necessary_permissions(self.request.user, self.permissions_level):
       for item in qs:
-        item_data = []
-        item_pk = getattr(item, self.model._meta.pk.name)
-        address_handled = False
+        item_data, item_pk, address_handled = [], getattr(item, self.model._meta.pk.name), False
         for column in self.model._meta.fields:
           data = None
           value = getattr(item, column.name)

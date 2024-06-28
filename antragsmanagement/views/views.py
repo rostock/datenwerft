@@ -1,8 +1,10 @@
+from datetime import date, datetime
 from django.contrib import messages
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.html import escape
 from django.views.generic.base import TemplateView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
@@ -15,8 +17,9 @@ from antragsmanagement.constants_vars import REQUESTERS, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
-from antragsmanagement.utils import get_corresponding_requester, get_request
-from toolbox.utils import is_geometry_field
+from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
+  get_corresponding_requester, get_icon_from_settings, get_request, is_antragsmanagement_admin
+from toolbox.utils import format_date_datetime, is_geometry_field, optimize_datatable_filter
 
 
 #
@@ -65,10 +68,12 @@ class AuthorityTableDataView(ObjectTableDataView):
 
   :param model: model
   :param update_view_name: name of view for form page for updating
+  :param permissions_level: permissions level user has to have
   """
 
   model = Authority
   update_view_name = 'antragsmanagement:authority_update'
+  permissions_level = 'ADMINS'
 
 
 class AuthorityTableView(ObjectTableView):
@@ -132,10 +137,12 @@ class EmailTableDataView(ObjectTableDataView):
 
   :param model: model
   :param update_view_name: name of view for form page for updating
+  :param permissions_level: permissions level user has to have
   """
 
   model = Email
   update_view_name = 'antragsmanagement:email_update'
+  permissions_level = 'ADMINS'
 
 
 class EmailTableView(ObjectTableView):
@@ -464,6 +471,141 @@ class RequestFollowUpDecisionMixin:
 # objects for request type:
 # clean-up events (Müllsammelaktionen)
 #
+
+class CleanupEventRequestTableDataView(ObjectTableDataView):
+  """
+  view for composing table data out of instances of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+
+  :param model: model
+  :param update_view_name: name of view for form page for updating
+  """
+
+  model = CleanupEventRequest
+  update_view_name = 'antragsmanagement:cleanupeventrequest_update'
+
+  def prepare_results(self, qs):
+    """
+    loops passed queryset, creates cleaned-up JSON representation of the queryset and returns it
+
+    :param qs: queryset
+    :return: cleaned-up JSON representation of the queryset
+    """
+    json_data = []
+    if self.check_necessary_permissions(self.request.user, self.permissions_level):
+      for item in qs:
+        item_data, item_pk, address_handled = [], getattr(item, self.model._meta.pk.name), False
+        for column in self.model._meta.fields:
+          data = None
+          value = getattr(item, column.name)
+          # "requester" column
+          if column.name == 'requester':
+            requester = self.model.objects.get(pk=item_pk).requester
+            if (
+                belongs_to_antragsmanagement_authority(self.request.user)
+                or is_antragsmanagement_admin(self.request.user)
+                or self.request.user.is_superuser
+            ):
+              item_data.append(str(requester))
+            elif requester.user_id == self.request.user.pk:
+              item_data.append(str(requester) + ' <strong><em>(eigener Antrag)</strong></em>')
+            else:
+              item_data.append(requester.pseudonym())
+          # other columns
+          else:
+            if value is not None:
+              # format dates and datetimes
+              if isinstance(value, date) or isinstance(value, datetime):
+                data = format_date_datetime(value)
+              else:
+                data = escape(value)
+            item_data.append(data)
+        # append link for updating
+        if (
+            belongs_to_antragsmanagement_authority(self.request.user)
+            or self.request.user.is_superuser
+        ):
+          permission_suffix = self.model.__name__.lower()
+          if (
+              self.request.user.has_perm('antragsmanagement.view_' + permission_suffix)
+              or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix)
+          ):
+            link = '<a href="'
+            link += reverse(self.update_view_name, kwargs={'pk': item_pk})
+            link += '"><i class="fas fa-' + get_icon_from_settings('update')
+            link += '" title="' + self.model._meta.verbose_name
+            link += ' ansehen oder bearbeiten"></i></a>'
+            item_data.append(link)
+        json_data.append(item_data)
+    return json_data
+
+  def filter_queryset(self, qs):
+    """
+    filters passed queryset
+
+    :param qs: queryset
+    :return: filtered queryset
+    """
+    current_search = self.request.GET.get('search[value]', None)
+    if current_search:
+      qs_params = None
+      for search_element in current_search.lower().split():
+        qs_params_inner = None
+        for column in self.model._meta.fields:
+          search_column = column.name
+          # take care of foreign key columns
+          if search_column == 'status':
+            # search only in "name" column
+            search_column += '__name'
+          elif search_column == 'requester':
+            # search in "first_name" column
+            temp_search_column = search_column + '__first_name'
+            qs_params_inner = optimize_datatable_filter(
+              search_element, temp_search_column, qs_params_inner)
+            # additionaly search in "last_name" column
+            temp_search_column = search_column + '__last_name'
+            qs_params_inner = optimize_datatable_filter(
+              search_element, temp_search_column, qs_params_inner)
+            # additionaly search in "organization" column
+            search_column += '__organization'
+          qs_params_inner = optimize_datatable_filter(
+            search_element, search_column, qs_params_inner)
+        qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
+      qs = qs.filter(qs_params)
+    return qs
+
+
+class CleanupEventRequestTableView(ObjectTableView):
+  """
+  view for table page for instances of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+
+  :param model: model
+  :param template_name: template name
+  :param table_data_view_name: name of view for composing table data out of instances
+  :param icon_name: icon name
+  """
+
+  model = CleanupEventRequest
+  template_name = 'antragsmanagement/table_request.html'
+  table_data_view_name = 'antragsmanagement:cleanupeventrequest_tabledata'
+  icon_name = 'cleanupeventrequest'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set admin permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user)
+    return context
+
 
 class CleanupEventRequestCreateView(RequestMixin, ObjectCreateView):
   """

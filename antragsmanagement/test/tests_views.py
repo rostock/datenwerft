@@ -578,6 +578,98 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 # clean-up events (Müllsammelaktionen)
 #
 
+class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
+  """
+  test class for composing table data out of instances of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_not_logged_in(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=302,
+      content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=200,
+      content_type='application/json', string='has_necessary_permissions'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=200,
+      content_type='application/json', string='ok'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=200,
+      content_type='application/json', string='ok'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata', status_code=200,
+      content_type='application/json', string='ok'
+    )
+
+
+class CleanupEventRequestTableViewTest(DefaultViewTestCase):
+  """
+  test class for table page for instances of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_not_logged_in(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=302,
+      content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_table', status_code=200,
+      content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+
 class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
   """
   test class for form page for creating an instance of object for request type clean-up events

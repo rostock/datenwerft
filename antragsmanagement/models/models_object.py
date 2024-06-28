@@ -183,6 +183,9 @@ class Requester(Object):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
 
+  def pseudonym(self):
+    return self.organization if self.organization else '<em>Privatperson</em>'
+
 
 class Request(Object):
   """

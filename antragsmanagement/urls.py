@@ -4,9 +4,10 @@ from rest_framework import routers
 
 from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   AuthorityUpdateView, EmailTableDataView, EmailTableView, EmailUpdateView, RequesterCreateView, \
-  RequesterUpdateView, CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
-  CleanupEventEventCreateView, CleanupEventEventUpdateView, CleanupEventVenueCreateView, \
-  CleanupEventVenueUpdateView, CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
+  RequesterUpdateView, CleanupEventRequestTableDataView, CleanupEventRequestTableView, \
+  CleanupEventRequestCreateView, CleanupEventRequestUpdateView, CleanupEventEventCreateView, \
+  CleanupEventEventUpdateView, CleanupEventVenueCreateView, CleanupEventVenueUpdateView, \
+  CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
   CleanupEventContainerDecisionView, CleanupEventContainerCreateView
 
 router = routers.DefaultRouter()
@@ -86,6 +87,22 @@ urlpatterns = [
       success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='requester_update'
+  ),
+  # composing table data out of instances of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'cleanupeventrequest/tabledata',
+    view=login_required(CleanupEventRequestTableDataView.as_view()),
+    name='cleanupeventrequest_tabledata'
+  ),
+  # table page for instances of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'cleanupeventrequest/table',
+    view=login_required(CleanupEventRequestTableView.as_view()),
+    name='cleanupeventrequest_table'
   ),
   # form page for creating an instance of object for request type clean-up events
   # (Müllsammelaktionen):
