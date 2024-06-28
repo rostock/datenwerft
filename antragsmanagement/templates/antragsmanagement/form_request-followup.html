@@ -76,7 +76,7 @@
                 <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
               {% endif %}
               <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-              <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+              <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
             </div>
           {% endif %}
         </div>
@@ -107,7 +107,7 @@
               <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
             {% endif %}
             <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-            <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
           </div>
         {% endif %}
       </form>

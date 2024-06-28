@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.gis.db.models.functions import AsGeoJSON
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
@@ -43,6 +44,7 @@ class IndexView(TemplateView):
     self.request.session.pop('request_id', None)
     self.request.session.pop('cleanupeventevent_id', None)
     self.request.session.pop('cleanupeventvenue_id', None)
+    self.request.session.pop('cleanupeventdetails_id', None)
     # add user agent related context elements
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
@@ -274,6 +276,14 @@ class RequestMixin:
     kwargs['user'] = self.request.user
     return kwargs
 
+  def post(self, request, *args, **kwargs):
+    if 'cancel' in request.POST:
+      if self.get_object():
+        self.get_object().delete()
+        messages.warning(request, self.cancel_message)
+      return redirect('antragsmanagement:index')
+    return super().post(request, *args, **kwargs)
+
   def form_valid(self, form):
     """
     sends HTTP response if passed form is valid
@@ -334,6 +344,41 @@ class RequestFollowUpMixin:
   template_name = 'antragsmanagement/form_request-followup.html'
   form = RequestFollowUpForm
   success_message = 'Antragsdaten erfolgreich gespeichert!'
+
+  def get_form_kwargs(self):
+    """
+    returns ``**kwargs`` as a dictionary with form attributes
+
+    :return: ``**kwargs`` as a dictionary with form attributes
+    """
+    kwargs = super().get_form_kwargs()
+    # pass request field to form
+    kwargs['request_field'] = self.request_field
+    # get corresponding request object via ID passed in session
+    # and pass it to form
+    if self.request.session.get('request_id', None):
+      kwargs['request_object'] = get_request(
+        self.request_model,
+        self.request.session.get('request_id', None),
+        only_primary_key=False
+      )
+    return kwargs
+
+  def post(self, request, *args, **kwargs):
+    if 'cancel' in request.POST:
+      if self.request.session.get('request_id', None):
+        try:
+          request_object = get_request(
+            self.request_model,
+            self.request.session.get('request_id', None),
+            only_primary_key=False
+          )
+          request_object.delete()
+          messages.warning(request, self.cancel_message)
+        except self.request_model.DoesNotExist:
+            raise Http404(self.error_message)
+      return redirect('antragsmanagement:index')
+    return super().post(request, *args, **kwargs)
 
   def form_invalid(self, form, **kwargs):
     """
@@ -443,11 +488,13 @@ class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
   request (Antrag)
 
   :param model: model
+  :param cancel_message: custom cancel message
   :param success_message: custom success message
   :param request_workflow: request workflow informations
   """
 
   model = CleanupEventRequest
+  cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   success_message = 'Antragsdaten erfolgreich aktualisiert!'
   request_workflow = {
     'steps': 5,
@@ -477,34 +524,23 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
 
   :param model: model
   :param form: form
+  :param error_message: custom error message
+  :param cancel_message: custom cancel message
   :param request_workflow: request workflow informations
+  :param request_field: request field
+  :param request_model: request model
   """
 
   model = CleanupEventEvent
   form = CleanupEventEventForm
+  error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
+  cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   request_workflow = {
     'steps': 5,
     'current_step': 2
   }
-
-  def get_form_kwargs(self):
-    """
-    returns ``**kwargs`` as a dictionary with form attributes
-
-    :return: ``**kwargs`` as a dictionary with form attributes
-    """
-    kwargs = super().get_form_kwargs()
-    # pass request field to form
-    kwargs['request_field'] = 'cleanupevent_request'
-    # get corresponding request object via ID passed in session
-    # and pass it to form
-    if self.request.session.get('request_id', None):
-      kwargs['request_object'] = get_request(
-        CleanupEventRequest,
-        self.request.session.get('request_id', None),
-        only_primary_key=False
-      )
-    return kwargs
+  request_field = 'cleanupevent_request'
+  request_model = CleanupEventRequest
 
   def get_context_data(self, **kwargs):
     """
@@ -606,33 +642,22 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
   venue (Treffpunkt)
 
   :param model: model
+  :param error_message: custom error message
+  :param cancel_message: custom cancel message
   :param request_workflow: request workflow informations
+  :param request_field: request field
+  :param request_model: request model
   """
 
   model = CleanupEventVenue
+  error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
+  cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   request_workflow = {
     'steps': 5,
     'current_step': 3
   }
-
-  def get_form_kwargs(self):
-    """
-    returns ``**kwargs`` as a dictionary with form attributes
-
-    :return: ``**kwargs`` as a dictionary with form attributes
-    """
-    kwargs = super().get_form_kwargs()
-    # pass request field to form
-    kwargs['request_field'] = 'cleanupevent_request'
-    # get corresponding request object via ID passed in session
-    # and pass it to form
-    if self.request.session.get('request_id', None):
-      kwargs['request_object'] = get_request(
-        CleanupEventRequest,
-        self.request.session.get('request_id', None),
-        only_primary_key=False
-      )
-    return kwargs
+  request_field = 'cleanupevent_request'
+  request_model = CleanupEventRequest
 
   def get_context_data(self, **kwargs):
     """
@@ -722,34 +747,23 @@ class CleanupEventDetailsMixin(RequestFollowUpMixin):
 
   :param model: model
   :param form: form
+  :param error_message: custom error message
+  :param cancel_message: custom cancel message
   :param request_workflow: request workflow informations
+  :param request_field: request field
+  :param request_model: request model
   """
 
   model = CleanupEventDetails
   form = CleanupEventDetailsForm
+  error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
+  cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   request_workflow = {
     'steps': 5,
     'current_step': 4
   }
-
-  def get_form_kwargs(self):
-    """
-    returns ``**kwargs`` as a dictionary with form attributes
-
-    :return: ``**kwargs`` as a dictionary with form attributes
-    """
-    kwargs = super().get_form_kwargs()
-    # pass request field to form
-    kwargs['request_field'] = 'cleanupevent_request'
-    # get corresponding request object via ID passed in session
-    # and pass it to form
-    if self.request.session.get('request_id', None):
-      kwargs['request_object'] = get_request(
-        CleanupEventRequest,
-        self.request.session.get('request_id', None),
-        only_primary_key=False
-      )
-    return kwargs
+  request_field = 'cleanupevent_request'
+  request_model = CleanupEventRequest
 
   def get_context_data(self, **kwargs):
     """
@@ -832,12 +846,16 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
   container (Container)
 
   :param model: model
+  :param error_message: custom error message
+  :param cancel_message: custom cancel message
   :param success_message: custom success message
   :param request_workflow: request workflow informations
   :param decision_text: decision text to show on the page
   """
 
   model = CleanupEventContainer
+  error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
+  cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
   request_workflow = {
     'steps': 5,
@@ -848,7 +866,20 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
   decision_text += '<em>nein,</em> um den Antrag auf Müllsammelaktion direkt abzuschließen.'
 
   def post(self, request, *args, **kwargs):
-    messages.success(request, self.success_message)
+    if 'cancel' in request.POST:
+      if self.request.session.get('request_id', None):
+        try:
+          request_object = get_request(
+            CleanupEventRequest,
+            self.request.session.get('request_id', None),
+            only_primary_key=False
+          )
+          request_object.delete()
+          messages.warning(request, self.cancel_message)
+        except CleanupEventRequest.DoesNotExist:
+            raise Http404(self.error_message)
+    else:
+      messages.success(request, self.success_message)
     return redirect('antragsmanagement:index')
 
   def get_context_data(self, **kwargs):
@@ -877,36 +908,25 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
 
   :param model: model
   :param form: form
+  :param error_message: custom error message
+  :param cancel_message: custom cancel message
   :param success_message: custom success message
   :param request_workflow: request workflow informations
+  :param request_field: request field
+  :param request_model: request model
   """
 
   model = CleanupEventContainer
   form = CleanupEventContainerForm
+  error_message = 'Antrag auf Müllsammelaktion existiert nicht!'
+  cancel_message = '<strong>Antrag auf Müllsammelaktion</strong> abgebrochen'
   success_message = '<strong>Antrag auf Müllsammelaktion</strong> erfolgreich gespeichert!'
   request_workflow = {
     'steps': 5,
     'current_step': 5
   }
-
-  def get_form_kwargs(self):
-    """
-    returns ``**kwargs`` as a dictionary with form attributes
-
-    :return: ``**kwargs`` as a dictionary with form attributes
-    """
-    kwargs = super().get_form_kwargs()
-    # pass request field to form
-    kwargs['request_field'] = 'cleanupevent_request'
-    # get corresponding request object via ID passed in session
-    # and pass it to form
-    if self.request.session.get('request_id', None):
-      kwargs['request_object'] = get_request(
-        CleanupEventRequest,
-        self.request.session.get('request_id', None),
-        only_primary_key=False
-      )
-    return kwargs
+  request_field = 'cleanupevent_request'
+  request_model = CleanupEventRequest
 
   def get_context_data(self, **kwargs):
     """

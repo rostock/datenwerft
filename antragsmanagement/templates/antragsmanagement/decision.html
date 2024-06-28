@@ -25,7 +25,7 @@
           <a class="btn btn-success" role="button" href="{{ yes_url }}"><i class="fas fa-{{ 'yes'|get_icon }}"></i> ja</a>
           <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'no'|get_icon }}"></i> nein</button>
           <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-          <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+          <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
         </div>
       </form>
       <script>

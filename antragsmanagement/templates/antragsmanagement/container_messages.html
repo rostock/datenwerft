@@ -5,6 +5,11 @@
       <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
       {{ message|safe }}
     </div>
+  {% elif message.tags and message.tags == 'warning' %}
+    <div class="alert alert-warning" role="alert">
+      <i class="fa-solid fa-{{ 'warning'|get_icon }}"></i>
+      {{ message|safe }}
+    </div>
   {% elif message.tags and message.tags == 'success' %}
     <div class="alert alert-success" role="alert">
       <i class="fa-solid fa-{{ 'ok'|get_icon }}"></i>
