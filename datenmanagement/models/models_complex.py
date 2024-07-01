@@ -4,7 +4,7 @@ from decimal import Decimal
 import django.contrib.gis.forms.fields
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator, \
-  RegexValidator, URLValidator
+  RegexValidator, URLValidator, FileExtensionValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
@@ -24,7 +24,7 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
 from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
-from .functions import delete_pdf, delete_photo, photo_post_processing
+from .functions import delete_pdf, delete_photo, photo_post_processing, delete_pointcloud
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
@@ -2716,6 +2716,9 @@ class Punktwolken_Projekte(ComplexModel):
       'projekt_update': 'Zuletzt aktualisiert'
     }
     list_fields_with_datetime = ['projekt_update']
+    associated_models = {
+      'Punktwolken': 'projekt'
+    }
     geometry_type = 'Polygon'
 
   def __str__(self):
@@ -2731,12 +2734,9 @@ class Punktwolken(ComplexModel):
     verbose_name='Dateiname',
     max_length=255
   )
-  dateipfad = CharField(
-    verbose_name='Dateipfad',
-    max_length=255
-  )
   aufnahme = DateTimeField(
     verbose_name='Aufnahmezeitpunkt',
+    auto_now_add=True
   )
   projekt = ForeignKey(
     to=Punktwolken_Projekte,
@@ -2746,10 +2746,21 @@ class Punktwolken(ComplexModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_punktwolken_projekte'
   )
+  punktwolke = FileField(
+    verbose_name='Punktwolkendatei',
+    upload_to=path_and_rename(
+      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/',
+      foreign_key_subdir_attr='projekt_id'
+    ),
+    storage=OverwriteStorage(path_root=settings.PC_MEDIA_ROOT),
+    validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])]
+  )
   vc_update = DateTimeField(
     verbose_name='Zuletzt aktualisiert',
+    auto_now=True
   )
   geometrie = polygon_field
+  geometrie.null = True
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken'
@@ -2761,8 +2772,8 @@ class Punktwolken(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'dateiname': 'Dateiname',
-      'dateipfad': 'Dateipfad',
       'aufnahme': 'Aufnahmedatum',
+      'projekt': 'Punktwolken Projekt',
       'vc_update': 'Letzte Aktualisierung',
     }
     list_fields_with_datetime = ['aufnahme', 'vc_update']
@@ -2770,11 +2781,24 @@ class Punktwolken(ComplexModel):
       'projekt': 'bezeichnung'
     }
     fields_with_foreign_key_to_linkify = ['projekt']
-    readonly_fields = ['aufnahme', 'vc_update']
-    associated_models = {
-      'Punktwolken_Projekte': 'punktwolken_projekte'
-    }
-    geometry_type = 'POLYGON'
+    geometry_type = 'Polygon'
+
+  def __str__(self):
+    if self.aufnahme:
+      aufnahme_str = ' vom ' + self.aufnahme.strftime('%d.%m.%Y %H:%M')
+    else:
+      aufnahme_str = ''
+    return self.dateiname + aufnahme_str
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
+post_delete.connect(delete_pointcloud, sender=Punktwolken)
 
 
 #
