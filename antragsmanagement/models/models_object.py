@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
+from re import sub
 
 from .base import Object, GeometryObject
 from .models_codelist import CodelistRequestStatus, \
@@ -47,6 +48,9 @@ class Authority(Object):
 
   def __str__(self):
     return self.name
+
+  def short_name(self):
+    return sub(r'.* – ', '', self.name)
 
 
 class Email(Object):
@@ -185,6 +189,11 @@ class Requester(Object):
 
   def pseudonym(self):
     return self.organization if self.organization else '<em>Privatperson</em>'
+
+  def verbose(self):
+    verbose = str(self) + '<br>' + self.email + '<br>' + self.telephone
+    verbose += '<br>' + self.address() if self.address() else ''
+    return verbose
 
 
 class Request(Object):

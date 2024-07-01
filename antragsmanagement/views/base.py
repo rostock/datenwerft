@@ -165,8 +165,8 @@ class ObjectTableDataView(BaseDatatableView):
         elif not column.name.startswith('address_'):
           column_names.append(column.name)
       column_name = column_names[int(order_column)]
-      directory = '-' if order_dir is not None and order_dir == 'desc' else ''
-      return qs.order_by(directory + column_name)
+      direction = '-' if order_dir is not None and order_dir == 'desc' else ''
+      return qs.order_by(direction + column_name)
     else:
       return qs
 

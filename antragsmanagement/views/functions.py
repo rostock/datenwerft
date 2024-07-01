@@ -1,14 +1,15 @@
 from django.conf import settings
+from django.db.models import F
 from django.forms import CheckboxSelectMultiple, Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
-from antragsmanagement.models import GeometryObject
+from antragsmanagement.models import GeometryObject, Authority, Requester, CleanupEventRequest
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
-  has_necessary_permissions, is_antragsmanagement_admin, is_antragsmanagement_requester, \
-  is_antragsmanagement_user
-from toolbox.utils import is_geometry_field
+  get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
+  is_antragsmanagement_requester, is_antragsmanagement_user
+from toolbox.utils import format_date_datetime, is_geometry_field
 
 
 def add_model_context_elements(context, model):
@@ -155,6 +156,66 @@ def assign_widget(field):
       widget=LeafletWidget()
     )
   return form_field
+
+
+def get_cleanupeventrequest_queryset(user, count=False):
+  """
+  either gets all objects of model CleanupEventRequest and returns them
+  or counts objects of model CleanupEventRequest and returns the count
+
+  :param user: user
+  :param count: return objects count instead of objects?
+  :return: either all objects of model CleanupEventRequest
+  or objects count of model CleanupEventRequest
+  """
+  if belongs_to_antragsmanagement_authority(user):
+    # only requests for which user is responsible
+    queryset = CleanupEventRequest.objects.filter(
+      responsibilities__in=get_antragsmanagement_authorities(user)
+    )
+  else:
+    queryset = CleanupEventRequest.objects.all()
+  annotated_queryset = queryset.annotate(
+    status_name=F('status__name'),
+    requester_pk=F('requester__pk')
+  )
+  queryset = annotated_queryset.values(
+    'id', 'created', 'status_name', 'requester__pk'
+  )
+  for item in queryset:
+    # format "created"
+    item['created'] = format_date_datetime(item['created'])
+    # use "status" instead of "status_name"
+    item['status'] = item['status_name']
+    item.pop('status_name', None)
+    # fetch related Requester object
+    requester, requester_value = Requester.objects.get(pk=item['requester__pk']), ''
+    if (
+        belongs_to_antragsmanagement_authority(user)
+        or is_antragsmanagement_admin(user)
+        or user.is_superuser
+    ):
+      requester_value = requester.verbose()
+    elif requester.user_id == user.pk:
+      requester_value = '<strong><em>eigener Antrag</strong></em>'
+    else:
+      requester_value = requester.pseudonym()
+    # use "requester" instead of "requester__pk" and set it to text from Requester object
+    item['requester'] = requester_value
+    item.pop('requester__pk', None)
+    responsibilities_value = ''
+    # fetch related Authorities objects if existing
+    if CleanupEventRequest.objects.get(pk=item['id']).responsibilities.exists():
+      responsibilities = CleanupEventRequest.objects.get(pk=item['id']).responsibilities.all()
+      current_index = 1
+      for responsibility in responsibilities:
+        responsibilities_value += responsibility.short_name()
+        if current_index < responsibilities.count():
+          responsibilities_value += '<br>'
+        current_index += 1
+    # set "responsibilities" to authorities' short names if existing
+    item['responsibilities'] = responsibilities_value
+  return queryset.count() if count else queryset
 
 
 def get_model_objects(model, count=False):

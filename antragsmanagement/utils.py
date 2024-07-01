@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from .constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from .models import Requester
+from .models import Authority, Requester
 
 
 def belongs_to_antragsmanagement_authority(user):
@@ -12,6 +12,25 @@ def belongs_to_antragsmanagement_authority(user):
   :return: passed user belongs to an Antragsmanagement authority?
   """
   return user.groups.filter(name__in=AUTHORITIES).exists()
+
+
+def get_antragsmanagement_authorities(user, only_primary_keys=True):
+  """
+  returns (primary keys of) all Antragsmanagement authorities the passed user belongs to
+
+  :param user: user
+  :param only_primary_key: return only primary keys?
+  :return: (primary keys of) all Antragsmanagement authorities the passed user belongs to
+  """
+  authorities = []
+  for authority_group in AUTHORITIES:
+    if (
+        user.groups.filter(name=authority_group).exists()
+        and Authority.objects.filter(group=authority_group).exists()
+    ):
+      authority = Authority.objects.get(group=authority_group)
+      authorities.append(authority.pk if only_primary_keys else authority)
+  return authorities
 
 
 def get_corresponding_requester(user, only_primary_key=True):

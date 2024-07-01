@@ -12,14 +12,14 @@ from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
 from .forms import RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements
+  add_useragent_context_elements, get_cleanupeventrequest_queryset
 from antragsmanagement.constants_vars import REQUESTERS, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
-  get_corresponding_requester, get_icon_from_settings, get_request, is_antragsmanagement_admin
-from toolbox.utils import format_date_datetime, is_geometry_field, optimize_datatable_filter
+  get_corresponding_requester, get_icon_from_settings, get_request
+from toolbox.utils import is_geometry_field
 
 
 #
@@ -478,12 +478,31 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
   (Müllsammelaktionen):
   request (Antrag)
 
-  :param model: model
   :param update_view_name: name of view for form page for updating
   """
 
-  model = CleanupEventRequest
   update_view_name = 'antragsmanagement:cleanupeventrequest_update'
+  columns = {
+    'id': 'ID',
+    'created': 'Datum',
+    'status': 'Status',
+    'requester': 'Antragsteller:in',
+    'responsibilities': 'Zuständigkeit(en)'
+  }
+
+  def get_initial_queryset(self):
+    """
+    loads initial queryset
+    """
+    if self.check_necessary_permissions(self.request.user, self.permissions_level):
+      return get_cleanupeventrequest_queryset(self.request.user, False)
+    return CleanupEventRequest.objects.none()
+
+  def count_records(self, qs):
+    """
+    calculates the number of records in the queryset
+    """
+    return len(qs) if isinstance(qs, list) else qs.count()
 
   def prepare_results(self, qs):
     """
@@ -495,46 +514,22 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     json_data = []
     if self.check_necessary_permissions(self.request.user, self.permissions_level):
       for item in qs:
-        item_data, item_pk, address_handled = [], getattr(item, self.model._meta.pk.name), False
-        for column in self.model._meta.fields:
-          data = None
-          value = getattr(item, column.name)
-          # "requester" column
-          if column.name == 'requester':
-            requester = self.model.objects.get(pk=item_pk).requester
-            if (
-                belongs_to_antragsmanagement_authority(self.request.user)
-                or is_antragsmanagement_admin(self.request.user)
-                or self.request.user.is_superuser
-            ):
-              item_data.append(str(requester))
-            elif requester.user_id == self.request.user.pk:
-              item_data.append(str(requester) + ' <strong><em>(eigener Antrag)</strong></em>')
-            else:
-              item_data.append(requester.pseudonym())
-          # other columns
-          else:
-            if value is not None:
-              # format dates and datetimes
-              if isinstance(value, date) or isinstance(value, datetime):
-                data = format_date_datetime(value)
-              else:
-                data = escape(value)
-            item_data.append(data)
+        item_data = []
+        for column in item.keys():
+          item_data.append(item[column])
         # append link for updating
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
             or self.request.user.is_superuser
         ):
-          permission_suffix = self.model.__name__.lower()
           if (
-              self.request.user.has_perm('antragsmanagement.view_' + permission_suffix)
-              or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix)
+              self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
+              or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
           ):
             link = '<a href="'
-            link += reverse(self.update_view_name, kwargs={'pk': item_pk})
+            link += reverse(self.update_view_name, kwargs={'pk': item['id']})
             link += '"><i class="fas fa-' + get_icon_from_settings('update')
-            link += '" title="' + self.model._meta.verbose_name
+            link += '" title="' + CleanupEventRequest._meta.verbose_name
             link += ' ansehen oder bearbeiten"></i></a>'
             item_data.append(link)
         json_data.append(item_data)
@@ -549,34 +544,29 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     """
     current_search = self.request.GET.get('search[value]', None)
     if current_search:
-      qs_params = None
-      for search_element in current_search.lower().split():
-        qs_params_inner = None
-        for column in self.model._meta.fields:
-          search_column = column.name
-          # take care of foreign key columns
-          if search_column == 'status':
-            # search only in "name" column
-            search_column += '__name'
-          elif search_column == 'requester':
-            # search in "first_name" column
-            temp_search_column = search_column + '__first_name'
-            qs_params_inner = optimize_datatable_filter(
-              search_element, temp_search_column, qs_params_inner)
-            # additionaly search in "last_name" column
-            temp_search_column = search_column + '__last_name'
-            qs_params_inner = optimize_datatable_filter(
-              search_element, temp_search_column, qs_params_inner)
-            # additionaly search in "organization" column
-            search_column += '__organization'
-          qs_params_inner = optimize_datatable_filter(
-            search_element, search_column, qs_params_inner)
-        qs_params = qs_params & qs_params_inner if qs_params else qs_params_inner
-      qs = qs.filter(qs_params)
+      return [item for item in qs if any(
+        current_search.lower() in str(value).lower() for value in item.values())]
     return qs
 
+  def ordering(self, qs):
+    """
+    sorts passed queryset
 
-class CleanupEventRequestTableView(ObjectTableView):
+    :param qs: queryset
+    :return: sorted queryset
+    """
+    # assume initial order since multiple column sorting is prohibited
+    if self.request.GET.get('order[0][column]', None):
+      order_column = self.request.GET.get('order[0][column]')
+      order_dir = self.request.GET.get('order[0][dir]', None)
+      column_name = list(self.columns.keys())[int(order_column)]
+      reverse_order = True if order_dir is not None and order_dir == 'desc' else False
+      return sorted(qs, key=lambda x: x[column_name], reverse=reverse_order)
+    else:
+      return qs
+
+
+class CleanupEventRequestTableView(TemplateView):
   """
   view for table page for instances of object for request type clean-up events
   (Müllsammelaktionen):
@@ -584,12 +574,15 @@ class CleanupEventRequestTableView(ObjectTableView):
 
   :param model: model
   :param template_name: template name
+  :param initial_order: initial order
+  (careful here: adopt to CleanupEventRequestTableDataView.columns)
   :param table_data_view_name: name of view for composing table data out of instances
   :param icon_name: icon name
   """
 
   model = CleanupEventRequest
   template_name = 'antragsmanagement/table_request.html'
+  initial_order = [0, 'desc']
   table_data_view_name = 'antragsmanagement:cleanupeventrequest_tabledata'
   icon_name = 'cleanupeventrequest'
 
@@ -601,6 +594,17 @@ class CleanupEventRequestTableView(ObjectTableView):
     :return: dictionary with all context elements for this view
     """
     context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    # add table related context elements
+    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
+    context['column_titles'] = list(CleanupEventRequestTableDataView.columns.values())
+    context['initial_order'] = self.initial_order
+    context['tabledata_url'] = reverse(self.table_data_view_name)
+    # add to context: icon
+    context['icon'] = self.icon_name
     # add permissions related context elements:
     # set admin permissions as necessary permissions
     context = add_permissions_context_elements(context, self.request.user)

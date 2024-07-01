@@ -46,7 +46,7 @@
             <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'cleanupeventrequest'|get_icon }}"></i></p>
             <p class="fs-3">Müllsammelaktionen</p>
             <div class="d-grid gap-2 col-6 mx-auto">
-              <a class="btn btn-lg btn-secondary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit zugewiesenen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit zugewiesenen Anträgen{% endif %}</a>
               <a class="btn btn-lg btn-secondary fs-5" role="button" href="#"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit zugewiesenen Anträgen{% endif %}</a>
             </div>
           </div>
