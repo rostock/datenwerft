@@ -4,7 +4,6 @@ from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.html import escape
 from django.views.generic.base import TemplateView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
@@ -19,7 +18,7 @@ from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Auth
   CleanupEventContainer
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_corresponding_requester, get_icon_from_settings, get_request
-from toolbox.utils import is_geometry_field
+from toolbox.utils import format_date_datetime, is_geometry_field
 
 
 #
@@ -487,7 +486,14 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     'created': 'Datum',
     'status': 'Status',
     'requester': 'Antragsteller:in',
-    'responsibilities': 'Zuständigkeit(en)'
+    'responsibilities': 'Zuständigkeit(en)',
+    'event_from': 'von',
+    'event_to': 'bis',
+    'details_waste_quantity': 'Abfallmenge',
+    'details_waste_types': 'Abfallart(en)',
+    'details_equipments': 'Austattung(en)',
+    'container_delivery': 'Container-Stellung',
+    'container_pickup': 'Container-Abholung'
   }
 
   def get_initial_queryset(self):
@@ -516,7 +522,14 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
       for item in qs:
         item_data = []
         for column in item.keys():
-          item_data.append(item[column])
+          data, value = '', item[column]
+          if value:
+            # format dates and datetimes
+            if isinstance(value, date) or isinstance(value, datetime):
+              data = format_date_datetime(value)
+            else:
+              data = value
+          item_data.append(data)
         # append link for updating
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
@@ -526,7 +539,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
               or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
           ):
-            link = '<a href="'
+            link = '<a class="btn btn-sm btn-primary" role="button" href="'
             link += reverse(self.update_view_name, kwargs={'pk': item['id']})
             link += '"><i class="fas fa-' + get_icon_from_settings('update')
             link += '" title="' + CleanupEventRequest._meta.verbose_name
@@ -542,10 +555,20 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     :param qs: queryset
     :return: filtered queryset
     """
-    current_search = self.request.GET.get('search[value]', None)
-    if current_search:
-      return [item for item in qs if any(
-        current_search.lower() in str(value).lower() for value in item.values())]
+    def search(search_base, search_str):
+      search_str_lower = search_str.lower()
+      return [
+        search_item for search_item in search_base
+        if any(
+          search_str_lower in format_date_datetime(value)
+          if isinstance(value, (date, datetime))
+          else search_str_lower in str(value).lower()
+          for value in search_item.values()
+        )
+      ]
+    current_search_str = self.request.GET.get('search[value]', None)
+    if current_search_str:
+      return search(qs, current_search_str)
     return qs
 
   def ordering(self, qs):
@@ -555,13 +578,20 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     :param qs: queryset
     :return: sorted queryset
     """
+    def sort_key(x):
+      """
+      returns a tuple where the first element is a boolean
+      (True if value at the passed key in the passed dict is None, False otherwise)
+      and the second element is the value at the passed key in the passed dict itself
+      """
+      return x[column_name] is None, x[column_name]
     # assume initial order since multiple column sorting is prohibited
     if self.request.GET.get('order[0][column]', None):
       order_column = self.request.GET.get('order[0][column]')
       order_dir = self.request.GET.get('order[0][dir]', None)
       column_name = list(self.columns.keys())[int(order_column)]
       reverse_order = True if order_dir is not None and order_dir == 'desc' else False
-      return sorted(qs, key=lambda x: x[column_name], reverse=reverse_order)
+      return sorted(qs, key=sort_key, reverse=reverse_order)
     else:
       return qs
 

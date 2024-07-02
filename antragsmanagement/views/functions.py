@@ -5,11 +5,12 @@ from django.urls import reverse
 from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 
-from antragsmanagement.models import GeometryObject, Authority, Requester, CleanupEventRequest
+from antragsmanagement.models import GeometryObject, Requester, CleanupEventRequest, \
+  CleanupEventEvent, CleanupEventDetails, CleanupEventContainer
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
   is_antragsmanagement_requester, is_antragsmanagement_user
-from toolbox.utils import format_date_datetime, is_geometry_field
+from toolbox.utils import is_geometry_field
 
 
 def add_model_context_elements(context, model):
@@ -183,11 +184,15 @@ def get_cleanupeventrequest_queryset(user, count=False):
     'id', 'created', 'status_name', 'requester__pk'
   )
   for item in queryset:
-    # format "created"
-    item['created'] = format_date_datetime(item['created'])
+    #
+    # "status" field
+    #
     # use "status" instead of "status_name"
     item['status'] = item['status_name']
     item.pop('status_name', None)
+    #
+    # "requester" field
+    #
     # fetch related Requester object
     requester, requester_value = Requester.objects.get(pk=item['requester__pk']), ''
     if (
@@ -203,18 +208,77 @@ def get_cleanupeventrequest_queryset(user, count=False):
     # use "requester" instead of "requester__pk" and set it to text from Requester object
     item['requester'] = requester_value
     item.pop('requester__pk', None)
-    responsibilities_value = ''
-    # fetch related Authorities objects if existing
-    if CleanupEventRequest.objects.get(pk=item['id']).responsibilities.exists():
-      responsibilities = CleanupEventRequest.objects.get(pk=item['id']).responsibilities.all()
-      current_index = 1
-      for responsibility in responsibilities:
-        responsibilities_value += responsibility.short_name()
-        if current_index < responsibilities.count():
-          responsibilities_value += '<br>'
-        current_index += 1
-    # set "responsibilities" to authorities' short names if existing
+    #
+    # "responsibilities" field
+    #
+    responsibilities_value = None
+    # fetch CleanupEventRequest object along with its related responsibilities in a single query
+    request = CleanupEventRequest.objects.prefetch_related('responsibilities').get(pk=item['id'])
+    # if responsibilities exist
+    if request.responsibilities.exists():
+      # use list comprehension to create authorities' short names and join them with '<br>'
+      responsibilities_value = '<br>'.join(
+        [responsibility.short_name() for responsibility in request.responsibilities.all()]
+      )
+    # set "responsibilities" to authorities' short names
     item['responsibilities'] = responsibilities_value
+    #
+    # fields relating to event
+    #
+    if CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).exists():
+      # fetch related CleanupEventEvent object
+      event = CleanupEventEvent.objects.get(cleanupevent_request=item['id'])
+      # set "event_from" to event's start date
+      item['event_from'] = event.from_date
+      # set "event_to" to event's end date if existing
+      item['event_to'] = event.to_date if event.to_date else None
+    else:
+      item['event_from'], item['event_to'] = None, None
+    #
+    # fields relating to details
+    #
+    if CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).exists():
+      # fetch related CleanupEventDetails object
+      details = CleanupEventDetails.objects.get(cleanupevent_request=item['id'])
+      # set "details_waste_quantity" to details' waste quantity
+      item['details_waste_quantity'] = details.waste_quantity.name
+      waste_types_value = None
+      # if waste types exist
+      if details.waste_types.exists():
+        # use list comprehension to join waste types with '<br>'
+        waste_types_value = '<br>'.join(
+          [waste_type.name for waste_type in details.waste_types.all()]
+        )
+      # otherwise use waste types annotation
+      elif details.waste_types_annotation:
+        waste_types_value = 'Sonstiges: ' + details.waste_types_annotation
+      # set "details_waste_types" to waste types
+      item['details_waste_types'] = waste_types_value
+      equipments_value = None
+      # if equipments exist
+      if details.equipments.exists():
+        # use list comprehension to join equipments with '<br>'
+        equipments_value = '<br>'.join(
+          [equipment.name for equipment in details.equipments.all()]
+        )
+      # set "details_equipments" to equipments
+      item['details_equipments'] = equipments_value
+    else:
+      item['details_waste_quantity'] = None
+      item['details_waste_types'] = None
+      item['details_equipments'] = None
+    #
+    # fields relating to container
+    #
+    if CleanupEventContainer.objects.filter(cleanupevent_request=item['id']).exists():
+      # fetch related CleanupEventContainer object
+      container = CleanupEventContainer.objects.get(cleanupevent_request=item['id'])
+      # set "container_delivery" to container's delivery date
+      item['container_delivery'] = container.delivery_date
+      # set "container_pickup" to container's pickup date if existing
+      item['container_pickup'] = container.pickup_date
+    else:
+      item['container_delivery'], item['container_pickup'] = None, None
   return queryset.count() if count else queryset
 
 

@@ -83,8 +83,7 @@ class ObjectTableDataView(BaseDatatableView):
       for item in qs:
         item_data, item_pk, address_handled = [], getattr(item, self.model._meta.pk.name), False
         for column in self.model._meta.fields:
-          data = None
-          value = getattr(item, column.name)
+          data, value = None, getattr(item, column.name)
           # "icon" columns
           if column.name == 'icon':
             item_data.append('<i class="fas fa-{}"></i>'.format(value))
@@ -110,7 +109,7 @@ class ObjectTableDataView(BaseDatatableView):
             self.request.user.has_perm('antragsmanagement.view_' + permission_suffix)
             or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix)
         ):
-          link = '<a href="'
+          link = '<a class="btn btn-sm btn-primary" role="button" href="'
           link += reverse(self.update_view_name, kwargs={'pk': item_pk})
           link += '"><i class="fas fa-' + get_icon_from_settings('update')
           link += '" title="' + self.model._meta.verbose_name

@@ -15,7 +15,7 @@ def load_initial_data(apps, schema_editor):
   )
   codelist_requeststatus.objects.create(
     ordinal=2,
-    name='abgeschlossen',
+    name='genehmigt',
     icon='check'
   )
   codelist_requeststatus.objects.create(
