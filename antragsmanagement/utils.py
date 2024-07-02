@@ -14,12 +14,37 @@ def belongs_to_antragsmanagement_authority(user):
   return user.groups.filter(name__in=AUTHORITIES).exists()
 
 
+def check_necessary_permissions(user, permissions_level):
+  """
+  checks if passed user has necessary permissions
+
+  :param user: user
+  :param permissions_level: permissions level passed user has to have
+  (if empty, check if  passed user is an Antragsmanagement user at least)
+  :return: passed user has necessary permissions?
+  """
+  necessary_permissions = user.is_superuser
+  if not necessary_permissions:
+    if permissions_level:
+      permissions_map = {
+        'REQUESTERS': REQUESTERS,
+        'AUTHORITIES': AUTHORITIES,
+        'ADMINS': ADMINS
+      }
+      check_group = permissions_map.get(permissions_level)
+      if check_group:
+        necessary_permissions = has_necessary_permissions(user, check_group)
+    else:
+      necessary_permissions = is_antragsmanagement_user(user)
+  return necessary_permissions
+
+
 def get_antragsmanagement_authorities(user, only_primary_keys=True):
   """
   returns (primary keys of) all Antragsmanagement authorities the passed user belongs to
 
   :param user: user
-  :param only_primary_key: return only primary keys?
+  :param only_primary_keys: return only primary keys?
   :return: (primary keys of) all Antragsmanagement authorities the passed user belongs to
   """
   authorities = []

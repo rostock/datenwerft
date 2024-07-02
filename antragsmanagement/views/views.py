@@ -1,23 +1,26 @@
 from datetime import date, datetime
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.gis.db.models.functions import AsGeoJSON
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
+from jsonview.views import JsonView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
   ObjectUpdateView
 from .forms import RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements, get_cleanupeventrequest_queryset
+  add_useragent_context_elements, get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset
 from antragsmanagement.constants_vars import REQUESTERS, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
-from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
-  get_corresponding_requester, get_icon_from_settings, get_request
+from antragsmanagement.utils import check_necessary_permissions, \
+  belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
+  get_request
 from toolbox.utils import format_date_datetime, is_geometry_field
 
 
@@ -478,12 +481,13 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
   request (Antrag)
 
   :param update_view_name: name of view for form page for updating
+  :param columns: table columns with names (as keys) and titles/headers (as values)
   """
 
   update_view_name = 'antragsmanagement:cleanupeventrequest_update'
   columns = {
     'id': 'ID',
-    'created': 'Datum',
+    'created': 'Eingang',
     'status': 'Status',
     'requester': 'Antragsteller:in',
     'responsibilities': 'Zuständigkeit(en)',
@@ -500,7 +504,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     """
     loads initial queryset
     """
-    if self.check_necessary_permissions(self.request.user, self.permissions_level):
+    if check_necessary_permissions(self.request.user, self.permissions_level):
       return get_cleanupeventrequest_queryset(self.request.user, False)
     return CleanupEventRequest.objects.none()
 
@@ -518,7 +522,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     :return: cleaned-up JSON representation of the queryset
     """
     json_data = []
-    if self.check_necessary_permissions(self.request.user, self.permissions_level):
+    if check_necessary_permissions(self.request.user, self.permissions_level):
       for item in qs:
         item_data = []
         for column in item.keys():
@@ -542,8 +546,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             link = '<a class="btn btn-sm btn-primary" role="button" href="'
             link += reverse(self.update_view_name, kwargs={'pk': item['id']})
             link += '"><i class="fas fa-' + get_icon_from_settings('update')
-            link += '" title="' + CleanupEventRequest._meta.verbose_name
-            link += ' ansehen oder bearbeiten"></i></a>'
+            link += '" title="Antrag ansehen oder bearbeiten"></i></a>'
             item_data.append(link)
         json_data.append(item_data)
     return json_data
@@ -636,7 +639,95 @@ class CleanupEventRequestTableView(TemplateView):
     # add to context: icon
     context['icon'] = self.icon_name
     # add permissions related context elements:
-    # set admin permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user)
+    return context
+
+
+class CleanupEventRequestMapDataView(JsonView):
+  """
+  view for composing table data out of instances of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+
+  :param update_view_name: name of view for form page for updating
+  :param permissions_level: permissions level user has to have
+  """
+
+  update_view_name = 'antragsmanagement:cleanupeventrequest_update'
+  permissions_level = ''
+
+  def get_context_data(self, **kwargs):
+    """
+    returns GeoJSON feature collection
+
+    :param kwargs:
+    :return: GeoJSON feature collection
+    """
+    if check_necessary_permissions(self.request.user, self.permissions_level):
+      objects = get_cleanupeventrequest_queryset(self.request.user, False)
+      # declare empty GeoJSON feature collection
+      feature_collection = {
+        'type': 'FeatureCollection',
+        'features': []
+      }
+      # handle objects
+      if objects:
+        for curr_object in objects:
+          # add GeoJSON features for event to GeoJSON feature collection
+          event = get_cleanupeventrequest_feature(curr_object, 'event')
+          if event:
+            feature_collection['features'].append(event)
+          # add GeoJSON features for venue to GeoJSON feature collection
+          venue = get_cleanupeventrequest_feature(curr_object, 'venue')
+          if venue:
+            feature_collection['features'].append(venue)
+          # optionally add GeoJSON feature for container to GeoJSON feature collection
+          if curr_object['container_delivery'] and curr_object['container_pickup']:
+            container = get_cleanupeventrequest_feature(curr_object, 'container')
+            if container:
+              feature_collection['features'].append(container)
+      return feature_collection
+    return HttpResponse(
+      content='{"has_necessary_permissions": false}', content_type="application/json"
+    )
+
+
+class CleanupEventRequestMapView(TemplateView):
+  """
+  view for map page for instances of object for request type clean-up events
+  (Müllsammelaktionen):
+  request (Antrag)
+
+  :param model: model
+  :param template_name: template name
+  :param map_data_view_name: name of view for composing map data out of instances
+  :param icon_name: icon name
+  """
+
+  model = CleanupEventRequest
+  template_name = 'antragsmanagement/map_request.html'
+  map_data_view_name = 'antragsmanagement:cleanupeventrequest_mapdata'
+  icon_name = 'cleanupeventrequest'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    # add map related context elements
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
+    context['mapdata_url'] = reverse(self.map_data_view_name)
+    # add to context: icon
+    context['icon'] = self.icon_name
+    # add permissions related context elements:
     context = add_permissions_context_elements(context, self.request.user)
     return context
 

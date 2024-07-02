@@ -5,6 +5,7 @@ from rest_framework import routers
 from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   AuthorityUpdateView, EmailTableDataView, EmailTableView, EmailUpdateView, RequesterCreateView, \
   RequesterUpdateView, CleanupEventRequestTableDataView, CleanupEventRequestTableView, \
+  CleanupEventRequestMapDataView, CleanupEventRequestMapView, \
   CleanupEventRequestCreateView, CleanupEventRequestUpdateView, CleanupEventEventCreateView, \
   CleanupEventEventUpdateView, CleanupEventVenueCreateView, CleanupEventVenueUpdateView, \
   CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
@@ -103,6 +104,22 @@ urlpatterns = [
     'cleanupeventrequest/table',
     view=login_required(CleanupEventRequestTableView.as_view()),
     name='cleanupeventrequest_table'
+  ),
+  # composing map data out of instances of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'cleanupeventrequest/mapdata',
+    view=login_required(CleanupEventRequestMapDataView.as_view()),
+    name='cleanupeventrequest_mapdata'
+  ),
+  # map page for instances of object for request type clean-up events
+  # (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'cleanupeventrequest/map',
+    view=login_required(CleanupEventRequestMapView.as_view()),
+    name='cleanupeventrequest_map'
   ),
   # form page for creating an instance of object for request type clean-up events
   # (Müllsammelaktionen):

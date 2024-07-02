@@ -1,16 +1,18 @@
 from django.conf import settings
+from django.core.serializers import serialize
 from django.db.models import F
 from django.forms import CheckboxSelectMultiple, Textarea
 from django.urls import reverse
 from django_user_agents.utils import get_user_agent
+from json import loads
 from leaflet.forms.widgets import LeafletWidget
 
 from antragsmanagement.models import GeometryObject, Requester, CleanupEventRequest, \
-  CleanupEventEvent, CleanupEventDetails, CleanupEventContainer
+  CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, CleanupEventContainer
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
   is_antragsmanagement_requester, is_antragsmanagement_user
-from toolbox.utils import is_geometry_field
+from toolbox.utils import format_date_datetime, is_geometry_field
 
 
 def add_model_context_elements(context, model):
@@ -280,6 +282,70 @@ def get_cleanupeventrequest_queryset(user, count=False):
     else:
       item['container_delivery'], item['container_pickup'] = None, None
   return queryset.count() if count else queryset
+
+
+def get_cleanupeventrequest_feature(curr_object, curr_type):
+  """
+  creates a GeoJSON feature based on passed object of model CleanupEventRequest and returns it
+
+  :param curr_object: object of model CleanupEventRequest
+  :param curr_type: type of object (i.e. where to fetch the geometry from)
+  :return: GeoJSON feature based on passed object of model CleanupEventRequest
+  """
+  # define mapping for passed type of object to get model class
+  model_mapping = {
+    'event': CleanupEventEvent,
+    'venue': CleanupEventVenue,
+    'container': CleanupEventContainer
+  }
+  # get model class based on passed type of object
+  model_class = model_mapping.get(curr_type)
+  # perform query if valid model class was found
+  if model_class and model_class.objects.filter(cleanupevent_request=curr_object['id']).exists():
+    # GeoJSON-serialize target object
+    target = model_class.objects.get(cleanupevent_request=curr_object['id'])
+    target_geojson_serialized = loads(serialize('geojson', [target]))
+    # define mapping for passed type of object to get tooltip prefix
+    prefix_mapping = {
+      'event': 'Fäche',
+      'venue': 'Treffpunkt',
+      'container': 'Containerstandort'
+    }
+    # get tooltip prefix based on passed type of object
+    prefix = prefix_mapping.get(curr_type)
+    title = str(CleanupEventRequest.objects.get(pk=curr_object['id']))
+    # define GeoJSON feature:
+    # get geometry from GeoJSON-serialized target object,
+    # get (meta) properties directly from passed object of model CleanupEventRequest
+    geojson_feature = {
+      'type': 'Feature',
+      'geometry': target_geojson_serialized['features'][0]['geometry'],
+      'properties': {
+        '_tooltip': prefix + ' zu ' + title,
+        '_title': title,
+        '_link_request': reverse(
+          viewname='antragsmanagement:cleanupeventrequest_update', kwargs={'pk': curr_object['id']}
+        ),
+        '_filter_id': curr_object['id'],
+        '_filter_created': curr_object['created'],
+        '_filter_status': curr_object['status'],
+        '_filter_responsibilities': curr_object['responsibilities'],
+        'ID': curr_object['id'],
+        'Eingang': format_date_datetime(curr_object['created']),
+        'Status': curr_object['status'],
+        'Antragsteller:in': curr_object['requester'],
+        'Zuständigkeit(en)': curr_object['responsibilities'],
+        'von': format_date_datetime(curr_object['event_from']),
+        'bis': format_date_datetime(curr_object['event_to']),
+        'Abfallmenge': curr_object['details_waste_quantity'],
+        'Abfallart(en)': curr_object['details_waste_types'],
+        'Austattung(en)': curr_object['details_equipments'],
+        'Container-Stellung': format_date_datetime(curr_object['container_delivery']),
+        'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
+      }
+    }
+    return geojson_feature
+  return {}
 
 
 def get_model_objects(model, count=False):

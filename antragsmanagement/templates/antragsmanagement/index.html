@@ -33,7 +33,7 @@
             <div class="d-grid gap-2 col-6 mx-auto">
               <a class="btn btn-lg btn-warning fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i>{% if not is_mobile %} neuer Antrag{% endif %}</a>
               <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit allen Anträgen{% endif %}</a>
-              <a class="btn btn-lg btn-secondary fs-5" role="button" href="#"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit allen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit allen Anträgen{% endif %}</a>
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@
             <p class="fs-3">Müllsammelaktionen</p>
             <div class="d-grid gap-2 col-6 mx-auto">
               <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit zugewiesenen Anträgen{% endif %}</a>
-              <a class="btn btn-lg btn-secondary fs-5" role="button" href="#"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit zugewiesenen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit zugewiesenen Anträgen{% endif %}</a>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@
             <p class="fs-3">Müllsammelaktionen</p>
             <div class="d-grid gap-2 col-6 mx-auto">
               <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit allen Anträgen{% endif %}</a>
-              <a class="btn btn-lg btn-secondary fs-5" role="button" href="#"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit allen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit allen Anträgen{% endif %}</a>
             </div>
           </div>
         </div>
