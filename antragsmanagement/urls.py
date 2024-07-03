@@ -8,7 +8,8 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventRequestMapDataView, CleanupEventRequestMapView, \
   CleanupEventRequestCreateView, CleanupEventRequestUpdateView, \
   CleanupEventRequestAuthorativeUpdateView, CleanupEventEventCreateView, \
-  CleanupEventEventUpdateView, CleanupEventVenueCreateView, CleanupEventVenueUpdateView, \
+  CleanupEventEventUpdateView, CleanupEventEventAuthorativeUpdateView, \
+  CleanupEventVenueCreateView, CleanupEventVenueUpdateView, \
   CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
   CleanupEventContainerDecisionView, CleanupEventContainerCreateView
 
@@ -165,6 +166,14 @@ urlpatterns = [
     'ce-request/event/update/<pk>',
     view=login_required(CleanupEventEventUpdateView.as_view()),
     name='cleanupeventevent_update'
+  ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # event (Aktion)
+  path(
+    'ce-request/event/authorative/update/<pk>',
+    view=login_required(CleanupEventEventAuthorativeUpdateView.as_view()),
+    name='cleanupeventevent_authorative_update'
   ),
   # workflow page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):

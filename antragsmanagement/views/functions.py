@@ -348,6 +348,11 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
         viewname='antragsmanagement:cleanupeventrequest_authorative_update',
         kwargs={'pk': curr_object['id']}
       )
+      if curr_object['event_from']:
+        geojson_feature['properties']['_link_event'] = reverse(
+          viewname='antragsmanagement:cleanupeventevent_authorative_update',
+          kwargs={'pk': CleanupEventEvent.objects.get(cleanupevent_request=curr_object['id']).pk}
+        )
     return geojson_feature
   return {}
 

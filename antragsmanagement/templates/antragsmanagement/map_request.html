@@ -150,11 +150,16 @@
                 let html = '';
                 html += '<div class="leaflet-popup-title">';
                 html +=   '<strong>' + feature.properties._title + '</strong>';
-                if (feature.properties._link_request)
-                  html +=  '<a class="ms-2" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen" title="Antrag ansehen oder bearbeiten"></i></a>';
                 html += '</div>';
                 html += '<div class="leaflet-popup-section">';
-                html +=   '<table>';
+                if (feature.properties._link_request) {
+                  html += '<a title="Antrag ansehen oder bearbeiten" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen"></i> Antrag</a>';
+                }
+                if (feature.properties._link_event) {
+                  html +=  '<br>';
+                  html +=  '<a title="Aktionsdaten ansehen oder bearbeiten" href="' + feature.properties._link_event + '"><i ' + 'class="fas fa-pen"></i> Aktionsdaten</a>';
+                }
+                html +=   '<table class="mt-2">';
                 html +=     '<tbody>';
                 jQuery.each(feature.properties, function (key, value) {
                   if (!key.startsWith('_') && value) {

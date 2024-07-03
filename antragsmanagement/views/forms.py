@@ -41,6 +41,19 @@ class ObjectForm(ModelForm):
         field.error_messages['invalid_geom'] = text
         field.error_messages['invalid_geom_type'] = text
 
+  def clean_comment(self):
+    """
+    cleans specific field
+    """
+    status = self.cleaned_data.get('status')
+    comment = self.cleaned_data.get('comment')
+    if status and status == CodelistRequestStatus.get_status_rejected() and not comment:
+      text = 'Bei Status <strong><em>{}</em></strong>'.format(status)
+      text += ' muss <strong><em>{}</em></strong> zwingend angegeben werden!'.format(
+        self._meta.model._meta.get_field('comment').verbose_name)
+      raise ValidationError(text)
+    return comment
+
   def clean(self):
     """
     cleans fields

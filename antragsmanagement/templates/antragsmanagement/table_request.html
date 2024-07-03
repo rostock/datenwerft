@@ -62,7 +62,7 @@
          * main function
          */
         $(document).ready(function() {
-          initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }});
+          initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }}, 10);
         });
       </script>
     {% endif %}

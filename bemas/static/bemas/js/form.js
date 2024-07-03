@@ -48,7 +48,7 @@ function addEmptyFieldButton(field) {
  *
  * inserts the passed single field into an array field complex
  */
-function addField(field, fieldToInsertAfter, buttonsPosition= false) {
+function addField(field, fieldToInsertAfter, buttonsPosition = false) {
   // create wrapper
   let wrapper = $('<div/>', { class: 'input-group', style: 'margin-top:0.5rem' });
   // insert passed single field into created wrapper

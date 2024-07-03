@@ -74,15 +74,6 @@
          */
         $(document).ready(function () {
           keepDjangoRequiredMessages();
-
-          // handle read-only fields...
-          {% if readonly_fields %}
-            let field;
-            {% for field in readonly_fields %}
-              field = $('#id_' + '{{ field }}');
-              //field.prop('disabled', 'disabled');
-            {% endfor %}
-          {% endif %}
         });
       </script>
     {% else %}

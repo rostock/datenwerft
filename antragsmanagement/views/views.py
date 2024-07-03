@@ -6,7 +6,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView
 from jsonview.views import JsonView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
@@ -536,7 +535,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             else:
               data = value
           item_data.append(data)
-        # append link for authorative updating
+        # append links for authorative updating
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
             or self.request.user.is_superuser
@@ -545,11 +544,24 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
               or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
           ):
-            link = '<a class="btn btn-sm btn-primary" role="button" href="'
-            link += reverse(self.update_view_name, kwargs={'pk': item['id']})
-            link += '"><i class="fas fa-' + get_icon_from_settings('update')
-            link += '" title="Antrag ansehen oder bearbeiten"></i></a>'
-            item_data.append(link)
+            links = '<a class="btn btn-sm btn-primary" role="button" '
+            links += 'title="Antrag ansehen oder bearbeiten" '
+            links += 'href="' + reverse(
+              viewname='antragsmanagement:cleanupeventrequest_authorative_update',
+              kwargs={'pk': item['id']}
+            ) + '">'
+            links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+            links += 'Antrag</a>'
+            if item['event_from']:
+              links += ' <a class="btn btn-sm btn-primary" role="button" '
+              links += 'title="Aktionsdaten ansehen oder bearbeiten" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventevent_authorative_update',
+                kwargs={'pk': CleanupEventEvent.objects.get(cleanupevent_request=item['id']).pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += 'Aktionsdaten</a>'
+            item_data.append(links)
         json_data.append(item_data)
     return json_data
 
@@ -777,6 +789,18 @@ class CleanupEventRequestCreateView(RequestMixin, ObjectCreateView):
     'current_step': 1
   }
 
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: hidden fields
+    context['hidden_fields'] = ['comment']
+    return context
+
 
 class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
   """
@@ -797,6 +821,18 @@ class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
     'steps': 5,
     'current_step': 1
   }
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: hidden fields
+    context['hidden_fields'] = ['comment']
+    return context
 
   def get_success_url(self):
     """
@@ -826,8 +862,11 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
   """
 
   model = CleanupEventRequest
-  form = ObjectForm  # override RequestMixin form
-  success_message = ObjectUpdateView.success_message  # override RequestMixin success message
+  # override RequestMixin form
+  form = ObjectForm
+  # override RequestMixin success message
+  success_message = ObjectUpdateView.success_message
+  # empty workflow
   request_workflow = {}
 
   def form_invalid(self, form, **kwargs):
@@ -851,8 +890,9 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     :return: dictionary with all context elements for this view
     """
     context = super().get_context_data(**kwargs)
-    # add authorative elements to context
+    # add to context: authorative hint
     context['authorative'] = True
+    # add to context: hidden fields
     context['hidden_fields'] = ['requester']
     # add to context: URLs
     context['cancel_url'] = get_referer_url(
@@ -1006,6 +1046,119 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
       return reverse('antragsmanagement:cleanupeventvenue_create')
 
 
+class CleanupEventEventAuthorativeUpdateView(CleanupEventEventMixin, ObjectUpdateView):
+  """
+  view for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  event (Aktion)
+
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
+  """
+
+  # override CleanupEventEventMixin success message
+  success_message = ObjectUpdateView.success_message.replace('<strong>', 'zu <strong>')
+  # empty workflow
+  request_workflow = {}
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep original referer)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    context_data['cancel_url'] = form.data.get('original_referer', None)
+    return self.render_to_response(context_data)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: authorative hint
+    context['authorative'] = True
+    # add to context: hidden fields
+    context['hidden_fields'] = ['cleanupevent_request']
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request),
+      fallback='antragsmanagement:index'
+    )
+    # add permissions related context elements:
+    # set authority permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    # add to context: GeoJSONified geometries of venue place and container place
+    other_geometries = []
+    try:
+      cleanupeventvenue = CleanupEventVenue.objects.get(
+        cleanupevent_request=self.object.cleanupevent_request.pk)
+    except CleanupEventVenue.DoesNotExist:
+      cleanupeventvenue = None
+    if cleanupeventvenue:
+      cleanupeventvenue_geometry = getattr(
+        cleanupeventvenue, CleanupEventVenue.BaseMeta.geometry_field)
+      if cleanupeventvenue_geometry:
+        cleanupeventvenue_geometry = CleanupEventVenue.objects.annotate(
+          geojson=AsGeoJSON(cleanupeventvenue_geometry)
+        ).get(pk=cleanupeventvenue.pk).geojson
+        other_geometries.append({
+          'text': 'zugehöriger<br>Treffpunkt',
+          'geometry': cleanupeventvenue_geometry
+        })
+    try:
+      cleanupeventcontainer = CleanupEventContainer.objects.get(
+        cleanupevent_request=self.object.cleanupevent_request.pk)
+    except CleanupEventContainer.DoesNotExist:
+      cleanupeventcontainer = None
+    if cleanupeventcontainer:
+      cleanupeventcontainer_geometry = getattr(
+        cleanupeventcontainer, CleanupEventContainer.BaseMeta.geometry_field)
+      if cleanupeventcontainer_geometry:
+        cleanupeventcontainer_geometry = CleanupEventContainer.objects.annotate(
+          geojson=AsGeoJSON(cleanupeventcontainer_geometry)
+        ).get(pk=cleanupeventcontainer.pk).geojson
+        other_geometries.append({
+          'text': 'zugehöriger<br>Containerstandort',
+          'geometry': cleanupeventcontainer_geometry
+        })
+    if other_geometries:
+      context['other_geometries'] = other_geometries
+    return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    initial_field_values = {}
+    for field in self.model._meta.get_fields():
+      if field.__class__.__name__ == 'DateField':
+        value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
+        initial_field_values[field.name] = value.strftime('%Y-%m-%d') if value else None
+    return initial_field_values
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_table')
+    elif 'map' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_map')
+    return reverse('antragsmanagement:index')
+
+
 class CleanupEventVenueMixin(RequestFollowUpMixin):
   """
   mixin for form page for creating an instance of object
@@ -1056,7 +1209,7 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
         cleanupeventevent_geometry = CleanupEventEvent.objects.annotate(
           geojson=AsGeoJSON(cleanupeventevent_geometry)
         ).get(pk=cleanupeventevent.pk).geojson
-        context['previous_geometries'] = {
+        context['other_geometries'] = {
           'text': 'Fläche<br>aus Schritt 2',
           'geometry': cleanupeventevent_geometry
         }
@@ -1327,7 +1480,7 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
     # add to context: URLs
     context['back_url'] = reverse('antragsmanagement:cleanupeventcontainer_decision')
     # add to context: GeoJSONified geometries of event area and venue place
-    previous_geometries = []
+    other_geometries = []
     try:
       cleanupeventevent = CleanupEventEvent.objects.get(
         id=self.request.session.get('cleanupeventevent_id', None))
@@ -1340,7 +1493,7 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
         cleanupeventevent_geometry = CleanupEventEvent.objects.annotate(
           geojson=AsGeoJSON(cleanupeventevent_geometry)
         ).get(pk=cleanupeventevent.pk).geojson
-        previous_geometries.append({
+        other_geometries.append({
           'text': 'Fläche<br>aus Schritt 2',
           'geometry': cleanupeventevent_geometry
         })
@@ -1356,12 +1509,12 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
         cleanupeventvenue_geometry = CleanupEventVenue.objects.annotate(
           geojson=AsGeoJSON(cleanupeventvenue_geometry)
         ).get(pk=cleanupeventvenue.pk).geojson
-        previous_geometries.append({
+        other_geometries.append({
           'text': 'Treffpunkt<br>aus Schritt 3',
           'geometry': cleanupeventvenue_geometry
         })
-    if previous_geometries:
-      context['previous_geometries'] = previous_geometries
+    if other_geometries:
+      context['other_geometries'] = other_geometries
     return context
 
   def get_initial(self):

@@ -207,6 +207,12 @@ class Request(Object):
     verbose_name='Status',
     on_delete=PROTECT
   )
+  comment = CharField(
+    verbose_name='Statuskommentar',
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
   requester = ForeignKey(
     to=Requester,
     verbose_name='Antragsteller:in',
@@ -284,6 +290,9 @@ class CleanupEventEvent(GeometryObject):
     geometry_type = 'Polygon'
     description = 'Müllsammelaktionen: Aktionsdaten'
 
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
+
 
 class CleanupEventVenue(GeometryObject):
   """
@@ -310,6 +319,9 @@ class CleanupEventVenue(GeometryObject):
     geometry_field = 'place'
     geometry_type = 'Point'
     description = 'Müllsammelaktionen: Treffpunkte'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
 
 
 class CleanupEventDetails(Object):
@@ -356,6 +368,9 @@ class CleanupEventDetails(Object):
   class BaseMeta(Object.BaseMeta):
     description = 'Müllsammelaktionen: Detailangaben'
 
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
+
 
 class CleanupEventContainer(GeometryObject):
   """
@@ -388,3 +403,6 @@ class CleanupEventContainer(GeometryObject):
     geometry_field = 'place'
     geometry_type = 'Point'
     description = 'Müllsammelaktionen: Container'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
