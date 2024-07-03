@@ -725,6 +725,11 @@ class CleanupEventRequestMapView(TemplateView):
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
     context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
     context['mapdata_url'] = reverse(self.map_data_view_name)
+    # add filter related information to context
+    context['requests_status'] = list(
+      CleanupEventRequest.objects.order_by('status').values_list(
+        'status__name', flat=True).distinct()
+    )
     # add to context: icon
     context['icon'] = self.icon_name
     # add permissions related context elements:

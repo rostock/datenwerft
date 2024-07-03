@@ -20,7 +20,7 @@
   <label for="filter-input-requests-status" class="form-label"><em>Status</em></label>
   <div class="input-group">
     <select id="filter-input-requests-status" name="requests-status" class="form-select filter-input" data-type="list">
-      {% for status in complaints_status %}
+      {% for status in requests_status %}
         <option value="{{ status }}">{{ status }}</option>
       {% endfor %}
     </select>
