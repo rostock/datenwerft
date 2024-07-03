@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.serializers import serialize
 from django.db.models import F
 from django.forms import CheckboxSelectMultiple, Textarea
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
@@ -284,12 +284,13 @@ def get_cleanupeventrequest_queryset(user, count=False):
   return queryset.count() if count else queryset
 
 
-def get_cleanupeventrequest_feature(curr_object, curr_type):
+def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
   """
   creates a GeoJSON feature based on passed object of model CleanupEventRequest and returns it
 
   :param curr_object: object of model CleanupEventRequest
   :param curr_type: type of object (i.e. where to fetch the geometry from)
+  :param authorative_rights: user has authorative rights (i.e. add links)?
   :return: GeoJSON feature based on passed object of model CleanupEventRequest
   """
   # define mapping for passed type of object to get model class
@@ -323,9 +324,6 @@ def get_cleanupeventrequest_feature(curr_object, curr_type):
       'properties': {
         '_tooltip': prefix + ' zu ' + title,
         '_title': title,
-        '_link_request': reverse(
-          viewname='antragsmanagement:cleanupeventrequest_update', kwargs={'pk': curr_object['id']}
-        ),
         '_filter_id': curr_object['id'],
         '_filter_created': curr_object['created'],
         '_filter_status': curr_object['status'],
@@ -344,6 +342,12 @@ def get_cleanupeventrequest_feature(curr_object, curr_type):
         'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
       }
     }
+    # add links if user has authorative rights
+    if authorative_rights:
+      geojson_feature['properties']['_link_request'] = reverse(
+        viewname='antragsmanagement:cleanupeventrequest_authorative_update',
+        kwargs={'pk': curr_object['id']}
+      )
     return geojson_feature
   return {}
 
@@ -359,3 +363,27 @@ def get_model_objects(model, count=False):
   """
   objects = model.objects.all()
   return objects.count() if count else objects
+
+
+def get_referer(request):
+  """
+  returns referer for passed request
+
+  :param request: request
+  :return: referer for passed request
+  """
+  return request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else None
+
+
+def get_referer_url(referer, fallback, lazy=False):
+  """
+  returns URL used for "cancel" buttons and/or used in case of successfully submitted forms
+
+  :param referer: referer URL
+  :param fallback: fallback URL
+  :param lazy: lazy?
+  :return: URL used for "cancel" buttons and/or used in case of successfully submitted forms
+  """
+  if referer:
+    return reverse_lazy(referer) if lazy else referer
+  return reverse_lazy(fallback) if lazy else reverse(fallback)

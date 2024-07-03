@@ -150,7 +150,8 @@
                 let html = '';
                 html += '<div class="leaflet-popup-title">';
                 html +=   '<strong>' + feature.properties._title + '</strong>';
-                html +=    '<a class="ms-2" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen" title="Antrag ansehen oder bearbeiten"></i></a>';
+                if (feature.properties._link_request)
+                  html +=  '<a class="ms-2" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen" title="Antrag ansehen oder bearbeiten"></i></a>';
                 html += '</div>';
                 html += '<div class="leaflet-popup-section">';
                 html +=   '<table>';

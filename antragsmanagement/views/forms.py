@@ -21,6 +21,7 @@ class ObjectForm(ModelForm):
   required_css_class = 'required'
 
   def __init__(self, *args, **kwargs):
+    self.user = kwargs.pop('user', None)
     kwargs.setdefault('label_suffix', '')
     super().__init__(*args, **kwargs)
     # customize messages
@@ -99,7 +100,6 @@ class RequestForm(ObjectForm):
   """
 
   def __init__(self, *args, **kwargs):
-    self.user = kwargs.pop('user', None)
     super().__init__(*args, **kwargs)
     # limit the status field queryset to exactly one entry (= default status)
     self.fields['status'].queryset = CodelistRequestStatus.get_status_new(as_queryset=True)
@@ -130,8 +130,8 @@ class RequestFollowUpForm(ObjectForm):
 
 class CleanupEventEventForm(RequestFollowUpForm):
   """
-  form for creating or updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  form for creating or updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
   """
 
@@ -153,8 +153,8 @@ class CleanupEventEventForm(RequestFollowUpForm):
 
 class CleanupEventDetailsForm(RequestFollowUpForm):
   """
-  form for creating or updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  form for creating or updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
   """
 
@@ -175,8 +175,8 @@ class CleanupEventDetailsForm(RequestFollowUpForm):
 
 class CleanupEventContainerForm(RequestFollowUpForm):
   """
-  form for creating or updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  form for creating or updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   container (Container)
   """
 

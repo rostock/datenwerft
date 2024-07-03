@@ -580,8 +580,8 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
   """
-  test class for composing table data out of instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for composing table data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
   """
 
@@ -626,8 +626,8 @@ class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
 
 class CleanupEventRequestTableViewTest(DefaultViewTestCase):
   """
-  test class for table page for instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for table page for instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
   """
 
@@ -672,8 +672,8 @@ class CleanupEventRequestTableViewTest(DefaultViewTestCase):
 
 class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
   """
-  test class for composing map data out of instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for composing map data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
   """
 
@@ -718,8 +718,8 @@ class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
 
 class CleanupEventRequestMapViewTest(DefaultViewTestCase):
   """
-  test class for map page for instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for map page for instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
   """
 
@@ -764,8 +764,8 @@ class CleanupEventRequestMapViewTest(DefaultViewTestCase):
 
 class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
   """
 
@@ -857,8 +857,8 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
   """
 
@@ -948,10 +948,103 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
     )
 
 
+class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
+  """
+  test class for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  model = CleanupEventRequest
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    cls.attributes_values_db_create = {
+      'status': status1,
+      'requester': requester
+    }
+    cls.attributes_values_view_update_valid = {
+      'status': str(status2.pk),
+      'requester': str(requester.pk)
+    }
+    cls.attributes_values_view_update_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_not_logged_in(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update', status_code=302,
+      content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_get_no_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_requester_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=True,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_authority_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=True, antragsmanagement_admin=False,
+      view_name='cleanupeventrequest_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='aktualisieren '
+    )
+
+  def test_get_admin_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=True,
+      view_name='cleanupeventrequest_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
 class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
   """
 
@@ -1060,8 +1153,8 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
   """
 
@@ -1170,8 +1263,8 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   venue (Treffpunkt)
   """
 
@@ -1278,8 +1371,8 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   venue (Treffpunkt)
   """
 
@@ -1386,8 +1479,8 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
   """
 
@@ -1500,8 +1593,8 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
   """
 
@@ -1614,8 +1707,8 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
 class CleanupEventContainerDecisionViewTest(DefaultViewTestCase):
   """
-  test class for form workflow decision page in terms of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow decision page in terms of object
+  for request type clean-up events (Müllsammelaktionen):
   container (Container)
   """
 
@@ -1660,8 +1753,8 @@ class CleanupEventContainerDecisionViewTest(DefaultViewTestCase):
 
 class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   """
-  test class for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  test class for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   container (Container)
   """
 

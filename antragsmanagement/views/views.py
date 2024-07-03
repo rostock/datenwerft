@@ -6,15 +6,17 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView
 from jsonview.views import JsonView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
   ObjectUpdateView
-from .forms import RequesterForm, RequestForm, RequestFollowUpForm, \
+from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements, get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset
-from antragsmanagement.constants_vars import REQUESTERS, ADMINS
+  add_useragent_context_elements, get_cleanupeventrequest_feature, \
+  get_cleanupeventrequest_queryset, get_referer, get_referer_url
+from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer
@@ -437,7 +439,7 @@ class RequestFollowUpMixin:
 
 class RequestFollowUpDecisionMixin:
   """
-  mixin for form workflow decision page in terms of a follow-up instance of general object:
+  mixin for workflow decision page in terms of a follow-up instance of general object:
   request (Antrag)
 
   :param template_name: template name
@@ -476,15 +478,15 @@ class RequestFollowUpDecisionMixin:
 
 class CleanupEventRequestTableDataView(ObjectTableDataView):
   """
-  view for composing table data out of instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for composing table data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
-  :param update_view_name: name of view for form page for updating
+  :param update_view_name: name of view for authorative form page for updating
   :param columns: table columns with names (as keys) and titles/headers (as values)
   """
 
-  update_view_name = 'antragsmanagement:cleanupeventrequest_update'
+  update_view_name = 'antragsmanagement:cleanupeventrequest_authorative_update'
   columns = {
     'id': 'ID',
     'created': 'Eingang',
@@ -534,7 +536,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             else:
               data = value
           item_data.append(data)
-        # append link for updating
+        # append link for authorative updating
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
             or self.request.user.is_superuser
@@ -601,8 +603,8 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
 
 class CleanupEventRequestTableView(TemplateView):
   """
-  view for table page for instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for table page for instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
   :param model: model
@@ -645,15 +647,15 @@ class CleanupEventRequestTableView(TemplateView):
 
 class CleanupEventRequestMapDataView(JsonView):
   """
-  view for composing table data out of instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for composing table data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
-  :param update_view_name: name of view for form page for updating
+  :param update_view_name: name of view for authorative form page for updating
   :param permissions_level: permissions level user has to have
   """
 
-  update_view_name = 'antragsmanagement:cleanupeventrequest_update'
+  update_view_name = 'antragsmanagement:cleanupeventrequest_authorative_update'
   permissions_level = ''
 
   def get_context_data(self, **kwargs):
@@ -672,18 +674,40 @@ class CleanupEventRequestMapDataView(JsonView):
       }
       # handle objects
       if objects:
+        authorative_rights = False
+        if (
+            belongs_to_antragsmanagement_authority(self.request.user)
+            or self.request.user.is_superuser
+        ):
+          if (
+              self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
+              or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
+          ):
+            authorative_rights = True
         for curr_object in objects:
           # add GeoJSON features for event to GeoJSON feature collection
-          event = get_cleanupeventrequest_feature(curr_object, 'event')
+          event = get_cleanupeventrequest_feature(
+            curr_object=curr_object,
+            curr_type='event',
+            authorative_rights=authorative_rights
+          )
           if event:
             feature_collection['features'].append(event)
           # add GeoJSON features for venue to GeoJSON feature collection
-          venue = get_cleanupeventrequest_feature(curr_object, 'venue')
+          venue = get_cleanupeventrequest_feature(
+            curr_object=curr_object,
+            curr_type='venue',
+            authorative_rights=authorative_rights
+          )
           if venue:
             feature_collection['features'].append(venue)
           # optionally add GeoJSON feature for container to GeoJSON feature collection
           if curr_object['container_delivery'] and curr_object['container_pickup']:
-            container = get_cleanupeventrequest_feature(curr_object, 'container')
+            container = get_cleanupeventrequest_feature(
+              curr_object=curr_object,
+              curr_type='container',
+              authorative_rights=authorative_rights
+            )
             if container:
               feature_collection['features'].append(container)
       return feature_collection
@@ -694,8 +718,8 @@ class CleanupEventRequestMapDataView(JsonView):
 
 class CleanupEventRequestMapView(TemplateView):
   """
-  view for map page for instances of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for map page for instances of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
   :param model: model
@@ -739,8 +763,8 @@ class CleanupEventRequestMapView(TemplateView):
 
 class CleanupEventRequestCreateView(RequestMixin, ObjectCreateView):
   """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
   :param model: model
@@ -756,8 +780,8 @@ class CleanupEventRequestCreateView(RequestMixin, ObjectCreateView):
 
 class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
   """
-  view for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
   :param model: model
@@ -789,10 +813,84 @@ class CleanupEventRequestUpdateView(RequestMixin, ObjectUpdateView):
       return reverse('antragsmanagement:cleanupeventevent_create')
 
 
+class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
+  """
+  view for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+
+  :param model: model
+  :param form: form
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
+  """
+
+  model = CleanupEventRequest
+  form = ObjectForm  # override RequestMixin form
+  success_message = ObjectUpdateView.success_message  # override RequestMixin success message
+  request_workflow = {}
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep original referer)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    context_data['cancel_url'] = form.data.get('original_referer', None)
+    return self.render_to_response(context_data)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add authorative elements to context
+    context['authorative'] = True
+    context['hidden_fields'] = ['requester']
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request),
+      fallback='antragsmanagement:index'
+    )
+    # add permissions related context elements:
+    # set authority permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    # override RequestMixin method so that no field is pre-set
+    return
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_table')
+    elif 'map' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_map')
+    return reverse('antragsmanagement:index')
+
+
 class CleanupEventEventMixin(RequestFollowUpMixin):
   """
-  mixin for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  mixin for form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
 
   :param model: model
@@ -848,8 +946,8 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
 
 class CleanupEventEventCreateView(CleanupEventEventMixin, ObjectCreateView):
   """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
   """
 
@@ -871,8 +969,8 @@ class CleanupEventEventCreateView(CleanupEventEventMixin, ObjectCreateView):
 
 class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
   """
-  view for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
 
   :param success_message: custom success message
@@ -910,8 +1008,8 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
 
 class CleanupEventVenueMixin(RequestFollowUpMixin):
   """
-  mixin for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  mixin for form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   venue (Treffpunkt)
 
   :param model: model
@@ -982,8 +1080,8 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
 
 class CleanupEventVenueCreateView(CleanupEventVenueMixin, ObjectCreateView):
   """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   venue (Treffpunkt)
   """
 
@@ -1005,8 +1103,8 @@ class CleanupEventVenueCreateView(CleanupEventVenueMixin, ObjectCreateView):
 
 class CleanupEventVenueUpdateView(CleanupEventVenueMixin, ObjectUpdateView):
   """
-  view for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   venue (Treffpunkt)
 
   :param success_message: custom success message
@@ -1031,8 +1129,8 @@ class CleanupEventVenueUpdateView(CleanupEventVenueMixin, ObjectUpdateView):
 
 class CleanupEventDetailsMixin(RequestFollowUpMixin):
   """
-  mixin for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  mixin for form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
 
   :param model: model
@@ -1088,8 +1186,8 @@ class CleanupEventDetailsMixin(RequestFollowUpMixin):
 
 class CleanupEventDetailsCreateView(CleanupEventDetailsMixin, ObjectCreateView):
   """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
   """
 
@@ -1111,8 +1209,8 @@ class CleanupEventDetailsCreateView(CleanupEventDetailsMixin, ObjectCreateView):
 
 class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
   """
-  view for form page for updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
 
   :param success_message: custom success message
@@ -1131,8 +1229,8 @@ class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
 
 class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateView):
   """
-  view for form workflow decision page in terms of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow decision page in terms of object
+  for request type clean-up events (Müllsammelaktionen):
   container (Container)
 
   :param model: model
@@ -1192,8 +1290,8 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
 
 class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
   """
-  view for form page for creating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  view for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   container (Container)
 
   :param model: model
