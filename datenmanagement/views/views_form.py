@@ -74,6 +74,7 @@ class DataAddView(CreateView):
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
     context['multi_photos'] = self.model.BasemodelMeta.multi_photos
+    context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
@@ -278,6 +279,7 @@ class DataChangeView(UpdateView):
     # add further elements to context
     context['associated_objects'] = self.associated_objects if self.associated_objects else None
     context['associated_new'] = self.associated_new if self.associated_new else None
+    context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
     if self.model.BasemodelMeta.geometry_type:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(

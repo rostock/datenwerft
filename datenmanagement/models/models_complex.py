@@ -2720,6 +2720,7 @@ class Punktwolken_Projekte(ComplexModel):
       'Punktwolken': 'projekt'
     }
     geometry_type = 'Polygon'
+    geometry_calculation = True
 
   def __str__(self):
     return self.bezeichnung
@@ -2782,6 +2783,7 @@ class Punktwolken(ComplexModel):
     }
     fields_with_foreign_key_to_linkify = ['projekt']
     geometry_type = 'Polygon'
+    geometry_calculation = True
 
   def __str__(self):
     if self.aufnahme:

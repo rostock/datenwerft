@@ -39,6 +39,7 @@ class Basemodel(Model):
     :ivar naming: name shown in map filters drop-down menus
     :ivar readonly_fields: shall fields be read-only?
     :ivar geometry_type: type of the geometry represented by this model
+    :ivar geometry_calculation: Shall the geometry not be editable because it is calculated?
     :ivar address_search_class: address search class
     :ivar address_search_long_results: shall address search results be shown in their long versions?
     :ivar address_type: type of the address represented by this model

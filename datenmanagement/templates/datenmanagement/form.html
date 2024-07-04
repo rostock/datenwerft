@@ -35,6 +35,7 @@
 {% endblock %}
 
 {% block content %}
+  <h2>{{ model_verbose_name_plural }} - Formular</h2>
   {% if form.errors %}
     {% for field in form %}
       {% if field.errors|is_linebreak_error %}
