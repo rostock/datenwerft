@@ -190,8 +190,14 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
             antragsmanagement_authority, antragsmanagement_admin)
     # for update mode: get primary key of last object
     last_pk = self.model.objects.only('pk').last().pk
-    if update_mode:
+    # set URL
+    if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
+    elif 'authorative_create' in view_name:
+      url = reverse(
+        viewname='antragsmanagement:' + view_name,
+        kwargs={'request_id': last_pk}
+      )
     else:
       url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -236,8 +242,14 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
         requester.save()
     # for update mode: get primary key of last object
     last_pk = self.model.objects.only('pk').last().pk
-    if update_mode:
+    # set URL
+    if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
+    elif 'authorative_create' in view_name:
+      url = reverse(
+        viewname='antragsmanagement:' + view_name,
+        kwargs={'request_id': session_variables['request_id']}
+      )
     else:
       url = reverse('antragsmanagement:' + view_name)
     data = object_filter

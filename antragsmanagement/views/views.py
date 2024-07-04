@@ -9,20 +9,21 @@ from django.views.generic.base import TemplateView
 from jsonview.views import JsonView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
-  ObjectUpdateView
+  ObjectUpdateView, ObjectDeleteView
 from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
   add_useragent_context_elements, clean_initial_field_values, get_cleanupeventrequest_feature, \
-  get_cleanupeventrequest_queryset, get_referer, get_referer_url
+  get_cleanupeventrequest_queryset, get_corresponding_cleanupeventrequest_geometry, get_referer, \
+  get_referer_url, geometry_keeper
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer
+  CleanupEventContainer, CleanupEventDump
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
-from toolbox.utils import format_date_datetime, is_geometry_field
+from toolbox.utils import format_date_datetime
 
 
 #
@@ -400,12 +401,7 @@ class RequestFollowUpMixin:
     """
     context_data = self.get_context_data(**kwargs)
     form.data = form.data.copy()
-    for field in self.model._meta.get_fields():
-      # keep geometry (otherwise it would be lost on re-rendering)
-      if is_geometry_field(field.__class__):
-        geometry = form.data.get(field.name, None)
-        if geometry and '0,0' not in geometry and '[]' not in geometry:
-          context_data['geometry'] = geometry
+    context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['form'] = form
     return self.render_to_response(context_data)
 
@@ -431,6 +427,81 @@ class RequestFollowUpMixin:
         if geometry:
           context['geometry'] = GEOSGeometry(geometry).geojson
     return context
+
+
+class RequestFollowUpAuthorativeMixin:
+  """
+  mixin for authorative form page in terms of a follow-up instance of general object:
+  request (Antrag)
+
+  :param success_message: custom success message
+  :param request_workflow: request workflow informations
+  """
+
+  # override success message
+  success_message = ObjectUpdateView.success_message.replace('<strong>', 'zu <strong>')
+  # empty workflow
+  request_workflow = {}
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep original referer)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    context_data['cancel_url'] = form.data.get('original_referer', None)
+    return self.render_to_response(context_data)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: authorative hint
+    context['authorative'] = True
+    # add to context: hidden fields
+    context['hidden_fields'] = ['cleanupevent_request']
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request),
+      fallback='antragsmanagement:index'
+    )
+    # add permissions related context elements:
+    # set authority permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    return clean_initial_field_values(
+      fields=self.model._meta.get_fields(),
+      model=self.model,
+      curr_obj=self.object
+    )
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_table')
+    elif 'map' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_map')
+    return reverse('antragsmanagement:index')
 
 
 class RequestFollowUpDecisionMixin:
@@ -541,7 +612,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
               or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
           ):
-            links = '<a class="btn btn-sm btn-primary" role="button" '
+            links = '<a class="mb-1 btn btn-sm btn-primary" role="button" '
             links += 'title="Antrag ansehen oder bearbeiten" '
             links += 'href="' + reverse(
               viewname='antragsmanagement:cleanupeventrequest_authorative_update',
@@ -549,15 +620,91 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             ) + '">'
             links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
             links += 'Antrag</a>'
-            if item['event_from']:
-              links += ' <a class="btn btn-sm btn-primary" role="button" '
+            event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
+            if event:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
               links += 'title="Aktionsdaten ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventevent_authorative_update',
-                kwargs={'pk': CleanupEventEvent.objects.get(cleanupevent_request=item['id']).pk}
+                kwargs={'pk': event.pk}
               ) + '">'
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Aktionsdaten</a>'
+            venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
+            if venue:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="Treffpunkt ansehen oder bearbeiten" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventvenue_authorative_update',
+                kwargs={'pk': venue.pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += 'Treffpunkt</a>'
+            details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
+            if details:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="Detailangaben ansehen oder bearbeiten" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventdetails_authorative_update',
+                kwargs={'pk': details.pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += 'Detailangaben</a>'
+            container = CleanupEventContainer.objects.filter(
+              cleanupevent_request=item['id']).first()
+            if container:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="Containerdaten ansehen oder bearbeiten" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
+                kwargs={'pk': container.pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += 'Containerdaten</a>'
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="Containerdaten löschen" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventcontainer_delete',
+                kwargs={'pk': container.pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
+              links += 'Containerdaten</a>'
+            else:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="neue Containerdaten anlegen" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
+                kwargs={'request_id': item['id']}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+              links += 'Containerdaten</a>'
+            dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
+            if dump:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="Müllablageplatz ansehen oder bearbeiten" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventdump_authorative_update',
+                kwargs={'pk': dump.pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+              links += 'Müllablageplatz</a>'
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="Müllablageplatz löschenn" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventdump_delete',
+                kwargs={'pk': dump.pk}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
+              links += 'Müllablageplatz</a>'
+            else:
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-primary" role="button" '
+              links += 'title="neuen Müllablageplatz anlegen" '
+              links += 'href="' + reverse(
+                viewname='antragsmanagement:cleanupeventdump_authorative_create',
+                kwargs={'request_id': item['id']}
+              ) + '">'
+              links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+              links += 'Müllablageplatz</a>'
             item_data.append(links)
         json_data.append(item_data)
     return json_data
@@ -1051,33 +1198,13 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
       return reverse('antragsmanagement:cleanupeventvenue_create')
 
 
-class CleanupEventEventAuthorativeUpdateView(CleanupEventEventMixin, ObjectUpdateView):
+class CleanupEventEventAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
+                                             CleanupEventEventMixin, ObjectUpdateView):
   """
   view for authorative form page for updating an instance of object
   for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
-
-  :param success_message: custom success message
-  :param request_workflow: request workflow informations
   """
-
-  # override CleanupEventEventMixin success message
-  success_message = ObjectUpdateView.success_message.replace('<strong>', 'zu <strong>')
-  # empty workflow
-  request_workflow = {}
-
-  def form_invalid(self, form, **kwargs):
-    """
-    re-opens passed form if it is not valid
-    (purpose: keep original referer)
-
-    :param form: form
-    :return: passed form if it is not valid
-    """
-    context_data = self.get_context_data(**kwargs)
-    form.data = form.data.copy()
-    context_data['cancel_url'] = form.data.get('original_referer', None)
-    return self.render_to_response(context_data)
 
   def get_context_data(self, **kwargs):
     """
@@ -1087,68 +1214,24 @@ class CleanupEventEventAuthorativeUpdateView(CleanupEventEventMixin, ObjectUpdat
     :return: dictionary with all context elements for this view
     """
     context = super().get_context_data(**kwargs)
-    # add to context: authorative hint
-    context['authorative'] = True
-    # add to context: hidden fields
-    context['hidden_fields'] = ['cleanupevent_request']
-    # add to context: URLs
-    context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request),
-      fallback='antragsmanagement:index'
-    )
-    # add permissions related context elements:
-    # set authority permissions as necessary permissions
-    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
-    # add to context: GeoJSONified geometries of venue place and container place
+    # add to context: GeoJSONified geometries of venue place, container place, and dump place
     other_geometries = []
-    cleanupeventvenue = CleanupEventVenue.objects.filter(
-      cleanupevent_request=self.object.cleanupevent_request.pk).first()
-    if cleanupeventvenue:
-      cleanupeventvenue_geometry = getattr(
-        cleanupeventvenue, CleanupEventVenue.BaseMeta.geometry_field)
-      if cleanupeventvenue_geometry:
-        other_geometries.append({
-          'text': 'zugehöriger<br>Treffpunkt',
-          'geometry': GEOSGeometry(cleanupeventvenue_geometry).geojson
-        })
-    cleanupeventcontainer = CleanupEventContainer.objects.filter(
-      cleanupevent_request=self.object.cleanupevent_request.pk).first()
-    if cleanupeventcontainer:
-      cleanupeventcontainer_geometry = getattr(
-        cleanupeventcontainer, CleanupEventContainer.BaseMeta.geometry_field)
-      if cleanupeventcontainer_geometry:
-        other_geometries.append({
-          'text': 'zugehöriger<br>Containerstandort',
-          'geometry': GEOSGeometry(cleanupeventcontainer_geometry).geojson
-        })
+    request_id = self.object.cleanupevent_request.pk
+    cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+    if cleanupeventvenue_geometry:
+      other_geometries.append(cleanupeventvenue_geometry)
+    cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort')
+    if cleanupeventcontainer_geometry:
+      other_geometries.append(cleanupeventcontainer_geometry)
+    cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+    if cleanupeventdump_geometry:
+      other_geometries.append(cleanupeventdump_geometry)
     if other_geometries:
       context['other_geometries'] = other_geometries
     return context
-
-  def get_initial(self):
-    """
-    conditionally sets initial field values for this view
-
-    :return: dictionary with initial field values for this view
-    """
-    return clean_initial_field_values(
-      fields=self.model._meta.get_fields(),
-      model=self.model,
-      curr_obj=self.object
-    )
-
-  def get_success_url(self):
-    """
-    defines the URL called in case of successful request
-
-    :return: URL called in case of successful request
-    """
-    referer = self.request.POST.get('original_referer', '')
-    if 'table' in referer:
-      return reverse('antragsmanagement:cleanupeventrequest_table')
-    elif 'map' in referer:
-      return reverse('antragsmanagement:cleanupeventrequest_map')
-    return reverse('antragsmanagement:index')
 
 
 class CleanupEventVenueMixin(RequestFollowUpMixin):
@@ -1189,16 +1272,13 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
       kwargs={'pk': self.request.session.get('cleanupeventevent_id', None)}
     )
     # add to context: GeoJSONified geometry of event area
-    cleanupeventevent = CleanupEventEvent.objects.filter(
-      pk=self.request.session.get('cleanupeventevent_id', None)).first()
-    if cleanupeventevent:
-      cleanupeventevent_geometry = getattr(
-        cleanupeventevent, CleanupEventEvent.BaseMeta.geometry_field)
-      if cleanupeventevent_geometry:
-        context['other_geometries'] = {
-          'text': 'Fläche<br>aus Schritt 2',
-          'geometry': GEOSGeometry(cleanupeventevent_geometry).geojson
-        }
+    cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=self.request.session.get('request_id', None),
+      model=CleanupEventEvent,
+      text='Fläche<br>aus Schritt 2'
+    )
+    if cleanupeventevent_geometry:
+      context['other_geometries'] = cleanupeventevent_geometry
     return context
 
   def form_valid(self, form):
@@ -1264,6 +1344,42 @@ class CleanupEventVenueUpdateView(CleanupEventVenueMixin, ObjectUpdateView):
       )
     else:
       return reverse('antragsmanagement:cleanupeventdetails_create')
+
+
+class CleanupEventVenueAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
+                                             CleanupEventVenueMixin, ObjectUpdateView):
+  """
+  view for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  venue (Treffpunkt)
+  """
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: GeoJSONified geometries of event area, container place, and dump place
+    other_geometries = []
+    request_id = self.object.cleanupevent_request.pk
+    cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+    if cleanupeventevent_geometry:
+      other_geometries.append(cleanupeventevent_geometry)
+    cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort')
+    if cleanupeventcontainer_geometry:
+      other_geometries.append(cleanupeventcontainer_geometry)
+    cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+    if cleanupeventdump_geometry:
+      other_geometries.append(cleanupeventdump_geometry)
+    if other_geometries:
+      context['other_geometries'] = other_geometries
+    return context
 
 
 class CleanupEventDetailsMixin(RequestFollowUpMixin):
@@ -1366,6 +1482,15 @@ class CleanupEventDetailsUpdateView(CleanupEventDetailsMixin, ObjectUpdateView):
     return reverse('antragsmanagement:cleanupeventcontainer_decision')
 
 
+class CleanupEventDetailsAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
+                                               CleanupEventDetailsMixin, ObjectUpdateView):
+  """
+  view for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
+
 class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateView):
   """
   view for workflow decision page in terms of object
@@ -1427,9 +1552,9 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
     return context
 
 
-class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
+class CleanupEventContainerMixin(RequestFollowUpMixin):
   """
-  view for workflow page for creating an instance of object
+  mixin for form page for creating an instance of object
   for request type clean-up events (Müllsammelaktionen):
   container (Container)
 
@@ -1467,29 +1592,26 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
     context['back_url'] = reverse('antragsmanagement:cleanupeventcontainer_decision')
     # add to context: GeoJSONified geometries of event area and venue place
     other_geometries = []
-    cleanupeventevent = CleanupEventEvent.objects.filter(
-      id=self.request.session.get('cleanupeventevent_id', None)).first()
-    if cleanupeventevent:
-      cleanupeventevent_geometry = getattr(
-        cleanupeventevent, CleanupEventEvent.BaseMeta.geometry_field)
-      if cleanupeventevent_geometry:
-        other_geometries.append({
-          'text': 'Fläche<br>aus Schritt 2',
-          'geometry': GEOSGeometry(cleanupeventevent_geometry).geojson
-        })
-    cleanupeventvenue = CleanupEventVenue.objects.filter(
-      id=self.request.session.get('cleanupeventvenue_id', None)).first()
-    if cleanupeventvenue:
-      cleanupeventvenue_geometry = getattr(
-        cleanupeventvenue, CleanupEventVenue.BaseMeta.geometry_field)
-      if cleanupeventvenue_geometry:
-        other_geometries.append({
-          'text': 'Treffpunkt<br>aus Schritt 3',
-          'geometry': GEOSGeometry(cleanupeventvenue_geometry).geojson
-        })
+    request_id = self.request.session.get('request_id', None)
+    cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventEvent, text='Fläche<br>aus Schritt 2')
+    if cleanupeventevent_geometry:
+      other_geometries.append(cleanupeventevent_geometry)
+    cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventVenue, text='Treffpunkt<br>aus Schritt 3')
+    if cleanupeventvenue_geometry:
+      other_geometries.append(cleanupeventvenue_geometry)
     if other_geometries:
       context['other_geometries'] = other_geometries
     return context
+
+
+class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateView):
+  """
+  view for workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+  """
 
   def get_initial(self):
     """
@@ -1505,3 +1627,301 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
           CleanupEventRequest, self.request.session.get('request_id', None))
       }
     return {}
+
+
+class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
+                                                 CleanupEventContainerMixin, ObjectCreateView):
+  """
+  view for authorative form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+
+  :param success_message: custom success message
+  """
+
+  # override success message
+  success_message = ObjectCreateView.success_message.replace('<strong>', 'zu <strong>')
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep geometry and original referer)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    context_data = geometry_keeper(form.data, self.model, context_data)
+    context_data['cancel_url'] = form.data.get('original_referer', None)
+    context_data['form'] = form
+    return self.render_to_response(context_data)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: GeoJSONified geometries of event area, container place, and dump place
+    other_geometries = []
+    request_id = self.kwargs.get('request_id', None)
+    cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+    if cleanupeventevent_geometry:
+      other_geometries.append(cleanupeventevent_geometry)
+    cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+    if cleanupeventvenue_geometry:
+      other_geometries.append(cleanupeventvenue_geometry)
+    cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+    if cleanupeventdump_geometry:
+      other_geometries.append(cleanupeventdump_geometry)
+    if other_geometries:
+      context['other_geometries'] = other_geometries
+    return context
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    # get corresponding request object via ID passed as URL parameter
+    # and set request to it
+    if self.kwargs.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.kwargs.get('request_id', None))
+      }
+    return {}
+
+
+class CleanupEventContainerAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
+                                                 CleanupEventContainerMixin, ObjectUpdateView):
+  """
+  view for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+  """
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: GeoJSONified geometries of event area, container place, and dump place
+    other_geometries = []
+    request_id = self.object.cleanupevent_request.pk
+    cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+    if cleanupeventevent_geometry:
+      other_geometries.append(cleanupeventevent_geometry)
+    cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+    if cleanupeventvenue_geometry:
+      other_geometries.append(cleanupeventvenue_geometry)
+    cleanupeventdump_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventDump, text='zugehöriger<br>Müllablageplatz')
+    if cleanupeventdump_geometry:
+      other_geometries.append(cleanupeventdump_geometry)
+    if other_geometries:
+      context['other_geometries'] = other_geometries
+    return context
+
+
+class CleanupEventContainerDeleteView(ObjectDeleteView):
+  """
+  view for form page for deleting an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+
+  :param model: model
+  :param success_message: custom success message
+  """
+
+  model = CleanupEventContainer
+  # override success message
+  success_message = ObjectDeleteView.success_message.replace('<strong>', 'zu <strong>')
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request),
+      fallback='antragsmanagement:index'
+    )
+    # add permissions related context elements:
+    # set authority permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    return context
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_table')
+    elif 'map' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_map')
+    return reverse('antragsmanagement:index')
+
+
+class CleanupEventDumpMixin(RequestFollowUpMixin):
+  """
+  mixin for form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  dump (Müllablageplatz)
+
+  :param model: model
+  :param request_field: request field
+  :param request_model: request model
+  """
+
+  model = CleanupEventDump
+  request_field = 'cleanupevent_request'
+  request_model = CleanupEventRequest
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: GeoJSONified geometries of event area, container place, and dump place
+    other_geometries = []
+    if self.object:
+      request_id = self.object.cleanupevent_request.pk
+    else:
+      request_id = self.kwargs.get('request_id', None)
+    cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+    if cleanupeventevent_geometry:
+      other_geometries.append(cleanupeventevent_geometry)
+    cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventVenue, text='zugehöriger<br>Treffpunkt')
+    if cleanupeventvenue_geometry:
+      other_geometries.append(cleanupeventvenue_geometry)
+    cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
+      request_id=request_id, model=CleanupEventContainer, text='zugehöriger<br>Containerstandort')
+    if cleanupeventcontainer_geometry:
+      other_geometries.append(cleanupeventcontainer_geometry)
+    if other_geometries:
+      context['other_geometries'] = other_geometries
+    return context
+
+
+class CleanupEventDumpAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
+                                            CleanupEventDumpMixin, ObjectCreateView):
+  """
+  view for authorative form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  dump (Müllablageplatz)
+
+  :param success_message: custom success message
+  """
+
+  # override success message
+  success_message = ObjectCreateView.success_message.replace('<strong>', 'zu <strong>')
+
+  def form_invalid(self, form, **kwargs):
+    """
+    re-opens passed form if it is not valid
+    (purpose: keep geometry and original referer)
+
+    :param form: form
+    :return: passed form if it is not valid
+    """
+    context_data = self.get_context_data(**kwargs)
+    form.data = form.data.copy()
+    context_data = geometry_keeper(form.data, self.model, context_data)
+    context_data['cancel_url'] = form.data.get('original_referer', None)
+    context_data['form'] = form
+    return self.render_to_response(context_data)
+
+  def get_initial(self):
+    """
+    conditionally sets initial field values for this view
+
+    :return: dictionary with initial field values for this view
+    """
+    # get corresponding request object via ID passed as URL parameter
+    # and set request to it
+    if self.kwargs.get('request_id', None):
+      return {
+        'cleanupevent_request': get_request(
+          CleanupEventRequest, self.kwargs.get('request_id', None))
+      }
+    return {}
+
+
+class CleanupEventDumpAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
+                                            CleanupEventDumpMixin, ObjectUpdateView):
+  """
+  view for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  dump (Müllablageplatz)
+  """
+
+
+class CleanupEventDumpDeleteView(ObjectDeleteView):
+  """
+  view for form page for deleting an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  dump (Müllablageplatz)
+
+  :param model: model
+  :param success_message: custom success message
+  """
+
+  model = CleanupEventDump
+  # override success message
+  success_message = ObjectDeleteView.success_message.replace('<strong>', 'zu <strong>')
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request),
+      fallback='antragsmanagement:index'
+    )
+    # add permissions related context elements:
+    # set authority permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    return context
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_table')
+    elif 'map' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_map')
+    return reverse('antragsmanagement:index')

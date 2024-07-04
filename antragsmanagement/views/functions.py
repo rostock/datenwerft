@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.gis.geos import GEOSGeometry
 from django.core.serializers import serialize
 from django.forms import CheckboxSelectMultiple, Textarea
 from django.urls import reverse, reverse_lazy
@@ -176,6 +177,24 @@ def clean_initial_field_values(fields, model, curr_obj):
       value = getattr(model.objects.get(pk=curr_obj.pk), field.name)
       initial_field_values[field.name] = value.strftime('%Y-%m-%d') if value else None
   return initial_field_values
+
+
+def geometry_keeper(form_data, model, context_data):
+  """
+  returns passed context data with geometry kept in passed form data of passed model
+
+  :param form_data: form data
+  :param model: model
+  :param context_data: context data
+  :return: passed context data with geometry kept in passed form data of passed model
+  """
+  for field in model._meta.get_fields():
+    # keep geometry (otherwise it would be lost on re-rendering)
+    if is_geometry_field(field.__class__):
+      geometry = form_data.get(field.name, None)
+      if geometry and '0,0' not in geometry and '[]' not in geometry:
+        context_data['geometry'] = geometry
+  return context_data
 
 
 def get_cleanupeventrequest_queryset(user, count=False):
@@ -378,13 +397,81 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
           viewname='antragsmanagement:cleanupeventrequest_authorative_update',
           kwargs={'pk': curr_object['id']}
         )
-        if curr_object['event_from']:
+        event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object['id']).first()
+        if event:
           geojson_feature['properties']['_link_event'] = reverse(
             viewname='antragsmanagement:cleanupeventevent_authorative_update',
-            kwargs={'pk': CleanupEventEvent.objects.get(cleanupevent_request=curr_object['id']).pk}
+            kwargs={'pk': event.pk}
           )
+        venue = CleanupEventVenue.objects.filter(cleanupevent_request=curr_object['id']).first()
+        if venue:
+          geojson_feature['properties']['_link_venue'] = reverse(
+            viewname='antragsmanagement:cleanupeventvenue_authorative_update',
+            kwargs={'pk': venue.pk}
+          )
+        details = CleanupEventDetails.objects.filter(
+          cleanupevent_request=curr_object['id']).first()
+        if details:
+          geojson_feature['properties']['_link_details'] = reverse(
+            viewname='antragsmanagement:cleanupeventdetails_authorative_update',
+            kwargs={'pk': details.pk}
+          )
+        container = CleanupEventContainer.objects.filter(
+          cleanupevent_request=curr_object['id']).first()
+        if container:
+          link_container = reverse(
+            viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
+            kwargs={'pk': container.pk}
+          )
+          geojson_feature['properties']['_link_container_delete'] = reverse(
+            viewname='antragsmanagement:cleanupeventcontainer_delete',
+            kwargs={'pk': container.pk}
+          )
+        else:
+          link_container = reverse(
+            viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
+            kwargs={'request_id': curr_object['id']}
+          )
+        geojson_feature['properties']['_link_container'] = link_container
+        dump = CleanupEventDump.objects.filter(cleanupevent_request=curr_object['id']).first()
+        if dump:
+          link_dump = reverse(
+            viewname='antragsmanagement:cleanupeventdump_authorative_update',
+            kwargs={'pk': dump.pk}
+          )
+          geojson_feature['properties']['_link_dump_delete'] = reverse(
+            viewname='antragsmanagement:cleanupeventdump_delete',
+            kwargs={'pk': dump.pk}
+          )
+        else:
+          link_dump = reverse(
+            viewname='antragsmanagement:cleanupeventdump_authorative_create',
+            kwargs={'request_id': curr_object['id']}
+          )
+        geojson_feature['properties']['_link_dump'] = link_dump
       return geojson_feature
   return {}
+
+
+def get_corresponding_cleanupeventrequest_geometry(request_id, model, text):
+  """
+  returns geometry of passed model corresponding to passed CleanupEventRequest object
+
+  :param request_id: primary key of CleanupEventRequest object to get corresponding geometry for
+  :param model: model with geometry
+  :param text: text to return along geometry
+  :return: geometry of passed model corresponding to passed CleanupEventRequest object
+  """
+  geometry_object = model.objects.filter(cleanupevent_request=request_id).first()
+  if geometry_object:
+    geometry = getattr(geometry_object, model.BaseMeta.geometry_field)
+    if geometry:
+      return {
+        'text': text,
+        'geometry': GEOSGeometry(geometry).geojson
+      }
+    return None
+  return None
 
 
 def get_model_objects(model, count=False):

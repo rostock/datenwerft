@@ -10,8 +10,12 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventRequestAuthorativeUpdateView, CleanupEventEventCreateView, \
   CleanupEventEventUpdateView, CleanupEventEventAuthorativeUpdateView, \
   CleanupEventVenueCreateView, CleanupEventVenueUpdateView, \
-  CleanupEventDetailsCreateView, CleanupEventDetailsUpdateView, \
-  CleanupEventContainerDecisionView, CleanupEventContainerCreateView
+  CleanupEventVenueAuthorativeUpdateView, CleanupEventDetailsCreateView, \
+  CleanupEventDetailsUpdateView, CleanupEventDetailsAuthorativeUpdateView, \
+  CleanupEventContainerDecisionView, CleanupEventContainerCreateView, \
+  CleanupEventContainerAuthorativeCreateView, CleanupEventContainerAuthorativeUpdateView, \
+  CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
+  CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView
 
 router = routers.DefaultRouter()
 
@@ -193,6 +197,14 @@ urlpatterns = [
     view=login_required(CleanupEventVenueUpdateView.as_view()),
     name='cleanupeventvenue_update'
   ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # venue (Treffpunkt)
+  path(
+    'ce-request/venue/authorative/update/<pk>',
+    view=login_required(CleanupEventVenueAuthorativeUpdateView.as_view()),
+    name='cleanupeventvenue_authorative_update'
+  ),
   # workflow page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
@@ -211,6 +223,14 @@ urlpatterns = [
     view=login_required(CleanupEventDetailsUpdateView.as_view()),
     name='cleanupeventdetails_update'
   ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # details (Detailangaben)
+  path(
+    'ce-request/details/authorative/update/<pk>',
+    view=login_required(CleanupEventDetailsAuthorativeUpdateView.as_view()),
+    name='cleanupeventdetails_authorative_update'
+  ),
   # workflow decision page in terms of object
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
@@ -228,5 +248,51 @@ urlpatterns = [
       success_url=reverse_lazy('antragsmanagement:index')
     )),
     name='cleanupeventcontainer_create'
+  ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'ce-request/container/authorative/create/<request_id>',
+    view=login_required(CleanupEventContainerAuthorativeCreateView.as_view()),
+    name='cleanupeventcontainer_authorative_create'
+  ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'ce-request/container/authorative/update/<pk>',
+    view=login_required(CleanupEventContainerAuthorativeUpdateView.as_view()),
+    name='cleanupeventcontainer_authorative_update'
+  ),
+  # page for deleting an instance of object for request type clean-up events (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'ce-request/container/delete/<pk>',
+    view=login_required(CleanupEventContainerDeleteView.as_view()),
+    name='cleanupeventcontainer_delete'
+  ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # dump (Müllablageplatz)
+  path(
+    'ce-request/dump/authorative/create/<request_id>',
+    view=login_required(CleanupEventDumpAuthorativeCreateView.as_view()),
+    name='cleanupeventdump_authorative_create'
+  ),
+  # authorative form page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # dump (Müllablageplatz)
+  path(
+    'ce-request/dump/authorative/update/<pk>',
+    view=login_required(CleanupEventDumpAuthorativeUpdateView.as_view()),
+    name='cleanupeventdump_authorative_update'
+  ),
+  # page for deleting an instance of object for request type clean-up events (Müllsammelaktionen):
+  # dump (Müllablageplatz)
+  path(
+    'ce-request/dump/delete/<pk>',
+    view=login_required(CleanupEventDumpDeleteView.as_view()),
+    name='cleanupeventdump_delete'
   )
 ]

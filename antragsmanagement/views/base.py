@@ -4,7 +4,7 @@ from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from .forms import ObjectForm
@@ -258,3 +258,44 @@ class ObjectUpdateView(ObjectMixin, UpdateView):
   """
 
   success_message = '{} <strong><em>{}</em></strong> erfolgreich aktualisiert!'
+
+
+class ObjectDeleteView(DeleteView):
+  """
+  generic view for page for deleting an instance of an object
+
+  :param model: model
+  :param template_name: template name
+  :param success_message: custom success message
+  """
+
+  model = None
+  template_name = 'antragsmanagement/delete.html'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich gelöscht!'
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    success(
+      self.request,
+      self.success_message.format(self.model._meta.verbose_name, str(self.object))
+    )
+    return super().form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    return context

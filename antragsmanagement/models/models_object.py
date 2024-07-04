@@ -412,13 +412,13 @@ class CleanupEventContainer(GeometryObject):
       Index(fields=['cleanupevent_request'])
     ]
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Müllsammelaktion: Container'
-    verbose_name_plural = 'Müllsammelaktionen: Container'
+    verbose_name = 'Müllsammelaktion: Containerdaten'
+    verbose_name_plural = 'Müllsammelaktionen: Containerdaten'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
     geometry_type = 'Point'
-    description = 'Müllsammelaktionen: Container'
+    description = 'Müllsammelaktionen: Containerdaten'
 
   def __str__(self):
     return 'Antrag ' + str(self.cleanupevent_request)

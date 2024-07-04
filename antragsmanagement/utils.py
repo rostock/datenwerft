@@ -98,12 +98,12 @@ def get_request(model, request_id, only_primary_key=True):
   """
   if only_primary_key:
     try:
-      request = model.objects.only('pk').get(id=request_id)
+      request = model.objects.only('pk').get(pk=request_id)
       return request.pk
     except model.DoesNotExist:
       return None
   else:
-    queryset = model.objects.filter(id=request_id)
+    queryset = model.objects.filter(pk=request_id)
     return queryset if queryset.exists() else None
 
 

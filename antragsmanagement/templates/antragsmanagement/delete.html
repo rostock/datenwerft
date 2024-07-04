@@ -1,0 +1,25 @@
+{% extends "navbar.html" %}
+{% load antragsmanagement_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Löschung | {% endblock %}
+
+{% block content %}
+  {% if has_necessary_permissions %}
+    {% if form.errors %}
+      {% include "antragsmanagement/container_errors.html" %}
+    {% endif %}
+    <h2>löschen → {{ model_verbose_name }} zu <em>{{ object }}</em></h2>
+    <form class="form mt-4" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+      <h4>Möchten Sie den Datensatz wirklich löschen?</h4>
+      <div class="d-grid mt-5 mb-3 gap-2">
+        <button class="btn btn-danger" type="submit"><i class="fas fa-{{ 'delete'|get_icon }}"></i> löschen</button>
+        <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+      </div>
+    </form>
+  {% else %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}
