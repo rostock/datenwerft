@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from .constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from .models import Requester
+from .models import Authority, Requester
 
 
 def belongs_to_antragsmanagement_authority(user):
@@ -14,6 +14,50 @@ def belongs_to_antragsmanagement_authority(user):
   return user.groups.filter(name__in=AUTHORITIES).exists()
 
 
+def check_necessary_permissions(user, permissions_level):
+  """
+  checks if passed user has necessary permissions
+
+  :param user: user
+  :param permissions_level: permissions level passed user has to have
+  (if empty, check if  passed user is an Antragsmanagement user at least)
+  :return: passed user has necessary permissions?
+  """
+  necessary_permissions = user.is_superuser
+  if not necessary_permissions:
+    if permissions_level:
+      permissions_map = {
+        'REQUESTERS': REQUESTERS,
+        'AUTHORITIES': AUTHORITIES,
+        'ADMINS': ADMINS
+      }
+      check_group = permissions_map.get(permissions_level)
+      if check_group:
+        necessary_permissions = has_necessary_permissions(user, check_group)
+    else:
+      necessary_permissions = is_antragsmanagement_user(user)
+  return necessary_permissions
+
+
+def get_antragsmanagement_authorities(user, only_primary_keys=True):
+  """
+  returns (primary keys of) all Antragsmanagement authorities the passed user belongs to
+
+  :param user: user
+  :param only_primary_keys: return only primary keys?
+  :return: (primary keys of) all Antragsmanagement authorities the passed user belongs to
+  """
+  # get all groups the passed user belongs to
+  user_groups = user.groups.values_list('name', flat=True)
+  # filter authorities based on the user's groups
+  authorities = Authority.objects.filter(group__in=list(user_groups))
+  # return primary keys or full objects based on the parameter
+  if only_primary_keys:
+    return list(authorities.values_list('pk', flat=True))
+  else:
+    return list(authorities)
+
+
 def get_corresponding_requester(user, only_primary_key=True):
   """
   returns (primary key of) corresponding requester object for passed user
@@ -22,11 +66,15 @@ def get_corresponding_requester(user, only_primary_key=True):
   :param only_primary_key: return only primary key?
   :return: (primary key of) corresponding requester object for passed user
   """
-  try:
-    requester = Requester.objects.get(user_id=user.pk)
-    return requester.pk if only_primary_key else Requester.objects.filter(user_id=user.pk)
-  except Requester.DoesNotExist:
-    return None
+  if only_primary_key:
+    try:
+      requester = Requester.objects.only('pk').get(user_id=user.pk)
+      return requester.pk
+    except Requester.DoesNotExist:
+      return None
+  else:
+    queryset = Requester.objects.filter(user_id=user.pk)
+    return queryset if queryset.exists() else None
 
 
 def get_icon_from_settings(key):
@@ -48,11 +96,15 @@ def get_request(model, request_id, only_primary_key=True):
   :param only_primary_key: return only primary key?
   :return: (primary key of) request object of passed model with passed ID
   """
-  try:
-    request = model.objects.get(id=request_id)
-    return request.pk if only_primary_key else model.objects.filter(id=request_id)
-  except model.DoesNotExist:
-    return None
+  if only_primary_key:
+    try:
+      request = model.objects.only('pk').get(pk=request_id)
+      return request.pk
+    except model.DoesNotExist:
+      return None
+  else:
+    queryset = model.objects.filter(pk=request_id)
+    return queryset if queryset.exists() else None
 
 
 def has_necessary_permissions(user, necessary_group):

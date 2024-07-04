@@ -17,9 +17,9 @@
 {% endblock %}
 
 {% block content %}
-  {% if has_necessary_permissions %}
+  {% if is_antragsmanagement_user %}
     {% if messages %}
-      {% include "antragsmanagement/container-messages.html" %}
+      {% include "antragsmanagement/container_messages.html" %}
     {% endif %}
     <h2><i class="fas fa-{{ icon|get_icon }}"></i> <em>{{ model_verbose_name_plural }}</em></h2>
     {% if objects_count == 0 %}
@@ -32,14 +32,16 @@
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
-        {% include "antragsmanagement/container-table-warning.html" %}
+        {% include "antragsmanagement/container_table-warning.html" %}
         <table id="datasets" class="table table-bordered table-striped">
           <thead>
             <tr>
               {% for column_title in column_titles %}
-                <th{% if column_title == 'Icon' %} class="no-export no-search no-sort"{% endif %}>{{ column_title }}</th>
+                <th>{{ column_title }}</th>
               {% endfor %}
-              <th class="no-export no-search no-sort">Aktionen</th>
+              {% if belongs_to_antragsmanagement_authority %}
+                <th class="no-export no-search no-sort"></th>
+              {% endif %}
             </tr>
           </thead>
         </table>
@@ -60,11 +62,11 @@
          * main function
          */
         $(document).ready(function() {
-          initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }});
+          initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }}, 10);
         });
       </script>
     {% endif %}
   {% else %}
-    {% include "antragsmanagement/notice-nopermissions.html" %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
   {% endif %}
 {% endblock %}

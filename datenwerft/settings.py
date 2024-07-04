@@ -203,13 +203,25 @@ ANTRAGSMANAGEMENT_ICONS = {
   'authority': 'landmark',
   'back': 'backward-step',
   'cancel': 'hand',
+  'cleanupeventrequest': 'broom',
+  'create': 'circle-plus',
+  'delete': 'trash',
   'email': 'envelope',
   'error': 'circle-exclamation',
+  'filter_off': 'filter-circle-xmark',
+  'filter_on': 'filter',
+  'map': 'map-location-dot',
+  'map_with_filter': 'map-location',
   'next': 'forward-step',
+  'no': 'times',
   'ok': 'circle-check',
+  'requester': 'user',
   'save': 'floppy-disk',
+  'show_on_map': 'map',
+  'table': 'table',
   'update': 'pen',
-  'warning': 'triangle-exclamation'
+  'warning': 'triangle-exclamation',
+  'yes': 'check'
 }
 
 

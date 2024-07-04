@@ -1,8 +1,9 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
 from django.core.validators import RegexValidator
-from django.db.models import ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
+from django.db.models import Index, ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
+from re import sub
 
 from .base import Object, GeometryObject
 from .models_codelist import CodelistRequestStatus, \
@@ -47,6 +48,9 @@ class Authority(Object):
 
   def __str__(self):
     return self.name
+
+  def short_name(self):
+    return sub(r'.* – ', '', self.name)
 
 
 class Email(Object):
@@ -183,6 +187,14 @@ class Requester(Object):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
 
+  def pseudonym(self):
+    return self.organization if self.organization else '<em>Privatperson</em>'
+
+  def verbose(self):
+    verbose = str(self) + '<br>' + self.email + '<br>' + self.telephone
+    verbose += '<br>' + self.address() if self.address() else ''
+    return verbose
+
 
 class Request(Object):
   """
@@ -194,6 +206,12 @@ class Request(Object):
     to=CodelistRequestStatus,
     verbose_name='Status',
     on_delete=PROTECT
+  )
+  comment = CharField(
+    verbose_name='Statuskommentar',
+    blank=True,
+    null=True,
+    validators=standard_validators
   )
   requester = ForeignKey(
     to=Requester,
@@ -230,6 +248,10 @@ class CleanupEventRequest(Request):
 
   class Meta(Request.Meta):
     db_table = 'cleanupevent_request'
+    indexes = [
+      Index(fields=['status']),
+      Index(fields=['requester'])
+    ]
     ordering = ['-id']
     verbose_name = 'Müllsammelaktion: Antrag'
     verbose_name_plural = 'Müllsammelaktionen: Anträge'
@@ -263,6 +285,9 @@ class CleanupEventEvent(GeometryObject):
 
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_event'
+    indexes = [
+      Index(fields=['cleanupevent_request'])
+    ]
     ordering = ['-cleanupevent_request']
     verbose_name = 'Müllsammelaktion: Aktionsdaten'
     verbose_name_plural = 'Müllsammelaktionen: Aktionsdaten'
@@ -271,6 +296,9 @@ class CleanupEventEvent(GeometryObject):
     geometry_field = 'area'
     geometry_type = 'Polygon'
     description = 'Müllsammelaktionen: Aktionsdaten'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
 
 
 class CleanupEventVenue(GeometryObject):
@@ -290,6 +318,9 @@ class CleanupEventVenue(GeometryObject):
 
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_venue'
+    indexes = [
+      Index(fields=['cleanupevent_request'])
+    ]
     ordering = ['-cleanupevent_request']
     verbose_name = 'Müllsammelaktion: Treffpunkt'
     verbose_name_plural = 'Müllsammelaktionen: Treffpunkte'
@@ -298,6 +329,9 @@ class CleanupEventVenue(GeometryObject):
     geometry_field = 'place'
     geometry_type = 'Point'
     description = 'Müllsammelaktionen: Treffpunkte'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
 
 
 class CleanupEventDetails(Object):
@@ -337,12 +371,18 @@ class CleanupEventDetails(Object):
 
   class Meta(Object.Meta):
     db_table = 'cleanupevent_details'
+    indexes = [
+      Index(fields=['cleanupevent_request'])
+    ]
     ordering = ['-cleanupevent_request']
     verbose_name = 'Müllsammelaktion: Detailangaben'
     verbose_name_plural = 'Müllsammelaktionen: Detailangaben'
 
   class BaseMeta(Object.BaseMeta):
     description = 'Müllsammelaktionen: Detailangaben'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
 
 
 class CleanupEventContainer(GeometryObject):
@@ -368,11 +408,50 @@ class CleanupEventContainer(GeometryObject):
 
   class Meta(GeometryObject.Meta):
     db_table = 'cleanupevent_container'
+    indexes = [
+      Index(fields=['cleanupevent_request'])
+    ]
     ordering = ['-cleanupevent_request']
-    verbose_name = 'Müllsammelaktion: Container'
-    verbose_name_plural = 'Müllsammelaktionen: Container'
+    verbose_name = 'Müllsammelaktion: Containerdaten'
+    verbose_name_plural = 'Müllsammelaktionen: Containerdaten'
 
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
     geometry_type = 'Point'
-    description = 'Müllsammelaktionen: Container'
+    description = 'Müllsammelaktionen: Containerdaten'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)
+
+
+class CleanupEventDump(GeometryObject):
+  """
+  model class for object for request type clean-up events (Müllsammelaktionen):
+  dump (Müllablageplatz)
+  """
+
+  cleanupevent_request = OneToOneField(
+    to=CleanupEventRequest,
+    verbose_name='Antrag',
+    on_delete=CASCADE
+  )
+  place = PointField(
+    verbose_name='Müllablageplatz für Müllsammelaktion'
+  )
+
+  class Meta(GeometryObject.Meta):
+    db_table = 'cleanupevent_dump'
+    indexes = [
+      Index(fields=['cleanupevent_request'])
+    ]
+    ordering = ['-cleanupevent_request']
+    verbose_name = 'Müllsammelaktion: Müllablageplatz'
+    verbose_name_plural = 'Müllsammelaktionen: Müllablageplätze'
+
+  class BaseMeta(GeometryObject.BaseMeta):
+    geometry_field = 'place'
+    geometry_type = 'Point'
+    description = 'Müllsammelaktionen: Müllablageplätze'
+
+  def __str__(self):
+    return 'Antrag ' + str(self.cleanupevent_request)

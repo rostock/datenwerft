@@ -4,14 +4,13 @@ from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from .forms import ObjectForm
 from .functions import add_model_context_elements, \
   add_table_context_elements, add_useragent_context_elements, assign_widget, get_model_objects
-from antragsmanagement.constants_vars import ADMINS
-from antragsmanagement.utils import get_icon_from_settings, has_necessary_permissions
+from antragsmanagement.utils import check_necessary_permissions, get_icon_from_settings
 from toolbox.utils import format_date_datetime, optimize_datatable_filter
 
 
@@ -21,17 +20,19 @@ class ObjectTableDataView(BaseDatatableView):
 
   :param model: model
   :param update_view_name: name of view for form page for updating
+  :param permissions_level: permissions level user has to have
   """
 
   model = None
   update_view_name = ''
+  permissions_level = ''
 
   def render_to_response(self, context):
     """
     returns a JSON response containing passed context as payload
     or an empty dictionary if no context is provided
     """
-    if has_necessary_permissions(self.request.user, ADMINS) or self.request.user.is_superuser:
+    if check_necessary_permissions(self.request.user, self.permissions_level):
       return self.get_json_response(context)
     return self.get_json_response('{"has_necessary_permissions": false}')
 
@@ -39,7 +40,7 @@ class ObjectTableDataView(BaseDatatableView):
     """
     loads initial queryset
     """
-    if has_necessary_permissions(self.request.user, ADMINS) or self.request.user.is_superuser:
+    if check_necessary_permissions(self.request.user, self.permissions_level):
       return get_model_objects(self.model, False)
     return self.model.objects.none()
 
@@ -51,14 +52,11 @@ class ObjectTableDataView(BaseDatatableView):
     :return: cleaned-up JSON representation of the queryset
     """
     json_data = []
-    if has_necessary_permissions(self.request.user, ADMINS) or self.request.user.is_superuser:
+    if check_necessary_permissions(self.request.user, self.permissions_level):
       for item in qs:
-        item_data = []
-        item_pk = getattr(item, self.model._meta.pk.name)
-        address_handled = False
+        item_data, item_pk, address_handled = [], getattr(item, self.model._meta.pk.name), False
         for column in self.model._meta.fields:
-          data = None
-          value = getattr(item, column.name)
+          data, value = None, getattr(item, column.name)
           # "icon" columns
           if column.name == 'icon':
             item_data.append('<i class="fas fa-{}"></i>'.format(value))
@@ -84,7 +82,7 @@ class ObjectTableDataView(BaseDatatableView):
             self.request.user.has_perm('antragsmanagement.view_' + permission_suffix)
             or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix)
         ):
-          link = '<a href="'
+          link = '<a class="btn btn-sm btn-primary" role="button" href="'
           link += reverse(self.update_view_name, kwargs={'pk': item_pk})
           link += '"><i class="fas fa-' + get_icon_from_settings('update')
           link += '" title="' + self.model._meta.verbose_name
@@ -139,8 +137,8 @@ class ObjectTableDataView(BaseDatatableView):
         elif not column.name.startswith('address_'):
           column_names.append(column.name)
       column_name = column_names[int(order_column)]
-      directory = '-' if order_dir is not None and order_dir == 'desc' else ''
-      return qs.order_by(directory + column_name)
+      direction = '-' if order_dir is not None and order_dir == 'desc' else ''
+      return qs.order_by(direction + column_name)
     else:
       return qs
 
@@ -156,7 +154,7 @@ class ObjectTableView(TemplateView):
   """
 
   model = None
-  template_name = 'antragsmanagement/table-simple.html'
+  template_name = 'antragsmanagement/table_simple.html'
   table_data_view_name = None
   icon_name = None
 
@@ -191,7 +189,7 @@ class ObjectMixin:
   """
 
   model = None
-  template_name = 'antragsmanagement/form-simple.html'
+  template_name = 'antragsmanagement/form_simple.html'
   form = ObjectForm
   success_message = ''
   cancel_url = None
@@ -260,3 +258,44 @@ class ObjectUpdateView(ObjectMixin, UpdateView):
   """
 
   success_message = '{} <strong><em>{}</em></strong> erfolgreich aktualisiert!'
+
+
+class ObjectDeleteView(DeleteView):
+  """
+  generic view for page for deleting an instance of an object
+
+  :param model: model
+  :param template_name: template name
+  :param success_message: custom success message
+  """
+
+  model = None
+  template_name = 'antragsmanagement/delete.html'
+  success_message = '{} <strong><em>{}</em></strong> erfolgreich gelöscht!'
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    success(
+      self.request,
+      self.success_message.format(self.model._meta.verbose_name, str(self.object))
+    )
+    return super().form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add model related context elements
+    context = add_model_context_elements(context, self.model)
+    return context

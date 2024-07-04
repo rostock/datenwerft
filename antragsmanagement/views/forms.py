@@ -21,6 +21,7 @@ class ObjectForm(ModelForm):
   required_css_class = 'required'
 
   def __init__(self, *args, **kwargs):
+    self.user = kwargs.pop('user', None)
     kwargs.setdefault('label_suffix', '')
     super().__init__(*args, **kwargs)
     # customize messages
@@ -39,6 +40,19 @@ class ObjectForm(ModelForm):
             field.label)
         field.error_messages['invalid_geom'] = text
         field.error_messages['invalid_geom_type'] = text
+
+  def clean_comment(self):
+    """
+    cleans specific field
+    """
+    status = self.cleaned_data.get('status')
+    comment = self.cleaned_data.get('comment')
+    if status and status == CodelistRequestStatus.get_status_rejected() and not comment:
+      text = 'Bei Status <strong><em>{}</em></strong>'.format(status)
+      text += ' muss <strong><em>{}</em></strong> zwingend angegeben werden!'.format(
+        self._meta.model._meta.get_field('comment').verbose_name)
+      raise ValidationError(text)
+    return comment
 
   def clean(self):
     """
@@ -99,13 +113,12 @@ class RequestForm(ObjectForm):
   """
 
   def __init__(self, *args, **kwargs):
-    self.user = kwargs.pop('user', None)
     super().__init__(*args, **kwargs)
     # limit the status field queryset to exactly one entry (= default status)
     self.fields['status'].queryset = CodelistRequestStatus.get_status_new(as_queryset=True)
     # limit the requester field queryset to exactly one entry (= user)
     user = get_corresponding_requester(self.user, only_primary_key=False)
-    self.fields['requester'].queryset = user if user else Requester.objects.order_by('-id')[:1]
+    self.fields['requester'].queryset = user if user else Requester.objects.none()
 
 
 class RequestFollowUpForm(ObjectForm):
@@ -130,8 +143,8 @@ class RequestFollowUpForm(ObjectForm):
 
 class CleanupEventEventForm(RequestFollowUpForm):
   """
-  form for creating or updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  form for creating or updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   event (Aktion)
   """
 
@@ -153,8 +166,8 @@ class CleanupEventEventForm(RequestFollowUpForm):
 
 class CleanupEventDetailsForm(RequestFollowUpForm):
   """
-  form for creating or updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  form for creating or updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   details (Detailangaben)
   """
 
@@ -175,8 +188,8 @@ class CleanupEventDetailsForm(RequestFollowUpForm):
 
 class CleanupEventContainerForm(RequestFollowUpForm):
   """
-  form for creating or updating an instance of object for request type clean-up events
-  (Müllsammelaktionen):
+  form for creating or updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
   container (Container)
   """
 

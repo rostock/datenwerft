@@ -23,19 +23,22 @@
 {% block content %}
   {% if has_necessary_permissions %}
     {% if form.errors %}
-      {% include "antragsmanagement/container-errors.html" %}
+      {% include "antragsmanagement/container_errors.html" %}
     {% endif %}
-    {% if corresponding_requester %}
+    {% if corresponding_requester or authorative %}
       <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
-      {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
+      {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
         <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}
       <form class="form mt-4" method="post" action="">
         {% csrf_token %}
+        {% if authorative %}
+          <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+        {% endif %}
         <div>
           <table class="table">
             {% for field in form %}
-              <tr>
+              <tr{% if field.name in hidden_fields %} style="display: none;"{% endif %}>
                 <td class="cell-label">
                   {{ field.label_tag }}
                 </td>
@@ -49,12 +52,18 @@
           </table>
         </div>
         <div class="d-grid mt-5 mb-3 gap-2">
-          {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+          {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
             <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
           {% else %}
             <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
           {% endif %}
-          <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+          {% if not authorative and object %}
+            <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
+          {% elif not authorative %}
+            <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+          {% else %}
+            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+          {% endif %}
         </div>
       </form>
       <script>
@@ -68,12 +77,12 @@
         });
       </script>
     {% else %}
-      {% include "antragsmanagement/notice-nocontactdata.html" %}
+      {% include "antragsmanagement/notice_no-contact-data.html" %}
       <div class="d-grid mt-5 mb-3">
         <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
       </div>
     {% endif %}
   {% else %}
-    {% include "antragsmanagement/notice-nopermissions.html" %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
   {% endif %}
 {% endblock %}

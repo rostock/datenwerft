@@ -35,35 +35,35 @@ class CodelistRequestStatus(Codelist):
 
   @staticmethod
   def get_status_new(as_queryset=False):
-    if CodelistRequestStatus.objects.filter(ordinal=0).exists():
-      return CodelistRequestStatus.objects.filter(ordinal=0) if as_queryset else (
-        CodelistRequestStatus.objects.get(ordinal=0))
+    queryset = CodelistRequestStatus.objects.filter(ordinal=0)
+    if as_queryset:
+      return queryset if queryset.exists() else None
     else:
-      return None
+      return queryset.first()
 
   @staticmethod
   def get_status_in_process(as_queryset=False):
-    if CodelistRequestStatus.objects.filter(ordinal=1).exists():
-      return CodelistRequestStatus.objects.filter(ordinal=1) if as_queryset else (
-        CodelistRequestStatus.objects.get(ordinal=1))
+    queryset = CodelistRequestStatus.objects.filter(ordinal=1)
+    if as_queryset:
+      return queryset if queryset.exists() else None
     else:
-      return None
+      return queryset.first()
 
   @staticmethod
   def get_status_processed(as_queryset=False):
-    if CodelistRequestStatus.objects.filter(ordinal=2).exists():
-      return CodelistRequestStatus.objects.filter(ordinal=2) if as_queryset else (
-        CodelistRequestStatus.objects.get(ordinal=2))
+    queryset = CodelistRequestStatus.objects.filter(ordinal=2)
+    if as_queryset:
+      return queryset if queryset.exists() else None
     else:
-      return None
+      return queryset.first()
 
   @staticmethod
   def get_status_rejected(as_queryset=False):
-    if CodelistRequestStatus.objects.filter(ordinal=3).exists():
-      return CodelistRequestStatus.objects.filter(ordinal=3) if as_queryset else (
-        CodelistRequestStatus.objects.get(ordinal=3))
+    queryset = CodelistRequestStatus.objects.filter(ordinal=3)
+    if as_queryset:
+      return queryset if queryset.exists() else None
     else:
-      return None
+      return queryset.first()
 
 
 #
