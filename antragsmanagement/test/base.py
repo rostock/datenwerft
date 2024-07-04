@@ -50,7 +50,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param test_object: test object
     """
     # actual number of objects equals expected number of objects?
-    self.assertEqual(self.model.objects.all().count(), self.count + 1)
+    self.assertEqual(self.model.objects.only('pk').all().count(), self.count + 1)
     # on creation: object created exactly as it should have been created?
     # on update: object updated exactly as it should have been updated?
     self.assertEqual(test_object, self.test_object)
@@ -68,7 +68,7 @@ class DefaultModelTestCase(DefaultTestCase):
     # test general existance of object
     self.generic_existance_test(test_object)
     # created object contains specific value in one of its fields?
-    self.assertEqual(self.model.objects.filter(**object_filter).count(), 1)
+    self.assertEqual(self.model.objects.only('pk').filter(**object_filter).count(), 1)
 
   def generic_update_test(self):
     """
@@ -86,7 +86,7 @@ class DefaultModelTestCase(DefaultTestCase):
     # test general existance of object
     self.generic_existance_test(test_object)
     # updated object contains specific value in one of its fields?
-    self.assertEqual(self.model.objects.filter(**object_filter).count(), 1)
+    self.assertEqual(self.model.objects.only('pk').filter(**object_filter).count(), 1)
 
   def generic_delete_test(self):
     """
@@ -96,7 +96,7 @@ class DefaultModelTestCase(DefaultTestCase):
     """
     # no more test objects left?
     self.test_object.delete()
-    self.assertEqual(self.model.objects.all().count(), self.count)
+    self.assertEqual(self.model.objects.only('pk').all().count(), self.count)
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
@@ -189,7 +189,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
       login(self, antragsmanagement_requester,
             antragsmanagement_authority, antragsmanagement_admin)
     # for update mode: get primary key of last object
-    last_pk = self.model.objects.last().pk
+    last_pk = self.model.objects.only('pk').last().pk
     if update_mode:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
     else:
@@ -235,7 +235,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
         requester.user_id = self.test_user.pk
         requester.save()
     # for update mode: get primary key of last object
-    last_pk = self.model.objects.last().pk
+    last_pk = self.model.objects.only('pk').last().pk
     if update_mode:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
     else:
@@ -260,6 +260,6 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     object_filter = clean_object_filter(object_filter, self.model)
     # number of objects passing the object filter as expected?
     if update_mode:
-      self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)
+      self.assertEqual(self.model.objects.only('pk').filter(pk=last_pk).count(), count)
     else:
-      self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
+      self.assertEqual(self.model.objects.only('pk').filter(**object_filter).count(), count)

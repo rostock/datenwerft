@@ -7,7 +7,7 @@ from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment, Authority, Email, Requester, \
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer
+  CleanupEventContainer, CleanupEventDump
 
 
 #
@@ -348,6 +348,61 @@ class CleanupEventContainerTest(DefaultModelTestCase):
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
       'pickup_date': VALID_DATE + timedelta(days=1),
+      'place': VALID_POINT_DB
+    }
+    cls.attributes_values_db_update = {
+      'cleanupevent_request': cleanupevent_request2
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_create(self):
+    self.generic_create_test()
+
+  def test_update(self):
+    self.generic_update_test()
+
+  def test_delete(self):
+    self.generic_delete_test()
+
+
+class CleanupEventDumpTest(DefaultModelTestCase):
+  """
+  test class for object for request type clean-up events (Müllsammelaktionen):
+  dump (Müllablageplatz)
+  """
+
+  model = CleanupEventDump
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_in_process()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility)
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
     }
     cls.attributes_values_db_update = {

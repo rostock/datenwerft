@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.gis.db.models.functions import AsGeoJSON
+from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -13,7 +13,7 @@ from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
 from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements, get_cleanupeventrequest_feature, \
+  add_useragent_context_elements, clean_initial_field_values, get_cleanupeventrequest_feature, \
   get_cleanupeventrequest_queryset, get_referer, get_referer_url
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
@@ -337,7 +337,7 @@ class RequestMixin:
     user = get_corresponding_requester(self.request.user)
     return {
       'status': CodelistRequestStatus.get_status_new(),
-      'requester': user if user else Requester.objects.order_by('-id')[:1]
+      'requester': user if user else Requester.objects.none()
     }
 
 
@@ -429,10 +429,7 @@ class RequestFollowUpMixin:
         # add to context: GeoJSONified geometry
         geometry = getattr(self.object, self.model.BaseMeta.geometry_field)
         if geometry:
-          geometry = self.model.objects.annotate(
-            geojson=AsGeoJSON(geometry)
-          ).get(pk=self.object.pk).geojson
-        context['geometry'] = geometry
+          context['geometry'] = GEOSGeometry(geometry).geojson
     return context
 
 
@@ -722,6 +719,15 @@ class CleanupEventRequestMapDataView(JsonView):
             )
             if container:
               feature_collection['features'].append(container)
+          # optionally add GeoJSON feature for dump to GeoJSON feature collection
+          if curr_object['container_delivery'] and curr_object['container_pickup']:
+            container = get_cleanupeventrequest_feature(
+              curr_object=curr_object,
+              curr_type='dump',
+              authorative_rights=authorative_rights
+            )
+            if container:
+              feature_collection['features'].append(container)
       return feature_collection
     return HttpResponse(
       content='{"has_necessary_permissions": false}', content_type="application/json"
@@ -763,8 +769,8 @@ class CleanupEventRequestMapView(TemplateView):
     context['mapdata_url'] = reverse(self.map_data_view_name)
     # add filter related information to context
     context['requests_status'] = list(
-      CleanupEventRequest.objects.order_by('status').values_list(
-        'status__name', flat=True).distinct()
+      CleanupEventRequest.objects.values_list(
+        'status__name', flat=True).distinct().order_by('status')
     )
     # add to context: icon
     context['icon'] = self.icon_name
@@ -1024,12 +1030,11 @@ class CleanupEventEventUpdateView(CleanupEventEventMixin, ObjectUpdateView):
 
     :return: dictionary with initial field values for this view
     """
-    initial_field_values = {}
-    for field in self.model._meta.get_fields():
-      if field.__class__.__name__ == 'DateField':
-        value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        initial_field_values[field.name] = value.strftime('%Y-%m-%d') if value else None
-    return initial_field_values
+    return clean_initial_field_values(
+      fields=self.model._meta.get_fields(),
+      model=self.model,
+      curr_obj=self.object
+    )
 
   def get_success_url(self):
     """
@@ -1096,37 +1101,25 @@ class CleanupEventEventAuthorativeUpdateView(CleanupEventEventMixin, ObjectUpdat
     context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
     # add to context: GeoJSONified geometries of venue place and container place
     other_geometries = []
-    try:
-      cleanupeventvenue = CleanupEventVenue.objects.get(
-        cleanupevent_request=self.object.cleanupevent_request.pk)
-    except CleanupEventVenue.DoesNotExist:
-      cleanupeventvenue = None
+    cleanupeventvenue = CleanupEventVenue.objects.filter(
+      cleanupevent_request=self.object.cleanupevent_request.pk).first()
     if cleanupeventvenue:
       cleanupeventvenue_geometry = getattr(
         cleanupeventvenue, CleanupEventVenue.BaseMeta.geometry_field)
       if cleanupeventvenue_geometry:
-        cleanupeventvenue_geometry = CleanupEventVenue.objects.annotate(
-          geojson=AsGeoJSON(cleanupeventvenue_geometry)
-        ).get(pk=cleanupeventvenue.pk).geojson
         other_geometries.append({
           'text': 'zugehöriger<br>Treffpunkt',
-          'geometry': cleanupeventvenue_geometry
+          'geometry': GEOSGeometry(cleanupeventvenue_geometry).geojson
         })
-    try:
-      cleanupeventcontainer = CleanupEventContainer.objects.get(
-        cleanupevent_request=self.object.cleanupevent_request.pk)
-    except CleanupEventContainer.DoesNotExist:
-      cleanupeventcontainer = None
+    cleanupeventcontainer = CleanupEventContainer.objects.filter(
+      cleanupevent_request=self.object.cleanupevent_request.pk).first()
     if cleanupeventcontainer:
       cleanupeventcontainer_geometry = getattr(
         cleanupeventcontainer, CleanupEventContainer.BaseMeta.geometry_field)
       if cleanupeventcontainer_geometry:
-        cleanupeventcontainer_geometry = CleanupEventContainer.objects.annotate(
-          geojson=AsGeoJSON(cleanupeventcontainer_geometry)
-        ).get(pk=cleanupeventcontainer.pk).geojson
         other_geometries.append({
           'text': 'zugehöriger<br>Containerstandort',
-          'geometry': cleanupeventcontainer_geometry
+          'geometry': GEOSGeometry(cleanupeventcontainer_geometry).geojson
         })
     if other_geometries:
       context['other_geometries'] = other_geometries
@@ -1138,12 +1131,11 @@ class CleanupEventEventAuthorativeUpdateView(CleanupEventEventMixin, ObjectUpdat
 
     :return: dictionary with initial field values for this view
     """
-    initial_field_values = {}
-    for field in self.model._meta.get_fields():
-      if field.__class__.__name__ == 'DateField':
-        value = getattr(self.model.objects.get(pk=self.object.pk), field.name)
-        initial_field_values[field.name] = value.strftime('%Y-%m-%d') if value else None
-    return initial_field_values
+    return clean_initial_field_values(
+      fields=self.model._meta.get_fields(),
+      model=self.model,
+      curr_obj=self.object
+    )
 
   def get_success_url(self):
     """
@@ -1197,21 +1189,15 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
       kwargs={'pk': self.request.session.get('cleanupeventevent_id', None)}
     )
     # add to context: GeoJSONified geometry of event area
-    try:
-      cleanupeventevent = CleanupEventEvent.objects.get(
-        id=self.request.session.get('cleanupeventevent_id', None))
-    except CleanupEventEvent.DoesNotExist:
-      cleanupeventevent = None
+    cleanupeventevent = CleanupEventEvent.objects.filter(
+      pk=self.request.session.get('cleanupeventevent_id', None)).first()
     if cleanupeventevent:
       cleanupeventevent_geometry = getattr(
         cleanupeventevent, CleanupEventEvent.BaseMeta.geometry_field)
       if cleanupeventevent_geometry:
-        cleanupeventevent_geometry = CleanupEventEvent.objects.annotate(
-          geojson=AsGeoJSON(cleanupeventevent_geometry)
-        ).get(pk=cleanupeventevent.pk).geojson
         context['other_geometries'] = {
           'text': 'Fläche<br>aus Schritt 2',
-          'geometry': cleanupeventevent_geometry
+          'geometry': GEOSGeometry(cleanupeventevent_geometry).geojson
         }
     return context
 
@@ -1481,37 +1467,25 @@ class CleanupEventContainerCreateView(RequestFollowUpMixin, ObjectCreateView):
     context['back_url'] = reverse('antragsmanagement:cleanupeventcontainer_decision')
     # add to context: GeoJSONified geometries of event area and venue place
     other_geometries = []
-    try:
-      cleanupeventevent = CleanupEventEvent.objects.get(
-        id=self.request.session.get('cleanupeventevent_id', None))
-    except CleanupEventEvent.DoesNotExist:
-      cleanupeventevent = None
+    cleanupeventevent = CleanupEventEvent.objects.filter(
+      id=self.request.session.get('cleanupeventevent_id', None)).first()
     if cleanupeventevent:
       cleanupeventevent_geometry = getattr(
         cleanupeventevent, CleanupEventEvent.BaseMeta.geometry_field)
       if cleanupeventevent_geometry:
-        cleanupeventevent_geometry = CleanupEventEvent.objects.annotate(
-          geojson=AsGeoJSON(cleanupeventevent_geometry)
-        ).get(pk=cleanupeventevent.pk).geojson
         other_geometries.append({
           'text': 'Fläche<br>aus Schritt 2',
-          'geometry': cleanupeventevent_geometry
+          'geometry': GEOSGeometry(cleanupeventevent_geometry).geojson
         })
-    try:
-      cleanupeventvenue = CleanupEventVenue.objects.get(
-        id=self.request.session.get('cleanupeventvenue_id', None))
-    except CleanupEventVenue.DoesNotExist:
-      cleanupeventvenue = None
+    cleanupeventvenue = CleanupEventVenue.objects.filter(
+      id=self.request.session.get('cleanupeventvenue_id', None)).first()
     if cleanupeventvenue:
       cleanupeventvenue_geometry = getattr(
         cleanupeventvenue, CleanupEventVenue.BaseMeta.geometry_field)
       if cleanupeventvenue_geometry:
-        cleanupeventvenue_geometry = CleanupEventVenue.objects.annotate(
-          geojson=AsGeoJSON(cleanupeventvenue_geometry)
-        ).get(pk=cleanupeventvenue.pk).geojson
         other_geometries.append({
           'text': 'Treffpunkt<br>aus Schritt 3',
-          'geometry': cleanupeventvenue_geometry
+          'geometry': GEOSGeometry(cleanupeventvenue_geometry).geojson
         })
     if other_geometries:
       context['other_geometries'] = other_geometries

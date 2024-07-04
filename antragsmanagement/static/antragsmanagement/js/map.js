@@ -179,10 +179,18 @@ function showAllGeoJsonFeatures() {
  * @param {Object} layer - GeoJSON map layer
  */
 function updateCurrentlyFilteredDataVariables(layer) {
-  let north = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth());
-  let east = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast());
-  let south = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth());
-  let west = ((layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest());
+  let north = (
+    (layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getNorth()
+  );
+  let east = (
+    (layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getEast()
+  );
+  let south = (
+    (layer.feature.geometry.type === 'Point') ? layer.getLatLng().lat : layer.getBounds().getSouth()
+  );
+  let west = (
+    (layer.feature.geometry.type === 'Point') ? layer.getLatLng().lng : layer.getBounds().getWest()
+  );
   if (window.currentRequestsFilterExtent.length === 0) {
     window.currentRequestsFilterExtent[0] = [];
     window.currentRequestsFilterExtent[0][0] = north;

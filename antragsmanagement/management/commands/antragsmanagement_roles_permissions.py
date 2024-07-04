@@ -21,6 +21,7 @@ class Command(BaseCommand):
       'add_cleanupeventcontainer',
       'view_cleanupeventdetails',
       'add_cleanupeventdetails',
+      'view_cleanupeventdump',
       'view_cleanupeventevent',
       'add_cleanupeventevent',
       'view_cleanupeventvenue',
@@ -30,9 +31,19 @@ class Command(BaseCommand):
       'view_cleanupeventrequest',
       'change_cleanupeventrequest',
       'view_cleanupeventcontainer',
+      'add_cleanupeventcontainer',
+      'change_cleanupeventcontainer',
+      'delete_cleanupeventcontainer',
       'view_cleanupeventdetails',
+      'change_cleanupeventdetails',
+      'view_cleanupeventdump',
+      'add_cleanupeventdump',
+      'change_cleanupeventdump',
+      'delete_cleanupeventdump',
       'view_cleanupeventevent',
-      'view_cleanupeventvenue'
+      'change_cleanupeventevent',
+      'view_cleanupeventvenue',
+      'change_cleanupeventvenue'
     ]
     permission_codenames_admin = [
       'view_authority',
@@ -42,6 +53,7 @@ class Command(BaseCommand):
       'view_cleanupeventrequest',
       'view_cleanupeventcontainer',
       'view_cleanupeventdetails',
+      'view_cleanupeventdump',
       'view_cleanupeventevent',
       'view_cleanupeventvenue'
     ]
@@ -50,13 +62,12 @@ class Command(BaseCommand):
     group_names.extend([ADMINS, REQUESTERS])
     for group_name in group_names:
       # create group if not existing yet
-      if Group.objects.filter(name=group_name).exists():
-        num_groups_existing += 1
-      else:
-        Group.objects.create(name=group_name)
+      group, created = Group.objects.get_or_create(name=group_name)
+      if created:
         num_groups_created += 1
+      else:
+        num_groups_existing += 1
       # assign permissions if not assigned yet
-      group = Group.objects.get(name=group_name)
       permission_codenames = list(permission_codenames_requester)
       if group_name in AUTHORITIES:
         permission_codenames = list(permission_codenames_authority)

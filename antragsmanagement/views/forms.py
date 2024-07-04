@@ -118,7 +118,7 @@ class RequestForm(ObjectForm):
     self.fields['status'].queryset = CodelistRequestStatus.get_status_new(as_queryset=True)
     # limit the requester field queryset to exactly one entry (= user)
     user = get_corresponding_requester(self.user, only_primary_key=False)
-    self.fields['requester'].queryset = user if user else Requester.objects.order_by('-id')[:1]
+    self.fields['requester'].queryset = user if user else Requester.objects.none()
 
 
 class RequestFollowUpForm(ObjectForm):

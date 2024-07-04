@@ -1261,6 +1261,116 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
     )
 
 
+class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
+  """
+  test class for authorative form page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+  model = CleanupEventEvent
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility)
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'from_date': VALID_DATE,
+      'area': VALID_POLYGON_DB
+    }
+    cls.attributes_values_view_update_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'from_date': VALID_DATE,
+      'area': VALID_POLYGON_VIEW
+    }
+    cls.attributes_values_view_update_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_not_logged_in(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update', status_code=302,
+      content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_get_no_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_requester_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=True,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_authority_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=True, antragsmanagement_admin=False,
+      view_name='cleanupeventevent_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='aktualisieren '
+    )
+
+  def test_get_admin_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=True,
+      view_name='cleanupeventevent_authorative_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
 class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   """
   test class for workflow page for creating an instance of object

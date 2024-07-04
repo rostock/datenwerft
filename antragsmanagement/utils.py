@@ -47,15 +47,15 @@ def get_antragsmanagement_authorities(user, only_primary_keys=True):
   :param only_primary_keys: return only primary keys?
   :return: (primary keys of) all Antragsmanagement authorities the passed user belongs to
   """
-  authorities = []
-  for authority_group in AUTHORITIES:
-    if (
-        user.groups.filter(name=authority_group).exists()
-        and Authority.objects.filter(group=authority_group).exists()
-    ):
-      authority = Authority.objects.get(group=authority_group)
-      authorities.append(authority.pk if only_primary_keys else authority)
-  return authorities
+  # get all groups the passed user belongs to
+  user_groups = user.groups.values_list('name', flat=True)
+  # filter authorities based on the user's groups
+  authorities = Authority.objects.filter(group__in=list(user_groups))
+  # return primary keys or full objects based on the parameter
+  if only_primary_keys:
+    return list(authorities.values_list('pk', flat=True))
+  else:
+    return list(authorities)
 
 
 def get_corresponding_requester(user, only_primary_key=True):
@@ -66,11 +66,15 @@ def get_corresponding_requester(user, only_primary_key=True):
   :param only_primary_key: return only primary key?
   :return: (primary key of) corresponding requester object for passed user
   """
-  try:
-    requester = Requester.objects.get(user_id=user.pk)
-    return requester.pk if only_primary_key else Requester.objects.filter(user_id=user.pk)
-  except Requester.DoesNotExist:
-    return None
+  if only_primary_key:
+    try:
+      requester = Requester.objects.only('pk').get(user_id=user.pk)
+      return requester.pk
+    except Requester.DoesNotExist:
+      return None
+  else:
+    queryset = Requester.objects.filter(user_id=user.pk)
+    return queryset if queryset.exists() else None
 
 
 def get_icon_from_settings(key):
@@ -92,11 +96,15 @@ def get_request(model, request_id, only_primary_key=True):
   :param only_primary_key: return only primary key?
   :return: (primary key of) request object of passed model with passed ID
   """
-  try:
-    request = model.objects.get(id=request_id)
-    return request.pk if only_primary_key else model.objects.filter(id=request_id)
-  except model.DoesNotExist:
-    return None
+  if only_primary_key:
+    try:
+      request = model.objects.only('pk').get(id=request_id)
+      return request.pk
+    except model.DoesNotExist:
+      return None
+  else:
+    queryset = model.objects.filter(id=request_id)
+    return queryset if queryset.exists() else None
 
 
 def has_necessary_permissions(user, necessary_group):
