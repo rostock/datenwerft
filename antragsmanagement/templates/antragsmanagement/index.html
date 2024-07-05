@@ -1,52 +1,97 @@
 {% extends "navbar.html" %}
+{% load antragsmanagement_tags %}
 {% load static %}
 
 {% block title %}Antragsmanagement | {% endblock %}
 
 {% block content %}
   {% if is_antragsmanagement_user %}
-    {% if messages %}
-      {% include "antragsmanagement/container-messages.html" %}
+    {% if messages or custom_success_message %}
+      {% include "antragsmanagement/container_messages.html" %}
     {% endif %}
+    <h2 class="text-center">Antragsmanagement</h2>
+    <h5 class="text-center text-muted">System zum Management von Anträgen</h5>
     {% if is_antragsmanagement_requester %}
-      Antragsteller:in
-      <ul>
-        {% if corresponding_requester %}
-          <li>Requester existiert schon: <a href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}">Requester -> Update</a> (= Kontaktdaten ändern)</li>
-        {% else %}
-          <li>Requester existiert noch nicht: <a href="{% url 'antragsmanagement:requester_create' %}">Requester -> Create</a> (= Kontaktdaten erstellen)
-          </li>
-        {% endif %}
-        <li>CleanupEventRequest -> List (nur eigene)</li>
-        <li>CleanupEventRequest -> Map (nur eigene)</li>
-        <li><a href="{% url 'antragsmanagement:cleanupeventrequest_create' %}">CleanupEventRequest -> Create</a> (= Antrag auf Müllsammelaktion erstellen)</li>
-      </ul>
+      <div class="mt-1 {% if not belongs_to_antragsmanagement_authority and not is_antragsmanagement_admin %}mb-3 {% endif %}row g-4">
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'requester'|get_icon }}"></i></p>
+            <p class="fs-3">Kontaktdaten</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              {% if corresponding_requester %}
+                <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:requester_update' pk=corresponding_requester %}"><i class="fas fa-{{ 'update'|get_icon }}"></i>{% if not is_mobile %} eigene Kontaktdaten aktualisieren{% endif %}</a>
+              {% else %}
+                <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:requester_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i>{% if not is_mobile %} eigene Kontaktdaten erstellen{% endif %}</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'cleanupeventrequest'|get_icon }}"></i></p>
+            <p class="fs-3">Müllsammelaktionen</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-warning fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i>{% if not is_mobile %} neuer Antrag{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit allen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit allen Anträgen{% endif %}</a>
+            </div>
+          </div>
+        </div>
+      </div>
     {% endif %}
     {% if belongs_to_antragsmanagement_authority %}
-      Behörde
-      <ul>
-        <li>CleanupEventRequest -> List (nur zugewiesene)</li>
-        <li>CleanupEventRequest -> Map (nur zugewiesene)</li>
-        <li>CleanupEventRequest -> Update (nur zugewiesene)</li>
-      </ul>
+      <div class="mt-1 {% if not is_antragsmanagement_admin %}mb-3 {% endif %}row g-4">
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'cleanupeventrequest'|get_icon }}"></i></p>
+            <p class="fs-3">Müllsammelaktionen</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit zugewiesenen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit zugewiesenen Anträgen{% endif %}</a>
+            </div>
+          </div>
+        </div>
+      </div>
     {% endif %}
     {% if is_antragsmanagement_admin %}
-      Admin
-      <ul>
-        <li>Authority -> List</li>
-        <li><a href="{% url 'antragsmanagement:authority_update' pk=1 %}">Authority -> Update</a> (= E-Mail-Adresse von Behörde ändern)</li>
-        <li>Email -> List</li>
-        <li><a href="{% url 'antragsmanagement:email_update' pk=2 %}">Email -> Update</a> (= Inhalt von E-Mail ändern)</li>
-        <li>CleanupEventRequest -> List</li>
-        <li>CleanupEventRequest -> Map</li>
-      </ul>
+      <div class="{% if is_antragsmanagement_requester or belongs_to_antragsmanagement_authority %}mt-1 {% endif %}mb-3 row g-4">
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'authority'|get_icon }}"></i></p>
+            <p class="fs-3">Behörden</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:authority_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit allen Behörden{% endif %}</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'email'|get_icon }}"></i></p>
+            <p class="fs-3">E-Mails</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:email_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit allen E-Mails{% endif %}</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="alert alert-primary h-100 text-center">
+            <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'cleanupeventrequest'|get_icon }}"></i></p>
+            <p class="fs-3">Müllsammelaktionen</p>
+            <div class="d-grid gap-2 col-6 mx-auto">
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_table' %}"><i class="fas fa-{{ 'table'|get_icon }}"></i>{% if not is_mobile %} Tabelle mit allen Anträgen{% endif %}</a>
+              <a class="btn btn-lg btn-primary fs-5" role="button" href="{% url 'antragsmanagement:cleanupeventrequest_map' %}"><i class="fas fa-{{ 'map'|get_icon }}"></i>{% if not is_mobile %} Karte mit allen Anträgen{% endif %}</a>
+            </div>
+          </div>
+        </div>
+      </div>
     {% endif %}
     <script>
       setTimeout(function () {
         $('.alert-success').alert('close');
+        $('.alert-warning').alert('close');
       }, 3000);
     </script>
   {% else %}
-    {% include "antragsmanagement/notice-nopermissions.html" %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
   {% endif %}
 {% endblock %}

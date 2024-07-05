@@ -92,6 +92,48 @@ L.Map.prototype.getAttachingLayers = function(layer) {
 
 /**
  * @function
+ * @name loadGeometryFromContextDict
+ *
+ * loads geometry from passed context dict to map
+ *
+ * @param {string} contextDict - context dict
+ * @param {boolean} [zoomToPreviousGeometries=true] - shall only one geometry be processed at once?
+ * @returns {this} - map with geometry loaded from passed input field
+ */
+L.Map.prototype.loadGeometryFromContextDict = function(contextDict, zoomToPreviousGeometries = true) {
+  let geojson = {
+    'type': 'Feature',
+    'properties': {},
+    'geometry': JSON.parse(contextDict.geometry),
+  }
+  let geojsonLayer = new L.geoJSON(geojson, {
+    onEachFeature: function(feature, layer) {
+      layer.bindTooltip('<strong>' + contextDict.text + '</strong>', {
+        direction: 'center',
+        opacity: 0.8
+      });
+    }
+  }).addTo(this);
+  if (zoomToPreviousGeometries)
+    this.fitBounds(geojsonLayer.getBounds());
+  // set Leaflet-Geoman options
+  geojsonLayer.pm.setOptions({
+    draggable: false,
+    allowEditing: false,
+    allowRemoval: false,
+    allowCutting: false,
+    allowRotation: false
+  });
+  geojsonLayer._drawnByGeoman = false;
+  if (geojsonLayer instanceof L.Marker)
+    geojsonLayer.setZIndexOffset(0);
+  else
+    geojsonLayer.bringToBack();
+  return this;
+}
+
+/**
+ * @function
  * @name loadGeometryFromField
  *
  * loads geometry from passed input field to map

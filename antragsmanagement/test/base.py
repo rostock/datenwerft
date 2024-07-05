@@ -1,12 +1,12 @@
-from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from antragsmanagement.models import Codelist, Requester, Request
-from bemas.tests.functions import clean_object_filter, get_object
 from .constants_vars import DATABASES, USERNAME, PASSWORD
 from .functions import login
+from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
+from antragsmanagement.models import Codelist, Requester, Request
+from bemas.tests.functions import clean_object_filter, get_object
 
 
 class DefaultTestCase(TestCase):
@@ -17,12 +17,9 @@ class DefaultTestCase(TestCase):
   databases = DATABASES
 
   def init(self):
-    self.test_antragsmanagement_requester_group = Group.objects.create(
-      name=settings.ANTRAGSMANAGEMENT_REQUESTER_GROUP_NAME)
-    self.test_antragsmanagement_authority_group = Group.objects.create(
-      name=settings.ANTRAGSMANAGEMENT_AUTHORITY_GROUPS_NAMES[0])
-    self.test_antragsmanagement_admin_group = Group.objects.create(
-      name=settings.ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME)
+    self.test_antragsmanagement_requester_group = Group.objects.create(name=REQUESTERS)
+    self.test_antragsmanagement_authority_group = Group.objects.create(name=AUTHORITIES[0])
+    self.test_antragsmanagement_admin_group = Group.objects.create(name=ADMINS)
     self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
@@ -53,7 +50,7 @@ class DefaultModelTestCase(DefaultTestCase):
     :param test_object: test object
     """
     # actual number of objects equals expected number of objects?
-    self.assertEqual(self.model.objects.all().count(), self.count + 1)
+    self.assertEqual(self.model.objects.only('pk').all().count(), self.count + 1)
     # on creation: object created exactly as it should have been created?
     # on update: object updated exactly as it should have been updated?
     self.assertEqual(test_object, self.test_object)
@@ -71,7 +68,7 @@ class DefaultModelTestCase(DefaultTestCase):
     # test general existance of object
     self.generic_existance_test(test_object)
     # created object contains specific value in one of its fields?
-    self.assertEqual(self.model.objects.filter(**object_filter).count(), 1)
+    self.assertEqual(self.model.objects.only('pk').filter(**object_filter).count(), 1)
 
   def generic_update_test(self):
     """
@@ -89,7 +86,7 @@ class DefaultModelTestCase(DefaultTestCase):
     # test general existance of object
     self.generic_existance_test(test_object)
     # updated object contains specific value in one of its fields?
-    self.assertEqual(self.model.objects.filter(**object_filter).count(), 1)
+    self.assertEqual(self.model.objects.only('pk').filter(**object_filter).count(), 1)
 
   def generic_delete_test(self):
     """
@@ -99,7 +96,7 @@ class DefaultModelTestCase(DefaultTestCase):
     """
     # no more test objects left?
     self.test_object.delete()
-    self.assertEqual(self.model.objects.all().count(), self.count)
+    self.assertEqual(self.model.objects.only('pk').all().count(), self.count)
 
 
 class DefaultCodelistTestCase(DefaultModelTestCase):
@@ -129,12 +126,13 @@ class DefaultViewTestCase(DefaultTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_view_test(self, antragsmanagement_requester, antragsmanagement_authority,
+  def generic_view_test(self, log_in, antragsmanagement_requester, antragsmanagement_authority,
                         antragsmanagement_admin, view_name, status_code, content_type, string):
     """
     tests a view via GET
 
     :param self
+    :param log_in: log test user in?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
     :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
@@ -144,7 +142,9 @@ class DefaultViewTestCase(DefaultTestCase):
     :param string: specific string that should be contained in response
     """
     # log test user in
-    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    if log_in:
+      login(self, antragsmanagement_requester,
+            antragsmanagement_authority, antragsmanagement_admin)
     # prepare the GET
     url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -154,7 +154,8 @@ class DefaultViewTestCase(DefaultTestCase):
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
-    self.assertIn(string, str(response.content))
+    if string:
+      self.assertIn(string, str(response.content))
 
 
 class DefaultFormViewTestCase(DefaultModelTestCase):
@@ -166,13 +167,14 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     super().init()
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_form_view_get_test(self, update_mode, antragsmanagement_requester,
+  def generic_form_view_get_test(self, log_in, update_mode, antragsmanagement_requester,
                                  antragsmanagement_authority, antragsmanagement_admin, view_name,
                                  status_code, content_type, string):
     """
     tests a form view via GET
 
     :param self
+    :param log_in: log test user in?
     :param update_mode: update mode?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
@@ -183,11 +185,19 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     :param string: specific string that should be contained in response
     """
     # log test user in
-    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    if log_in:
+      login(self, antragsmanagement_requester,
+            antragsmanagement_authority, antragsmanagement_admin)
     # for update mode: get primary key of last object
-    last_pk = self.model.objects.last().pk
-    if update_mode:
+    last_pk = self.model.objects.only('pk').last().pk
+    # set URL
+    if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
+    elif 'authorative_create' in view_name:
+      url = reverse(
+        viewname='antragsmanagement:' + view_name,
+        kwargs={'request_id': last_pk}
+      )
     else:
       url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -197,7 +207,8 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # content type of response as expected?
     self.assertEqual(response['content-type'].lower(), content_type)
     # specific string contained in response?
-    self.assertIn(string, str(response.content))
+    if string:
+      self.assertIn(string, str(response.content))
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
@@ -230,9 +241,15 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
         requester.user_id = self.test_user.pk
         requester.save()
     # for update mode: get primary key of last object
-    last_pk = self.model.objects.last().pk
-    if update_mode:
+    last_pk = self.model.objects.only('pk').last().pk
+    # set URL
+    if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
+    elif 'authorative_create' in view_name:
+      url = reverse(
+        viewname='antragsmanagement:' + view_name,
+        kwargs={'request_id': session_variables['request_id']}
+      )
     else:
       url = reverse('antragsmanagement:' + view_name)
     data = object_filter
@@ -255,6 +272,6 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     object_filter = clean_object_filter(object_filter, self.model)
     # number of objects passing the object filter as expected?
     if update_mode:
-      self.assertEqual(self.model.objects.filter(pk=last_pk).count(), count)
+      self.assertEqual(self.model.objects.only('pk').filter(pk=last_pk).count(), count)
     else:
-      self.assertEqual(self.model.objects.filter(**object_filter).count(), count)
+      self.assertEqual(self.model.objects.only('pk').filter(**object_filter).count(), count)

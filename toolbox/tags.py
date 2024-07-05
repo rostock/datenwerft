@@ -31,6 +31,17 @@ def is_field_geometry_field(field):
 
 
 @register.filter
+def is_list(value):
+  """
+  checks if passed value is a list
+
+  :param value: value
+  :return: passed value is a list?
+  """
+  return isinstance(value, list)
+
+
+@register.filter
 def is_linebreak_error(errors):
   """
   checks if passed form field errors represent a line break error

@@ -4,6 +4,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
+
 from .views.functions import assign_object_value, delete_object_immediately, \
   order_model_to_form_template
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
@@ -11,6 +12,7 @@ from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, Star
   AddAnotherView
 from .views.views_list_map import MapDataCompositionView, MapListView, TableDataCompositionView, \
   TableListView
+
 
 
 router = DefaultRouter()

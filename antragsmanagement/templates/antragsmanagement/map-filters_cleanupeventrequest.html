@@ -1,0 +1,40 @@
+{% load antragsmanagement_tags %}
+<div class="d-grid mt-2 mb-3">
+  <label for="filter-input-requests-created-left" class="form-label"><em>Eingang</em></label>
+  <small><label for="filter-input-requests-created-left" class="form-label"><em>zwischen</em></label></small>
+  <div class="input-group">
+    <input id="filter-input-requests-created-left" type="date" name="requests-created-left" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="left">
+    <button class="input-reset btn btn-outline-secondary">
+      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+    </button>
+  </div>
+  <small><label for="filter-input-requests-created-right" class="form-label mt-2"><em>und</em></label></small>
+  <div class="input-group">
+    <input id="filter-input-requests-created-right" type="date" name="requests-created-right" class="form-control filter-input datetime-input" step="1" data-type="date" data-intervalside="right">
+    <button class="input-reset btn btn-outline-secondary">
+      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+    </button>
+  </div>
+</div>
+<div class="d-grid mt-2 mb-3">
+  <label for="filter-input-requests-status" class="form-label"><em>Status</em></label>
+  <div class="input-group">
+    <select id="filter-input-requests-status" name="requests-status" class="form-select filter-input" data-type="list">
+      {% for status in requests_status %}
+        <option value="{{ status }}">{{ status }}</option>
+      {% endfor %}
+    </select>
+    <button class="input-reset btn btn-outline-secondary">
+      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+    </button>
+  </div>
+</div>
+<div class="d-grid mt-2">
+  <label for="filter-input-requests-responsibilities" class="form-label"><em>Zuständigkeit(en)</em></label>
+  <div class="input-group">
+    <input id="filter-input-requests-responsibilities" type="text" name="requests-responsibilities" class="form-control filter-input" data-type="text">
+    <button class="input-reset btn btn-outline-secondary">
+      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+    </button>
+  </div>
+</div>

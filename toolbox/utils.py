@@ -1,3 +1,5 @@
+from datetime import date, datetime, timezone
+from django.conf import settings
 from django.contrib.gis.db.models.fields import LineStringField as ModelLineStringField
 from django.contrib.gis.db.models.fields import MultiLineStringField as ModelMultiLineStringField
 from django.contrib.gis.db.models.fields import MultiPolygonField as ModelMultiPolygonField
@@ -10,6 +12,7 @@ from django.contrib.gis.forms.fields import PointField as FormPointField
 from django.contrib.gis.forms.fields import PolygonField as FormPolygonField
 from django.db.models import Q
 from re import match, search, sub
+from zoneinfo import ZoneInfo
 
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
@@ -32,6 +35,28 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return second_part.strip()
   else:
     return None
+
+
+def format_date_datetime(value, time_string_only=False):
+  """
+  formats date or datetime and returns appropriate date, datetime or time only string
+
+  :param value: date or datetime
+  :param time_string_only: time string only?
+  :return: appropriate date, datetime or time only string
+  """
+  # format datetimes
+  if isinstance(value, datetime):
+    value_tz = value.replace(tzinfo=timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+    if time_string_only:
+      return value_tz.strftime('heute, %H:%M Uhr')
+    else:
+      return value_tz.strftime('%d.%m.%Y, %H:%M Uhr')
+  # format dates
+  elif isinstance(value, date):
+    return value.strftime('%d.%m.%Y')
+  else:
+    return value
 
 
 def get_array_first_element(curr_array):

@@ -1,7 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 
-from antragsmanagement.utils import get_icon_from_settings
+from .utils import get_icon_from_settings
 
 register = template.Library()
 

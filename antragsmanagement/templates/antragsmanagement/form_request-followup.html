@@ -39,23 +39,26 @@
 {% block content %}
   {% if has_necessary_permissions %}
     {% if messages %}
-      {% include "antragsmanagement/container-messages.html" %}
+      {% include "antragsmanagement/container_messages.html" %}
     {% endif %}
     {% if form.errors %}
-      {% include "antragsmanagement/container-errors.html" %}
+      {% include "antragsmanagement/container_errors.html" %}
     {% endif %}
-    {% if corresponding_request %}
-      <h2>{% if object %}ändern{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
-      {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+    {% if corresponding_request or authorative %}
+      <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
+      {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
         <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}
       <form class="form mt-4" method="post" action="">
         {% csrf_token %}
+        {% if authorative %}
+          <input type="hidden" name="original_referer" value="{{ cancel_url }}">
+        {% endif %}
         <div {% if is_geometry_model %}id="custom-form"{% endif %}>
           <table class="table">
             {% for field in form %}
               {% if not field|is_field_geometry_field %}
-                <tr>
+                <tr{% if field.name in hidden_fields %} style="display: none;"{% endif %}>
                   <td class="cell-label">
                     {{ field.label_tag }}
                   </td>
@@ -70,19 +73,23 @@
           </table>
           {% if not is_mobile %}
             <div class="d-grid mt-5 mb-3 gap-2">
-              {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+              {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
                 <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
               {% else %}
                 <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
               {% endif %}
-              <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-              <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+              {% if not authorative %}
+                <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+                <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
+              {% else %}
+                <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+              {% endif %}
             </div>
           {% endif %}
         </div>
         {% if is_geometry_model %}
           <div id="map-addresssearch-container-form">
-            <label hidden for="id_{{ geometry_field }}" class="form-label">Geometrie</label>
+            <label for="id_{{ geometry_field }}" class="form-label{% if geometry_required %} required{% endif %}">{{ geometry_field_label }}</label>
             {% if geometry %}
               <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
             {% else %}
@@ -90,7 +97,7 @@
             {% endif %}
             {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
             <div class="mt-3">
-              <label for="address-search" class="form-label">Adressensuche</label>
+              <label for="address-search" class="form-label">Suche nach Adressen, Straßen und/oder Gemeindeteilen zur Orientierung:</label>
               <div class="form-floating">
                 <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
                 <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
@@ -101,13 +108,17 @@
         {% endif %}
         {% if is_mobile %}
           <div class="d-grid mt-5 mb-3 gap-2">
-            {% if request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+            {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
               <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
             {% else %}
               <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
             {% endif %}
-            <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-            <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            {% if not authorative %}
+              <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
+              <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
+            {% else %}
+              <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            {% endif %}
           </div>
         {% endif %}
       </form>
@@ -148,11 +159,24 @@
         // define several globally available variables
         window.geometryType = '{{ geometry_type }}';
         window.featureGeometry = [];
-        {% if REVERSE_SEARCH_RADIUS %}
-          window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }}
-        {% endif %}
 
         configureLeafletGeoman(map, window.geometryType);
+
+        // if other geometries exist...
+        {% if other_geometries %}
+          // show other geometries on map
+          let zoomToPreviousGeometries;
+          {% if geometry %}
+            zoomToPreviousGeometries = false;
+          {% endif %}
+          {% if other_geometries|is_list %}
+            {% for other_geometry in other_geometries %}
+              map.loadGeometryFromContextDict({{ other_geometry|safe }}, zoomToPreviousGeometries)
+            {% endfor %}
+          {% else %}
+            map.loadGeometryFromContextDict({{ other_geometries|safe }}, zoomToPreviousGeometries)
+          {% endif %}
+        {% endif %}
 
         // if geometry already exists...
         {% if geometry %}
@@ -194,12 +218,12 @@
         {% endif %}
       </script>
     {% else %}
-      {% include "antragsmanagement/notice-norequest.html" %}
+      {% include "antragsmanagement/notice_no-request.html" %}
       <div class="d-grid mt-5 mb-3">
         <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
       </div>
     {% endif %}
   {% else %}
-    {% include "antragsmanagement/notice-nopermissions.html" %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
   {% endif %}
 {% endblock %}

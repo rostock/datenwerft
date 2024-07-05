@@ -6,10 +6,10 @@ from django.utils.html import escape
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from jsonview.views import JsonView
 
-from .functions import create_geojson_feature, format_date_datetime, generate_foreign_key_link, \
+from .functions import create_geojson_feature, generate_foreign_key_link, \
   generate_foreign_key_link_simplified, get_model_objects
 from toolbox.models import Subsets
-from toolbox.utils import optimize_datatable_filter
+from toolbox.utils import format_date_datetime, optimize_datatable_filter
 from bemas.models import Codelist, Complaint, Contact, LogEntry, Organization, Originator, Person
 from bemas.utils import LOG_ACTIONS, get_foreign_key_target_model, get_foreign_key_target_object, \
   get_icon_from_settings, is_bemas_admin, is_bemas_user

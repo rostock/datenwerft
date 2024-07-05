@@ -30,8 +30,9 @@ function formatData(data, brReplacement) {
  * @param {string} dataUrl - data URL
  * @param {string} languageUrl - language URL
  * @param {Object[]} initialOrder - initial order
+ * @param {number} [initialPageLength=25] - initial page length
  */
-function initDataTable(dataUrl, languageUrl, initialOrder) {
+function initDataTable(dataUrl, languageUrl, initialOrder, initialPageLength = 25) {
   $('#datasets').DataTable({
     ajax: dataUrl,
     buttons: [
@@ -89,12 +90,12 @@ function initDataTable(dataUrl, languageUrl, initialOrder) {
     language: {
       url: languageUrl
     },
-    lengthMenu: [[25, 50, -1], [25, 50, 'alle']],
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'alle']],
     order: initialOrder,
     orderCellsTop: true,
     orderClasses: false,
     orderMulti: false,
-    pageLength: 25,
+    pageLength: initialPageLength,
     processing: true,
     searchDelay: 500,
     searching: true,

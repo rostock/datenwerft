@@ -1,0 +1,284 @@
+{% extends "navbar.html" %}
+{% load antragsmanagement_tags %}
+{% load leaflet_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Karte | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  {% leaflet_css plugins="locatecontrol" %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}">
+  {% if is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-mobile.css' %}">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js plugins="locatecontrol" %}
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'antragsmanagement/js/map.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {% if is_antragsmanagement_user %}
+    {% if messages %}
+      {% include "antragsmanagement/container_messages.html" %}
+    {% endif %}
+    <h2><i class="fas fa-{{ icon|get_icon }}"></i> <em>{{ model_verbose_name_plural }}</em></h2>
+    {% if objects_count == 0 %}
+      <h4 class="mt-3">
+        <em>Keine <em>{{ model_verbose_name_plural }}</em> vorhanden!</em>
+      </h4>
+    {% endif %}
+    <div class="d-grid mt-5 mb-3 gap-2{% if not is_mobile %} d-md-block{% endif %}">
+      <a class="btn btn-warning" role="button" href="{% url 'antragsmanagement:index' %}"><i class="fas fa-{{ 'back'|get_icon }}"></i> Startseite</a>
+    </div>
+    {% if objects_count > 0 %}
+      <div id="map-side-container" class="mb-3">
+        {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+        <div class="accordion accordion-flush{% if not is_mobile %} side{% endif %}">
+          <div id="requests-filter" class="accordion-item">
+            <h2 id="heading-requests-filter" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-requests-filter" aria-expanded="false" aria-controls="collapse-requests-filter">
+                Filter für Anträge
+              </button>
+            </h2>
+            <div id="collapse-requests-filter" class="accordion-collapse collapse" aria-labelledby="heading-requests-filter">
+              <div class="accordion-body">
+                <div id="requests-filter-alert" class="alert alert-warning" role="alert">Filter für Anträge wirken <strong>additiv</strong> (wie „UND“)</div>
+                <div class="d-grid mb-3">
+                  <label for="filter-input-requests-id" class="form-label"><em>ID</em></label>
+                  <div class="input-group">
+                    <input id="filter-input-requests-id" type="text" name="requests-id" class="form-control filter-input" data-type="text">
+                    <button class="input-reset btn btn-outline-secondary">
+                      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+                    </button>
+                  </div>
+                </div>
+                {% include "antragsmanagement/map-filters_cleanupeventrequest.html" %}
+                <div id="requests-filter-buttons" class="d-grid mt-4 gap-2">
+                  <button id="requests-filter-apply" class="btn btn-success"><i class="fas fa-{{ 'filter_on'|get_icon }}"></i> Filter auf Anträge anwenden</button>
+                  <button id="requests-filter-reset" class="btn btn-warning"><i class="fas fa-{{ 'filter_off'|get_icon }}"></i> Filter für Anträge zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="map-control" class="accordion-item">
+            <h2 id="heading-map-control" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-map-control" aria-expanded="false" aria-controls="collapse-map-control">
+                Kartenausschnitt
+              </button>
+            </h2>
+            <div id="collapse-map-control" class="accordion-collapse collapse" aria-labelledby="heading-map-control">
+              <div class="accordion-body">
+                <div class="d-grid gap-2">
+                  <button id="requests-map-extent-filter" class="btn btn-success"><i class="fas fa-{{ 'map_with_filter'|get_icon }}"></i> aktuell gefilterte Anträge</button>
+                  <button id="map-extent-initial" class="btn btn-warning"><i class="fas fa-{{ 'show_on_map'|get_icon }}"></i> gesamt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="address-search" class="accordion-item">
+            <h2 id="heading-address-search" class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-address-search" aria-expanded="false" aria-controls="collapse-address-search">
+                Suche nach Adressen, Straßen und/oder Gemeindeteilen
+              </button>
+            </h2>
+            <div id="collapse-address-search" class="accordion-collapse collapse" aria-labelledby="heading-address-search">
+              <div class="accordion-body">
+                <div class="form-floating">
+                  <input id="searchtext" type="text" class="form-control" name="searchtext" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+                  <label for="searchtext">Adresse, Straße oder Gemeindeteil eingeben…</label>
+                </div>
+                <div id="results-container" class="results"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- eslint-disable-next-script -->
+      <script>
+        window.dataUrl = '{{ mapdata_url }}';
+      </script>
+      <script>
+        setTimeout(function () {
+          $('.alert-success').alert('close');
+        }, 3000);
+
+        /**
+         * @function
+         * @name mapCallbackFunction
+         *
+         * handles (as a callback function) passed map
+         *
+         * @param {Object} map - map
+         */
+        function mapCallbackFunction(map) {
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+          configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+          // make map globally available
+          window.currMap = map;
+
+          {% if is_mobile %}
+            enableMapLocate(map)
+          {% endif %}
+
+          // fetch GeoJSON feature collection for map
+          fetchGeoJsonFeatureCollection('{{ mapdata_url }}')
+          .then(data => {
+            // for each GeoJSON feature in GeoJSON feature collection:
+            // equip with marker, set properties and actions, bind tooltip
+            // and add it to corresponding map cluster
+            L.Proj.geoJson(data, {
+              onEachFeature: function(feature, layer) {
+                layer.bindTooltip('<strong>' + feature.properties._tooltip + '</strong>', {
+                  opacity: 0.8
+                });
+                let html = '';
+                html += '<div class="leaflet-popup-title">';
+                html +=   '<strong>' + feature.properties._title + '</strong>';
+                html += '</div>';
+                html += '<div class="leaflet-popup-section">';
+                if (feature.properties._link_request) {
+                  html += '<a title="Antrag ansehen oder bearbeiten" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen"></i> Antrag</a>';
+                }
+                if (feature.properties._link_event) {
+                  html +=  '<br>';
+                  html +=  '<a title="Aktionsdaten ansehen oder bearbeiten" href="' + feature.properties._link_event + '"><i ' + 'class="fas fa-pen"></i> Aktionsdaten</a>';
+                }
+                if (feature.properties._link_venue) {
+                  html +=  '<br>';
+                  html +=  '<a title="Treffpunkt ansehen oder bearbeiten" href="' + feature.properties._link_venue + '"><i ' + 'class="fas fa-pen"></i> Treffpunkt</a>';
+                }
+                if (feature.properties._link_details) {
+                  html +=  '<br>';
+                  html +=  '<a title="Detailangaben ansehen oder bearbeiten" href="' + feature.properties._link_details + '"><i ' + 'class="fas fa-pen"></i> Detailangaben</a>';
+                }
+                if (feature.properties._link_container) {
+                  html +=  '<br>';
+                  if (feature.properties._link_container.includes('update'))
+                    html +=  '<a title="Containerdaten ansehen oder bearbeiten" href="' + feature.properties._link_container + '"><i ' + 'class="fas fa-pen"></i> Container</a>';
+                  else
+                    html +=  '<a title="neue Containerdaten anlegen" href="' + feature.properties._link_container + '"><i ' + 'class="fas fa-circle-plus"></i> Container</a>';
+                }
+                if (feature.properties._link_container_delete) {
+                  html +=  '<br>';
+                  html +=  '<a title="Containerdaten löschen" href="' + feature.properties._link_container_delete + '"><i ' + 'class="fas fa-trash"></i> Containerdaten</a>';
+                }
+                if (feature.properties._link_dump) {
+                  html +=  '<br>';
+                  if (feature.properties._link_dump.includes('update'))
+                    html +=  '<a title="Müllablageplatz ansehen oder bearbeiten" href="' + feature.properties._link_dump + '"><i ' + 'class="fas fa-pen"></i> Müllablageplatz</a>';
+                  else
+                    html +=  '<a title="neuen Müllablageplatz anlegen" href="' + feature.properties._link_dump + '"><i ' + 'class="fas fa-circle-plus"></i> Müllablageplatz</a>';
+                }
+                if (feature.properties._link_dump_delete) {
+                  html +=  '<br>';
+                  html +=  '<a title="Müllablageplatz löschen" href="' + feature.properties._link_dump_delete + '"><i ' + 'class="fas fa-trash"></i> Müllablageplatz</a>';
+                }
+                html +=   '<table class="mt-2">';
+                html +=     '<tbody>';
+                jQuery.each(feature.properties, function (key, value) {
+                  if (!key.startsWith('_') && value) {
+                    html +=    '<tr>';
+                    html +=      '<td><strong>' + key + '</strong></td>';
+                    html +=      '<td><em>' + value + '</em></td>';
+                    html +=    '</tr>';
+                  }
+                });
+                html +=     '</tbody>';
+                html +=   '</table>';
+                html += '</div>';
+                layer.bindPopup(html);
+              }
+            }).addTo(map);
+          })
+          .catch(
+            (error) => {
+              console.error(error);
+            }
+          );
+
+          // define globally available variables
+          window.objectsExtent = map.getBounds();
+        }
+
+        /**
+         * @function
+         *
+         * main function
+         */
+        $(document).ready(function () {
+          // globally available variable for map extent of currently filtered data
+          window.currentRequestsFilterExtent = [];
+
+          // initialize address search (and make its results globally available)
+          window.results = $('div.results');
+          window.searchField = $('#searchtext');
+          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}');
+
+          // initially set list filter fields to empty option
+          $("select[data-type='list']").each(function() {
+            $(this).val('');
+          });
+
+          // on clicking a button to empty a filter field...
+          $('.input-reset').on('click', function() {
+            // empty respective filter field
+            $(this).prev().is('button') ? $(this).prev().prev().val('') : $(this).prev().val('');
+          });
+
+          // on clicking the button to apply requests filters...
+          $('#requests-filter-apply').on('click', function() {
+            // apply filters
+            filterApplication();
+          });
+
+          // on clicking the button to reset requests filters...
+          $('#requests-filter-reset').on('click', function() {
+            // reset filters
+            filterReset();
+          });
+
+          // on clicking the button to set map extent to that of currently filtered requests...
+          $('#requests-map-extent-filter').on('click', function() {
+            if (window.currentRequestsFilterExtent.length > 0)
+              // set map extent to that of currently filtered requests, if filter is active
+              setMapExtentByBoundingBox(
+                  window.currentRequestsFilterExtent[1][1],
+                  window.currentRequestsFilterExtent[1][0],
+                  window.currentRequestsFilterExtent[0][1],
+                  window.currentRequestsFilterExtent[0][0]
+              );
+            else
+              // set map extent to that of all requests, if filter is not active
+              setMapExtentByLeafletBounds(window.objectsExtent);
+          });
+
+          // on clicking the button to return to initial map extent...
+          $('#map-extent-initial').on('click', function() {
+            // get initial zoom level from Leaflet configuration
+            let defaultZoom = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_ZOOM(?:(?!, &#39).)*/));
+            defaultZoom = defaultZoom.match(/ [0-9]+/).toString().trim();
+            // get initial map center from Leaflet configuration
+            let defaultCenter = String('{{ LEAFLET_CONFIG }}'.match(/DEFAULT_CENTER(?:(?!, &#39).)*/));
+            let defaultCenterX = String(defaultCenter.match(/ [0-9]+\.[0-9]+/)).trim();
+            let defaultCenterY = String(defaultCenter.match(/[0-9]+\.[0-9]+/)).trim();
+            // set initial map extent by means of initial zoom level initial map center
+            setMapExtentByXYAndZoomLevel(Number(defaultCenterX), Number(defaultCenterY), Number(defaultZoom));
+          });
+        });
+      </script>
+    {% endif %}
+  {% else %}
+    {% include "antragsmanagement/notice_no-permissions.html" %}
+  {% endif %}
+{% endblock %}

@@ -19,6 +19,7 @@ from toolbox.constants_vars import personennamen_validators, standard_validators
   d3_regex, d3_message, email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, \
   inventarnummer_regex, inventarnummer_message, postleitzahl_message, postleitzahl_regex, \
   rufnummer_regex, rufnummer_message, url_message
+from toolbox.fields import NullTextField
 from .base import SimpleModel
 from .constants_vars import arrondierungsflaechen_registriernummer_regex, \
   arrondierungsflaechen_registriernummer_message, denksteine_nummer_regex, \
@@ -32,7 +33,7 @@ from .constants_vars import arrondierungsflaechen_registriernummer_regex, \
   mobilfunkantennen_stob_regex, mobilfunkantennen_stob_message, poller_nummer_regex, \
   poller_nummer_message, trinkwassernotbrunnen_nummer_regex, \
   trinkwassernotbrunnen_nummer_message, ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG
-from .fields import ChoiceArrayField, NullTextField, PositiveSmallIntegerMinField, \
+from .fields import ChoiceArrayField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
 from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
