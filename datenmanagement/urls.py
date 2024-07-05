@@ -4,7 +4,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
-from .views.functions import assign_object_value, delete_object_immediately
+from .views.functions import assign_object_value, delete_object_immediately, \
+  order_model_to_form_template
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView, \
   AddAnotherView
@@ -200,7 +201,7 @@ for model in models:
         'datenmanagement.add_' + model_name_lower
       )(DataAddView.as_view(
         model=model,
-        template_name='datenmanagement/form.html'
+        template_name=order_model_to_form_template(model)
       )),
       name=model_name + '_add'
     )
@@ -227,7 +228,7 @@ for model in models:
         'datenmanagement.view_' + model_name_lower
       )(DataChangeView.as_view(
         model=model,
-        template_name='datenmanagement/form.html'
+        template_name=order_model_to_form_template(model)
       )),
       name=model_name + '_change'
     )

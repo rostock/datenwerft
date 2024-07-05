@@ -14,6 +14,8 @@ from .fields import ArrayDateField
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
 from datenmanagement.models.fields import ChoiceArrayField
+from datenmanagement.models.base import Basemodel, Codelist, Metamodel
+from ..models import Punktwolken_Projekte
 
 
 def add_basic_model_context_elements(context, model):
@@ -299,3 +301,13 @@ def set_form_attributes(form):
   form.group_with_users_for_choice_field = (
     form.model.BasemodelMeta.group_with_users_for_choice_field)
   return form
+
+
+def order_model_to_form_template(model: Basemodel):
+  if model.__module__ == 'datenmanagement.models.models_codelist':
+    return 'datenmanagement/form-list.html'
+  elif model.__name__ == 'Punktwolken_Projekte':
+    print('Punktwolken Projekte')
+    return 'datenmanagement/form-pcmanagement.html'
+  else:
+    return 'datenmanagement/form-map.html'
