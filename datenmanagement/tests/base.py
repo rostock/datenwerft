@@ -224,7 +224,7 @@ class DefaultModelTestCase(DefaultTestCase):
     )
     request.user = self.test_user
     request._messages = storage.default_storage(request)
-    template_name = 'datenmanagement/form.html'
+    template_name = 'datenmanagement/form-map.html'
     # try POSTing the view
     if update_mode:
       response = DataChangeView.as_view(

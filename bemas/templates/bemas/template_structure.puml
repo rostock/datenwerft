@@ -1,0 +1,193 @@
+@startuml
+package datenwerft{
+  class base {
+    {field} head
+    {field} meta
+    {field} title
+    {field} style
+    {field} scripts
+    {field} navbar
+    {field} content
+    {field} footer
+    {method} include navbar_html
+  }
+
+  class navbar_html {
+    {field} navbar
+  }
+
+  class index {
+    {field} title
+    {field} content
+  }
+
+  class error {
+    {field} title
+    {field} content
+  }
+
+  class modal_confirm_export {}
+  class modal_error {}
+  class modal_loading {}
+}
+
+
+package bemas {
+  class codelists {
+    {field} title
+    {field} content
+    {method} include notice-norights
+  }
+
+  class codelist_delete {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include notice-norights
+  }
+
+  class codelist_form {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_errors
+    {method} include notice-norights
+  }
+
+  class codelist_table {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include container_table_warning
+    {method} include notice-norights
+  }
+
+  class container_contacts {}
+  class container_deletion_hints {}
+  class container_errors {}
+  class container_events {}
+  class container_map_danger {}
+  class container_messages {}
+  class container_table_danger {}
+  class container_table_warning {}
+
+  class generic_objectclass_delete {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include container_deletion_hints
+    {method} include notice-norights
+  }
+  class generic_objectclass_form {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_errors
+    {method} include container_messages
+    {method} include container_contacts
+    {method} include container_events
+    {method} include datenwerft.modal_error
+    {method} include notice-norights
+  }
+
+  class generic_objectclass_table {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include container_table_danger
+    {method} include container_table_warning
+    {method} include datenwerft.modal_error
+    {method} include notice-norights
+  }
+
+  class index {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include notice-norights
+  }
+
+  class map {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_map_danger
+    {method} include datenwerft.modal_error
+    {method} include datenwerft.modal_loading
+    {method} include notice-norights
+  }
+
+  class notice_norights {}
+
+  class orphaned_data {
+    {field} title
+    {field} content
+    {method} include notice-norights
+  }
+}
+
+
+datenwerft.base ..> datenwerft.navbar_html
+datenwerft.base <|-- datenwerft.index
+datenwerft.base <|-- datenwerft.error
+
+datenwerft.base <|-- bemas.codelists
+datenwerft.base <|-- bemas.codelist_delete
+datenwerft.base <|-- bemas.codelist_form
+datenwerft.base <|-- bemas.codelist_table
+datenwerft.base <|-- bemas.generic_objectclass_delete
+datenwerft.base <|-- bemas.generic_objectclass_form
+datenwerft.base <|-- bemas.generic_objectclass_table
+datenwerft.base <|-- bemas.index
+datenwerft.base <|-- bemas.map
+datenwerft.base <|-- bemas.orphaned_data
+
+
+bemas.codelists ..> bemas.notice_norights
+bemas.codelist_delete ..> bemas.container_messages
+bemas.codelist_delete ..> bemas.notice_norights
+bemas.codelist_form ..> bemas.container_errors
+bemas.codelist_form ..> bemas.notice_norights
+bemas.codelist_table ..> bemas.container_messages
+bemas.codelist_table ..> bemas.container_table_warning
+bemas.codelist_table ..> bemas.notice_norights
+bemas.generic_objectclass_delete ..> bemas.container_messages
+bemas.generic_objectclass_delete ..> bemas.container_deletion_hints
+bemas.generic_objectclass_delete ..> bemas.notice_norights
+bemas.generic_objectclass_form ..> datenwerft.modal_error
+bemas.generic_objectclass_form ..> bemas.container_errors
+bemas.generic_objectclass_form ..> bemas.container_messages
+bemas.generic_objectclass_form ..> bemas.container_contacts
+bemas.generic_objectclass_form ..> bemas.container_events
+bemas.generic_objectclass_form ..> bemas.notice_norights
+bemas.generic_objectclass_table ..> datenwerft.modal_error
+bemas.generic_objectclass_table ..> bemas.container_messages
+bemas.generic_objectclass_table ..> bemas.container_table_danger
+bemas.generic_objectclass_table ..> bemas.container_table_warning
+bemas.generic_objectclass_table ..> bemas.notice_norights
+bemas.index ..> bemas.container_messages
+bemas.index ..> bemas.notice_norights
+bemas.map ..> datenwerft.modal_error
+bemas.map ..> datenwerft.modal_loading
+bemas.map ..> bemas.container_map_danger
+bemas.map ..> bemas.notice_norights
+bemas.orphaned_data ..> bemas.notice_norights
+
+@enduml

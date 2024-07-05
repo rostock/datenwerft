@@ -144,3 +144,7 @@ input[name="strasse"] {
 .adopt-geometry-control {
   background-image: url("../img/adopt-geometry.svg");
 }
+
+.form-floating > label {
+  width: 100% !important;
+}

@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from pathlib import Path, PurePath
 from PIL import ExifTags, Image
@@ -20,6 +22,24 @@ def delete_duplicate_photos_with_other_suffixes(path):
     for file in pathname.iterdir():
       if PurePath(file).stem == filename_without_ext and PurePath(file).suffix != filename_ext:
         (pathname / file).unlink()
+
+
+def delete_pointcloud(sender, instance, **kwargs):
+  """
+  deletes pointcloud file connected with passed object of sending model
+
+  :param sender: sending model
+  :param instance: object
+  :param **kwargs
+  """
+  if hasattr(instance, 'punktwolke') and instance.punktwolke:
+    instance.punktwolke.delete()
+    try:
+      # delete project subdir if it's empty
+      os.rmdir(f'{settings.PC_MEDIA_ROOT}/{str(instance.projekt_id)}')
+    except OSError as e:
+      pass
+    instance.delete()
 
 
 def delete_pdf(sender, instance, **kwargs):

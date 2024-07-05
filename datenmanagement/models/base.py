@@ -24,60 +24,59 @@ class Basemodel(Model):
     managed: bool = False
 
   class BasemodelMeta:
-    """
-    This class defines soma special meta information for models.
+    """This class defines soma special meta information for models.
 
-    Attributes:
-      editable: shall this model generally be editable?
-      description: description of this model
-      short_name: short name of this model (if foreign keys are used;
-          if not specified -> verbose name)
-      as_overlay: shall geometries be selectable as overlay layer in the map in all form views?
-      default_overlays: list of default overlay layers in the map of form view
-      forms_in_mobile_mode: shall forms for this model be in mobile mode?
-      forms_in_high_zoom_mode: shall map in form view be in high zoom mode?
-      forms_in_high_zoom_mode_default_aerial: shall map in form view be an aerial image,
-          if high zoom mode active?
-      naming: name shown in map filters drop-down menus
-      readonly_fields: shall fields be read-only?
-      geometry_type: type of the geometry represented by this model
-      address_search_class: address search class
-      address_search_long_results: shall address search results be shown in their long versions?
-      address_type: type of the address represented by this model
-          (i.e. address, street or district)
-      address_mandatory: shall an address reference be mandatory for this model?
-      thumbs: shall thumbnails be created from uploaded photos for this model?
-      geojson_input: shall an upload field for a GeoJSON file be available in the form view?
-      gpx_input: shall an upload field for a GPX file be available in the form view?
-      associated_models: shall other models referencing this model?
-      choices_models_for_choices_fields:
-      group_with_users_for_choice_field:
-      fields_with_foreign_key_to_linkify:
-      catalog_link_fields:
-      multi_photos:
-      postcode_assigner:
-      list_fields:
-      list_field_with_address_string:
-      list_field_with_address_string_fallback_field:
-      list_fields_with_date:
-      list_fields_with_datetime:
-      list_fields_with_decimal:
-      list_fields_with_foreign_key:
-      list_additional_foreign_key_field:
-      list_actions_assign:
-      highlight_flag:
-      map_heavy_load_limit:
-      map_feature_tooltip_fields:
-      map_one_click_filters:
-      map_deadlinefilter_fields:
-      map_intervalfilter_fields:
-      map_filter_fields:
-      map_filter_fields_as_list:
-      map_filter_fields_as_checkbox:
-      map_filter_boolean_fields_as_checkbox:
-      map_filter_hide_initial:
-      additional_wms_layers:
-      additional_wfs_featuretypes:
+    :ivar editable: shall this model generally be editable?
+    :ivar description: description of this model
+    :ivar short_name: short name of this model (if foreign keys are used;
+        if not specified -> verbose name)
+    :ivar as_overlay: shall geometries be selectable as overlay layer in the map in all form views?
+    :ivar default_overlays: list of default overlay layers in the map of form view
+    :ivar forms_in_mobile_mode: shall forms for this model be in mobile mode?
+    :ivar forms_in_high_zoom_mode: shall map in form view be in high zoom mode?
+    :ivar forms_in_high_zoom_mode_default_aerial: shall map in form view be an aerial image,
+        if high zoom mode active?
+    :ivar naming: name shown in map filters drop-down menus
+    :ivar readonly_fields: shall fields be read-only?
+    :ivar geometry_type: type of the geometry represented by this model
+    :ivar geometry_calculation: Shall the geometry not be editable because it is calculated?
+    :ivar address_search_class: address search class
+    :ivar address_search_long_results: shall address search results be shown in long versions?
+    :ivar address_type: type of the address represented by this model
+        (i.e. address, street or district)
+    :var address_mandatory: shall an address reference be mandatory for this model?
+    :ivar thumbs: shall thumbnails be created from uploaded photos for this model?
+    :ivar geojson_input: shall an upload field for a GeoJSON file be available in the form view?
+    :ivar gpx_input: shall an upload field for a GPX file be available in the form view?
+    :ivar associated_models: shall other models referencing this model?
+    :ivar choices_models_for_choices_fields:
+    :ivar group_with_users_for_choice_field:
+    :ivar fields_with_foreign_key_to_linkify:
+    :ivar catalog_link_fields:
+    :ivar multi_photos:
+    :ivar postcode_assigner:
+    :ivar list_fields:
+    :ivar list_field_with_address_string:
+    :ivar list_field_with_address_string_fallback_field:
+    :ivar list_fields_with_date:
+    :ivar list_fields_with_datetime:
+    :ivar list_fields_with_decimal:
+    :ivar list_fields_with_foreign_key:
+    :ivar list_additional_foreign_key_field:
+    :ivar list_actions_assign:
+    :ivar highlight_flag:
+    :ivar map_heavy_load_limit:
+    :ivar map_feature_tooltip_fields:
+    :ivar map_one_click_filters:
+    :ivar map_deadlinefilter_fields:
+    :ivar map_intervalfilter_fields:
+    :ivar map_filter_fields:
+    :ivar map_filter_fields_as_list:
+    :ivar map_filter_fields_as_checkbox:
+    :ivar map_filter_boolean_fields_as_checkbox:
+    :ivar map_filter_hide_initial:
+    :ivar additional_wms_layers:
+    :ivar additional_wfs_featuretypes:
 
     """
     editable: bool = True
@@ -91,6 +90,7 @@ class Basemodel(Model):
     naming: str = None
     readonly_fields: list[str] = None
     geometry_type: str = None
+    geometry_calculation: bool = False
     address_search_class: str = 'address_hro'
     address_search_long_results: bool = False
     address_type: str = None

@@ -96,11 +96,13 @@ def localize_number(value):
   return format_string('%.2f', value, grouping=True)
 
 
-def path_and_rename(path):
+def path_and_rename(path, foreign_key_subdir_attr: str = ""):
   """
   cleans passed path and returns it
 
   :param path: path
+  :param foreign_key_subdir_attr: use instance attribute as subdirectory (list all attributes with
+      print(instance.__dict__))
   :return: cleaned version of passed path
   """
   def wrapper(instance, filename):
@@ -118,7 +120,12 @@ def path_and_rename(path):
       filename = '{0}.{1}'.format(str(instance.uuid), ext.lower())
     else:
       filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
-    return Path(path) / filename
+    if foreign_key_subdir_attr:
+      # print(instance.__dict__)   # list all attributes of instance
+      subdir = str(getattr(instance, foreign_key_subdir_attr))
+      return Path(path + f'/{subdir}') / filename
+    else:
+      return Path(path) / filename
   return wrapper
 
 

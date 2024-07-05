@@ -1,9 +1,11 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
+
+import django.contrib.gis.forms.fields
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
-  RegexValidator, URLValidator
+  RegexValidator, URLValidator, FileExtensionValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
@@ -11,7 +13,6 @@ from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
-
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
@@ -22,11 +23,11 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
   parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \
   strassen_schluessel_regex, strassen_schluessel_message, uvp_registriernummer_bauamt_regex, \
   uvp_registriernummer_bauamt_message, wikipedia_regex, wikipedia_message
-from .fields import ChoiceArrayField, PositiveIntegerMinField, PositiveIntegerRangeField, \
-  PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, point_field, line_field, \
-  multiline_field, polygon_field, multipolygon_field
-from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
-  set_pre_save_instance, photo_post_processing
+from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
+  PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
+  point_field, line_field, multiline_field, polygon_field, multipolygon_field
+from .functions import delete_pdf, delete_photo, photo_post_processing, delete_pointclou, \
+  delete_pointcloud
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
@@ -2898,15 +2899,136 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
 
 
 #
-# RSAG
+# Punktwolken Projekte (besteht aus mehreren Punktwolken)
 #
+
+class Punktwolken_Projekte(ComplexModel):
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+  )
+  beschreibung = NullTextField(
+    verbose_name='Beschreibung',
+    max_length=255,
+    blank=True,
+    null=True
+  )
+  projekt_update = DateTimeField(
+    verbose_name='Aktualisierung',
+    editable=False,
+    auto_now=True,
+  )
+  geometrie = polygon_field
+  # Project geometry results from the individual geometries of the point clouds,
+  # so a project have no geometry at initialization.
+  geometrie.null = True
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"punktwolken_projekte'
+    verbose_name = 'Punktwolken Projekt'
+    verbose_name_plural = ('Punktwolken Projekte')
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    readonly_fields = ['geometrie']
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'bezeichnung': 'Bezeichnung',
+      'beschreibung': 'Beschreibung',
+      'projekt_update': 'Zuletzt aktualisiert'
+    }
+    list_fields_with_datetime = ['projekt_update']
+    associated_models = {
+      'Punktwolken': 'projekt'
+    }
+    geometry_type = 'Polygon'
+    geometry_calculation = True
+
+  def __str__(self):
+    return self.bezeichnung
+
+
+#
+# Punktwolken (Punktwolken Dateien)
+#
+
+class Punktwolken(ComplexModel):
+  dateiname = CharField(
+    verbose_name='Dateiname',
+    max_length=255
+  )
+  aufnahme = DateTimeField(
+    verbose_name='Aufnahmezeitpunkt',
+    auto_now_add=True
+  )
+  projekt = ForeignKey(
+    to=Punktwolken_Projekte,
+    verbose_name='Punktwolken Projekt',
+    on_delete=CASCADE,
+    db_column='punktwolken_projekte',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_punktwolken_projekte'
+  )
+  punktwolke = FileField(
+    verbose_name='Punktwolkendatei',
+    upload_to=path_and_rename(
+      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/',
+      foreign_key_subdir_attr='projekt_id'
+    ),
+    storage=OverwriteStorage(path_root=settings.PC_MEDIA_ROOT),
+    validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])]
+  )
+  vc_update = DateTimeField(
+    verbose_name='Zuletzt aktualisiert',
+    auto_now=True
+  )
+  geometrie = polygon_field
+  geometrie.null = True
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"punktwolken'
+    verbose_name = ('Punktwolke')
+    verbose_name_plural = ('Punktwolken')
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Punktwolken aus LiDAR-Scans'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'dateiname': 'Dateiname',
+      'aufnahme': 'Aufnahmedatum',
+      'projekt': 'Punktwolken Projekt',
+      'vc_update': 'Letzte Aktualisierung',
+    }
+    list_fields_with_datetime = ['aufnahme', 'vc_update']
+    list_fields_with_foreign_key = {
+      'projekt': 'bezeichnung'
+    }
+    fields_with_foreign_key_to_linkify = ['projekt']
+    geometry_type = 'Polygon'
+    geometry_calculation = True
+
+  def __str__(self):
+    if self.aufnahme:
+      aufnahme_str = ' vom ' + self.aufnahme.strftime('%d.%m.%Y %H:%M')
+    else:
+      aufnahme_str = ''
+    return self.dateiname + aufnahme_str
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
+
+post_delete.connect(delete_pointcloud, sender=Punktwolken)
+
 
 class RSAG_Gleise(ComplexModel):
   """
-  RSAG:
-  Gleise
+  RSAG: Gleise
   """
-
   quelle = CharField(
     verbose_name='Quelle',
     max_length=255,

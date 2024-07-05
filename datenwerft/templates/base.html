@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load rest_framework %}
 
+
 <!DOCTYPE html>
 <html lang="de">
   <head>
@@ -34,11 +35,18 @@
   </head>
 
   <body>
-    {% block navbar %}
-    {% endblock %}
-    <div class="container-fluid mt-5">
-      {% block content %}
+    <header>
+      {% block navbar %}
+        {% include 'navbar.html' %}
       {% endblock %}
-    </div>
+    </header>
+    <main>
+      <div class="container-fluid mt-5">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+    <footer>
+      {% block footer %}{% endblock %}
+    </footer>
   </body>
 </html>
