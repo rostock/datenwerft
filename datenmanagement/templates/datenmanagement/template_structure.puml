@@ -1,0 +1,150 @@
+@startuml
+package datenwerft{
+  class base {
+    {field} head
+    {field} meta
+    {field} title
+    {field} style
+    {field} scripts
+    {field} navbar
+    {field} content
+    {field} footer
+    {method} include navbar_html
+  }
+
+  class navbar_html {
+    {field} navbar
+  }
+
+  class index {
+    {field} title
+    {field} content
+  }
+
+  class error {
+    {field} title
+    {field} content
+  }
+
+  class modal_confirm_export {}
+  class modal_error {}
+  class modal_loading {}
+}
+
+
+package datenmanagement {
+  class add_another {
+    {field} title
+    {field} content
+  }
+
+  class delete {
+    {field} title
+    {field} content
+  }
+
+  class form {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {field} alerts
+    {field} associated_models
+    {field} list
+    {field} map
+    {field} pc_management
+    {method} extend style
+    {method} extend scripts
+  }
+
+  class form_address {}
+
+  class form_list {
+    {field} list
+    {method} include form_address
+  }
+
+  class form_map {
+    {field} style
+    {field} scripts
+    {field} alerts
+    {field} list
+    {method} extend style
+    {method} extend scripts
+    {method} include modal_error
+    {method} include modal_loading
+    {method} include form_address
+  }
+
+  class form_pcmanagement {
+    {field} associated_models
+    {field} pc_management
+  }
+
+  class index {
+    {field} style
+    {field} content
+    {method} extend style
+  }
+
+  class list {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include modal_action_assign
+    {method} include modal_action_delete
+    {method} include modal_error
+    {method} include modal_confirm_export
+  }
+
+  class map_html {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include modal_loading
+  }
+
+  class modal_action_assign {}
+  class modal_action_delete {}
+
+  class start {
+    {field} title
+    {field} content
+  }
+}
+
+
+datenwerft.base ..> datenwerft.navbar_html
+datenwerft.base <|-- datenwerft.index
+datenwerft.base <|-- datenwerft.error
+
+datenwerft.base <|-- datenmanagement.add_another
+datenwerft.base <|-- datenmanagement.delete
+datenwerft.base <|-- datenmanagement.form
+datenwerft.base <|-- datenmanagement.index
+datenwerft.base <|-- datenmanagement.list
+datenwerft.base <|-- datenmanagement.map_html
+datenwerft.base <|-- datenmanagement.start
+
+
+datenmanagement.form <|-- datenmanagement.form_list
+datenmanagement.form_list <|-- datenmanagement.form_map
+datenmanagement.form_map <|-- datenmanagement.form_pcmanagement
+datenmanagement.form_list ..> datenmanagement.form_address
+datenmanagement.form_map ..> datenwerft.modal_error
+datenmanagement.form_map ..> datenwerft.modal_loading
+datenmanagement.form_map ..> datenmanagement.form_address
+datenmanagement.list ..> datenwerft.modal_error
+datenmanagement.list ..> datenwerft.modal_confirm_export
+datenmanagement.list ..> datenmanagement.modal_action_assign
+datenmanagement.list ..> datenmanagement.modal_action_delete
+datenmanagement.map_html ..> datenwerft.modal_error
+datenmanagement.map_html ..> datenwerft.modal_loading
+
+@enduml

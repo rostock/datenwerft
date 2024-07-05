@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% load toolbox_tags %}
+{% load datenmanagement_tags %}
+{% load static %}
+
+
+{% block title %}{{ model_verbose_name_plural }} – Formular | {% endblock %}
+
+
+{% block style %}
+  <!-- inherits from base -->
+  {{ block.super }}
+
+  <!-- set standard style sheet -->
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
+  
+  <!-- device specific style sheets -->
+  {% if forms_in_mobile_mode or is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
+    {% if forms_in_mobile_mode %}
+      <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}">
+    {% endif %}
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+  <!-- inherit from navbar.html -->
+  {{ block.super }}
+
+  <!-- extend with js scripts needed by all forms -->
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/form.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+  <h2>{{ model_verbose_name_plural }} - Formular</h2>
+  {% block alerts %}
+  	{% block errors %}
+  		{% if form.errors %}
+        {% for field in form %}
+          {% if field.errors|is_linebreak_error %}
+            <div class="alert alert-danger" role="alert">
+              <i class="fa-solid fa-circle-exclamation"></i> Texte dürfen keine Zeilenumbrüche enthalten.
+            </div>
+          {% else %}
+            {% for error in field.errors %}
+              <div class="alert alert-danger" role="alert">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {% autoescape off %}
+                  {% with replace_string='ATTRIBUTE|'|add:field.label %}
+                    {{ error|replace:replace_string }}
+                  {% endwith %}
+                {% endautoescape %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            {{ error|clean_error_message }}
+          </div>
+        {% endfor %}
+        <div class="mb-4"></div>
+      {% endif %}
+  	{% endblock %}
+    {% block associated_models %}
+    	{% if associated_new %}
+        <div class="alert alert-primary" role="alert">
+          <h5 class="alert-heading">assoziierte Datensätze</h5>
+          {% if object and associated_objects %}
+            <ul>
+              {% for associated_object in associated_objects %}
+                <li>{{ associated_object.title }} <em>{{ associated_object.name }}</em> <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
+                {% if associated_object.preview_img_url %}
+                  <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">
+                    <img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px">
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% else %}
+            (noch) keine assoziierten Datensätze vorhanden
+          {% endif %}
+          {% if user|user_has_model_change_permission:model_name_lower %}
+            <hr>
+            {% for associated_new_entry in associated_new %}
+              <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
+                <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
+              </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="mb-4"></div>
+      {% endif %}
+    {% endblock %}
+  {% endblock %}
+  <form class="form" id="form" method="post" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    {% block list %}
+    	
+    {% endblock %}
+    {% block map %}
+      
+    {% endblock %}
+    {% block pc_management %}
+    	
+    {% endblock %}
+  </form>
+  
+{% endblock %}

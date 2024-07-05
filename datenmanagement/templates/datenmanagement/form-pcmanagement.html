@@ -1,0 +1,34 @@
+{% extends "datenmanagement/form-map.html" %}
+{% load toolbox_tags %}
+{% load datenmanagement_tags %}
+{% load leaflet_tags %}
+{% load static %}
+
+
+{% block associated_models %}
+  <!-- Alert block for associated Models is blocked -->
+{% endblock %}
+
+
+{% block pc_management %}
+  <div class="row">
+  <table class="table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Datei</th>
+        <th scope="col">Aufnahmedatum</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for associated_object in associated_objects %}
+      <tr>
+        <td>{{ associated_object.id }}</td>
+        <td>{{ associated_object.name }}<a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></td>
+        <td>{{ associated_object.title }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+{% endblock %}

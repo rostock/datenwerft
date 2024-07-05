@@ -1,0 +1,104 @@
+{% extends 'datenmanagement/form-wrapper.html' %}
+{% load toolbox_tags %}
+{% load datenmanagement_tags %}
+{% load static %}
+
+{% block list %}
+	<input type="hidden" name="original_url_back" value="{{ url_back }}">
+  <div {% if model_geometry_type %}id="custom-form"{% endif %}>
+    <table class="table">
+      {% for field in form %}
+        {% if model_geometry_type and not field|is_field_address_related_field and not field|is_field_geometry_field or not model_geometry_type %}
+          <tr>
+            <td class="cell-label">
+              {% if field.name in catalog_link_fields_names %}
+                {{ field.label_tag }}
+                <small>(<a href="{{ catalog_link_fields|get_dict_value_by_key:field.name }}"><i class="fas fa-circle-info"></i> ALKIS-Katalog</a>)</small>
+              {% elif field|is_field_hours_related_field %}
+                {{ field.label_tag }} <small>(<a href="{% static 'hilfe/work/datensatz-anlegen.html' %}#datensatz-anlegen-oeffnungszeiten"><i class="fas fa-circle-question"></i> Hilfe</a>)</small>
+              {% elif fields_with_foreign_key_to_linkify and field.name in fields_with_foreign_key_to_linkify %}
+                {% if object and user|user_has_model_change_permission:model_name_lower and object|get_value_of_field:field.name %}
+                  {% with foreign_model=object|get_value_of_field:field.name|get_class_name %}
+                    {% if foreign_model|is_model_editable %}
+                      {{ field.label_tag }}
+                      <a href="{{ foreign_model|build_change_link:field.value }}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                    {% else %}
+                      {{ field.label_tag }}
+                    {% endif %}
+                  {% endwith %}
+                {% else %}
+                  {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
+                    {% if foreign_model|is_model_editable %}
+                      {{ field.label_tag }}<a hidden href="{{ foreign_model|build_change_link:foreign_model }}" id="link_{{ field.name }}"> <i class="fas fa-arrow-up-right-from-square" title="{{ field.label }} ansehen oder bearbeiten"></i></a>
+                    {% else %}
+                      {{ field.label_tag }}
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+                {% with foreign_model=field.name|get_foreign_key_field_class_name:model_name %}
+                  {% if model_geometry_type and foreign_model|has_model_geometry_field %}
+                    <span> <i id="{{ field.name }}-value-assigner" data-foreign-model="{{ foreign_model }}" data-field-title="{{ field.label }}" data-field-name="{{ field.name }}" class="fa-solid fa-map-location-dot text-primary enabled value-assigner" title="{{ field.label }} via Karte auswählen"></i></span>
+                  {% endif %}
+                {% endwith %}
+              {% elif postcode_assigner and field.name == postcode_assigner %}
+                {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+                  {{ field.label_tag }} <span><i id="postcode-assigner" class="fas fa-gears text-{% if geometry %}primary enabled{% else %}secondary{% endif %}"{% if geometry %} title="Postleitzahl automatisch zuweisen"{% endif %}></i></span>
+                {% endif %}
+              {% else %}
+                {{ field.label_tag }}
+              {% endif %}
+            </td>
+            {% autoescape off %}
+              <td class="cell-field">
+                {% if field|is_field_address_related_field %}
+                  {% include "datenmanagement/form-address.html" %}
+                  <div id="results-container" class="results"></div>
+                {% else %}
+                  {{ field }}
+                {% endif %}
+              </td>
+            {% endautoescape %}
+          </tr>
+        {% endif %}
+      {% endfor %}
+      {% if gpx_input %}
+        <tr>
+          <td class="cell-label">
+            <label for="id_gpx" class="required">GPX-Datei</label>
+          </td>
+          <td class="cell-field">
+            <div class="custom-file">
+              <input class="form-control" type="file" id="id_gpx" name="gpx" accept=".gpx">
+            </div>
+          </td>
+        </tr>
+      {% endif %}
+      {% if geojson_input %}
+        <tr>
+          <td class="cell-label">
+            <label for="id_geojson">GeoJSON-Datei für Geometrie</label>
+          </td>
+          <td class="cell-field">
+            <div class="custom-file">
+              <input class="form-control" type="file" id="id_geojson" name="geojson" accept=".geojson,.json">
+            </div>
+          </td>
+        </tr>
+      {% endif %}
+    </table>
+    {% if not forms_in_mobile_mode and not is_mobile %}
+      <div class="d-grid mt-5 mb-3 gap-2">
+        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
+        {% endif %}
+        {% if url_model_add %}
+          <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
+        {% endif %}
+        {% if url_model_delete_object %}
+          <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
+        {% endif %}
+        <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
