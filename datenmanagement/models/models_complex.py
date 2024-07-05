@@ -3024,9 +3024,6 @@ class Punktwolken(ComplexModel):
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)
 
-#
-# RSAG
-#
 
 class RSAG_Gleise(ComplexModel):
   """
