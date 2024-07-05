@@ -26,7 +26,8 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
 from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
-from .functions import delete_pdf, delete_photo, photo_post_processing, delete_pointclou
+from .functions import delete_pdf, delete_photo, photo_post_processing, delete_pointclou, \
+  delete_pointcloud
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
@@ -3020,8 +3021,8 @@ class Punktwolken(ComplexModel):
       update_fields=update_fields
     )
 
-post_delete.connect(delete_pointcloud, sender=Punktwolken)
 
+post_delete.connect(delete_pointcloud, sender=Punktwolken)
 
 #
 # RSAG
