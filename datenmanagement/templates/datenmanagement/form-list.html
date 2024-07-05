@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block list %}
-	<input type="hidden" name="original_url_back" value="{{ url_back }}">
+  <input type="hidden" name="original_url_back" value="{{ url_back }}">
   <div {% if model_geometry_type %}id="custom-form"{% endif %}>
     <table class="table">
       {% for field in form %}
