@@ -121,7 +121,7 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ""):
     else:
       filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
     if foreign_key_subdir_attr:
-      #print(instance.__dict__)   # list all attributes of instance
+      # print(instance.__dict__)   # list all attributes of instance
       subdir = str(getattr(instance, foreign_key_subdir_attr))
       return Path(path + f'/{subdir}') / filename
     else:
