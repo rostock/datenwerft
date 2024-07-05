@@ -3030,10 +3030,8 @@ post_delete.connect(delete_pointcloud, sender=Punktwolken)
 
 class RSAG_Gleise(ComplexModel):
   """
-  RSAG:
-  Gleise
+  RSAG: Gleise
   """
-
   quelle = CharField(
     verbose_name='Quelle',
     max_length=255,

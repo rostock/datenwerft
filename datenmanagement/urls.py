@@ -14,7 +14,6 @@ from .views.views_list_map import MapDataCompositionView, MapListView, TableData
   TableListView
 
 
-
 router = DefaultRouter()
 
 app_name = 'datenmanagement'
