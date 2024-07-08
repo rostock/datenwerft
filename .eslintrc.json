@@ -56,7 +56,7 @@
   },
   "ignorePatterns": [
     "antragsmanagement/templates/antragsmanagement/form_request-followup.html",
-    "datenmanagement/templates/datenmanagement/form.html"
+    "datenmanagement/templates/datenmanagement/form-map.html"
   ],
   "parserOptions": {
     "ecmaVersion": "latest",
