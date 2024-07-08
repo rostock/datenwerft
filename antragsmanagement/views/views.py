@@ -2,6 +2,7 @@ from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.gis.geos import GEOSGeometry
+from django.core.mail import send_mail
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -19,7 +20,7 @@ from .functions import add_model_context_elements, add_permissions_context_eleme
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump
+  CleanupEventContainer, CleanupEventDump, get_cleanupeventrequest_email_body_information
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
@@ -187,7 +188,7 @@ class EmailUpdateView(ObjectUpdateView):
   """
 
   model = Email
-  cancel_url = 'antragsmanagement:index'
+  cancel_url = 'antragsmanagement:email_table'
 
   def get_context_data(self, **kwargs):
     """
@@ -1532,6 +1533,27 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
             raise Http404(self.error_message)
     else:
       messages.success(request, self.success_message)
+      # send email to inform requester about new request
+      # get corresponding Email object
+      try:
+        email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW')
+      except Email.DoesNotExist:
+        email = None
+      if email is not None:
+        # get request
+        request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
+        if request:
+          # set subject and body
+          subject = email.subject.format(request=request.short())
+          message = get_cleanupeventrequest_email_body_information(request, email.body)
+          # send email
+          send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[request.requester.email],
+            fail_silently=True
+          )
     return redirect('antragsmanagement:index')
 
   def get_context_data(self, **kwargs):
@@ -1612,6 +1634,38 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
   for request type clean-up events (Müllsammelaktionen):
   container (Container)
   """
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    # delay necessary to allow automatic field contents to populate
+    instance = form.save(commit=False)
+    instance.full_clean()
+    instance.save()
+    # send email to inform requester about new request
+    # get corresponding Email object
+    try:
+      email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW')
+    except Email.DoesNotExist:
+      email = None
+    if email is not None:
+      request = instance.cleanupevent_request
+      # set subject and body
+      subject = email.subject.format(request=request.short())
+      message = get_cleanupeventrequest_email_body_information(request, email.body)
+      # send email
+      send_mail(
+        subject=subject,
+        message=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[request.requester.email],
+        fail_silently=True
+      )
+    return super().form_valid(form)
 
   def get_initial(self):
     """

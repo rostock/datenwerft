@@ -216,8 +216,8 @@ class DataChangeView(UpdateView):
       for associated_model in self.associated_models:
         associated_model_model = apps.get_app_config('datenmanagement').get_model(associated_model)
         associated_model_foreign_key_field = self.associated_models.get(associated_model)
-        if associated_model_model.BasemodelMeta.short_name:
-          title = associated_model_model.BasemodelMeta.short_name
+        if associated_model_model.BasemodelMeta.short:
+          title = associated_model_model.BasemodelMeta.short
         else:
           title = associated_model_model._meta.verbose_name
         associated_new_dict = {

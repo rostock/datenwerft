@@ -333,9 +333,11 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
   model = Email
   attributes_values_db_create = {
     'key': get_random_string(length=12),
+    'subject': get_random_string(length=12),
     'body': VALID_TEXT
   }
   attributes_values_view_update_valid = {
+    'subject': get_random_string(length=12),
     'body': get_random_string(length=12)
   }
   attributes_values_view_update_invalid = {
