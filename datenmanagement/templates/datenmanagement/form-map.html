@@ -4,7 +4,6 @@
 {% load leaflet_tags %}
 {% load static %}
 
-
 {% block style %}
   <!-- inherits from form-wrapper -->
 	{{ block.super }}
@@ -12,7 +11,6 @@
   <!-- load specific styles -->
   {% leaflet_css plugins="geoman,locatecontrol" %}
 {% endblock %}
-
 
 {% block scripts %}
   <!-- inherits from form-wrapper -->
@@ -28,7 +26,6 @@
   <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
   <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
 {% endblock %}
-
 
 {% block map %}
   {% if model_geometry_type %}

@@ -1,12 +1,9 @@
 {% extends "base.html" %}
-
 {% load toolbox_tags %}
 {% load datenmanagement_tags %}
 {% load static %}
 
-
 {% block title %}{{ model_verbose_name_plural }} – Formular | {% endblock %}
-
 
 {% block style %}
   <!-- inherits from base -->
@@ -26,7 +23,6 @@
   {% endif %}
 {% endblock %}
 
-
 {% block scripts %}
   <!-- inherit from navbar.html -->
   {{ block.super }}
@@ -36,10 +32,11 @@
   <script src="{% static 'datenmanagement/js/form.js' %}"></script>
 {% endblock %}
 
-
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
+  
   {% block alerts %}
+    
   	{% block errors %}
   		{% if form.errors %}
         {% for field in form %}
@@ -69,6 +66,7 @@
         <div class="mb-4"></div>
       {% endif %}
   	{% endblock %}
+    
     {% block associated_models %}
     	{% if associated_new %}
         <div class="alert alert-primary" role="alert">
@@ -99,6 +97,7 @@
         <div class="mb-4"></div>
       {% endif %}
     {% endblock %}
+    
   {% endblock %}
   <form class="form" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
