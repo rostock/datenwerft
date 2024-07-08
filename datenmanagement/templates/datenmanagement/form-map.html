@@ -6,7 +6,7 @@
 
 {% block style %}
   <!-- inherits from form-wrapper -->
-	{{ block.super }}
+  {{ block.super }}
 
   <!-- load specific styles -->
   {% leaflet_css plugins="geoman,locatecontrol" %}
@@ -14,7 +14,7 @@
 
 {% block scripts %}
   <!-- inherits from form-wrapper -->
-	{{ block.super }}
+  {{ block.super }}
 
   <!-- load specific scripts -->
   {% leaflet_js plugins="geoman,locatecontrol" %}
@@ -89,7 +89,7 @@
   {% if geojson_input or gpx_input %}
     {% include "modal-loading.html" %}
   {% endif %}
-	<script>
+  <script>
     /**
      * @function
      * @name mapCallbackFunction
