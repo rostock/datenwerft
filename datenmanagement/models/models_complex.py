@@ -1,7 +1,6 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
-import django.contrib.gis.forms.fields
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
@@ -23,10 +22,10 @@ from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzei
   parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \
   strassen_schluessel_regex, strassen_schluessel_message, uvp_registriernummer_bauamt_regex, \
   uvp_registriernummer_bauamt_message, wikipedia_regex, wikipedia_message
-from .fields import ChoiceArrayField, NullTextField, PositiveIntegerMinField, \
+from .fields import ChoiceArrayField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
-from .functions import delete_pdf, delete_photo, photo_post_processing, delete_pointclou, \
+from .functions import delete_pdf, delete_photo, photo_post_processing, \
   delete_pointcloud
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
