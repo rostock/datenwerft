@@ -11,7 +11,7 @@
 
   <!-- set standard style sheet -->
   <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  
+
   <!-- device specific style sheets -->
   {% if forms_in_mobile_mode or is_mobile %}
     <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
@@ -34,11 +34,11 @@
 
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
-  
+
   {% block alerts %}
-    
-  	{% block errors %}
-  		{% if form.errors %}
+
+    {% block errors %}
+      {% if form.errors %}
         {% for field in form %}
           {% if field.errors|is_linebreak_error %}
             <div class="alert alert-danger" role="alert">
@@ -65,10 +65,10 @@
         {% endfor %}
         <div class="mb-4"></div>
       {% endif %}
-  	{% endblock %}
-    
+    {% endblock %}
+
     {% block associated_models %}
-    	{% if associated_new %}
+      {% if associated_new %}
         <div class="alert alert-primary" role="alert">
           <h5 class="alert-heading">assoziierte Datensätze</h5>
           {% if object and associated_objects %}
@@ -97,19 +97,19 @@
         <div class="mb-4"></div>
       {% endif %}
     {% endblock %}
-    
+
   {% endblock %}
   <form class="form" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     {% block list %}
-    	
+
     {% endblock %}
     {% block map %}
-      
+
     {% endblock %}
     {% block pc_management %}
-    	
+
     {% endblock %}
   </form>
-  
+
 {% endblock %}
