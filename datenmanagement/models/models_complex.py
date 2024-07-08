@@ -26,7 +26,7 @@ from .fields import ChoiceArrayField, PositiveIntegerMinField, \
   PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
   point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import delete_pdf, delete_photo, photo_post_processing, \
-  delete_pointcloud
+  delete_pointcloud, set_pre_save_instance, delete_photo_after_emptied
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
   Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
   Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
