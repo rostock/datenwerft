@@ -307,7 +307,6 @@ def order_model_to_form_template(model: Basemodel):
   if model.__module__ == 'datenmanagement.models.models_codelist':
     return 'datenmanagement/form-list.html'
   elif model.__name__ == 'Punktwolken_Projekte':
-    print('Punktwolken Projekte')
     return 'datenmanagement/form-pcmanagement.html'
   else:
     return 'datenmanagement/form-map.html'

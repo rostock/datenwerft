@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from .constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from .models import Authority, Requester
+from .models import Authority, Email, Requester
 
 
 def belongs_to_antragsmanagement_authority(user):

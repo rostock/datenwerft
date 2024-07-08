@@ -270,9 +270,9 @@ def get_cleanupeventrequest_queryset(user, count=False):
     request = CleanupEventRequest.objects.get(pk=item['id'])
     # if responsibilities exist
     if request.responsibilities.exists():
-      # use list comprehension to create authorities' short names and join them with '<br>'
+      # use list comprehension to get authorities' short names and join them
       responsibilities_value = '<br>'.join(
-        [responsibility.short_name() for responsibility in request.responsibilities.all()]
+        [responsibility.short() for responsibility in request.responsibilities.all()]
       )
     # set "responsibilities" to authorities' short names
     item['responsibilities'] = responsibilities_value
@@ -297,7 +297,7 @@ def get_cleanupeventrequest_queryset(user, count=False):
       waste_types_value = None
       # if waste types exist
       if details.waste_types.exists():
-        # use list comprehension to join waste types with '<br>'
+        # use list comprehension to join waste types
         waste_types_value = '<br>'.join(
           [waste_type.name for waste_type in details.waste_types.all()]
         )
@@ -309,7 +309,7 @@ def get_cleanupeventrequest_queryset(user, count=False):
       equipments_value = None
       # if equipments exist
       if details.equipments.exists():
-        # use list comprehension to join equipments with '<br>'
+        # use list comprehension to join equipments
         equipments_value = '<br>'.join(
           [equipment.name for equipment in details.equipments.all()]
         )
