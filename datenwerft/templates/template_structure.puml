@@ -337,6 +337,27 @@ package antragsmanagement {
   }
 }
 
+package accounts {
+  class login {
+    {field} title
+    {field} content
+  }
+
+  class login_add_token {
+    {field} title
+    {field} content
+  }
+
+  class logout {
+    {field} title
+    {field} content
+  }
+
+  class test {
+    {field} content
+  }
+}
+
 
 datenwerft.base ..> datenwerft.navbar_html
 datenwerft.base <|-- datenwerft.index
@@ -370,6 +391,11 @@ datenwerft.base <|-- antragsmanagement.index
 datenwerft.base <|-- antragsmanagement.map_request
 datenwerft.base <|-- antragsmanagement.table_request
 datenwerft.base <|-- antragsmanagement.table_simple
+
+datenwerft.base <|-- accounts.login
+datenwerft.base <|-- accounts.login_add_token
+datenwerft.base <|-- accounts.logout
+datenwerft.base <|-- accounts.test
 
 
 datenmanagement.form <|-- datenmanagement.form_list
