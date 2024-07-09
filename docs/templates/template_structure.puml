@@ -1,0 +1,22 @@
+@startuml
+skinparam linetype ortho
+
+!define PROJECT ../..
+!define DATENWERFT_TEMPLATES PROJECT/datenwerft/templates
+!define DATENMANAGEMENT_TEMPLATES PROJECT/datenmanagement/templates/datenmanagement
+!define BEMAS_TEMPLATES PROJECT/bemas/templates/bemas
+!define ANTRAGSMANAGEMENT_TEMPLATES PROJECT/antragsmanagement/templates/antragsmanagement
+!define ACCOUNTS_TEMPLATES PROJECT/accounts/templates/accounts
+
+
+
+!include DATENWERFT_TEMPLATES/template_structure.puml
+!include DATENMANAGEMENT_TEMPLATES/template_structure.puml
+!include BEMAS_TEMPLATES/template_structure.puml
+!include ANTRAGSMANAGEMENT_TEMPLATES/template_structure.puml
+!include ACCOUNTS_TEMPLATES/template_structure.puml
+
+
+
+
+@enduml
