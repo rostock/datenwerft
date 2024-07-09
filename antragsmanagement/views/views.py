@@ -1053,7 +1053,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     instance.full_clean()
     instance.save()
     # on every status change: send email to inform original requester
-    if old_instance.status.name != instance.status:
+    if old_instance.status.name != instance.status.name:
       # get corresponding Email object
       try:
         email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_STATUS-CHANGED')
