@@ -3,17 +3,17 @@ on: push
 jobs:
   generate_plantuml:
     runs-on: ubuntu-latest
-    name: plantuml
     steps:
-    - name: checkout
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: plantuml
-      id: plantuml
-      uses: grassedge/generate-plantuml-action@v1.5
-      with:
-        path: "."
-        message: "Render PlantUML files"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v3
+
+      - name: Generate PlantUML Diagrams
+        uses: rotaract/plantuml-action@v1
+        with:
+          format: svg
+          pattern: "**.puml"
+
+      - name: Upload Diagrams
+        uses: actions/upload-artifact@v3
+        with:
+          name: diagrams
+          path: "**.svg"
