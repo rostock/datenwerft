@@ -1,36 +1,6 @@
 @startuml
-package datenwerft{
-  class base {
-    {field} head
-    {field} meta
-    {field} title
-    {field} style
-    {field} scripts
-    {field} navbar
-    {field} content
-    {field} footer
-    {method} include navbar_html
-  }
-
-  class navbar_html {
-    {field} navbar
-  }
-
-  class index {
-    {field} title
-    {field} content
-  }
-
-  class error {
-    {field} title
-    {field} content
-  }
-
-  class modal_confirm_export {}
-  class modal_error {}
-  class modal_loading {}
-}
-
+skinparam linetype ortho
+top to bottom direction
 
 package bemas {
   class codelists {
@@ -142,11 +112,6 @@ package bemas {
     {method} include notice-norights
   }
 }
-
-
-datenwerft.base ..> datenwerft.navbar_html
-datenwerft.base <|-- datenwerft.index
-datenwerft.base <|-- datenwerft.error
 
 datenwerft.base <|-- bemas.codelists
 datenwerft.base <|-- bemas.codelist_delete

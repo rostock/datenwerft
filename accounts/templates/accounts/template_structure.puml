@@ -1,35 +1,5 @@
 @startuml
-package datenwerft{
-  class base {
-    {field} head
-    {field} meta
-    {field} title
-    {field} style
-    {field} scripts
-    {field} navbar
-    {field} content
-    {field} footer
-    {method} include navbar_html
-  }
-
-  class navbar_html {
-    {field} navbar
-  }
-
-  class index {
-    {field} title
-    {field} content
-  }
-
-  class error {
-    {field} title
-    {field} content
-  }
-
-  class modal_confirm_export {}
-  class modal_error {}
-  class modal_loading {}
-}
+skinparam linetype ortho
 
 package accounts {
   class login {
@@ -52,10 +22,6 @@ package accounts {
   }
 }
 
-
-datenwerft.base ..> datenwerft.navbar_html
-datenwerft.base <|-- datenwerft.index
-datenwerft.base <|-- datenwerft.error
 
 datenwerft.base <|-- accounts.login
 datenwerft.base <|-- accounts.login_add_token
