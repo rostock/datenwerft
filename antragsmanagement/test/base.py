@@ -9,6 +9,7 @@ from antragsmanagement.models import Codelist, Requester, Request
 from bemas.tests.functions import clean_object_filter, get_object
 
 
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class DefaultTestCase(TestCase):
   """
   abstract test class
