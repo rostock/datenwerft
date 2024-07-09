@@ -14,13 +14,14 @@ from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
 from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements, clean_initial_field_values, get_cleanupeventrequest_feature, \
-  get_cleanupeventrequest_queryset, get_corresponding_cleanupeventrequest_geometry, get_referer, \
-  get_referer_url, geometry_keeper
+  add_useragent_context_elements, clean_initial_field_values, \
+  get_cleanupeventrequest_anonymous_feature, get_cleanupeventrequest_email_body_information, \
+  get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset, \
+  get_corresponding_cleanupeventrequest_geometry, get_referer, get_referer_url, geometry_keeper
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump, get_cleanupeventrequest_email_body_information
+  CleanupEventContainer, CleanupEventDump
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
@@ -471,8 +472,9 @@ class RequestFollowUpAuthorativeMixin:
     context = super().get_context_data(**kwargs)
     # add to context: authorative hint
     context['authorative'] = True
-    # add to context: hidden fields
+    # add to context: hidden and disabled fields
     context['hidden_fields'] = ['cleanupevent_request']
+    context['disabled_fields'] = []
     # add to context: URLs
     context['cancel_url'] = get_referer_url(
       referer=get_referer(self.request),
@@ -846,7 +848,7 @@ class CleanupEventRequestMapDataView(JsonView):
           ):
             authorative_rights = True
         for curr_object in objects:
-          # add GeoJSON features for event to GeoJSON feature collection
+          # add GeoJSON feature for event to GeoJSON feature collection
           event = get_cleanupeventrequest_feature(
             curr_object=curr_object,
             curr_type='event',
@@ -854,7 +856,7 @@ class CleanupEventRequestMapDataView(JsonView):
           )
           if event:
             feature_collection['features'].append(event)
-          # add GeoJSON features for venue to GeoJSON feature collection
+          # add GeoJSON feature for venue to GeoJSON feature collection
           venue = get_cleanupeventrequest_feature(
             curr_object=curr_object,
             curr_type='venue',
@@ -862,24 +864,22 @@ class CleanupEventRequestMapDataView(JsonView):
           )
           if venue:
             feature_collection['features'].append(venue)
-          # optionally add GeoJSON feature for container to GeoJSON feature collection
-          if curr_object['container_delivery'] and curr_object['container_pickup']:
-            container = get_cleanupeventrequest_feature(
-              curr_object=curr_object,
-              curr_type='container',
-              authorative_rights=authorative_rights
-            )
-            if container:
-              feature_collection['features'].append(container)
-          # optionally add GeoJSON feature for dump to GeoJSON feature collection
-          if curr_object['container_delivery'] and curr_object['container_pickup']:
-            container = get_cleanupeventrequest_feature(
-              curr_object=curr_object,
-              curr_type='dump',
-              authorative_rights=authorative_rights
-            )
-            if container:
-              feature_collection['features'].append(container)
+          # add GeoJSON feature for container to GeoJSON feature collection
+          container = get_cleanupeventrequest_feature(
+            curr_object=curr_object,
+            curr_type='container',
+            authorative_rights=authorative_rights
+          )
+          if container:
+            feature_collection['features'].append(container)
+          # add GeoJSON feature for dump to GeoJSON feature collection
+          dump = get_cleanupeventrequest_feature(
+            curr_object=curr_object,
+            curr_type='dump',
+            authorative_rights=authorative_rights
+          )
+          if dump:
+            feature_collection['features'].append(dump)
       return feature_collection
     return HttpResponse(
       content='{"has_necessary_permissions": false}', content_type="application/json"
@@ -1040,6 +1040,40 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     context_data['cancel_url'] = form.data.get('original_referer', None)
     return self.render_to_response(context_data)
 
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    old_instance = self.get_object()
+    # delay necessary to allow automatic field contents to populate
+    instance = form.save(commit=False)
+    instance.full_clean()
+    instance.save()
+    # on every status change: send email to inform original requester
+    if old_instance.status.name != instance.status:
+      # get corresponding Email object
+      try:
+        email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_STATUS-CHANGED')
+      except Email.DoesNotExist:
+        email = None
+      if email is not None:
+        # set subject and body
+        subject = email.subject.format(request=instance.short())
+        message = get_cleanupeventrequest_email_body_information(
+          request=self.request, curr_object=instance, body=email.body)
+        # send email
+        send_mail(
+          subject=subject,
+          message=message,
+          from_email=settings.DEFAULT_FROM_EMAIL,
+          recipient_list=[instance.requester.email],
+          fail_silently=True
+        )
+    return super().form_valid(form)
+
   def get_context_data(self, **kwargs):
     """
     returns a dictionary with all context elements for this view
@@ -1050,8 +1084,9 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     context = super().get_context_data(**kwargs)
     # add to context: authorative hint
     context['authorative'] = True
-    # add to context: hidden fields
+    # add to context: hidden and disabled fields
     context['hidden_fields'] = ['requester']
+    context['disabled_fields'] = []
     # add to context: URLs
     context['cancel_url'] = get_referer_url(
       referer=get_referer(self.request),
@@ -1371,7 +1406,7 @@ class CleanupEventVenueAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
     other_geometries = []
     request_id = self.object.cleanupevent_request.pk
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventcontainer_geometry = get_corresponding_cleanupeventrequest_geometry(
@@ -1549,7 +1584,8 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
         if request:
           # set subject and body
           subject = email.subject.format(request=request.short())
-          message = get_cleanupeventrequest_email_body_information(request, email.body)
+          message = get_cleanupeventrequest_email_body_information(
+            request=self.request, curr_object=request, body=email.body)
           # send email
           send_mail(
             subject=subject,
@@ -1660,7 +1696,8 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
       request = instance.cleanupevent_request
       # set subject and body
       subject = email.subject.format(request=request.short())
-      message = get_cleanupeventrequest_email_body_information(request, email.body)
+      message = get_cleanupeventrequest_email_body_information(
+          request=self.request, curr_object=request, body=email.body)
       # send email
       send_mail(
         subject=subject,
@@ -1727,7 +1764,7 @@ class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin
     other_geometries = []
     request_id = self.kwargs.get('request_id', None)
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
@@ -1778,7 +1815,7 @@ class CleanupEventContainerAuthorativeUpdateView(RequestFollowUpAuthorativeMixin
     other_geometries = []
     request_id = self.object.cleanupevent_request.pk
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
@@ -1870,7 +1907,7 @@ class CleanupEventDumpMixin(RequestFollowUpMixin):
     else:
       request_id = self.kwargs.get('request_id', None)
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
-      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fäche')
+      request_id=request_id, model=CleanupEventEvent, text='zugehörige<br>Fläche')
     if cleanupeventevent_geometry:
       other_geometries.append(cleanupeventevent_geometry)
     cleanupeventvenue_geometry = get_corresponding_cleanupeventrequest_geometry(
@@ -1983,3 +2020,106 @@ class CleanupEventDumpDeleteView(ObjectDeleteView):
     elif 'map' in referer:
       return reverse('antragsmanagement:cleanupeventrequest_map')
     return reverse('antragsmanagement:index')
+
+
+#
+# anonymous
+#
+
+class CleanupEventRequestMapDataAnonymousView(JsonView):
+  """
+  view for anonymously composing map data out of one instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def get_context_data(self, **kwargs):
+    """
+    returns GeoJSON feature collection
+
+    :param kwargs:
+    :return: GeoJSON feature collection
+    """
+    request_id = self.kwargs.get('request_id', None)
+    # get request
+    request = CleanupEventRequest.objects.filter(pk=request_id).first()
+    # declare empty GeoJSON feature collection
+    feature_collection = {
+      'type': 'FeatureCollection',
+      'features': []
+    }
+    # handle request
+    if request:
+      # add GeoJSON feature for event to GeoJSON feature collection
+      event = get_cleanupeventrequest_anonymous_feature(
+        curr_request=request,
+        curr_type='event'
+      )
+      if event:
+        feature_collection['features'].append(event)
+      # add GeoJSON feature for venue to GeoJSON feature collection
+      venue = get_cleanupeventrequest_anonymous_feature(
+        curr_request=request,
+        curr_type='venue'
+      )
+      if venue:
+        feature_collection['features'].append(venue)
+      # add GeoJSON feature for container to GeoJSON feature collection
+      container = get_cleanupeventrequest_anonymous_feature(
+        curr_request=request,
+        curr_type='container'
+      )
+      if container:
+        feature_collection['features'].append(container)
+      # add GeoJSON feature for dump to GeoJSON feature collection
+      container = get_cleanupeventrequest_anonymous_feature(
+        curr_request=request,
+        curr_type='dump'
+      )
+      if container:
+        feature_collection['features'].append(container)
+    return feature_collection
+
+
+class CleanupEventRequestMapAnonymousView(TemplateView):
+  """
+  view for anonymous map page for one instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+
+  :param model: template model
+  :param template_name: template name
+  :param map_data_view_name: name of view for composing map data out of instances
+  :param icon_name: icon name
+  """
+
+  model = CleanupEventRequest
+  template_name = 'antragsmanagement/anonymous_map_request.html'
+  map_data_view_name = 'antragsmanagement:anonymous_cleanupeventrequest_mapdata'
+  icon_name = 'cleanupeventrequest'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    request_id = self.kwargs.get('request_id', None)
+    # add user agent related context elements
+    context = add_useragent_context_elements(context, self.request)
+    # add model related context elements
+    context['model_verbose_name'] = self.model._meta.verbose_name
+    request = self.model.objects.filter(pk=request_id).first()
+    if request:
+      context['object_title'] = str(request)
+    # add map related context elements
+    context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['mapdata_url'] = reverse(
+      viewname=self.map_data_view_name,
+      kwargs={'request_id': request_id}
+    )
+    # add to context: icon
+    context['icon'] = self.icon_name
+    return context

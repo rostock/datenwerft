@@ -1,10 +1,9 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
-from django.conf import settings
-from django.core.mail import send_mail
 from django.core.validators import RegexValidator
 from django.db.models import Index, ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
+from django.urls import reverse
 from re import sub
 
 from .base import Object, GeometryObject
@@ -270,95 +269,6 @@ class CleanupEventRequest(Request):
 
   class BaseMeta(Request.BaseMeta):
     description = 'Müllsammelaktionen: Anträge'
-
-  def save(self, *args, **kwargs):
-    if self.pk is not None:
-      # on every status change: send email to inform original requester
-      if CleanupEventRequest.objects.get(pk=self.pk).status != self.status:
-        # get corresponding Email object
-        try:
-          email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_STATUS-CHANGED')
-        except Email.DoesNotExist:
-          email = None
-        if email is not None:
-          # set subject and body
-          subject = email.subject.format(request=self.short())
-          message = get_cleanupeventrequest_email_body_information(self, email.body)
-          # send email
-          send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[self.requester.email],
-            fail_silently=True
-          )
-    super().save(*args, **kwargs)
-
-
-def get_cleanupeventrequest_email_body_information(request, body):
-  """
-  gathers all neccessary information of passed object of model CleanupEventRequest,
-  equips passed email body with it, and finally returns the equipped email body
-
-  :param request: object of model CleanupEventRequest
-  :param body: email body
-  :return: email body, equipped with all neccessary information
-  of passed object of model CleanupEventRequest
-  """
-  # if responsibilities exist
-  responsibilities = '/'
-  if request.responsibilities.exists():
-    # use list comprehension to get authorities' short names as well as email addresses
-    # and join them
-    responsibilities = '\n'.join(
-      [responsibility.short_contact() for responsibility in request.responsibilities.all()]
-    )
-  # fetch related CleanupEventEvent object
-  from_date, to_date = '/', '/'
-  event = CleanupEventEvent.objects.filter(cleanupevent_request=request.pk).first()
-  if event:
-    from_date = event.from_date.strftime('%d.%m.%Y')
-    if event.to_date:
-      to_date = event.to_date.strftime('%d.%m.%Y')
-  # fetch related CleanupEventDetails object
-  waste_quantity, waste_types, waste_types_annotation, equipments = '/', '/', '/', '/'
-  details = CleanupEventDetails.objects.filter(cleanupevent_request=request.pk).first()
-  if details:
-    waste_quantity = str(details.waste_quantity)
-    # if waste types exist
-    if details.waste_types.exists():
-      # use list comprehension to join waste types
-      waste_types = ', '.join(
-        [waste_type.name for waste_type in details.waste_types.all()]
-      )
-    if details.waste_types_annotation:
-      waste_types_annotation = details.waste_types_annotation
-    # if equipments exist
-    if details.equipments.exists():
-      # use list comprehension to join equipments
-      equipments = ', '.join(
-        [equipment.name for equipment in details.equipments.all()]
-      )
-  # fetch related CleanupEventContainer object
-  delivery_date, pickup_date = '/', '/'
-  container = CleanupEventContainer.objects.filter(cleanupevent_request=request.pk).first()
-  if container:
-    delivery_date = container.delivery_date.strftime('%d.%m.%Y')
-    pickup_date = container.pickup_date.strftime('%d.%m.%Y')
-  return body.format(
-    request=request.short(),
-    status=str(request.status),
-    comment=request.comment if request.comment else '/',
-    responsibilities=responsibilities,
-    from_date=from_date,
-    to_date=to_date,
-    waste_quantity=waste_quantity,
-    waste_types=waste_types,
-    waste_types_annotation=waste_types_annotation,
-    equipments=equipments,
-    delivery_date=delivery_date,
-    pickup_date=pickup_date
-  )
 
 
 class CleanupEventEvent(GeometryObject):

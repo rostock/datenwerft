@@ -15,7 +15,8 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventContainerDecisionView, CleanupEventContainerCreateView, \
   CleanupEventContainerAuthorativeCreateView, CleanupEventContainerAuthorativeUpdateView, \
   CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
-  CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView
+  CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView, \
+  CleanupEventRequestMapDataAnonymousView, CleanupEventRequestMapAnonymousView
 
 router = routers.DefaultRouter()
 
@@ -25,6 +26,9 @@ app_name = 'antragsmanagement'
 
 
 urlpatterns = [
+  #
+  # URLs only accessible after login
+  #
   # main page
   path(
     '',
@@ -294,5 +298,24 @@ urlpatterns = [
     'ce-request/dump/delete/<pk>',
     view=login_required(CleanupEventDumpDeleteView.as_view()),
     name='cleanupeventdump_delete'
+  ),
+  #
+  # URLs also accessible anonymously
+  #
+  # anonymously composing map data out of one instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'anonymous/ce-request/mapdata/<request_id>',
+    view=CleanupEventRequestMapDataAnonymousView.as_view(),
+    name='anonymous_cleanupeventrequest_mapdata'
+  ),
+  # anonymous map page for one instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'anonymous/ce-request/map/<request_id>',
+    view=CleanupEventRequestMapAnonymousView.as_view(),
+    name='anonymous_cleanupeventrequest_map'
   )
 ]

@@ -159,6 +159,44 @@ class DefaultViewTestCase(DefaultTestCase):
       self.assertIn(string, str(response.content))
 
 
+class DefaultAnonymousViewTestCase(DefaultTestCase):
+  """
+  abstract test class for anonymous views
+  """
+
+  def init(self):
+    super().init()
+
+  def generic_view_test(self, view_name, view_args, status_code, content_type, string):
+    """
+    tests a view via GET
+
+    :param self
+    :param view_name: name of the view
+    :param view_args: arguments (i.e. URL parameters) for the view
+    :param status_code: expected status code of response
+    :param content_type: expected content type of response
+    :param string: specific string that should be contained in response
+    """
+    # prepare the GET
+    if view_args:
+      url = reverse(
+        viewname='antragsmanagement:' + view_name,
+        kwargs=view_args
+      )
+    else:
+      url = reverse('antragsmanagement:' + view_name)
+    # try GETting the view
+    response = self.client.get(url)
+    # status code of response as expected?
+    self.assertEqual(response.status_code, status_code)
+    # content type of response as expected?
+    self.assertEqual(response['content-type'].lower(), content_type)
+    # specific string contained in response?
+    if string:
+      self.assertIn(string, str(response.content))
+
+
 class DefaultFormViewTestCase(DefaultModelTestCase):
   """
   abstract test class for form views

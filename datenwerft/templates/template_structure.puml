@@ -236,7 +236,7 @@ package antragsmanagement {
   class container_messages {}
   class container_table_warnings {}
 
-  class anonymous_map {
+  class anonymous_map_request {
     {field} title
     {field} style
     {field} scripts
@@ -393,7 +393,7 @@ datenwerft.base <|-- bemas.index
 datenwerft.base <|-- bemas.map
 datenwerft.base <|-- bemas.orphaned_data
 
-datenwerft.base <|-- antragsmanagement.anonymous_map
+datenwerft.base <|-- antragsmanagement.anonymous_map_request
 datenwerft.base <|-- antragsmanagement.decision
 datenwerft.base <|-- antragsmanagement.delete
 datenwerft.base <|-- antragsmanagement.form_request

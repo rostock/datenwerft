@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.utils.crypto import get_random_string
 
-from .base import DefaultViewTestCase, DefaultFormViewTestCase
+from .base import DefaultViewTestCase, DefaultAnonymousViewTestCase, DefaultFormViewTestCase
 from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
   VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
   VALID_STRING, VALID_TELEPHONE, VALID_TEXT
@@ -2832,4 +2832,42 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
       object_filter={}, count=0,
       status_code=302, content_type='text/html; charset=utf-8', string=None,
       session_variables=None
+    )
+
+
+#
+# anonymous
+#
+
+class CleanupEventRequestMapDataAnonymousViewTest(DefaultAnonymousViewTestCase):
+  """
+  test class for anonymously composing map data out of one instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test(self):
+    self.generic_view_test(
+      view_name='anonymous_cleanupeventrequest_mapdata', view_args={'request_id': 1},
+      status_code=200, content_type='application/json', string='FeatureCollection'
+    )
+
+
+class CleanupEventRequestMapAnonymousViewTest(DefaultAnonymousViewTestCase):
+  """
+  test class for anonymous map page for instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test(self):
+    self.generic_view_test(
+      view_name='anonymous_cleanupeventrequest_map', view_args={'request_id': 1},
+      status_code=200, content_type='text/html; charset=utf-8', string='Antrag'
     )
