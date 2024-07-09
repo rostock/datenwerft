@@ -1,36 +1,5 @@
 @startuml
-package datenwerft{
-  class base {
-    {field} head
-    {field} meta
-    {field} title
-    {field} style
-    {field} scripts
-    {field} navbar
-    {field} content
-    {field} footer
-    {method} include navbar_html
-  }
-
-  class navbar_html {
-    {field} navbar
-  }
-
-  class index {
-    {field} title
-    {field} content
-  }
-
-  class error {
-    {field} title
-    {field} content
-  }
-
-  class modal_confirm_export {}
-  class modal_error {}
-  class modal_loading {}
-}
-
+skinparam linetype ortho
 
 package datenmanagement {
   class add_another {
@@ -43,7 +12,7 @@ package datenmanagement {
     {field} content
   }
 
-  class form {
+  abstract form {
     {field} title
     {field} style
     {field} scripts
@@ -118,11 +87,6 @@ package datenmanagement {
     {field} content
   }
 }
-
-
-datenwerft.base ..> datenwerft.navbar_html
-datenwerft.base <|-- datenwerft.index
-datenwerft.base <|-- datenwerft.error
 
 datenwerft.base <|-- datenmanagement.add_another
 datenwerft.base <|-- datenmanagement.delete
