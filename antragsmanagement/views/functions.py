@@ -303,6 +303,8 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   map_url = f"{base_url}{url_path}"
   return body.format(
     request=curr_object.short(),
+    id=curr_object.pk,
+    created=curr_object.created.strftime('%d.%m.%Y, %H:%M Uhr'),
     status=str(curr_object.status),
     comment=curr_object.comment if curr_object.comment else '/',
     responsibilities=responsibilities,

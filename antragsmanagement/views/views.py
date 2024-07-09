@@ -1594,6 +1594,34 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
             recipient_list=[request.requester.email],
             fail_silently=True
           )
+      # send email to inform responsible authorities about new request
+      # get corresponding Email object
+      try:
+        email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW')
+      except Email.DoesNotExist:
+        email = None
+      if email is not None:
+        # get request
+        request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
+        if request:
+          if request.responsibilities.exists():
+            # set subject and body
+            subject = email.subject.format(request=request.short())
+            message = get_cleanupeventrequest_email_body_information(
+              request=self.request, curr_object=request, body=email.body)
+            # use list comprehension to get get recipients
+            # (i.e. the email addresses of all responsible authorities)
+            recipient_list = [
+              responsibility.email for responsibility in request.responsibilities.all()
+            ]
+            # send email
+            send_mail(
+              subject=subject,
+              message=message,
+              from_email=settings.DEFAULT_FROM_EMAIL,
+              recipient_list=recipient_list,
+              fail_silently=True
+            )
     return redirect('antragsmanagement:index')
 
   def get_context_data(self, **kwargs):
@@ -1706,6 +1734,34 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
         recipient_list=[request.requester.email],
         fail_silently=True
       )
+    # send email to inform responsible authorities about new request
+    # get corresponding Email object
+    try:
+      email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW')
+    except Email.DoesNotExist:
+      email = None
+    if email is not None:
+      # get request
+      request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
+      if request:
+        if request.responsibilities.exists():
+          # set subject and body
+          subject = email.subject.format(request=request.short())
+          message = get_cleanupeventrequest_email_body_information(
+            request=self.request, curr_object=request, body=email.body)
+          # use list comprehension to get get recipients
+          # (i.e. the email addresses of all responsible authorities)
+          recipient_list = [
+            responsibility.email for responsibility in request.responsibilities.all()
+          ]
+          # send email
+          send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            fail_silently=True
+          )
     return super().form_valid(form)
 
   def get_initial(self):
