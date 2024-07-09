@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load antragsmanagement_tags %}
+{% load leaflet_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name_plural }} – Karte | {% endblock %}
+
+{% block style %}
+  {{ block.super }}
+  {% leaflet_css plugins="locatecontrol" %}
+  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map.css' %}">
+  {% if is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-mobile.css' %}">
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/map-desktop.css' %}">
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% leaflet_js plugins="locatecontrol" %}
+  <script src="{% static 'proj4/proj4.js' %}"></script>
+  <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
+  <script src="{% static 'antragsmanagement/js/map.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <h2><i class="fas fa-{{ icon|get_icon }}"></i> <em>{{ model_verbose_name_plural }}</em></h2>
+  <div id="map-side-container" class="mb-3">
+    {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+  </div>
+  <!-- eslint-disable-next-script -->
+  <script>
+    window.dataUrl = '{{ mapdata_url }}';
+  </script>
+  <script>
+    /**
+     * @function
+     * @name mapCallbackFunction
+     *
+     * handles (as a callback function) passed map
+     *
+     * @param {Object} map - map
+     */
+    function mapCallbackFunction(map) {
+      setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+      configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+      // make map globally available
+      window.currMap = map;
+
+      {% if is_mobile %}
+        enableMapLocate(map)
+      {% endif %}
+
+      // fetch GeoJSON feature collection for map
+      fetchGeoJsonFeatureCollection('{{ mapdata_url }}')
+      .then(data => {
+        // for each GeoJSON feature in GeoJSON feature collection:
+        // bind tooltip and add it to map
+        L.Proj.geoJson(data, {
+          onEachFeature: function(feature, layer) {
+            layer.bindTooltip('<strong>' + feature.properties._tooltip + '</strong>', {
+              opacity: 0.8
+            });
+            layer.bindPopup(buildTooltipHtmlCleanupEventRequest(feature));
+          }
+        }).addTo(map);
+      })
+      .catch(
+        (error) => {
+          console.error(error);
+        }
+      );
+    }
+  </script>
+{% endblock %}

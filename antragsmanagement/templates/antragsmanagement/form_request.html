@@ -74,6 +74,21 @@
          */
         $(document).ready(function () {
           keepDjangoRequiredMessages();
+
+          // handle fields which are to disable...
+          {% if disabled_fields %}
+            // ensure fields are enabled again on submitting the form
+            // (since otherwise, they would not be included in the form data)
+            $('form').bind('submit', function () {
+              $(this).find(':input').prop('disabled', false);
+            });
+            let field;
+            // disable fields which are to disable
+            {% for field in disabled_fields %}
+              field = $('#id_' + '{{ field }}');
+              field.prop('disabled', true);
+            {% endfor %}
+          {% endif %}
         });
       </script>
     {% else %}

@@ -72,19 +72,7 @@
             {% endfor %}
           </table>
           {% if not is_mobile %}
-            <div class="d-grid mt-5 mb-3 gap-2">
-              {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
-                <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
-              {% else %}
-                <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-              {% endif %}
-              {% if not authorative %}
-                <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-                <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
-              {% else %}
-                <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-              {% endif %}
-            </div>
+            {% include "antragsmanagement/buttons_form_request-followup.html" %}
           {% endif %}
         </div>
         {% if is_geometry_model %}
@@ -107,19 +95,7 @@
           </div>
         {% endif %}
         {% if is_mobile %}
-          <div class="d-grid mt-5 mb-3 gap-2">
-            {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
-              <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
-            {% else %}
-              <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-            {% endif %}
-            {% if not authorative %}
-              <a class="btn btn-warning" role="button" href="{{ back_url }}"><i class="fas fa-{{ 'back'|get_icon }}"></i> zurück</a>
-              <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
-            {% else %}
-              <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-            {% endif %}
-          </div>
+          {% include "antragsmanagement/buttons_form_request-followup.html" %}
         {% endif %}
       </form>
       <script>
@@ -127,95 +103,110 @@
           $('.alert-success').alert('close');
         }, 1000);
 
-      /**
-       * @function
-       * @name mapCallbackFunction
-       *
-       * handles (as a callback function) passed map
-       *
-       * @param {Object} map - map
-       */
-      function mapCallbackFunction(map) {
-        setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
-        configureMap(map, '{% url "toolbox:owsproxy" %}');
+        /**
+         * @function
+         * @name mapCallbackFunction
+         *
+         * handles (as a callback function) passed map
+         *
+         * @param {Object} map - map
+         */
+        function mapCallbackFunction(map) {
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+          configureMap(map, '{% url "toolbox:owsproxy" %}');
 
-        // make map globally available
-        window.currMap = map;
+          // make map globally available
+          window.currMap = map;
 
-        {% if is_mobile %}
-          enableMapLocate(map)
-        {% endif %}
+          {% if is_mobile %}
+            enableMapLocate(map)
+          {% endif %}
 
-        // configure globally available markers for Leaflet
-        window.redMarker = new L.Icon({
-          shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
-          iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
-        });
+          // configure globally available markers for Leaflet
+          window.redMarker = new L.Icon({
+            shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+            iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
 
-        // define several globally available variables
-        window.geometryType = '{{ geometry_type }}';
-        window.featureGeometry = [];
+          // define several globally available variables
+          window.geometryType = '{{ geometry_type }}';
+          window.featureGeometry = [];
 
-        configureLeafletGeoman(map, window.geometryType);
+          configureLeafletGeoman(map, window.geometryType);
 
-        // if other geometries exist...
-        {% if other_geometries %}
-          // show other geometries on map
-          let zoomToPreviousGeometries;
+          // if other geometries exist...
+          {% if other_geometries %}
+            // show other geometries on map
+            let zoomToPreviousGeometries;
+            {% if geometry %}
+              zoomToPreviousGeometries = false;
+            {% endif %}
+            {% if other_geometries|is_list %}
+              {% for other_geometry in other_geometries %}
+                map.loadGeometryFromContextDict({{ other_geometry|safe }}, zoomToPreviousGeometries)
+              {% endfor %}
+            {% else %}
+              map.loadGeometryFromContextDict({{ other_geometries|safe }}, zoomToPreviousGeometries)
+            {% endif %}
+          {% endif %}
+
+          // if geometry already exists...
           {% if geometry %}
-            zoomToPreviousGeometries = false;
+            // show existing geometry on map
+            map.loadGeometryFromField('#id_{{ geometry_field }}')
           {% endif %}
-          {% if other_geometries|is_list %}
-            {% for other_geometry in other_geometries %}
-              map.loadGeometryFromContextDict({{ other_geometry|safe }}, zoomToPreviousGeometries)
-            {% endfor %}
-          {% else %}
-            map.loadGeometryFromContextDict({{ other_geometries|safe }}, zoomToPreviousGeometries)
-          {% endif %}
-        {% endif %}
 
-        // if geometry already exists...
-        {% if geometry %}
-          // show existing geometry on map
-          map.loadGeometryFromField('#id_{{ geometry_field }}')
-        {% endif %}
+          /**
+           * @function
+           *
+           * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
+           * and deletes it if necessary
+           */
+          map.on('pm:drawstart', function () {
+            if (map.pm.getGeomanLayers().length > 0) {
+              map.pm.getGeomanLayers().forEach((item) => {
+                if (item._drawnByGeoman === true)
+                  map.removeLayer(item);
+              })
+            }
+          });
+        }
 
         /**
          * @function
          *
-         * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
-         * and deletes it if necessary
-         */
-        map.on('pm:drawstart', function () {
-          if (map.pm.getGeomanLayers().length > 0) {
-            map.pm.getGeomanLayers().forEach((item) => {
-              if (item._drawnByGeoman === true)
-                map.removeLayer(item);
-            })
-          }
-        });
-      }
-
-      /**
-       * @function
-       *
-       * main function
+         * main function
          */
         $(document).ready(function () {
           keepDjangoRequiredMessages();
-        });
 
-        // initialize address search (and make its results globally available)
-        window.results = $('div.results');
-        window.addressType = '';
-        window.searchField = $('#address-search');
-        {% if is_geometry_model %}
-          initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
-        {% endif %}
+          // handle fields which are to disable...
+          {% if disabled_fields %}
+            // ensure fields are enabled again on submitting the form
+            // (since otherwise, they would not be included in the form data)
+            $('form').bind('submit', function () {
+              $(this).find(':input').prop('disabled', false);
+            });
+            let field;
+            // disable fields which are to disable
+            {% for field in disabled_fields %}
+              field = $('#id_' + '{{ field }}');
+              field.prop('disabled', true);
+            {% endfor %}
+          {% endif %}
+
+          // initialize address search (and make its results globally available)
+          window.results = $('div.results');
+          window.addressType = '';
+          window.searchField = $('#address-search');
+          {% if is_geometry_model %}
+            initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
+          {% endif %}
+        });
       </script>
     {% else %}
       {% include "antragsmanagement/notice_no-request.html" %}

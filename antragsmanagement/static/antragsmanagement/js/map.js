@@ -20,6 +20,73 @@ function applyFilters(filterObjectsList) {
 
 /**
  * @function
+ * @name buildTooltipHtmlCleanupEventRequest
+ *
+ * build tooltip HTML for a CleanupEventRequest feature
+ *
+ * @param {Object} feature - feature
+ */
+function buildTooltipHtmlCleanupEventRequest(feature) {
+  let html = '';
+  html += '<div class="leaflet-popup-title">';
+  html +=   '<strong>' + feature.properties._title + '</strong>';
+  html += '</div>';
+  html += '<div class="leaflet-popup-section">';
+  if (feature.properties._link_request) {
+    html += '<a title="Antrag ansehen oder bearbeiten" href="' + feature.properties._link_request + '"><i ' + 'class="fas fa-pen"></i> Antrag</a>';
+  }
+  if (feature.properties._link_event) {
+    html +=  '<br>';
+    html +=  '<a title="Aktionsdaten ansehen oder bearbeiten" href="' + feature.properties._link_event + '"><i ' + 'class="fas fa-pen"></i> Aktionsdaten</a>';
+  }
+  if (feature.properties._link_venue) {
+    html +=  '<br>';
+    html +=  '<a title="Treffpunkt ansehen oder bearbeiten" href="' + feature.properties._link_venue + '"><i ' + 'class="fas fa-pen"></i> Treffpunkt</a>';
+  }
+  if (feature.properties._link_details) {
+    html +=  '<br>';
+    html +=  '<a title="Detailangaben ansehen oder bearbeiten" href="' + feature.properties._link_details + '"><i ' + 'class="fas fa-pen"></i> Detailangaben</a>';
+  }
+  if (feature.properties._link_container) {
+    html +=  '<br>';
+    if (feature.properties._link_container.includes('update'))
+      html +=  '<a title="Containerdaten ansehen oder bearbeiten" href="' + feature.properties._link_container + '"><i ' + 'class="fas fa-pen"></i> Container</a>';
+    else
+      html +=  '<a title="neue Containerdaten anlegen" href="' + feature.properties._link_container + '"><i ' + 'class="fas fa-circle-plus"></i> Container</a>';
+  }
+  if (feature.properties._link_container_delete) {
+    html +=  '<br>';
+    html +=  '<a title="Containerdaten löschen" href="' + feature.properties._link_container_delete + '"><i ' + 'class="fas fa-trash"></i> Containerdaten</a>';
+  }
+  if (feature.properties._link_dump) {
+    html +=  '<br>';
+    if (feature.properties._link_dump.includes('update'))
+      html +=  '<a title="Müllablageplatz ansehen oder bearbeiten" href="' + feature.properties._link_dump + '"><i ' + 'class="fas fa-pen"></i> Müllablageplatz</a>';
+    else
+      html +=  '<a title="neuen Müllablageplatz anlegen" href="' + feature.properties._link_dump + '"><i ' + 'class="fas fa-circle-plus"></i> Müllablageplatz</a>';
+  }
+  if (feature.properties._link_dump_delete) {
+    html +=  '<br>';
+    html +=  '<a title="Müllablageplatz löschen" href="' + feature.properties._link_dump_delete + '"><i ' + 'class="fas fa-trash"></i> Müllablageplatz</a>';
+  }
+  html +=   '<table class="mt-2">';
+  html +=     '<tbody>';
+  jQuery.each(feature.properties, function (key, value) {
+    if (!key.startsWith('_') && value) {
+      html +=    '<tr>';
+      html +=      '<td><strong>' + key + '</strong></td>';
+      html +=      '<td><em>' + value + '</em></td>';
+      html +=    '</tr>';
+    }
+  });
+  html +=     '</tbody>';
+  html +=   '</table>';
+  html += '</div>';
+  return html;
+}
+
+/**
+ * @function
  * @name fetchGeoJsonFeatureCollection
  *
  * fetches GeoJSON feature collection for map

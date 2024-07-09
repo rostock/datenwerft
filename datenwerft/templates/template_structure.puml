@@ -231,9 +231,19 @@ package bemas {
 }
 
 package antragsmanagement {
+  class buttons_form_request_followup {}
   class container_errors {}
   class container_messages {}
   class container_table_warnings {}
+
+  class anonymous_map {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+  }
 
   class decision {
     {field} title
@@ -270,6 +280,7 @@ package antragsmanagement {
     {field} content
     {method} extend style
     {method} extend scripts
+    {method} include buttons_form_request_followup
     {method} include container_messages
     {method} include container_errors
     {method} include notice_no_request
@@ -382,6 +393,7 @@ datenwerft.base <|-- bemas.index
 datenwerft.base <|-- bemas.map
 datenwerft.base <|-- bemas.orphaned_data
 
+datenwerft.base <|-- antragsmanagement.anonymous_map
 datenwerft.base <|-- antragsmanagement.decision
 datenwerft.base <|-- antragsmanagement.delete
 datenwerft.base <|-- antragsmanagement.form_request
@@ -453,6 +465,7 @@ antragsmanagement.delete ..> antragsmanagement.notice_no_permissions
 antragsmanagement.form_request ..> antragsmanagement.container_errors
 antragsmanagement.form_request ..> antragsmanagement.notice_no_contact_data
 antragsmanagement.form_request ..> antragsmanagement.notice_no_permissions
+antragsmanagement.form_request_followup ..> antragsmanagement.buttons_form_request_followup
 antragsmanagement.form_request_followup ..> antragsmanagement.container_messages
 antragsmanagement.form_request_followup ..> antragsmanagement.container_errors
 antragsmanagement.form_request_followup ..> antragsmanagement.notice_no_request

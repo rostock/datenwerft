@@ -1,4 +1,13 @@
 {% load antragsmanagement_tags %}
+<div class="d-grid mb-3">
+  <label for="filter-input-requests-id" class="form-label"><em>ID</em></label>
+  <div class="input-group">
+    <input id="filter-input-requests-id" type="text" name="requests-id" class="form-control filter-input" data-type="text">
+    <button class="input-reset btn btn-outline-secondary">
+      <i class="fas fa-{{ 'delete'|get_icon }}"></i>
+    </button>
+  </div>
+</div>
 <div class="d-grid mt-2 mb-3">
   <label for="filter-input-requests-created-left" class="form-label"><em>Eingang</em></label>
   <small><label for="filter-input-requests-created-left" class="form-label"><em>zwischen</em></label></small>

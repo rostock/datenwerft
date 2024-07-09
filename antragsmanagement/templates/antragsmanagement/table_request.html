@@ -2,7 +2,7 @@
 {% load antragsmanagement_tags %}
 {% load static %}
 
-{% block title %}{{ model_verbose_name }} – Tabelle | {% endblock %}
+{% block title %}{{ model_verbose_name_plural }} – Tabelle | {% endblock %}
 
 {% block style %}
   {{ block.super }}
@@ -32,7 +32,7 @@
     </div>
     {% if objects_count > 0 %}
       <div class="d-grid mt-5 mb-3 gap-2 mx-auto">
-        {% include "antragsmanagement/container_table-warning.html" %}
+        {% include "antragsmanagement/container_table_warning.html" %}
         <table id="datasets" class="table table-bordered table-striped">
           <thead>
             <tr>

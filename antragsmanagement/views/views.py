@@ -327,6 +327,8 @@ class RequestMixin:
     context['corresponding_requester'] = get_corresponding_requester(self.request.user)
     # add to context: information about request workflow
     context['request_workflow'] = self.request_workflow
+    # add to context: disabled fields
+    context['disabled_fields'] = ['status', 'requester']
     return context
 
   def get_initial(self):
@@ -421,6 +423,8 @@ class RequestFollowUpMixin:
     context['corresponding_request'] = self.request.session.get('request_id', None)
     # add to context: information about request workflow
     context['request_workflow'] = self.request_workflow
+    # add to context: disabled fields
+    context['disabled_fields'] = [self.request_field]
     if issubclass(self.model, GeometryObject):
       if self.object:
         # add to context: GeoJSONified geometry
@@ -804,7 +808,7 @@ class CleanupEventRequestTableView(TemplateView):
 
 class CleanupEventRequestMapDataView(JsonView):
   """
-  view for composing table data out of instances of object
+  view for composing map data out of instances of object
   for request type clean-up events (Müllsammelaktionen):
   request (Antrag)
 
