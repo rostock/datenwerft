@@ -6,6 +6,7 @@ django-leaflet
 django-user-agents
 djangorestframework
 Jinja2
+lxml
 Pillow
 psycopg2-binary
 PyYAML

@@ -291,8 +291,17 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     transparent: true
   });
 
+  // define Bewirtschaftungskataster
+  const bewirtschaftungskataster = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms', {
+    layers: 'hro.bewirtschaftungskataster.bewirtschaftungskataster',
+    format: map._wmsFormat,
+    maxZoom: map._maxLayerZoom,
+    transparent: true
+  });
+
   // combine previously defined maps as overlay maps
   let overlayMaps = {
+    'Bewirtschaftungskataster': bewirtschaftungskataster,
     'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
   };
 

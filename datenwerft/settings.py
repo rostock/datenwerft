@@ -225,6 +225,25 @@ ANTRAGSMANAGEMENT_ICONS = {
 }
 
 
+# Antragsmanagement app:
+# remote GeoJSON resources
+
+ANTRAGSMANAGEMENT_SCOPE_WFS = {
+  'url': 'https://geo.sv.rostock.de/geodienste/kreise/wfs',
+  'namespace': 'kreise',
+  'namespace_url': 'https://geo.sv.rostock.de/geodienste/kreise',
+  'featuretype': 'hro.kreise.kreise',
+  'srid': 25833
+}
+ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS = {
+  'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wfs',
+  'namespace': 'bewirtschaftungskataster',
+  'namespace_url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster',
+  'featuretype': 'hro.bewirtschaftungskataster.bewirtschaftungskataster',
+  'srid': 25833
+}
+
+
 # BEMAS app:
 # icons
 

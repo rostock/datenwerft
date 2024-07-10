@@ -10,8 +10,12 @@ from django.contrib.gis.forms.fields import MultiLineStringField as FormMultiLin
 from django.contrib.gis.forms.fields import MultiPolygonField as FormMultiPolygonField
 from django.contrib.gis.forms.fields import PointField as FormPointField
 from django.contrib.gis.forms.fields import PolygonField as FormPolygonField
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.contrib.gis.geos import Point, Polygon
 from django.db.models import Q
+from lxml import etree
 from re import match, search, sub
+from requests import post
 from zoneinfo import ZoneInfo
 
 
@@ -35,6 +39,29 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return second_part.strip()
   else:
     return None
+
+
+def find_in_wfs_features(string, element, wfs, wfs_features):
+  """
+  returns true if passed search string is found in passed element of passed WFS features
+
+  :param string: search string
+  :param element: WFS feature element
+  :param wfs: WFS (including URL, namespace, namespace URL, feature type, and SRID)
+  :param wfs_features: WFS features
+  :return: true if passed search string is found in passed element of passed WFS features
+  """
+  element = '{' + wfs['namespace_url'] + '}' + element
+  found = False
+  for wfs_feature in wfs_features:
+    found = False
+    for child in wfs_feature.iter():
+      if child.tag == element and child.text == string:
+        found = True
+        break
+    if found:
+      break
+  return found
 
 
 def format_date_datetime(value, time_string_only=False):
@@ -70,6 +97,62 @@ def get_array_first_element(curr_array):
     return curr_array[0]
   else:
     return curr_array
+
+
+def intersection_with_wfs(geometry, wfs, only_presence=False):
+  """
+  intersects passed feature geometry with passed WFS and returns (presence of) hits
+
+  :param geometry: feature geometry
+  :param wfs: WFS (including URL, namespace, namespace URL, feature type, and SRID)
+  :param only_presence: presence of intersection hits instead of intersection hits?
+  :return: (presence of) intersection hits of passed feature geometry with passed WFS
+  """
+  url = wfs['url']
+  namespace = wfs['namespace']
+  namespace_url = wfs['namespace_url']
+  featuretype = wfs['featuretype']
+  srid = wfs['srid']
+  # transform feature geometry to WFS SRID
+  geometry = transform_geometry(geometry, srid)
+  # extract exterior coordinates of feature geometry for filter
+  if isinstance(geometry, Point):
+    exterior_coords = f"{geometry.x} {geometry.y}"
+    filter_part = '<gml:Point srsName="EPSG:' + str(srid) + '">'
+    filter_part += '<gml:pos>' + exterior_coords + '</gml:pos>'
+    filter_part += '</gml:Point>'
+  elif isinstance(geometry, Polygon):
+    exterior_coords = ' '.join(f"{coord[0]} {coord[1]}" for coord in geometry.coords[0])
+    filter_part = '<gml:Polygon srsName="EPSG:' + str(srid) + '">'
+    filter_part += '<gml:exterior><gml:LinearRing><gml:posList>'
+    filter_part += exterior_coords + '</gml:posList></gml:LinearRing></gml:exterior>'
+    filter_part += '</gml:Polygon>'
+  else:
+    exterior_coords, filter_part = '', ''
+  # build WFS Intersection filter
+  filter_xml = f'''
+  <wfs:GetFeature service="WFS" version="2.0.0"
+                  xmlns:wfs="http://www.opengis.net/wfs/2.0"
+                  xmlns:ogc="http://www.opengis.net/ogc"
+                  xmlns:gml="http://www.opengis.net/gml/3.2"
+                  xmlns:{namespace}="{namespace_url}">
+    <wfs:Query typeNames="{namespace}:{featuretype}">
+      <ogc:Filter>
+        <ogc:Intersects>
+          <ogc:PropertyName>geometry</ogc:PropertyName>
+          {filter_part}
+        </ogc:Intersects>
+      </ogc:Filter>
+    </wfs:Query>
+  </wfs:GetFeature>
+  '''
+  # get WFS response
+  response = post(url, data=filter_xml, headers={'Content-Type': 'text/xml'})
+  response.raise_for_status()
+  # parse WFS response and check if any WFS features were returned
+  root = etree.fromstring(response.content)
+  features = root.findall('.//{http://www.opengis.net/wfs/2.0}member')
+  return len(features) > 0 if only_presence else features
 
 
 def is_geometry_field(field):
@@ -134,3 +217,21 @@ def optimize_datatable_filter(search_element, search_column, qs_params_inner):
     }
   q = Q(**kwargs)
   return qs_params_inner | q if qs_params_inner else q
+
+
+def transform_geometry(geometry, target_srid):
+  """
+  transform passed feature geometry to passed target SRID and return it
+  or return passed feature geometry untransformed
+
+  :param geometry: feature geometry
+  :param target_srid: target SRID
+  :return: passed feature geometry either transformed to passed target SRID or untransformed
+  """
+  source_srid = geometry.srid
+  if source_srid != target_srid:
+    source_srs = SpatialReference(source_srid)
+    target_srs = SpatialReference(target_srid)
+    transform = CoordTransform(source_srs, target_srs)
+    geometry.transform(transform)
+  return geometry

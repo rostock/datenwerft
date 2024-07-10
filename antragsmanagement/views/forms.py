@@ -1,4 +1,6 @@
 from datetime import date
+from django.conf import settings
+from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.forms.fields import PointField, PolygonField
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
@@ -6,6 +8,7 @@ from django.forms.fields import EmailField
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requester
 from antragsmanagement.utils import get_corresponding_requester
 from toolbox.constants_vars import email_message
+from toolbox.utils import find_in_wfs_features, intersection_with_wfs
 
 
 #
@@ -65,10 +68,44 @@ class ObjectForm(ModelForm):
     if issubclass(self._meta.model, GeometryObject):
       geometry_field = self._meta.model.BaseMeta.geometry_field
       geometry = cleaned_data.get(geometry_field)
+      # fail if geometry is empty
       if '(0 0)' in str(geometry):
         text = 'Marker für <strong><em>{}</em></strong> muss in Karte gesetzt werden!'.format(
           self._meta.model._meta.get_field(geometry_field).verbose_name)
         raise ValidationError(text)
+      elif geometry:
+        # fail if geometry lies out of scope (check geometries only which ought to lie in scope)
+        if self._meta.model.BaseMeta.geometry_in_scope:
+          scope_intersections = False
+          intersections = intersection_with_wfs(
+            geometry=GEOSGeometry(geometry),
+            wfs=settings.ANTRAGSMANAGEMENT_SCOPE_WFS
+          )
+          if intersections:
+            scope_intersections = find_in_wfs_features(
+              string='13003',
+              element='kreis_schluessel',
+              wfs=settings.ANTRAGSMANAGEMENT_SCOPE_WFS,
+              wfs_features=intersections
+            )
+          if not scope_intersections:
+            text = '<strong><em>{}</em></strong> darf nicht außerhalb Rostocks liegen!'.format(
+              self._meta.model._meta.get_field(geometry_field).verbose_name)
+            raise ValidationError(text)
+        # fail if geometry lies outside of managed areas
+        if self._meta.model.BaseMeta.geometry_in_managed_areas:
+          managed_areas_intersections = False
+          intersections = intersection_with_wfs(
+            geometry=GEOSGeometry(geometry),
+            wfs=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
+          )
+          if intersections:
+            managed_areas_intersections = True
+          if not managed_areas_intersections:
+            text = '<strong><em>{}</em></strong> muss mindestens eine Fläche'.format(
+              self._meta.model._meta.get_field(geometry_field).verbose_name)
+            text += ' des städtischen Bewirtschaftungskatasters schneiden!'
+            raise ValidationError(text)
       else:
         cleaned_data[geometry_field] = geometry
 
@@ -155,6 +192,8 @@ class CleanupEventEventForm(RequestFollowUpForm):
     """
     from_date = self.cleaned_data.get('from_date')
     to_date = self.cleaned_data.get('to_date')
+    # to_date must either be later than from_date
+    # or omitted if the action is to take place on just one day
     if from_date and to_date and to_date <= from_date:
       text = '<strong><em>{}</em></strong> muss nach <em>{}</em> liegen!'.format(
         self._meta.model._meta.get_field('to_date').verbose_name,
@@ -162,6 +201,7 @@ class CleanupEventEventForm(RequestFollowUpForm):
       text += ' <em>{}</em> weglassen, falls Aktion an nur einem Tag stattfinden soll.'.format(
         self._meta.model._meta.get_field('to_date').verbose_name)
       raise ValidationError(text)
+    # from_date must not lie in past
     if from_date and from_date < date.today():
       text = '<strong><em>{}</em></strong> darf nicht in der Vergangenheit liegen!'.format(
         self._meta.model._meta.get_field('from_date').verbose_name)
@@ -182,6 +222,7 @@ class CleanupEventDetailsForm(RequestFollowUpForm):
     """
     waste_types = self.cleaned_data.get('waste_types')
     waste_types_annotation = self.cleaned_data.get('waste_types_annotation')
+    # waste_types_annotation must not be emtpy if waste_types is empty
     if not waste_types and not waste_types_annotation:
       text = 'Wenn keine <strong><em>{}</em></strong> ausgewählt ist/sind,'.format(
         self._meta.model._meta.get_field('waste_types').verbose_name)
@@ -204,6 +245,7 @@ class CleanupEventContainerForm(RequestFollowUpForm):
     """
     delivery_date = self.cleaned_data.get('delivery_date')
     pickup_date = self.cleaned_data.get('pickup_date')
+    # pickup date must be the same as delivery date or later
     if delivery_date and pickup_date and pickup_date < delivery_date:
       text = '<strong><em>{}</em></strong> muss gleich <em>{}</em> sein'.format(
         self._meta.model._meta.get_field('pickup_date').verbose_name,
@@ -211,6 +253,7 @@ class CleanupEventContainerForm(RequestFollowUpForm):
       text += ' oder nach <em>{}</em> liegen!'.format(
         self._meta.model._meta.get_field('delivery_date').verbose_name)
       raise ValidationError(text)
+    # delivery date must not lie in past
     if delivery_date and delivery_date < date.today():
       text = '<strong><em>{}</em></strong> darf nicht in der Vergangenheit liegen!'.format(
         self._meta.model._meta.get_field('delivery_date').verbose_name)

@@ -3,7 +3,6 @@ from django.core.validators import RegexValidator
 from django.db.models import Index, ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
 from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
   TextField
-from django.urls import reverse
 from re import sub
 
 from .base import Object, GeometryObject
@@ -306,6 +305,7 @@ class CleanupEventEvent(GeometryObject):
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'area'
     geometry_type = 'Polygon'
+    geometry_in_managed_areas = ['xxx']
     description = 'Müllsammelaktionen: Aktionsdaten'
 
   def __str__(self):
@@ -339,6 +339,7 @@ class CleanupEventVenue(GeometryObject):
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
     geometry_type = 'Point'
+    geometry_in_scope = False
     description = 'Müllsammelaktionen: Treffpunkte'
 
   def __str__(self):
