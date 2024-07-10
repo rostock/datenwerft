@@ -1,3 +1,4 @@
+from datetime import date
 from django.contrib.gis.forms.fields import PointField, PolygonField
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
@@ -161,6 +162,10 @@ class CleanupEventEventForm(RequestFollowUpForm):
       text += ' <em>{}</em> weglassen, falls Aktion an nur einem Tag stattfinden soll.'.format(
         self._meta.model._meta.get_field('to_date').verbose_name)
       raise ValidationError(text)
+    if from_date and from_date < date.today():
+      text = '<strong><em>{}</em></strong> darf nicht in der Vergangenheit liegen!'.format(
+        self._meta.model._meta.get_field('from_date').verbose_name)
+      raise ValidationError(text)
     return to_date
 
 
@@ -204,6 +209,10 @@ class CleanupEventContainerForm(RequestFollowUpForm):
         self._meta.model._meta.get_field('pickup_date').verbose_name,
         self._meta.model._meta.get_field('delivery_date').verbose_name)
       text += ' oder nach <em>{}</em> liegen!'.format(
+        self._meta.model._meta.get_field('delivery_date').verbose_name)
+      raise ValidationError(text)
+    if delivery_date and delivery_date < date.today():
+      text = '<strong><em>{}</em></strong> darf nicht in der Vergangenheit liegen!'.format(
         self._meta.model._meta.get_field('delivery_date').verbose_name)
       raise ValidationError(text)
     return pickup_date

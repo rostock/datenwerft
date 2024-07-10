@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry
+from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.forms import CheckboxSelectMultiple, Textarea
 from django.urls import reverse, reverse_lazy
@@ -7,7 +8,7 @@ from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
 
-from antragsmanagement.models import GeometryObject, Requester, CleanupEventRequest, \
+from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
   CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, \
   CleanupEventDump
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
@@ -197,6 +198,255 @@ def geometry_keeper(form_data, model, context_data):
   return context_data
 
 
+def get_cleanupeventrequest_anonymous_feature(curr_request, curr_type):
+  """
+  creates a GeoJSON feature based on passed object of model CleanupEventRequest and returns it
+
+  :param curr_request: object of model CleanupEventRequest
+  :param curr_type: type of object (i.e. where to fetch the geometry from)
+  :return: GeoJSON feature based on passed object of model CleanupEventRequest
+  """
+  # define mapping for passed type of object to get model class
+  model_mapping = {
+    'event': CleanupEventEvent,
+    'venue': CleanupEventVenue,
+    'container': CleanupEventContainer,
+    'dump': CleanupEventDump
+  }
+  # get model class based on passed type of object
+  model_class = model_mapping.get(curr_type)
+  # perform query if valid model class was found
+  if model_class:
+    target = model_class.objects.filter(cleanupevent_request=curr_request.pk).first()
+    if target:
+      # GeoJSON-serialize target object
+      target_geojson_serialized = loads(serialize('geojson', [target]))
+      # define mapping for passed type of object to get tooltip prefix
+      prefix_mapping = {
+        'event': 'Fläche',
+        'venue': 'Treffpunkt',
+        'container': 'Containerstandort',
+        'dump': 'Müllablageplatz'
+      }
+      # get tooltip prefix based on passed type of object
+      prefix = prefix_mapping.get(curr_type)
+      title = str(curr_request)
+      # define GeoJSON feature:
+      # get geometry from GeoJSON-serialized target object,
+      # get (meta) properties directly from passed object of model CleanupEventRequest
+      return {
+        'type': 'Feature',
+        'geometry': target_geojson_serialized['features'][0]['geometry'],
+        'properties': {
+          '_tooltip': prefix + ' zu ' + title
+        }
+      }
+  return {}
+
+
+def get_cleanupeventrequest_email_body_information(request, curr_object, body):
+  """
+  gathers all neccessary information of passed object of model CleanupEventRequest,
+  equips passed email body with it, and finally returns the equipped email body
+
+  :param request: request
+  :param curr_object: object of model CleanupEventRequest
+  :param body: email body
+  :return: email body, equipped with all neccessary information
+  of passed object of model CleanupEventRequest
+  """
+  # if responsibilities exist
+  responsibilities = '/'
+  if curr_object.responsibilities.exists():
+    # use list comprehension to get authorities' short names as well as email addresses
+    # and join them
+    responsibilities = '\n'.join(
+      [responsibility.short_contact() for responsibility in curr_object.responsibilities.all()]
+    )
+  # fetch related CleanupEventEvent object
+  from_date, to_date = '/', '/'
+  event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object.pk).first()
+  if event:
+    from_date = event.from_date.strftime('%d.%m.%Y')
+    if event.to_date:
+      to_date = event.to_date.strftime('%d.%m.%Y')
+  # fetch related CleanupEventDetails object
+  waste_quantity, waste_types, waste_types_annotation, equipments = '/', '/', '/', '/'
+  details = CleanupEventDetails.objects.filter(cleanupevent_request=curr_object.pk).first()
+  if details:
+    waste_quantity = str(details.waste_quantity)
+    # if waste types exist
+    if details.waste_types.exists():
+      # use list comprehension to join waste types
+      waste_types = ', '.join(
+        [waste_type.name for waste_type in details.waste_types.all()]
+      )
+    if details.waste_types_annotation:
+      waste_types_annotation = details.waste_types_annotation
+    # if equipments exist
+    if details.equipments.exists():
+      # use list comprehension to join equipments
+      equipments = ', '.join(
+        [equipment.name for equipment in details.equipments.all()]
+      )
+  # fetch related CleanupEventContainer object
+  delivery_date, pickup_date = '/', '/'
+  container = CleanupEventContainer.objects.filter(cleanupevent_request=curr_object.pk).first()
+  if container:
+    delivery_date = container.delivery_date.strftime('%d.%m.%Y')
+    pickup_date = container.pickup_date.strftime('%d.%m.%Y')
+  # set map URL
+  url_path = reverse(
+    viewname='antragsmanagement:anonymous_cleanupeventrequest_map',
+    kwargs={'request_id': curr_object.pk}
+  )
+  base_url = f"{request.scheme}://{request.get_host()}"
+  map_url = f"{base_url}{url_path}"
+  return body.format(
+    request=curr_object.short(),
+    id=curr_object.pk,
+    created=curr_object.created.strftime('%d.%m.%Y, %H:%M Uhr'),
+    status=str(curr_object.status),
+    comment=curr_object.comment if curr_object.comment else '/',
+    responsibilities=responsibilities,
+    from_date=from_date,
+    to_date=to_date,
+    event=map_url,
+    venue=map_url,
+    waste_quantity=waste_quantity,
+    waste_types=waste_types,
+    waste_types_annotation=waste_types_annotation,
+    equipments=equipments,
+    delivery_date=delivery_date,
+    pickup_date=pickup_date,
+    container=map_url,
+    dump=map_url
+  )
+
+
+def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
+  """
+  creates a GeoJSON feature based on passed object of model CleanupEventRequest and returns it
+
+  :param curr_object: object of model CleanupEventRequest
+  :param curr_type: type of object (i.e. where to fetch the geometry from)
+  :param authorative_rights: user has authorative rights (i.e. add links)?
+  :return: GeoJSON feature based on passed object of model CleanupEventRequest
+  """
+  # define mapping for passed type of object to get model class
+  model_mapping = {
+    'event': CleanupEventEvent,
+    'venue': CleanupEventVenue,
+    'container': CleanupEventContainer,
+    'dump': CleanupEventDump
+  }
+  # get model class based on passed type of object
+  model_class = model_mapping.get(curr_type)
+  # perform query if valid model class was found
+  if model_class:
+    target = model_class.objects.filter(cleanupevent_request=curr_object['id']).first()
+    if target:
+      # GeoJSON-serialize target object
+      target_geojson_serialized = loads(serialize('geojson', [target]))
+      # define mapping for passed type of object to get tooltip prefix
+      prefix_mapping = {
+        'event': 'Fläche',
+        'venue': 'Treffpunkt',
+        'container': 'Containerstandort',
+        'dump': 'Müllablageplatz'
+      }
+      # get tooltip prefix based on passed type of object
+      prefix = prefix_mapping.get(curr_type)
+      title = str(CleanupEventRequest.objects.get(pk=curr_object['id']))
+      # define GeoJSON feature:
+      # get geometry from GeoJSON-serialized target object,
+      # get (meta) properties directly from passed object of model CleanupEventRequest
+      geojson_feature = {
+        'type': 'Feature',
+        'geometry': target_geojson_serialized['features'][0]['geometry'],
+        'properties': {
+          '_tooltip': prefix + ' zu ' + title,
+          '_title': title,
+          '_filter_id': curr_object['id'],
+          '_filter_created': curr_object['created'],
+          '_filter_status': curr_object['status'],
+          '_filter_responsibilities': curr_object['responsibilities'],
+          'ID': curr_object['id'],
+          'Eingang': format_date_datetime(curr_object['created']),
+          'Status': curr_object['status'],
+          'Antragsteller:in': curr_object['requester'],
+          'Zuständigkeit(en)': curr_object['responsibilities'],
+          'von': format_date_datetime(curr_object['event_from']),
+          'bis': format_date_datetime(curr_object['event_to']),
+          'Abfallmenge': curr_object['details_waste_quantity'],
+          'Abfallart(en)': curr_object['details_waste_types'],
+          'Austattung(en)': curr_object['details_equipments'],
+          'Container-Stellung': format_date_datetime(curr_object['container_delivery']),
+          'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
+        }
+      }
+      # add links if user has authorative rights
+      if authorative_rights:
+        geojson_feature['properties']['_link_request'] = reverse(
+          viewname='antragsmanagement:cleanupeventrequest_authorative_update',
+          kwargs={'pk': curr_object['id']}
+        )
+        event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object['id']).first()
+        if event:
+          geojson_feature['properties']['_link_event'] = reverse(
+            viewname='antragsmanagement:cleanupeventevent_authorative_update',
+            kwargs={'pk': event.pk}
+          )
+        venue = CleanupEventVenue.objects.filter(cleanupevent_request=curr_object['id']).first()
+        if venue:
+          geojson_feature['properties']['_link_venue'] = reverse(
+            viewname='antragsmanagement:cleanupeventvenue_authorative_update',
+            kwargs={'pk': venue.pk}
+          )
+        details = CleanupEventDetails.objects.filter(
+          cleanupevent_request=curr_object['id']).first()
+        if details:
+          geojson_feature['properties']['_link_details'] = reverse(
+            viewname='antragsmanagement:cleanupeventdetails_authorative_update',
+            kwargs={'pk': details.pk}
+          )
+        container = CleanupEventContainer.objects.filter(
+          cleanupevent_request=curr_object['id']).first()
+        if container:
+          link_container = reverse(
+            viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
+            kwargs={'pk': container.pk}
+          )
+          geojson_feature['properties']['_link_container_delete'] = reverse(
+            viewname='antragsmanagement:cleanupeventcontainer_delete',
+            kwargs={'pk': container.pk}
+          )
+        else:
+          link_container = reverse(
+            viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
+            kwargs={'request_id': curr_object['id']}
+          )
+        geojson_feature['properties']['_link_container'] = link_container
+        dump = CleanupEventDump.objects.filter(cleanupevent_request=curr_object['id']).first()
+        if dump:
+          link_dump = reverse(
+            viewname='antragsmanagement:cleanupeventdump_authorative_update',
+            kwargs={'pk': dump.pk}
+          )
+          geojson_feature['properties']['_link_dump_delete'] = reverse(
+            viewname='antragsmanagement:cleanupeventdump_delete',
+            kwargs={'pk': dump.pk}
+          )
+        else:
+          link_dump = reverse(
+            viewname='antragsmanagement:cleanupeventdump_authorative_create',
+            kwargs={'request_id': curr_object['id']}
+          )
+        geojson_feature['properties']['_link_dump'] = link_dump
+      return geojson_feature
+  return {}
+
+
 def get_cleanupeventrequest_queryset(user, count=False):
   """
   either gets all objects of model CleanupEventRequest and returns them
@@ -330,129 +580,6 @@ def get_cleanupeventrequest_queryset(user, count=False):
   return queryset.count() if count else queryset
 
 
-def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
-  """
-  creates a GeoJSON feature based on passed object of model CleanupEventRequest and returns it
-
-  :param curr_object: object of model CleanupEventRequest
-  :param curr_type: type of object (i.e. where to fetch the geometry from)
-  :param authorative_rights: user has authorative rights (i.e. add links)?
-  :return: GeoJSON feature based on passed object of model CleanupEventRequest
-  """
-  # define mapping for passed type of object to get model class
-  model_mapping = {
-    'event': CleanupEventEvent,
-    'venue': CleanupEventVenue,
-    'container': CleanupEventContainer,
-    'dump': CleanupEventDump
-  }
-  # get model class based on passed type of object
-  model_class = model_mapping.get(curr_type)
-  # perform query if valid model class was found
-  if model_class:
-    target = model_class.objects.filter(cleanupevent_request=curr_object['id']).first()
-    if target:
-      # GeoJSON-serialize target object
-      target_geojson_serialized = loads(serialize('geojson', [target]))
-      # define mapping for passed type of object to get tooltip prefix
-      prefix_mapping = {
-        'event': 'Fäche',
-        'venue': 'Treffpunkt',
-        'container': 'Containerstandort',
-        'dump': 'Müllablageplatz'
-      }
-      # get tooltip prefix based on passed type of object
-      prefix = prefix_mapping.get(curr_type)
-      title = str(CleanupEventRequest.objects.get(pk=curr_object['id']))
-      # define GeoJSON feature:
-      # get geometry from GeoJSON-serialized target object,
-      # get (meta) properties directly from passed object of model CleanupEventRequest
-      geojson_feature = {
-        'type': 'Feature',
-        'geometry': target_geojson_serialized['features'][0]['geometry'],
-        'properties': {
-          '_tooltip': prefix + ' zu ' + title,
-          '_title': title,
-          '_filter_id': curr_object['id'],
-          '_filter_created': curr_object['created'],
-          '_filter_status': curr_object['status'],
-          '_filter_responsibilities': curr_object['responsibilities'],
-          'ID': curr_object['id'],
-          'Eingang': format_date_datetime(curr_object['created']),
-          'Status': curr_object['status'],
-          'Antragsteller:in': curr_object['requester'],
-          'Zuständigkeit(en)': curr_object['responsibilities'],
-          'von': format_date_datetime(curr_object['event_from']),
-          'bis': format_date_datetime(curr_object['event_to']),
-          'Abfallmenge': curr_object['details_waste_quantity'],
-          'Abfallart(en)': curr_object['details_waste_types'],
-          'Austattung(en)': curr_object['details_equipments'],
-          'Container-Stellung': format_date_datetime(curr_object['container_delivery']),
-          'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
-        }
-      }
-      # add links if user has authorative rights
-      if authorative_rights:
-        geojson_feature['properties']['_link_request'] = reverse(
-          viewname='antragsmanagement:cleanupeventrequest_authorative_update',
-          kwargs={'pk': curr_object['id']}
-        )
-        event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object['id']).first()
-        if event:
-          geojson_feature['properties']['_link_event'] = reverse(
-            viewname='antragsmanagement:cleanupeventevent_authorative_update',
-            kwargs={'pk': event.pk}
-          )
-        venue = CleanupEventVenue.objects.filter(cleanupevent_request=curr_object['id']).first()
-        if venue:
-          geojson_feature['properties']['_link_venue'] = reverse(
-            viewname='antragsmanagement:cleanupeventvenue_authorative_update',
-            kwargs={'pk': venue.pk}
-          )
-        details = CleanupEventDetails.objects.filter(
-          cleanupevent_request=curr_object['id']).first()
-        if details:
-          geojson_feature['properties']['_link_details'] = reverse(
-            viewname='antragsmanagement:cleanupeventdetails_authorative_update',
-            kwargs={'pk': details.pk}
-          )
-        container = CleanupEventContainer.objects.filter(
-          cleanupevent_request=curr_object['id']).first()
-        if container:
-          link_container = reverse(
-            viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
-            kwargs={'pk': container.pk}
-          )
-          geojson_feature['properties']['_link_container_delete'] = reverse(
-            viewname='antragsmanagement:cleanupeventcontainer_delete',
-            kwargs={'pk': container.pk}
-          )
-        else:
-          link_container = reverse(
-            viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
-            kwargs={'request_id': curr_object['id']}
-          )
-        geojson_feature['properties']['_link_container'] = link_container
-        dump = CleanupEventDump.objects.filter(cleanupevent_request=curr_object['id']).first()
-        if dump:
-          link_dump = reverse(
-            viewname='antragsmanagement:cleanupeventdump_authorative_update',
-            kwargs={'pk': dump.pk}
-          )
-          geojson_feature['properties']['_link_dump_delete'] = reverse(
-            viewname='antragsmanagement:cleanupeventdump_delete',
-            kwargs={'pk': dump.pk}
-          )
-        else:
-          link_dump = reverse(
-            viewname='antragsmanagement:cleanupeventdump_authorative_create',
-            kwargs={'request_id': curr_object['id']}
-          )
-        geojson_feature['properties']['_link_dump'] = link_dump
-      return geojson_feature
-  return {}
-
-
 def get_corresponding_cleanupeventrequest_geometry(request_id, model, text):
   """
   returns geometry of passed model corresponding to passed CleanupEventRequest object
@@ -509,3 +636,33 @@ def get_referer_url(referer, fallback, lazy=False):
   if referer:
     return reverse_lazy(referer) if lazy else referer
   return reverse_lazy(fallback) if lazy else reverse(fallback)
+
+
+def send_cleanupeventrequest_email(request, email_key, curr_object, recipient_list):
+  """
+  sends email with all neccessary information of passed object of model CleanupEventRequest
+  to passed list of email recipients
+
+  :param request: request
+  :param email_key: key of Email object to use
+  :param curr_object: object of model CleanupEventRequest
+  :param recipient_list: list of email recipients
+  """
+  # get Email object to use
+  try:
+    email = Email.objects.get(key=email_key)
+  except Email.DoesNotExist:
+    email = None
+  if email is not None:
+    # set subject and body
+    subject = email.subject.format(request=curr_object.short())
+    message = get_cleanupeventrequest_email_body_information(
+      request=request, curr_object=curr_object, body=email.body)
+    # send email
+    send_mail(
+      subject=subject,
+      message=message,
+      from_email=settings.DEFAULT_FROM_EMAIL,
+      recipient_list=recipient_list,
+      fail_silently=True
+    )

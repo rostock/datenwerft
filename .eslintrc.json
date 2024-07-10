@@ -9,6 +9,7 @@
     "addField": true,
     "applyFilters": true,
     "bootstrap": true,
+    "buildTooltipHtmlCleanupEventRequest": true,
     "cleanField": true,
     "configureLeafletGeoman": true,
     "configureMap": true,
@@ -55,7 +56,6 @@
     "Wkt": true
   },
   "ignorePatterns": [
-    "antragsmanagement/templates/antragsmanagement/form_request-followup.html",
     "datenmanagement/templates/datenmanagement/form-map.html"
   ],
   "parserOptions": {

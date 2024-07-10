@@ -1,5 +1,35 @@
 @startuml
-skinparam linetype ortho
+package datenwerft{
+  class base {
+    {field} head
+    {field} meta
+    {field} title
+    {field} style
+    {field} scripts
+    {field} navbar
+    {field} content
+    {field} footer
+    {method} include navbar_html
+  }
+
+  class navbar_html {
+    {field} navbar
+  }
+
+  class index {
+    {field} title
+    {field} content
+  }
+
+  class error {
+    {field} title
+    {field} content
+  }
+
+  class modal_confirm_export {}
+  class modal_error {}
+  class modal_loading {}
+}
 
 package antragsmanagement {
   class buttons_form_request_followup {}
@@ -7,7 +37,7 @@ package antragsmanagement {
   class container_messages {}
   class container_table_warnings {}
 
-  class anonymous_map {
+  class anonymous_map_request {
     {field} title
     {field} style
     {field} scripts
@@ -119,7 +149,11 @@ package antragsmanagement {
   }
 }
 
-datenwerft.base <|-- antragsmanagement.anonymous_map
+datenwerft.base ..> datenwerft.navbar_html
+datenwerft.base <|-- datenwerft.index
+datenwerft.base <|-- datenwerft.error
+
+datenwerft.base <|-- antragsmanagement.anonymous_map_request
 datenwerft.base <|-- antragsmanagement.decision
 datenwerft.base <|-- antragsmanagement.delete
 datenwerft.base <|-- antragsmanagement.form_request

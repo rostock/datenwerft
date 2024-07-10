@@ -1,8 +1,6 @@
 @startuml
-skinparam linetype ortho
-
 package datenwerft{
-  abstract base {
+  class base {
     {field} head
     {field} meta
     {field} title
@@ -34,9 +32,456 @@ package datenwerft{
 }
 
 
+package datenmanagement {
+  class add_another {
+    {field} title
+    {field} content
+  }
+
+  class delete {
+    {field} title
+    {field} content
+  }
+
+  class form {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {field} alerts
+    {field} associated_models
+    {field} list
+    {field} map
+    {field} pc_management
+    {method} extend style
+    {method} extend scripts
+  }
+
+  class form_address {}
+
+  class form_list {
+    {field} list
+    {method} include form_address
+  }
+
+  class form_map {
+    {field} style
+    {field} scripts
+    {field} alerts
+    {field} list
+    {method} extend style
+    {method} extend scripts
+    {method} include modal_error
+    {method} include modal_loading
+    {method} include form_address
+  }
+
+  class form_pcmanagement {
+    {field} associated_models
+    {field} pc_management
+  }
+
+  class index {
+    {field} style
+    {field} content
+    {method} extend style
+  }
+
+  class list {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include modal_action_assign
+    {method} include modal_action_delete
+    {method} include modal_error
+    {method} include modal_confirm_export
+  }
+
+  class map_html {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include modal_loading
+  }
+
+  class modal_action_assign {}
+  class modal_action_delete {}
+
+  class start {
+    {field} title
+    {field} content
+  }
+}
+
+package bemas {
+  class codelists {
+    {field} title
+    {field} content
+    {method} include notice-norights
+  }
+
+  class codelist_delete {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include notice-norights
+  }
+
+  class codelist_form {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_errors
+    {method} include notice-norights
+  }
+
+  class codelist_table {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include container_table_warning
+    {method} include notice-norights
+  }
+
+  class container_contacts {}
+  class container_deletion_hints {}
+  class container_errors {}
+  class container_events {}
+  class container_map_danger {}
+  class container_messages {}
+  class container_table_danger {}
+  class container_table_warning {}
+
+  class generic_objectclass_delete {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include container_deletion_hints
+    {method} include notice-norights
+  }
+  class generic_objectclass_form {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_errors
+    {method} include container_messages
+    {method} include container_contacts
+    {method} include container_events
+    {method} include datenwerft.modal_error
+    {method} include notice-norights
+  }
+
+  class generic_objectclass_table {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include container_table_danger
+    {method} include container_table_warning
+    {method} include datenwerft.modal_error
+    {method} include notice-norights
+  }
+
+  class index {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include notice-norights
+  }
+
+  class map {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_map_danger
+    {method} include datenwerft.modal_error
+    {method} include datenwerft.modal_loading
+    {method} include notice-norights
+  }
+
+  class notice_norights {}
+
+  class orphaned_data {
+    {field} title
+    {field} content
+    {method} include notice-norights
+  }
+}
+
+package antragsmanagement {
+  class buttons_form_request_followup {}
+  class container_errors {}
+  class container_messages {}
+  class container_table_warnings {}
+
+  class anonymous_map_request {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+  }
+
+  class decision {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include container_errors
+    {method} include notice_no_request
+    {method} include notice_no_permissions
+  }
+
+  class delete {
+    {field} title
+    {field} content
+    {method} include container_errors
+    {method} include notice_no_permissions
+  }
+
+  class form_request {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_errors
+    {method} include notice_no_contact_data
+    {method} include notice_no_permissions
+  }
+
+  class form_request_followup {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include buttons_form_request_followup
+    {method} include container_messages
+    {method} include container_errors
+    {method} include notice_no_request
+    {method} include notice_no_permissions
+  }
+
+  class form_simple {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_errors
+    {method} include notice_no_permissions
+  }
+
+  class index {
+    {field} title
+    {field} content
+    {method} include container_messages
+    {method} include notice_no_permissions
+  }
+
+  class map_filters_cleanupeventrequest {}
+
+  class map_request {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include map_filters_cleanupeventrequest
+    {method} include notice_no_permissions
+  }
+
+  class notice_no_contact_data {}
+  class notice_no_permissions {}
+  class notice_no_request {}
+
+  class table_request {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include container_table_warning
+    {method} include notice_no_permissions
+  }
+
+  class table_simple {
+    {field} title
+    {field} style
+    {field} scripts
+    {field} content
+    {method} extend style
+    {method} extend scripts
+    {method} include container_messages
+    {method} include container_table_warning
+    {method} include notice_no_permissions
+  }
+}
+
+package accounts {
+  class login {
+    {field} title
+    {field} content
+  }
+
+  class login_add_token {
+    {field} title
+    {field} content
+  }
+
+  class logout {
+    {field} title
+    {field} content
+  }
+
+  class test {
+    {field} content
+  }
+}
+
+
 datenwerft.base ..> datenwerft.navbar_html
 datenwerft.base <|-- datenwerft.index
 datenwerft.base <|-- datenwerft.error
+
+datenwerft.base <|-- datenmanagement.add_another
+datenwerft.base <|-- datenmanagement.delete
+datenwerft.base <|-- datenmanagement.form
+datenwerft.base <|-- datenmanagement.index
+datenwerft.base <|-- datenmanagement.list
+datenwerft.base <|-- datenmanagement.map_html
+datenwerft.base <|-- datenmanagement.start
+
+datenwerft.base <|-- bemas.codelists
+datenwerft.base <|-- bemas.codelist_delete
+datenwerft.base <|-- bemas.codelist_form
+datenwerft.base <|-- bemas.codelist_table
+datenwerft.base <|-- bemas.generic_objectclass_delete
+datenwerft.base <|-- bemas.generic_objectclass_form
+datenwerft.base <|-- bemas.generic_objectclass_table
+datenwerft.base <|-- bemas.index
+datenwerft.base <|-- bemas.map
+datenwerft.base <|-- bemas.orphaned_data
+
+datenwerft.base <|-- antragsmanagement.anonymous_map_request
+datenwerft.base <|-- antragsmanagement.decision
+datenwerft.base <|-- antragsmanagement.delete
+datenwerft.base <|-- antragsmanagement.form_request
+datenwerft.base <|-- antragsmanagement.form_request_followup
+datenwerft.base <|-- antragsmanagement.form_simple
+datenwerft.base <|-- antragsmanagement.index
+datenwerft.base <|-- antragsmanagement.map_request
+datenwerft.base <|-- antragsmanagement.table_request
+datenwerft.base <|-- antragsmanagement.table_simple
+
+datenwerft.base <|-- accounts.login
+datenwerft.base <|-- accounts.login_add_token
+datenwerft.base <|-- accounts.logout
+datenwerft.base <|-- accounts.test
+
+
+datenmanagement.form <|-- datenmanagement.form_list
+datenmanagement.form_list <|-- datenmanagement.form_map
+datenmanagement.form_map <|-- datenmanagement.form_pcmanagement
+datenmanagement.form_list ..> datenmanagement.form_address
+datenmanagement.form_map ..> datenwerft.modal_error
+datenmanagement.form_map ..> datenwerft.modal_loading
+datenmanagement.form_map ..> datenmanagement.form_address
+datenmanagement.list ..> datenwerft.modal_error
+datenmanagement.list ..> datenwerft.modal_confirm_export
+datenmanagement.list ..> datenmanagement.modal_action_assign
+datenmanagement.list ..> datenmanagement.modal_action_delete
+datenmanagement.map_html ..> datenwerft.modal_error
+datenmanagement.map_html ..> datenwerft.modal_loading
+
+
+bemas.codelists ..> bemas.notice_norights
+bemas.codelist_delete ..> bemas.container_messages
+bemas.codelist_delete ..> bemas.notice_norights
+bemas.codelist_form ..> bemas.container_errors
+bemas.codelist_form ..> bemas.notice_norights
+bemas.codelist_table ..> bemas.container_messages
+bemas.codelist_table ..> bemas.container_table_warning
+bemas.codelist_table ..> bemas.notice_norights
+bemas.generic_objectclass_delete ..> bemas.container_messages
+bemas.generic_objectclass_delete ..> bemas.container_deletion_hints
+bemas.generic_objectclass_delete ..> bemas.notice_norights
+bemas.generic_objectclass_form ..> datenwerft.modal_error
+bemas.generic_objectclass_form ..> bemas.container_errors
+bemas.generic_objectclass_form ..> bemas.container_messages
+bemas.generic_objectclass_form ..> bemas.container_contacts
+bemas.generic_objectclass_form ..> bemas.container_events
+bemas.generic_objectclass_form ..> bemas.notice_norights
+bemas.generic_objectclass_table ..> datenwerft.modal_error
+bemas.generic_objectclass_table ..> bemas.container_messages
+bemas.generic_objectclass_table ..> bemas.container_table_danger
+bemas.generic_objectclass_table ..> bemas.container_table_warning
+bemas.generic_objectclass_table ..> bemas.notice_norights
+bemas.index ..> bemas.container_messages
+bemas.index ..> bemas.notice_norights
+bemas.map ..> datenwerft.modal_error
+bemas.map ..> datenwerft.modal_loading
+bemas.map ..> bemas.container_map_danger
+bemas.map ..> bemas.notice_norights
+bemas.orphaned_data ..> bemas.notice_norights
+
+
+antragsmanagement.decision ..> antragsmanagement.container_messages
+antragsmanagement.decision ..> antragsmanagement.container_errors
+antragsmanagement.decision ..> antragsmanagement.notice_no_request
+antragsmanagement.decision ..> antragsmanagement.notice_no_permissions
+antragsmanagement.delete ..> antragsmanagement.container_errors
+antragsmanagement.delete ..> antragsmanagement.notice_no_permissions
+antragsmanagement.form_request ..> antragsmanagement.container_errors
+antragsmanagement.form_request ..> antragsmanagement.notice_no_contact_data
+antragsmanagement.form_request ..> antragsmanagement.notice_no_permissions
+antragsmanagement.form_request_followup ..> antragsmanagement.buttons_form_request_followup
+antragsmanagement.form_request_followup ..> antragsmanagement.container_messages
+antragsmanagement.form_request_followup ..> antragsmanagement.container_errors
+antragsmanagement.form_request_followup ..> antragsmanagement.notice_no_request
+antragsmanagement.form_request_followup ..> antragsmanagement.notice_no_permissions
+antragsmanagement.form_simple ..> antragsmanagement.container_errors
+antragsmanagement.form_simple ..> antragsmanagement.notice_no_permissions
+antragsmanagement.index ..> antragsmanagement.container_messages
+antragsmanagement.index ..> antragsmanagement.notice_no_permissions
+antragsmanagement.map_request ..> antragsmanagement.map_filters_cleanupeventrequest
+antragsmanagement.map_request ..> antragsmanagement.notice_no_permissions
+antragsmanagement.table_request ..> antragsmanagement.container_messages
+antragsmanagement.table_request ..> antragsmanagement.container_table_warning
+antragsmanagement.table_request ..> antragsmanagement.notice_no_permissions
+antragsmanagement.table_simple ..> antragsmanagement.container_messages
+antragsmanagement.table_simple ..> antragsmanagement.container_table_warning
+antragsmanagement.table_simple ..> antragsmanagement.notice_no_permissions
 
 
 @enduml

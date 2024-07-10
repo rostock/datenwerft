@@ -98,7 +98,15 @@
           {% include "antragsmanagement/buttons_form_request-followup.html" %}
         {% endif %}
       </form>
+      <!-- eslint-disable-next-script -->
       <script>
+        window.zoomToPreviousGeometries = true;
+        {% if geometry %}
+          window.zoomToPreviousGeometries = false;
+        {% endif %}
+      </script>
+      <script>
+        /* eslint no-unexpected-multiline: "off" */
         setTimeout(function () {
           $('.alert-success').alert('close');
         }, 1000);
@@ -141,16 +149,12 @@
           // if other geometries exist...
           {% if other_geometries %}
             // show other geometries on map
-            let zoomToPreviousGeometries;
-            {% if geometry %}
-              zoomToPreviousGeometries = false;
-            {% endif %}
             {% if other_geometries|is_list %}
               {% for other_geometry in other_geometries %}
-                map.loadGeometryFromContextDict({{ other_geometry|safe }}, zoomToPreviousGeometries)
+                map.loadGeometryFromContextDict({{ other_geometry|safe }}, window.zoomToPreviousGeometries)
               {% endfor %}
             {% else %}
-              map.loadGeometryFromContextDict({{ other_geometries|safe }}, zoomToPreviousGeometries)
+              map.loadGeometryFromContextDict({{ other_geometries|safe }}, window.zoomToPreviousGeometries)
             {% endif %}
           {% endif %}
 
@@ -184,20 +188,17 @@
         $(document).ready(function () {
           keepDjangoRequiredMessages();
 
-          // handle fields which are to disable...
-          {% if disabled_fields %}
-            // ensure fields are enabled again on submitting the form
-            // (since otherwise, they would not be included in the form data)
-            $('form').bind('submit', function () {
-              $(this).find(':input').prop('disabled', false);
-            });
-            let field;
-            // disable fields which are to disable
-            {% for field in disabled_fields %}
-              field = $('#id_' + '{{ field }}');
-              field.prop('disabled', true);
-            {% endfor %}
-          {% endif %}
+          let field;
+          // disable fields which are to disable
+          {% for field in disabled_fields %}
+            field = $('#id_' + '{{ field }}');
+            field.prop('disabled', true);
+          {% endfor %}
+          // ensure fields are enabled again on submitting the form
+          // (since otherwise, they would not be included in the form data)
+          $('form').bind('submit', function () {
+            $(this).find(':input').prop('disabled', false);
+          });
 
           // initialize address search (and make its results globally available)
           window.results = $('div.results');
