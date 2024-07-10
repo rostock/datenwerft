@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry
+from django.core.mail import send_mail
 from django.core.serializers import serialize
 from django.forms import CheckboxSelectMultiple, Textarea
 from django.urls import reverse, reverse_lazy
@@ -7,7 +8,7 @@ from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
 
-from antragsmanagement.models import GeometryObject, Requester, CleanupEventRequest, \
+from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
   CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, \
   CleanupEventDump
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
@@ -635,3 +636,33 @@ def get_referer_url(referer, fallback, lazy=False):
   if referer:
     return reverse_lazy(referer) if lazy else referer
   return reverse_lazy(fallback) if lazy else reverse(fallback)
+
+
+def send_cleanupeventrequest_email(request, email_key, curr_object, recipient_list):
+  """
+  sends email with all neccessary information of passed object of model CleanupEventRequest
+  to passed list of email recipients
+
+  :param request: request
+  :param email_key: key of Email object to use
+  :param curr_object: object of model CleanupEventRequest
+  :param recipient_list: list of email recipients
+  """
+  # get Email object to use
+  try:
+    email = Email.objects.get(key=email_key)
+  except Email.DoesNotExist:
+    email = None
+  if email is not None:
+    # set subject and body
+    subject = email.subject.format(request=curr_object.short())
+    message = get_cleanupeventrequest_email_body_information(
+      request=request, curr_object=curr_object, body=email.body)
+    # send email
+    send_mail(
+      subject=subject,
+      message=message,
+      from_email=settings.DEFAULT_FROM_EMAIL,
+      recipient_list=recipient_list,
+      fail_silently=True
+    )

@@ -2,7 +2,6 @@ from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.gis.geos import GEOSGeometry
-from django.core.mail import send_mail
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -15,9 +14,9 @@ from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, 
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
   add_useragent_context_elements, clean_initial_field_values, \
-  get_cleanupeventrequest_anonymous_feature, get_cleanupeventrequest_email_body_information, \
-  get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset, \
-  get_corresponding_cleanupeventrequest_geometry, get_referer, get_referer_url, geometry_keeper
+  get_cleanupeventrequest_anonymous_feature, get_cleanupeventrequest_feature, \
+  get_cleanupeventrequest_queryset, get_corresponding_cleanupeventrequest_geometry, \
+  get_referer, get_referer_url, geometry_keeper, send_cleanupeventrequest_email
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
@@ -545,6 +544,49 @@ class RequestFollowUpDecisionMixin:
     return context
 
 
+class RequestFollowUpDeleteMixin:
+  """
+  mixin for form page for deleting a follow-up instance of general object:
+  request (Antrag)
+
+  :param success_message: custom success message
+  """
+
+  # override success message
+  success_message = ObjectDeleteView.success_message.replace('<strong>', 'zu <strong>')
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add to context: URLs
+    context['cancel_url'] = get_referer_url(
+      referer=get_referer(self.request),
+      fallback='antragsmanagement:index'
+    )
+    # add permissions related context elements:
+    # set authority permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    return context
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    referer = self.request.POST.get('original_referer', '')
+    if 'table' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_table')
+    elif 'map' in referer:
+      return reverse('antragsmanagement:cleanupeventrequest_map')
+    return reverse('antragsmanagement:index')
+
+
 #
 # objects for request type:
 # clean-up events (Müllsammelaktionen)
@@ -1054,24 +1096,12 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     instance.save()
     # on every status change: send email to inform original requester
     if old_instance.status.name != instance.status.name:
-      # get corresponding Email object
-      try:
-        email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_STATUS-CHANGED')
-      except Email.DoesNotExist:
-        email = None
-      if email is not None:
-        # set subject and body
-        subject = email.subject.format(request=instance.short())
-        message = get_cleanupeventrequest_email_body_information(
-          request=self.request, curr_object=instance, body=email.body)
-        # send email
-        send_mail(
-          subject=subject,
-          message=message,
-          from_email=settings.DEFAULT_FROM_EMAIL,
-          recipient_list=[instance.requester.email],
-          fail_silently=True
-        )
+      send_cleanupeventrequest_email(
+        request=self.request,
+        email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
+        curr_object=instance,
+        recipient_list=[instance.requester.email]
+      )
     return super().form_valid(form)
 
   def get_context_data(self, **kwargs):
@@ -1572,56 +1602,27 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
             raise Http404(self.error_message)
     else:
       messages.success(request, self.success_message)
+      request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
       # send email to inform requester about new request
-      # get corresponding Email object
-      try:
-        email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW')
-      except Email.DoesNotExist:
-        email = None
-      if email is not None:
-        # get request
-        request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
-        if request:
-          # set subject and body
-          subject = email.subject.format(request=request.short())
-          message = get_cleanupeventrequest_email_body_information(
-            request=self.request, curr_object=request, body=email.body)
-          # send email
-          send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[request.requester.email],
-            fail_silently=True
-          )
-      # send email to inform responsible authorities about new request
-      # get corresponding Email object
-      try:
-        email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW')
-      except Email.DoesNotExist:
-        email = None
-      if email is not None:
-        # get request
-        request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
-        if request:
-          if request.responsibilities.exists():
-            # set subject and body
-            subject = email.subject.format(request=request.short())
-            message = get_cleanupeventrequest_email_body_information(
-              request=self.request, curr_object=request, body=email.body)
-            # use list comprehension to get get recipients
-            # (i.e. the email addresses of all responsible authorities)
-            recipient_list = [
-              responsibility.email for responsibility in request.responsibilities.all()
-            ]
-            # send email
-            send_mail(
-              subject=subject,
-              message=message,
-              from_email=settings.DEFAULT_FROM_EMAIL,
-              recipient_list=recipient_list,
-              fail_silently=True
-            )
+      send_cleanupeventrequest_email(
+        request=self.request,
+        email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
+        curr_object=request,
+        recipient_list=[request.requester.email]
+      )
+      if request.responsibilities.exists():
+        # use list comprehension to get get recipients
+        # (i.e. the email addresses of all responsible authorities)
+        recipient_list = [
+          responsibility.email for responsibility in request.responsibilities.all()
+        ]
+        # send email to inform responsible authorities about new request
+        send_cleanupeventrequest_email(
+          request=self.request,
+          email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
+          curr_object=request,
+          recipient_list=recipient_list
+        )
     return redirect('antragsmanagement:index')
 
   def get_context_data(self, **kwargs):
@@ -1714,54 +1715,28 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
     instance = form.save(commit=False)
     instance.full_clean()
     instance.save()
-    # send email to inform requester about new request
-    # get corresponding Email object
-    try:
-      email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW')
-    except Email.DoesNotExist:
-      email = None
-    if email is not None:
-      request = instance.cleanupevent_request
-      # set subject and body
-      subject = email.subject.format(request=request.short())
-      message = get_cleanupeventrequest_email_body_information(
-          request=self.request, curr_object=request, body=email.body)
-      # send email
-      send_mail(
-        subject=subject,
-        message=message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[request.requester.email],
-        fail_silently=True
+    request = instance.cleanupevent_request
+    if request:
+      # send email to inform requester about new request
+      send_cleanupeventrequest_email(
+        request=self.request,
+        email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
+        curr_object=request,
+        recipient_list=[request.requester.email]
       )
-    # send email to inform responsible authorities about new request
-    # get corresponding Email object
-    try:
-      email = Email.objects.get(key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW')
-    except Email.DoesNotExist:
-      email = None
-    if email is not None:
-      # get request
-      request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
-      if request:
-        if request.responsibilities.exists():
-          # set subject and body
-          subject = email.subject.format(request=request.short())
-          message = get_cleanupeventrequest_email_body_information(
-            request=self.request, curr_object=request, body=email.body)
-          # use list comprehension to get get recipients
-          # (i.e. the email addresses of all responsible authorities)
-          recipient_list = [
-            responsibility.email for responsibility in request.responsibilities.all()
-          ]
-          # send email
-          send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=recipient_list,
-            fail_silently=True
-          )
+      if request.responsibilities.exists():
+        # use list comprehension to get get recipients
+        # (i.e. the email addresses of all responsible authorities)
+        recipient_list = [
+          responsibility.email for responsibility in request.responsibilities.all()
+        ]
+        # send email to inform responsible authorities about new request
+        send_cleanupeventrequest_email(
+          request=self.request,
+          email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
+          curr_object=request,
+          recipient_list=recipient_list
+        )
     return super().form_valid(form)
 
   def get_initial(self):
@@ -1887,50 +1862,16 @@ class CleanupEventContainerAuthorativeUpdateView(RequestFollowUpAuthorativeMixin
     return context
 
 
-class CleanupEventContainerDeleteView(ObjectDeleteView):
+class CleanupEventContainerDeleteView(RequestFollowUpDeleteMixin, ObjectDeleteView):
   """
   view for form page for deleting an instance of object
   for request type clean-up events (Müllsammelaktionen):
   container (Container)
 
   :param model: model
-  :param success_message: custom success message
   """
 
   model = CleanupEventContainer
-  # override success message
-  success_message = ObjectDeleteView.success_message.replace('<strong>', 'zu <strong>')
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add to context: URLs
-    context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request),
-      fallback='antragsmanagement:index'
-    )
-    # add permissions related context elements:
-    # set authority permissions as necessary permissions
-    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
-    return context
-
-  def get_success_url(self):
-    """
-    defines the URL called in case of successful request
-
-    :return: URL called in case of successful request
-    """
-    referer = self.request.POST.get('original_referer', '')
-    if 'table' in referer:
-      return reverse('antragsmanagement:cleanupeventrequest_table')
-    elif 'map' in referer:
-      return reverse('antragsmanagement:cleanupeventrequest_map')
-    return reverse('antragsmanagement:index')
 
 
 class CleanupEventDumpMixin(RequestFollowUpMixin):
@@ -2032,50 +1973,16 @@ class CleanupEventDumpAuthorativeUpdateView(RequestFollowUpAuthorativeMixin,
   """
 
 
-class CleanupEventDumpDeleteView(ObjectDeleteView):
+class CleanupEventDumpDeleteView(RequestFollowUpDeleteMixin, ObjectDeleteView):
   """
   view for form page for deleting an instance of object
   for request type clean-up events (Müllsammelaktionen):
   dump (Müllablageplatz)
 
   :param model: model
-  :param success_message: custom success message
   """
 
   model = CleanupEventDump
-  # override success message
-  success_message = ObjectDeleteView.success_message.replace('<strong>', 'zu <strong>')
-
-  def get_context_data(self, **kwargs):
-    """
-    returns a dictionary with all context elements for this view
-
-    :param kwargs:
-    :return: dictionary with all context elements for this view
-    """
-    context = super().get_context_data(**kwargs)
-    # add to context: URLs
-    context['cancel_url'] = get_referer_url(
-      referer=get_referer(self.request),
-      fallback='antragsmanagement:index'
-    )
-    # add permissions related context elements:
-    # set authority permissions as necessary permissions
-    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
-    return context
-
-  def get_success_url(self):
-    """
-    defines the URL called in case of successful request
-
-    :return: URL called in case of successful request
-    """
-    referer = self.request.POST.get('original_referer', '')
-    if 'table' in referer:
-      return reverse('antragsmanagement:cleanupeventrequest_table')
-    elif 'map' in referer:
-      return reverse('antragsmanagement:cleanupeventrequest_map')
-    return reverse('antragsmanagement:index')
 
 
 #
