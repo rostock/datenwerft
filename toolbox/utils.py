@@ -41,27 +41,20 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return None
 
 
-def find_in_wfs_features(string, element, wfs, wfs_features):
+def find_in_wfs_features(string, element, wfs_features):
   """
   returns true if passed search string is found in passed element of passed WFS features
 
   :param string: search string
   :param element: WFS feature element
-  :param wfs: WFS (including URL, namespace, namespace URL, feature type, and SRID)
   :param wfs_features: WFS features
   :return: true if passed search string is found in passed element of passed WFS features
   """
-  element = '{' + wfs['namespace_url'] + '}' + element
-  found = False
   for wfs_feature in wfs_features:
-    found = False
-    for child in wfs_feature.iter():
-      if child.tag == element and child.text == string:
-        found = True
-        break
-    if found:
-      break
-  return found
+    properties = wfs_feature.get('properties', {})
+    if properties.get(element) == string:
+      return True
+  return False
 
 
 def format_date_datetime(value, time_string_only=False):
@@ -99,39 +92,43 @@ def get_array_first_element(curr_array):
     return curr_array
 
 
-def intersection_with_wfs(geometry, wfs, only_presence=False):
+def intersection_with_wfs(geometry, wfs_config, only_presence=False):
   """
-  intersects passed feature geometry with passed WFS and returns (presence of) hits
+  intersects passed feature geometry with passed WFS config and returns (presence of) hits
 
   :param geometry: feature geometry
-  :param wfs: WFS (including URL, namespace, namespace URL, feature type, and SRID)
+  :param wfs_config: WFS config (including URL, namespace, namespace URL, feature type, and SRID)
   :param only_presence: presence of intersection hits instead of intersection hits?
-  :return: (presence of) intersection hits of passed feature geometry with passed WFS
+  :return: (presence of) intersection hits of passed feature geometry with passed WFS config
   """
-  url = wfs['url']
-  namespace = wfs['namespace']
-  namespace_url = wfs['namespace_url']
-  featuretype = wfs['featuretype']
-  srid = wfs['srid']
+  # unpack WFS config into variables using dictionary unpacking
+  url, namespace, namespace_url, featuretype, srid = wfs_config.values()
   # transform feature geometry to WFS SRID
   geometry = transform_geometry(geometry, srid)
-  # extract exterior coordinates of feature geometry for filter
+  # build geometry part for WFS Intersection filter
   if isinstance(geometry, Point):
-    exterior_coords = f"{geometry.x} {geometry.y}"
-    filter_part = '<gml:Point srsName="EPSG:' + str(srid) + '">'
-    filter_part += '<gml:pos>' + exterior_coords + '</gml:pos>'
-    filter_part += '</gml:Point>'
+    coords = f"{geometry.x} {geometry.y}"
+    geometry_filter = f'''
+      <gml:Point srsName="EPSG:{srid}">
+        <gml:pos>{coords}</gml:pos>
+      </gml:Point>
+    '''
   elif isinstance(geometry, Polygon):
-    exterior_coords = ' '.join(f"{coord[0]} {coord[1]}" for coord in geometry.coords[0])
-    filter_part = '<gml:Polygon srsName="EPSG:' + str(srid) + '">'
-    filter_part += '<gml:exterior><gml:LinearRing><gml:posList>'
-    filter_part += exterior_coords + '</gml:posList></gml:LinearRing></gml:exterior>'
-    filter_part += '</gml:Polygon>'
+    coords = ' '.join(f"{coord[0]} {coord[1]}" for coord in geometry.coords[0])
+    geometry_filter = f'''
+      <gml:Polygon srsName="EPSG:{srid}">
+        <gml:exterior>
+          <gml:LinearRing>
+            <gml:posList>{coords}</gml:posList>
+          </gml:LinearRing>
+        </gml:exterior>
+      </gml:Polygon>
+    '''
   else:
-    exterior_coords, filter_part = '', ''
+    geometry_filter = ''
   # build WFS Intersection filter
-  filter_xml = f'''
-  <wfs:GetFeature service="WFS" version="2.0.0"
+  filter_string = f'''
+  <wfs:GetFeature service="WFS" version="2.0.0" outputFormat="application/geo+json"
                   xmlns:wfs="http://www.opengis.net/wfs/2.0"
                   xmlns:ogc="http://www.opengis.net/ogc"
                   xmlns:gml="http://www.opengis.net/gml/3.2"
@@ -140,18 +137,24 @@ def intersection_with_wfs(geometry, wfs, only_presence=False):
       <ogc:Filter>
         <ogc:Intersects>
           <ogc:PropertyName>geometry</ogc:PropertyName>
-          {filter_part}
+          {geometry_filter}
         </ogc:Intersects>
       </ogc:Filter>
     </wfs:Query>
   </wfs:GetFeature>
   '''
+  # parse the WFS Intersection filter string to an XML element
+  # and then convert it back to a string to ensure it's well-formed
+  filter_element = etree.fromstring(filter_string)
+  filter_xml = etree.tostring(filter_element).decode('utf-8')
   # get WFS response
-  response = post(url, data=filter_xml, headers={'Content-Type': 'text/xml'})
-  response.raise_for_status()
-  # parse WFS response and check if any WFS features were returned
-  root = etree.fromstring(response.content)
-  features = root.findall('.//{http://www.opengis.net/wfs/2.0}member')
+  response = post(
+    url=url,
+    data=filter_xml,
+    headers={'Content-Type': 'text/xml'}
+  )
+  geojson_data = response.json()
+  features = geojson_data.get('features', [])
   return len(features) > 0 if only_presence else features
 
 

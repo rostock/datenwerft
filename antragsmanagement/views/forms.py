@@ -79,13 +79,12 @@ class ObjectForm(ModelForm):
           scope_intersections = False
           intersections = intersection_with_wfs(
             geometry=GEOSGeometry(geometry),
-            wfs=settings.ANTRAGSMANAGEMENT_SCOPE_WFS
+            wfs_config=settings.ANTRAGSMANAGEMENT_SCOPE_WFS
           )
           if intersections:
             scope_intersections = find_in_wfs_features(
               string='13003',
               element='kreis_schluessel',
-              wfs=settings.ANTRAGSMANAGEMENT_SCOPE_WFS,
               wfs_features=intersections
             )
           if not scope_intersections:
@@ -97,7 +96,7 @@ class ObjectForm(ModelForm):
           managed_areas_intersections = False
           intersections = intersection_with_wfs(
             geometry=GEOSGeometry(geometry),
-            wfs=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
+            wfs_config=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
           )
           if intersections:
             managed_areas_intersections = True
