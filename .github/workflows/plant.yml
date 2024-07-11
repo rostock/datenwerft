@@ -5,6 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   render-diagrams:
@@ -35,7 +36,7 @@ jobs:
       - name: Generate SVG Diagrams
         uses: dreamsinbits/export-plantuml-action@v1
         with:
-          args: -v -o out -tsvg -config diagrams/config/config.puml ${{ steps.get-changed-uml-files.outputs.puml-files }}
+          args: -v -o out -tsvg ${{ steps.get-changed-uml-files.outputs.puml-files }}
           
       - name: Push Local Changes
         uses:  stefanzweifel/git-auto-commit-action@v4.1.2 
