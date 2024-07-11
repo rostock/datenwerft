@@ -12,12 +12,10 @@ jobs:
     name: plantuml
     steps:
     - name: checkout
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
+      uses: actions/checkout@v4.1.1
     - name: plantuml
       id: plantuml
-      uses: grassedge/generate-plantuml-action@v1.5
+      uses: kolchurinvv/generate-plantuml-action@master
       with:
         message: "Render PlantUML files"
       env:
