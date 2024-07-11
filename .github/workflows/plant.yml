@@ -1,9 +1,9 @@
 name: generate plantuml
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "features/plantuml-workflow" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "features/plantuml-workflow" ]
   workflow_dispatch:
 
 jobs:
