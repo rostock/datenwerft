@@ -22,7 +22,7 @@ jobs:
           pattern: "**.puml"
 
       - name: Upload Diagrams
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: diagrams
           path: "**.svg"
