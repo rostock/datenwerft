@@ -1,4 +1,4 @@
-name: generate plantuml
+name: plantuml
 on:
   push:
     branches: [ "features/plantuml-workflow" ]
