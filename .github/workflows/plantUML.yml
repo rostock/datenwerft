@@ -4,10 +4,10 @@ on:
     paths: 
       - "**.puml"
     branches: 
-      - master
+      - features/plantuml-workflow
   pull_request:
     branches:
-      - master
+      - features/plantuml-workflow
   workflow_dispatch:
 jobs:
   generate_plantuml:
