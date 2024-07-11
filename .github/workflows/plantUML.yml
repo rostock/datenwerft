@@ -1,14 +1,19 @@
 name: generate plantuml
 on:
   push:
-    paths: ["**.puml"]
-    branches: [master]
+    paths: 
+      - "**.puml"
+    branches: 
+      - master
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
 jobs:
   generate_plantuml:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Generate PlantUML Diagrams
         uses: rotaract/plantuml-action@v1
