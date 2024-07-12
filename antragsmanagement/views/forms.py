@@ -113,13 +113,14 @@ class ObjectForm(ModelForm):
             overlapping_areas = []
             for intersection in intersections:
               intersection_geometry = intersection.get('geometry')
+              entity_value = intersection.get('properties').get(MANAGEDAREAS_WFS_SEARCH_ELEMENT)
               if intersection_geometry.get('type') == 'GeometryCollection':
                 for sub_geometry in intersection_geometry.get('geometries'):
                   geos_intersection_geometry = GEOSGeometry(str(sub_geometry))
                   overlapping_area = get_overlapping_area(
                     area_a=geos_geometry,
                     area_b=geos_intersection_geometry,
-                    entity_value=intersection.get('properties').get(MANAGEDAREAS_WFS_SEARCH_ELEMENT)
+                    entity_value=entity_value
                   )
                   overlapping_areas.append(overlapping_area)
               else:
@@ -127,7 +128,7 @@ class ObjectForm(ModelForm):
                 overlapping_area = get_overlapping_area(
                   area_a=geos_geometry,
                   area_b=geos_intersection_geometry,
-                  entity_value=intersection.get('properties').get(MANAGEDAREAS_WFS_SEARCH_ELEMENT)
+                  entity_value=entity_value
                 )
                 overlapping_areas.append(overlapping_area)
             # group overlapping areas by entity key and sum area values for each entity
