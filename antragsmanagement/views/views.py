@@ -1189,6 +1189,8 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
       viewname='antragsmanagement:cleanupeventrequest_update',
       kwargs={'pk': self.request.session.get('request_id', None)}
     )
+    # add to context: map layer to additionally activate
+    context['activate_map_layer'] = 'Bewirtschaftungskataster'
     return context
 
   def form_valid(self, form):

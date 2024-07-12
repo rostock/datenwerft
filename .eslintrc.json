@@ -6,6 +6,7 @@
   },
   "extends": "eslint:recommended",
   "globals": {
+    "activateMapLayer": true,
     "addField": true,
     "applyFilters": true,
     "bootstrap": true,

@@ -1,5 +1,20 @@
 /**
  * @function
+ * @name activateMapLayer
+ *
+ * activate layer with passed name in passed map
+ *
+ * @param {string} layerName - layer name
+ * @param {Object} map - map
+ */
+function activateMapLayer(layerName, map) {
+  let layer = window.overlayMaps[layerName];
+  if (layer)
+    map.addLayer(layer);
+}
+
+/**
+ * @function
  * @name configureLeafletGeoman
  *
  * configures Leaflet-Geoman in passed map
@@ -308,8 +323,11 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   // if necessary, add additional WMS layers to the overlay maps as well
   overlayMaps = Object.assign(additionalWmsLayers, overlayMaps);
 
-  // add background map toggle to map
+  // add background map toggle and overlay maps control to map
   L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+  // make overlay maps globally available
+  window.overlayMaps = overlayMaps;
 
   // define map projection
   proj4.defs([

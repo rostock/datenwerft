@@ -94,17 +94,17 @@ class ObjectForm(ModelForm):
             raise ValidationError(text)
         # fail if geometry lies outside of managed areas
         if self._meta.model.BaseMeta.geometry_in_managed_areas:
-          managed_areas_intersections = False
           intersections = intersection_with_wfs(
             geometry=GEOSGeometry(geometry),
             wfs_config=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
           )
           if intersections:
-            managed_areas_intersections = True
-          if not managed_areas_intersections:
+            pass
+          else:
             text = '<strong><em>{}</em></strong> muss mindestens eine Fläche'.format(
               self._meta.model._meta.get_field(geometry_field).verbose_name)
-            text += ' des städtischen Bewirtschaftungskatasters schneiden!'
+            text += ' des städtischen Bewirtschaftungskatasters schneiden'
+            text += ' (siehe Flächendarstellungen in Karte)!'
             raise ValidationError(text)
       else:
         cleaned_data[geometry_field] = geometry

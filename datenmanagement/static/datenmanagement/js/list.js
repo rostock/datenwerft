@@ -157,7 +157,7 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
         }
       }
     ],
-    colReorder: true,
+    colReorder: false,
     columnDefs: [{
       'orderable': false,
       'targets': 'no-sort'
