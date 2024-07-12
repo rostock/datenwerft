@@ -41,18 +41,18 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return None
 
 
-def find_in_wfs_features(string, element, wfs_features):
+def find_in_wfs_features(string, search_element, wfs_features):
   """
-  returns true if passed search string is found in passed element of passed WFS features
+  returns true if passed search string is found in passed search element of passed WFS features
 
   :param string: search string
-  :param element: WFS feature element
+  :param search_element: WFS feature search element
   :param wfs_features: WFS features
-  :return: true if passed search string is found in passed element of passed WFS features
+  :return: true if passed search string is found in passed search element of passed WFS features
   """
   for wfs_feature in wfs_features:
     properties = wfs_feature.get('properties', {})
-    if properties.get(element) == string:
+    if properties.get(search_element) == string:
       return True
   return False
 

@@ -5,9 +5,11 @@ from django.contrib.gis.forms.fields import PointField, PolygonField
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
 
-from antragsmanagement.constants_vars import SCOPE_WFS_SEARCH_ELEMENT, SCOPE_WFS_SEARCH_STRING
+from antragsmanagement.constants_vars import MANAGEDAREAS_WFS_SEARCH_ELEMENT, \
+  SCOPE_WFS_SEARCH_ELEMENT, SCOPE_WFS_SEARCH_STRING
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requester
-from antragsmanagement.utils import get_corresponding_requester
+from antragsmanagement.utils import get_authorities_from_managed_areas_wfs, \
+  get_corresponding_antragsmanagement_authorities, get_corresponding_requester
 from toolbox.constants_vars import email_message
 from toolbox.utils import find_in_wfs_features, intersection_with_wfs
 
@@ -75,31 +77,58 @@ class ObjectForm(ModelForm):
           self._meta.model._meta.get_field(geometry_field).verbose_name)
         raise ValidationError(text)
       elif geometry:
-        # fail if geometry lies out of scope (check geometries only which ought to lie in scope)
+        # intersect geometry with scope
+        # (check geometries only which ought to lie in scope)
         if self._meta.model.BaseMeta.geometry_in_scope:
           scope_intersections = False
+          # check if geometry generally intersects with any geometry of the scope resource
           intersections = intersection_with_wfs(
             geometry=GEOSGeometry(geometry),
             wfs_config=settings.ANTRAGSMANAGEMENT_SCOPE_WFS
           )
           if intersections:
+            # check if geometry intersects with scope
             scope_intersections = find_in_wfs_features(
               string=SCOPE_WFS_SEARCH_STRING,
-              element=SCOPE_WFS_SEARCH_ELEMENT,
+              search_element=SCOPE_WFS_SEARCH_ELEMENT,
               wfs_features=intersections
             )
+          # fail if geometry lies out of scope
           if not scope_intersections:
             text = '<strong><em>{}</em></strong> darf nicht außerhalb Rostocks liegen!'.format(
               self._meta.model._meta.get_field(geometry_field).verbose_name)
             raise ValidationError(text)
-        # fail if geometry lies outside of managed areas
+        # intersect geometry with managed areas
+        # (check geometries only which ought to intersect managed areas)
         if self._meta.model.BaseMeta.geometry_in_managed_areas:
+          # check if geometry generally intersects with any geometry of the managed areas resource
           intersections = intersection_with_wfs(
             geometry=GEOSGeometry(geometry),
             wfs_config=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
           )
           if intersections:
-            pass
+            # check if geometry intersects with managed areas of Antragsmanagement authorities
+            authorities = get_authorities_from_managed_areas_wfs(
+              search_element=MANAGEDAREAS_WFS_SEARCH_ELEMENT,
+              wfs_features=intersections
+            )
+            responsibilities = get_corresponding_antragsmanagement_authorities(authorities)
+            if responsibilities:
+              request_responsibilities = cleaned_data.get('cleanupevent_request').responsibilities
+              # clear responsibilities first
+              request_responsibilities.clear()
+              # add Antragsmanagement authorities as responsibilities to corresponding request
+              for responsibility in responsibilities:
+                request_responsibilities.add(responsibility)
+            # fail if geometry does not intersect with at least one managed area
+            # of Antragsmanagement authorities
+            else:
+              text = '<strong><em>{}</em></strong> muss mindestens eine Fläche'.format(
+                self._meta.model._meta.get_field(geometry_field).verbose_name)
+              text += ' schneiden, die durch eine am Antragsmanagement beteiligte Behörde'
+              text += ' bewirtschaftet wird!'
+              raise ValidationError(text)
+          # fail if geometry lies outside of managed areas
           else:
             text = '<strong><em>{}</em></strong> muss mindestens eine Fläche'.format(
               self._meta.model._meta.get_field(geometry_field).verbose_name)
