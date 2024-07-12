@@ -552,8 +552,12 @@ def get_cleanupeventrequest_queryset(user, count=False):
           [waste_type.name for waste_type in details.waste_types.all()]
         )
       # otherwise use waste types annotation
-      elif details.waste_types_annotation:
-        waste_types_value = 'Sonstiges: ' + details.waste_types_annotation
+      if details.waste_types_annotation:
+        waste_types_annotation = 'Sonstiges: ' + details.waste_types_annotation
+        if waste_types_value:
+          waste_types_value += '<br>' + waste_types_annotation
+        else:
+          waste_types_value = waste_types_annotation
       # set "details_waste_types" to waste types
       item['details_waste_types'] = waste_types_value
       equipments_value = None

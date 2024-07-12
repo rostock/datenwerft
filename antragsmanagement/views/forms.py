@@ -5,6 +5,7 @@ from django.contrib.gis.forms.fields import PointField, PolygonField
 from django.forms import ModelForm, ValidationError
 from django.forms.fields import EmailField
 
+from antragsmanagement.constants_vars import SCOPE_WFS_SEARCH_ELEMENT, SCOPE_WFS_SEARCH_STRING
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requester
 from antragsmanagement.utils import get_corresponding_requester
 from toolbox.constants_vars import email_message
@@ -83,8 +84,8 @@ class ObjectForm(ModelForm):
           )
           if intersections:
             scope_intersections = find_in_wfs_features(
-              string='13003',
-              element='kreis_schluessel',
+              string=SCOPE_WFS_SEARCH_STRING,
+              element=SCOPE_WFS_SEARCH_ELEMENT,
               wfs_features=intersections
             )
           if not scope_intersections:
@@ -107,6 +108,7 @@ class ObjectForm(ModelForm):
             raise ValidationError(text)
       else:
         cleaned_data[geometry_field] = geometry
+    return cleaned_data
 
 
 class RequesterForm(ObjectForm):

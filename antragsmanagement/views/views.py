@@ -402,7 +402,7 @@ class RequestFollowUpMixin:
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['form'] = form
@@ -456,7 +456,7 @@ class RequestFollowUpAuthorativeMixin:
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data['cancel_url'] = form.data.get('original_referer', None)
     return self.render_to_response(context_data)
@@ -1077,7 +1077,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data['cancel_url'] = form.data.get('original_referer', None)
     return self.render_to_response(context_data)
@@ -1776,7 +1776,7 @@ class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['cancel_url'] = form.data.get('original_referer', None)
@@ -1941,7 +1941,7 @@ class CleanupEventDumpAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['cancel_url'] = form.data.get('original_referer', None)
