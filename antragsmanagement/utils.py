@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from .constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from .models import Authority, Email, Requester
+from .models import Authority, Requester
 
 
 def belongs_to_antragsmanagement_authority(user):
@@ -56,6 +56,33 @@ def get_antragsmanagement_authorities(user, only_primary_keys=True):
     return list(authorities.values_list('pk', flat=True))
   else:
     return list(authorities)
+
+
+def get_authorities_from_managed_areas_wfs(search_element, wfs_features):
+  """
+  returns all authorities found in passed search element of passed WFS features
+
+  :param search_element: WFS feature search element
+  :param wfs_features: WFS features
+  :return: all authorities found in passed search element of passed WFS features
+  """
+  authorities = []
+  for wfs_feature in wfs_features:
+    properties = wfs_feature.get('properties', {})
+    authority = properties.get(search_element)
+    if authority:
+      authorities.append(authority)
+  return sorted(set(authorities))
+
+
+def get_corresponding_antragsmanagement_authorities(authority_names):
+  """
+  returns corresponding Antragsmanagement authorities to passed list of authority names
+
+  :param authority_names: list of authority names
+  :return: corresponding Antragsmanagement authorities to passed list of authority names
+  """
+  return Authority.objects.filter(name__in=authority_names)
 
 
 def get_corresponding_requester(user, only_primary_key=True):

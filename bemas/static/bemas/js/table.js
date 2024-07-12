@@ -10,15 +10,15 @@
  */
 function formatData(data, brReplacement) {
   if (data) {
-    data = data.replaceAll(/amp;/g, '');
+    data = String(data).replaceAll(/amp;/g, '');
     // replace HTML element <br>
-    data = data.replaceAll(/<br>/g, brReplacement);
+    data = String(data).replaceAll(/<br>/g, brReplacement);
     // strip all HTML elements
-    data = data.replace( /(<([^>]+)>)/ig, '');
+    data = String(data).replace( /(<([^>]+)>)/ig, '');
     // replace multiple whitespaces by one whitespace
-    data = data.replaceAll(/ +/g, ' ');
+    data = String(data).replaceAll(/ +/g, ' ');
   }
-  return data.trim(); // remove any remaining whitespaces from both sides
+  return String(data).trim(); // remove any remaining whitespaces from both sides
 }
 
 /**
@@ -77,7 +77,7 @@ function initDataTable(dataUrl, languageUrl, initialOrder, initialPageLength = 2
         }
       }
     ],
-    colReorder: true,
+    colReorder: false,
     columnDefs: [{
       'orderable': false,
       'targets': 'no-sort'

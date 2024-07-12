@@ -1,5 +1,20 @@
 /**
  * @function
+ * @name activateMapLayer
+ *
+ * activate layer with passed name in passed map
+ *
+ * @param {string} layerName - layer name
+ * @param {Object} map - map
+ */
+function activateMapLayer(layerName, map) {
+  let layer = window.overlayMaps[layerName];
+  if (layer)
+    map.addLayer(layer);
+}
+
+/**
+ * @function
  * @name configureLeafletGeoman
  *
  * configures Leaflet-Geoman in passed map
@@ -291,16 +306,28 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     transparent: true
   });
 
+  // define Bewirtschaftungskataster
+  const bewirtschaftungskataster = L.tileLayer.wms('https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms', {
+    layers: 'hro.bewirtschaftungskataster.bewirtschaftungskataster',
+    format: map._wmsFormat,
+    maxZoom: map._maxLayerZoom,
+    transparent: true
+  });
+
   // combine previously defined maps as overlay maps
   let overlayMaps = {
+    'Bewirtschaftungskataster': bewirtschaftungskataster,
     'Kilometerquadrate ETRS89/UTM-33N': kilometerquadrate
   };
 
   // if necessary, add additional WMS layers to the overlay maps as well
   overlayMaps = Object.assign(additionalWmsLayers, overlayMaps);
 
-  // add background map toggle to map
+  // add background map toggle and overlay maps control to map
   L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+  // make overlay maps globally available
+  window.overlayMaps = overlayMaps;
 
   // define map projection
   proj4.defs([

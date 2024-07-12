@@ -1,9 +1,9 @@
 from django.contrib.gis.db.models.fields import PointField, PolygonField
 from django.core.validators import RegexValidator
-from django.db.models import Index, ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT
-from django.db.models.fields import CharField, DateField, EmailField, PositiveIntegerField, \
-  TextField
-from django.urls import reverse
+from django.db.models import Index, ForeignKey, ManyToManyField, OneToOneField, CASCADE, PROTECT, \
+ UniqueConstraint, Q
+from django.db.models.fields import BooleanField, CharField, DateField, EmailField, \
+  PositiveIntegerField, TextField
 from re import sub
 
 from .base import Object, GeometryObject
@@ -251,7 +251,7 @@ class CleanupEventRequest(Request):
 
   responsibilities = ManyToManyField(
     Authority,
-    db_table='cleanupevent_responsibilities',
+    through='CleanupEventResponsibilities',
     verbose_name='Zuständigkeit(en)',
     blank=True,
     editable=False
@@ -269,6 +269,39 @@ class CleanupEventRequest(Request):
 
   class BaseMeta(Request.BaseMeta):
     description = 'Müllsammelaktionen: Anträge'
+
+
+class CleanupEventResponsibilities(Object):
+  """
+  intermediary model class for many-to-many relationship
+  between object for request type clean-up events (Müllsammelaktionen), request (Antrag),
+  and general object, authority (Behörde)
+  """
+
+  cleanupevent_request = ForeignKey(
+    to=CleanupEventRequest,
+    on_delete=CASCADE
+  )
+  authority = ForeignKey(
+    to=Authority,
+    on_delete=CASCADE
+  )
+  main = BooleanField()
+
+  class Meta(Request.Meta):
+    db_table = 'cleanupevent_responsibilities'
+    constraints = [
+      UniqueConstraint(
+        fields=['cleanupevent_request', 'authority'],
+        name='unique_cleanupevent_request_authority'
+      ),
+      UniqueConstraint(
+        fields=['cleanupevent_request'],
+        condition=Q(main=True),
+        name='unique_cleanupevent_request_main_when_main_true'
+      )
+    ]
+    ordering = ['cleanupevent_request', 'authority', 'main']
 
 
 class CleanupEventEvent(GeometryObject):
@@ -306,6 +339,7 @@ class CleanupEventEvent(GeometryObject):
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'area'
     geometry_type = 'Polygon'
+    geometry_in_managed_areas = ['xxx']
     description = 'Müllsammelaktionen: Aktionsdaten'
 
   def __str__(self):
@@ -339,6 +373,7 @@ class CleanupEventVenue(GeometryObject):
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'place'
     geometry_type = 'Point'
+    geometry_in_scope = False
     description = 'Müllsammelaktionen: Treffpunkte'
 
   def __str__(self):

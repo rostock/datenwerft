@@ -10,8 +10,14 @@ from django.contrib.gis.forms.fields import MultiLineStringField as FormMultiLin
 from django.contrib.gis.forms.fields import MultiPolygonField as FormMultiPolygonField
 from django.contrib.gis.forms.fields import PointField as FormPointField
 from django.contrib.gis.forms.fields import PolygonField as FormPolygonField
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.contrib.gis.geos import Point, Polygon
 from django.db.models import Q
+from itertools import groupby
+from lxml import etree
+from operator import itemgetter
 from re import match, search, sub
+from requests import post
 from zoneinfo import ZoneInfo
 
 
@@ -35,6 +41,22 @@ def concat_address(street=None, house_number=None, postal_code=None, place=None)
     return second_part.strip()
   else:
     return None
+
+
+def find_in_wfs_features(string, search_element, wfs_features):
+  """
+  returns true if passed search string is found in passed search element of passed WFS features
+
+  :param string: search string
+  :param search_element: WFS feature search element
+  :param wfs_features: WFS features
+  :return: true if passed search string is found in passed search element of passed WFS features
+  """
+  for wfs_feature in wfs_features:
+    properties = wfs_feature.get('properties', {})
+    if properties.get(search_element) == string:
+      return True
+  return False
 
 
 def format_date_datetime(value, time_string_only=False):
@@ -70,6 +92,111 @@ def get_array_first_element(curr_array):
     return curr_array[0]
   else:
     return curr_array
+
+
+def get_overlapping_area(area_a, area_b, entity_value):
+  """
+  intersects passed areas a and b and returns overlapping area (as a dictionary)
+
+  :param area_a: area a
+  :param area_b: area b
+  :param entity_value: value for 'entity' key of return overlapping area dictionary
+  :return: overlapping area (as a dictionary) of intersected passed areas a and b
+  """
+  # make sure that SRID of area a equals SRID of area b
+  area_a = transform_geometry(geometry=area_a, target_srid=area_b.srid)
+  return {
+    'entity': entity_value,
+    'area': area_a.intersection(area_b).area
+  }
+
+
+def intersection_with_wfs(geometry, wfs_config, only_presence=False):
+  """
+  intersects passed feature geometry with passed WFS config and returns (presence of) hits
+
+  :param geometry: feature geometry
+  :param wfs_config: WFS config (including URL, namespace, namespace URL, feature type, and SRID)
+  :param only_presence: presence of intersection hits instead of intersection hits?
+  :return: (presence of) intersection hits of passed feature geometry with passed WFS config
+  """
+  # unpack WFS config into variables using dictionary unpacking
+  url, namespace, namespace_url, featuretype, srid = wfs_config.values()
+  # transform feature geometry to WFS SRID
+  geometry = transform_geometry(geometry, srid)
+  # build geometry part for WFS Intersection filter
+  if isinstance(geometry, Point):
+    coords = f"{geometry.x} {geometry.y}"
+    geometry_filter = f'''
+      <gml:Point srsName="EPSG:{srid}">
+        <gml:pos>{coords}</gml:pos>
+      </gml:Point>
+    '''
+  elif isinstance(geometry, Polygon):
+    coords = ' '.join(f"{coord[0]} {coord[1]}" for coord in geometry.coords[0])
+    geometry_filter = f'''
+      <gml:Polygon srsName="EPSG:{srid}">
+        <gml:exterior>
+          <gml:LinearRing>
+            <gml:posList>{coords}</gml:posList>
+          </gml:LinearRing>
+        </gml:exterior>
+      </gml:Polygon>
+    '''
+  else:
+    geometry_filter = ''
+  # build WFS Intersection filter
+  filter_string = f'''
+  <wfs:GetFeature service="WFS" version="2.0.0" outputFormat="application/geo+json"
+                  xmlns:wfs="http://www.opengis.net/wfs/2.0"
+                  xmlns:ogc="http://www.opengis.net/ogc"
+                  xmlns:gml="http://www.opengis.net/gml/3.2"
+                  xmlns:{namespace}="{namespace_url}">
+    <wfs:Query typeNames="{namespace}:{featuretype}">
+      <ogc:Filter>
+        <ogc:Intersects>
+          <ogc:PropertyName>geometry</ogc:PropertyName>
+          {geometry_filter}
+        </ogc:Intersects>
+      </ogc:Filter>
+    </wfs:Query>
+  </wfs:GetFeature>
+  '''
+  # parse the WFS Intersection filter string to an XML element
+  # and then convert it back to a string to ensure it's well-formed
+  filter_element = etree.fromstring(filter_string)
+  filter_xml = etree.tostring(filter_element).decode('utf-8')
+  # get WFS response
+  response = post(
+    url=url,
+    data=filter_xml,
+    headers={'Content-Type': 'text/xml'}
+  )
+  geojson_data = response.json()
+  features = geojson_data.get('features', [])
+  return len(features) > 0 if only_presence else features
+
+
+def group_dict_by_key_and_sum_values(curr_dict, group_key, sum_value):
+  """
+  groups passed dictionary by passed key, sums up passed sum values for each key,
+  and returns summed values
+
+  :param curr_dict: dictionary
+  :param group_key: key to group by
+  :param sum_value: value to sum up for key
+  :return: summed values for each group-by-key of passed dictionary, grouped by passed key
+  """
+  # sort passed dictionary by passed key to ensure groupby works correctly
+  sorted_data = sorted(curr_dict, key=itemgetter(group_key))
+  # use groupby to group data by passed key
+  grouped_data = groupby(sorted_data, key=itemgetter(group_key))
+  summed_values = {}
+  for key, group in grouped_data:
+    # sum passed sum values for each group
+    summed = sum(item[sum_value] for item in group)
+    summed_values[key] = summed
+  return summed_values
 
 
 def is_geometry_field(field):
@@ -134,3 +261,21 @@ def optimize_datatable_filter(search_element, search_column, qs_params_inner):
     }
   q = Q(**kwargs)
   return qs_params_inner | q if qs_params_inner else q
+
+
+def transform_geometry(geometry, target_srid):
+  """
+  transform passed feature geometry to passed target SRID and return it
+  or return passed feature geometry untransformed
+
+  :param geometry: feature geometry
+  :param target_srid: target SRID
+  :return: passed feature geometry either transformed to passed target SRID or untransformed
+  """
+  source_srid = geometry.srid
+  if source_srid != target_srid:
+    source_srs = SpatialReference(source_srid)
+    target_srs = SpatialReference(target_srid)
+    transform = CoordTransform(source_srs, target_srs)
+    geometry.transform(transform)
+  return geometry

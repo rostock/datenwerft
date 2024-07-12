@@ -17,3 +17,6 @@ ADMINS = getattr(
   'ANTRAGSMANAGEMENT_ADMIN_GROUP_NAME',
   'antragsmanagement_admin'
 )
+SCOPE_WFS_SEARCH_ELEMENT = 'kreis_schluessel'
+SCOPE_WFS_SEARCH_STRING = '13003'
+MANAGEDAREAS_WFS_SEARCH_ELEMENT = 'bewirtschafter'

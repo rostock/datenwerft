@@ -402,7 +402,7 @@ class RequestFollowUpMixin:
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['form'] = form
@@ -456,7 +456,7 @@ class RequestFollowUpAuthorativeMixin:
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data['cancel_url'] = form.data.get('original_referer', None)
     return self.render_to_response(context_data)
@@ -1077,7 +1077,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data['cancel_url'] = form.data.get('original_referer', None)
     return self.render_to_response(context_data)
@@ -1189,6 +1189,8 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
       viewname='antragsmanagement:cleanupeventrequest_update',
       kwargs={'pk': self.request.session.get('request_id', None)}
     )
+    # add to context: map layer to additionally activate
+    context['activate_map_layer'] = 'Bewirtschaftungskataster'
     return context
 
   def form_valid(self, form):
@@ -1776,7 +1778,7 @@ class CleanupEventContainerAuthorativeCreateView(RequestFollowUpAuthorativeMixin
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['cancel_url'] = form.data.get('original_referer', None)
@@ -1941,7 +1943,7 @@ class CleanupEventDumpAuthorativeCreateView(RequestFollowUpAuthorativeMixin,
     :param form: form
     :return: passed form if it is not valid
     """
-    context_data = self.get_context_data(**kwargs)
+    context_data = self.get_context_data(form=form)
     form.data = form.data.copy()
     context_data = geometry_keeper(form.data, self.model, context_data)
     context_data['cancel_url'] = form.data.get('original_referer', None)

@@ -9,8 +9,8 @@ from json import loads
 from leaflet.forms.widgets import LeafletWidget
 
 from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
-  CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, \
-  CleanupEventDump
+  CleanupEventResponsibilities, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
+  CleanupEventContainer, CleanupEventDump
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
   is_antragsmanagement_requester, is_antragsmanagement_user
@@ -256,13 +256,20 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   of passed object of model CleanupEventRequest
   """
   # if responsibilities exist
-  responsibilities = '/'
+  responsibilities_value = '/'
   if curr_object.responsibilities.exists():
-    # use list comprehension to get authorities' short names as well as email addresses
-    # and join them
-    responsibilities = '\n'.join(
-      [responsibility.short_contact() for responsibility in curr_object.responsibilities.all()]
-    )
+    responsibilities = CleanupEventResponsibilities.objects.filter(
+      cleanupevent_request=curr_object)
+    responsibilities_value = ''
+    first = True
+    for responsibility in responsibilities:
+      if first:
+        first = False
+      else:
+        responsibilities_value += '\n'
+      responsibilities_value += responsibility.authority.short_contact()
+      if responsibility.main:
+        responsibilities_value += ' [Hauptzuständigkeit]'
   # fetch related CleanupEventEvent object
   from_date, to_date = '/', '/'
   event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object.pk).first()
@@ -308,7 +315,7 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
     created=curr_object.created.strftime('%d.%m.%Y, %H:%M Uhr'),
     status=str(curr_object.status),
     comment=curr_object.comment if curr_object.comment else '/',
-    responsibilities=responsibilities,
+    responsibilities=responsibilities_value,
     from_date=from_date,
     to_date=to_date,
     event=map_url,
@@ -520,12 +527,17 @@ def get_cleanupeventrequest_queryset(user, count=False):
     request = CleanupEventRequest.objects.get(pk=item['id'])
     # if responsibilities exist
     if request.responsibilities.exists():
-      # use list comprehension to get authorities' short names and join them
-      responsibilities_value = '<br>'.join(
-        [responsibility.short() for responsibility in request.responsibilities.all()]
-      )
+      responsibilities = CleanupEventResponsibilities.objects.filter(
+        cleanupevent_request=request)
+      responsibilities_value = ''
+      for responsibility in responsibilities:
+        if responsibility.main:
+          responsibilities_value += '<strong>' + responsibility.authority.short() + '</strong>'
+        else:
+          responsibilities_value += responsibility.authority.short()
+        responsibilities_value += '<br>'
     # set "responsibilities" to authorities' short names
-    item['responsibilities'] = responsibilities_value
+    item['responsibilities'] = responsibilities_value.rstrip('<br>')
     #
     # fields relating to event
     #
@@ -552,8 +564,12 @@ def get_cleanupeventrequest_queryset(user, count=False):
           [waste_type.name for waste_type in details.waste_types.all()]
         )
       # otherwise use waste types annotation
-      elif details.waste_types_annotation:
-        waste_types_value = 'Sonstiges: ' + details.waste_types_annotation
+      if details.waste_types_annotation:
+        waste_types_annotation = 'Sonstiges: ' + details.waste_types_annotation
+        if waste_types_value:
+          waste_types_value += '<br>' + waste_types_annotation
+        else:
+          waste_types_value = waste_types_annotation
       # set "details_waste_types" to waste types
       item['details_waste_types'] = waste_types_value
       equipments_value = None

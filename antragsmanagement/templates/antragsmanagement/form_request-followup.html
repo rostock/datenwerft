@@ -126,6 +126,11 @@
           // make map globally available
           window.currMap = map;
 
+          // additionally activate map layer
+          {% if activate_map_layer %}
+            activateMapLayer('{{ activate_map_layer }}', map)
+          {% endif %}
+
           {% if is_mobile %}
             enableMapLocate(map)
           {% endif %}
