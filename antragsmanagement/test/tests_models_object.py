@@ -137,7 +137,7 @@ class CleanupEventRequestTest(DefaultModelTestCase):
       'status': status2
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
-    cls.test_object.responsibilities.add(responsibility)
+    cls.test_object.responsibilities.add(responsibility, through_defaults={'main': False})
 
   def setUp(self):
     self.init()
@@ -178,7 +178,7 @@ class CleanupEventEventTest(DefaultModelTestCase):
       status=status,
       requester=requester
     )
-    cleanupevent_request.responsibilities.add(responsibility)
+    cleanupevent_request.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request,
       'from_date': VALID_DATE,
@@ -229,12 +229,12 @@ class CleanupEventVenueTest(DefaultModelTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -283,7 +283,7 @@ class CleanupEventDetailsTest(DefaultModelTestCase):
       status=status,
       requester=requester
     )
-    cleanupevent_request.responsibilities.add(responsibility)
+    cleanupevent_request.responsibilities.add(responsibility, through_defaults={'main': False})
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -338,12 +338,12 @@ class CleanupEventContainerTest(DefaultModelTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -395,12 +395,12 @@ class CleanupEventDumpTest(DefaultModelTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB

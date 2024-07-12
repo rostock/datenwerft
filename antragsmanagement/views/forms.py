@@ -11,7 +11,8 @@ from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requ
 from antragsmanagement.utils import get_authorities_from_managed_areas_wfs, \
   get_corresponding_antragsmanagement_authorities, get_corresponding_requester
 from toolbox.constants_vars import email_message
-from toolbox.utils import find_in_wfs_features, intersection_with_wfs
+from toolbox.utils import find_in_wfs_features, get_overlapping_area, \
+  group_dict_by_key_and_sum_values, intersection_with_wfs
 
 
 #
@@ -101,12 +102,39 @@ class ObjectForm(ModelForm):
         # intersect geometry with managed areas
         # (check geometries only which ought to intersect managed areas)
         if self._meta.model.BaseMeta.geometry_in_managed_areas:
+          geos_geometry = GEOSGeometry(geometry)
           # check if geometry generally intersects with any geometry of the managed areas resource
           intersections = intersection_with_wfs(
-            geometry=GEOSGeometry(geometry),
+            geometry=geos_geometry,
             wfs_config=settings.ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS
           )
           if intersections:
+            # get overlapping areas
+            overlapping_areas = []
+            for intersection in intersections:
+              intersection_geometry = intersection.get('geometry')
+              if intersection_geometry.get('type') == 'GeometryCollection':
+                for sub_geometry in intersection_geometry.get('geometries'):
+                  geos_intersection_geometry = GEOSGeometry(str(sub_geometry))
+                  overlapping_area = get_overlapping_area(
+                    area_a=geos_geometry,
+                    area_b=geos_intersection_geometry,
+                    entity_value=intersection.get('properties').get(MANAGEDAREAS_WFS_SEARCH_ELEMENT)
+                  )
+                  overlapping_areas.append(overlapping_area)
+              else:
+                geos_intersection_geometry = GEOSGeometry(str(intersection_geometry))
+                overlapping_area = get_overlapping_area(
+                  area_a=geos_geometry,
+                  area_b=geos_intersection_geometry,
+                  entity_value=intersection.get('properties').get(MANAGEDAREAS_WFS_SEARCH_ELEMENT)
+                )
+                overlapping_areas.append(overlapping_area)
+            # group overlapping areas by entity key and sum area values for each entity
+            sums_overlapping_areas = group_dict_by_key_and_sum_values(
+              curr_dict=overlapping_areas, group_key='entity', sum_value='area')
+            # hold the main entity (i.e. the entity with the max sum)
+            main_entity = max(sums_overlapping_areas, key=sums_overlapping_areas.get)
             # check if geometry intersects with managed areas of Antragsmanagement authorities
             authorities = get_authorities_from_managed_areas_wfs(
               search_element=MANAGEDAREAS_WFS_SEARCH_ELEMENT,
@@ -119,7 +147,8 @@ class ObjectForm(ModelForm):
               request_responsibilities.clear()
               # add Antragsmanagement authorities as responsibilities to corresponding request
               for responsibility in responsibilities:
-                request_responsibilities.add(responsibility)
+                main = True if responsibility.name == main_entity else False
+                request_responsibilities.add(responsibility, through_defaults={'main': main})
             # fail if geometry does not intersect with at least one managed area
             # of Antragsmanagement authorities
             else:

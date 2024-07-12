@@ -13,7 +13,9 @@ from django.contrib.gis.forms.fields import PolygonField as FormPolygonField
 from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.geos import Point, Polygon
 from django.db.models import Q
+from itertools import groupby
 from lxml import etree
+from operator import itemgetter
 from re import match, search, sub
 from requests import post
 from zoneinfo import ZoneInfo
@@ -92,6 +94,23 @@ def get_array_first_element(curr_array):
     return curr_array
 
 
+def get_overlapping_area(area_a, area_b, entity_value):
+  """
+  intersects passed areas a and b and returns overlapping area (as a dictionary)
+
+  :param area_a: area a
+  :param area_b: area b
+  :param entity_value: value for 'entity' key of return overlapping area dictionary
+  :return: overlapping area (as a dictionary) of intersected passed areas a and b
+  """
+  # make sure that SRID of area a equals SRID of area b
+  area_a = transform_geometry(geometry=area_a, target_srid=area_b.srid)
+  return {
+    'entity': entity_value,
+    'area': area_a.intersection(area_b).area
+  }
+
+
 def intersection_with_wfs(geometry, wfs_config, only_presence=False):
   """
   intersects passed feature geometry with passed WFS config and returns (presence of) hits
@@ -156,6 +175,28 @@ def intersection_with_wfs(geometry, wfs_config, only_presence=False):
   geojson_data = response.json()
   features = geojson_data.get('features', [])
   return len(features) > 0 if only_presence else features
+
+
+def group_dict_by_key_and_sum_values(curr_dict, group_key, sum_value):
+  """
+  groups passed dictionary by passed key, sums up passed sum values for each key,
+  and returns summed values
+
+  :param curr_dict: dictionary
+  :param group_key: key to group by
+  :param sum_value: value to sum up for key
+  :return: summed values for each group-by-key of passed dictionary, grouped by passed key
+  """
+  # sort passed dictionary by passed key to ensure groupby works correctly
+  sorted_data = sorted(curr_dict, key=itemgetter(group_key))
+  # use groupby to group data by passed key
+  grouped_data = groupby(sorted_data, key=itemgetter(group_key))
+  summed_values = {}
+  for key, group in grouped_data:
+    # sum passed sum values for each group
+    summed = sum(item[sum_value] for item in group)
+    summed_values[key] = summed
+  return summed_values
 
 
 def is_geometry_field(field):
