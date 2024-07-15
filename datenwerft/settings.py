@@ -210,6 +210,7 @@ ANTRAGSMANAGEMENT_ICONS = {
   'error': 'circle-exclamation',
   'filter_off': 'filter-circle-xmark',
   'filter_on': 'filter',
+  'info': 'circle-info',
   'map': 'map-location-dot',
   'map_with_filter': 'map-location',
   'next': 'forward-step',
@@ -241,6 +242,17 @@ ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS = {
   'namespace_url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster',
   'featuretype': 'hro.bewirtschaftungskataster.bewirtschaftungskataster',
   'srid': 25833
+}
+
+
+# Antragsmanagement app:
+# link
+
+ANTRAGSMANAGEMENT_LINKS = {
+  'public_green_areas': (
+    'https://rathaus.rostock.de/de/service/dienstleistungen/'
+    'sondernutzung_oeffentlicher_gruenflaechen_beantragen/310812'
+  )
 }
 
 

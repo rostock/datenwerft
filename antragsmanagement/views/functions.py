@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.mail import send_mail
 from django.core.serializers import serialize
@@ -8,6 +9,7 @@ from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
 
+from antragsmanagement.constants_vars import AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS
 from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
   CleanupEventResponsibilities, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
   CleanupEventContainer, CleanupEventDump
@@ -127,6 +129,21 @@ def add_useragent_context_elements(context, request):
   else:
     context['is_mobile'] = False
   return context
+
+
+def additional_messages(responsibilities, request):
+  """
+  additional messages if certain responsibilities exist
+
+  :param responsibilities: responsibilities
+  :param request: request
+  """
+  for responsibility in responsibilities:
+    if AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS in responsibility.short():
+      link = settings.ANTRAGSMANAGEMENT_LINKS['public_green_areas']
+      text = 'Sie müssen zusätzlich eine Sondernutzung öffentlicher Grünflächen beantragen:'
+      text += '<br><a href="' + link + '" target="_blank">' + link + '</a>'
+      messages.info(request, text)
 
 
 def assign_widget(field):

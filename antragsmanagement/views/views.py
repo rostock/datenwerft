@@ -13,7 +13,7 @@ from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
 from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, \
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
-  add_useragent_context_elements, clean_initial_field_values, \
+  add_useragent_context_elements, additional_messages, clean_initial_field_values, \
   get_cleanupeventrequest_anonymous_feature, get_cleanupeventrequest_feature, \
   get_cleanupeventrequest_queryset, get_corresponding_cleanupeventrequest_geometry, \
   get_referer, get_referer_url, geometry_keeper, send_cleanupeventrequest_email
@@ -1591,11 +1591,11 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
 
   def post(self, request, *args, **kwargs):
     if 'cancel' in request.POST:
-      if self.request.session.get('request_id', None):
+      if request.session.get('request_id', None):
         try:
           request_object = get_request(
             CleanupEventRequest,
-            self.request.session.get('request_id', None),
+            request.session.get('request_id', None),
             only_primary_key=False
           )
           request_object.delete()
@@ -1603,28 +1603,31 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
         except CleanupEventRequest.DoesNotExist:
             raise Http404(self.error_message)
     else:
-      messages.success(request, self.success_message)
-      request = CleanupEventRequest.objects.get(pk=self.request.session.get('request_id', None))
+      curr_request = CleanupEventRequest.objects.get(pk=request.session.get('request_id', None))
       # send email to inform requester about new request
       send_cleanupeventrequest_email(
-        request=self.request,
+        request=request,
         email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
-        curr_object=request,
-        recipient_list=[request.requester.email]
+        curr_object=curr_request,
+        recipient_list=[curr_request.requester.email]
       )
-      if request.responsibilities.exists():
-        # use list comprehension to get get recipients
+      if curr_request.responsibilities.exists():
+        responsibilities = curr_request.responsibilities.all()
+        # use list comprehension to get recipients
         # (i.e. the email addresses of all responsible authorities)
         recipient_list = [
-          responsibility.email for responsibility in request.responsibilities.all()
+          responsibility.email for responsibility in responsibilities
         ]
         # send email to inform responsible authorities about new request
         send_cleanupeventrequest_email(
-          request=self.request,
+          request=request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
-          curr_object=request,
+          curr_object=curr_request,
           recipient_list=recipient_list
         )
+        # additional messages if certain responsibilities exist
+        additional_messages(responsibilities, self.request)
+      messages.success(request, self.success_message)
     return redirect('antragsmanagement:index')
 
   def get_context_data(self, **kwargs):
@@ -1727,10 +1730,11 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
         recipient_list=[request.requester.email]
       )
       if request.responsibilities.exists():
+        responsibilities = request.responsibilities.all()
         # use list comprehension to get get recipients
         # (i.e. the email addresses of all responsible authorities)
         recipient_list = [
-          responsibility.email for responsibility in request.responsibilities.all()
+          responsibility.email for responsibility in responsibilities
         ]
         # send email to inform responsible authorities about new request
         send_cleanupeventrequest_email(
@@ -1739,6 +1743,8 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
           curr_object=request,
           recipient_list=recipient_list
         )
+        # additional messages if certain responsibilities exist
+        additional_messages(responsibilities, self.request)
     return super().form_valid(form)
 
   def get_initial(self):
