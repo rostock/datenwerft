@@ -5,7 +5,10 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from django.views.generic.base import TemplateView
+from django_ratelimit.decorators import ratelimit
 from jsonview.views import JsonView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
@@ -2015,6 +2018,24 @@ class CleanupEventDumpDeleteView(RequestFollowUpDeleteMixin, ObjectDeleteView):
 #
 # anonymous
 #
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class RequesterCreateAnonymousView(RequesterCreateView):
+  """
+  view for anonymous form page for creating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class RequesterUpdateAnonymousView(RequesterUpdateView):
+  """
+  view for form page for updating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
 
 class CleanupEventRequestMapDataAnonymousView(JsonView):
   """

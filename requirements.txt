@@ -3,6 +3,7 @@ django-auth-ldap
 django-datatables-view
 django-jsonview
 django-leaflet
+django-ratelimit
 django-user-agents
 djangorestframework
 Jinja2

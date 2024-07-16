@@ -16,6 +16,7 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventContainerAuthorativeCreateView, CleanupEventContainerAuthorativeUpdateView, \
   CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
   CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView, \
+  RequesterCreateAnonymousView, RequesterUpdateAnonymousView, \
   CleanupEventRequestMapDataAnonymousView, CleanupEventRequestMapAnonymousView
 
 router = routers.DefaultRouter()
@@ -312,7 +313,7 @@ urlpatterns = [
   # requester (Antragsteller:in)
   path(
     'anonymous/requester/create',
-    view=RequesterCreateView.as_view(
+    view=RequesterCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
     name='anonymous_requester_create'
@@ -321,7 +322,7 @@ urlpatterns = [
   # requester (Antragsteller:in)
   path(
     'anonymous/requester/update/<pk>',
-    view=RequesterUpdateView.as_view(
+    view=RequesterUpdateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
     name='anonymous_requester_update'
