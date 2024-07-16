@@ -302,6 +302,30 @@ urlpatterns = [
   #
   # URLs also accessible anonymously
   #
+  # anonymous main page
+  path(
+    'anonymous',
+    view=IndexView.as_view(),
+    name='anonymous_index'
+  ),
+  # anonymous form page for creating an instance of general object:
+  # requester (Antragsteller:in)
+  path(
+    'anonymous/requester/create',
+    view=RequesterCreateView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_index')
+    ),
+    name='anonymous_requester_create'
+  ),
+  # anonymous form page for updating an instance of general object:
+  # requester (Antragsteller:in)
+  path(
+    'anonymous/requester/update/<pk>',
+    view=RequesterUpdateView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_index')
+    ),
+    name='anonymous_requester_update'
+  ),
   # anonymously composing map data out of one instance of object
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)

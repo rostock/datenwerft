@@ -24,7 +24,7 @@ class IndexViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='index', status_code=302,
@@ -73,7 +73,7 @@ class AuthorityTableDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='authority_tabledata', status_code=302,
@@ -118,7 +118,7 @@ class AuthorityTableViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='authority_table', status_code=302,
@@ -176,7 +176,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -218,6 +218,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='authority_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -227,6 +228,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='authority_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -244,7 +246,7 @@ class EmailTableDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='email_tabledata', status_code=302,
@@ -289,7 +291,7 @@ class EmailTableViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='email_table', status_code=302,
@@ -347,7 +349,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -389,6 +391,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='email_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -398,6 +401,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='email_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -432,7 +436,7 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -474,6 +478,7 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -483,6 +488,7 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -517,7 +523,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -559,6 +565,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -568,6 +575,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -591,7 +599,7 @@ class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=302,
@@ -637,7 +645,7 @@ class CleanupEventRequestTableViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=302,
@@ -683,7 +691,7 @@ class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', status_code=302,
@@ -729,7 +737,7 @@ class CleanupEventRequestMapViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_map', status_code=302,
@@ -799,7 +807,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -841,6 +849,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -850,6 +859,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -892,7 +902,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -934,6 +944,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -943,6 +954,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -985,7 +997,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1027,6 +1039,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1036,6 +1049,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1095,7 +1109,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1139,6 +1153,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -1150,6 +1165,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -1209,7 +1225,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1253,6 +1269,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1264,6 +1281,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1323,7 +1341,7 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1367,6 +1385,7 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1378,6 +1397,7 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1435,7 +1455,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1479,6 +1499,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -1490,6 +1511,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -1547,7 +1569,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1591,6 +1613,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1602,6 +1625,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1659,7 +1683,7 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1703,6 +1727,7 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1714,6 +1739,7 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1777,7 +1803,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1819,6 +1845,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -1828,6 +1855,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -1891,7 +1919,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1933,6 +1961,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1942,6 +1971,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2005,7 +2035,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2047,6 +2077,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -2056,6 +2087,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2074,7 +2106,7 @@ class CleanupEventContainerDecisionViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', status_code=302,
@@ -2163,7 +2195,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2207,6 +2239,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -2218,6 +2251,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -2280,7 +2314,7 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2324,6 +2358,7 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -2337,6 +2372,7 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -2400,7 +2436,7 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2444,6 +2480,7 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -2455,6 +2492,7 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2508,7 +2546,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2550,6 +2588,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
 
   def test_post_delete(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_delete',
       object_filter={}, count=0,
@@ -2608,7 +2647,7 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2652,6 +2691,7 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -2665,6 +2705,7 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -2724,7 +2765,7 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2768,6 +2809,7 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -2779,6 +2821,7 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2830,7 +2873,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2872,6 +2915,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 
   def test_post_delete(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_delete',
       object_filter={}, count=0,
@@ -2883,6 +2927,131 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 #
 # anonymous
 #
+
+class IndexAnonymousViewTest(DefaultAnonymousViewTestCase):
+  """
+  test class for anonymous main page
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test(self):
+    self.generic_view_test(
+      view_name='anonymous_index', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='Kontaktdaten'
+    )
+
+
+class RequesterCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous form page for creating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+  model = Requester
+  attributes_values_db_create = {
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_create_valid = {
+    'organization': VALID_STRING,
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_create_invalid = {
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_requester_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='neu '
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class RequesterUpdateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous form page for updating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+  model = Requester
+  attributes_values_db_create = {
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_update_valid = {
+    'organization': VALID_STRING,
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_update_invalid = {
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_requester_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='aktualisieren '
+    )
+
+  def test_post_update_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_update_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
 
 class CleanupEventRequestMapDataAnonymousViewTest(DefaultAnonymousViewTestCase):
   """

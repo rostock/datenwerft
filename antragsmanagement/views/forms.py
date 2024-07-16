@@ -215,7 +215,7 @@ class RequestForm(ObjectForm):
     # limit the status field queryset to exactly one entry (= default status)
     self.fields['status'].queryset = CodelistRequestStatus.get_status_new(as_queryset=True)
     # limit the requester field queryset to exactly one entry (= user)
-    user = get_corresponding_requester(self.user, only_primary_key=False)
+    user = get_corresponding_requester(user=self.user, request=None, only_primary_key=False)
     self.fields['requester'].queryset = user if user else Requester.objects.none()
 
 

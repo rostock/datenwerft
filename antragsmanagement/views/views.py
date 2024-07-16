@@ -57,8 +57,12 @@ class IndexView(TemplateView):
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
-    # add to context: information about corresponding requester object for user
-    context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    # add to context: information about corresponding requester object for user or request
+    if self.request.user.is_authenticated:
+      context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    else:
+      context['corresponding_requester'] = get_corresponding_requester(
+        user=None, request=self.request)
     return context
 
 
@@ -218,6 +222,20 @@ class RequesterMixin:
   form = RequesterForm
   success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
 
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    # store ID of requester in session in order to pass it to next view
+    # if user is not authenticated
+    if not self.request.user.is_authenticated:
+      instance = form.save(commit=True)
+      self.request.session['corresponding_requester'] = instance.pk
+    return super().form_valid(form)
+
   def get_context_data(self, **kwargs):
     """
     returns a dictionary with all context elements for this view
@@ -245,9 +263,10 @@ class RequesterCreateView(RequesterMixin, ObjectCreateView):
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    # set value of user_id field
+    # if user is authenticated
     if self.request.user.is_authenticated:
       instance = form.save(commit=False)
-      # set the value of the user_id field programmatically
       instance.user_id = self.request.user.pk
     return super().form_valid(form)
 

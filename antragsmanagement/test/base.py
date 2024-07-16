@@ -133,7 +133,7 @@ class DefaultViewTestCase(DefaultTestCase):
     tests a view via GET
 
     :param self
-    :param log_in: log test user in?
+    :param log_in: authenticate test user?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
     :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
@@ -142,7 +142,7 @@ class DefaultViewTestCase(DefaultTestCase):
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     """
-    # log test user in
+    # authenticate test user
     if log_in:
       login(self, antragsmanagement_requester,
             antragsmanagement_authority, antragsmanagement_admin)
@@ -213,7 +213,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     tests a form view via GET
 
     :param self
-    :param log_in: log test user in?
+    :param log_in: authenticate test user?
     :param update_mode: update mode?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
@@ -223,7 +223,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     """
-    # log test user in
+    # authenticate test user
     if log_in:
       login(self, antragsmanagement_requester,
             antragsmanagement_authority, antragsmanagement_admin)
@@ -251,7 +251,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_form_view_post_test(self, update_mode, antragsmanagement_requester,
+  def generic_form_view_post_test(self, log_in, update_mode, antragsmanagement_requester,
                                   antragsmanagement_authority, antragsmanagement_admin, view_name,
                                   object_filter, count, status_code, content_type, string,
                                   session_variables):
@@ -259,6 +259,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     tests a form view via POST
 
     :param self
+    :param log_in: authenticate test user?
     :param update_mode: update mode?
     :param antragsmanagement_requester: assign Antragsmanagement requester permissions to user?
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
@@ -271,8 +272,10 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     :param string: specific string that should be contained in response
     :param session_variables: additional session variables
     """
-    # log test user in
-    login(self, antragsmanagement_requester, antragsmanagement_authority, antragsmanagement_admin)
+    # authenticate test user
+    if log_in:
+      login(self, antragsmanagement_requester,
+            antragsmanagement_authority, antragsmanagement_admin)
     # in case of request: connect test user to its requester object
     if issubclass(self.model, Request):
       requester = Requester.objects.last()
