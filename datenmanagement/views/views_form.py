@@ -221,15 +221,11 @@ class DataChangeView(UpdateView):
         else:
           title = associated_model_model._meta.verbose_name
         associated_new_dict = {
-            'title': title,
-            'link': reverse(
-                'datenmanagement:' +
-                associated_model +
-                '_add') +
-            '?preselect_field=' +
-            associated_model_foreign_key_field +
-            '&preselect_value=' +
-            str(self.object.pk)
+          'title': title,
+          'link': reverse('datenmanagement:' + associated_model +'_add') +
+              '?preselect_field=' + associated_model_foreign_key_field +
+              '&preselect_value=' + str(self.object.pk),
+          'api': f'/api/{associated_model.lower()}/'
         }
         self.associated_new.append(associated_new_dict)
         curr_filter = {
@@ -253,7 +249,8 @@ class DataChangeView(UpdateView):
               'link': reverse(
                   'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
               'preview_img_url': preview_img_url,
-              'preview_thumb_url': preview_thumb_url
+              'preview_thumb_url': preview_thumb_url,
+              'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
           }
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
@@ -277,6 +274,8 @@ class DataChangeView(UpdateView):
     # add model form related elements to context
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
+    context['uuid'] = self.kwargs['pk']
+    context['api'] = f'/api/{model_name_lower}/{self.kwargs["pk"]}/'
     context['associated_objects'] = self.associated_objects if self.associated_objects else None
     context['associated_new'] = self.associated_new if self.associated_new else None
     context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation

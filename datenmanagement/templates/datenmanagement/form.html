@@ -99,17 +99,65 @@
     {% endblock %}
 
   {% endblock %}
-  <form class="form" id="form" method="post" enctype="multipart/form-data" action="">
+  <form class="form row" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     {% block list %}
-
+      {% comment %}
+        simple form as table
+      {% endcomment %}
     {% endblock %}
+  
     {% block map %}
-
+      {% comment %}
+        map and address search
+      {% endcomment %}
     {% endblock %}
-    {% block pc_management %}
-
+  
+    {% block form-action-buttons %}
+      <div class="row gap-2">
+        <div class="col-md order-1 order-md-0 mt-3 mb-3 d-grid gap-2">
+          {% comment %} 	Form Action Buttons for desktop mode   {% endcomment %}
+          {% if not forms_in_mobile_mode and not is_mobile %}
+            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+              <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
+            {% endif %}
+            {% if url_model_add %}
+              <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
+            {% endif %}
+            {% if url_model_delete_object %}
+              <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
+            {% endif %}
+            <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+          {% endif %}
+        
+          {% comment %} 	Form Action Buttons for mobile mode   {% endcomment %}
+          {% if forms_in_mobile_mode or is_mobile %}
+            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+              <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
+            {% endif %}
+            {% if url_model_add %}
+              <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> klonen</button>
+            {% endif %}
+            {% if url_model_delete_object %}
+              <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> löschen</a>
+            {% endif %}
+            <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+          {% endif %}
+        </div>
+      
+        {% block address-search %}
+          
+        {% endblock %}
+      </div>
     {% endblock %}
   </form>
+  
+  <div class="row mt-4 mb-5">
+    {% block pc_management %}
+      {% comment %}
+      	associated models listed as a table under the form
+      {% endcomment %}
+    {% endblock %}
+  </div>
 
 {% endblock %}

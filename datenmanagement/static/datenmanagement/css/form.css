@@ -148,3 +148,24 @@ input[name="strasse"] {
 .form-floating > label {
   width: 100% !important;
 }
+
+#custom-form {
+  height: fit-content;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.col {
+  width: 50%;
+}
+
+.col > table {
+  width: 100%;
+}
+
+#pc-management > tbody > tr {
+  white-space: nowrap;
+}

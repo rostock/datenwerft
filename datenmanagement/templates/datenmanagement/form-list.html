@@ -5,7 +5,7 @@
 
 {% block list %}
   <input type="hidden" name="original_url_back" value="{{ url_back }}">
-  <div {% if model_geometry_type %}id="custom-form"{% endif %}>
+  <div class="col-md" {% if model_geometry_type %}id="custom-form"{% endif %}>
     <table class="table">
       {% for field in form %}
         {% if model_geometry_type and not field|is_field_address_related_field and not field|is_field_geometry_field or not model_geometry_type %}
@@ -86,19 +86,5 @@
         </tr>
       {% endif %}
     </table>
-    {% if not forms_in_mobile_mode and not is_mobile %}
-      <div class="d-grid mt-5 mb-3 gap-2">
-        {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-          <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
-        {% endif %}
-        {% if url_model_add %}
-          <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
-        {% endif %}
-        {% if url_model_delete_object %}
-          <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
-        {% endif %}
-        <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
-      </div>
-    {% endif %}
   </div>
 {% endblock %}
