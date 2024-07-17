@@ -17,7 +17,12 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
   CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView, \
   RequesterCreateAnonymousView, RequesterUpdateAnonymousView, \
-  CleanupEventRequestMapDataAnonymousView, CleanupEventRequestMapAnonymousView
+  CleanupEventRequestMapDataAnonymousView, CleanupEventRequestMapAnonymousView, \
+  CleanupEventRequestCreateAnonymousView, CleanupEventRequestUpdateAnonymousView, \
+  CleanupEventEventCreateAnonymousView, CleanupEventEventUpdateAnonymousView, \
+  CleanupEventVenueCreateAnonymousView, CleanupEventVenueUpdateAnonymousView, \
+  CleanupEventDetailsCreateAnonymousView, CleanupEventDetailsUpdateAnonymousView, \
+  CleanupEventContainerDecisionAnonymousView, CleanupEventContainerCreateAnonymousView
 
 router = routers.DefaultRouter()
 
@@ -342,5 +347,95 @@ urlpatterns = [
     'anonymous/ce-request/map/<request_id>',
     view=CleanupEventRequestMapAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_map'
+  ),
+  # anonymous workflow page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'anonymous/ce-request/create',
+    view=CleanupEventRequestCreateAnonymousView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventevent_create')
+    ),
+    name='anonymous_cleanupeventrequest_create'
+  ),
+  # anonymous workflow page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'anonymous/ce-request/update/<pk>',
+    view=CleanupEventRequestUpdateAnonymousView.as_view(),
+    name='anonymous_cleanupeventrequest_update'
+  ),
+  # anonymous workflow page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # event (Aktion)
+  path(
+    'anonymous/ce-request/event/create',
+    view=CleanupEventEventCreateAnonymousView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventvenue_create')
+    ),
+    name='anonymous_cleanupeventevent_create'
+  ),
+  # anonymous workflow page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # event (Aktion)
+  path(
+    'anonymous/ce-request/event/update/<pk>',
+    view=CleanupEventEventUpdateAnonymousView.as_view(),
+    name='anonymous_cleanupeventevent_update'
+  ),
+  # anonymous workflow page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # venue (Treffpunkt)
+  path(
+    'anonymous/ce-request/venue/create',
+    view=CleanupEventVenueCreateAnonymousView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventdetails_create')
+    ),
+    name='anonymous_cleanupeventvenue_create'
+  ),
+  # anonymous workflow page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # venue (Treffpunkt)
+  path(
+    'anonymous/ce-request/venue/update/<pk>',
+    view=CleanupEventVenueUpdateAnonymousView.as_view(),
+    name='anonymous_cleanupeventvenue_update'
+  ),
+  # anonymous workflow page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # details (Detailangaben)
+  path(
+    'anonymous/ce-request/details/create',
+    view=CleanupEventDetailsCreateAnonymousView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventcontainer_decision')
+    ),
+    name='anonymous_cleanupeventdetails_create'
+  ),
+  # anonymous workflow page for updating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # details (Detailangaben)
+  path(
+    'anonymous/ce-request/details/update/<pk>',
+    view=CleanupEventDetailsUpdateAnonymousView.as_view(),
+    name='anonymous_cleanupeventdetails_update'
+  ),
+  # anonymous workflow decision page in terms of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'anonymous/ce-request/container/decision',
+    view=CleanupEventContainerDecisionAnonymousView.as_view(),
+    name='anonymous_cleanupeventcontainer_decision'
+  ),
+  # anonymous workflow page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # container (Container)
+  path(
+    'anonymous/ce-request/container/create',
+    view=CleanupEventContainerCreateAnonymousView.as_view(
+      success_url=reverse_lazy('antragsmanagement:anonymous_index')
+    ),
+    name='anonymous_cleanupeventcontainer_create'
   )
 ]

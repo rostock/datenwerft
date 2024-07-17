@@ -120,7 +120,7 @@
           <p class="mt-4 mb-0 fs-1"><i class="fas fa-{{ 'cleanupeventrequest'|get_icon }}"></i></p>
           <p class="fs-3">Müllsammelaktionen</p>
           <div class="d-grid gap-2 col-6 mx-auto">
-            <a class="btn btn-lg btn-warning fs-5" role="button" href="#"><i class="fas fa-{{ 'create'|get_icon }}"></i>{% if not is_mobile %} neuer Antrag{% endif %}</a>
+            <a class="btn btn-lg btn-warning fs-5" role="button" href="{% url 'antragsmanagement:anonymous_cleanupeventrequest_create' %}"><i class="fas fa-{{ 'create'|get_icon }}"></i>{% if not is_mobile %} neuer Antrag{% endif %}</a>
           </div>
         </div>
       </div>
