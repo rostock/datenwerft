@@ -85,23 +85,38 @@ def get_corresponding_antragsmanagement_authorities(authority_names):
   return Authority.objects.filter(name__in=authority_names)
 
 
-def get_corresponding_requester(user, only_primary_key=True):
+def get_corresponding_requester(user, request=None, only_primary_key=True):
   """
-  returns (primary key of) corresponding requester object for passed user
+  returns (primary key of) corresponding requester object for passed user or passed request
 
   :param user: user
+  :param request: request
   :param only_primary_key: return only primary key?
-  :return: (primary key of) corresponding requester object for passed user
+  :return: (primary key of) corresponding requester object for passed user or passed request
   """
-  if only_primary_key:
-    try:
-      requester = Requester.objects.only('pk').get(user_id=user.pk)
-      return requester.pk
-    except Requester.DoesNotExist:
-      return None
-  else:
-    queryset = Requester.objects.filter(user_id=user.pk)
-    return queryset if queryset.exists() else None
+  if user and user.pk is not None:
+    if only_primary_key:
+      try:
+        requester = Requester.objects.only('pk').get(user_id=user.pk)
+        return requester.pk
+      except Requester.DoesNotExist:
+        return None
+    else:
+      queryset = Requester.objects.filter(user_id=user.pk)
+      return queryset if queryset.exists() else None
+  elif request:
+    requester_pk = request.session.get('corresponding_requester', None)
+    if requester_pk:
+      if only_primary_key:
+        try:
+          requester = Requester.objects.only('pk').get(pk=requester_pk)
+          return requester.pk
+        except Requester.DoesNotExist:
+          return None
+      else:
+        queryset = Requester.objects.filter(pk=requester_pk)
+        return queryset if queryset.exists() else None
+  return None
 
 
 def get_icon_from_settings(key):

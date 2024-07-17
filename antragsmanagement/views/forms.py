@@ -9,7 +9,7 @@ from antragsmanagement.constants_vars import MANAGEDAREAS_WFS_SEARCH_ELEMENT, \
   SCOPE_WFS_SEARCH_ELEMENT, SCOPE_WFS_SEARCH_STRING
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Requester
 from antragsmanagement.utils import get_authorities_from_managed_areas_wfs, \
-  get_corresponding_antragsmanagement_authorities, get_corresponding_requester
+  get_corresponding_antragsmanagement_authorities
 from toolbox.constants_vars import email_message
 from toolbox.utils import find_in_wfs_features, get_overlapping_area, \
   group_dict_by_key_and_sum_values, intersection_with_wfs
@@ -29,7 +29,7 @@ class ObjectForm(ModelForm):
   required_css_class = 'required'
 
   def __init__(self, *args, **kwargs):
-    self.user = kwargs.pop('user', None)
+    self.requester = kwargs.pop('requester', None)
     kwargs.setdefault('label_suffix', '')
     super().__init__(*args, **kwargs)
     # customize messages
@@ -214,9 +214,9 @@ class RequestForm(ObjectForm):
     super().__init__(*args, **kwargs)
     # limit the status field queryset to exactly one entry (= default status)
     self.fields['status'].queryset = CodelistRequestStatus.get_status_new(as_queryset=True)
-    # limit the requester field queryset to exactly one entry (= user)
-    user = get_corresponding_requester(self.user, only_primary_key=False)
-    self.fields['requester'].queryset = user if user else Requester.objects.none()
+    # limit the requester field queryset to exactly one entry (= requester)
+    requester = self.requester
+    self.fields['requester'].queryset = requester if requester else Requester.objects.none()
 
 
 class RequestFollowUpForm(ObjectForm):

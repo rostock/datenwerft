@@ -236,7 +236,10 @@ class ObjectMixin:
     if self.cancel_url:
       context['cancel_url'] = reverse(self.cancel_url)
     else:
-      context['cancel_url'] = reverse('antragsmanagement:index')
+      if self.request.user.is_authenticated:
+        context['cancel_url'] = reverse('antragsmanagement:index')
+      else:
+        context['cancel_url'] = reverse('antragsmanagement:anonymous_index')
     return context
 
 

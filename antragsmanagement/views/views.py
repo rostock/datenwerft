@@ -5,7 +5,10 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from django.views.generic.base import TemplateView
+from django_ratelimit.decorators import ratelimit
 from jsonview.views import JsonView
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
@@ -57,8 +60,12 @@ class IndexView(TemplateView):
     context = add_useragent_context_elements(context, self.request)
     # add permissions related context elements
     context = add_permissions_context_elements(context, self.request.user)
-    # add to context: information about corresponding requester object for user
-    context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    # add to context: information about corresponding requester object for user or request
+    if self.request.user.is_authenticated:
+      context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    else:
+      context['corresponding_requester'] = get_corresponding_requester(
+        user=None, request=self.request)
     return context
 
 
@@ -218,6 +225,20 @@ class RequesterMixin:
   form = RequesterForm
   success_message = '<strong>Kontaktdaten</strong> erfolgreich gespeichert!'
 
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    # store ID of requester in session in order to pass it to next view
+    # if user is not authenticated
+    if not self.request.user.is_authenticated:
+      instance = form.save(commit=True)
+      self.request.session['corresponding_requester'] = instance.pk
+    return super().form_valid(form)
+
   def get_context_data(self, **kwargs):
     """
     returns a dictionary with all context elements for this view
@@ -245,9 +266,10 @@ class RequesterCreateView(RequesterMixin, ObjectCreateView):
     :param form: form
     :return: HTTP response if passed form is valid
     """
+    # set value of user_id field
+    # if user is authenticated
     if self.request.user.is_authenticated:
       instance = form.save(commit=False)
-      # set the value of the user_id field programmatically
       instance.user_id = self.request.user.pk
     return super().form_valid(form)
 
@@ -284,8 +306,13 @@ class RequestMixin:
     :return: ``**kwargs`` as a dictionary with form attributes
     """
     kwargs = super().get_form_kwargs()
-    # pass request user to form
-    kwargs['user'] = self.request.user
+    # pass requester to form
+    if self.request.user.is_authenticated:
+      kwargs['requester'] = get_corresponding_requester(
+        user=self.request.user, request=None, only_primary_key=False)
+    else:
+      kwargs['requester'] = get_corresponding_requester(
+        user=None, request=self.request, only_primary_key=False)
     return kwargs
 
   def post(self, request, *args, **kwargs):
@@ -293,7 +320,10 @@ class RequestMixin:
       if self.get_object():
         self.get_object().delete()
         messages.warning(request, self.cancel_message)
-      return redirect('antragsmanagement:index')
+      if request.user.is_authenticated:
+        return redirect('antragsmanagement:index')
+      else:
+        return redirect('antragsmanagement:anonymous_index')
     return super().post(request, *args, **kwargs)
 
   def form_valid(self, form):
@@ -323,8 +353,12 @@ class RequestMixin:
     # add permissions related context elements:
     # set requester permissions as necessary permissions
     context = add_permissions_context_elements(context, self.request.user, REQUESTERS)
-    # add to context: information about corresponding requester object for user
-    context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    # add to context: information about corresponding requester object for user or request
+    if self.request.user.is_authenticated:
+      context['corresponding_requester'] = get_corresponding_requester(self.request.user)
+    else:
+      context['corresponding_requester'] = get_corresponding_requester(
+        user=None, request=self.request)
     # add to context: information about request workflow
     context['request_workflow'] = self.request_workflow
     # add to context: disabled fields
@@ -337,11 +371,15 @@ class RequestMixin:
 
     :return: dictionary with initial field values for this view
     """
-    # set status to default status and set requester to user
-    user = get_corresponding_requester(self.request.user)
+    # set status to default status
+    # and set requester to corresponding requester object for user or request
+    if self.request.user.is_authenticated:
+      requester = get_corresponding_requester(self.request.user)
+    else:
+      requester = get_corresponding_requester(user=None, request=self.request)
     return {
       'status': CodelistRequestStatus.get_status_new(),
-      'requester': user if user else Requester.objects.none()
+      'requester': requester if requester else Requester.objects.none()
     }
 
 
@@ -391,7 +429,10 @@ class RequestFollowUpMixin:
           messages.warning(request, self.cancel_message)
         except self.request_model.DoesNotExist:
             raise Http404(self.error_message)
-      return redirect('antragsmanagement:index')
+      if request.user.is_authenticated:
+        return redirect('antragsmanagement:index')
+      else:
+        return redirect('antragsmanagement:anonymous_index')
     return super().post(request, *args, **kwargs)
 
   def form_invalid(self, form, **kwargs):
@@ -1185,9 +1226,11 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
     """
     context = super().get_context_data(**kwargs)
     # add to context: URLs
+    viewname = 'antragsmanagement:anonymous_cleanupeventrequest_update'
+    if self.request.user.is_authenticated:
+      viewname = 'antragsmanagement:cleanupeventrequest_update'
     context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventrequest_update',
-      kwargs={'pk': self.request.session.get('request_id', None)}
+      viewname=viewname, kwargs={'pk': self.request.session.get('request_id', None)}
     )
     # add to context: map layer to additionally activate
     context['activate_map_layer'] = 'Bewirtschaftungskataster'
@@ -1339,9 +1382,11 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
     """
     context = super().get_context_data(**kwargs)
     # add to context: URLs
+    viewname = 'antragsmanagement:anonymous_cleanupeventevent_update'
+    if self.request.user.is_authenticated:
+      viewname = 'antragsmanagement:cleanupeventevent_update'
     context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventevent_update',
-      kwargs={'pk': self.request.session.get('cleanupeventevent_id', None)}
+      viewname=viewname, kwargs={'pk': self.request.session.get('cleanupeventevent_id', None)}
     )
     # add to context: GeoJSONified geometry of event area
     cleanupeventevent_geometry = get_corresponding_cleanupeventrequest_geometry(
@@ -1489,9 +1534,11 @@ class CleanupEventDetailsMixin(RequestFollowUpMixin):
     """
     context = super().get_context_data(**kwargs)
     # add to context: URLs
+    viewname = 'antragsmanagement:anonymous_cleanupeventvenue_update'
+    if self.request.user.is_authenticated:
+      viewname = 'antragsmanagement:cleanupeventvenue_update'
     context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventvenue_update',
-      kwargs={'pk': self.request.session.get('cleanupeventvenue_id', None)}
+      viewname=viewname, kwargs={'pk': self.request.session.get('cleanupeventvenue_id', None)}
     )
     return context
 
@@ -1628,7 +1675,10 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
         # additional messages if certain responsibilities exist
         additional_messages(responsibilities, self.request)
       messages.success(request, self.success_message)
-    return redirect('antragsmanagement:index')
+    if request.user.is_authenticated:
+      return redirect('antragsmanagement:index')
+    else:
+      return redirect('antragsmanagement:anonymous_index')
 
   def get_context_data(self, **kwargs):
     """
@@ -1639,12 +1689,20 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
     """
     context = super().get_context_data(**kwargs)
     # add to context: URLs
-    context['yes_url'] = reverse('antragsmanagement:cleanupeventcontainer_create')
-    context['back_url'] = reverse(
-      viewname='antragsmanagement:cleanupeventdetails_update',
-      kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
-    )
-    context['cancel_url'] = reverse('antragsmanagement:index')
+    if self.request.user.is_authenticated:
+      context['yes_url'] = reverse('antragsmanagement:cleanupeventcontainer_create')
+      context['back_url'] = reverse(
+        viewname='antragsmanagement:cleanupeventdetails_update',
+        kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
+      )
+      context['cancel_url'] = reverse('antragsmanagement:index')
+    else:
+      context['yes_url'] = reverse('antragsmanagement:anonymous_cleanupeventcontainer_create')
+      context['back_url'] = reverse(
+        viewname='antragsmanagement:anonymous_cleanupeventdetails_update',
+        kwargs={'pk': self.request.session.get('cleanupeventdetails_id', None)}
+      )
+      context['cancel_url'] = reverse('antragsmanagement:anonymous_index')
     return context
 
 
@@ -1685,7 +1743,10 @@ class CleanupEventContainerMixin(RequestFollowUpMixin):
     """
     context = super().get_context_data(**kwargs)
     # add to context: URLs
-    context['back_url'] = reverse('antragsmanagement:cleanupeventcontainer_decision')
+    viewname = 'antragsmanagement:anonymous_cleanupeventcontainer_decision'
+    if self.request.user.is_authenticated:
+      viewname = 'antragsmanagement:cleanupeventcontainer_decision'
+    context['back_url'] = reverse(viewname)
     # add to context: GeoJSONified geometries of event area and venue place
     other_geometries = []
     request_id = self.request.session.get('request_id', None)
@@ -1997,6 +2058,24 @@ class CleanupEventDumpDeleteView(RequestFollowUpDeleteMixin, ObjectDeleteView):
 # anonymous
 #
 
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class RequesterCreateAnonymousView(RequesterCreateView):
+  """
+  view for anonymous form page for creating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class RequesterUpdateAnonymousView(RequesterUpdateView):
+  """
+  view for form page for updating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+
 class CleanupEventRequestMapDataAnonymousView(JsonView):
   """
   view for anonymously composing map data out of one instance of object
@@ -2094,3 +2173,153 @@ class CleanupEventRequestMapAnonymousView(TemplateView):
     # add to context: icon
     context['icon'] = self.icon_name
     return context
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventRequestCreateAnonymousView(CleanupEventRequestCreateView):
+  """
+  view for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventRequestUpdateAnonymousView(CleanupEventRequestUpdateView):
+  """
+  view for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    if self.request.session.get('cleanupeventevent_id', None):
+      return reverse(
+        viewname='antragsmanagement:anonymous_cleanupeventevent_update',
+        kwargs={'pk': self.request.session['cleanupeventevent_id']}
+      )
+    else:
+      return reverse('antragsmanagement:anonymous_cleanupeventevent_create')
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventEventCreateAnonymousView(CleanupEventEventCreateView):
+  """
+  view for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventEventUpdateAnonymousView(CleanupEventEventUpdateView):
+  """
+  view for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    if self.request.session.get('cleanupeventvenue_id', None):
+      return reverse(
+        viewname='antragsmanagement:anonymous_cleanupeventvenue_update',
+        kwargs={'pk': self.request.session['cleanupeventvenue_id']}
+      )
+    else:
+      return reverse('antragsmanagement:anonymous_cleanupeventvenue_create')
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventVenueCreateAnonymousView(CleanupEventVenueCreateView):
+  """
+  view for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  venue (Treffpunkt)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventVenueUpdateAnonymousView(CleanupEventVenueUpdateView):
+  """
+  view for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  venue (Treffpunkt)
+  """
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    if self.request.session.get('cleanupeventdetails_id', None):
+      return reverse(
+        viewname='antragsmanagement:anonymous_cleanupeventdetails_update',
+        kwargs={'pk': self.request.session['cleanupeventdetails_id']}
+      )
+    else:
+      return reverse('antragsmanagement:anonymous_cleanupeventdetails_create')
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventDetailsCreateAnonymousView(CleanupEventDetailsCreateView):
+  """
+  view for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventDetailsUpdateAnonymousView(CleanupEventDetailsUpdateView):
+  """
+  view for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    return reverse('antragsmanagement:anonymous_cleanupeventcontainer_decision')
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventContainerDecisionAnonymousView(CleanupEventContainerDecisionView):
+  """
+  view for anonymous workflow decision page in terms of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+  """
+
+
+@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+class CleanupEventContainerCreateAnonymousView(CleanupEventContainerCreateView):
+  """
+  view for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+  """

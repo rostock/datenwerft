@@ -141,7 +141,9 @@ def additional_messages(responsibilities, request):
   for responsibility in responsibilities:
     if AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS in responsibility.short():
       link = settings.ANTRAGSMANAGEMENT_LINKS['public_green_areas']
-      text = 'Sie müssen zusätzlich eine Sondernutzung öffentlicher Grünflächen beantragen:'
+      text = 'Sie müssen zusätzlich eine Sondernutzung öffentlicher Grünflächen beantragen,'
+      text += ' da Ihr Antrag eine Fläche schneidet, die durch das'
+      text += ' Amt für Stadtgrün, Naturschutz und Friedhofswesen bewirtschaftet wird:'
       text += '<br><a href="' + link + '" target="_blank">' + link + '</a>'
       messages.info(request, text)
 
