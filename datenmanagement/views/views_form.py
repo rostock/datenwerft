@@ -243,14 +243,14 @@ class DataChangeView(UpdateView):
             except ValueError:
               pass
           associated_object_dict = {
-              'title': title,
-              'name': str(associated_object),
-              'id': associated_object.pk,
-              'link': reverse(
-                  'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
-              'preview_img_url': preview_img_url,
-              'preview_thumb_url': preview_thumb_url,
-              'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
+            'title': title,
+            'name': str(associated_object),
+            'id': associated_object.pk,
+            'link': reverse(
+                'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
+            'preview_img_url': preview_img_url,
+            'preview_thumb_url': preview_thumb_url,
+            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
           }
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects

@@ -33,7 +33,6 @@
             <tr>
               <td>{{ forloop.counter }}</td>
               <td><a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten">{{ associated_object.name }} <i class="fas fa-arrow-up-right-from-square"></i></a></td>
-              <td>{{ api }}</td>
               <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
             </tr>
           {% endfor %}
@@ -41,7 +40,6 @@
             <tr>
               <td>...</td>
               <td><input type="file" name="punktwolke" class="form-control" id="id_punktwolke"></td>
-              <td><input type="text" name="bezeichung" maxlength="255" class="form-control" id="id_bezeichnung" value="{{ associated_new.0 }}"></td>
               <td><button type="button" class="btn btn-outline-success" onclick="addObject(apiLink='{{ associated_new.0.api }}')"><i class="fa-solid fa-plus"></i></button></td>
             </tr>
           </tbody>
