@@ -169,7 +169,7 @@ function initDataTable(dataUrl, languageUrl, numberOfColumns) {
       // provide inactive rows (= records) with a weaker text color
       if ($(row).find('td:nth-child(2)').text() === 'nein') {
         $(row).addClass('text-secondary');
-      // provide highlight flag rows (= records) with with red text color
+      // provide highlight flag rows (= records) with red text color
       } else if ($(row).find('.text-danger').length) {
         $(row).addClass('text-danger');
       }
