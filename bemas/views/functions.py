@@ -426,7 +426,7 @@ def generate_foreign_key_objects_list(foreign_key_objects, formation_hint=None):
     object_list += suffix
     object_list += ('</li>' if len(foreign_key_objects) > 1 else '')
   if len(foreign_key_objects) > 1:
-    return '<ul class="object_list">' + object_list + '</ul>'
+    return '<ul class="object-list">' + object_list + '</ul>'
   else:
     return object_list
 

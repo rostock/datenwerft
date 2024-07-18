@@ -1,5 +1,3 @@
 {
-  "ignore": "H006",
-  "blank-line_before_tag": "block",
-  "blank_line_after_tag": "endblock"
+  "ignore": "H006"
 }

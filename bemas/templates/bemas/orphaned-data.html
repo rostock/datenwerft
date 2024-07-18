@@ -11,7 +11,7 @@
       <h5 class="alert-heading"><i class="fas fa-{{ 'organization'|get_icon }}"></i> Organisationen</h5>
       {% if orphaned_organizations %}
         Folgende Organisation(en) ist/sind nicht als Betreiberin(nen) mit Verursachern und auch nicht als Beschwerdeführerin(nen) mit Beschwerden verbunden:
-        <ul class="object_list">
+        <ul class="object-list">
           {% for orphaned_organization in orphaned_organizations %}
             <li>
               <a href="{{ orphaned_organization.link }}" title="Organisation ansehen oder bearbeiten">{{ orphaned_organization.text }}</a>
@@ -28,7 +28,7 @@
         Folgende Person(en) ist/sind nicht als Ansprechpartner:in(nen) mit Organisationen, nicht
         als Betreiber:in(nen) mit Verursachern und auch nicht als Beschwerdeführer:in(nen) mit
         <strong><em>aktiven</em></strong> Beschwerden verbunden:
-        <ul class="object_list">
+        <ul class="object-list">
           {% for orphaned_person in orphaned_persons %}
             <li>
               <a href="{{ orphaned_person.link }}" title="Person ansehen oder bearbeiten">{{ orphaned_person.text }}</a>
@@ -45,7 +45,7 @@
       <h5 class="alert-heading"><i class="fas fa-{{ 'originator'|get_icon }}"></i> Verursacher</h5>
       {% if orphaned_originators %}
         Folgende(r) Verursacher ist/sind nicht mit Beschwerden verbunden:
-        <ul class="object_list">
+        <ul class="object-list">
           {% for orphaned_originator in orphaned_originators %}
             <li>
               <a href="{{ orphaned_originator.link }}" title="Person ansehen oder bearbeiten">{{ orphaned_originator.text }}</a>
