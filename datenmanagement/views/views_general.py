@@ -165,7 +165,8 @@ class IndexView(TemplateView):
           'name': model_name,
           'verbose_name_plural': model._meta.verbose_name_plural,
           'description': model.BasemodelMeta.description,
-          'url_start': reverse('datenmanagement:' + model_name + '_start')
+          'url_start': reverse('datenmanagement:' + model_name + '_start'),
+          'not_listed': model.BasemodelMeta.not_listed
         }
         if issubclass(model, Metamodel):
           models_meta.append(model_dict)

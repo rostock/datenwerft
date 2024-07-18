@@ -148,3 +148,48 @@ input[name="strasse"] {
 .form-floating > label {
   width: 100% !important;
 }
+
+#custom-form {
+  height: fit-content;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.col {
+  width: 50%;
+}
+
+.col > table {
+  width: 100%;
+}
+
+#pc-management {
+  vertical-align: middle;
+}
+
+#pc-management > tbody > tr {
+  white-space: nowrap;
+}
+
+#pc-management > thead > tr > th:first-child {
+  text-align: center;
+  font-weight: 600;
+}
+
+#pc-management > thead > tr > th:last-child {
+  white-space: nowrap;
+  width: 1%;
+}
+
+#pc-management > tbody > tr > td:first-child {
+  text-align: center;
+  font-weight: 600;
+}
+
+#pc-management > tbody > tr > td:last-child {
+  white-space: nowrap;
+  width: 1%;
+}

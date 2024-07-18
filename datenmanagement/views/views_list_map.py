@@ -200,17 +200,17 @@ class TableDataCompositionView(BaseDatatableView):
       if self.model_is_editable:
         links = ''
         if self.request.user.has_perm('datenmanagement.change_' + self.model_name_lower):
-          links = '<a href="' + \
-                  reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk]) + \
-                  '"><i class="fas fa-edit" title="Datensatz bearbeiten"></i></a>'
+          links = ('<a class="btn btn-sm btn-outline-warning" title="Datensatz bearbeiten" href="'
+                   + reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk]) +
+                   '"><i class="fas fa-edit"></i></a>')
         elif self.request.user.has_perm('datenmanagement.view_' + self.model_name_lower):
-          links = '<a href="' + \
+          links = '<a class="btn btn-sm btn-outline-primary" title="Datensatz ansehen" href="' + \
                   reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk]) + \
-                  '"><i class="fas fa-eye" title="Datensatz ansehen"></i></a>'
+                  '"><i class="fas fa-eye"></i></a>'
         if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
-          links += '<a class="ms-2" href="' + \
-                   reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk]) + \
-                   '"><i class="fas fa-trash" title="Datensatz löschen"></i></a>'
+          links += ('<a class="ms-2 btn btn-sm btn-outline-danger" title="Datensatz löschen" href="'
+                    + reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk]) +
+                    '"><i class="fas fa-trash"></i></a>')
         item_data.append(links)
       json_data.append(item_data)
     return json_data

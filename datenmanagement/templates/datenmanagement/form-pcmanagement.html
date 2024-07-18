@@ -9,24 +9,241 @@
 {% endblock %}
 
 {% block pc_management %}
-  <div class="row">
-  <table class="table-striped">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Datei</th>
-        <th scope="col">Aufnahmedatum</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for associated_object in associated_objects %}
-      <tr>
-        <td>{{ associated_object.id }}</td>
-        <td>{{ associated_object.name }}<a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></td>
-        <td>{{ associated_object.title }}</td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  </div>
+  {% if object %}
+    <form>
+  	{% comment %}
+      {% csrf_token %}
+    {% endcomment %}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered border-secondary" id="pc-management">
+          <thead class="table-dark">
+            {% for obj in associated_objects %}
+              
+            {% endfor %}
+            
+            <tr>
+              <th scope="col"><i class="fa-solid fa-hashtag"></i></th>
+              <th scope="col">Datei</th>
+              <th scope="col"><!-- delete column --></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for associated_object in associated_objects %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><a href="{{ associated_object.file }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} herunterladen"><i class="fa-solid fa-download"></i> {{ associated_object.name }}</a></td>
+              <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
+            </tr>
+          {% endfor %}
+            
+            <tr>
+              <td><i class="fa-solid fa-ellipsis"></i></td>
+              <td><input type="file" name="punktwolke" class="form-control" id="id_punktwolke"></td>
+              <td><button type="button" class="btn btn-outline-success" onclick="addObject(apiLink='{{ associated_new.0.api }}')"><i class="fa-solid fa-plus"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% include 'datenmanagement/modal-action-delete.html' %}
+      <script>
+        async function addObject(apiLink) {
+          console.log(apiLink);
+          const file = document.getElementById('id_punktwolke').files[0];
+          if (!file) {
+            alert('Bitte wählen Sie eine Datei aus.');
+            return;
+          }
+          const formdata = new FormData();
+          formdata.append('aktiv', false);
+          formdata.append('dateiname', file.name);
+          formdata.append(name='punktwolke', blobValue=file, filename=file.name);
+          formdata.append('projekt', '{{ api }}');
+          formdata.append('aufnahme', file.lastModified/1000);
+          let options = {
+            method: 'POST',
+            headers: {
+              //'Content-Type': 'multipart/form-data',
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: formdata
+          }
+          console.log(options);
+          try {
+            let response = await fetch(apiLink, options);
+            if (response.status == 201) {
+              window.location.reload();
+            } else {
+              console.log(response.status);
+            }
+            
+          } catch (error) {
+            console.log('Fetch Error: ' + error);
+          }
+        }
+        
+        const deleteButtonConfim = document.getElementById('action-delete-modal-ok');
+        deleteButtonConfim.addEventListener('click', e => {
+          deleteObject('{{ associated_new.0.api }}/');
+        });
+        async function deleteObject(apiLink) {
+          let options = {
+            method: 'DELETE',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken')
+            }
+          };
+          let responce = await fetch(apiLink, options)
+            .then(response => {
+              if (!response.ok) {
+                return response.json().then(errorData => {
+                  throw new Error('Fetch error: ' + errorData.message);
+                })
+              }
+              window.location.reload();
+            })
+            .catch(error => {
+              console.log('Fetch error: ', error)
+            });
+        }
+  
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              let cookie = $.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+        
+        function getUUIDFromCurrentURL() {
+          // Erhalte die aktuelle URL
+          const url = window.location.href;
+          // Erstelle ein URL-Objekt
+          const urlObj = new URL(url);
+          // Extrahiere den Pfadnamen
+          const pathname = urlObj.pathname;
+          // Verwende einen regulären Ausdruck, um die UUID hinter "change/" zu finden
+          const match = pathname.match(/\/change\/([0-9a-fA-F-]+)/);
+          // Überprüfe, ob ein Match gefunden wurde und extrahiere die UUID
+          if (match && match[1]) {
+            return match[1];
+          } else {
+            return null;
+          }
+        }
+  
+        function doAjaxSubmit(e) {
+          var form = $(this);
+          var btn = $(this.clk);
+          var method = (
+            btn.data('method') ||
+            form.data('method') ||
+            form.attr('method') || 'GET'
+          ).toUpperCase();
+  
+          if (method === 'GET') {
+            // GET requests can always use standard form submits.
+            return;
+          }
+  
+          var contentType =
+            form.find('input[data-override="content-type"]').val() ||
+            form.find('select[data-override="content-type"] option:selected').text();
+  
+          if (method === 'POST' && !contentType) {
+            // POST requests can use standard form submits, unless we have
+            // overridden the content type.
+            return;
+          }
+  
+          // At this point we need to make an AJAX form submission.
+          e.preventDefault();
+  
+          var url = form.attr('action');
+          var data;
+  
+          if (contentType) {
+            data = form.find('[data-override="content"]').val() || ''
+  
+            if (contentType === 'multipart/form-data') {
+              // We need to add a boundary parameter to the header
+              // We assume the first valid-looking boundary line in the body is correct
+              // regex is from RFC 2046 appendix A
+              var boundaryCharNoSpace = "0-9A-Z'()+_,-./:=?";
+              var boundaryChar = boundaryCharNoSpace + ' ';
+              var re = new RegExp('^--([' + boundaryChar + ']{0,69}[' + boundaryCharNoSpace + '])[\\s]*?$', 'im');
+              var boundary = data.match(re);
+              if (boundary !== null) {
+                contentType += '; boundary="' + boundary[1] + '"';
+              }
+              // Fix textarea.value EOL normalisation (multipart/form-data should use CR+NL, not NL)
+              data = data.replace(/\n/g, '\r\n');
+            }
+          } else {
+            contentType = form.attr('enctype') || form.attr('encoding')
+  
+            if (contentType === 'multipart/form-data') {
+              if (!window.FormData) {
+                alert('Your browser does not support AJAX multipart form submissions');
+                return;
+              }
+  
+              // Use the FormData API and allow the content type to be set automatically,
+              // so it includes the boundary string.
+              // See https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
+              contentType = false;
+              data = new FormData(form[0]);
+            } else {
+              contentType = 'application/x-www-form-urlencoded; charset=UTF-8'
+              data = form.serialize();
+            }
+          }
+  
+          var ret = $.ajax({
+            url: url,
+            method: method,
+            data: data,
+            contentType: contentType,
+            processData: false,
+            headers: {
+              'Accept': 'text/html; q=1.0, */*'
+            },
+          });
+  
+          ret.always(function(data, textStatus, jqXHR) {
+            if (textStatus != 'success') {
+              jqXHR = data;
+            }
+  
+            var responseContentType = jqXHR.getResponseHeader("content-type") || "";
+  
+            if (responseContentType.toLowerCase().indexOf('text/html') === 0) {
+              replaceDocument(jqXHR.responseText);
+  
+              try {
+                // Modify the location and scroll to top, as if after page load.
+                history.replaceState({}, '', url);
+                scroll(0, 0);
+              } catch (err) {
+                // History API not supported, so redirect.
+                window.location = url;
+              }
+            } else {
+              // Not HTML content. We can't open this directly, so redirect.
+              window.location = url;
+            }
+          });
+  
+          return ret;
+        }
+      </script>
+    </form>
+  {% endif %}
 {% endblock %}

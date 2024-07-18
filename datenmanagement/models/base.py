@@ -26,6 +26,7 @@ class Basemodel(Model):
   class BasemodelMeta:
     """This class defines soma special meta information for models.
 
+    :ivar not_listed: shall this model be not listed on index page?
     :ivar editable: shall this model generally be editable?
     :ivar description: description of this model
     :ivar short_name: short name of this model (if foreign keys are used;
@@ -79,6 +80,7 @@ class Basemodel(Model):
     :ivar additional_wfs_featuretypes:
 
     """
+    not_listed: bool = False
     editable: bool = True
     description: str = None
     short_name: str = None
