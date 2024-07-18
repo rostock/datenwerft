@@ -119,7 +119,7 @@
 
       // define several globally available variables
       window.enableMapTools = false;
-      {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+      {% if not object and user|user_has_model_add_permission:model_name_lower and not geometry_calculation or object and user|user_has_model_change_permission:model_name_lower and not geometry_calculation %}
         window.enableMapTools = true
       {% endif %}
       window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }};
