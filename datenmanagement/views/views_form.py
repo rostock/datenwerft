@@ -222,9 +222,8 @@ class DataChangeView(UpdateView):
           title = associated_model_model._meta.verbose_name
         associated_new_dict = {
           'title': title,
-          'link': reverse('datenmanagement:' + associated_model +'_add') +
-              '?preselect_field=' + associated_model_foreign_key_field +
-              '&preselect_value=' + str(self.object.pk),
+          'link': reverse('datenmanagement:' + associated_model + '_add') + '?preselect_field=' +
+                  associated_model_foreign_key_field + '&preselect_value=' + str(self.object.pk),
           'api': f'/api/{associated_model.lower()}/'
         }
         self.associated_new.append(associated_new_dict)
