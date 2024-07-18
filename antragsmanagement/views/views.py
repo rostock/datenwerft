@@ -1139,7 +1139,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     if old_instance.status.name != instance.status.name:
       send_cleanupeventrequest_email(
         request=self.request,
-        email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW',
+        email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_STATUS-CHANGED',
         curr_object=instance,
         recipient_list=[instance.requester.email]
       )
