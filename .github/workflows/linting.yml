@@ -38,9 +38,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: '16' # stable LTS version
+      - name: Clear NPM cache
+        run: npm cache clean --force
       - name: Install Node.js dependencies
-        run: npm install
+        run: npm ci # clean installs
       - name: Check CSS rules via Stylelint
         run: npx stylelint "datenwerft/**/*.css accounts/**/*.css" "datenmanagement/**/*.css"
       - name: Check JavaScript rules via ESLint
