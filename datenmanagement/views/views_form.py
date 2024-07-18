@@ -250,7 +250,8 @@ class DataChangeView(UpdateView):
                 'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
-            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
+            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/',
+            'file': f'/datenwerft/uploads/{associated_object.punktwolke}'
           }
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects

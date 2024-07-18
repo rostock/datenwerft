@@ -22,7 +22,7 @@
             {% endfor %}
             
             <tr>
-              <th scope="col">#</th>
+              <th scope="col"><i class="fa-solid fa-hashtag"></i></th>
               <th scope="col">Datei</th>
               <th scope="col"><!-- delete column --></th>
             </tr>
@@ -31,13 +31,13 @@
           {% for associated_object in associated_objects %}
             <tr>
               <td>{{ forloop.counter }}</td>
-              <td><a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten">{{ associated_object.name }} <i class="fas fa-arrow-up-right-from-square"></i></a></td>
+              <td><a href="{{ associated_object.file }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} herunterladen"><i class="fa-solid fa-download"></i> {{ associated_object.name }}</a></td>
               <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
             </tr>
           {% endfor %}
             
             <tr>
-              <td>...</td>
+              <td><i class="fa-solid fa-ellipsis"></i></td>
               <td><input type="file" name="punktwolke" class="form-control" id="id_punktwolke"></td>
               <td><button type="button" class="btn btn-outline-success" onclick="addObject(apiLink='{{ associated_new.0.api }}')"><i class="fa-solid fa-plus"></i></button></td>
             </tr>
