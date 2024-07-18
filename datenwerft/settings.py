@@ -146,7 +146,7 @@ LEAFLET_CONFIG = {
 
 REST_FRAMEWORK = {
   'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.IsAuthenticated'
+    'rest_framework.permissions.IsAdminUser'
   ],
   'DATETIME_FORMAT': 'iso-8601',
   'DATE_FORMAT': 'iso-8601',
