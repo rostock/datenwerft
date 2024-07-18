@@ -3004,6 +3004,7 @@ class Punktwolken(ComplexModel):
     fields_with_foreign_key_to_linkify = ['projekt']
     geometry_type = 'Polygon'
     geometry_calculation = True
+    not_listed = True
 
   def __str__(self):
     if self.aufnahme:
