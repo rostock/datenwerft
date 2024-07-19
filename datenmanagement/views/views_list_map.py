@@ -208,9 +208,10 @@ class TableDataCompositionView(BaseDatatableView):
                   reverse('datenmanagement:' + self.model_name + '_change', args=[item_pk]) + \
                   '"><i class="fas fa-eye"></i></a>'
         if self.request.user.has_perm('datenmanagement.delete_' + self.model_name_lower):
-          links += ('<a class="ms-2 btn btn-sm btn-outline-danger" title="Datensatz löschen" href="'
-                    + reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk]) +
-                    '"><i class="fas fa-trash"></i></a>')
+          links += (
+              '<a class="ms-2 btn btn-sm btn-outline-danger" title="Datensatz löschen" href="' +
+              reverse('datenmanagement:' + self.model_name + '_delete', args=[item_pk]) +
+              '"><i class="fas fa-trash"></i></a>')
         item_data.append(links)
       json_data.append(item_data)
     return json_data
