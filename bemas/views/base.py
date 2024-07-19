@@ -194,32 +194,36 @@ class GenericTableDataView(BaseDatatableView):
             log_entry_link = ''
           else:
             title = self.model._meta.verbose_name
-            log_entry_link = '<a class="ms-2" href="' + reverse(
+            log_entry_link = '<a class="ms-2 btn btn-sm btn-outline-primary" '
+            log_entry_link += 'title="Einträge im Bearbeitungsverlauf anzeigen" href="'
+            log_entry_link += reverse(
               'bemas:logentry_table_model_object', args=[self.model.__name__, item_pk])
-            log_entry_link += '"><i class="fas fa-' + get_icon_from_settings('logentry') + \
-                              '" title="Einträge im Bearbeitungsverlauf anzeigen"></i></a>'
+            log_entry_link += '"><i class="fas fa-' + get_icon_from_settings('logentry')
+            log_entry_link += '"></i></a>'
           event_link = ''
           if issubclass(self.model, Complaint):
-            event_link = '<a class="ms-2" href="' + reverse(
-              'bemas:event_table_complaint', args=[item_pk])
-            event_link += '"><i class="fas fa-' + get_icon_from_settings('event') + \
-                          '" title="Journalereignisse anzeigen"></i></a>'
+            event_link = '<a class="ms-2 btn btn-sm btn-outline-primary" '
+            event_link += 'title="Journalereignisse anzeigen" href="'
+            event_link += reverse('bemas:event_table_complaint', args=[item_pk])
+            event_link += '"><i class="fas fa-' + get_icon_from_settings('event')
+            event_link += '"></i></a>'
           map_link = ''
           if issubclass(self.model, Complaint) or issubclass(self.model, Originator):
             point = getattr(item, self.model.BasemodelMeta.geometry_field)
-            map_link = '<a class="ms-2" href="' + reverse('bemas:map')
+            map_link = '<a class="ms-2 btn btn-sm btn-outline-primary" '
+            map_link += 'title="' + title + ' auf Karte anzeigen" href="'
+            map_link += reverse('bemas:map')
             map_link += '?center=' + str(point.x) + ',' + str(point.y) + '">'
-            map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + \
-                        '" title="' + title + ' auf Karte anzeigen"></i></a>'
+            map_link += '<i class="fas fa-' + get_icon_from_settings('show_on_map') + '"></i></a>'
           item_data.append(
-            '<a href="' +
+            '<a class="btn btn-sm btn-outline-warning" role="button" ' +
+            'title="' + title + ' ansehen oder bearbeiten" href="' +
             reverse('bemas:' + view_name_prefix + '_update', args=[item_pk]) +
-            '"><i class="fas fa-' + get_icon_from_settings('update') +
-            '" title="' + title + ' ansehen oder bearbeiten"></i></a>' +
-            '<a class="ms-2" href="' +
+            '"><i class="fas fa-' + get_icon_from_settings('update') + '"></i></a>' +
+            '<a class="ms-2 btn btn-sm btn-outline-danger" role="button" ' +
+            'title="' + title + ' löschen" href="' +
             reverse('bemas:' + view_name_prefix + '_delete', args=[item_pk]) +
-            '"><i class="fas fa-' + get_icon_from_settings('delete') +
-            '" title="' + title + ' löschen"></i></a>' +
+            '"><i class="fas fa-' + get_icon_from_settings('delete') + '"></i></a>' +
             event_link +
             log_entry_link +
             map_link

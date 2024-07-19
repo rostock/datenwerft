@@ -702,7 +702,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
               or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
           ):
-            links = '<a class="mb-1 btn btn-sm btn-outline-primary" role="button" '
+            links = '<a class="mb-1 btn btn-sm btn-outline-warning" role="button" '
             links += 'title="Antrag ansehen oder bearbeiten" '
             links += 'href="' + reverse(
               viewname='antragsmanagement:cleanupeventrequest_authorative_update',
@@ -712,7 +712,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             links += 'Antrag</a>'
             event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
             if event:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Aktionsdaten ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventevent_authorative_update',
@@ -722,7 +722,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += 'Aktionsdaten</a>'
             venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
             if venue:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Treffpunkt ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventvenue_authorative_update',
@@ -732,7 +732,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += 'Treffpunkt</a>'
             details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
             if details:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Detailangaben ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventdetails_authorative_update',
@@ -743,7 +743,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             container = CleanupEventContainer.objects.filter(
               cleanupevent_request=item['id']).first()
             if container:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Containerdaten ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
@@ -751,7 +751,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               ) + '">'
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Containerdaten</a>'
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
               links += 'title="Containerdaten löschen" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventcontainer_delete',
@@ -770,7 +770,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += 'Containerdaten</a>'
             dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
             if dump:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Müllablageplatz ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventdump_authorative_update',
@@ -778,8 +778,8 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               ) + '">'
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Müllablageplatz</a>'
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
-              links += 'title="Müllablageplatz löschenn" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
+              links += 'title="Müllablageplatz löschen" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventdump_delete',
                 kwargs={'pk': dump.pk}
