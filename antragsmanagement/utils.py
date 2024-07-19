@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from .constants_vars import REQUESTERS, AUTHORITIES, ADMINS
-from .models import Authority, Email, Requester
+from .models import Authority, Requester
 
 
 def belongs_to_antragsmanagement_authority(user):
@@ -58,23 +58,65 @@ def get_antragsmanagement_authorities(user, only_primary_keys=True):
     return list(authorities)
 
 
-def get_corresponding_requester(user, only_primary_key=True):
+def get_authorities_from_managed_areas_wfs(search_element, wfs_features):
   """
-  returns (primary key of) corresponding requester object for passed user
+  returns all authorities found in passed search element of passed WFS features
+
+  :param search_element: WFS feature search element
+  :param wfs_features: WFS features
+  :return: all authorities found in passed search element of passed WFS features
+  """
+  authorities = []
+  for wfs_feature in wfs_features:
+    properties = wfs_feature.get('properties', {})
+    authority = properties.get(search_element)
+    if authority:
+      authorities.append(authority)
+  return sorted(set(authorities))
+
+
+def get_corresponding_antragsmanagement_authorities(authority_names):
+  """
+  returns corresponding Antragsmanagement authorities to passed list of authority names
+
+  :param authority_names: list of authority names
+  :return: corresponding Antragsmanagement authorities to passed list of authority names
+  """
+  return Authority.objects.filter(name__in=authority_names)
+
+
+def get_corresponding_requester(user, request=None, only_primary_key=True):
+  """
+  returns (primary key of) corresponding requester object for passed user or passed request
 
   :param user: user
+  :param request: request
   :param only_primary_key: return only primary key?
-  :return: (primary key of) corresponding requester object for passed user
+  :return: (primary key of) corresponding requester object for passed user or passed request
   """
-  if only_primary_key:
-    try:
-      requester = Requester.objects.only('pk').get(user_id=user.pk)
-      return requester.pk
-    except Requester.DoesNotExist:
-      return None
-  else:
-    queryset = Requester.objects.filter(user_id=user.pk)
-    return queryset if queryset.exists() else None
+  if user and user.pk is not None:
+    if only_primary_key:
+      try:
+        requester = Requester.objects.only('pk').get(user_id=user.pk)
+        return requester.pk
+      except Requester.DoesNotExist:
+        return None
+    else:
+      queryset = Requester.objects.filter(user_id=user.pk)
+      return queryset if queryset.exists() else None
+  elif request:
+    requester_pk = request.session.get('corresponding_requester', None)
+    if requester_pk:
+      if only_primary_key:
+        try:
+          requester = Requester.objects.only('pk').get(pk=requester_pk)
+          return requester.pk
+        except Requester.DoesNotExist:
+          return None
+      else:
+        queryset = Requester.objects.filter(pk=requester_pk)
+        return queryset if queryset.exists() else None
+  return None
 
 
 def get_icon_from_settings(key):

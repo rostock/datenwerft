@@ -3,9 +3,11 @@ django-auth-ldap
 django-datatables-view
 django-jsonview
 django-leaflet
+django-ratelimit
 django-user-agents
 djangorestframework
 Jinja2
+lxml
 Pillow
 psycopg2-binary
 PyYAML

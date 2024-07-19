@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django.utils.crypto import get_random_string
+from unittest.mock import patch
 
 from .base import DefaultViewTestCase, DefaultAnonymousViewTestCase, DefaultFormViewTestCase
 from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
@@ -23,7 +24,7 @@ class IndexViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='index', status_code=302,
@@ -72,7 +73,7 @@ class AuthorityTableDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='authority_tabledata', status_code=302,
@@ -117,7 +118,7 @@ class AuthorityTableViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='authority_table', status_code=302,
@@ -175,7 +176,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -217,6 +218,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='authority_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -226,6 +228,7 @@ class AuthorityUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='authority_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -243,7 +246,7 @@ class EmailTableDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='email_tabledata', status_code=302,
@@ -288,7 +291,7 @@ class EmailTableViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='email_table', status_code=302,
@@ -346,7 +349,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -388,6 +391,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='email_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -397,6 +401,7 @@ class EmailUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='email_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -431,7 +436,7 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -473,6 +478,7 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -482,6 +488,7 @@ class RequesterCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -516,7 +523,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -558,6 +565,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -567,6 +575,7 @@ class RequesterUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_update_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='requester_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -590,7 +599,7 @@ class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=302,
@@ -636,7 +645,7 @@ class CleanupEventRequestTableViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=302,
@@ -682,7 +691,7 @@ class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', status_code=302,
@@ -728,7 +737,7 @@ class CleanupEventRequestMapViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_map', status_code=302,
@@ -798,7 +807,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -840,6 +849,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -849,6 +859,7 @@ class CleanupEventRequestCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -891,7 +902,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -933,6 +944,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -942,6 +954,7 @@ class CleanupEventRequestUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -984,7 +997,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1026,6 +1039,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1035,6 +1049,7 @@ class CleanupEventRequestAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1071,12 +1086,12 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -1094,7 +1109,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1134,8 +1149,11 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -1143,8 +1161,11 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -1181,12 +1202,12 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -1204,7 +1225,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1244,8 +1265,11 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1253,8 +1277,11 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventevent_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1291,12 +1318,12 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -1314,7 +1341,7 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1354,8 +1381,11 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1363,8 +1393,11 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventevent_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1401,12 +1434,12 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -1422,7 +1455,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1462,8 +1495,11 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -1471,8 +1507,11 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -1509,12 +1548,12 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -1530,7 +1569,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1570,8 +1609,11 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1579,8 +1621,11 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1617,12 +1662,12 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -1638,7 +1683,7 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1678,8 +1723,11 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1687,8 +1735,11 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventvenue_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1725,12 +1776,12 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -1752,7 +1803,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1794,6 +1845,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -1803,6 +1855,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -1839,12 +1892,12 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -1866,7 +1919,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -1908,6 +1961,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -1917,6 +1971,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -1953,12 +2008,12 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -1980,7 +2035,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2022,6 +2077,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -2031,6 +2087,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdetails_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2049,7 +2106,7 @@ class CleanupEventContainerDecisionViewTest(DefaultViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_not_logged_in(self):
+  def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', status_code=302,
@@ -2113,12 +2170,12 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2138,7 +2195,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2178,8 +2235,11 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -2187,8 +2247,11 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -2225,12 +2288,12 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2251,7 +2314,7 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2291,8 +2354,11 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -2302,8 +2368,11 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
       }
     )
 
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -2342,12 +2411,12 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2367,7 +2436,7 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2407,8 +2476,11 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -2416,8 +2488,11 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2454,12 +2529,12 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2471,7 +2546,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2513,6 +2588,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
 
   def test_post_delete(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventcontainer_delete',
       object_filter={}, count=0,
@@ -2549,12 +2625,12 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -2571,7 +2647,7 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2611,8 +2687,11 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_create',
       object_filter=self.attributes_values_view_create_valid, count=1,
@@ -2622,8 +2701,11 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
       }
     )
 
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_create',
       object_filter=self.attributes_values_view_create_invalid, count=1,
@@ -2662,12 +2744,12 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -2683,7 +2765,7 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=True, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2723,8 +2805,11 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_success(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_update',
       object_filter=self.attributes_values_view_update_valid, count=1,
@@ -2732,8 +2817,11 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
       session_variables=None
     )
 
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventDump.BaseMeta, 'geometry_in_managed_areas', False)
   def test_post_create_error(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_authorative_update',
       object_filter=self.attributes_values_view_update_invalid, count=1,
@@ -2770,12 +2858,12 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
       status=status1,
       requester=requester
     )
-    cleanupevent_request1.responsibilities.add(responsibility)
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester
     )
-    cleanupevent_request2.responsibilities.add(responsibility)
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -2785,7 +2873,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
   def setUp(self):
     self.init()
 
-  def test_get_not_logged_in(self):
+  def test_get_anonymous(self):
     self.generic_form_view_get_test(
       update_mode=False, log_in=False, antragsmanagement_requester=False,
       antragsmanagement_authority=False, antragsmanagement_admin=False,
@@ -2827,6 +2915,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 
   def test_post_delete(self):
     self.generic_form_view_post_test(
+      log_in=True,
       update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventdump_delete',
       object_filter={}, count=0,
@@ -2838,6 +2927,131 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 #
 # anonymous
 #
+
+class IndexAnonymousViewTest(DefaultAnonymousViewTestCase):
+  """
+  test class for anonymous main page
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test(self):
+    self.generic_view_test(
+      view_name='anonymous_index', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='Kontaktdaten'
+    )
+
+
+class RequesterCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous form page for creating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+  model = Requester
+  attributes_values_db_create = {
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_create_valid = {
+    'organization': VALID_STRING,
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_create_invalid = {
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_requester_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='neu '
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class RequesterUpdateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous form page for updating an instance of general object:
+  requester (Antragsteller:in)
+  """
+
+  model = Requester
+  attributes_values_db_create = {
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_update_valid = {
+    'organization': VALID_STRING,
+    'first_name': VALID_FIRST_NAME,
+    'last_name': VALID_LAST_NAME,
+    'email': VALID_EMAIL,
+    'telephone': VALID_TELEPHONE
+  }
+  attributes_values_view_update_invalid = {
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_requester_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='aktualisieren '
+    )
+
+  def test_post_update_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_update_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_requester_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
 
 class CleanupEventRequestMapDataAnonymousViewTest(DefaultAnonymousViewTestCase):
   """
@@ -2870,4 +3084,740 @@ class CleanupEventRequestMapAnonymousViewTest(DefaultAnonymousViewTestCase):
     self.generic_view_test(
       view_name='anonymous_cleanupeventrequest_map', view_args={'request_id': 1},
       status_code=200, content_type='text/html; charset=utf-8', string='Antrag'
+    )
+
+
+class CleanupEventRequestCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  model = CleanupEventRequest
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    cls.requester_id = requester.pk
+    cls.attributes_values_db_create = {
+      'status': status1,
+      'requester': requester
+    }
+    cls.attributes_values_view_create_valid = {
+      'status': str(status2.pk),
+      'requester': str(requester.pk)
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='Kontaktdaten erstellen'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables={
+        'corresponding_requester': self.requester_id
+      }
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventRequestUpdateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  model = CleanupEventRequest
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    cls.requester_id = requester.pk
+    cls.attributes_values_db_create = {
+      'status': status1,
+      'requester': requester
+    }
+    cls.attributes_values_view_update_valid = {
+      'status': str(status2.pk),
+      'requester': str(requester.pk)
+    }
+    cls.attributes_values_view_update_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventrequest_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='Kontaktdaten erstellen'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables={
+        'corresponding_requester': self.requester_id
+      }
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventrequest_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+  model = CleanupEventEvent
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'from_date': VALID_DATE,
+      'area': VALID_POLYGON_DB
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'from_date': VALID_DATE,
+      'area': VALID_POLYGON_VIEW
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  event (Aktion)
+  """
+
+  model = CleanupEventEvent
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'from_date': VALID_DATE,
+      'area': VALID_POLYGON_DB
+    }
+    cls.attributes_values_view_update_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'from_date': VALID_DATE,
+      'area': VALID_POLYGON_VIEW
+    }
+    cls.attributes_values_view_update_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventevent_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventEvent.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventevent_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  venue (Treffpunkt)
+  """
+
+  model = CleanupEventVenue
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'place': VALID_POINT_DB
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'place': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  venue (Treffpunkt)
+  """
+
+  model = CleanupEventVenue
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'place': VALID_POINT_DB
+    }
+    cls.attributes_values_view_update_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'place': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_update_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventvenue_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventVenue.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventvenue_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventDetailsCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
+  model = CleanupEventDetails
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
+    waste_type = CleanupEventCodelistWasteType.objects.first()
+    equipment = CleanupEventCodelistEquipment.objects.first()
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'waste_quantity': waste_quantity
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'waste_quantity': str(waste_quantity.pk),
+      'waste_types_annotation': VALID_STRING
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+    cls.test_object.waste_types.add(waste_type)
+    cls.test_object.equipments.add(equipment)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for updating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  details (Detailangaben)
+  """
+
+  model = CleanupEventDetails
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
+    waste_type = CleanupEventCodelistWasteType.objects.first()
+    equipment = CleanupEventCodelistEquipment.objects.first()
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'waste_quantity': waste_quantity
+    }
+    cls.attributes_values_view_update_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'waste_quantity': str(waste_quantity.pk),
+      'waste_types_annotation': VALID_STRING
+    }
+    cls.attributes_values_view_update_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+    cls.test_object.waste_types.add(waste_type)
+    cls.test_object.equipments.add(equipment)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=True, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventdetails_update', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_update',
+      object_filter=self.attributes_values_view_update_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventdetails_update',
+      object_filter=self.attributes_values_view_update_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
+    )
+
+
+class CleanupEventContainerDecisionAnonymousViewTest(DefaultViewTestCase):
+  """
+  test class for anonymous workflow decision page in terms of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_anonymous(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_decision',
+      status_code=200, content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+
+class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
+  """
+  test class for anonymous workflow page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  container (Container)
+  """
+
+  model = CleanupEventContainer
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    status1 = CodelistRequestStatus.get_status_processed()
+    status2 = CodelistRequestStatus.get_status_new()
+    requester = Requester.objects.create(
+      first_name=VALID_FIRST_NAME,
+      last_name=VALID_LAST_NAME,
+      email=VALID_EMAIL
+    )
+    responsibility = Authority.objects.create(
+      group=VALID_STRING,
+      name=VALID_STRING,
+      email=VALID_EMAIL
+    )
+    cleanupevent_request1 = CleanupEventRequest.objects.create(
+      status=status1,
+      requester=requester
+    )
+    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request2 = CleanupEventRequest.objects.create(
+      status=status2,
+      requester=requester
+    )
+    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request1,
+      'delivery_date': VALID_DATE,
+      'pickup_date': VALID_DATE + timedelta(days=1),
+      'place': VALID_POINT_DB
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request2.pk),
+      'delivery_date': VALID_DATE,
+      'pickup_date': VALID_DATE + timedelta(days=1),
+      'place': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='anonymous_cleanupeventcontainer_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+    )
+
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_valid, count=1,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables=None
+    )
+
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_scope', False)
+  @patch.object(CleanupEventContainer.BaseMeta, 'geometry_in_managed_areas', False)
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=False,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables=None
     )

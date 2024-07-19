@@ -82,7 +82,7 @@ class ObjectTableDataView(BaseDatatableView):
             self.request.user.has_perm('antragsmanagement.view_' + permission_suffix)
             or self.request.user.has_perm('antragsmanagement.change_' + permission_suffix)
         ):
-          link = '<a class="btn btn-sm btn-primary" role="button" href="'
+          link = '<a class="btn btn-sm btn-outline-primary" role="button" href="'
           link += reverse(self.update_view_name, kwargs={'pk': item_pk})
           link += '"><i class="fas fa-' + get_icon_from_settings('update')
           link += '" title="' + self.model._meta.verbose_name
@@ -236,7 +236,10 @@ class ObjectMixin:
     if self.cancel_url:
       context['cancel_url'] = reverse(self.cancel_url)
     else:
-      context['cancel_url'] = reverse('antragsmanagement:index')
+      if self.request.user.is_authenticated:
+        context['cancel_url'] = reverse('antragsmanagement:index')
+      else:
+        context['cancel_url'] = reverse('antragsmanagement:anonymous_index')
     return context
 
 

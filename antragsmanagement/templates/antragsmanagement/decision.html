@@ -6,7 +6,7 @@
 {% block title %}{{ model_verbose_name }} – Entscheidung | {% endblock %}
 
 {% block content %}
-  {% if has_necessary_permissions %}
+  {% if not user.is_authenticated or user.is_authenticated and has_necessary_permissions %}
     {% if messages %}
       {% include "antragsmanagement/container_messages.html" %}
     {% endif %}

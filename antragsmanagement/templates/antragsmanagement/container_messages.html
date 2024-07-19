@@ -16,4 +16,11 @@
       {{ message|safe }}
     </div>
   {% endif %}
+  {% if message.tags and message.tags == 'info' %}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      <i class="fa-solid fa-{{ 'info'|get_icon }}"></i>
+      {{ message|safe }}
+      <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endif %}
 {% endfor %}

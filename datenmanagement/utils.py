@@ -101,8 +101,7 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ""):
   cleans passed path and returns it
 
   :param path: path
-  :param foreign_key_subdir_attr: use instance attribute as subdirectory (list all attributes with
-      print(instance.__dict__))
+  :param foreign_key_subdir_attr: use instance attribute as subdirectory
   :return: cleaned version of passed path
   """
   def wrapper(instance, filename):
@@ -121,7 +120,6 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ""):
     else:
       filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
     if foreign_key_subdir_attr:
-      # print(instance.__dict__)   # list all attributes of instance
       subdir = str(getattr(instance, foreign_key_subdir_attr))
       return Path(path + f'/{subdir}') / filename
     else:
