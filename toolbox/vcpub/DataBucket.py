@@ -11,7 +11,11 @@ class DataBucket:
   description: str = ''
   properties: dict = {}
 
-  def __init__(self, _id: str = None, name: str = str(uuid4()), description: str = '', properties: dict = {}):
+  def __init__(self,
+               _id: str = None,
+               name: str = str(uuid4()),
+               description: str = '',
+               properties: dict = {}):
     if _id:
       # get data bucket information for given id
       self._id = _id
