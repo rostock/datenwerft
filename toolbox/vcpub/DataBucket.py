@@ -19,7 +19,7 @@ class DataBucket:
     if _id:
       # get data bucket information for given id
       self._id = _id
-      self.__getdata__()
+      self.__get_bucket__()
     else:
       # create new data bucket
       self.name = f'{name}_bucket'
@@ -42,7 +42,7 @@ class DataBucket:
     self._id = bucket['_id']
     self.name = bucket['name']
 
-  def __getdata__(self):
+  def __get_bucket__(self):
     """
     This method takes the data from an existing data bucket.
     :return:
