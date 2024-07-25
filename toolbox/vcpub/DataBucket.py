@@ -11,18 +11,14 @@ class DataBucket:
   description: str = ''
   properties: dict = {}
 
-  def __init__(self, _id: str = None, name: str = None, description: str = '', properties: dict = {}):
+  def __init__(self, _id: str = None, name: str = str(uuid4()), description: str = '', properties: dict = {}):
     if _id:
       # get data bucket information for given id
       self._id = _id
       self.__getdata__()
     else:
       # create new data bucket
-      if name:
-        self.name = name
-      else:
-        # if no name is given name should be an uuid
-        self.name = str(uuid4())
+      self.name = f'{name}_bucket'
       self.description = description
       self.properties = properties
       self.__create__()
@@ -34,7 +30,7 @@ class DataBucket:
     """
     api = VCPub()
     data: dict = {
-      'name': f'dw_{self.name}_bucket',
+      'name': self.name,
       'description': self.description,
       'properties': self.properties
     }
