@@ -8,11 +8,15 @@ class DataBucket:
   """
   _id: str = ''
   name: str = ''
+  description: str = ''
+  properties: dict = {}
 
-  def __init__(self, _id: str = None, name: str = None):
+  def __init__(self, _id: str = None, name: str = None, description: str = '', properties: dict = {}):
     if not _id and not name:
       # create a new data bucket with an uuid as name, because no name or id is given
       self.name = uuid4().__str__()
+      self.description = description
+      self.properties = properties
       self.__create__()
     elif _id:
       # get data bucket information for given id
@@ -21,6 +25,8 @@ class DataBucket:
     else:
       # create new data bucket with given name
       self.name = name
+      self.description = description
+      self.properties = properties
       self.__create__()
 
   def __create__(self) -> None:
@@ -28,12 +34,15 @@ class DataBucket:
     This method registers a new data bucket in the VCPublisher API and takes over its data.
     :return:
     """
-    data: dict = {
-      'name': f'dw_{self.name}_bucket'
-    }
     api = VCPub()
-    response = api.post(endpoint=f'/project/{api.get_project_id()}/data-bucket/', data=data)
-    self._id = response['_id']
+    data: dict = {
+      'name': f'dw_{self.name}_bucket',
+      'description': self.description,
+      'properties': self.properties
+    }
+    bucket = api.post(endpoint=f'/project/{api.get_project_id()}/data-bucket/', data=data)
+    self._id = bucket['_id']
+    self.name = bucket['name']
 
   def __getdata__(self):
     """
@@ -41,8 +50,11 @@ class DataBucket:
     :return:
     """
     api = VCPub()
-    response = api.get(endpoint=f'/project/{api.get_project_id()}/data-bucket/{self._id}')
-    self.name = response['name']
+    bucket = api.get(endpoint=f'/project/{api.get_project_id()}/data-bucket/{self._id}')
+    self.name = bucket['name']
+    self.description = bucket['description']
+    self.properties = bucket['properties']
+    self.projectId = bucket['projectId']
 
   def get_id(self):
     """
