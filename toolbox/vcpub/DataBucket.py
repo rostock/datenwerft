@@ -12,19 +12,17 @@ class DataBucket:
   properties: dict = {}
 
   def __init__(self, _id: str = None, name: str = None, description: str = '', properties: dict = {}):
-    if not _id and not name:
-      # create a new data bucket with an uuid as name, because no name or id is given
-      self.name = uuid4().__str__()
-      self.description = description
-      self.properties = properties
-      self.__create__()
-    elif _id:
+    if _id:
       # get data bucket information for given id
       self._id = _id
       self.__getdata__()
     else:
-      # create new data bucket with given name
-      self.name = name
+      # create new data bucket
+      if name:
+        self.name = name
+      else:
+        # if no name is given name should be an uuid
+        self.name = str(uuid4())
       self.description = description
       self.properties = properties
       self.__create__()
