@@ -4,7 +4,7 @@ from toolbox.vcpub.DataBucket import DataBucket
 from toolbox.vcpub.vcpub import VCPub
 
 
-class Datasource():
+class Datasource:
   _id: str = ''
   name: str = ''
   description: str = ''
@@ -22,7 +22,7 @@ class Datasource():
     else:
       self.name = f'{name}_source'
       self.description = description
-      sourceBucket = DataBucket(name=self.name)
+      sourceBucket = DataBucket(name=self.name, description=self.description)
       self.sourceProperties = sourceBucket.link()
       self.__create__()
 
