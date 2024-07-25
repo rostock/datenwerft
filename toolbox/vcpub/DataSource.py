@@ -46,3 +46,10 @@ class Datasource():
     self.typeProperties = source['typeProperties']
     self.sourceProperties = source['sourceProperties']
     self.type = type
+
+  def link(self):
+    data = {
+      'command': 'update',
+      'datasourceId': self._id
+    }
+    return data
