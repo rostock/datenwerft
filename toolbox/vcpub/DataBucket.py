@@ -38,6 +38,7 @@ class DataBucket:
       'description': self.description,
       'properties': self.properties
     }
+    print('===== CREATE BUCKET =====')
     bucket = api.post(endpoint=f'/project/{api.get_project_id()}/data-bucket/', data=data)
     self._id = bucket['_id']
     self.name = bucket['name']
@@ -53,6 +54,14 @@ class DataBucket:
     self.description = bucket['description']
     self.properties = bucket['properties']
     self.projectId = bucket['projectId']
+
+  def __del__(self):
+    """
+
+    :return:
+    """
+    api = VCPub()
+    api.delete(endpoint=f'/project/{api.get_project_id()}/data-bucket/{self._id}/')
 
   def get_id(self):
     """
@@ -83,6 +92,18 @@ class DataBucket:
     data = {
       'type': 'internal',
       'dataBucketId': self._id,
-      'databucketKey': self.name
+      'dataBucketKey': self.name
     }
     return data
+
+  def delete(self):
+    """
+    delete Bucket
+    :return:
+    """
+    api = VCPub()
+    api.delete(endpoint=f'/project/{api.get_project_id()}/data-bucket/{self._id}')
+    global_ref = globals()
+    for var_name, var_obj in list(global_ref.items()):
+      if var_obj is self:
+        del global_ref[var_name]

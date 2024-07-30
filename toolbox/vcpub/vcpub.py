@@ -43,7 +43,7 @@ class VCPub:
   def get_project_id(self) -> str:
     return self.__project_id
 
-  def post(self, endpoint:str, data:dict = None) -> dict:
+  def post(self, endpoint:str, data:dict = None, json=None) -> dict:
     """
     Make a POST Request to the VC Publisher API.
 
@@ -52,7 +52,7 @@ class VCPub:
     :return: Response as dict
     """
     url: str = self.__url + endpoint
-    response = self.__session.post(url=url, data=data)
+    response = self.__session.post(url=url, data=data, json=json)
     return response.json()
 
   def get(self, endpoint: str) -> dict:

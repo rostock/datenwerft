@@ -1,3 +1,5 @@
+import json
+from pprint import pprint
 from uuid import uuid4
 
 from toolbox.vcpub.DataBucket import DataBucket
@@ -22,8 +24,8 @@ class Datasource:
     else:
       self.name = f'{name}_source'
       self.description = description
-      sourceBucket = DataBucket(name=self.name, description=self.description)
-      self.sourceProperties = sourceBucket.link()
+      source_bucket = DataBucket(name=self.name, description=self.description)
+      self.sourceProperties = source_bucket.link()
       self.__create__()
 
   def __create__(self):
@@ -35,12 +37,14 @@ class Datasource:
       'sourceProperties': self.sourceProperties,
       'type': self.type
     }
-    source = api.post(endpoint=f'/project/{api.get_project_id()}/datasource/', data=data)
+
+    print('=====  CREATE DATASOURCE  =====')
+    source = api.post(endpoint=f'/project/{api.get_project_id()}/datasource', json=data)
     self._id = source['_id']
 
   def __get_source__(self):
     api = VCPub()
-    source = api.get(endpoint=f'/project/{api.get_project_id()}/datasource/{self._id}/')
+    source = api.get(endpoint=f'/project/{api.get_project_id()}/datasource/{self._id}')
     self.name = source['name']
     self.description = source['description']
     self.typeProperties = source['typeProperties']
@@ -53,3 +57,20 @@ class Datasource:
       'datasourceId': self._id
     }
     return data
+
+  def delete(self):
+    """
+    delete Datasource
+    :return:
+    """
+    api = VCPub()
+    # delete datasource bucket
+    bucket = DataBucket(_id=self.sourceProperties['dataBucketId'])
+    bucket.delete()
+    # delete source
+    api.delete(endpoint=f'/project/{api.get_project_id()}/datasource')
+    # delete source object
+    global_ref = globals()
+    for var_name, var_obj in list(global_ref.items()):
+      if var_obj is self:
+        del global_ref[var_name]
