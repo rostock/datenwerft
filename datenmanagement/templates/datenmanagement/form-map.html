@@ -37,6 +37,27 @@
       <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ model_geometry_type }}", "coordinates": [] }</textarea>
     {% endif %}
     {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" settings_overrides=leaflet_config_overrides %}
+    <script>
+      window.addEventListener('scroll', function() {
+        var container = document.getElementById('map-addresssearch-container-form');
+        var fixedDiv = document.getElementById('leaflet-map');
+        var containerRect = container.getBoundingClientRect();
+        var fixedDivHeight = fixedDiv.offsetHeight;
+        var containerHeight = container.offsetHeight;
+        
+        if (containerRect.top <= 0 && containerRect.bottom > fixedDivHeight) {
+          fixedDiv.style.position = 'fixed';
+          fixedDiv.style.top = '0';
+          fixedDiv.style.width = containerRect.width + 'px';
+        } else if (containerRect.bottom <= fixedDivHeight) {
+          fixedDiv.style.position = 'absolute';
+          fixedDiv.style.top = (containerHeight - fixedDivHeight) + 'px';
+        } else {
+          fixedDiv.style.position = 'absolute';
+          fixedDiv.style.top = '0';
+        }
+    });
+  </script>
   </div>
 
   
