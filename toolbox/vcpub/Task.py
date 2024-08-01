@@ -1,4 +1,5 @@
 import json
+import logging
 from pprint import pprint
 from uuid import uuid4
 
@@ -50,6 +51,7 @@ class Task:
       'parameters': self.parameters,
       'schedule': self.schedule
     }
+    print(__name__)
     print('=====  CREATE TASK  =====')
     print(len(globals()))
     task = api.post(endpoint=f'/project/{api.get_project_id()}/task/', json=data)

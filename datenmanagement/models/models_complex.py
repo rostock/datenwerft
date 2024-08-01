@@ -1,3 +1,5 @@
+import pprint
+
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
@@ -15,6 +17,8 @@ from zoneinfo import ZoneInfo
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
+from toolbox.vcpub.Task import Task
+from toolbox.vcpub.vcpub import VCPub
 from .base import ComplexModel
 from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
   haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
@@ -2921,6 +2925,12 @@ class Punktwolken_Projekte(ComplexModel):
   # Project geometry results from the individual geometries of the point clouds,
   # so a project have no geometry at initialization.
   geometrie.null = True
+  vcp_task_id = CharField(
+    verbose_name='VC Publisher Task ID',
+    max_length=255,
+    editable=False,
+    blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken_projekte'
@@ -2928,7 +2938,7 @@ class Punktwolken_Projekte(ComplexModel):
     verbose_name_plural = ('Punktwolken Projekte')
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    readonly_fields = ['geometrie']
+    readonly_fields = ['geometrie', 'vcp_task_id']
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
@@ -2944,6 +2954,30 @@ class Punktwolken_Projekte(ComplexModel):
 
   def __str__(self):
     return self.bezeichnung
+
+  def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+    if not self.vcp_task_id:
+      # create Task
+      print(f'=====  CREATE TASK  =====')
+      task = Task(name=self.bezeichnung, description=self.beschreibung)
+      self.vcp_task_id = task.get_id()
+
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
+
+  def delete(self, using=None, keep_parents=False):
+    if self.vcp_task_id:
+      task = Task(_id=self.vcp_task_id)
+      task.delete()
+    super().delete(using=using, keep_parents=keep_parents)
+
 
 
 #
@@ -3020,7 +3054,6 @@ class Punktwolken(ComplexModel):
       using=using,
       update_fields=update_fields
     )
-
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)
 

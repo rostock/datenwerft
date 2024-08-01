@@ -1,13 +1,15 @@
+import logging
 import pprint
 import time
 
-import requests
-
 from datenwerft import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
+from requests import Response, Session, post
 
 
 class VCPub:
+  logger = logging.getLogger('VCPub')
+
   def __init__(self):
     self.__user: str = settings.VCP_API_USER
     self.__password: str = settings.VCP_API_PASSWORD
@@ -15,7 +17,7 @@ class VCPub:
     self.__project_id = settings.VCP_API_PROJECT_ID
     # Authenticate and create es session
     self.__auth: BearerAuth = self.__login__()
-    self.__session: requests.Session = requests.Session()
+    self.__session: Session = Session()
     self.__session.auth = self.__auth
     self.__data_path = '/vcs/data/public/' # im root System unter /nfs/daten/rostock3d/vcpublisher
     self.__epsg = '25833'
@@ -24,22 +26,37 @@ class VCPub:
     self.__session.get(url=f'{self.__url}/logout/')
 
   def __login__(self) -> BearerAuth:
-    bearer = requests.post(
+    response: Response = post(
       url=f'{self.__url}/login/',
       data={
         "username": self.__user,
         "password": self.__password
-      }).json()['token']
+      })
+    if response.ok:
+      bearer: str = response.json()['token']
+      self.logger.debug('Login.')
+    else:
+      bearer: str = 'no bearer'
+      self.logger.error(f'Login Failed: {response.json()}')
     return BearerAuth(bearer)
 
   def __logout__(self) -> bool:
-    self.__session.get(url=f'{self.__url}/logout/')
+    response = self.__session.get(url=f'{self.__url}/logout/')
+    if response.ok:
+      self.logger.debug('Logout.')
+    else:
+      self.logger.warning(f'Logout failed: {response.json()}')
 
   def __logout_all__(self) -> bool:
-    self.__session.get(url=f'{self.__url}/logout-all/')
+    response = self.__session.get(url=f'{self.__url}/logout-all/')
+    if response.ok:
+      self.logger.debug('Logout all.')
+    else:
+      self.logger.warning(f'Logout all failed: {response.json()}')
 
   def get_url(self) -> str:
     return self.__url
+
   def get_project_id(self) -> str:
     return self.__project_id
 
@@ -53,6 +70,10 @@ class VCPub:
     """
     url: str = self.__url + endpoint
     response = self.__session.post(url=url, data=data, json=json)
+    if response.ok:
+      self.logger.debug(f'POST {url}')
+    else:
+      self.logger.warning(f'POST on {url} failed: {response.json()}')
     return response.json()
 
   def get(self, endpoint: str) -> dict:
@@ -64,6 +85,10 @@ class VCPub:
     """
     url: str = self.__url + endpoint
     response = self.__session.get(url=url)
+    if response.ok:
+      self.logger.debug(f'GET {url}')
+    else:
+      self.logger.warning(f'GET on {url} failed: {response.json()}')
     return response.json()
 
   def delete(self, endpoint: str) -> dict:
@@ -75,6 +100,10 @@ class VCPub:
     """
     url: str = self.__url + endpoint
     response = self.__session.delete(url=url)
+    if response.ok:
+      self.logger.debug(f'DELETE {url}')
+    else:
+      self.logger.warning(f'DELETE on {url} failed: {response.json()}')
     return response.json()
 
   def create_data_bucket(self, name: str) -> dict:

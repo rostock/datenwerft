@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -322,6 +323,53 @@ PDF_JINJASTRINGS = {
   'variable_end': '}',
   'comment_start': r'\JCMNT{',
   'comment_end': '}'
+}
+
+DEBUG = True
+DJANGO_LOGGING_LEVEL = DEBUG
+LOGGING = {
+  'version': 1,
+  'disable_existing_loggers': False,
+  'formatters': {
+    'simple': {
+      'format': '{levelname} {message}',
+      'style': '{',
+    },
+    'extended': {
+      'format': '{name} {asctime} {levelname} {message}',
+      'style': '{',
+    },
+  },
+  'handlers': {
+    'console': {
+      'class': 'logging.StreamHandler',
+    },
+    'file': {
+      'class': 'logging.FileHandler',
+      'filename': 'logs/debug.log',
+      # 'format': 'extended' # Datenwerft kann damit nicht ausgeführt werden. Ursache unklar.
+    },
+    'mail_admins': {
+      'level': 'ERROR',
+      'class': 'django.utils.log.AdminEmailHandler',
+    }
+  },
+  'root': {
+    # root logger sends logs with 'WARNING' and higher to console
+    'handlers': ['console'],
+    'level': 'INFO', # set this to DEBUG for development, WARNING for production
+  },
+  'loggers': {
+    'django': {
+      'handlers': ['console'],
+      'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+      'propagate': False,
+    },
+    'VCPub': {
+      'handlers': ['file'],
+      'level': 'DEBUG'
+    }
+  }
 }
 
 
