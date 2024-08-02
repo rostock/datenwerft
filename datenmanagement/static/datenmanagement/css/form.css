@@ -212,8 +212,3 @@ input[name="strasse"] {
   white-space: nowrap;
   width: 1%;
 }
-
-footer {
-  height: 500px;
-  background-color: #4cae4c;
-}
