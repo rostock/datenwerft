@@ -93,6 +93,13 @@ class Task:
     """
     return self.parameters['dataset']
 
+  def get_endpoint(self):
+    """
+    get api endpoint of task object
+    :return:
+    """
+    return f'/project/{self.__project_id}/task{self._id}'
+
   def get_id(self):
     """
     get task id
@@ -105,6 +112,4 @@ class Task:
     get API URL of this task
     :return:
     """
-    baseurl = self.__api.get_url()
-    url = f'{baseurl}/project/{self.__project_id}/task/{self._id}'
-    return url
+    return self.__api.get_url() + self.get_endpoint()

@@ -86,11 +86,16 @@ class Datasource:
       if var_obj is self:
         del global_ref[var_name]
 
+  def get_endpoint(self):
+    """
+    get api endpoint of datasource object
+    :return:
+    """
+    return f'/project/{self.__project_id}/datasource/{self._id}'
+
   def get_url(self):
     """
     get API URL of this datasource
     :return:
     """
-    baseurl = self.__api.get_url()
-    url = f'{baseurl}/project/{self.__project_id}/datasource/{self._id}'
-    return url
+    return self.__api.get_url() + self.get_endpoint()

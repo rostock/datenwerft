@@ -95,6 +95,13 @@ class DataBucket:
   def download_file(self):
     pass
 
+  def get_endpoint(self):
+    """
+    get api endpoint of databucket object
+    :return:
+    """
+    return f'/project/{self.__project_id}/data-bucket/{self._id}'
+
   def get_id(self):
     """
     Returns the ID of the data bucket object.
@@ -118,12 +125,10 @@ class DataBucket:
 
   def get_url(self):
     """
-    get API URL of this data bucket
+    get API URL of this data bucket object
     :return:
     """
-    base_url = self.__api.get_url()
-    url = f'{base_url}/project/{self.__project_id}/data-bucket/{self._id}'
-    return url
+    return self.__api.get_url() + self.get_endpoint()
 
   def link(self) -> dict:
     """
