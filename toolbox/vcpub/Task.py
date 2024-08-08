@@ -9,6 +9,8 @@ from toolbox.vcpub.vcpub import VCPub
 
 
 class Task:
+  __api: VCPub = VCPub()
+  __project_id = __api.get_project_id()
   _id: str = ''
   name: str = ''
   description: str = ''
@@ -37,9 +39,10 @@ class Task:
 
 
   def __create__(self):
-    api = VCPub()
     bucket = DataBucket(name=self.name, description=self.description)
-    response = api.get(endpoint=f'/project/{api.get_project_id()}/data-bucket/{bucket.get_id()}')
+    response = self.__api.get(
+      endpoint=f'/project/{self.__project_id}/data-bucket/{bucket.get_id()}'
+    )
     print(f'Bucket GET: {response}')
     source = Datasource(name=self.name, description=self.description)
     self.parameters['dataset'] = bucket.link()
@@ -54,9 +57,16 @@ class Task:
     print(__name__)
     print('=====  CREATE TASK  =====')
     print(len(globals()))
-    task = api.post(endpoint=f'/project/{api.get_project_id()}/task/', json=data)
+    task = self.__api.post(endpoint=f'/project/{self.__project_id}/task/', json=data)
     self._id = task['_id']
-    pprint(api.get(endpoint=f'/project/{api.get_project_id()}/data-bucket/{bucket.get_id()}'))
+    pprint(self.__api.get(endpoint=f'/project/{self.__project_id}/data-bucket/{bucket.get_id()}'))
+
+  def __get_task__(self):
+    task = self.__api.get(endpoint=f'/project/{self.__project_id}/task/{self._id}/')
+    self.name = task['name']
+    self.jobType = task['jobType']
+    self.parameters = task['parameters']
+    self.schedule = task['schedule']
 
   def delete(self):
     """
@@ -64,26 +74,37 @@ class Task:
     because it may contain live data from VC Map.
     :return:
     """
-    api = VCPub()
     # delete dataset bucket
     bucket_id = self.parameters['dataset']['dataBucketId']
     bucket = DataBucket(_id=bucket_id)
     bucket.delete()
     # delete task
-    api.delete(endpoint=f'/project/{api.get_project_id()}/task/{self._id}')
+    self.__api.delete(endpoint=f'/project/{self.__project_id}/task/{self._id}')
     # delete task object
     global_ref = globals()
     for var_name, var_obj in list(global_ref.items()):
       if var_obj is self:
         del global_ref[var_name]
 
-  def __get_task__(self):
-    api = VCPub()
-    task = api.get(endpoint=f'/project/{api.get_project_id()}/task/{self._id}/')
-    self.name = task['name']
-    self.jobType = task['jobType']
-    self.parameters = task['parameters']
-    self.schedule = task['schedule']
+  def get_dataset(self):
+    """
+    get dataset of a task.
+    :return:
+    """
+    return self.parameters['dataset']
 
   def get_id(self):
+    """
+    get task id
+    :return:
+    """
     return self._id
+
+  def get_url(self):
+    """
+    get API URL of this task
+    :return:
+    """
+    baseurl = self.__api.get_url()
+    url = f'{baseurl}/project/{self.__project_id}/task/{self._id}'
+    return url

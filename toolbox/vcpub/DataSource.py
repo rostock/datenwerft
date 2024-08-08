@@ -7,6 +7,8 @@ from toolbox.vcpub.vcpub import VCPub
 
 
 class Datasource:
+  __api: VCPub = VCPub()
+  __project_id = __api
   _id: str = ''
   name: str = ''
   description: str = ''
@@ -29,7 +31,10 @@ class Datasource:
       self.__create__()
 
   def __create__(self):
-    api = VCPub()
+    """
+    create datasource at VCPub API
+    :return:
+    """
     data = {
       'name': self.name,
       'description': self.description,
@@ -39,12 +44,15 @@ class Datasource:
     }
 
     print('=====  CREATE DATASOURCE  =====')
-    source = api.post(endpoint=f'/project/{api.get_project_id()}/datasource', json=data)
+    source = self.__api.post(endpoint=f'/project/{self.__project_id}/datasource', json=data)
     self._id = source['_id']
 
   def __get_source__(self):
-    api = VCPub()
-    source = api.get(endpoint=f'/project/{api.get_project_id()}/datasource/{self._id}')
+    """
+    get datasource informations from VCPub API of an existing datasource
+    :return:
+    """
+    source = self.__api.get(endpoint=f'/project/{self.__project_id}/datasource/{self._id}')
     self.name = source['name']
     self.description = source['description']
     self.typeProperties = source['typeProperties']
@@ -52,6 +60,10 @@ class Datasource:
     self.type = type
 
   def link(self):
+    """
+    create datasource link object as dict
+    :return:
+    """
     data = {
       'command': 'update',
       'datasourceId': self._id
@@ -63,14 +75,22 @@ class Datasource:
     delete Datasource
     :return:
     """
-    api = VCPub()
     # delete datasource bucket
     bucket = DataBucket(_id=self.sourceProperties['dataBucketId'])
     bucket.delete()
     # delete source
-    api.delete(endpoint=f'/project/{api.get_project_id()}/datasource')
+    self.__api.delete(endpoint=f'/project/{self.__project_id}/datasource')
     # delete source object
     global_ref = globals()
     for var_name, var_obj in list(global_ref.items()):
       if var_obj is self:
         del global_ref[var_name]
+
+  def get_url(self):
+    """
+    get API URL of this datasource
+    :return:
+    """
+    baseurl = self.__api.get_url()
+    url = f'{baseurl}/project/{self.__project_id}/datasource/{self._id}'
+    return url
