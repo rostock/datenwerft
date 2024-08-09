@@ -142,7 +142,7 @@ class DataBucket:
     }
     return data
 
-  def upload(self, path:str = None, file = None):
+  def upload(self, path: str = None, file: dict = None):
     if path:
       key = os.path.basename(path) # filename as key
       file = {key: open(path, 'rb')}
@@ -150,6 +150,10 @@ class DataBucket:
       endpoint=f'/project/{self.__project_id}/data_bucket/{self._id}',
       file=file
     )
-    return key
+    # return data-bucket object key of uploadet file
+    if key:
+      return key
+    else:
+      list(file.keys())[0]
 
 
