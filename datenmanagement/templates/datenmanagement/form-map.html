@@ -37,6 +37,60 @@
       <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{ "type": "{{ model_geometry_type }}", "coordinates": [] }</textarea>
     {% endif %}
     {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" settings_overrides=leaflet_config_overrides %}
+    <script>
+      // Attach the function to the load event
+      window.addEventListener("load", calcMapPosition);
+
+      // Attach the function to the scroll event
+      window.addEventListener("scroll", calcMapPosition);
+
+      /**
+       * Scroll down the map if the form is longer than the map height.
+       */
+      function calcMapPosition() {
+        /* get elements from dom */
+        const container = document.getElementById('map-addresssearch-container-form');
+        const map = document.getElementById('leaflet-map');
+        /* get elements relative position to viewport */
+        const containerRect = container.getBoundingClientRect();
+        const mapRect = container.getBoundingClientRect();
+        /* get elements height */
+        const mapHeight = map.offsetHeight;
+        const containerHeight = container.offsetHeight;
+        /* get Viewport height */
+        const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+
+        if (window.matchMedia("(min-width: 768px)").matches) {
+          if (containerRect.bottom < 0) {
+            /* if container is above viewport, map should be at the bottom of the container */
+            map.style.position = 'absolut';
+            map.style.top = 'auto';
+            map.style.bottom = '0px';
+          } else if (containerRect.top - viewHeight >= 0) {
+            /* if container below viewport */
+            map.style.position = 'absolut';
+            map.style.top = '0px';
+            map.style.bottom = 'auto';
+          } else if (containerRect.top > 10) {
+            /* if container inside viewport and its top > 10px away from top of viewport */
+            map.style.position = 'absolute';
+            map.style.top = '0px';
+            map.style.bottom = 'auto';
+          } else if (containerRect.top <= 10 && containerRect.bottom > mapHeight + 10) {
+            /* set position of map to 'fixed', if container.top < 10px away from top of viewport
+          AND containers bottom is far away than map height (+ 10px gab at top) */
+            map.style.position = 'fixed';
+            map.style.top = '10px';
+            map.style.width = containerRect.width + 'px';
+          } else if (containerRect.bottom <= mapHeight + 10) {
+            /* user has scrolled down, seen container part is smaller than map height */
+            map.style.position = 'absolute';
+            map.style.top = 'auto';
+            map.style.bottom = '0px';
+          }
+        }
+      }
+    </script>
   </div>
 
   

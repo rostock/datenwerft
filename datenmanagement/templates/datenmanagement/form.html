@@ -113,7 +113,7 @@
   
     {% block form-action-buttons %}
       <div class="row gap-2">
-        <div class="col-md order-1 order-md-0 mt-3 mb-3 d-grid gap-2">
+        <div class="col-md order-1 order-md-0 mt-3 mb-3" id="form-control-buttons">
           {% comment %} 	Form Action Buttons for desktop mode   {% endcomment %}
           {% if not forms_in_mobile_mode and not is_mobile %}
             {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
