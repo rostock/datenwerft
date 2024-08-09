@@ -16,6 +16,7 @@ from re import sub
 from zoneinfo import ZoneInfo
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
+from toolbox.customStorage.VCPubStorage import VCPubBucketStorage
 from toolbox.fields import NullTextField
 from toolbox.vcpub.Task import Task
 from toolbox.vcpub.vcpub import VCPub
@@ -2931,6 +2932,12 @@ class Punktwolken_Projekte(ComplexModel):
     editable=False,
     blank=True
   )
+  vcp_task_endpoint = CharField(
+    verbose_name='VC Publisher API Entpoint',
+    max_length=255,
+    editable=False,
+    blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken_projekte'
@@ -2963,6 +2970,7 @@ class Punktwolken_Projekte(ComplexModel):
       print(f'=====  CREATE TASK  =====')
       task = Task(name=self.bezeichnung, description=self.beschreibung)
       self.vcp_task_id = task.get_id()
+      self.vcp_task_endpoint = task.get_endpoint()
 
     super().save(
       force_insert=force_insert,
@@ -2973,9 +2981,7 @@ class Punktwolken_Projekte(ComplexModel):
 
 
   def delete(self, using=None, keep_parents=False):
-    if self.vcp_task_id:
-      task = Task(_id=self.vcp_task_id)
-      task.delete()
+    # Todo: Delete dataset bucket
     super().delete(using=using, keep_parents=keep_parents)
 
 
@@ -3003,11 +3009,7 @@ class Punktwolken(ComplexModel):
   )
   punktwolke = FileField(
     verbose_name='Punktwolkendatei',
-    upload_to=path_and_rename(
-      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/',
-      foreign_key_subdir_attr='projekt_id'
-    ),
-    storage=OverwriteStorage(path_root=settings.PC_MEDIA_ROOT),
+    storage=VCPubBucketStorage(),
     validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])]
   )
   vc_update = DateTimeField(

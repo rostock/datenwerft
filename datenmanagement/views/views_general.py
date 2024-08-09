@@ -252,3 +252,10 @@ class AddAnotherView(TemplateView):
     context['url_yes'] = reverse('datenmanagement:' + self.model.__name__ + '_change', args=[pk])
     context['url_no'] = self.request.session.get('original_url_back', None)
     return context
+
+
+class DownloadPointcloud(TemplateView):
+  """
+  Download Pointcloud from VCPublisher
+  """
+  pass
