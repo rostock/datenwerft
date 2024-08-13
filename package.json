@@ -7,8 +7,8 @@
     "jquery": "^3.7.1",
     "leaflet.locatecontrol": "^0.81.1",
     "leaflet.markercluster": "^1.5.3",
-    "martinez-polygon-clipping": "^0.7.3",
-    "proj4": "^2.11.0",
+    "martinez-polygon-clipping": "^0.7.4",
+    "proj4": "^2.12.0",
     "proj4leaflet": "^1.0.2",
     "select2": "^4.1.0-rc.0",
     "select2-bootstrap-5-theme": "^1.3.0",
@@ -16,12 +16,12 @@
     "wicket": "^1.3.8"
   },
   "devDependencies": {
-    "@eslint/create-config": "^1.1.6",
+    "@eslint/create-config": "^1.2.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.7.0",
-    "eslint": "^9.7.0",
+    "eslint": "^9.9.0",
     "eslint-plugin-html": "^8.1.1",
-    "globals": "^15.8.0",
-    "stylelint": "^16.7.0"
+    "globals": "^15.9.0",
+    "stylelint": "^16.8.1"
   }
 }

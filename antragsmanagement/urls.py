@@ -310,14 +310,14 @@ urlpatterns = [
   #
   # anonymous main page
   path(
-    'anonymous',
+    'public',
     view=IndexView.as_view(),
     name='anonymous_index'
   ),
   # anonymous form page for creating an instance of general object:
   # requester (Antragsteller:in)
   path(
-    'anonymous/requester/create',
+    'public/requester/create',
     view=RequesterCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
@@ -326,7 +326,7 @@ urlpatterns = [
   # anonymous form page for updating an instance of general object:
   # requester (Antragsteller:in)
   path(
-    'anonymous/requester/update/<pk>',
+    'public/requester/update/<pk>',
     view=RequesterUpdateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
@@ -336,7 +336,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'anonymous/ce-request/mapdata/<request_id>',
+    'public/ce-request/mapdata/<request_id>',
     view=CleanupEventRequestMapDataAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_mapdata'
   ),
@@ -344,7 +344,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'anonymous/ce-request/map/<request_id>',
+    'public/ce-request/map/<request_id>',
     view=CleanupEventRequestMapAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_map'
   ),
@@ -352,7 +352,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'anonymous/ce-request/create',
+    'public/ce-request/create',
     view=CleanupEventRequestCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventevent_create')
     ),
@@ -362,7 +362,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
   path(
-    'anonymous/ce-request/update/<pk>',
+    'public/ce-request/update/<pk>',
     view=CleanupEventRequestUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventrequest_update'
   ),
@@ -370,7 +370,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'anonymous/ce-request/event/create',
+    'public/ce-request/event/create',
     view=CleanupEventEventCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventvenue_create')
     ),
@@ -380,7 +380,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # event (Aktion)
   path(
-    'anonymous/ce-request/event/update/<pk>',
+    'public/ce-request/event/update/<pk>',
     view=CleanupEventEventUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventevent_update'
   ),
@@ -388,7 +388,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'anonymous/ce-request/venue/create',
+    'public/ce-request/venue/create',
     view=CleanupEventVenueCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventdetails_create')
     ),
@@ -398,7 +398,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # venue (Treffpunkt)
   path(
-    'anonymous/ce-request/venue/update/<pk>',
+    'public/ce-request/venue/update/<pk>',
     view=CleanupEventVenueUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventvenue_update'
   ),
@@ -406,7 +406,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'anonymous/ce-request/details/create',
+    'public/ce-request/details/create',
     view=CleanupEventDetailsCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_cleanupeventcontainer_decision')
     ),
@@ -416,7 +416,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # details (Detailangaben)
   path(
-    'anonymous/ce-request/details/update/<pk>',
+    'public/ce-request/details/update/<pk>',
     view=CleanupEventDetailsUpdateAnonymousView.as_view(),
     name='anonymous_cleanupeventdetails_update'
   ),
@@ -424,7 +424,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'anonymous/ce-request/container/decision',
+    'public/ce-request/container/decision',
     view=CleanupEventContainerDecisionAnonymousView.as_view(),
     name='anonymous_cleanupeventcontainer_decision'
   ),
@@ -432,7 +432,7 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
-    'anonymous/ce-request/container/create',
+    'public/ce-request/container/create',
     view=CleanupEventContainerCreateAnonymousView.as_view(
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
