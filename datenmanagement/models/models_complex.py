@@ -1358,7 +1358,9 @@ class Freizeitsport(ComplexModel):
       max_length=255,
       choices=()
     ),
-    verbose_name='Bodenarten'
+    verbose_name='Bodenarten',
+    blank=True,
+    null=True
   )
   sportarten = ChoiceArrayField(
     CharField(
@@ -1374,7 +1376,9 @@ class Freizeitsport(ComplexModel):
       max_length=255,
       choices=()
     ),
-    verbose_name='Besonderheiten'
+    verbose_name='Besonderheiten',
+    blank=True,
+    null=True
   )
   freizeitsport = CharField(
     max_length=255,
@@ -3591,7 +3595,9 @@ class Spielplaetze(ComplexModel):
       max_length=255,
       choices=()
     ),
-    verbose_name='Bodenarten'
+    verbose_name='Bodenarten',
+    blank=True,
+    null=True
   )
   spielgeraete = ChoiceArrayField(
     CharField(
@@ -3599,7 +3605,9 @@ class Spielplaetze(ComplexModel):
       max_length=255,
       choices=()
     ),
-    verbose_name='Spielgeräte'
+    verbose_name='Spielgeräte',
+    blank=True,
+    null=True
   )
   besonderheiten = ChoiceArrayField(
     CharField(
@@ -3607,7 +3615,9 @@ class Spielplaetze(ComplexModel):
       max_length=255,
       choices=()
     ),
-    verbose_name='Besonderheiten'
+    verbose_name='Besonderheiten',
+    blank=True,
+    null=True
   )
   spielplatz = CharField(
     max_length=255,
