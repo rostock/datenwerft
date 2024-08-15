@@ -26,7 +26,8 @@ input[name="strasse"] {
 }
 
 #map-addresssearch-container-form {
-  height: auto; /* Beispielhafte Höhe, die größer ist als der Container */
+  height: 40vh;
+  min-height: 300px;
   position: relative; /* Stellt sicher, dass das Kind-Element 'sticky-object' relativ zu 'content' positioniert wird */
 }
 
@@ -211,4 +212,63 @@ input[name="strasse"] {
 #pc-management > tbody > tr > td:last-child {
   white-space: nowrap;
   width: 1%;
+}
+
+.flex-container-column {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 10px; /* Abstand zwischen den Flex-Items */
+}
+
+.flex-container-row {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 2rem; /* Abstand zwischen den Flex-Items */
+}
+
+/* Item with class flex-item and flex-container-column */
+.flex-item.flex-container-column {
+  flex: 1 1 calc(50% - 2rem);
+}
+
+flex-item {
+  flex: 1 1 100%;
+}
+
+#flex-list {
+  order: 1;
+}
+
+#flex-map {
+  order: 1;
+}
+
+#flex-address-search {
+  order: 2;
+}
+
+#flex-action-buttons {
+  order: 2;
+}
+
+@media (width <= 768px) {
+  .flex-list {
+    order: 1;
+  }
+
+  #flex-map {
+    order: 2;
+  }
+
+  #flex-address-search {
+    order: 3;
+  }
+
+  #flex-action-buttons {
+    order: 4;
+  }
+}
+
+.container-fluid {
+  max-width: 1320px;
 }
