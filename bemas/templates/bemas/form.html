@@ -1,0 +1,132 @@
+{% extends 'form.html' %}
+{% load bemas_tags %}
+{% load static %}
+{% load toolbox_tags %}
+
+{% block style %}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific styles -->
+  <link rel="stylesheet" type="text/css" href="{% static '/bemas/css/form.css' %}">
+{% endblock %}
+
+{% block scripts %}
+  <!-- inherits from base.html -->
+	{{ block.super }}
+  <!-- bemas specific scripts -->
+{% endblock %}
+
+{% block content %}
+  {% block errors %}
+  	
+  {% endblock %}
+  
+  <h2>{% block headline %}{% endblock %}</h2>
+  
+  <form class="form mt-4 {% if objectclass_is_geometry_model %}flex-container-row{% else %}flex-container-column{% endif %}" method="post" action="" id="form">
+    {% csrf_token %}
+    
+    {% if objectclass_is_geometry_model %}
+      <div class="flex-item flex-container-column" id="flex-left">
+    {% endif %}
+    <div class="flex-item" id="flex-list">
+      {% block list %}
+        <!-- form list -->
+        <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
+          <table class="table">
+            {% for field in form %}
+              {% if not field|is_field_geometry_field and not field.name == 'address' %}
+                <tr>
+                  <td class="cell-label">
+                    {{ field.label_tag }}
+                  </td>
+                  {% autoescape off %}
+                    <td class="cell-field">
+                      {{ field }}
+                    </td>
+                  {% endautoescape %}
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+        <script>
+          /**
+           * @function
+           *
+           * main function
+           */
+          $(document).ready(function () {
+            keepDjangoRequiredMessages();
+          });
+        </script>
+      {% endblock %}
+    </div>
+    <div class="flex-item" id="flex-action-buttons">
+      {% block form-control-buttons %}
+        {% comment %}
+          save buttons
+        {% endcomment %}
+      {% endblock %}
+    </div>
+  
+    {% if objectclass_is_geometry_model %}
+    	</div>
+      <div class="flex-item flex-container-column" id="flex-right">
+        <div class="flex-item" id="flex-map">
+          {% block map %}
+            <!-- form map -->
+          {% endblock %}
+        </div>
+        <div class="flex-item" id="flex-address-search">
+          {% block address-search %}
+            {% comment %}
+              address search part if map
+            {% endcomment %}
+          {% endblock %}
+        </div>
+      </div>
+      
+    {% endif %}
+  </form>
+  
+  {% if objectclass_is_geometry_model %}
+  	<script>
+      // run orderFormItems on page load
+      orderFormItems();
+      
+      // run orderFormItems on resize event
+      window.addEventListener('resize', orderFormItems);
+      
+      function orderFormItems() {
+        const list = document.getElementById('flex-list');
+        const action_buttons = document.getElementById('flex-action-buttons');
+        const map = document.getElementById('flex-map');
+        const address_search = document.getElementById('flex-address-search');
+        const flex_container = document.getElementById('form')
+        const left_column = document.getElementById('flex-left')
+        const right_column = document.getElementById('flex-right')
+    
+        if (window.innerWidth <= 768) {
+          // on small screens use just one flex column
+          flex_container.classList.add("flex-container-column")
+          flex_container.classList.remove("flex-container-row")
+          
+          flex_container.appendChild(list);
+          flex_container.appendChild(action_buttons);
+          flex_container.appendChild(map);
+          flex_container.appendChild(address_search);
+        } else {
+          // on bigger screens use two column view
+          flex_container.classList.add("flex-container-row")
+          flex_container.classList.remove("flex-container-column")
+          
+          left_column.appendChild(list);
+          left_column.appendChild(action_buttons);
+          right_column.appendChild(map);
+          right_column.appendChild(address_search);
+        }
+      }
+    </script>
+  {% endif %}
+{% endblock %}

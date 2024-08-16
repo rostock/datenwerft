@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "bemas/form.html" %}
 {% load toolbox_tags %}
 {% load bemas_tags %}
 {% if objectclass_is_geometry_model %}
@@ -10,12 +10,9 @@
 
 {% block style %}
   {{ block.super }}
+  <!-- extended with css sheets needed by all datenmanagement form templates -->
   {% if objectclass_is_geometry_model %}
     {% leaflet_css plugins="geoman,locatecontrol" %}
-  {% endif %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  {% if is_mobile %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
   {% endif %}
   <link rel="stylesheet" type="text/css" href="{% static 'select2/select2.min.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'select2-bootstrap-5-theme/select2-bootstrap-5-theme.min.css' %}">
@@ -39,13 +36,6 @@
 
 {% block content %}
   {% if is_bemas_user %}
-    {% if form.errors %}
-      {% include "bemas/container-errors.html" %}
-    {% endif %}
-    {% if messages %}
-      {% include "bemas/container-messages.html" %}
-    {% endif %}
-    <h2><i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em></h2>
     {% if objectclass_logentry_url %}
       <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
     {% endif %}
@@ -54,70 +44,42 @@
     {% elif objectclass_name == 'Complaint' and object %}
       {% include "bemas/container-events.html" %}
     {% endif %}
-    <form class="form mt-4" method="post" action="">
-      {% csrf_token %}
-      <input type="hidden" name="original_referer" value="{{ objectclass_cancel_url }}">
-      <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
-        <table class="table">
-          {% for field in form %}
-            {% if not field|is_field_geometry_field and not field.name == 'address' %}
-              <tr>
-                <td class="cell-label">
-                  {{ field.label_tag }}
-                </td>
-                {% autoescape off %}
-                  <td class="cell-field">
-                    {{ field }}
-                  </td>
-                {% endautoescape %}
-              </tr>
-            {% endif %}
-          {% endfor %}
-        </table>
-        {% if not is_mobile %}
-          <div class="d-grid mt-5 mb-3 gap-2">
-            <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} speichern</button>
-            {% if object %}
-              <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {{ objectclass_verbose_name }} löschen</a>
-            {% endif %}
-            <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-          </div>
-        {% endif %}
-      </div>
-      {% if objectclass_is_geometry_model %}
-        <div id="map-addresssearch-container-form">
-          <label hidden for="id_{{ objectclass_geometry_field }}" class="form-label">Geometrie</label>
-          {% if geometry %}
-            <textarea hidden id="id_{{ objectclass_geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ objectclass_geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
-          {% else %}
-            <textarea hidden id="id_{{ objectclass_geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ objectclass_geometry_field }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
-          {% endif %}
-          {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
-          <div class="d-grid mt-3 gap-2">
-            <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address_to_map'|get_icon }}"></i> Marker auf aktuelle Adresse setzen</button>
-            <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address'|get_icon }}"></i> Adresse aus Karte übernehmen</button>
-          </div>
-          <div class="mt-3">
-            <label for="id_address" class="form-label">Adresse</label>
-            <div class="form-floating">
-              <input id="id_address" type="text" class="form-control" name="address"{% if form.address.value %} value="{{ form.address.value }}"{% endif %} autocapitalize="off" autocomplete="off" placeholder="Adresse suchen…">
-              <label for="id_address">Adresse suchen…</label>
-            </div>
-            <div id="results-container" class="results"></div>
-          </div>
-        </div>
+    {{ block.super }}
+    {% include "modal-error.html" %}
+  {% else %}
+    {% include "bemas/notice-norights.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block errors %}
+	{% if form.errors %}
+    {% include "bemas/container-errors.html" %}
+  {% endif %}
+  {% if messages %}
+    {% include "bemas/container-messages.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block headline %}
+	<i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em>
+{% endblock %}
+
+{% block list %}
+	<input type="hidden" name="original_referer" value="{{ objectclass_cancel_url }}">
+  {{ block.super }}
+{% endblock %}
+
+{% block map %}
+	{% if objectclass_is_geometry_model %}
+    <div id="map-addresssearch-container-form">
+      <label hidden for="id_{{ objectclass_geometry_field }}" class="form-label">Geometrie</label>
+      {% if geometry %}
+        <textarea hidden id="id_{{ objectclass_geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ objectclass_geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
+      {% else %}
+        <textarea hidden id="id_{{ objectclass_geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ objectclass_geometry_field }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
       {% endif %}
-      {% if is_mobile %}
-        <div class="d-grid mt-5 mb-3 gap-2">
-          <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-          {% if object %}
-            <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> löschen</a>
-          {% endif %}
-          <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-        </div>
-      {% endif %}
-      {% include "modal-error.html" %}
-    </form>
+      {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+    </div>
     <script>
       setTimeout(function () {
         $('.alert-success').alert('close');
@@ -302,7 +264,40 @@
           setButtonsPosition();
       });
     </script>
-  {% else %}
-    {% include "bemas/notice-norights.html" %}
   {% endif %}
+{% endblock %}
+
+{% block address-search %}
+	<div class="d-grid mt-3 gap-2">
+    <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address_to_map'|get_icon }}"></i> Marker auf aktuelle Adresse setzen</button>
+    <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address'|get_icon }}"></i> Adresse aus Karte übernehmen</button>
+  </div>
+  <div class="mt-3">
+    <label for="id_address" class="form-label">Adresse</label>
+    <div class="form-floating">
+      <input id="id_address" type="text" class="form-control" name="address"{% if form.address.value %} value="{{ form.address.value }}"{% endif %} autocapitalize="off" autocomplete="off" placeholder="Adresse suchen…">
+      <label for="id_address">Adresse suchen…</label>
+    </div>
+    <div id="results-container" class="results"></div>
+  </div>
+{% endblock %}
+
+{% block form-control-buttons %}
+  
+  {% if not is_mobile %}
+    <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} speichern</button>
+    {% if object %}
+      <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {{ objectclass_verbose_name }} löschen</a>
+    {% endif %}
+    <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+  {% endif %}
+  
+  {% if is_mobile %}
+    <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
+    {% if object %}
+      <a class="btn btn-danger" role="button" href="{{ objectclass_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> löschen</a>
+    {% endif %}
+    <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+  {% endif %}
+  
 {% endblock %}
