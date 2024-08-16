@@ -1,0 +1,26 @@
+{% extends "form.html" %}
+{% load antragsmanagement_tags %}
+{% load static %}
+
+{% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
+
+{% block style %}
+	{{ block.super }}
+{% endblock %}
+
+{% block scripts%}
+	{{ block.super }}
+  <script src="{% static 'bemas/js/form.js' %}"></script>
+{% endblock %}
+
+{% block errors %}
+  {% if form.errors %}
+    {% include "antragsmanagement/container_errors.html" %}
+  {% endif %}
+{% endblock %}
+  
+{% block messages %}
+  {% if messages %}
+    {% include "antragsmanagement/container_messages.html" %}
+  {% endif %}
+{% endblock %}
