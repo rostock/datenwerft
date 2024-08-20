@@ -5,51 +5,40 @@
 
 {% block content %}
   {% if not user.is_authenticated or user.is_authenticated and has_necessary_permissions %}
-    
     {% block errors %}
     	{{ block.super }}
     {% endblock %}
-    
     {% if corresponding_requester or authorative %}
       <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
       {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
         <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}
-      <form class="form mt-4" method="post" action="">
+      <form class="form mt-4 flex-container-column" method="post" action="" id="form">
         {% csrf_token %}
+        <div class="flex-item" id="flex-list">
+          {% block list %}
+            {{ block.super }}
+          {% endblock %}
+        </div>
+        <div class="flex-item" id="flex-action-buttons">
+          <div class="d-grid mt-3 mb-3 gap-2">
+            {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
+              <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
+            {% else %}
+              <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
+            {% endif %}
+            {% if not authorative and object %}
+              <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
+            {% elif not authorative %}
+              <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            {% else %}
+              <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+            {% endif %}
+          </div>
+        </div>
         {% if authorative %}
           <input type="hidden" name="original_referer" value="{{ cancel_url }}">
         {% endif %}
-        <div>
-          <table class="table">
-            {% for field in form %}
-              <tr{% if field.name in hidden_fields %} style="display: none;"{% endif %}>
-                <td class="cell-label">
-                  {{ field.label_tag }}
-                </td>
-                {% autoescape off %}
-                  <td class="cell-field">
-                    {{ field }}
-                  </td>
-                {% endautoescape %}
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
-        <div class="d-grid mt-5 mb-3 gap-2">
-          {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
-            <button class="btn btn-success" type="submit">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
-          {% else %}
-            <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
-          {% endif %}
-          {% if not authorative and object %}
-            <button class="btn btn-danger" type="submit" name="cancel" value="cancel"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</button>
-          {% elif not authorative %}
-            <a class="btn btn-danger" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-          {% else %}
-            <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-          {% endif %}
-        </div>
       </form>
       <script>
         /**

@@ -1,6 +1,6 @@
 {% load toolbox_tags %}
 {% load antragsmanagement_tags %}
-<div class="d-grid mt-5 mb-3 gap-2">
+<div class="d-grid mt-3 mb-3 gap-2">
   {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' > request_workflow|get_dict_value_by_key:'current_step' %}
     <button class="btn btn-success" type="submit" onclick="setFinalGeometry('#id_{{ geometry_field }}');">weiter <i class="fas fa-{{ 'next'|get_icon }}"></i></button>
   {% else %}
