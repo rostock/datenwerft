@@ -271,4 +271,5 @@ flex-item {
 
 .container-fluid {
   max-width: 1320px;
+  min-width: 340px;
 }
