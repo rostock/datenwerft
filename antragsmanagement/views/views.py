@@ -2,7 +2,7 @@ from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.gis.geos import GEOSGeometry
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -17,9 +17,10 @@ from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, 
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
   add_useragent_context_elements, additional_messages, clean_initial_field_values, \
-  get_cleanupeventrequest_anonymous_feature, get_cleanupeventrequest_feature, \
-  get_cleanupeventrequest_queryset, get_corresponding_cleanupeventrequest_geometry, \
-  get_referer, get_referer_url, geometry_keeper, send_cleanupeventrequest_email
+  get_cleanupeventrequest_anonymous_api_feature, get_cleanupeventrequest_anonymous_feature, \
+  get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset, \
+  get_corresponding_cleanupeventrequest_geometry, get_referer, get_referer_url, geometry_keeper, \
+  send_cleanupeventrequest_email
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
@@ -2074,6 +2075,51 @@ class RequesterUpdateAnonymousView(RequesterUpdateView):
   view for form page for updating an instance of general object:
   requester (Antragsteller:in)
   """
+
+
+class CleanupEventRequestDataAnonymousView(JsonView):
+  """
+  view for anonymously composing data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def get_context_data(self, **kwargs):
+    """
+    returns GeoJSON feature collection
+
+    :param kwargs:
+    :return: GeoJSON feature collection
+    """
+    # get all approved requests
+    queryset = CleanupEventRequest.objects.prefetch_related(
+      'cleanupeventevent'
+    ).filter(
+      status__ordinal=2
+    )
+    queryset = queryset.values(
+      'id',
+      'cleanupeventevent__from_date'
+    )
+    # declare empty GeoJSON feature collection
+    feature_collection = {
+      'type': 'FeatureCollection',
+      'features': []
+    }
+    # handle requests
+    for item in queryset:
+      # request must be scheduled in future
+      from_date = item['cleanupeventevent__from_date']
+      if from_date and from_date >= date.today():
+        # add GeoJSON feature to GeoJSON feature collection
+        request = get_cleanupeventrequest_anonymous_api_feature(item['id'])
+        if request:
+          feature_collection['features'].append(request)
+    return JsonResponse(
+      feature_collection,
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8'
+    )
 
 
 class CleanupEventRequestMapDataAnonymousView(JsonView):

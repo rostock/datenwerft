@@ -17,12 +17,13 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
   CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView, \
   RequesterCreateAnonymousView, RequesterUpdateAnonymousView, \
-  CleanupEventRequestMapDataAnonymousView, CleanupEventRequestMapAnonymousView, \
-  CleanupEventRequestCreateAnonymousView, CleanupEventRequestUpdateAnonymousView, \
-  CleanupEventEventCreateAnonymousView, CleanupEventEventUpdateAnonymousView, \
-  CleanupEventVenueCreateAnonymousView, CleanupEventVenueUpdateAnonymousView, \
-  CleanupEventDetailsCreateAnonymousView, CleanupEventDetailsUpdateAnonymousView, \
-  CleanupEventContainerDecisionAnonymousView, CleanupEventContainerCreateAnonymousView
+  CleanupEventRequestDataAnonymousView, CleanupEventRequestMapDataAnonymousView, \
+  CleanupEventRequestMapAnonymousView, CleanupEventRequestCreateAnonymousView, \
+  CleanupEventRequestUpdateAnonymousView, CleanupEventEventCreateAnonymousView, \
+  CleanupEventEventUpdateAnonymousView, CleanupEventVenueCreateAnonymousView, \
+  CleanupEventVenueUpdateAnonymousView, CleanupEventDetailsCreateAnonymousView, \
+  CleanupEventDetailsUpdateAnonymousView, CleanupEventContainerDecisionAnonymousView, \
+  CleanupEventContainerCreateAnonymousView
 
 router = routers.DefaultRouter()
 
@@ -331,6 +332,14 @@ urlpatterns = [
       success_url=reverse_lazy('antragsmanagement:anonymous_index')
     ),
     name='anonymous_requester_update'
+  ),
+  # anonymously composing data out of instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'public/ce-request/data',
+    view=CleanupEventRequestDataAnonymousView.as_view(),
+    name='anonymous_cleanupeventrequest_data'
   ),
   # anonymously composing map data out of one instance of object
   # for request type clean-up events (Müllsammelaktionen):

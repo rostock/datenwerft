@@ -252,6 +252,9 @@ ANTRAGSMANAGEMENT_LINKS = {
   'public_green_areas': (
     'https://rathaus.rostock.de/de/service/dienstleistungen/'
     'sondernutzung_oeffentlicher_gruenflaechen_beantragen/310812'
+  ),
+  'geodata_portal': (
+    'https://www.geoport-hro.de/muellsammelaktionen?poi[point]={x},{y}&poi[scale]=2133'
   )
 }
 
