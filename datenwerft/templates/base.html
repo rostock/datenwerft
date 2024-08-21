@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load rest_framework %}
+{% load toolbox_tags %}
 
 <!DOCTYPE html>
 <html lang="de">
@@ -15,7 +16,7 @@
       {% endblock %}
 
       <title>{% block title %}{% endblock %}Datenwerft.HRO</title>
-      <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+      <link rel="shortcut icon" href="{% static 'img/logo.svg'|get_logo %}" type="image/svg+xml">
 
       {% block style %}
         <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/bootstrap.min.css' %}">
