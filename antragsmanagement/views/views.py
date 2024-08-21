@@ -2099,7 +2099,8 @@ class CleanupEventRequestDataAnonymousView(JsonView):
     )
     queryset = queryset.values(
       'id',
-      'cleanupeventevent__from_date'
+      'cleanupeventevent__from_date',
+      'cleanupeventevent__to_date'
     )
     # declare empty GeoJSON feature collection
     feature_collection = {
@@ -2109,8 +2110,12 @@ class CleanupEventRequestDataAnonymousView(JsonView):
     # handle requests
     for item in queryset:
       # request must be scheduled in future
-      from_date = item['cleanupeventevent__from_date']
-      if from_date and from_date >= date.today():
+      from_date, to_date = item['cleanupeventevent__from_date'], item['cleanupeventevent__to_date']
+      if (
+        from_date and from_date >= date.today()
+      ) or (
+        to_date and to_date >= date.today()
+      ):
         # add GeoJSON feature to GeoJSON feature collection
         request = get_cleanupeventrequest_anonymous_api_feature(item['id'])
         if request:
