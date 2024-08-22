@@ -267,6 +267,10 @@ flex-item {
   #flex-action-buttons {
     order: 4;
   }
+
+  #map-addresssearch-container-form {
+    min-height: 600px;
+  }
 }
 
 .container-fluid {

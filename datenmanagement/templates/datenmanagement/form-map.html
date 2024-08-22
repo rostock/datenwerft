@@ -50,7 +50,7 @@
         <div class="flex-item" id="flex-map">
       
           {% block map %}
-            <div id="map-addresssearch-container-form" class="vh-40">
+            <div id="map-addresssearch-container-form" class="">
               <label hidden for="id_geometrie" class="form-label">Geometrie</label>
               {% if geometry %}
                 <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>

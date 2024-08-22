@@ -2,8 +2,8 @@
   margin-bottom: 1rem;
 }
 
-#leaflet-map {
-  height: 600px;
+#map-addresssearch-container-form {
+  min-height: 600px;
 }
 
 .results {
