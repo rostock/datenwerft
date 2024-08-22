@@ -36,33 +36,38 @@
 {% endblock %}
 
 {% block content %}
+  
   {% if is_bemas_user %}
-    {% if objectclass_logentry_url %}
-      <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
-    {% endif %}
-    {% if objectclass_name == 'Organization' and object %}
-      {% include "bemas/container-contacts.html" %}
-    {% elif objectclass_name == 'Complaint' and object %}
-      {% include "bemas/container-events.html" %}
-    {% endif %}
+    
     {{ block.super }}
     {% include "modal-error.html" %}
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}
+  
+{% endblock %}
+
+{% block headline %}
+  <i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em>
 {% endblock %}
 
 {% block errors %}
+  
+  {% if objectclass_logentry_url %}
+    <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
+  {% endif %}
+  {% if objectclass_name == 'Organization' and object %}
+    {% include "bemas/container-contacts.html" %}
+  {% elif objectclass_name == 'Complaint' and object %}
+    {% include "bemas/container-events.html" %}
+  {% endif %}
+  
 	{% if form.errors %}
     {% include "bemas/container-errors.html" %}
   {% endif %}
   {% if messages %}
     {% include "bemas/container-messages.html" %}
   {% endif %}
-{% endblock %}
-
-{% block headline %}
-	<i class="fas fa-{{ objectclass_name|lower|get_icon }}"></i> <em>{{ objectclass_verbose_name }}</em>
 {% endblock %}
 
 {% block list %}

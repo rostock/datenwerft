@@ -17,11 +17,11 @@
 {% endblock %}
 
 {% block content %}
+  <h2>{% block headline %}{% endblock %}</h2>
+  
   {% block errors %}
 
   {% endblock %}
-  
-  <h2>{% block headline %}{% endblock %}</h2>
   
   <form class="form mt-4 {% if objectclass_is_geometry_model %}flex-container-row{% else %}flex-container-column{% endif %}" method="post" action="" id="form">
     {% csrf_token %}
