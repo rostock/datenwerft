@@ -18,7 +18,7 @@
 
 {% block content %}
   {% block errors %}
-  	
+
   {% endblock %}
   
   <h2>{% block headline %}{% endblock %}</h2>
@@ -63,11 +63,13 @@
       {% endblock %}
     </div>
     <div class="flex-item" id="flex-action-buttons">
-      {% block form-control-buttons %}
-        {% comment %}
-          save buttons
-        {% endcomment %}
-      {% endblock %}
+      <div id="form-control-buttons" class="mt-3 mb-3 gap-2">
+        {% block form-control-buttons %}
+          {% comment %}
+            save buttons
+          {% endcomment %}
+        {% endblock %}
+      </div>
     </div>
   
     {% if objectclass_is_geometry_model %}
