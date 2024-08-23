@@ -34,8 +34,6 @@ input[name="strasse"] {
 #leaflet-map {
   height: 100%;
   position: absolute;
-  width: 100%;
-  max-height: 70vh; /* Maximale Breite des Elements */
   padding: 10px; /* Optional: Um das Element ansehnlicher zu machen */
 }
 

@@ -872,17 +872,17 @@
         
         // run orderFormItems on resize event
         window.addEventListener('resize', orderFormItems);
-        
-        function orderFormItems() {
-          const list = document.getElementById('flex-list');
-          const action_buttons = document.getElementById('flex-action-buttons');
-          const map = document.getElementById('flex-map');
-          const address_search = document.getElementById('flex-address-search');
-          const flex_container = document.getElementById('form')
-          const left_column = document.getElementById('flex-left')
-          const right_column = document.getElementById('flex-right')
-      
-          if (window.innerWidth <= 768) {
+
+        {% if forms_in_mobile_mode %}
+        	function orderFormItems() {
+            const list = document.getElementById('flex-list');
+            const action_buttons = document.getElementById('flex-action-buttons');
+            const map = document.getElementById('flex-map');
+            const address_search = document.getElementById('flex-address-search');
+            const flex_container = document.getElementById('form')
+            const left_column = document.getElementById('flex-left')
+            const right_column = document.getElementById('flex-right')
+            
             // on small screens use just one flex column
             flex_container.classList.add("flex-container-column")
             flex_container.classList.remove("flex-container-row")
@@ -891,17 +891,40 @@
             flex_container.appendChild(action_buttons);
             flex_container.appendChild(map);
             flex_container.appendChild(address_search);
-          } else {
-            // on bigger screens use two column view
-            flex_container.classList.add("flex-container-row")
-            flex_container.classList.remove("flex-container-column")
-            
-            left_column.appendChild(list);
-            left_column.appendChild(action_buttons);
-            right_column.appendChild(map);
-            right_column.appendChild(address_search);
           }
-        }
+        {% else %}
+        	function orderFormItems() {
+            const list = document.getElementById('flex-list');
+            const action_buttons = document.getElementById('flex-action-buttons');
+            const map = document.getElementById('flex-map');
+            const address_search = document.getElementById('flex-address-search');
+            const flex_container = document.getElementById('form')
+            const left_column = document.getElementById('flex-left')
+            const right_column = document.getElementById('flex-right')
+        
+            if (window.innerWidth <= 768) {
+              // on small screens use just one flex column
+              flex_container.classList.add("flex-container-column")
+              flex_container.classList.remove("flex-container-row")
+              
+              flex_container.appendChild(list);
+              flex_container.appendChild(action_buttons);
+              flex_container.appendChild(map);
+              flex_container.appendChild(address_search);
+            } else {
+              // on bigger screens use two column view
+              flex_container.classList.add("flex-container-row")
+              flex_container.classList.remove("flex-container-column")
+              
+              left_column.appendChild(list);
+              left_column.appendChild(action_buttons);
+              right_column.appendChild(map);
+              right_column.appendChild(address_search);
+            }
+          }
+        {% endif %} 
+        
+        
       </script>
   </form>
 {% endblock %}
