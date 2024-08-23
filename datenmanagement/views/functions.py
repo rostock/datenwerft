@@ -304,7 +304,7 @@ def set_form_attributes(form):
 
 
 def order_model_to_form_template(model: Basemodel):
-  if model.__module__ == 'datenmanagement.models.models_codelist':
+  if model.__module__ == 'datenmanagement.models.models_codelist' or model.BasemodelMeta.geometry_type is None:
     return 'datenmanagement/form-list.html'
   elif model.__name__ == 'Punktwolken_Projekte':
     return 'datenmanagement/form-pcmanagement.html'
