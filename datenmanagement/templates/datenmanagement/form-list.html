@@ -5,6 +5,11 @@
 
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
+  
+  {% block alerts %}
+  	{{ block.super }}
+  {% endblock %}
+  
   <form class="form flex-container-column" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div class="flex-item" id="flex-list">
