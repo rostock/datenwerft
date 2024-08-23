@@ -251,6 +251,15 @@ input[name="strasse"] {
   order: 2;
 }
 
+.container-fluid {
+  max-width: 1320px;
+  min-width: 340px;
+}
+
+.select2 {
+  width: 100% !important;
+}
+
 @media (width <= 768px) {
   .flex-list {
     order: 1;
@@ -271,9 +280,4 @@ input[name="strasse"] {
   #map-addresssearch-container-form {
     min-height: 600px;
   }
-}
-
-.container-fluid {
-  max-width: 1320px;
-  min-width: 340px;
 }
