@@ -874,14 +874,15 @@
         window.addEventListener('resize', orderFormItems);
 
         {% if forms_in_mobile_mode %}
+          /**
+           * This function adapts the form components to the forced mobile view.
+           */
         	function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
             const map = document.getElementById('flex-map');
             const address_search = document.getElementById('flex-address-search');
             const flex_container = document.getElementById('form')
-            const left_column = document.getElementById('flex-left')
-            const right_column = document.getElementById('flex-right')
             
             // on small screens use just one flex column
             flex_container.classList.add("flex-container-column")
@@ -897,6 +898,11 @@
             action_buttons.style.order = '4';
           }
         {% else %}
+          /**
+           * Adjusts the layout of form items based on the screen size.
+           * On small screens, it arranges the items in a single column.
+           * On larger screens, it arranges the items in two columns.
+           */
         	function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
