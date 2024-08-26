@@ -8,7 +8,7 @@ from toolbox.vcpub.vcpub import VCPub
 
 class Datasource:
   __api: VCPub = VCPub()
-  __project_id = __api
+  __project_id = __api.get_project_id()
   _id: str = ''
   name: str = ''
   description: str = ''

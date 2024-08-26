@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator, FileExtensionValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, UUIDField
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
@@ -2926,16 +2926,20 @@ class Punktwolken_Projekte(ComplexModel):
   # Project geometry results from the individual geometries of the point clouds,
   # so a project have no geometry at initialization.
   geometrie.null = True
-  vcp_task_id = CharField(
-    verbose_name='VC Publisher Task ID',
-    max_length=255,
-    editable=False,
+  vcp_task_id = UUIDField(
+    verbose_name='VC Publisher Task',
+    #editable=False,
     blank=True
   )
-  vcp_task_endpoint = CharField(
-    verbose_name='VC Publisher API Entpoint',
+  vcp_dataset_bucket_id = UUIDField(
+    verbose_name='VC Publisher Dataset',
+    #editable=False,
+    blank=True
+  )
+  vcp_datasource_id = CharField(
+    verbose_name='VC Publisher Datasource',
     max_length=255,
-    editable=False,
+    #editable=False,
     blank=True
   )
 
@@ -2945,12 +2949,15 @@ class Punktwolken_Projekte(ComplexModel):
     verbose_name_plural = ('Punktwolken Projekte')
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    readonly_fields = ['geometrie', 'vcp_task_id']
+    readonly_fields = ['geometrie', 'vcp_task_id', 'vcp_dataset_bucket_id', 'vcp_datasource_id']
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
-      'projekt_update': 'Zuletzt aktualisiert'
+      'projekt_update': 'Zuletzt aktualisiert',
+      'vcp_task_id': 'VCP Task ID',
+      'vcp_dataset_bucket_id': 'VCP Dataset Bucket ID',
+      'vcp_datasource_id': 'VCP Datasource ID'
     }
     list_fields_with_datetime = ['projekt_update']
     associated_models = {
@@ -2970,7 +2977,8 @@ class Punktwolken_Projekte(ComplexModel):
       print(f'=====  CREATE TASK  =====')
       task = Task(name=self.bezeichnung, description=self.beschreibung)
       self.vcp_task_id = task.get_id()
-      self.vcp_task_endpoint = task.get_endpoint()
+      self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
+      self.vcp_datasource_id = task.get_datasource()['datasourceId']
 
     super().save(
       force_insert=force_insert,
@@ -2978,6 +2986,7 @@ class Punktwolken_Projekte(ComplexModel):
       using=using,
       update_fields=update_fields
     )
+
 
 
   def delete(self, using=None, keep_parents=False):
@@ -3009,7 +3018,11 @@ class Punktwolken(ComplexModel):
   )
   punktwolke = FileField(
     verbose_name='Punktwolkendatei',
-    storage=VCPubBucketStorage(),
+    upload_to=path_and_rename(
+      path=settings.PC_PATH_PREFIX_PRIVATE + 'punktwolken/',
+      foreign_key_subdir_attr='projekt_id'
+    ),
+    storage=OverwriteStorage(),
     validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])]
   )
   vc_update = DateTimeField(
@@ -3056,6 +3069,26 @@ class Punktwolken(ComplexModel):
       using=using,
       update_fields=update_fields
     )
+
+  def send_file_to_api(self):
+    url = 'https://external-api.example.com/upload'
+    bucket_id = self.projekt.bucketId
+    bucket_key = self.projekt.bucketKey
+    api
+    with open(self.file.path, 'rb') as f:
+      files = {'file': f}
+      data = {'bucketId': bucket_id, 'bucketKey': bucket_key}
+      response = requests.post(url, files=files, data=data)
+      if response.status_code == 200:
+        response_data = response.json()
+        self.objectKey = response_data.get('objectKey', '')
+        self.save(update_fields=['objectKey'])
+        # Datei löschen
+        if os.path.exists(self.file.path):
+          os.remove(self.file.path)
+        print("File successfully sent to API and deleted locally.")
+      else:
+        print(f"Failed to send file. Status code: {response.status_code}")
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)
 

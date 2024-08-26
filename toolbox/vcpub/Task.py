@@ -40,10 +40,6 @@ class Task:
 
   def __create__(self):
     bucket = DataBucket(name=self.name, description=self.description)
-    response = self.__api.get(
-      endpoint=f'/project/{self.__project_id}/data-bucket/{bucket.get_id()}'
-    )
-    print(f'Bucket GET: {response}')
     source = Datasource(name=self.name, description=self.description)
     self.parameters['dataset'] = bucket.link()
     self.parameters['datasource'] = source.link()
@@ -68,30 +64,19 @@ class Task:
     self.parameters = task['parameters']
     self.schedule = task['schedule']
 
-  def delete(self):
-    """
-    delete task. Datasource is not deleted. It should be deleted manually via VC Publisher WEBGui,
-    because it may contain live data from VC Map.
-    :return:
-    """
-    # delete dataset bucket
-    bucket_id = self.parameters['dataset']['dataBucketId']
-    bucket = DataBucket(_id=bucket_id)
-    bucket.delete()
-    # delete task
-    self.__api.delete(endpoint=f'/project/{self.__project_id}/task/{self._id}')
-    # delete task object
-    global_ref = globals()
-    for var_name, var_obj in list(global_ref.items()):
-      if var_obj is self:
-        del global_ref[var_name]
-
   def get_dataset(self):
     """
     get dataset of a task.
     :return:
     """
     return self.parameters['dataset']
+
+  def get_datasource(self):
+    """
+    get dataset of a task.
+    :return:
+    """
+    return self.parameters['datasource']
 
   def get_endpoint(self):
     """

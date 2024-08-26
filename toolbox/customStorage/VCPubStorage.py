@@ -36,6 +36,3 @@ class VCPubBucketStorage(Storage):
     # Prüfen, ob die Datei existiert
     response = requests.head(name)
     return response.status_code == 200
-
-  def url(self, name):
-    return name
