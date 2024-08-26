@@ -33,6 +33,7 @@ input[name="strasse"] {
 
 #leaflet-map {
   height: 100%;
+  width: 100%;
   position: absolute;
   padding: 10px; /* Optional: Um das Element ansehnlicher zu machen */
 }

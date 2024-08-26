@@ -888,9 +888,13 @@
             flex_container.classList.remove("flex-container-row")
             
             flex_container.appendChild(list);
-            flex_container.appendChild(action_buttons);
+            list.style.order = '1';
             flex_container.appendChild(map);
+            map.style.order = '2';
             flex_container.appendChild(address_search);
+            address_search.style.order = '3';
+            flex_container.appendChild(action_buttons);
+            action_buttons.style.order = '4';
           }
         {% else %}
         	function orderFormItems() {
