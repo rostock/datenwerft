@@ -36,7 +36,7 @@
 {% endblock %}
 
 {% block form-control-buttons %}
-	<div id="buttons" class="row gap-2">
+	<div id="buttons" class="gap-2">
     <div class="d-grid mt-5 mb-3 gap-2">
       <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
       {% if object %}
