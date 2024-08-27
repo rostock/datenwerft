@@ -3,6 +3,11 @@
 {% load datenmanagement_tags %}
 {% load static %}
 
+{% block scripts %}
+	{{ block.super }}
+  <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
+{% endblock %}
+
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
   
@@ -105,4 +110,36 @@
       {% endblock %}
     </div>
   </form>
+  <script>
+    // initialize address search (and make its results globally available)
+    window.results = $('div.results');
+    {% if address_search_long_results %}
+      window.addressSearchLongResults = true;
+    {% else %}
+      window.addressSearchLongResults = false;
+    {% endif %}
+    {% if address_type %}
+      window.addressType = '{{ address_type }}';
+    {% else %}
+      window.addressType = '';
+    {% endif %}
+    if (window.addressType === 'Adresse') {
+      window.searchField = $('#id_adresse');
+      window.addressUuidField = $('#id_adresse_uuid');
+      window.addressTempField = $('#id_adresse_temp');
+    } else if (window.addressType === 'Straße') {
+      window.searchField = $('#id_strasse');
+      window.addressUuidField = $('#id_strasse_uuid');
+      window.addressTempField = $('#id_strasse_temp');
+    } else if (window.addressType === 'Gemeindeteil') {
+      window.searchField = $('#id_gemeindeteil');
+      window.addressUuidField = $('#id_gemeindeteil_uuid');
+      window.addressTempField = $('#id_gemeindeteil_temp');
+    } else {
+      window.searchField = $('#address-search');
+      window.addressUuidField = null;
+      window.addressTempField = null;
+    }
+    initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField, '{{ address_search_class }}');
+  </script>
 {% endblock %}
