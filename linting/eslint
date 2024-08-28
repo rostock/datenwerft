@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 echo "Checking JavaScript rules via ESLint..."
-node_modules/.bin/eslint "antragsmanagement/static" "bemas/static" "datenmanagement/static"
+node_modules/.bin/eslint "datenwerft/static" "antragsmanagement/static" "bemas/static" "datenmanagement/static"

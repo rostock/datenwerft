@@ -235,10 +235,12 @@ input[name="strasse"] {
 }
 
 #flex-list {
+  flex: none;
   order: 1;
 }
 
 #flex-map {
+  flex: none;
   order: 1;
 }
 
@@ -260,7 +262,7 @@ input[name="strasse"] {
 }
 
 @media (width <= 768px) {
-  .flex-list {
+  #flex-list {
     order: 1;
   }
 

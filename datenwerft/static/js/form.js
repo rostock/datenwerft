@@ -20,26 +20,6 @@ function addDeleteFieldButton(field) {
 
 /**
  * @function
- * @name addEmptyFieldButton
- *
- * @param {Object} field - field
- *
- * inserts a button after the passed field for emptying the field
- */
-function addEmptyFieldButton(field) {
-  // create button
-  let emptyFieldButton = $('<span><i class="clear-field fas fa-circle-minus text-primary" title="alle Selektionen entfernen"></i></span>');
-  // insert created button after passed field
-  emptyFieldButton.insertAfter(field);
-  // on clicking the created button...
-  emptyFieldButton.click(function () {
-    // empty passed field
-    field.val([]);
-  });
-}
-
-/**
- * @function
  * @name addField
  *
  * @param {Object} field - single field

@@ -7,7 +7,6 @@
 {% block style %}
   <!-- inherits from form-wrapper -->
   {{ block.super }}
-
   <!-- load specific styles -->
   {% leaflet_css plugins="geoman,locatecontrol" %}
   <link rel="stylesheet" type="text/css" href="{% static 'css/form-map.css' %}">
@@ -35,7 +34,7 @@
   	{{ block.super }}
   {% endblock %}
 
-	<form class="form flex-container-row" id="form" method="post" enctype="multipart/form-data" action="">
+	<form class="form mt-4 flex-container-row" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     	<div class="flex-item flex-container-column" id="flex-left">
         <div class="flex-item" id="flex-list">

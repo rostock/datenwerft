@@ -10,6 +10,7 @@
   {{ block.super }}
   {% if is_geometry_model %}
     {% leaflet_css plugins="geoman,locatecontrol" %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/form-map.css' %}">
   {% endif %}
 {% endblock %}
 
