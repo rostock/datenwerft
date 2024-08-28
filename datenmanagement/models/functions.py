@@ -37,7 +37,7 @@ def delete_pointcloud(sender, instance, **kwargs):
     try:
       # delete project subdir if it's empty
       os.rmdir(f'{settings.PC_MEDIA_ROOT}/{str(instance.projekt_id)}')
-    except OSError as e:
+    except OSError:
       pass
     instance.delete()
 

@@ -30,20 +30,20 @@
 
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
-  
+
   {% block alerts %}
   	{{ block.super }}
   {% endblock %}
-  
+
 	<form class="form flex-container-row" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     	<div class="flex-item flex-container-column" id="flex-left">
         <div class="flex-item" id="flex-list">
-      
+
           {% block list %}
             {{ block.super }}
           {% endblock %}
-      
+
         </div>
         <div class="flex-item" id="flex-action-buttons">
           {% block form-action-buttons %}
@@ -53,9 +53,9 @@
     	</div>
       <div class="flex-item flex-container-column" id="flex-right">
         <div class="flex-item" id="flex-map">
-      
+
           {% block map %}
-            <div id="map-addresssearch-container-form" class="">
+            <div id="map-addresssearch-container-form">
               <label hidden for="id_geometrie" class="form-label">Geometrie</label>
               {% if geometry %}
                 <textarea hidden id="id_geometrie" class="required django-leaflet-raw-textarea" name="geometrie" cols="150" rows="4">{{ geometry }}</textarea>
@@ -64,9 +64,9 @@
               {% endif %}
               {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" settings_overrides=leaflet_config_overrides %}
             </div>
-            
+
             {% include "modal-error.html" %}
-            
+
             {% if geojson_input or gpx_input %}
               {% include "modal-loading.html" %}
             {% endif %}
@@ -89,7 +89,7 @@
                 {% else %}
                   setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
                 {% endif %}
-          
+
                 // define WMS which shall be selectable as additional overlay layers in the map
                 let additionalWMSLayers = {}, additionalWMSLayerUrl;
                 {% for additional_wms_layer in additional_wms_layers %}
@@ -106,16 +106,16 @@
                   );
                 {% empty %}
                 {% endfor %}
-          
+
                 configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWMSLayers);
-          
+
                 // make map globally available
                 window.currMap = map;
-          
+
                 {% if is_mobile %}
                   enableMapLocate(map)
                 {% endif %}
-          
+
                  // configure globally available markers for Leaflet
                 window.redMarker = new L.Icon({
                   shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
@@ -141,7 +141,7 @@
                   popupAnchor: [1, -34],
                   shadowSize: [41, 41]
                 });
-          
+
                 // define several globally available variables
                 window.enableMapTools = false;
                 {% if not object and user|user_has_model_add_permission:model_name_lower and not geometry_calculation or object and user|user_has_model_change_permission:model_name_lower and not geometry_calculation %}
@@ -167,14 +167,14 @@
                 {% if postcode_assigner %}
                   window.postcodeAssigner = '{{ postcode_assigner }}'
                 {% endif %}
-          
+
                 if (window.enableMapTools && !window.gpxInput && window.geometryType.includes('LineString'))
                   configureLeafletGeoman(map, 'LineString');
                 else if (window.enableMapTools && !window.gpxInput && (window.geometryType === 'Point' || window.geometryType.includes('Polygon')))
                   configureLeafletGeoman(map, window.geometryType);
                 else
                   configureLeafletGeoman(map);
-          
+
                 // if geometry already exists...
                 {% if geometry %}
                   // show existing geometry on map
@@ -200,7 +200,7 @@
                     {% endfor %}
                   {% endif %}
                 {% endif %}
-          
+
                 // if necessary, define additional data themes which are then offered for activation in the map
                 {% if model_list and not gpx_input %}
                   // add layer control to enable additional data themes
@@ -228,7 +228,7 @@
                           );
                           map.eachLayer((layer) => {
                             // "lift" GeoJSON layer being edited
-                            if (layer._drawnByGeoman === true) {
+                            if ('_drawnByGeoman' in layer && layer._drawnByGeoman === true) {
                               if (layer instanceof L.Marker)
                                 layer.setZIndexOffset(1000);
                               else
@@ -252,13 +252,13 @@
                       {% endif %}
                     {% endwith %}
                   {% endfor %}
-          
+
                   // reload data theme features on moving the map
                   map.on('moveend', () => {
                     map.updateMap(dataThemeControl);
                   });
                 {% endif %}
-          
+
                 // if necessary, define additional WFS feature types which are then offered for activation in the map
                 {% if additional_wfs_featuretypes %}
                   // add layer control to enable additional WFS feature types
@@ -296,7 +296,7 @@
                         );
                         map.eachLayer((layer) => {
                           // "lift" GeoJSON layer being edited
-                          if (layer._drawnByGeoman === true) {
+                          if ('_drawnByGeoman' in layer && layer._drawnByGeoman === true) {
                             if (layer instanceof L.Marker)
                               layer.setZIndexOffset(1000);
                             else
@@ -315,13 +315,13 @@
                       }
                     });
                   {% endfor %}
-          
+
                   // reload WFS features on moving the map
                   map.on('moveend', () => {
                     map.updateMap(featureTypeControl, true);
                   });
                 {% endif %}
-          
+
                 /**
                  * @function
                  *
@@ -331,12 +331,12 @@
                 map.on('pm:drawstart', function () {
                   if ((window.geometryType === 'Point' || window.geometryType === 'LineString' || window.geometryType === 'Polygon') && map.pm.getGeomanLayers().length > 0) {
                     map.pm.getGeomanLayers().forEach((item) => {
-                      if (item._drawnByGeoman === true)
+                      if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
                         map.removeLayer(item);
                     })
                   }
                 });
-          
+
                 // if model provides address reference...
                 if (window.addressType) {
                   /**
@@ -373,7 +373,7 @@
                   });
                 }
               }
-          
+
               /**
                * @function
                *
@@ -381,14 +381,14 @@
                */
               $(document).ready(function () {
                 keepDjangoRequiredMessages();
-          
+
                 // define variable for array fields and their values
                 // (i.e. for those array fields containing more than one value)
                 let arrayFieldsValues = [];
                 {% if object and array_fields_values %}
                   arrayFieldsValues = {{ array_fields_values|safe }};
                 {% endif %}
-          
+
                 // define several globally available variables
                 window.showWFSZoomModal = true;
                 window.showDataThemesZoomModal = true;
@@ -397,7 +397,7 @@
                   window.userHasModelChangePermission = true
                 {% endif %}
                 window.doIt = false;
-          
+
                 // if a group of users is set that should be used for the contact person/processor field in a corresponding selection list...
                 {% if group_with_users_for_choice_field %}
                   // iterate all fields...
@@ -418,12 +418,12 @@
                     {% endif %}
                   {% endfor %}
                 {% endif %}
-          
+
                 // adapt checkboxes in multiple choice fields to Bootstrap 5
                 $('ul input[type="checkbox"]').each(function () {
                   $(this).addClass('form-check-input');
                 });
-          
+
                 // handle read-only fields...
                 {% if readonly_fields %}
                   let inputField;
@@ -456,7 +456,7 @@
                     {% endif %}
                   {% endfor %}
                 {% endif %}
-          
+
                 // disable all fields if the user does not have the right to change the model...
                 if (!window.userHasModelChangePermission) {
                   $('input').each(function () {
@@ -469,7 +469,7 @@
                     $(this).prop('disabled', true);
                   });
                 }
-          
+
                 // handle array fields...
                 $('[is_array_field="true"]').each(function () {
                   let currentField = $(this);
@@ -512,7 +512,7 @@
                     });
                   }
                 });
-          
+
                 // handle multi-photo upload field...
                 let fotoField = $('input#id_foto');
                 if (fotoField.length) {
@@ -522,13 +522,13 @@
                       fotoField.attr('multiple', 'multiple');
                   {% endif %}
                 }
-          
+
                 // handle PDF upload field...
                 let pdfField = $('input#id_pdf');
                 if (pdfField.length) {
                   pdfField.attr('accept', 'application/pdf');
                 }
-          
+
                 // initialize address search (and make its results globally available)
                 window.results = $('div.results');
                 {% if address_search_long_results %}
@@ -559,7 +559,7 @@
                   window.addressTempField = null;
                 }
                 initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField, '{{ address_search_class }}');
-          
+
                 // on clicking the map reference (i.e. address to map) button...
                 $('#addressToMap').on('click', function () {
                   // place a marker on the map, centered on the result of the address search
@@ -570,31 +570,31 @@
                   if (window.postcodeAssigner)
                     enablePostcodeAssigner();
                 });
-          
+
                 // on clicking the address reference (i.e. map to address) button...
                 $('#mapToAddress').on('click', function () {
                   // adopt the current address of the geometry in the map
                   setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
                   $('#addressToMap').prop('disabled', false);
                 });
-          
+
                 // on clicking the street reference (i.e. map to street) button...
                 $('#mapToStreet').on('click', function () {
                   // adopt the current street of the geometry in the map
                   setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
                   $('#addressToMap').prop('disabled', false);
                 });
-          
+
                 // on clicking the district reference (i.e. map to district) button...
                 $('#mapToDistrict').on('click', function () {
                   // adopt the current district of the geometry in the map
                   setAddressReference(window.addressType, window.currMap.pm.getGeomanLayers()[0]);
                   $('#addressToMap').prop('disabled', false);
                 });
-          
+
                 // customize labels for mandatory Boolean fields
                 $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
-          
+
                 // handle foreign keys in the appropriate selection field depending on the current selection:
                 // a) dynamically adjust link to target object
                 //    (if the selection is empty: hide link)
@@ -640,12 +640,12 @@
                     {% endwith %}
                   {% endfor %}
                 {% endif %}
-          
+
                 // always open links to existing photos, PDFs, etc. in a new tab
                 $('td').find('a').attr('title', 'in neuem Tab öffnen…');
                 $('td').find('a').attr('target', '_blank');
                 $('td').find('a').attr('rel', 'noopener noreferrer');
-          
+
                 // provide links to existing photos, PDFs, etc. as well as the corresponding upload buttons with proper text
                 $('td').find('a').parent().contents().filter(function () {
                   return this.nodeType === 3
@@ -654,7 +654,7 @@
                 $('<br>').insertBefore($('input[type="checkbox"][name$="-clear"]'));
                 $('label[for$="-clear_id"]').addClass('label-with-margin');
                 $('label[for$="-clear_id"]').text('löschen');
-          
+
                 // lowercase certain values in selection lists
                 $('td').find('option').each(function () {
                   if ($(this).text() === 'Unbekannt')
@@ -665,7 +665,7 @@
                     $(this).text('nein');
                 });
               });
-          
+
               // when clicking on the select via map icon on a selection field for a foreign key,
               // all geometries of the target objects of the foreign key are displayed on the map
               // (with the exception of the geometry of the target object of the foreign key
@@ -689,7 +689,7 @@
                 );
                 disableValueAssigner(valueAssigner);
               });
-          
+
               {% if geojson_input or gpx_input %}
                 let mode = '';
                 let modeName = '';
@@ -775,7 +775,7 @@
                   );
                 });
               {% endif %}
-          
+
               {% if postcode_assigner %}
                 // when clicking on the icon for the automatic assignment of postcode, the server is requested accordingly;
                 // the server's response is expected to be a GeoJSON with an attribute containing the postcode;
@@ -823,12 +823,12 @@
               {% endif %}
             </script>
           {% endblock %}
-        
+
         </div>
         <div class="flex-item" id="flex-address-search">
-      
+
           {% block address-search %}
-            <div class="">
+            <div>
               {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
                 {% if model_geometry_type == 'Point' or address_type and not address_mandatory %}
                   <div class="d-grid mt-3 gap-2">
@@ -863,13 +863,13 @@
               </div>
             </div>
           {% endblock %}
-        
+
         </div>
       </div>
       <script>
         // run orderFormItems on page load
         orderFormItems();
-        
+
         // run orderFormItems on resize event
         window.addEventListener('resize', orderFormItems);
 
@@ -883,11 +883,11 @@
             const map = document.getElementById('flex-map');
             const address_search = document.getElementById('flex-address-search');
             const flex_container = document.getElementById('form')
-            
+
             // on small screens use just one flex column
             flex_container.classList.add("flex-container-column")
             flex_container.classList.remove("flex-container-row")
-            
+
             flex_container.appendChild(list);
             list.style.order = '1';
             flex_container.appendChild(map);
@@ -911,12 +911,12 @@
             const flex_container = document.getElementById('form')
             const left_column = document.getElementById('flex-left')
             const right_column = document.getElementById('flex-right')
-        
+
             if (window.innerWidth <= 768) {
               // on small screens use just one flex column
               flex_container.classList.add("flex-container-column")
               flex_container.classList.remove("flex-container-row")
-              
+
               flex_container.appendChild(list);
               flex_container.appendChild(action_buttons);
               flex_container.appendChild(map);
@@ -925,16 +925,16 @@
               // on bigger screens use two column view
               flex_container.classList.add("flex-container-row")
               flex_container.classList.remove("flex-container-column")
-              
+
               left_column.appendChild(list);
               left_column.appendChild(action_buttons);
               right_column.appendChild(map);
               right_column.appendChild(address_search);
             }
           }
-        {% endif %} 
-        
-        
+        {% endif %}
+
+
       </script>
   </form>
 {% endblock %}

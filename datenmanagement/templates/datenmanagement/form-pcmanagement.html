@@ -71,7 +71,7 @@
               console.log(options);
               try {
                 let response = await fetch(apiLink, options);
-                if (response.status == 201) {
+                if (response.status === 201) {
                   window.location.reload();
                 } else {
                   console.log(response.status);
@@ -93,7 +93,7 @@
                   'X-CSRFToken': getCookie('csrftoken')
                 }
               };
-              let responce = await fetch(apiLink, options)
+              let response = await fetch(apiLink, options)
                 .then(response => {
                   if (!response.ok) {
                     return response.json().then(errorData => {
@@ -219,7 +219,7 @@
               });
       
               ret.always(function(data, textStatus, jqXHR) {
-                if (textStatus != 'success') {
+                if (textStatus !== 'success') {
                   jqXHR = data;
                 }
       

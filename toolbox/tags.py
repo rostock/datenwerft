@@ -1,4 +1,3 @@
-from cloudinit.reporting.events import status
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
@@ -70,6 +69,7 @@ def replace(value, arg):
     return value
   source, target = arg.split('|')
   return value.replace(source, target)
+
 
 @register.filter(is_safe=True)
 @stringfilter

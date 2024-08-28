@@ -1434,7 +1434,7 @@ class Freizeitsport(ComplexModel):
   def __str__(self):
     return self.string_representation()
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
     self.freizeitsport = self.string_representation()
     super().save(
@@ -2925,7 +2925,7 @@ class Punktwolken_Projekte(ComplexModel):
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken_projekte'
     verbose_name = 'Punktwolken Projekt'
-    verbose_name_plural = ('Punktwolken Projekte')
+    verbose_name_plural = 'Punktwolken Projekte'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     readonly_fields = ['geometrie']
@@ -2985,8 +2985,8 @@ class Punktwolken(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken'
-    verbose_name = ('Punktwolke')
-    verbose_name_plural = ('Punktwolken')
+    verbose_name = 'Punktwolke'
+    verbose_name_plural = 'Punktwolken'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
     description = 'Punktwolken aus LiDAR-Scans'
@@ -3013,7 +3013,7 @@ class Punktwolken(ComplexModel):
       aufnahme_str = ''
     return self.dateiname + aufnahme_str
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     super().save(
       force_insert=force_insert,
       force_update=force_update,
@@ -3667,7 +3667,7 @@ class Spielplaetze(ComplexModel):
   def __str__(self):
     return self.string_representation()
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
     self.spielplatz = self.string_representation()
     super().save(

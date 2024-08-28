@@ -5,15 +5,15 @@
 {% block title %}{{ codelist_verbose_name }} – Formular | {% endblock %}
 
 {% block style %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  {% if is_mobile %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
-  {% endif %}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific styles -->
 {% endblock %}
 
 {% block scripts %}
-  {{ block.super }}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific scripts -->
   <script src="{% static 'bemas/js/form.js' %}"></script>
 {% endblock %}
 

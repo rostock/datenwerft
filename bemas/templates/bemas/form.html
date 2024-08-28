@@ -1,4 +1,4 @@
-{% extends 'form.html' %}
+{% extends "form.html" %}
 {% load bemas_tags %}
 {% load static %}
 {% load toolbox_tags %}
@@ -7,7 +7,6 @@
   <!-- inherits from form.html -->
 	{{ block.super }}
   <!-- bemas specific styles -->
-  <link rel="stylesheet" type="text/css" href="{% static '/bemas/css/form.css' %}">
 {% endblock %}
 
 {% block scripts %}
@@ -148,7 +147,7 @@
       map.on('pm:drawstart', function () {
         if (map.pm.getGeomanLayers().length > 0) {
           map.pm.getGeomanLayers().forEach((item) => {
-            if (item._drawnByGeoman === true)
+            if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
               map.removeLayer(item);
           })
         }

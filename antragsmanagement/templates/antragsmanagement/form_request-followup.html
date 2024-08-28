@@ -58,7 +58,7 @@
           </div>
         {% if is_geometry_model %}
           </div>
-        
+
           <div class="flex-item flex-container-column" id="flex-right">
             <div class="flex-item" id="flex-map">
               {% if is_geometry_model %}
@@ -85,8 +85,7 @@
             </div>
           </div>
         {% endif %}
-      
-        
+
       </form>
       <!-- eslint-disable-next-script -->
       {% if is_geometry_model %}
@@ -95,13 +94,13 @@
           {% if geometry %}
             window.zoomToPreviousGeometries = false;
           {% endif %}
-          
+
           // run orderFormItems on page load
           orderFormItems();
-          
+
           // run orderFormItems on resize event
           window.addEventListener('resize', orderFormItems);
-          
+
           function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
@@ -110,12 +109,12 @@
             const flex_container = document.getElementById('form')
             const left_column = document.getElementById('flex-left')
             const right_column = document.getElementById('flex-right')
-        
+
             if (window.innerWidth <= 768) {
               // on small screens use just one flex column
               flex_container.classList.add("flex-container-column")
               flex_container.classList.remove("flex-container-row")
-              
+
               flex_container.appendChild(list);
               flex_container.appendChild(action_buttons);
               flex_container.appendChild(map);
@@ -124,7 +123,7 @@
               // on bigger screens use two column view
               flex_container.classList.add("flex-container-row")
               flex_container.classList.remove("flex-container-column")
-              
+
               left_column.appendChild(list);
               left_column.appendChild(action_buttons);
               right_column.appendChild(map);
@@ -132,7 +131,7 @@
             }
           }
         </script>
-      {% endif %} 
+      {% endif %}
       <script>
         /* eslint no-unexpected-multiline: "off" */
         setTimeout(function () {
@@ -206,7 +205,7 @@
           map.on('pm:drawstart', function () {
             if (map.pm.getGeomanLayers().length > 0) {
               map.pm.getGeomanLayers().forEach((item) => {
-                if (item._drawnByGeoman === true)
+                if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
                   map.removeLayer(item);
               })
             }
