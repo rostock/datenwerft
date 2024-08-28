@@ -183,7 +183,8 @@ STATICFILES_DIRS = (
   ('wicket', BASE_DIR / 'node_modules/wicket'),
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
   ('css', BASE_DIR / 'datenwerft/static/css'),
-  ('img', BASE_DIR / 'datenwerft/static/img')
+  ('img', BASE_DIR / 'datenwerft/static/img'),
+  ('js', BASE_DIR / 'datenwerft/static/js')
 )
 
 

@@ -1,67 +1,49 @@
-{% extends "base.html" %}
+{% extends "bemas/form.html" %}
 {% load bemas_tags %}
 {% load static %}
 
 {% block title %}{{ codelist_verbose_name }} – Formular | {% endblock %}
 
 {% block style %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  {% if is_mobile %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
-  {% endif %}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific styles -->
 {% endblock %}
 
 {% block scripts %}
-  {{ block.super }}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific scripts -->
   <script src="{% static 'bemas/js/form.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-  {% if is_bemas_admin %}
-    {% if form.errors %}
-      {% include "bemas/container-errors.html" %}
-    {% endif %}
-    <h2><i class="fas fa-{{ 'codelist'|get_icon }}"></i> <em>{{ codelist_verbose_name }}</em></h2>
-    <form class="form mt-4" method="post" action="">
-      {% csrf_token %}
-      <div>
-        <table class="table">
-          {% for field in form %}
-            <tr>
-              <td class="cell-label">
-                {{ field.label_tag }}
-              </td>
-              {% autoescape off %}
-                <td class="cell-field">
-                  {{ field }}
-                </td>
-              {% endautoescape %}
-            </tr>
-          {% endfor %}
-        </table>
-      </div>
-      <div id="buttons">
-        <div class="d-grid mt-5 mb-3 gap-2">
-          <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
-          {% if object %}
-            <a class="btn btn-danger" role="button" href="{{ codelist_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
-          {% endif %}
-          <a class="btn btn-warning" role="button" href="{{ codelist_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
-        </div>
-      </div>
-    </form>
-    <script>
-      /**
-       * @function
-       *
-       * main function
-       */
-      $(document).ready(function () {
-        keepDjangoRequiredMessages();
-      });
-    </script>
+	{% if is_bemas_admin %}
+		{{ block.super }}
   {% else %}
     {% include "bemas/notice-norights.html" %}
+	{% endif %} 
+{% endblock %}
+
+{% block errors %}
+	{% if form.errors %}
+    {% include "bemas/container-errors.html" %}
   {% endif %}
 {% endblock %}
+
+{% block headline %}
+	<i class="fas fa-{{ 'codelist'|get_icon }}"></i> <em>{{ codelist_verbose_name }}</em>
+{% endblock %}
+
+{% block form-control-buttons %}
+	<div id="buttons" class="gap-2">
+    <div class="d-grid mt-5 mb-3 gap-2">
+      <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if not is_mobile %}{% if object %}Änderungen{% else %}neuen Codelisteneintrag{% endif %} {% endif %}speichern</button>
+      {% if object %}
+        <a class="btn btn-danger" role="button" href="{{ codelist_deletion_url }}"><i class="fas fa-{{ 'delete'|get_icon }}"></i> {% if not is_mobile %}Codelisteneintrag {% endif %}löschen</a>
+      {% endif %}
+      <a class="btn btn-warning" role="button" href="{{ codelist_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
+    </div>
+  </div>
+{% endblock %}
+

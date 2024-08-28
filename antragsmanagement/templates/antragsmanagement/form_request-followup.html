@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "antragsmanagement/form.html" %}
 {% load toolbox_tags %}
 {% load antragsmanagement_tags %}
 {% if is_geometry_model %}
@@ -6,16 +6,10 @@
 {% endif %}
 {% load static %}
 
-{% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
-
 {% block style %}
   {{ block.super }}
   {% if is_geometry_model %}
     {% leaflet_css plugins="geoman,locatecontrol" %}
-  {% endif %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  {% if is_mobile %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
   {% endif %}
 {% endblock %}
 
@@ -31,78 +25,113 @@
     <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
     <script type="module" src="{% static 'datenmanagement/js/leafletHelpers.js' %}"></script>
   {% endif %}
-  <script src="{% static 'bemas/js/form.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   {% if not user.is_authenticated or user.is_authenticated and has_necessary_permissions %}
-    {% if messages %}
-      {% include "antragsmanagement/container_messages.html" %}
-    {% endif %}
-    {% if form.errors %}
-      {% include "antragsmanagement/container_errors.html" %}
-    {% endif %}
+    {% block errors %}
+      {% if messages %}
+        {% include "antragsmanagement/container_messages.html" %}
+      {% endif %}
+    	{{ block.super }}
+    {% endblock %}
     {% if corresponding_request or authorative %}
       <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>
       {% if not authorative and request_workflow and request_workflow|get_dict_value_by_key:'current_step' and request_workflow|get_dict_value_by_key:'steps' and request_workflow|get_dict_value_by_key:'steps' >= 1 and request_workflow|get_dict_value_by_key:'steps' >= request_workflow|get_dict_value_by_key:'current_step' %}
         <h4>Schritt {{ request_workflow|get_dict_value_by_key:'current_step' }} von {{ request_workflow|get_dict_value_by_key:'steps' }} bis zum fertigen Antrag</h4>
       {% endif %}
-      <form class="form mt-4" method="post" action="">
+      <form class="form mt-4 {% if is_geometry_model %}flex-container-row{% else %}flex-container-column{% endif %}" method="post" action="" id="form">
         {% csrf_token %}
         {% if authorative %}
           <input type="hidden" name="original_referer" value="{{ cancel_url }}">
         {% endif %}
-        <div {% if is_geometry_model %}id="custom-form"{% endif %}>
-          <table class="table">
-            {% for field in form %}
-              {% if not field|is_field_geometry_field %}
-                <tr{% if field.name in hidden_fields %} style="display: none;"{% endif %}>
-                  <td class="cell-label">
-                    {{ field.label_tag }}
-                  </td>
-                  {% autoescape off %}
-                    <td class="cell-field">
-                      {{ field }}
-                    </td>
-                  {% endautoescape %}
-                </tr>
-              {% endif %}
-            {% endfor %}
-          </table>
-          {% if not is_mobile %}
-            {% include "antragsmanagement/buttons_form_request-followup.html" %}
-          {% endif %}
-        </div>
         {% if is_geometry_model %}
-          <div id="map-addresssearch-container-form">
-            <label for="id_{{ geometry_field }}" class="form-label{% if geometry_required %} required{% endif %}">{{ geometry_field_label }}</label>
-            {% if geometry %}
-              <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
-            {% else %}
-              <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
-            {% endif %}
-            {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
-            <div class="mt-3">
-              <label for="address-search" class="form-label">Suche nach Adressen, Straßen und/oder Gemeindeteilen zur Orientierung:</label>
-              <div class="form-floating">
-                <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
-                <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
+          <div class="flex-item flex-container-column" id="flex-left">
+        {% endif %}
+          <div class="flex-item" id="flex-list">
+            {% block list %}
+              {{ block.super }}
+            {% endblock %}
+          </div>
+          <div class="flex-item" id="flex-action-buttons">
+            {% include "antragsmanagement/buttons_form_request-followup.html" %}
+          </div>
+        {% if is_geometry_model %}
+          </div>
+
+          <div class="flex-item flex-container-column" id="flex-right">
+            <div class="flex-item" id="flex-map">
+              {% if is_geometry_model %}
+                <div id="map-addresssearch-container-form">
+                  <label for="id_{{ geometry_field }}" class="form-label{% if geometry_required %} required{% endif %}">{{ geometry_field_label }}</label>
+                  {% if geometry %}
+                    <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{{ geometry }}</textarea>
+                  {% else %}
+                    <textarea hidden id="id_{{ geometry_field }}" class="required django-leaflet-raw-textarea" name="{{ geometry_field }}" cols="150" rows="4">{ "type": "Point", "coordinates": [] }</textarea>
+                  {% endif %}
+                  {% leaflet_map "leaflet-map" callback="window.mapCallbackFunction" %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="flex-item" id="flex-address-search">
+              <div class="mt-5">
+                <label for="address-search" class="form-label">Suche nach Adressen, Straßen und/oder Gemeindeteilen zur Orientierung:</label>
+                <div class="form-floating">
+                  <input id="address-search" type="text" class="form-control" name="address_search" autocapitalize="off" autocomplete="off" placeholder="Adresse, Straße oder Gemeindeteil eingeben…">
+                  <label for="address-search">Adresse, Straße oder Gemeindeteil eingeben…</label>
+                </div>
+                <div id="results-container" class="results"></div>
               </div>
-              <div id="results-container" class="results"></div>
             </div>
           </div>
         {% endif %}
-        {% if is_mobile %}
-          {% include "antragsmanagement/buttons_form_request-followup.html" %}
-        {% endif %}
+
       </form>
       <!-- eslint-disable-next-script -->
-      <script>
-        window.zoomToPreviousGeometries = true;
-        {% if geometry %}
-          window.zoomToPreviousGeometries = false;
-        {% endif %}
-      </script>
+      {% if is_geometry_model %}
+        <script>
+          window.zoomToPreviousGeometries = true;
+          {% if geometry %}
+            window.zoomToPreviousGeometries = false;
+          {% endif %}
+
+          // run orderFormItems on page load
+          orderFormItems();
+
+          // run orderFormItems on resize event
+          window.addEventListener('resize', orderFormItems);
+
+          function orderFormItems() {
+            const list = document.getElementById('flex-list');
+            const action_buttons = document.getElementById('flex-action-buttons');
+            const map = document.getElementById('flex-map');
+            const address_search = document.getElementById('flex-address-search');
+            const flex_container = document.getElementById('form')
+            const left_column = document.getElementById('flex-left')
+            const right_column = document.getElementById('flex-right')
+
+            if (window.innerWidth <= 768) {
+              // on small screens use just one flex column
+              flex_container.classList.add("flex-container-column")
+              flex_container.classList.remove("flex-container-row")
+
+              flex_container.appendChild(list);
+              flex_container.appendChild(action_buttons);
+              flex_container.appendChild(map);
+              flex_container.appendChild(address_search);
+            } else {
+              // on bigger screens use two column view
+              flex_container.classList.add("flex-container-row")
+              flex_container.classList.remove("flex-container-column")
+
+              left_column.appendChild(list);
+              left_column.appendChild(action_buttons);
+              right_column.appendChild(map);
+              right_column.appendChild(address_search);
+            }
+          }
+        </script>
+      {% endif %}
       <script>
         /* eslint no-unexpected-multiline: "off" */
         setTimeout(function () {
@@ -176,7 +205,7 @@
           map.on('pm:drawstart', function () {
             if (map.pm.getGeomanLayers().length > 0) {
               map.pm.getGeomanLayers().forEach((item) => {
-                if (item._drawnByGeoman === true)
+                if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
                   map.removeLayer(item);
               })
             }

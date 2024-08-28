@@ -1,47 +1,20 @@
-{% extends "base.html" %}
+{% extends "antragsmanagement/form.html" %}
 {% load antragsmanagement_tags %}
+{% load bemas_tags %}
 {% load static %}
-
-{% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
-
-{% block style %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-  {% if is_mobile %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
-  {% endif %}
-{% endblock %}
-
-{% block scripts %}
-  {{ block.super }}
-  <script src="{% static 'bemas/js/form.js' %}"></script>
-{% endblock %}
 
 {% block content %}
   {% if not user.is_authenticated or user.is_authenticated and has_necessary_permissions %}
-    {% if form.errors %}
-      {% include "antragsmanagement/container_errors.html" %}
-    {% endif %}
+    {% block errors %}
+    	{{ block.super }}
+    {% endblock %}
     <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
-    <form class="form mt-4" method="post" action="">
+    <form class="form mt-4 flex-container-column" method="post" action="" id="form">
       {% csrf_token %}
-      <div>
-        <table class="table">
-          {% for field in form %}
-            <tr>
-              <td class="cell-label">
-                {{ field.label_tag }}
-              </td>
-              {% autoescape off %}
-                <td class="cell-field">
-                  {{ field }}
-                </td>
-              {% endautoescape %}
-            </tr>
-          {% endfor %}
-        </table>
-      </div>
-      <div class="d-grid mt-5 mb-3 gap-2">
+      {% block list %}
+      	{{ block.super }}
+      {% endblock %}
+      <div class="d-grid mt-3 mb-3 gap-2">
         <button class="btn btn-success" type="submit"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
         <a class="btn btn-warning" role="button" href="{{ cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
       </div>

@@ -236,7 +236,7 @@ class RequesterMixin:
     # store ID of requester in session in order to pass it to next view
     # if user is not authenticated
     if not self.request.user.is_authenticated:
-      instance = form.save(commit=True)
+      instance = form.save()
       self.request.session['corresponding_requester'] = instance.pk
     return super().form_valid(form)
 
@@ -270,7 +270,7 @@ class RequesterCreateView(RequesterMixin, ObjectCreateView):
     # set value of user_id field
     # if user is authenticated
     if self.request.user.is_authenticated:
-      instance = form.save(commit=False)
+      instance = form.save()
       instance.user_id = self.request.user.pk
     return super().form_valid(form)
 
@@ -335,7 +335,7 @@ class RequestMixin:
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of new request in session in order to pass it to next view
@@ -1133,7 +1133,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     """
     old_instance = self.get_object()
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # on every status change: send email to inform original requester
@@ -1245,7 +1245,7 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of current object in session in order to pass it to previous view
@@ -1407,7 +1407,7 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of current object in session in order to pass it to previous view
@@ -1551,7 +1551,7 @@ class CleanupEventDetailsMixin(RequestFollowUpMixin):
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of current object in session in order to pass it to previous view
@@ -1779,7 +1779,7 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     request = instance.cleanupevent_request

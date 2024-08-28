@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+  <!-- inherits from base.html -->
+  {{ block.super }}
+
+  <!-- set standard form style sheet -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}">
+
+  <!-- device specific style sheets -->
+  {% if forms_in_mobile_mode or is_mobile %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/form-mobile.css' %}">
+    {% if forms_in_mobile_mode %}
+      <link rel="stylesheet" type="text/css" href="{% static 'css/form-mobile-mode.css' %}">
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <!-- inherit from base.html -->
+  {{ block.super }}
+  
+  <!-- extended with js scripts needed by all form templates -->
+{% endblock %}
+

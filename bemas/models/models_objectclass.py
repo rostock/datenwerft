@@ -136,7 +136,7 @@ class Organization(Objectclass):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
     self.search_content = str(self)
     # add contacts to search content if organization already exists
@@ -308,7 +308,7 @@ class Person(Objectclass):
     return concat_address(self.address_street, self.address_house_number,
                           self.address_postal_code, self.address_place)
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
     self.search_content = str(self)
     super().save(
@@ -384,7 +384,7 @@ class Contact(Objectclass):
       contact_data_str = ''
     return str(self.person) + function_str + contact_data_str
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # (1/2) store search content in designated field of object class organization:
     # first get organization...
     organization = Organization.objects.get(pk=self.organization.pk)
@@ -504,7 +504,7 @@ class Originator(GeometryObjectclass):
         operator += ' Betreiber:in: ' + str(self.operator_person)
     return str(self.sector) + operator + ')'
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
     self.search_content = self.sector_and_operator()
     super().save(
@@ -609,7 +609,7 @@ class Complaint(GeometryObjectclass):
     return '#' + str(self.id) + ' vom ' + self.date_of_receipt.strftime('%d.%m.%Y') + \
            ' (' + str(self.status) + ')'
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # on creation:
     if not self.pk and Status.get_default_status():
       # store default status in designated field
@@ -706,7 +706,7 @@ class Event(Objectclass):
     description = ': ' + shorten_string(self.description, 200) if self.description else ''
     return str(self.type_of_event) + date_str + description
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # store search content in designated field
     self.search_content = self.type_of_event_and_complaint()
     super().save(
@@ -766,7 +766,7 @@ class LogEntry(Objectclass):
   def __str__(self):
     return '#' + str(self.id)
 
-  def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     # force object string to be NULL
     if self.content == '/':
       self.content = None

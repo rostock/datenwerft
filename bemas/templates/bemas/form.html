@@ -1,0 +1,317 @@
+{% extends "form.html" %}
+{% load bemas_tags %}
+{% load static %}
+{% load toolbox_tags %}
+
+{% block style %}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific styles -->
+{% endblock %}
+
+{% block scripts %}
+  <!-- inherits from form.html -->
+	{{ block.super }}
+  <!-- bemas specific scripts -->
+{% endblock %}
+
+{% block content %}
+  <h2>{% block headline %}{% endblock %}</h2>
+  
+  {% block errors %}
+
+  {% endblock %}
+  
+  <form class="form mt-4 {% if objectclass_is_geometry_model %}flex-container-row{% else %}flex-container-column{% endif %}" method="post" action="" id="form">
+    {% csrf_token %}
+    
+    {% if objectclass_is_geometry_model %}
+      <div class="flex-item flex-container-column" id="flex-left">
+    {% endif %}
+    <div class="flex-item" id="flex-list">
+      {% block list %}
+        <!-- form list -->
+        <div {% if objectclass_is_geometry_model %}id="custom-form"{% endif %}>
+          <table class="table">
+            {% for field in form %}
+              {% if not field|is_field_geometry_field and not field.name == 'address' %}
+                <tr>
+                  <td class="cell-label">
+                    {{ field.label_tag }}
+                  </td>
+                  {% autoescape off %}
+                    <td class="cell-field">
+                      {{ field }}
+                    </td>
+                  {% endautoescape %}
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+        <script>
+          /**
+           * @function
+           *
+           * main function
+           */
+          $(document).ready(function () {
+            keepDjangoRequiredMessages();
+          });
+        </script>
+      {% endblock %}
+    </div>
+    <div class="flex-item" id="flex-action-buttons">
+      <div id="form-control-buttons" class="mt-4 mb-3">
+        {% block form-control-buttons %}
+          {% comment %}
+            save buttons
+          {% endcomment %}
+        {% endblock %}
+      </div>
+    </div>
+  
+    {% if objectclass_is_geometry_model %}
+    	</div>
+      <div class="flex-item flex-container-column" id="flex-right">
+        <div class="flex-item" id="flex-map">
+          {% block map %}
+            <!-- form map -->
+          {% endblock %}
+        </div>
+        <div class="flex-item" id="flex-address-search">
+          {% block address-search %}
+            {% comment %}
+              address search part if map
+            {% endcomment %}
+          {% endblock %}
+        </div>
+      </div>
+      
+    {% endif %}
+  </form>
+  <script>
+    setTimeout(function () {
+      $('.alert-success').alert('close');
+    }, 3000);
+  
+    /**
+     * @function
+     * @name mapCallbackFunction
+     *
+     * handles (as a callback function) passed map
+     *
+     * @param {Object} map - map
+     */
+    function mapCallbackFunction(map) {
+      setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+      configureMap(map, '{% url "toolbox:owsproxy" %}');
+  
+      // make map globally available
+      window.currMap = map;
+  
+      {% if is_mobile %}
+        enableMapLocate(map)
+      {% endif %}
+  
+      // configure globally available markers for Leaflet
+      window.redMarker = new L.Icon({
+        shadowUrl: '{% static "datenmanagement/img/leaflet-markers/marker-shadow.png" %}',
+        iconUrl: '{% static "datenmanagement/img/leaflet-markers/marker-red.svg" %}',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+  
+      // define several globally available variables
+      window.featureGeometry = [];
+      {% if REVERSE_SEARCH_RADIUS %}
+        window.reverseSearchRadius = {{ REVERSE_SEARCH_RADIUS }}
+      {% endif %}
+  
+      configureLeafletGeoman(map, 'Point');
+  
+      // if geometry already exists...
+      {% if geometry %}
+        // show existing geometry on map
+        map.loadGeometryFromField('#id_{{ objectclass_geometry_field }}')
+      {% endif %}
+  
+      /**
+       * @function
+       *
+       * checks (on starting "sketching" mode) if a Leaflet-Geoman layer already exists
+       * and deletes it if necessary
+       */
+      map.on('pm:drawstart', function () {
+        if (map.pm.getGeomanLayers().length > 0) {
+          map.pm.getGeomanLayers().forEach((item) => {
+            if ('_drawnByGeoman' in item && item._drawnByGeoman === true)
+              map.removeLayer(item);
+          })
+        }
+      });
+  
+      /**
+       * @function
+       *
+       * enables (on creating a Leaflet-Geoman layer) address reference button
+       */
+      map.on('pm:create', function () {
+        enableAddressReferenceButton();
+      });
+    }
+  
+    /**
+     * @function
+     *
+     * main function
+     */
+    $(document).ready(function () {
+      keepDjangoRequiredMessages();
+  
+      // define available variable for the necessity of dynamically setting vertical positions of buttons
+      let buttonsPosition = false;
+      {% if not is_mobile and objectclass_is_geometry_model %}
+        buttonsPosition = true
+      {% endif %}
+  
+      // define variable for array fields and their values
+      // (i.e. for those array fields containing more than one value)
+      let arrayFieldsValues = [];
+      {% if object and array_fields_values %}
+        arrayFieldsValues = {{ array_fields_values|safe }}
+      {% endif %}
+  
+      // handle array fields
+      $('[is_array_field="true"]').each(function () {
+        let currentField = $(this);
+        let currentFieldId = currentField.attr('id');
+        let currentFieldName = currentField.attr('name');
+        // if array field contains more than one value
+        // (and therefore is contained in variable for array fields and their values defined above)...
+        if (arrayFieldsValues[currentFieldName]) {
+          let valuesParsed = arrayFieldsValues[currentFieldName];
+          for (let i = 0; i < valuesParsed.length; i++) {
+            // clone first (initial) field and define it as new field
+            let newField = currentField.clone();
+            cleanField(newField, i + 1, currentFieldId, currentFieldName);
+            // write corresponding value to new field
+            newField.attr('value', valuesParsed[i]);
+            newField.val(valuesParsed[i]);
+            // insert new field into DOM and add a deletion button
+            addField(newField, currentField, buttonsPosition);
+            currentField = newField;
+          }
+        }
+        // create button for adding another field
+        let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
+        addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
+        // on clicking the created button for adding another field...
+        addAnotherField.click(function () {
+          // clone previous field and define it as new empty field
+          let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
+          let newField = currentField.clone();
+          let i = 1;
+          if (/_[0-9]*$/.test(currentField.attr('name')))
+            i = Number(currentField.attr('name').replace(/.*_/, '')) + 1;
+          cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
+          newField.removeAttr('value');
+          newField.val('');
+          // insert new field into DOM and add a deletion button
+          addField(newField, currentField, buttonsPosition);
+        });
+      });
+  
+      // handle sector select field: add tooltips to options, based on examples passed for sectors
+      let sectorExamples = [];
+      {% if sector_examples %}
+        sectorExamples = {{ sector_examples|safe }}
+      {% endif %}
+      $('select#id_sector > option').each(function () {
+        let value = $(this).attr('value');
+        if (value > 0)
+          $(this).attr('title', sectorExamples[value]);
+      });
+  
+      // handle certain select fields: convert them to autocomplete fields
+      $('select#id_organization').select2({ theme: 'bootstrap-5' });
+      $('select#id_person').select2({ theme: 'bootstrap-5' });
+      $('select#id_operator_organization').select2({ theme: 'bootstrap-5' });
+      $('select#id_operator_person').select2({ theme: 'bootstrap-5' });
+      $('select#id_originator').select2({ theme: 'bootstrap-5' });
+      $('select#id_complainers_organizations').select2({ theme: 'bootstrap-5' });
+      $('select#id_complainers_persons').select2({ theme: 'bootstrap-5' });
+  
+      // currently not needed due to conversion of multiple select fields to autocomplete fields
+      /* $('select[multiple]').each(function () {
+        // addEmptyFieldButton($(this));
+      }); */
+  
+      // initialize address search (and make its results globally available)
+      window.results = $('div.results');
+      window.addressType = 'Adresse';
+      window.searchField = $('#id_address');
+      {% if objectclass_is_geometry_model %}
+        initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType)
+      {% endif %}
+  
+      // on clicking the map reference (i.e. address to map) button...
+      $('#addressToMap').on('click', function () {
+        setMarkerToAddressSearchResult(window.currMap);
+        enableAddressReferenceButton();
+      });
+  
+      // on clicking the address reference (i.e. map to address) button...
+      $('#mapToAddress').on('click', function () {
+        setAddressToMarkerAddress(window.currMap.pm.getGeomanLayers()[0], '{% url "toolbox:reversesearch" %}');
+        $('#addressToMap').prop('disabled', false);
+      });
+  
+      // dynamically set vertical positions of buttons
+      if (buttonsPosition)
+        setButtonsPosition();
+    });
+  </script>
+  
+  {% if objectclass_is_geometry_model %}
+  	<script>
+      // run orderFormItems on page load
+      orderFormItems();
+      
+      // run orderFormItems on resize event
+      window.addEventListener('resize', orderFormItems);
+      
+      function orderFormItems() {
+        const list = document.getElementById('flex-list');
+        const action_buttons = document.getElementById('flex-action-buttons');
+        const map = document.getElementById('flex-map');
+        const address_search = document.getElementById('flex-address-search');
+        const flex_container = document.getElementById('form')
+        const left_column = document.getElementById('flex-left')
+        const right_column = document.getElementById('flex-right')
+    
+        if (window.innerWidth <= 768) {
+          // on small screens use just one flex column
+          flex_container.classList.add("flex-container-column")
+          flex_container.classList.remove("flex-container-row")
+          
+          flex_container.appendChild(list);
+          flex_container.appendChild(action_buttons);
+          flex_container.appendChild(map);
+          flex_container.appendChild(address_search);
+        } else {
+          // on bigger screens use two column view
+          flex_container.classList.add("flex-container-row")
+          flex_container.classList.remove("flex-container-column")
+          
+          left_column.appendChild(list);
+          left_column.appendChild(action_buttons);
+          right_column.appendChild(map);
+          right_column.appendChild(address_search);
+        }
+      }
+    </script>
+  {% endif %}
+{% endblock %}
