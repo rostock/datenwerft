@@ -2,8 +2,6 @@ import logging
 import pprint
 import time
 
-import requests
-
 from datenwerft import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
@@ -74,7 +72,7 @@ class VCPub:
     """
     return self.__project_id
 
-  def post(self, endpoint:str, data:dict = None, json=None, files=None) -> tuple[bool, dict|requests.Response|None]:
+  def post(self, endpoint:str, data:dict = None, json=None, files=None) -> tuple[bool, dict|Response|None]:
     """
     Make a POST Request to the VC Publisher API.
 
@@ -86,18 +84,17 @@ class VCPub:
     """
     url: str = self.__url + endpoint
     response = self.__session.post(url=url, data=data, json=json, files=files)
-    print(response.__dict__)
-    if response.ok and response.status_code is not 204:
+    if response.ok and response.status_code != 204:
       self.logger.debug(f'POST {url}')
       return response.ok, response.json()
-    elif response.status_code is 204:
+    elif response.status_code == 204:
       self.logger.debug(f'POST {url}')
       return response.ok, None
     else:
       self.logger.warning(f'POST on {url} failed: {response.__dict__}')
       return response.ok, response
 
-  def get(self, endpoint: str) -> tuple[bool, dict]:
+  def get(self, endpoint: str) -> tuple[bool, dict|Response|None]:
     """
     Make a GET Request to the VC Publisher API.
 
@@ -113,18 +110,22 @@ class VCPub:
       self.logger.warning(f'GET on {url} failed: {response.json()}')
       return response.ok, response
 
-  def delete(self, endpoint: str) -> tuple[bool, dict]:
+  def delete(self, endpoint: str, headers=None) -> tuple[bool, dict|Response|None]:
     """
     Make a DELETE Request to the VC Publisher API.
 
     :param endpoint: api endpoint like `/project/<project_id>/`
+    :param headers: json like dict
     :return: Response as dict
     """
     url: str = self.__url + endpoint
-    response = self.__session.delete(url=url)
-    if response.ok:
+    response = self.__session.delete(url=url, headers=headers)
+    if response.ok and response.status_code != 204:
       self.logger.debug(f'DELETE {url}')
       return response.ok, response.json()
+    elif response.status_code == 204:
+      self.logger.debug(f'DELETE {url}')
+      return response.ok, None
     else:
       self.logger.warning(f'DELETE on {url} failed: {response.json()}')
       return response.ok, response

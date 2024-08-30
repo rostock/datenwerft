@@ -4,6 +4,7 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 
 import requests
+from compose.config.validation import validate_cpu
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
@@ -15,6 +16,9 @@ from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
+
+from httplib2 import Response
+
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.customStorage.VCPubStorage import VCPubBucketStorage
@@ -2991,9 +2995,21 @@ class Punktwolken_Projekte(ComplexModel):
     )
 
   def delete(self, using=None, keep_parents=False):
-    # Todo: Delete dataset bucket
-    super().delete(using=using, keep_parents=keep_parents)
-
+    if self.vcp_dataset_bucket_id:
+      bucket = DataBucket(_id=self.vcp_dataset_bucket_id)
+      ok, response = bucket.delete()
+      if ok:
+        print('deleting project')
+        super().delete(using=using, keep_parents=keep_parents)
+      elif response.status_code == 404:
+        # bucket is already deleted
+        print('404: deleting project')
+        super().delete(using=using, keep_parents=keep_parents)
+      else:
+        print(f'DELETE Request failed: {response.__dict__}')
+    else:
+      print('deleting project')
+      super().delete(using=using, keep_parents=keep_parents)
 
 
 #
@@ -3098,8 +3114,21 @@ class Punktwolken(ComplexModel):
           # if upload success, save object key and delete local file
           self.vcp_object_key = key
           # Todo: delete locale pointcloud file
-          # save object_key
+          # save object_key to db
           super().save(update_fields=['vcp_object_key'])
+
+  def delete(self, using=None, keep_parents=False):
+    if self.vcp_object_key:
+      bucket = DataBucket(_id=self.projekt.vcp_dataset_bucket_id)
+      ok, response = bucket.delete_object(key=self.vcp_object_key)
+      if ok:
+        super().delete(using=using, keep_parents=keep_parents)
+      elif response.status_code == 404:
+        super().delete(using=using, keep_parents=keep_parents)
+      else:
+        print(f'DELETE Request failed: {response}')
+    else:
+      super().delete(using=using, keep_parents=keep_parents)
 
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)

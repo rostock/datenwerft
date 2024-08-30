@@ -1,5 +1,8 @@
 import os.path
 
+from docutils.nodes import header
+from uaclient.api.u.pro.detach.v1 import endpoint
+
 from toolbox.vcpub.vcpub import VCPub
 from uuid import uuid4
 
@@ -44,8 +47,10 @@ class DataBucket:
     }
     print('===== CREATE BUCKET =====')
     ok, bucket = self.__api.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
-    self._id = bucket['_id']
-    self.name = bucket['name']
+    if ok:
+      self._id = bucket['_id']
+      self.name = bucket['name']
+      self.create_object(key='keep')
 
 
   def __get_bucket__(self):
@@ -83,11 +88,8 @@ class DataBucket:
     delete Bucket
     :return:
     """
-    self.__api.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
-    global_ref = globals()
-    for var_name, var_obj in list(global_ref.items()):
-      if var_obj is self:
-        del global_ref[var_name]
+    ok, response = self.__api.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
+    return ok, response
 
   def download_file(self):
     pass
@@ -151,5 +153,12 @@ class DataBucket:
     if not ok:
       print(response)
     # return data-bucket object key of uploadet file
+    key = f'/{key}'
     return ok, key
 
+  def delete_object(self, key):
+    params=f'?key={key}'
+    ok, response = self.__api.delete(
+      endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/object{params}',
+    )
+    return ok, response
