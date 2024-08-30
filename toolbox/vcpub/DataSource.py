@@ -44,7 +44,7 @@ class Datasource:
     }
 
     print('=====  CREATE DATASOURCE  =====')
-    source = self.__api.post(endpoint=f'/project/{self.__project_id}/datasource', json=data)
+    ok, source = self.__api.post(endpoint=f'/project/{self.__project_id}/datasource', json=data)
     self._id = source['_id']
 
   def __get_source__(self):
@@ -52,7 +52,7 @@ class Datasource:
     get datasource informations from VCPub API of an existing datasource
     :return:
     """
-    source = self.__api.get(endpoint=f'/project/{self.__project_id}/datasource/{self._id}')
+    ok, source = self.__api.get(endpoint=f'/project/{self.__project_id}/datasource/{self._id}')
     self.name = source['name']
     self.description = source['description']
     self.typeProperties = source['typeProperties']

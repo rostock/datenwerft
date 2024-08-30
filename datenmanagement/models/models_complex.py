@@ -3,6 +3,7 @@ import pprint
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
+import requests
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
@@ -18,6 +19,7 @@ from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.customStorage.VCPubStorage import VCPubBucketStorage
 from toolbox.fields import NullTextField
+from toolbox.vcpub.DataBucket import DataBucket
 from toolbox.vcpub.Task import Task
 from toolbox.vcpub.vcpub import VCPub
 from .base import ComplexModel
@@ -2979,15 +2981,14 @@ class Punktwolken_Projekte(ComplexModel):
       self.vcp_task_id = task.get_id()
       self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
       self.vcp_datasource_id = task.get_datasource()['datasourceId']
-
+    for element in Punktwolken.objects.filter(projekt=self):
+      element.save()
     super().save(
       force_insert=force_insert,
       force_update=force_update,
       using=using,
       update_fields=update_fields
     )
-
-
 
   def delete(self, using=None, keep_parents=False):
     # Todo: Delete dataset bucket
@@ -3029,6 +3030,12 @@ class Punktwolken(ComplexModel):
     verbose_name='Zuletzt aktualisiert',
     auto_now=True
   )
+  vcp_object_key= CharField(
+    verbose_name='VCP Objekt ID',
+    max_length=255,
+    editable=False,
+    blank=True
+  )
   geometrie = polygon_field
   geometrie.null = True
 
@@ -3045,11 +3052,13 @@ class Punktwolken(ComplexModel):
       'aufnahme': 'Aufnahmedatum',
       'projekt': 'Punktwolken Projekt',
       'vc_update': 'Letzte Aktualisierung',
+      'vcp_object_key': 'VCP Objekt ID'
     }
     list_fields_with_datetime = ['aufnahme', 'vc_update']
     list_fields_with_foreign_key = {
       'projekt': 'bezeichnung'
     }
+    readonly_fields = ['vcp_object_key']
     fields_with_foreign_key_to_linkify = ['projekt']
     geometry_type = 'Polygon'
     geometry_calculation = True
@@ -3063,32 +3072,35 @@ class Punktwolken(ComplexModel):
     return self.dateiname + aufnahme_str
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    """
+    Modified django save method.
+    :param force_insert:
+    :param force_update:
+    :param using:
+    :param update_fields:
+    :return:
+    """
     super().save(
       force_insert=force_insert,
       force_update=force_update,
       using=using,
       update_fields=update_fields
     )
+    if not self.vcp_object_key:
+      # If point cloud database entry has no object key attribute, then point cloud must still be
+      # uploaded to the VC Publisher.
+      bucket = DataBucket(_id=self.projekt.vcp_dataset_bucket_id)
+      with open(self.punktwolke.path, 'rb') as f:
+        file = {self.dateiname: f}
+        print(file)
+        ok, key = bucket.upload(file=file)
+        if ok:
+          # if upload success, save object key and delete local file
+          self.vcp_object_key = key
+          # Todo: delete locale pointcloud file
+          # save object_key
+          super().save(update_fields=['vcp_object_key'])
 
-  def send_file_to_api(self):
-    url = 'https://external-api.example.com/upload'
-    bucket_id = self.projekt.bucketId
-    bucket_key = self.projekt.bucketKey
-    api
-    with open(self.file.path, 'rb') as f:
-      files = {'file': f}
-      data = {'bucketId': bucket_id, 'bucketKey': bucket_key}
-      response = requests.post(url, files=files, data=data)
-      if response.status_code == 200:
-        response_data = response.json()
-        self.objectKey = response_data.get('objectKey', '')
-        self.save(update_fields=['objectKey'])
-        # Datei löschen
-        if os.path.exists(self.file.path):
-          os.remove(self.file.path)
-        print("File successfully sent to API and deleted locally.")
-      else:
-        print(f"Failed to send file. Status code: {response.status_code}")
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)
 

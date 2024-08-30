@@ -53,12 +53,12 @@ class Task:
     print(__name__)
     print('=====  CREATE TASK  =====')
     print(len(globals()))
-    task = self.__api.post(endpoint=f'/project/{self.__project_id}/task/', json=data)
+    ok, task = self.__api.post(endpoint=f'/project/{self.__project_id}/task/', json=data)
     self._id = task['_id']
     pprint(self.__api.get(endpoint=f'/project/{self.__project_id}/data-bucket/{bucket.get_id()}'))
 
   def __get_task__(self):
-    task = self.__api.get(endpoint=f'/project/{self.__project_id}/task/{self._id}/')
+    ok, task = self.__api.get(endpoint=f'/project/{self.__project_id}/task/{self._id}/')
     self.name = task['name']
     self.jobType = task['jobType']
     self.parameters = task['parameters']

@@ -2,6 +2,8 @@ import logging
 import pprint
 import time
 
+import requests
+
 from datenwerft import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
@@ -23,9 +25,17 @@ class VCPub:
     self.__epsg = '25833'
 
   def __del__(self):
+    """
+    extend deletion of VCPub object with logout.
+    :return:
+    """
     self.__session.get(url=f'{self.__url}/logout/')
 
   def __login__(self) -> BearerAuth:
+    """
+    login at VCPub api
+    :return: bearer token
+    """
     response: Response = post(
       url=f'{self.__url}/login/',
       data={
@@ -58,9 +68,13 @@ class VCPub:
     return self.__url
 
   def get_project_id(self) -> str:
+    """
+    get project id of VCPub project.
+    :return:
+    """
     return self.__project_id
 
-  def post(self, endpoint:str, data:dict = None, json=None, files=None) -> dict:
+  def post(self, endpoint:str, data:dict = None, json=None, files=None) -> tuple[bool, dict|requests.Response|None]:
     """
     Make a POST Request to the VC Publisher API.
 
@@ -68,17 +82,22 @@ class VCPub:
     :param data: dictionary delivered in request body
     :param json:
     :param files:
-    :return: Response as dict
+    :return:
     """
     url: str = self.__url + endpoint
     response = self.__session.post(url=url, data=data, json=json, files=files)
-    if response.ok:
+    print(response.__dict__)
+    if response.ok and response.status_code is not 204:
       self.logger.debug(f'POST {url}')
+      return response.ok, response.json()
+    elif response.status_code is 204:
+      self.logger.debug(f'POST {url}')
+      return response.ok, None
     else:
-      self.logger.warning(f'POST on {url} failed: {response.json()}')
-    return response.json()
+      self.logger.warning(f'POST on {url} failed: {response.__dict__}')
+      return response.ok, response
 
-  def get(self, endpoint: str) -> dict:
+  def get(self, endpoint: str) -> tuple[bool, dict]:
     """
     Make a GET Request to the VC Publisher API.
 
@@ -89,11 +108,12 @@ class VCPub:
     response = self.__session.get(url=url)
     if response.ok:
       self.logger.debug(f'GET {url}')
+      return response.ok, response.json()
     else:
       self.logger.warning(f'GET on {url} failed: {response.json()}')
-    return response.json()
+      return response.ok, response
 
-  def delete(self, endpoint: str) -> dict:
+  def delete(self, endpoint: str) -> tuple[bool, dict]:
     """
     Make a DELETE Request to the VC Publisher API.
 
@@ -104,9 +124,10 @@ class VCPub:
     response = self.__session.delete(url=url)
     if response.ok:
       self.logger.debug(f'DELETE {url}')
+      return response.ok, response.json()
     else:
       self.logger.warning(f'DELETE on {url} failed: {response.json()}')
-    return response.json()
+      return response.ok, response
 
   def create_data_bucket(self, name: str) -> dict:
     """
@@ -118,7 +139,7 @@ class VCPub:
     data: dict = {
       'name': f'dw_{name.lower().replace(" ", "_")}_bucket'
     }
-    response = self.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
+    ok, response = self.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
     return response
 
   def delete_data_bucket(self, bucket_id: str) -> dict:
@@ -128,7 +149,7 @@ class VCPub:
     :param bucket_id: of the bucket to be deleted.
     :return:
     """
-    response = self.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{bucket_id}/')
+    ok, response = self.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{bucket_id}/')
     return response
 
   def create_datasource(self,
@@ -161,7 +182,7 @@ class VCPub:
       },
       'type': 'tileset'
     }
-    response: dict = self.post(endpoint=f'/project/{self.__project_id}/datasource/', data=data)
+    ok, response = self.post(endpoint=f'/project/{self.__project_id}/datasource/', data=data)
     return response
 
   def create_task(self,
@@ -218,7 +239,7 @@ class VCPub:
       else:
         new_source_id = self.create_datasource(name=name)['_id']
       data['parameters']['datasource']['datasourceId'] = new_source_id
-    response: dict = self.post(
+    ok, response = self.post(
       endpoint=f'/project/{self.__project_id}/task/',
       data=data
     )

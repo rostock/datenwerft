@@ -43,27 +43,24 @@ class DataBucket:
       'properties': self.properties
     }
     print('===== CREATE BUCKET =====')
-    bucket = self.__api.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
+    ok, bucket = self.__api.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
     self._id = bucket['_id']
     self.name = bucket['name']
 
-  def __del__(self):
-    """
-
-    :return:
-    """
-    self.__api.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/')
 
   def __get_bucket__(self):
     """
     This method takes the data from an existing data bucket.
     :return:
     """
-    bucket = self.__api.get(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
-    self.name = bucket['name']
-    self.description = bucket['description']
-    self.properties = bucket['properties']
-    self.projectId = bucket['projectId']
+    ok, bucket = self.__api.get(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
+    if ok:
+      self.name = bucket['name']
+      self.description = bucket['description']
+      self.properties = bucket['properties']
+      self.projectId = bucket['projectId']
+    else:
+      print(f'Respone ok?: {ok}')
 
   def create_object(self, key: str, type: str ='file'):
     """
@@ -143,17 +140,16 @@ class DataBucket:
     return data
 
   def upload(self, path: str = None, file: dict = None):
+    key = list(file.keys())[0]
     if path:
       key = os.path.basename(path) # filename as key
       file = {key: open(path, 'rb')}
-    self.__api.post(
-      endpoint=f'/project/{self.__project_id}/data_bucket/{self._id}',
-      file=file
+    ok, response = self.__api.post(
+      endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/upload',
+      files=file
     )
+    if not ok:
+      print(response)
     # return data-bucket object key of uploadet file
-    if key:
-      return key
-    else:
-      list(file.keys())[0]
-
+    return ok, key
 
