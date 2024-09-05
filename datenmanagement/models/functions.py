@@ -26,18 +26,22 @@ def delete_duplicate_photos_with_other_suffixes(path):
 
 def delete_pointcloud(sender, instance, **kwargs):
   """
-  deletes pointcloud file connected with passed object of sending model
+  deletes point cloud file connected with passed object of sending model
 
   :param sender: sending model
   :param instance: object
   :param **kwargs
   """
   if hasattr(instance, 'punktwolke') and instance.punktwolke:
-    instance.punktwolke.delete()
+    try:
+      # delete local file, if it exists
+      instance.punktwolke.delete()
+    except ValueError:
+      pass
     try:
       # delete project subdir if it's empty
       os.rmdir(f'{settings.PC_MEDIA_ROOT}/{str(instance.projekt_id)}')
-    except OSError as e:
+    except OSError:
       pass
     instance.delete()
 

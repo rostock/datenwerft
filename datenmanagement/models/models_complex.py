@@ -13,7 +13,7 @@ from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, UUIDField
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save, pre_save, pre_delete
 from re import sub
 from zoneinfo import ZoneInfo
 
@@ -3003,7 +3003,7 @@ class Punktwolken_Projekte(ComplexModel):
         super().delete(using=using, keep_parents=keep_parents)
       elif response.status_code == 404:
         # bucket is already deleted
-        print('404: deleting project')
+        print('404: task not found, deleting project now')
         super().delete(using=using, keep_parents=keep_parents)
       else:
         print(f'DELETE Request failed: {response.__dict__}')
