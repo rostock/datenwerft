@@ -1,5 +1,7 @@
 import json
 import logging
+
+from datetime import datetime, timezone, timedelta
 from pprint import pprint
 from uuid import uuid4
 
@@ -43,6 +45,12 @@ class Task:
     source = Datasource(name=self.name, description=self.description)
     self.parameters['dataset'] = bucket.link()
     self.parameters['datasource'] = source.link()
+    current_time = datetime.now(timezone.utc)
+    scheduled_time = current_time + timedelta(minutes=30)
+    self.schedule = {
+      'type': 'scheduled',
+      'scheduled': f'{scheduled_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}'
+    }
     data = {
       'name': self.name,
       'description': self.description,
