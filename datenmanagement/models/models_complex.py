@@ -1,10 +1,6 @@
-import pprint
-
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
-import requests
-from compose.config.validation import validate_cpu
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
@@ -17,15 +13,11 @@ from django.db.models.signals import post_delete, post_save, pre_save, pre_delet
 from re import sub
 from zoneinfo import ZoneInfo
 
-from httplib2 import Response
-
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
-from toolbox.customStorage.VCPubStorage import VCPubBucketStorage
 from toolbox.fields import NullTextField
 from toolbox.vcpub.DataBucket import DataBucket
 from toolbox.vcpub.Task import Task
-from toolbox.vcpub.vcpub import VCPub
 from .base import ComplexModel
 from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
   haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
@@ -60,6 +52,7 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
 from .storage import OverwriteStorage
+
 
 
 #
@@ -3105,17 +3098,15 @@ class Punktwolken(ComplexModel):
     if not self.vcp_object_key:
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
-      bucket = DataBucket(_id=self.projekt.vcp_dataset_bucket_id)
-      with open(self.punktwolke.path, 'rb') as f:
-        file = {self.dateiname: f}
-        print(file)
-        ok, key = bucket.upload(file=file)
-        if ok:
-          # if upload success, save object key and delete local file
-          self.vcp_object_key = key
-          # Todo: delete locale pointcloud file
-          # save object_key to db
-          super().save(update_fields=['vcp_object_key'])
+      # import celery task -> import must remain here to avoid circular import errors
+      from ..tasks import send_pointcloud_to_vcpub
+      # run celery task delayed
+      send_pointcloud_to_vcpub.delay(
+        pk=self.pk,
+        dataset=self.projekt.vcp_dataset_bucket_id,
+        path=self.punktwolke.path,
+        filename=self.dateiname
+      )
 
   def delete(self, using=None, keep_parents=False):
     if self.vcp_object_key:
