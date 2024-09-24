@@ -1,6 +1,4 @@
 import logging
-import pprint
-import time
 
 from datenwerft import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
@@ -27,7 +25,7 @@ class VCPub:
     extend deletion of VCPub object with logout.
     :return:
     """
-    self.__session.get(url=f'{self.__url}/logout/')
+    self.__logout__()
 
   def __login__(self) -> BearerAuth:
     """
@@ -48,14 +46,14 @@ class VCPub:
       self.logger.error(f'Login Failed: {response.json()}')
     return BearerAuth(bearer)
 
-  def __logout__(self) -> bool:
+  def __logout__(self) -> None:
     response = self.__session.get(url=f'{self.__url}/logout/')
     if response.ok:
       self.logger.debug('Logout.')
     else:
       self.logger.warning(f'Logout failed: {response.json()}')
 
-  def __logout_all__(self) -> bool:
+  def __logout_all__(self) -> None:
     response = self.__session.get(url=f'{self.__url}/logout-all/')
     if response.ok:
       self.logger.debug('Logout all.')
@@ -88,13 +86,14 @@ class VCPub:
       self.logger.debug(f'POST {url}')
       return response.ok, response.json()
     elif response.status_code == 204:
+      # 204 No Response
       self.logger.debug(f'POST {url}')
       return response.ok, None
     else:
       self.logger.warning(f'POST on {url} failed: {response.__dict__}')
       return response.ok, response
 
-  def get(self, endpoint: str) -> tuple[bool, dict|Response|None]:
+  def get(self, endpoint: str, headers=None) -> tuple[bool, dict|Response|None]:
     """
     Make a GET Request to the VC Publisher API.
 
@@ -102,10 +101,14 @@ class VCPub:
     :return: Response as dict
     """
     url: str = self.__url + endpoint
-    response = self.__session.get(url=url)
-    if response.ok:
+    response = self.__session.get(url=url, headers=headers)
+    if response.ok and response.status_code != 204:
       self.logger.debug(f'GET {url}')
       return response.ok, response.json()
+    elif response.status_code == 204:
+      # 204 No Response
+      self.logger.debug(f'GET {url}')
+      return response.ok, None
     else:
       self.logger.warning(f'GET on {url} failed: {response.json()}')
       return response.ok, response
@@ -124,124 +127,9 @@ class VCPub:
       self.logger.debug(f'DELETE {url}')
       return response.ok, response.json()
     elif response.status_code == 204:
+      # 204 No Response
       self.logger.debug(f'DELETE {url}')
       return response.ok, None
     else:
       self.logger.warning(f'DELETE on {url} failed: {response.json()}')
       return response.ok, response
-
-  def create_data_bucket(self, name: str) -> dict:
-    """
-    Create a new date bucket for input files
-
-    :param name: Name of the bucket
-    :return:
-    """
-    data: dict = {
-      'name': f'dw_{name.lower().replace(" ", "_")}_bucket'
-    }
-    ok, response = self.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
-    return response
-
-  def delete_data_bucket(self, bucket_id: str) -> dict:
-    """
-    deletes a data bucket
-
-    :param bucket_id: of the bucket to be deleted.
-    :return:
-    """
-    ok, response = self.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{bucket_id}/')
-    return response
-
-  def create_datasource(self,
-                        name: str,
-                        description: str = "",
-                        dataBucketId: str = None,
-                        dataBucketKey: str = None,) -> dict:
-    """
-    Creates a new datasource.
-
-    :param name: name of the datasource > will be converted to 'crazy_datasource_name_source'
-    :param description: optional, description of the datasource
-    :param dataBucketId: optional, dataBucketId of an existing data bucket
-    :param dataBucketKey: optional, dataBucketKey of an existing data bucket
-    :return:
-    """
-    datasource_name = f'{name.lower().replace(" ", "_")}_source'
-    if not dataBucketId:
-      new_bucket = self.create_data_bucket(name=datasource_name)
-      dataBucketId = new_bucket['_id']
-      dataBucketKey = new_bucket['name']
-    data: dict = {
-      'name': f'dw_{datasource_name}',
-      'description': description,
-      'typeProperties': {},
-      'sourceProperties': {
-        'type': 'internal',
-        'dataBucketId': f'{dataBucketId}',
-        'dataBucketKey': f'{dataBucketKey}'
-      },
-      'type': 'tileset'
-    }
-    ok, response = self.post(endpoint=f'/project/{self.__project_id}/datasource/', data=data)
-    return response
-
-  def create_task(self,
-                  name: str,
-                  description: str = "",
-                  inputBucketId: str = None,
-                  inputBucketKey: str = None,
-                  datasourceId: str = None,
-                  **kwargs):
-    """
-    Create a new task.
-    :param name: name of the task
-    :param description: optional description
-    :param inputBucketId: optional, data bucket id (default: create new bucket)
-    :param inputBucketKey: optional,
-    :param datasourceId: optional datasource id (default: create new datasource)
-    :param kwargs: define 'uuid' to set the datasource folder name
-    :return:
-    """
-    data = {
-      'name': f'dw_{name}',
-      'description': description,
-      'parameters': {
-        'epsgCode': self.__epsg,
-        'command': 'conversion',
-        'dataset': {
-          'dataBucketId': f'{inputBucketId}',
-          'dataBucketKey': f'{inputBucketKey}'
-        },
-        'datasource': {
-          'command': 'update',
-          'datasourceId': f'{datasourceId}'
-        }
-      },
-      'jobType': 'pointcloud',
-      'schedule': {
-        'type': 'immediate'
-      }
-    }
-    if not inputBucketId:
-      # create data bucket if not given
-      response = self.create_data_bucket(name=name)
-      new_bucket_id = response['_id']
-      new_bucket_name = response['name']
-      data['parameters']['dataBucket']['dataBucketId'] =  new_bucket_id
-      data['parameters']['dataBucket']['dataBucketKey'] = new_bucket_name
-    if not datasourceId:
-      # create datasource if not given
-      if kwargs['uuid']:
-        r = self.create_datasource(name=name, folder_name=kwargs['uuid'])
-        time.sleep(2.5)
-        pprint.pprint(r)
-        new_source_id = r['_id']
-      else:
-        new_source_id = self.create_datasource(name=name)['_id']
-      data['parameters']['datasource']['datasourceId'] = new_source_id
-    ok, response = self.post(
-      endpoint=f'/project/{self.__project_id}/task/',
-      data=data
-    )
-    return response
