@@ -368,9 +368,22 @@ LOGGING = {
     'VCPub': {
       'handlers': ['file'],
       'level': 'DEBUG'
+    },
+    'Celery': {
+      'handlers': ['file', 'console'],
+      'level': 'DEBUG'
     }
   }
 }
+
+# Celery configuration
+# Celery is used for asynchrone tasks
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+# time to live for finished tasks
+CELERY_TASK_RESULT_EXPIRES = 3600  # 1 hour
 
 
 # configuration file with additional parameters
