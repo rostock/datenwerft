@@ -33,7 +33,6 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Antragsmanagement* anlegen
 7.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *BEMAS* anlegen
 8.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
-9.  leere *PostgreSQL*-Datenbank für die App *Metadatenmanagement* anlegen
 
 ## Konfiguration
 
@@ -64,7 +63,6 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
         cd /usr/local/datenwerft/datenwerft
         python manage.py migrate --database=antragsmanagement antragsmanagement
         python manage.py migrate --database=bemas bemas
-        python manage.py migrate --database=metadatenmanagement metadatenmanagement
         python manage.py migrate
         python manage.py antragsmanagement_roles_permissions
         python manage.py bemas_roles_permissions

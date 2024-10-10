@@ -28,8 +28,7 @@ LOCAL_APPS = [
   'toolbox',
   'datenmanagement',
   'antragsmanagement',
-  'bemas',
-  'metadatenmanagement'
+  'bemas'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
