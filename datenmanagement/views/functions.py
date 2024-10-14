@@ -10,6 +10,7 @@ from django_user_agents.utils import get_user_agent
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
 
+from toolbox.vcpub.DataBucket import DataBucket
 from .fields import ArrayDateField
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
@@ -310,3 +311,30 @@ def order_model_to_form_template(model: Basemodel):
     return 'datenmanagement/form-pcmanagement.html'
   else:
     return 'datenmanagement/form-map.html'
+
+
+def download_pointcloud(*args, **kwargs):
+  #pk = '1f159008-2712-4a76-880a-b4782c93366d'
+  pk = kwargs['pk']
+  print(args)
+  print(kwargs)
+  # get pointcloud model instance of given pk
+  pc_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
+  pc_instance = pc_model.objects.get(pk)
+
+  # check if pointcloud is stored at VCPub
+  if pc_instance.object_key:
+    # get project instance of pointcloud instance for bucket information
+    pcprj_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken_Projekte')
+    pcprj_instance = pcprj_model.objects.get(pc_instance.punktwolken_projekte)
+
+    # get dataset bucket
+    bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
+    ok, file_response = bucket.download_file(object_key=pc_instance.vcp_object_key, stream=True)
+    if ok:
+      file_response['Content-Disposition'] = f'attachment; filename="{pc_instance.dateiname}"'
+      return file_response
+    else:
+      return None
+  else:
+    return HttpResponse("Blub")
