@@ -75,6 +75,7 @@ class Datasource:
     delete Datasource
     :return:
     """
+    pass
     # delete datasource bucket
     bucket = DataBucket(_id=self.sourceProperties['dataBucketId'])
     bucket.delete()
