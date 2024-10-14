@@ -4,9 +4,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views.api import DatenmanagementViewSet
-
 from .views.functions import assign_object_value, delete_object_immediately, \
-  order_model_to_form_template
+  order_model_to_form_template, download_pointcloud
 from .views.views_form import DataAddView, DataChangeView, DataDeleteView
 from .views.views_general import GeometryView, GISFiletoGeoJSON, IndexView, StartView, \
   AddAnotherView
@@ -281,3 +280,15 @@ for model in models:
       name=model_name + '_geometry'
     )
   )
+
+  # download pointcloud
+  if model_name == 'Punktwolken':
+    urlpatterns.append(
+      path(
+        model_name + '/download/(<pk>[0-9a-f-]{36})',
+        view=permission_required(
+          'datenmanagement.view_' + model_name_lower
+        )(download_pointcloud),
+        name='download_pointcloud'
+      )
+    )
