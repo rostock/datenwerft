@@ -29,8 +29,7 @@ LOCAL_APPS = [
   'toolbox',
   'datenmanagement',
   'antragsmanagement',
-  'bemas',
-  'metadatenmanagement'
+  'bemas'
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
@@ -184,7 +183,8 @@ STATICFILES_DIRS = (
   ('wicket', BASE_DIR / 'node_modules/wicket'),
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
   ('css', BASE_DIR / 'datenwerft/static/css'),
-  ('img', BASE_DIR / 'datenwerft/static/img')
+  ('img', BASE_DIR / 'datenwerft/static/img'),
+  ('js', BASE_DIR / 'datenwerft/static/js')
 )
 
 
@@ -253,6 +253,9 @@ ANTRAGSMANAGEMENT_LINKS = {
   'public_green_areas': (
     'https://rathaus.rostock.de/de/service/dienstleistungen/'
     'sondernutzung_oeffentlicher_gruenflaechen_beantragen/310812'
+  ),
+  'geodata_portal': (
+    'https://www.geoport-hro.de/muellsammelaktionen?poi[point]={x},{y}&poi[scale]=2133'
   )
 }
 

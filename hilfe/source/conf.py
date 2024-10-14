@@ -27,7 +27,8 @@ html_show_sourcelink = False
 html_static_path = ['_static']
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
-  'display_version': False,
+  'version_selector': False,
+  'language_selector': False,
   'logo_only': True,
   'style_nav_header_background': '#0d6efd'
 }

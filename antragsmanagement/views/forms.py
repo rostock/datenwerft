@@ -134,8 +134,6 @@ class ObjectForm(ModelForm):
             # group overlapping areas by entity key and sum area values for each entity
             sums_overlapping_areas = group_dict_by_key_and_sum_values(
               curr_dict=overlapping_areas, group_key='entity', sum_value='area')
-            # hold the main entity (i.e. the entity with the max sum)
-            main_entity = max(sums_overlapping_areas, key=sums_overlapping_areas.get)
             # check if geometry intersects with managed areas of Antragsmanagement authorities
             authorities = get_authorities_from_managed_areas_wfs(
               search_element=MANAGEDAREAS_WFS_SEARCH_ELEMENT,
@@ -143,8 +141,18 @@ class ObjectForm(ModelForm):
             )
             responsibilities = get_corresponding_antragsmanagement_authorities(authorities)
             if responsibilities:
-              request_responsibilities = cleaned_data.get('cleanupevent_request').responsibilities
+              # reduce grouped sums of overlapping areas to entities
+              # which are Antragsmanagement authorities
+              responsibilities_names = list(responsibilities.values_list('name', flat=True))
+              reduced_sums_overlapping_areas = {
+                key: value
+                for key, value in sums_overlapping_areas.items()
+                if key in responsibilities_names
+              }
+              # determine main entity (i.e. entity with max sum of overlapping areas)
+              main_entity = max(reduced_sums_overlapping_areas, key=sums_overlapping_areas.get)
               # clear responsibilities first
+              request_responsibilities = cleaned_data.get('cleanupevent_request').responsibilities
               request_responsibilities.clear()
               # add Antragsmanagement authorities as responsibilities to corresponding request
               for responsibility in responsibilities:

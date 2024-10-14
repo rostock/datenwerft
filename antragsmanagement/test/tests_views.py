@@ -3053,6 +3053,23 @@ class RequesterUpdateAnonymousViewTest(DefaultFormViewTestCase):
     )
 
 
+class CleanupEventRequestDataAnonymousViewTest(DefaultAnonymousViewTestCase):
+  """
+  test class for anonymously composing data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test(self):
+    self.generic_view_test(
+      view_name='anonymous_cleanupeventrequest_data', view_args=None,
+      status_code=200, content_type='application/json; charset=utf-8', string='FeatureCollection'
+    )
+
+
 class CleanupEventRequestMapDataAnonymousViewTest(DefaultAnonymousViewTestCase):
   """
   test class for anonymously composing map data out of one instance of object

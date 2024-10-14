@@ -16,7 +16,7 @@ from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEv
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
   is_antragsmanagement_requester, is_antragsmanagement_user
-from toolbox.utils import format_date_datetime, is_geometry_field
+from toolbox.utils import format_date_datetime, is_geometry_field, transform_geometry
 
 
 def add_model_context_elements(context, model):
@@ -215,6 +215,37 @@ def geometry_keeper(form_data, model, context_data):
       if geometry and '0,0' not in geometry and '[]' not in geometry:
         context_data['geometry'] = geometry
   return context_data
+
+
+def get_cleanupeventrequest_anonymous_api_feature(request_pk):
+  """
+  creates a GeoJSON feature based on passed primary key
+  of an object of model CleanupEventRequest and returns it
+
+  :param request_pk: primary key of an object of model CleanupEventRequest
+  :return: GeoJSON feature based on passed primary key of an object of model CleanupEventRequest
+  """
+  request = CleanupEventVenue.objects.filter(cleanupevent_request=request_pk).first()
+  if request:
+    # GeoJSON-serialize request
+    request_geojson_serialized = loads(serialize('geojson', [request]))
+    # get coordinates and build link
+    geometry = getattr(request, CleanupEventVenue.BaseMeta.geometry_field)
+    geometry = transform_geometry(geometry=GEOSGeometry(geometry), target_srid=25833)
+    link = settings.ANTRAGSMANAGEMENT_LINKS['geodata_portal'].format(
+      x=geometry.x, y=geometry.y)
+    # define GeoJSON feature:
+    # get geometry from GeoJSON-serialized target object,
+    # set ID and link as properties
+    return {
+      'type': 'Feature',
+      'geometry': request_geojson_serialized['features'][0]['geometry'],
+      'properties': {
+        'id': request_pk,
+        'link': link
+      }
+    }
+  return {}
 
 
 def get_cleanupeventrequest_anonymous_feature(curr_request, curr_type):
@@ -556,7 +587,10 @@ def get_cleanupeventrequest_queryset(user, count=False):
           responsibilities_value += responsibility.authority.short()
         responsibilities_value += '<br>'
     # set "responsibilities" to authorities' short names
-    item['responsibilities'] = responsibilities_value.rstrip('<br>')
+    if responsibilities_value:
+      item['responsibilities'] = responsibilities_value.rstrip('<br>')
+    else:
+      item['responsibilities'] = '<em>ohne</em>'
     #
     # fields relating to event
     #

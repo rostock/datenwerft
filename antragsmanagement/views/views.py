@@ -2,7 +2,7 @@ from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.gis.geos import GEOSGeometry
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -17,9 +17,10 @@ from .forms import ObjectForm, RequesterForm, RequestForm, RequestFollowUpForm, 
   CleanupEventEventForm, CleanupEventDetailsForm, CleanupEventContainerForm
 from .functions import add_model_context_elements, add_permissions_context_elements, \
   add_useragent_context_elements, additional_messages, clean_initial_field_values, \
-  get_cleanupeventrequest_anonymous_feature, get_cleanupeventrequest_feature, \
-  get_cleanupeventrequest_queryset, get_corresponding_cleanupeventrequest_geometry, \
-  get_referer, get_referer_url, geometry_keeper, send_cleanupeventrequest_email
+  get_cleanupeventrequest_anonymous_api_feature, get_cleanupeventrequest_anonymous_feature, \
+  get_cleanupeventrequest_feature, get_cleanupeventrequest_queryset, \
+  get_corresponding_cleanupeventrequest_geometry, get_referer, get_referer_url, geometry_keeper, \
+  send_cleanupeventrequest_email
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
@@ -235,7 +236,7 @@ class RequesterMixin:
     # store ID of requester in session in order to pass it to next view
     # if user is not authenticated
     if not self.request.user.is_authenticated:
-      instance = form.save(commit=True)
+      instance = form.save()
       self.request.session['corresponding_requester'] = instance.pk
     return super().form_valid(form)
 
@@ -269,7 +270,7 @@ class RequesterCreateView(RequesterMixin, ObjectCreateView):
     # set value of user_id field
     # if user is authenticated
     if self.request.user.is_authenticated:
-      instance = form.save(commit=False)
+      instance = form.save()
       instance.user_id = self.request.user.pk
     return super().form_valid(form)
 
@@ -334,7 +335,7 @@ class RequestMixin:
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of new request in session in order to pass it to next view
@@ -702,7 +703,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
               or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
           ):
-            links = '<a class="mb-1 btn btn-sm btn-outline-primary" role="button" '
+            links = '<a class="mb-1 btn btn-sm btn-outline-warning" role="button" '
             links += 'title="Antrag ansehen oder bearbeiten" '
             links += 'href="' + reverse(
               viewname='antragsmanagement:cleanupeventrequest_authorative_update',
@@ -712,7 +713,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             links += 'Antrag</a>'
             event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
             if event:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Aktionsdaten ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventevent_authorative_update',
@@ -722,7 +723,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += 'Aktionsdaten</a>'
             venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
             if venue:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Treffpunkt ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventvenue_authorative_update',
@@ -732,7 +733,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += 'Treffpunkt</a>'
             details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
             if details:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Detailangaben ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventdetails_authorative_update',
@@ -743,7 +744,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             container = CleanupEventContainer.objects.filter(
               cleanupevent_request=item['id']).first()
             if container:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Containerdaten ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
@@ -751,7 +752,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               ) + '">'
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Containerdaten</a>'
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
               links += 'title="Containerdaten löschen" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventcontainer_delete',
@@ -770,7 +771,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += 'Containerdaten</a>'
             dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
             if dump:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
               links += 'title="Müllablageplatz ansehen oder bearbeiten" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventdump_authorative_update',
@@ -778,8 +779,8 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               ) + '">'
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
               links += 'Müllablageplatz</a>'
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
-              links += 'title="Müllablageplatz löschenn" '
+              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
+              links += 'title="Müllablageplatz löschen" '
               links += 'href="' + reverse(
                 viewname='antragsmanagement:cleanupeventdump_delete',
                 kwargs={'pk': dump.pk}
@@ -1132,7 +1133,7 @@ class CleanupEventRequestAuthorativeUpdateView(RequestMixin, ObjectUpdateView):
     """
     old_instance = self.get_object()
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # on every status change: send email to inform original requester
@@ -1244,7 +1245,7 @@ class CleanupEventEventMixin(RequestFollowUpMixin):
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of current object in session in order to pass it to previous view
@@ -1406,7 +1407,7 @@ class CleanupEventVenueMixin(RequestFollowUpMixin):
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of current object in session in order to pass it to previous view
@@ -1550,7 +1551,7 @@ class CleanupEventDetailsMixin(RequestFollowUpMixin):
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     # store ID of current object in session in order to pass it to previous view
@@ -1778,7 +1779,7 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
     :return: HTTP response if passed form is valid
     """
     # delay necessary to allow automatic field contents to populate
-    instance = form.save(commit=False)
+    instance = form.save()
     instance.full_clean()
     instance.save()
     request = instance.cleanupevent_request
@@ -2074,6 +2075,56 @@ class RequesterUpdateAnonymousView(RequesterUpdateView):
   view for form page for updating an instance of general object:
   requester (Antragsteller:in)
   """
+
+
+class CleanupEventRequestDataAnonymousView(JsonView):
+  """
+  view for anonymously composing data out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def get_context_data(self, **kwargs):
+    """
+    returns GeoJSON feature collection
+
+    :param kwargs:
+    :return: GeoJSON feature collection
+    """
+    # get all approved requests
+    queryset = CleanupEventRequest.objects.prefetch_related(
+      'cleanupeventevent'
+    ).filter(
+      status__ordinal=2
+    )
+    queryset = queryset.values(
+      'id',
+      'cleanupeventevent__from_date',
+      'cleanupeventevent__to_date'
+    )
+    # declare empty GeoJSON feature collection
+    feature_collection = {
+      'type': 'FeatureCollection',
+      'features': []
+    }
+    # handle requests
+    for item in queryset:
+      # request must be scheduled in future
+      from_date, to_date = item['cleanupeventevent__from_date'], item['cleanupeventevent__to_date']
+      if (
+        from_date and from_date >= date.today()
+      ) or (
+        to_date and to_date >= date.today()
+      ):
+        # add GeoJSON feature to GeoJSON feature collection
+        request = get_cleanupeventrequest_anonymous_api_feature(item['id'])
+        if request:
+          feature_collection['features'].append(request)
+    return JsonResponse(
+      feature_collection,
+      json_dumps_params={'indent': 2, 'ensure_ascii': False},
+      content_type='application/json; charset=utf-8'
+    )
 
 
 class CleanupEventRequestMapDataAnonymousView(JsonView):

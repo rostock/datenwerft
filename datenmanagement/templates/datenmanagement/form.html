@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "form.html" %}
 {% load toolbox_tags %}
 {% load datenmanagement_tags %}
 {% load static %}
@@ -6,25 +6,12 @@
 {% block title %}{{ model_verbose_name_plural }} – Formular | {% endblock %}
 
 {% block style %}
-  <!-- inherits from base -->
+  <!-- inherits from form.html -->
   {{ block.super }}
-
-  <!-- set standard style sheet -->
-  <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form.css' %}">
-
-  <!-- device specific style sheets -->
-  {% if forms_in_mobile_mode or is_mobile %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile.css' %}">
-    {% if forms_in_mobile_mode %}
-      <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-mobile-mode.css' %}">
-    {% endif %}
-  {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datenmanagement/css/form-desktop.css' %}">
-  {% endif %}
 {% endblock %}
 
 {% block scripts %}
-  <!-- inherit from navbar.html -->
+  <!-- inherit from form.html -->
   {{ block.super }}
 
   <!-- extend with js scripts needed by all forms -->
@@ -32,132 +19,97 @@
   <script src="{% static 'datenmanagement/js/form.js' %}"></script>
 {% endblock %}
 
-{% block content %}
-  <h2>{{ model_verbose_name_plural }} - Formular</h2>
-
-  {% block alerts %}
-
-    {% block errors %}
-      {% if form.errors %}
-        {% for field in form %}
-          {% if field.errors|is_linebreak_error %}
-            <div class="alert alert-danger" role="alert">
-              <i class="fa-solid fa-circle-exclamation"></i> Texte dürfen keine Zeilenumbrüche enthalten.
-            </div>
-          {% else %}
-            {% for error in field.errors %}
-              <div class="alert alert-danger" role="alert">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                {% autoescape off %}
-                  {% with replace_string='ATTRIBUTE|'|add:field.label %}
-                    {{ error|replace:replace_string }}
-                  {% endwith %}
-                {% endautoescape %}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endfor %}
-        {% for error in form.non_field_errors %}
+{% block alerts %}
+  {% block errors %}
+    {% if form.errors %}
+      {% for field in form %}
+        {% if field.errors|is_linebreak_error %}
           <div class="alert alert-danger" role="alert">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            {{ error|clean_error_message }}
+            <i class="fa-solid fa-circle-exclamation"></i> Texte dürfen keine Zeilenumbrüche enthalten.
           </div>
-        {% endfor %}
-        <div class="mb-4"></div>
-      {% endif %}
-    {% endblock %}
-
-    {% block associated_models %}
-      {% if associated_new %}
-        <div class="alert alert-primary" role="alert">
-          <h5 class="alert-heading">assoziierte Datensätze</h5>
-          {% if object and associated_objects %}
-            <ul>
-              {% for associated_object in associated_objects %}
-                <li>{{ associated_object.title }} <em>{{ associated_object.name }}</em> <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
-                {% if associated_object.preview_img_url %}
-                  <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">
-                    <img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px">
-                  </a>
-                {% endif %}
-              {% endfor %}
-            </ul>
-          {% else %}
-            (noch) keine assoziierten Datensätze vorhanden
-          {% endif %}
-          {% if user|user_has_model_change_permission:model_name_lower %}
-            <hr>
-            {% for associated_new_entry in associated_new %}
-              <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
-                <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
-              </p>
-            {% endfor %}
-          {% endif %}
+        {% else %}
+          {% for error in field.errors %}
+            <div class="alert alert-danger" role="alert">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              {% autoescape off %}
+                {% with replace_string='ATTRIBUTE|'|add:field.label %}
+                  {{ error|replace:replace_string }}
+                {% endwith %}
+              {% endautoescape %}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ error|clean_error_message }}
         </div>
-        <div class="mb-4"></div>
-      {% endif %}
-    {% endblock %}
-
+      {% endfor %}
+      <div class="mb-4"></div>
+    {% endif %}
   {% endblock %}
-  <form class="form row" id="form" method="post" enctype="multipart/form-data" action="">
-    {% csrf_token %}
-    {% block list %}
-      {% comment %}
-        simple form as table
-      {% endcomment %}
-    {% endblock %}
-  
-    {% block map %}
-      {% comment %}
-        map and address search
-      {% endcomment %}
-    {% endblock %}
-  
-    {% block form-action-buttons %}
-      <div class="row gap-2">
-        <div class="col-md order-1 order-md-0 mt-3 mb-3 d-grid gap-2">
-          {% comment %} 	Form Action Buttons for desktop mode   {% endcomment %}
-          {% if not forms_in_mobile_mode and not is_mobile %}
-            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-              <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
-            {% endif %}
-            {% if url_model_add %}
-              <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
-            {% endif %}
-            {% if url_model_delete_object %}
-              <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
-            {% endif %}
-            <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
-          {% endif %}
-        
-          {% comment %} 	Form Action Buttons for mobile mode   {% endcomment %}
-          {% if forms_in_mobile_mode or is_mobile %}
-            {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
-              <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
-            {% endif %}
-            {% if url_model_add %}
-              <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> klonen</button>
-            {% endif %}
-            {% if url_model_delete_object %}
-              <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> löschen</a>
-            {% endif %}
-            <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
-          {% endif %}
-        </div>
-      
-        {% block address-search %}
-          
-        {% endblock %}
-      </div>
-    {% endblock %}
-  </form>
-  
-  <div class="row mt-4 mb-5">
-    {% block pc_management %}
-      {% comment %}
-      	associated models listed as a table under the form
-      {% endcomment %}
-    {% endblock %}
-  </div>
 
+  {% block associated_models %}
+    {% if associated_new %}
+      <div class="alert alert-primary" role="alert">
+        <h5 class="alert-heading">assoziierte Datensätze</h5>
+        {% if object and associated_objects %}
+          <ul>
+            {% for associated_object in associated_objects %}
+              <li>{{ associated_object.title }} <em>{{ associated_object.name }}</em> <a href="{{ associated_object.link }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} ansehen oder bearbeiten"><i class="fas fa-arrow-up-right-from-square"></i></a></li>
+              {% if associated_object.preview_img_url %}
+                <a href="{{ associated_object.preview_img_url }}" target="_blank" rel="noopener noreferrer" title="große Ansicht öffnen…">
+                  <img src="{% if associated_object.preview_thumb_url %}{{ associated_object.preview_thumb_url }}{% else %}{{ associated_object.preview_img_url }}{% endif %}" alt="Vorschau" width="50px">
+                </a>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          (noch) keine assoziierten Datensätze vorhanden
+        {% endif %}
+        {% if user|user_has_model_change_permission:model_name_lower %}
+          <hr>
+          {% for associated_new_entry in associated_new %}
+            <p class="{% if forloop.last %}mb-1{% else %}mb-3{% endif %}">
+              <a class="btn btn-primary" role="button" href="{{ associated_new_entry.link }}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i> {{ associated_new_entry.title }} anlegen</a>
+            </p>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="mb-4"></div>
+    {% endif %}
+  {% endblock %}
+{% endblock %}
+
+{% block form-action-buttons %}
+  <div id="form-control-buttons" class="mt-3 mb-3">
+    {% comment %} 	Form Action Buttons for desktop mode   {% endcomment %}
+    {% if not forms_in_mobile_mode and not is_mobile %}
+      {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+        <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> {% if object %}Änderungen{% else %}neuen Datensatz{% endif %} speichern</button>
+      {% endif %}
+      {% if url_model_add %}
+        <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> als neuen Datensatz klonen</button>
+      {% endif %}
+      {% if url_model_delete_object %}
+        <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> Datensatz löschen</a>
+      {% endif %}
+      <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+    {% endif %}
+
+    {% comment %} 	Form Action Buttons for mobile mode   {% endcomment %}
+    {% if forms_in_mobile_mode or is_mobile %}
+      {% if not object and user|user_has_model_add_permission:model_name_lower or object and user|user_has_model_change_permission:model_name_lower %}
+        <button class="btn btn-primary" type="submit" onclick="setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-floppy-disk"></i> speichern</button>
+      {% endif %}
+      {% if url_model_add %}
+        <button class="btn btn-primary" type="submit" onclick="cloneObject('{{ url_model_add }}'); setFinalArrayFields(); setFinalGeometry();"><i class="fas fa-clone"></i> klonen</button>
+      {% endif %}
+      {% if url_model_delete_object %}
+        <a class="btn btn-danger" role="button" href="{{ url_model_delete_object }}"><i class="fas fa-trash"></i> löschen</a>
+      {% endif %}
+      <a class="btn btn-warning" role="button" href="{{ url_back }}"><i class="fas fa-hand"></i> abbrechen</a>
+    {% endif %}
+  </div>
 {% endblock %}

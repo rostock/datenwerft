@@ -42,91 +42,95 @@ class GenericForm(ModelForm):
     self.address_type = self.instance.BasemodelMeta.address_type
     self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
 
-    for field in self.model._meta.get_fields():
-      # if necessary, convert text fields into selection lists
-      if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
+    if self.model is not None:
+      for field in self.model._meta.get_fields():
+        # if necessary, convert text fields into selection lists
         if (
-            self.group_with_users_for_choice_field
-            and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
+          request is not None and hasattr(request, 'user') and request.user is not None
+          and (field.name == 'ansprechpartner' or field.name == 'bearbeiter')
         ):
-          users = list(
-            User.objects.filter(
-              groups__name=self.group_with_users_for_choice_field
-            ).values('first_name', 'last_name', 'email')
-          )
-          # special treatment for model Baustellen (geplant):
-          # get additional users from codelist here
-          if self.model.__name__ == 'Baustellen_geplant':
-            additional_users = Ansprechpartner_Baustellen.objects.all()
-            additional_users = additional_users.annotate(
-              first_name=F('vorname'), last_name=F('nachname')
-            ).values('first_name', 'last_name', 'email')
-            additional_user_list = []
-            for additional_user in list(additional_users):
-              if additional_user['first_name'] is None:
-                additional_user['first_name'] = 'zzz'
-              if additional_user['last_name'] is None:
-                additional_user['last_name'] = 'zzz'
-              additional_user_list.append(additional_user)
-            users += additional_user_list
-          sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'email'))
-          user_list = []
-          for user in sorted_users:
-            if user['first_name'] != 'zzz' and user['last_name'] != 'zzz':
-              user_list.append(
-                user['first_name'] + ' ' + user['last_name'] + ' (' + user['email'].lower() + ')'
-              )
-            else:
-              user_list.append(user['email'].lower())
-          choices = [(user, user) for user in user_list]
-          # insert blank value on first position
-          choices.insert(0, ('', '---------'))
-          choice_field = ChoiceField(
-            label=field.verbose_name,
-            choices=choices,
-            initial=request.user.first_name + ' ' + request.user.last_name +
-            ' (' + request.user.email.lower() + ')'
-          )
-          if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
-            self.fields[field.name] = choice_field
-      # convert address fields to custom field types
-      elif field.name == 'adresse' or field.name == 'strasse' or field.name == 'gemeindeteil':
-        attrs = {
-            'class': 'form-control',
-            'autocapitalize': 'off',
-            'autocomplete': 'off',
-            'placeholder': ''
-        }
-        label = field.verbose_name
-        required = self.address_mandatory
-        if field.name == 'adresse':
-          attrs['placeholder'] = 'Adresse eingeben…'
-          self.fields[field.name] = AddressUUIDField(
-              label=label,
-              widget=TextInput(attrs=attrs),
-              required=required
-          )
-        elif field.name == 'strasse':
-          attrs['placeholder'] = 'Straße eingeben…'
-          self.fields[field.name] = StreetUUIDField(
-              label=label,
-              widget=TextInput(attrs=attrs),
-              required=required
-          )
-        else:
-          attrs['placeholder'] = 'Gemeindeteil eingeben…'
-          self.fields[field.name] = DistrictUUIDField(
-              label=label,
-              widget=TextInput(attrs=attrs),
-              required=required
-          )
-      # use specific models for specific fields to fill corresponding selection lists
-      elif self.choices_models_for_choices_fields:
-        choices_model_name = self.choices_models_for_choices_fields.get(field.name)
-        if choices_model_name is not None:
-          choices_model = apps.get_app_config('datenmanagement').get_model(choices_model_name)
-          oo = choices_model.objects.all()
-          self.fields[field.name].choices = [(o, o) for o in oo]
+          if (
+              self.group_with_users_for_choice_field
+              and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
+          ):
+            users = list(
+              User.objects.filter(
+                groups__name=self.group_with_users_for_choice_field
+              ).values('first_name', 'last_name', 'email')
+            )
+            # special treatment for model Baustellen (geplant):
+            # get additional users from codelist here
+            if self.model.__name__ == 'Baustellen_geplant':
+              additional_users = Ansprechpartner_Baustellen.objects.all()
+              additional_users = additional_users.annotate(
+                first_name=F('vorname'), last_name=F('nachname')
+              ).values('first_name', 'last_name', 'email')
+              additional_user_list = []
+              for additional_user in list(additional_users):
+                if additional_user['first_name'] is None:
+                  additional_user['first_name'] = 'zzz'
+                if additional_user['last_name'] is None:
+                  additional_user['last_name'] = 'zzz'
+                additional_user_list.append(additional_user)
+              users += additional_user_list
+            sorted_users = sorted(users, key=itemgetter('last_name', 'first_name', 'email'))
+            user_list = []
+            for user in sorted_users:
+              if user['first_name'] != 'zzz' and user['last_name'] != 'zzz':
+                user_list.append(
+                  user['first_name'] + ' ' + user['last_name'] + ' (' + user['email'].lower() + ')'
+                )
+              else:
+                user_list.append(user['email'].lower())
+            choices = [(user, user) for user in user_list]
+            # insert blank value on first position
+            choices.insert(0, ('', '---------'))
+            choice_field = ChoiceField(
+              label=field.verbose_name,
+              choices=choices,
+              initial=request.user.first_name + ' ' + request.user.last_name +
+              ' (' + request.user.email.lower() + ')'
+            )
+            if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
+              self.fields[field.name] = choice_field
+        # convert address fields to custom field types
+        elif field.name == 'adresse' or field.name == 'strasse' or field.name == 'gemeindeteil':
+          attrs = {
+              'class': 'form-control',
+              'autocapitalize': 'off',
+              'autocomplete': 'off',
+              'placeholder': ''
+          }
+          label = field.verbose_name
+          required = self.address_mandatory
+          if field.name == 'adresse':
+            attrs['placeholder'] = 'Adresse eingeben…'
+            self.fields[field.name] = AddressUUIDField(
+                label=label,
+                widget=TextInput(attrs=attrs),
+                required=required
+            )
+          elif field.name == 'strasse':
+            attrs['placeholder'] = 'Straße eingeben…'
+            self.fields[field.name] = StreetUUIDField(
+                label=label,
+                widget=TextInput(attrs=attrs),
+                required=required
+            )
+          else:
+            attrs['placeholder'] = 'Gemeindeteil eingeben…'
+            self.fields[field.name] = DistrictUUIDField(
+                label=label,
+                widget=TextInput(attrs=attrs),
+                required=required
+            )
+        # use specific models for specific fields to fill corresponding selection lists
+        elif self.choices_models_for_choices_fields:
+          choices_model_name = self.choices_models_for_choices_fields.get(field.name)
+          if choices_model_name is not None:
+            choices_model = apps.get_app_config('datenmanagement').get_model(choices_model_name)
+            oo = choices_model.objects.all()
+            self.fields[field.name].choices = [(o, o) for o in oo]
 
     # customize messages
     for field in self.fields.values():

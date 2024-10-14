@@ -220,10 +220,12 @@ class DataChangeView(UpdateView):
           title = associated_model_model.BasemodelMeta.short_name
         else:
           title = associated_model_model._meta.verbose_name
+        link = reverse('datenmanagement:' + associated_model + '_add')
+        link += '?preselect_field=' + associated_model_foreign_key_field + '&preselect_value='
+        link += str(self.object.pk)
         associated_new_dict = {
           'title': title,
-          'link': reverse('datenmanagement:' + associated_model + '_add') + '?preselect_field=' +
-                  associated_model_foreign_key_field + '&preselect_value=' + str(self.object.pk),
+          'link': link,
           'api': f'/api/{associated_model.lower()}/'
         }
         self.associated_new.append(associated_new_dict)
@@ -249,9 +251,10 @@ class DataChangeView(UpdateView):
                 'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
-            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/',
-            'file': f'/datenwerft/uploads/{associated_object.punktwolke}'
+            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
           }
+          if hasattr(associated_object, 'punktwolke'):
+            associated_object_dict['file'] = f'/datenwerft/uploads/{associated_object.punktwolke}'
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
       kwargs['associated_new'] = self.associated_new

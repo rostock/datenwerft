@@ -6,8 +6,7 @@ class DatabaseRouter:
   route_app_labels = {
     'antragsmanagement',
     'bemas',
-    'datenmanagement',
-    'metadatenmanagement'
+    'datenmanagement'
   }
 
   def db_for_read(self, model, **hints):
@@ -22,8 +21,6 @@ class DatabaseRouter:
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
-      elif model._meta.app_label == 'metadatenmanagement':
-        return 'metadatenmanagement'
     return 'default'
 
   def db_for_write(self, model, **hints):
@@ -38,8 +35,6 @@ class DatabaseRouter:
         return 'bemas'
       elif model._meta.app_label == 'datenmanagement':
         return 'datenmanagement'
-      elif model._meta.app_label == 'metadatenmanagement':
-        return 'metadatenmanagement'
     return 'default'
 
   def allow_relation(self, obj1, obj2, **hints):

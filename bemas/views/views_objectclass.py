@@ -146,7 +146,7 @@ class GenericObjectclassCreateView(CreateView):
     )
     # create new log entry (except for object class log entry itself, of course)
     if not issubclass(self.model, LogEntry):
-      curr_object = form.save(commit=False)
+      curr_object = form.save()
       curr_object.save()
       create_log_entry(
         self.model,
@@ -332,7 +332,7 @@ class GenericObjectclassUpdateView(UpdateView):
           issubclass(self.model, Complaint)
           or issubclass(self.model, Originator)
       ):
-        curr_object = form.save(commit=False)
+        curr_object = form.save()
         curr_object.save()
         # loop changed data in order to create individual log entries
         for changed_attribute in form.changed_data:

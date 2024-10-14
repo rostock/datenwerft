@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.template.defaultfilters import stringfilter
 
 from toolbox.constants_vars import standard_validators
@@ -68,3 +69,18 @@ def replace(value, arg):
     return value
   source, target = arg.split('|')
   return value.replace(source, target)
+
+
+@register.filter(is_safe=True)
+@stringfilter
+def get_logo(value):
+  instance_status = settings.INSTANCE_STATUS
+  logos = {
+    'DEVEL': 'img/logo-devel.svg',
+    'TESTING': 'img/logo-testing.svg',
+    'PRODUCTION': 'img/logo.svg'
+  }
+  if instance_status in logos:
+    return logos[instance_status]
+  else:
+    return value

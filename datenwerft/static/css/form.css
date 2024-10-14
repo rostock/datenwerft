@@ -25,8 +25,17 @@ input[name="strasse"] {
   border-bottom-right-radius: 0;
 }
 
+#map-addresssearch-container-form {
+  height: 50vh;
+  min-height: 300px;
+  position: relative; /* Stellt sicher, dass das Kind-Element 'sticky-object' relativ zu 'content' positioniert wird */
+}
+
 #leaflet-map {
   height: 100%;
+  width: 100%;
+  position: absolute;
+  padding: 10px; /* Optional: Um das Element ansehnlicher zu machen */
 }
 
 #postcode-assigner.enabled,
@@ -166,6 +175,16 @@ input[name="strasse"] {
   width: 100%;
 }
 
+#form-control-buttons > .btn {
+  height: fit-content;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+/*
+ * Pointcloud management
+ */
+
 #pc-management {
   vertical-align: middle;
 }
@@ -192,4 +211,74 @@ input[name="strasse"] {
 #pc-management > tbody > tr > td:last-child {
   white-space: nowrap;
   width: 1%;
+}
+
+.flex-container-column {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 10px; /* Abstand zwischen den Flex-Items */
+}
+
+.flex-container-row {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 2rem; /* Abstand zwischen den Flex-Items */
+}
+
+/* Item with class flex-item and flex-container-column */
+.flex-item.flex-container-column {
+  flex: 1 1 calc(50% - 2rem);
+}
+
+.flex-item {
+  flex: 1 1 100%;
+}
+
+#flex-list {
+  flex: none;
+  order: 1;
+}
+
+#flex-map {
+  flex: none;
+  order: 1;
+}
+
+#flex-address-search {
+  order: 2;
+}
+
+#flex-action-buttons {
+  order: 2;
+}
+
+.container-fluid {
+  max-width: 1320px;
+  min-width: 340px;
+}
+
+.select2 {
+  width: 100% !important;
+}
+
+@media (width <= 768px) {
+  #flex-list {
+    order: 1;
+  }
+
+  #flex-map {
+    order: 2;
+  }
+
+  #flex-address-search {
+    order: 3;
+  }
+
+  #flex-action-buttons {
+    order: 4;
+  }
+
+  #map-addresssearch-container-form {
+    min-height: 600px;
+  }
 }
