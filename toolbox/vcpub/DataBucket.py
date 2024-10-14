@@ -1,5 +1,6 @@
 import os.path
 
+from django.http import FileResponse
 from docutils.nodes import header
 from uaclient.api.u.pro.detach.v1 import endpoint
 
@@ -50,7 +51,7 @@ class DataBucket:
     if ok:
       self._id = bucket['_id']
       self.name = bucket['name']
-      self.create_object(key='keep')
+      self.create_object(key='.keep')
 
 
   def __get_bucket__(self):
@@ -91,8 +92,21 @@ class DataBucket:
     ok, response = self.__api.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
     return ok, response
 
-  def download_file(self):
-    pass
+  def download_file(self, object_key: str, stream: bool=False):
+    """
+
+    :return:
+    """
+    headers = {
+      "key", object_key
+    }
+    ok, response = self.__api.get(
+      endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/download-file',
+      headers=headers,
+      stream=stream
+    )
+    file_response = FileResponse(response.raw, content_type=response.headers.get('content-type'))
+    return ok, file_response
 
   def get_endpoint(self):
     """
@@ -137,7 +151,7 @@ class DataBucket:
     data = {
       'type': 'internal',
       'dataBucketId': self._id,
-      'dataBucketKey': self.name
+      'dataBucketKey': '/'
     }
     return data
 
