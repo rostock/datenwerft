@@ -39,17 +39,39 @@
             <tr>
               <td><i class="fa-solid fa-ellipsis"></i></td>
               <td><input type="file" name="punktwolke" class="form-control" id="id_punktwolke" accept="application/vnd.las"></td>
-              <td><button type="button" class="btn btn-outline-success" onclick="addObject(apiLink='{{ associated_new.0.api }}')"><i class="fa-solid fa-plus"></i></button></td>
+              <td><button type="button" class="btn btn-outline-success" onclick="addObject(apiLink='{{ associated_new.0.api }}')" id="pointCloudUploadButton"><i class="fa-solid fa-plus"></i></button></td>
             </tr>
           </tbody>
         </table>
       </div>
       {% include 'datenmanagement/modal-action-delete.html' %}
+      <!-- Modal für den Ladebalken -->
+      <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-body text-center">
+              <h5>Datei wird hochgeladen...</h5>
+              <div class="progress mt-3">
+                <div id="uploadProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <script>
+        const uploadButton = document.getElementById('pointCloudUploadButton');
+        const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        const uploadProgress = document.getElementById('uploadProgress');
+        
         async function addObject(apiLink) {
           console.log(apiLink);
+          
+          uploadModal.show();
+          simulateUpload();
+          
           const file = document.getElementById('id_punktwolke').files[0];
           if (!file) {
+            uploadModal.hide();
             alert('Bitte wählen Sie eine Datei aus.');
             return;
           }
@@ -59,26 +81,78 @@
           formdata.append(name='punktwolke', blobValue=file, filename=file.name);
           formdata.append('projekt', '{{ api }}');
           formdata.append('aufnahme', file.lastModified/1000);
-          let options = {
-            method: 'POST',
-            headers: {
-              //'Content-Type': 'multipart/form-data',
-              'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: formdata
-          }
-          console.log(options);
-          try {
-            let response = await fetch(apiLink, options);
-            if (response.status == 201) {
+          
+          /**
+          *let options = {
+          *  method: 'POST',
+          *  headers: {
+          *    //'Content-Type': 'multipart/form-data',
+          *    'X-CSRFToken': getCookie('csrftoken'),
+          *  },
+          *  body: formdata
+          *}
+          *console.log(options);
+          *try {
+          *  let response = await fetch(apiLink, options);
+          *  if (response.status == 201) {
+          *    window.location.reload();
+          *  } else {
+          *    console.log(response.status);
+          *  }
+          *  
+          *} catch (error) {
+          *  console.log('Fetch Error: ' + error);
+          *}
+          **/
+          
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', apiLink);
+          xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+      
+          xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+              const percentComplete = (event.loaded / event.total) * 100;
+              uploadProgress.style.width = percentComplete + '%';
+              uploadProgress.setAttribute('aria-valuenow', percentComplete);
+              uploadProgress.textContent = percentComplete.toFixed(2) + '%';
+            }
+          };
+          
+          xhr.onload = function() {
+            if (xhr.status === 201) {
               window.location.reload();
             } else {
-              console.log(response.status);
+              console.log(xhr.status);
+              alert('Upload fehlgeschlagen. Status: ' + xhr.status);
             }
-            
-          } catch (error) {
-            console.log('Fetch Error: ' + error);
-          }
+            uploadModal.hide();
+          };
+          
+          xhr.onerror = function() {
+            console.log('Fetch Error: ' + xhr.statusText);
+            alert('Upload fehlgeschlagen. Bitte versuchen Sie es erneut.');
+            uploadModal.hide();
+          };
+          
+          xhr.send(formdata);
+          uploadModal.hide();
+        }
+        
+        function simulateUpload() {
+          let progress = 0;
+          const interval = setInterval(() => {
+            progress += 5;
+            uploadProgress.style.width = progress + '%';
+            uploadProgress.setAttribute('aria-valuenow', progress);
+
+            if (progress >= 100) {
+              clearInterval(interval);
+              setTimeout(() => {
+                //uploadModal.hide();
+                // Hier kannst du weitere Aktionen nach dem Upload ausführen
+              }, 1000);
+            }
+          }, 1000);
         }
         
         const deleteButtonConfim = document.getElementById('action-delete-modal-ok');
