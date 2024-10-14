@@ -3098,7 +3098,7 @@ class Punktwolken(ComplexModel):
     if not self.vcp_object_key:
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
-      # import celery task -> import must remain here to avoid circular import errors
+      # lazy import of celery task -> must remain here to avoid circular import errors
       from ..tasks import send_pointcloud_to_vcpub
       # run celery task delayed
       send_pointcloud_to_vcpub.delay(
