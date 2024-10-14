@@ -1,5 +1,7 @@
 import logging
 
+from django.http import FileResponse
+
 from datenwerft import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
@@ -93,18 +95,24 @@ class VCPub:
       self.logger.warning(f'POST on {url} failed: {response.__dict__}')
       return response.ok, response
 
-  def get(self, endpoint: str, headers=None) -> tuple[bool, dict|Response|None]:
+  def get(self, endpoint: str, headers=None, stream: bool=False) -> tuple[bool, dict|Response|None]:
     """
     Make a GET Request to the VC Publisher API.
 
     :param endpoint: api endpoint like `/projects/`
+    :param headers:
+    :param stream: just for file downloads, default False
     :return: Response as dict
     """
     url: str = self.__url + endpoint
-    response = self.__session.get(url=url, headers=headers)
+    response = self.__session.get(url=url, headers=headers, stream=stream)
+
     if response.ok and response.status_code != 204:
       self.logger.debug(f'GET {url}')
-      return response.ok, response.json()
+      if stream:
+        return response.ok, response
+      else:
+        return response.ok, response.json()
     elif response.status_code == 204:
       # 204 No Response
       self.logger.debug(f'GET {url}')
