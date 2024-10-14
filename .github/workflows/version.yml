@@ -3,7 +3,7 @@ name: Update Version and Create Release
 on:
   push:
     branches:
-      - features/bumb-version-and-release-workflow
+      - 'features/bumb-version-and-release-workflow'
 
 jobs:
   release:
