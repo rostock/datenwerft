@@ -1,0 +1,28 @@
+name: Update Version and Create Release
+
+on:
+  push:
+    branches:
+      - features/bumb-version-and-release-workflow
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Clone Repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Get Next Verison
+      id: get_next_version
+      uses: thenativeweb/get-next-version@main
+      with:
+        prefix: 'v'  # optional, default ist ''
+    - name: Create New Release
+      if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+      run: |
+        NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
+        git tag $NEXT_VERSION
+        git push origin $NEXT_VERSION
