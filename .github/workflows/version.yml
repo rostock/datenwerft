@@ -3,7 +3,7 @@ name: Update Version
 on:
   push:
     branches:
-      - 'features/bumb-version-and-release-workflow'
+      - 'devel'
 
 jobs:
   version-update:
