@@ -1,4 +1,4 @@
-name: Update Version and Create Release
+name: Update Version
 
 on:
   push:
@@ -6,13 +6,13 @@ on:
       - 'features/bumb-version-and-release-workflow'
 
 jobs:
-  release:
-    name: Release
+  version-update:
+    name: Update Version
     runs-on: ubuntu-latest
     
     steps:
     - name: Clone Repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Get Next Verison
