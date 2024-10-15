@@ -20,7 +20,7 @@ jobs:
       uses: thenativeweb/get-next-version@main
       with:
         prefix: 'v'  # optional, default ist ''
-    - name: Create New Release
+    - name: Create New Version Tag
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       run: |
         NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
