@@ -1,12 +1,15 @@
 name: Update Version
 
 on:
-  push:
+  pull_request:
     branches:
       - 'devel'
+    types:
+      - closed
 
 jobs:
   version-update:
+    if: ${{ github.event.pull_request.merged == true }}
     name: Update Version
     runs-on: ubuntu-latest
     
@@ -15,11 +18,11 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Get Next Verison
+    - name: Get Next Version
       id: get_next_version
       uses: thenativeweb/get-next-version@main
       with:
-        prefix: 'v'  # optional, default ist ''
+        prefix: ''  # optional, default ist ''
     - name: Create New Version Tag
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       run: |
