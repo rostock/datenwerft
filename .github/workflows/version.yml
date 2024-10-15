@@ -1,0 +1,31 @@
+name: Update Version
+
+on:
+  pull_request:
+    branches:
+      - 'devel'
+    types:
+      - closed
+
+jobs:
+  version-update:
+    if: ${{ github.event.pull_request.merged == true }}
+    name: Update Version
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Clone Repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Get Next Version
+      id: get_next_version
+      uses: thenativeweb/get-next-version@main
+      with:
+        prefix: ''  # optional, default ist ''
+    - name: Create New Version Tag
+      if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+      run: |
+        NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
+        git tag $NEXT_VERSION
+        git push origin $NEXT_VERSION
