@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.forms import DateField, UUIDField
+from django.forms import CharField, DateField, UUIDField
 
 
 class AddressUUIDField(UUIDField):
@@ -47,3 +47,14 @@ class ArrayDateField(DateField):
     if not value:
       return None
     return value
+
+
+class ArrayDecimalField(CharField):
+  """
+  input field for a decimal within an array field complex
+  """
+
+  def to_python(self, value):
+    if isinstance(value, str) or value is None:
+      return value
+    return str(value)

@@ -1,7 +1,7 @@
 from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
   Gruenpflegeobjekte, Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, \
-  Angelberechtigungen, Ansprechpartner_Baustellen, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
-  Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
+  Angelberechtigungen, Ansprechpartner_Baustellen, Arten_Adressunsicherheiten, Arten_Brunnen, \
+  Arten_Durchlaesse, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
   Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
   Arten_Hundetoiletten, Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, \
   Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, \
@@ -17,11 +17,11 @@ from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Ge
   Fotomotive_Haltestellenkataster, Freizeitsportarten, Fundamenttypen_RSAG, Gebaeudebauweisen, \
   Gebaeudefunktionen, Genehmigungsbehoerden_UVP_Vorhaben, Geschlechter_Kadaverfunde, Haefen, \
   Hersteller_Poller, Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, \
-  Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, Mastkennzeichen_RSAG, Masttypen_RSAG, \
-  Masttypen_Haltestellenkataster, Materialien_Denksteine, Materialien_Durchlaesse, \
-  Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, Personentitel, \
-  Quartiere, Raeumbreiten_Strassenreinigungssatzung_HRO, Rechtsgrundlagen_UVP_Vorhaben, \
-  Reinigungsklassen_Strassenreinigungssatzung_HRO, \
+  Labore_Baugrunduntersuchungen, Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, \
+  Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Denksteine, \
+  Materialien_Durchlaesse, Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, \
+  Personentitel, Quartiere, Raeumbreiten_Strassenreinigungssatzung_HRO, \
+  Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
   Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
   Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, Schliessungen_Poller, \
   Sitzbanktypen_Haltestellenkataster, Sparten_Baustellen, Spielgeraete, Sportarten, \
@@ -887,6 +887,133 @@ class ArtenAdressunsicherheitenTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Adressunsicherheiten
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'art': 'Art1'
+  }
+  attributes_values_db_updated = {
+    'art': 'Art2'
+  }
+  attributes_values_view_initial = {
+    'art': 'Art3'
+  }
+  attributes_values_view_updated = {
+    'art': 'Art4'
+  }
+  attributes_values_view_invalid = {
+    'art': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class ArtenBrunnenTest(DefaultCodelistTestCase):
+  """
+  Arten von Brunnen
+  """
+
+  model = Arten_Brunnen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
@@ -6937,6 +7064,133 @@ class KategorienStrassenTest(DefaultCodelistTestCase):
     'code': INVALID_INTEGER,
     'bezeichnung': INVALID_STRING,
     'erlaeuterung': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class LaboreBaugrunduntersuchungenTest(DefaultCodelistTestCase):
+  """
+  Labore für Baugrunduntersuchungen
+  """
+
+  model = Labore_Baugrunduntersuchungen
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):

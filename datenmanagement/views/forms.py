@@ -207,9 +207,11 @@ class GenericForm(ModelForm):
     """
     data = self.cleaned_data['dateiname_original']
     if self.multi_photos and self.multi_files:
-        data = self.multi_files.getlist('foto')[len(self.multi_files.getlist('foto')) - 1].name
+      first_key = next(iter(self.file.keys()))
+      data = self.multi_files.getlist(first_key)[len(self.multi_files.getlist(first_key)) - 1].name
     elif self.file:
-        data = self.file.getlist('foto')[0].name
+      first_key = next(iter(self.file.keys()))
+      data = self.file.getlist(first_key)[0].name
     return data
 
   def clean_geometrie(self):
