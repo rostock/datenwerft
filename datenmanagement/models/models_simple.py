@@ -22,8 +22,8 @@ from toolbox.constants_vars import personennamen_validators, standard_validators
 from toolbox.fields import NullTextField
 from .base import SimpleModel
 from .constants_vars import arrondierungsflaechen_registriernummer_regex, \
-  arrondierungsflaechen_registriernummer_message, denksteine_nummer_regex, \
-  denksteine_nummer_message, erdwaermesonden_aktenzeichen_regex, \
+  arrondierungsflaechen_registriernummer_message, brunnen_d3_regex, brunnen_d3_message, \
+  denksteine_nummer_regex, denksteine_nummer_message, erdwaermesonden_aktenzeichen_regex, \
   erdwaermesonden_aktenzeichen_message, erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
   hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
   hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
@@ -33,14 +33,14 @@ from .constants_vars import arrondierungsflaechen_registriernummer_regex, \
   mobilfunkantennen_stob_regex, mobilfunkantennen_stob_message, poller_nummer_regex, \
   poller_nummer_message, trinkwassernotbrunnen_nummer_regex, \
   trinkwassernotbrunnen_nummer_message, ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG
-from .fields import ChoiceArrayField, PositiveSmallIntegerMinField, \
+from .fields import ChoiceArrayField, PositiveIntegerMinField, PositiveSmallIntegerMinField, \
   PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
   multipolygon_field, nullable_multipolygon_field
 from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
   set_pre_save_instance, photo_post_processing
 from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
-  Anbieter_Carsharing, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
+  Anbieter_Carsharing, Arten_Brunnen, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, \
+  Arten_FairTrade, Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
   Arten_Hundetoiletten, Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, \
   Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, \
   Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Sportanlagen, \
@@ -1059,6 +1059,139 @@ class Bildungstraeger(SimpleModel):
     return self.bezeichnung + (' [Adresse: ' + str(self.adresse) + ']' if self.adresse else '')
 
 
+class Brunnen(SimpleModel):
+  """
+  Brunnen
+  """
+
+  d3 = CharField(
+    verbose_name=' d.3',
+    max_length=16,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=brunnen_d3_regex,
+        message=brunnen_d3_message
+      )
+    ]
+  )
+  aktenzeichen = CharField(
+    verbose_name='Aktenzeichen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  art = ForeignKey(
+    to=Arten_Brunnen,
+    verbose_name='Art',
+    on_delete=RESTRICT,
+    db_column='art',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_arten'
+  )
+  datum_bescheid = DateField(
+    verbose_name='Datum des Bescheids',
+    blank=True,
+    null=True
+  )
+  datum_befristung = DateField(
+    verbose_name='Datum der Befristung',
+    blank=True,
+    null=True
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    validators=standard_validators
+  )
+  realisierung_erfolgt = BooleanField(
+    verbose_name='Realisierung erfolgt?',
+    blank=True,
+    null=True
+  )
+  in_betrieb = BooleanField(
+    verbose_name=' in Betrieb?',
+    blank=True,
+    null=True
+  )
+  endteufe = ArrayField(
+    DecimalField(
+      verbose_name='Endteufe(n) (in m)',
+      max_digits=3,
+      decimal_places=1,
+      validators=[
+        MinValueValidator(
+          Decimal('0.1'),
+          'Eine <strong><em>Endteufe</em></strong> muss mindestens 0,1 m betragen.'
+        ),
+        MaxValueValidator(
+          Decimal('99.9'),
+          'Eine <strong><em>Endteufe</em></strong> darf höchstens 99,9 m betragen.'
+        )
+      ],
+      blank=True,
+      null=True
+    ),
+    verbose_name='Endteufe(n) (in m)',
+    blank=True,
+    null=True
+  )
+  entnahmemenge = PositiveIntegerMinField(
+    verbose_name='Entnahmemenge (in m³/a)',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"brunnen_hro'
+    verbose_name = 'Brunnen'
+    verbose_name_plural = 'Brunnen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Brunnen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'aktenzeichen': 'Aktenzeichen',
+      'art': 'Art',
+      'datum_bescheid': 'Datum des Bescheids',
+      'datum_befristung': 'Datum der Befristung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'realisierung_erfolgt': 'Realisierung erfolgt?',
+      'in_betrieb': 'in Betrieb?',
+      'endteufe': 'Endteufe(n) (in m)',
+      'entnahmemenge': 'Entnahmemenge (in m³/a)'
+    }
+    list_fields_with_date = ['datum_bescheid', 'datum_befristung']
+    list_fields_with_foreign_key = {
+      'art': 'art'
+    }
+    map_feature_tooltip_fields = ['lagebeschreibung']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'd3': 'd.3',
+      'aktenzeichen': 'Aktenzeichen',
+      'art': 'Art',
+      'datum_bescheid': 'Datum des Bescheids',
+      'datum_befristung': 'Datum der Befristung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'realisierung_erfolgt': 'Realisierung erfolgt?',
+      'in_betrieb': 'in Betrieb?',
+      'endteufe': 'Endteufe(n) (in m)',
+      'entnahmemenge': 'Entnahmemenge (in m³/a)'
+    }
+    map_filter_fields_as_list = ['art']
+
+  def __str__(self):
+    return self.lagebeschreibung
+
+
 class Carsharing_Stationen(SimpleModel):
   """
   Carsharing-Stationen
@@ -1730,16 +1863,6 @@ class Erdwaermesonden(SimpleModel):
   Erdwärmesonden
   """
 
-  aktenzeichen = CharField(
-    verbose_name='Aktenzeichen',
-    max_length=18,
-    validators=[
-      RegexValidator(
-        regex=erdwaermesonden_aktenzeichen_regex,
-        message=erdwaermesonden_aktenzeichen_message
-      )
-    ]
-  )
   d3 = CharField(
     verbose_name=' d.3',
     max_length=16,
@@ -1749,6 +1872,16 @@ class Erdwaermesonden(SimpleModel):
       RegexValidator(
         regex=erdwaermesonden_d3_regex,
         message=erdwaermesonden_d3_message
+      )
+    ]
+  )
+  aktenzeichen = CharField(
+    verbose_name='Aktenzeichen',
+    max_length=18,
+    validators=[
+      RegexValidator(
+        regex=erdwaermesonden_aktenzeichen_regex,
+        message=erdwaermesonden_aktenzeichen_message
       )
     ]
   )

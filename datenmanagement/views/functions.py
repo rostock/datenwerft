@@ -1,20 +1,29 @@
+from decimal import Decimal
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models.fields import DateField, DateTimeField, TimeField
+from django.db.models.fields import DateField, DateTimeField, DecimalField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
+from json import JSONEncoder
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
 
-from .fields import ArrayDateField
+from .fields import ArrayDateField, ArrayDecimalField
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
 from datenmanagement.models.fields import ChoiceArrayField
 from datenmanagement.models.base import Basemodel
+
+
+class DecimalEncoder(JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, Decimal):
+      return str(obj)
+    return super().default(obj)
 
 
 def add_basic_model_context_elements(context, model):
@@ -174,6 +183,21 @@ def assign_widgets(field):
       'class': 'form-control',
       'step': '1'
     }))
+  # handle decimal array fields/widgets
+  elif issubclass(field.__class__, DecimalField) and is_array_field:
+    label = form_field.label
+    step = 10 ** -field.decimal_places
+    form_field = ArrayDecimalField(
+      label=label,
+      widget=TextInput(
+        attrs={
+          'type': 'number',
+          'class': 'form-control',
+          'step': step
+        }
+      )
+    )
+    form_field.required = False
   # handle date fields/widgets
   elif issubclass(field.__class__, DateField):
     if is_array_field:

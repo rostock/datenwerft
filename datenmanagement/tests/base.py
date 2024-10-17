@@ -224,7 +224,10 @@ class DefaultModelTestCase(DefaultTestCase):
     )
     request.user = self.test_user
     request._messages = storage.default_storage(request)
-    template_name = 'datenmanagement/form-map.html'
+    if model.BasemodelMeta.geometry_type is None:
+      template_name = 'datenmanagement/form-list.html'
+    else:
+      template_name = 'datenmanagement/form-map.html'
     # try POSTing the view
     if update_mode:
       response = DataChangeView.as_view(

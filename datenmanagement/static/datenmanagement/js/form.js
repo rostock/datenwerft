@@ -216,8 +216,7 @@ function setFinalArrayFields() {
         values.push($(this).val());
     });
     if (values.length > 0) {
-      // for date fields, first adjust the type of the main form field so that no JavaScript errors occur
-      if (parentField.attr('type') === 'date')
+      if (parentField.attr('type') !== 'text')
         parentField.attr('type', 'text');
       // write combined values to main array field
       parentField.val(JSON.stringify(values));
