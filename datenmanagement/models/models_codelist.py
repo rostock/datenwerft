@@ -425,6 +425,20 @@ class Arten_Adressunsicherheiten(Art):
     description = 'Arten von Adressunsicherheiten'
 
 
+class Arten_Brunnen(Art):
+  """
+  Arten von Brunnen
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_brunnen'
+    verbose_name = 'Art eines Brunnens'
+    verbose_name_plural = 'Arten von Brunnen'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Brunnen'
+
+
 class Arten_Durchlaesse(Art):
   """
   Arten von Durchlässen
@@ -1635,6 +1649,67 @@ class Kategorien_Strassen(Codelist):
       'code': 'Code',
       'bezeichnung': 'Bezeichnung',
       'erlaeuterung': 'Erläuterung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
+
+
+class Labore_Baugrunduntersuchungen(Codelist):
+  """
+  Labore für Baugrunduntersuchungen
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  anschrift = CharField(
+    verbose_name='Anschrift',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  telefon = CharField(
+    verbose_name='Telefon',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      RegexValidator(
+        regex=rufnummer_regex,
+        message=rufnummer_message
+      )
+    ]
+  )
+  email = CharField(
+    verbose_name='E-Mail-Adresse',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"labore_baugrunduntersuchungen'
+    ordering = ['bezeichnung']
+    verbose_name = 'Labor für eine Baugrunduntersuchung'
+    verbose_name_plural = 'Labore für Baugrunduntersuchungen'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Labore für Baugrunduntersuchungen'
+    naming = 'bezeichnung'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung',
+      'anschrift': 'Anschrift',
+      'telefon': 'Telefon',
+      'email': 'E-Mail-Adresse'
     }
 
   def __str__(self):

@@ -10,8 +10,9 @@ from json import dumps
 from time import time
 
 from .forms import GenericForm
-from .functions import add_basic_model_context_elements, add_model_form_context_elements, \
-  add_user_agent_context_elements, assign_widgets, get_url_back, set_form_attributes
+from .functions import DecimalEncoder, add_basic_model_context_elements, \
+  add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, get_url_back, \
+  set_form_attributes
 from toolbox.utils import get_array_first_element, is_geometry_field
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
@@ -323,7 +324,8 @@ class DataChangeView(UpdateView):
           array_fields_values[field.name] = array_field_values
     # create a new context and insert a JSON-serialized dictionary for all array fields
     # and their contents that contain more than one value
-    context['array_fields_values'] = dumps(array_fields_values)
+    print(array_fields_values)
+    context['array_fields_values'] = dumps(array_fields_values, cls=DecimalEncoder)
     if self.request.user.has_perm('datenmanagement.add_' + model_name_lower):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
     if self.request.user.has_perm('datenmanagement.delete_' + model_name_lower):

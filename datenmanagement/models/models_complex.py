@@ -35,7 +35,7 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
   Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, \
   Genehmigungsbehoerden_UVP_Vorhaben, Kabeltypen_Lichtwellenleiterinfrastruktur, \
-  Kategorien_Strassen, Mastkennzeichen_RSAG, Masttypen_RSAG, \
+  Kategorien_Strassen, Labore_Baugrunduntersuchungen, Mastkennzeichen_RSAG, Masttypen_RSAG, \
   Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
   Objektarten_Lichtwellenleiterinfrastruktur, Raeumbreiten_Strassenreinigungssatzung_HRO, \
   Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
@@ -196,6 +196,198 @@ class Adressunsicherheiten_Fotos(ComplexModel):
 post_save.connect(photo_post_processing, sender=Adressunsicherheiten_Fotos)
 
 post_delete.connect(delete_photo, sender=Adressunsicherheiten_Fotos)
+
+
+#
+# Baugrunduntersuchungen
+#
+
+class Baugrunduntersuchungen(ComplexModel):
+  """
+  Baugrunduntersuchungen:
+  Baugrunduntersuchungen
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  labor = ForeignKey(
+    to=Labore_Baugrunduntersuchungen,
+    verbose_name='Labor',
+    on_delete=RESTRICT,
+    db_column='labor',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_labore'
+  )
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    validators=standard_validators
+  )
+  datum = DateField(
+    verbose_name='Datum'
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"baugrunduntersuchungen_hro'
+    ordering = ['bezeichnung']
+    verbose_name = 'Baugrunduntersuchung'
+    verbose_name_plural = 'Baugrunduntersuchungen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Baugrunduntersuchungen in der Hanse- und Universitätsstadt Rostock'
+    associated_models = {
+      'Baugrunduntersuchungen_Baugrundbohrungen': 'baugrunduntersuchung',
+      'Baugrunduntersuchungen_Dokumente': 'baugrunduntersuchung'
+    }
+    address_search_long_results = True
+    address_type = 'Straße'
+    address_mandatory = False
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'strasse': 'Straße',
+      'labor': 'Labor',
+      'bezeichnung': 'Bezeichnung',
+      'datum': 'Datum'
+    }
+    list_fields_with_date = ['datum']
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse_lang',
+      'labor': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'baugrunduntersuchungen-labor',
+        'action_title': 'ausgewählten Datensätzen Labor direkt zuweisen',
+        'field': 'labor',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['bezeichnung']
+    map_filter_fields = {
+      'labor': 'Labor',
+      'bezeichnung': 'Bezeichnung',
+      'datum': 'Datum'
+    }
+    map_filter_fields_as_list = ['labor']
+
+  def __str__(self):
+    return self.bezeichnung
+
+
+class Baugrunduntersuchungen_Baugrundbohrungen(ComplexModel):
+  """
+  Baugrunduntersuchungen:
+  Baugrundbohrungen
+  """
+
+  baugrunduntersuchung = ForeignKey(
+    to=Baugrunduntersuchungen,
+    verbose_name='Baugrunduntersuchung',
+    on_delete=CASCADE,
+    db_column='baugrunduntersuchung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_baugrunduntersuchungen'
+  )
+  nummer = CharField(
+    verbose_name='Nummer',
+    max_length=255,
+    validators=standard_validators
+  )
+  geometrie = point_field
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"baugrunduntersuchungen_baugrundbohrungen_hro'
+    verbose_name = 'Baugrundbohrung einer Baugrunduntersuchung'
+    verbose_name_plural = 'Baugrundbohrungen der Baugrunduntersuchungen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Baugrundbohrungen der Baugrunduntersuchungen ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    short_name = 'Baugrundbohrung'
+    fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'baugrunduntersuchung': 'Baugrunduntersuchung',
+      'nummer': 'Nummer'
+    }
+    list_fields_with_foreign_key = {
+      'baugrunduntersuchung': 'bezeichnung'
+    }
+    map_feature_tooltip_fields = ['nummer']
+    map_filter_fields = {
+      'baugrunduntersuchung': 'Baugrunduntersuchung',
+      'nummer': 'Nummer'
+    }
+    map_filter_fields_as_list = ['baugrunduntersuchung']
+
+  def __str__(self):
+    return self.nummer
+
+
+class Baugrunduntersuchungen_Dokumente(ComplexModel):
+  """
+  Baugrunduntersuchungen:
+  Dokumente
+  """
+
+  baugrunduntersuchung = ForeignKey(
+    to=Baugrunduntersuchungen,
+    verbose_name='Baugrunduntersuchung',
+    on_delete=CASCADE,
+    db_column='baugrunduntersuchung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_baugrunduntersuchungen'
+  )
+  dateiname_original = CharField(
+    verbose_name='Original-Dateiname',
+    max_length=255,
+    default='ohne'
+  )
+  pdf = FileField(
+    verbose_name='Dokument',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PDF_PATH_PREFIX_PRIVATE + 'baugrunduntersuchungen'
+    ),
+    max_length=255
+  )
+
+  class Meta(ComplexModel.Meta):
+    db_table = 'fachdaten\".\"baugrunduntersuchungen_dokumente_hro'
+    verbose_name = 'Dokument einer Baugrunduntersuchung'
+    verbose_name_plural = 'Dokumente der Baugrunduntersuchungen'
+
+  class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Dokumente der Baugrunduntersuchungen ' \
+                  'in der Hanse- und Universitätsstadt Rostock'
+    short_name = 'Dokument'
+    readonly_fields = ['dateiname_original']
+    fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'baugrunduntersuchung': 'Baugrunduntersuchung',
+      'dateiname_original': 'Original-Dateiname',
+      'pdf': 'Dokument'
+    }
+    list_fields_with_foreign_key = {
+      'baugrunduntersuchung': 'bezeichnung'
+    }
+
+  def __str__(self):
+    return str(self.baugrunduntersuchung)
+
+
+post_delete.connect(delete_pdf, sender=Baugrunduntersuchungen_Dokumente)
 
 
 #
@@ -611,7 +803,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"baustellen_geplant_dokumente'
-    verbose_name = 'Dokument der Baustelle (geplant)'
+    verbose_name = 'Dokument einer Baustelle (geplant)'
     verbose_name_plural = 'Dokumente der Baustellen (geplant)'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
@@ -667,7 +859,7 @@ class Baustellen_geplant_Links(ComplexModel):
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"baustellen_geplant_links'
-    verbose_name = 'Link der Baustelle (geplant)'
+    verbose_name = 'Link einer Baustelle (geplant)'
     verbose_name_plural = 'Links der Baustellen (geplant)'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
