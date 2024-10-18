@@ -1,6 +1,6 @@
 import os.path
 
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse, Http404
 from docutils.nodes import header
 from uaclient.api.u.pro.detach.v1 import endpoint
 
@@ -92,21 +92,26 @@ class DataBucket:
     ok, response = self.__api.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
     return ok, response
 
-  def download_file(self, object_key: str, stream: bool=False):
+  def download_file(self, object_key: str, stream: bool=True):
     """
 
     :return:
     """
-    headers = {
-      "key", object_key
+    parameter = {
+      "key": object_key
     }
+    #print(headers)
     ok, response = self.__api.get(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/download-file',
-      headers=headers,
-      stream=stream
+      #headers=headers,
+      stream=stream,
+      params=parameter
     )
-    file_response = FileResponse(response.raw, content_type=response.headers.get('content-type'))
-    return ok, file_response
+    print(response.raw.__dict__)
+    return ok, response
+
+
+
 
   def get_endpoint(self):
     """
