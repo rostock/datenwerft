@@ -31,7 +31,7 @@ class DataAddView(CreateView):
         fields='__all__',
         formfield_callback=assign_widgets
     )
-    self.multi_photos = None
+    self.multi_file_upload = None
     self.multi_files = None
     self.file = None
     super().__init__(*args, **kwargs)
@@ -44,7 +44,7 @@ class DataAddView(CreateView):
     """
     kwargs = super().get_form_kwargs()
     self = set_form_attributes(self)
-    if self.model.BasemodelMeta.multi_photos and self.request.method == 'POST':
+    if self.model.BasemodelMeta.multi_file_upload and self.request.method == 'POST':
       self.multi_files = self.request.FILES
     if self.request.method == 'POST':
       self.file = self.request.FILES
@@ -53,7 +53,7 @@ class DataAddView(CreateView):
     kwargs['fields_with_foreign_key_to_linkify'] = self.fields_with_foreign_key_to_linkify
     kwargs['choices_models_for_choices_fields'] = self.choices_models_for_choices_fields
     kwargs['group_with_users_for_choice_field'] = self.group_with_users_for_choice_field
-    kwargs['multi_photos'] = self.model.BasemodelMeta.multi_photos
+    kwargs['multi_file_upload'] = self.model.BasemodelMeta.multi_file_upload
     kwargs['file'] = self.file
     kwargs['multi_files'] = self.multi_files
     return kwargs
@@ -74,7 +74,7 @@ class DataAddView(CreateView):
     # add model form related elements to context
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
-    context['multi_photos'] = self.model.BasemodelMeta.multi_photos
+    context['multi_file_upload'] = self.model.BasemodelMeta.multi_file_upload
     context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')

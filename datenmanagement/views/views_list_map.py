@@ -145,12 +145,11 @@ class TableDataCompositionView(BaseDatatableView):
               except ValueError:
                 pass
             # handle PDF files
-            elif column == 'dokument' or column == 'pdf':
+            elif column == 'pdf':
               try:
-                data = '<a href="' + value.url + '?' + str(
-                    time()) + '" target="_blank" rel="noopener noreferrer" title="' + (
-                    ('PDF' if column == 'pdf' else 'Dokument')) + ' öffnen…">Link zum ' + (
-                    ('PDF' if column == 'pdf' else 'Dokument')) + '</a>'
+                data = '<a href="' + value.url + '?' + str(time()) + '" target="_blank" '
+                data += 'rel="noopener noreferrer" title="PDF öffnen…">'
+                data += 'Link zum PDF</a>'
               except ValueError:
                 pass
             # format Boolean ``True``

@@ -515,7 +515,7 @@
                 let fotoField = $('input#id_foto');
                 if (fotoField.length) {
                   fotoField.attr('accept', 'image/*');
-                  {% if multi_photos %}
+                  {% if multi_file_upload %}
                     if (fotoField[0].files.length === 0)
                       fotoField.attr('multiple', 'multiple');
                   {% endif %}

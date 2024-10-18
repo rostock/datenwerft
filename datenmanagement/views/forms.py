@@ -25,7 +25,7 @@ class GenericForm(ModelForm):
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
     fields_with_foreign_key_to_linkify = kwargs.pop('fields_with_foreign_key_to_linkify', None)
     file = kwargs.pop('file', None)
-    multi_photos = kwargs.pop('multi_photos', None)
+    multi_file_upload = kwargs.pop('multi_file_upload', None)
     multi_files = kwargs.pop('multi_files', None)
     kwargs.setdefault('label_suffix', '')
     super().__init__(*args, **kwargs)
@@ -37,7 +37,7 @@ class GenericForm(ModelForm):
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.file = file
-    self.multi_photos = multi_photos
+    self.multi_file_upload = multi_file_upload
     self.multi_files = multi_files
     self.address_type = self.instance.BasemodelMeta.address_type
     self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
@@ -163,7 +163,7 @@ class GenericForm(ModelForm):
 
     :return: cleaned field with foto
     """
-    if self.multi_photos:
+    if self.multi_file_upload:
       # only carry out all further operations if all mandatory fields have been filled,
       # since otherwise the transfer for the other photo objects will not work
       ok = True
@@ -205,13 +205,14 @@ class GenericForm(ModelForm):
 
     :return: cleaned field with original filename
     """
-    data = self.cleaned_data['dateiname_original']
-    if self.multi_photos and self.multi_files:
-      first_key = next(iter(self.file.keys()))
-      data = self.multi_files.getlist(first_key)[len(self.multi_files.getlist(first_key)) - 1].name
+    data, file_data = self.cleaned_data['dateiname_original'], None
+    if self.multi_file_upload and self.multi_files:
+      file_data = self.multi_files
     elif self.file:
-      first_key = next(iter(self.file.keys()))
-      data = self.file.getlist(first_key)[0].name
+      file_data = self.file
+    if file_data:
+      first_key = next(iter(file_data.keys()))
+      data = file_data.getlist(first_key)[len(file_data.getlist(first_key)) - 1].name
     return data
 
   def clean_geometrie(self):

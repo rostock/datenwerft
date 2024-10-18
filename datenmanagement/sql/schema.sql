@@ -1848,7 +1848,7 @@ CREATE TABLE fachdaten.baustellen_geplant_dokumente (
     id_zielsystem character varying(255),
     deaktiviert date,
     baustelle_geplant uuid NOT NULL,
-    dokument character varying(255) NOT NULL,
+    pdf character varying(255) NOT NULL,
     bezeichnung character varying(255) NOT NULL
 );
 
