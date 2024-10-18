@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator, \
   RegexValidator, URLValidator, FileExtensionValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, UUIDField
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, UUIDField, IntegerField
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
@@ -3043,7 +3043,7 @@ class Punktwolken(ComplexModel):
     verbose_name='Zuletzt aktualisiert',
     auto_now=True
   )
-  vcp_object_key= CharField(
+  vcp_object_key = CharField(
     verbose_name='VCP Objekt ID',
     max_length=255,
     editable=False,
@@ -3051,6 +3051,12 @@ class Punktwolken(ComplexModel):
   )
   geometrie = polygon_field
   geometrie.null = True
+  # needed for VCPub downloads. VCPUb returns no filesize in file response.
+  file_size = IntegerField(
+    verbose_name='Dateigröße',
+    editable=False,
+    blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken'
