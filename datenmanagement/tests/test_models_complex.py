@@ -2026,11 +2026,11 @@ class BaustellenGeplantDokumenteTest(DefaultComplexModelTestCase):
   def setUpTestData(cls):
     super().setUpTestData()
     baustelle = create_baustelle_geplant()
-    dokument = File(open(VALID_PDF_FILE, 'rb'))
+    pdf = File(open(VALID_PDF_FILE, 'rb'))
     cls.attributes_values_db_initial = {
       'baustelle_geplant': baustelle,
       'bezeichnung': 'Bezeichnung1',
-      'dokument': dokument
+      'pdf': pdf
     }
     cls.attributes_values_db_initial_cleaned = remove_file_attributes_from_object_filter(
       cls.attributes_values_db_initial.copy()
@@ -2139,7 +2139,7 @@ class BaustellenGeplantDokumenteTest(DefaultComplexModelTestCase):
       'text/html; charset=utf-8',
       1,
       VALID_PDF_FILE,
-      'dokument',
+      'pdf',
       'application/pdf'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
@@ -2164,7 +2164,7 @@ class BaustellenGeplantDokumenteTest(DefaultComplexModelTestCase):
       'text/html; charset=utf-8',
       1,
       VALID_PDF_FILE,
-      'dokument',
+      'pdf',
       'application/pdf'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))

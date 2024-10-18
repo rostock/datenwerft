@@ -174,7 +174,7 @@ class Adressunsicherheiten_Fotos(ComplexModel):
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['adressunsicherheit']
-    multi_photos = True
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'adressunsicherheit': 'Adressunsicherheit',
@@ -373,6 +373,7 @@ class Baugrunduntersuchungen_Dokumente(ComplexModel):
     short_name = 'Dokument'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baugrunduntersuchung': 'Baugrunduntersuchung',
@@ -557,7 +558,7 @@ class Baustellen_Fotodokumentation_Fotos(ComplexModel):
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['baustellen_fotodokumentation_baustelle']
-    multi_photos = True
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baustellen_fotodokumentation_baustelle': 'Baustelle',
@@ -792,7 +793,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
     max_length=255,
     validators=standard_validators
   )
-  dokument = FileField(
+  pdf = FileField(
     verbose_name='Dokument',
     storage=OverwriteStorage(),
     upload_to=path_and_rename(
@@ -811,11 +812,12 @@ class Baustellen_geplant_Dokumente(ComplexModel):
                   'in der Hanse- und Universitätsstadt Rostock und Umgebung'
     short_name = 'Dokument'
     fields_with_foreign_key_to_linkify = ['baustelle_geplant']
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
       'bezeichnung': 'Bezeichnung',
-      'dokument': 'Dokument'
+      'pdf': 'Dokument'
     }
     list_fields_with_foreign_key = {
       'baustelle_geplant': 'bezeichnung'
@@ -1127,7 +1129,7 @@ class Durchlaesse_Fotos(ComplexModel):
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['durchlaesse_durchlass']
-    multi_photos = True
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'durchlaesse_durchlass': 'Durchlass',
@@ -1696,7 +1698,7 @@ class Freizeitsport_Fotos(ComplexModel):
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['freizeitsport']
-    multi_photos = True
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'freizeitsport': 'Freizeitsport',
@@ -2610,7 +2612,7 @@ class Haltestellenkataster_Fotos(ComplexModel):
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['haltestellenkataster_haltestelle']
-    multi_photos = True
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'haltestellenkataster_haltestelle': 'Haltestelle',
@@ -3935,7 +3937,7 @@ class Spielplaetze_Fotos(ComplexModel):
     short_name = 'Foto'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['spielplatz']
-    multi_photos = True
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'spielplatz': 'Spielplatz',

@@ -80,7 +80,6 @@ def remove_file_attributes_from_object_filter(object_filter):
   :param object_filter: object filter
   :return: the variant of the passed object filter that has been cleaned of file attributes
   """
-  object_filter.pop('dokument', None)
   object_filter.pop('foto', None)
   object_filter.pop('pdf', None)
   return object_filter

@@ -7,6 +7,7 @@ from operator import itemgetter
 
 from datenmanagement.models import Ansprechpartner_Baustellen
 from .fields import AddressUUIDField, DistrictUUIDField, StreetUUIDField
+from .functions import handle_multi_file_upload
 
 
 class GenericForm(ModelForm):
@@ -25,7 +26,7 @@ class GenericForm(ModelForm):
     group_with_users_for_choice_field = kwargs.pop('group_with_users_for_choice_field', None)
     fields_with_foreign_key_to_linkify = kwargs.pop('fields_with_foreign_key_to_linkify', None)
     file = kwargs.pop('file', None)
-    multi_photos = kwargs.pop('multi_photos', None)
+    multi_file_upload = kwargs.pop('multi_file_upload', None)
     multi_files = kwargs.pop('multi_files', None)
     kwargs.setdefault('label_suffix', '')
     super().__init__(*args, **kwargs)
@@ -37,7 +38,7 @@ class GenericForm(ModelForm):
     self.group_with_users_for_choice_field = group_with_users_for_choice_field
     self.fields_with_foreign_key_to_linkify = fields_with_foreign_key_to_linkify
     self.file = file
-    self.multi_photos = multi_photos
+    self.multi_file_upload = multi_file_upload
     self.multi_files = multi_files
     self.address_type = self.instance.BasemodelMeta.address_type
     self.address_mandatory = self.instance.BasemodelMeta.address_mandatory
@@ -158,45 +159,33 @@ class GenericForm(ModelForm):
 
   def clean_foto(self):
     """
-    cleans field with foto
+    cleans (multi-)photo file upload field...
     (note: method will be ignored by Django if such a field does not exist)
 
-    :return: cleaned field with foto
+    :return: cleaned (multi-)photo file upload field
     """
-    if self.multi_photos:
-      # only carry out all further operations if all mandatory fields have been filled,
-      # since otherwise the transfer for the other photo objects will not work
-      ok = True
-      for field in self.model._meta.get_fields():
-        if (
-            field.name != self.model._meta.pk.name
-            and field.name != 'foto'
-            and self.fields[field.name].required
-            and not self.data[field.name]
-        ):
-          ok = False
-          break
-      if ok:
-        fotos_count = len(self.multi_files.getlist('foto'))
-        if fotos_count > 1:
-          i = 1
-          for foto in self.multi_files.getlist('foto'):
-            if i < fotos_count:
-              m = self.model()
-              for field in self.model._meta.get_fields():
-                if field.name == 'dateiname_original':
-                  setattr(m, field.name, foto.name)
-                elif field.name == 'foto':
-                  setattr(m, field.name, foto)
-                elif field.name != m._meta.pk.name:
-                  setattr(m, field.name,
-                          self.cleaned_data[field.name])
-              m.save()
-              i += 1
-    # note: the return statement fits in every case,
-    # both with a normal file field and with a multi-file field,
-    # since here always the last file is handled (in alphabetical order of the file name)
+    if self.multi_file_upload:
+      handle_multi_file_upload(self, 'foto')
+    # note:
+    # the return statement is suitable in any case,
+    # both for a single- and a multi-photo file upload field,
+    # since the last file is always treated here (in alphabetical order of the file name)
     return self.cleaned_data['foto']
+
+  def clean_pdf(self):
+    """
+    cleans (multi-)PDF file upload field
+    (note: method will be ignored by Django if such a field does not exist)
+
+    :return: (multi-)PDF file upload field
+    """
+    if self.multi_file_upload:
+      handle_multi_file_upload(self, 'pdf')
+    # note:
+    # the return statement is suitable in any case,
+    # both for a single- and a multi-PDF file upload field,
+    # since the last file is always treated here (in alphabetical order of the file name)
+    return self.cleaned_data['pdf']
 
   def clean_dateiname_original(self):
     """
@@ -205,13 +194,14 @@ class GenericForm(ModelForm):
 
     :return: cleaned field with original filename
     """
-    data = self.cleaned_data['dateiname_original']
-    if self.multi_photos and self.multi_files:
-      first_key = next(iter(self.file.keys()))
-      data = self.multi_files.getlist(first_key)[len(self.multi_files.getlist(first_key)) - 1].name
+    data, file_data = self.cleaned_data['dateiname_original'], None
+    if self.multi_file_upload and self.multi_files:
+      file_data = self.multi_files
     elif self.file:
-      first_key = next(iter(self.file.keys()))
-      data = self.file.getlist(first_key)[0].name
+      file_data = self.file
+    if file_data:
+      first_key = next(iter(file_data.keys()))
+      data = file_data.getlist(first_key)[len(file_data.getlist(first_key)) - 1].name
     return data
 
   def clean_geometrie(self):
