@@ -72,7 +72,7 @@ class VCPub:
     """
     return self.__project_id
 
-  def post(self, endpoint:str, data:dict = None, json=None, files=None) -> tuple[bool, dict|Response|None]:
+  def post(self, endpoint:str, data:dict = None, json=None, files=None, *args, **kwargs) -> tuple[bool, dict|Response|None]:
     """
     Make a POST Request to the VC Publisher API.
 
@@ -83,7 +83,7 @@ class VCPub:
     :return:
     """
     url: str = self.__url + endpoint
-    response = self.__session.post(url=url, data=data, json=json, files=files)
+    response = self.__session.post(url=url, data=data, json=json, files=files, *args, **kwargs)
     if response.ok and response.status_code != 204:
       self.logger.debug(f'POST {url}')
       return response.ok, response.json()
@@ -95,7 +95,7 @@ class VCPub:
       self.logger.warning(f'POST on {url} failed: {response.__dict__}')
       return response.ok, response
 
-  def get(self, endpoint: str, headers=None, stream: bool=False) -> tuple[bool, dict|Response|None]:
+  def get(self, endpoint: str, headers=None, stream: bool=False, *args, **kwargs) -> tuple[bool, dict|Response|None]:
     """
     Make a GET Request to the VC Publisher API.
 
@@ -105,7 +105,7 @@ class VCPub:
     :return: Response as dict
     """
     url: str = self.__url + endpoint
-    response = self.__session.get(url=url, headers=headers, stream=stream)
+    response = self.__session.get(url=url, headers=headers, stream=stream, *args, **kwargs)
 
     if response.ok and response.status_code != 204:
       self.logger.debug(f'GET {url}')
