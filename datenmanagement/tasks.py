@@ -1,4 +1,5 @@
 # third-party imports
+import os.path
 from uuid import UUID
 from celery import shared_task
 
@@ -6,7 +7,6 @@ from celery import shared_task
 from django.apps import apps
 from datenwerft.celery import logger
 from toolbox.vcpub.DataBucket import DataBucket
-
 
 @shared_task
 def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
@@ -19,6 +19,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   :return:
   """
   bucket = DataBucket(_id=str(dataset))
+  file_size = os.path.getsize(path)
   with open(path, 'rb') as f:
     if filename:
       file = {filename: f}
@@ -26,7 +27,8 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
     if ok:
       logger.debug('Pointcloud upload to VCPub was successful.')
       change_attr = {
-        'vcp_object_key': key
+        'vcp_object_key': key,
+        'file_size': file_size
       }
       update_model(
         model_name='Punktwolken',
