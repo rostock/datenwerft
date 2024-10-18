@@ -310,6 +310,36 @@ def get_uuids_geometries_from_sql(rows):
   return uuid_list, geometry_list
 
 
+def handle_multi_file_upload(form, multi_field_name):
+  """
+  handles multi file upload for the passed form
+
+  :param form: form
+  :param multi_field_name: name of multi file upload field
+  """
+  # only carry out any further operations if all mandatory fields have been filled in,
+  # otherwise the transfer will not work for the other objects
+  if all(
+      field.name == form.model._meta.pk.name
+      or field.name == multi_field_name
+      or not form.fields[field.name].required
+      or form.data[field.name]
+      for field in form.model._meta.get_fields()
+  ):
+    files = form.multi_files.getlist(multi_field_name)
+    if len(files) > 1:
+      for file in files[:-1]:  # exclude the last file from this loop
+        m = form.model()
+        for field in form.model._meta.get_fields():
+          if field.name == 'dateiname_original':
+            setattr(m, field.name, file.name)
+          elif field.name == multi_field_name:
+            setattr(m, field.name, file)
+          elif field.name != m._meta.pk.name:
+            setattr(m, field.name, form.cleaned_data[field.name])
+        m.save()
+
+
 def set_form_attributes(form):
   """
   sets attributes in the passed form and returns it
@@ -326,7 +356,13 @@ def set_form_attributes(form):
   return form
 
 
-def order_model_to_form_template(model: Basemodel):
+def set_form_template(model: Basemodel):
+  """
+  sets adequate form template for passed model and returns it
+
+  :param model: model
+  :return: adequate form template for passed model
+  """
   if (
     model.__module__ == 'datenmanagement.models.models_codelist'
     or model.BasemodelMeta.geometry_type is None

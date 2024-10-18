@@ -7,6 +7,7 @@ from operator import itemgetter
 
 from datenmanagement.models import Ansprechpartner_Baustellen
 from .fields import AddressUUIDField, DistrictUUIDField, StreetUUIDField
+from .functions import handle_multi_file_upload
 
 
 class GenericForm(ModelForm):
@@ -158,45 +159,33 @@ class GenericForm(ModelForm):
 
   def clean_foto(self):
     """
-    cleans field with foto
+    cleans (multi-)photo file upload field...
     (note: method will be ignored by Django if such a field does not exist)
 
-    :return: cleaned field with foto
+    :return: cleaned (multi-)photo file upload field
     """
     if self.multi_file_upload:
-      # only carry out all further operations if all mandatory fields have been filled,
-      # since otherwise the transfer for the other photo objects will not work
-      ok = True
-      for field in self.model._meta.get_fields():
-        if (
-            field.name != self.model._meta.pk.name
-            and field.name != 'foto'
-            and self.fields[field.name].required
-            and not self.data[field.name]
-        ):
-          ok = False
-          break
-      if ok:
-        fotos_count = len(self.multi_files.getlist('foto'))
-        if fotos_count > 1:
-          i = 1
-          for foto in self.multi_files.getlist('foto'):
-            if i < fotos_count:
-              m = self.model()
-              for field in self.model._meta.get_fields():
-                if field.name == 'dateiname_original':
-                  setattr(m, field.name, foto.name)
-                elif field.name == 'foto':
-                  setattr(m, field.name, foto)
-                elif field.name != m._meta.pk.name:
-                  setattr(m, field.name,
-                          self.cleaned_data[field.name])
-              m.save()
-              i += 1
-    # note: the return statement fits in every case,
-    # both with a normal file field and with a multi-file field,
-    # since here always the last file is handled (in alphabetical order of the file name)
+      handle_multi_file_upload(self, 'foto')
+    # note:
+    # the return statement is suitable in any case,
+    # both for a single- and a multi-photo file upload field,
+    # since the last file is always treated here (in alphabetical order of the file name)
     return self.cleaned_data['foto']
+
+  def clean_pdf(self):
+    """
+    cleans (multi-)PDF file upload field
+    (note: method will be ignored by Django if such a field does not exist)
+
+    :return: (multi-)PDF file upload field
+    """
+    if self.multi_file_upload:
+      handle_multi_file_upload(self, 'pdf')
+    # note:
+    # the return statement is suitable in any case,
+    # both for a single- and a multi-PDF file upload field,
+    # since the last file is always treated here (in alphabetical order of the file name)
+    return self.cleaned_data['pdf']
 
   def clean_dateiname_original(self):
     """

@@ -10,11 +10,11 @@
 
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
-  
+
   {% block alerts %}
   	{{ block.super }}
   {% endblock %}
-  
+
   <form class="form flex-container-column" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div class="flex-item" id="flex-list">
@@ -247,7 +247,7 @@
         }
       });
 
-      // handle multi-photo upload field...
+      // handle (multi-)photo file upload field...
       let fotoField = $('input#id_foto');
       if (fotoField.length) {
         fotoField.attr('accept', 'image/*');
@@ -257,10 +257,14 @@
         {% endif %}
       }
 
-      // handle PDF upload field...
+      // handle (multi-)PDF file upload field...
       let pdfField = $('input#id_pdf');
       if (pdfField.length) {
         pdfField.attr('accept', 'application/pdf');
+        {% if multi_file_upload %}
+          if (pdfField[0].files.length === 0)
+            pdfField.attr('multiple', 'multiple');
+        {% endif %}
       }
 
       // initialize address search (and make its results globally available)

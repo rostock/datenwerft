@@ -324,7 +324,6 @@ class DataChangeView(UpdateView):
           array_fields_values[field.name] = array_field_values
     # create a new context and insert a JSON-serialized dictionary for all array fields
     # and their contents that contain more than one value
-    print(array_fields_values)
     context['array_fields_values'] = dumps(array_fields_values, cls=DecimalEncoder)
     if self.request.user.has_perm('datenmanagement.add_' + model_name_lower):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')

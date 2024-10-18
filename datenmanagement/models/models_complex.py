@@ -373,6 +373,7 @@ class Baugrunduntersuchungen_Dokumente(ComplexModel):
     short_name = 'Dokument'
     readonly_fields = ['dateiname_original']
     fields_with_foreign_key_to_linkify = ['baugrunduntersuchung']
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baugrunduntersuchung': 'Baugrunduntersuchung',
@@ -811,6 +812,7 @@ class Baustellen_geplant_Dokumente(ComplexModel):
                   'in der Hanse- und Universitätsstadt Rostock und Umgebung'
     short_name = 'Dokument'
     fields_with_foreign_key_to_linkify = ['baustelle_geplant']
+    multi_file_upload = True
     list_fields = {
       'aktiv': 'aktiv?',
       'baustelle_geplant': 'Baustelle (geplant)',
