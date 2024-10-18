@@ -1,12 +1,17 @@
+from fileinput import filename
+from http.client import responses
+
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models.fields import DateField, DateTimeField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
+from landscape.client.configuration import print_text
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
 
@@ -315,28 +320,37 @@ def order_model_to_form_template(model: Basemodel):
     return 'datenmanagement/form-map.html'
 
 
-def download_pointcloud(*args, **kwargs):
+def download_pointcloud(request: WSGIRequest, pk):
   #pk = '1f159008-2712-4a76-880a-b4782c93366d'
-  pk = kwargs['pk']
-  print(args)
-  print(kwargs)
   # get pointcloud model instance of given pk
   pc_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
-  pc_instance = pc_model.objects.get(pk)
+  pc_instance = pc_model.objects.get(pk=pk)
 
   # check if pointcloud is stored at VCPub
-  if pc_instance.object_key:
+  if pc_instance.vcp_object_key:
     # get project instance of pointcloud instance for bucket information
     pcprj_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken_Projekte')
-    pcprj_instance = pcprj_model.objects.get(pc_instance.punktwolken_projekte)
+    pcprj_instance = pcprj_model.objects.get(pk=pc_instance.projekt.uuid)
 
     # get dataset bucket
     bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
-    ok, file_response = bucket.download_file(object_key=pc_instance.vcp_object_key, stream=True)
+    print(f'Object Key: {pc_instance.vcp_object_key}')
+    ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
     if ok:
-      file_response['Content-Disposition'] = f'attachment; filename="{pc_instance.dateiname}"'
+      file_response = FileResponse(
+        response.raw,
+        content_type=response.headers.get('content_type'),
+        as_attachment=True,
+        filename=pc_instance.dateiname
+      )
+      if pc_instance.file_size:
+        file_response['Content-Length'] = pc_instance.file_size
+      #print(f'File: {file_response.__dict__}')
+      #file_response['Content-Disposition'] = f'attachment; filename="{pc_instance.dateiname}"'
       return file_response
+    elif response.status_code == 404:
+      raise Http404("No Point Cloud.")
     else:
-      return None
+      return HttpResponse(response)
   else:
     return HttpResponse("Blub")
