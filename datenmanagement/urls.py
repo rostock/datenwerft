@@ -285,7 +285,7 @@ for model in models:
   if model_name == 'Punktwolken':
     urlpatterns.append(
       path(
-        model_name + '/download/(<pk>[0-9a-f-]{36})',
+        model_name + '/download/<pk>',
         view=permission_required(
           'datenmanagement.view_' + model_name_lower
         )(download_pointcloud),
