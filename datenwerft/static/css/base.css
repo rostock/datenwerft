@@ -62,3 +62,8 @@ span.nav-link:hover {
 .required {
   font-weight: bold;
 }
+
+.bi {
+  width: 1em;
+  height: 1em;
+}
