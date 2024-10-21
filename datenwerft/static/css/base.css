@@ -67,3 +67,7 @@ span.nav-link:hover {
   width: 1em;
   height: 1em;
 }
+
+.nav-link svg {
+  fill: var(--bs-nav-link-color);
+}
