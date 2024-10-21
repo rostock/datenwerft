@@ -20,6 +20,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   """
   bucket = DataBucket(_id=str(dataset))
   file_size = os.path.getsize(path)
+  logger.debug(f'Dateigröße: {file_size}')
   with open(path, 'rb') as f:
     if filename:
       file = {filename: f}
