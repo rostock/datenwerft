@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
+from toolbox.utils import format_filesize
 from toolbox.vcpub.DataBucket import DataBucket
 from toolbox.vcpub.Task import Task
 from .base import ComplexModel
@@ -3088,6 +3089,8 @@ class Punktwolken(ComplexModel):
       aufnahme_str = ' vom ' + self.aufnahme.strftime('%d.%m.%Y %H:%M')
     else:
       aufnahme_str = ''
+    if self.file_size:
+      aufnahme_str = aufnahme_str + f' ({format_filesize(self.file_size)})'
     return self.dateiname + aufnahme_str
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):

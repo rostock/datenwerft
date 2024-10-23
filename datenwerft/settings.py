@@ -23,6 +23,7 @@ THIRD_PARTY_APPS = [
   'requests',
   'rest_framework',
   'jsonview',
+  'mod_wsgi.server'
 ]
 LOCAL_APPS = [
   'accounts',
