@@ -71,3 +71,7 @@ span.nav-link:hover {
 .nav-link svg {
   fill: var(--bs-nav-link-color);
 }
+
+.nav-item .dropdown-item svg {
+  fill: var(--bs-dropdown-link-color);
+}
