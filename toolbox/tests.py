@@ -6,6 +6,7 @@ from json import loads
 from random import choice
 
 from .models import Subsets
+from .utils import format_filesize
 
 
 USERNAME = 'worschdsupp'
@@ -274,3 +275,30 @@ class SearchesTest(SearchesTestCase):
       self.REVERSE_SEARCH_PARAMS,
       self.CONTAINED_STRING_ERROR
     )
+
+
+class FormatBytesTestCase(TestCase):
+  """
+  Unittests for byte format function
+  """
+  def test_bytes_conversion(self):
+    # Test conversion to Bytes
+    self.assertEqual(format_filesize(512), "512.00 Bytes")
+
+    # Test conversion to KB
+    self.assertEqual(format_filesize(2048), "2.00 KB")
+
+    # Test conversion to MB
+    self.assertEqual(format_filesize(1048576), "1.00 MB")
+
+    # Test conversion to GB
+    self.assertEqual(format_filesize(1073741824), "1.00 GB")
+
+    # Test conversion to TB
+    self.assertEqual(format_filesize(1099511627776), "1.00 TB")
+
+    # Test conversion for a large number
+    self.assertEqual(format_filesize(1234567890), "1.15 GB")
+
+    # Test conversion for zero bytes
+    self.assertEqual(format_filesize(0), "0.00 Bytes")

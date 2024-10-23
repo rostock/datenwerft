@@ -279,3 +279,23 @@ def transform_geometry(geometry, target_srid):
     transform = CoordTransform(source_srs, target_srs)
     geometry.transform(transform)
   return geometry
+
+
+def format_filesize(size_in_bytes: int) -> str:
+  """
+  formats filesize in bytes (int) to the right format with unit.
+
+  :param size_in_bytes: filesize in bytes
+  :type size_in_bytes: int
+  :return: filesize in the right format with unit
+  :rtype: str
+  """
+  units = ["Bytes", "KB", "MB", "GB", "TB"]
+  size = size_in_bytes
+  unit_index = 0
+
+  while size >= 1024 and unit_index < len(units) - 1:
+    size /= 1024.0
+    unit_index += 1
+
+  return f"{size:.2f} {units[unit_index]}"
