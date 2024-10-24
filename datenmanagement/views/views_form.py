@@ -254,7 +254,7 @@ class DataChangeView(UpdateView):
             'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
           }
           if hasattr(associated_object, 'punktwolke'):
-            associated_object_dict['file'] = f'/datenwerft/uploads/{associated_object.punktwolke}'
+            associated_object_dict['file'] = f'/datenmanagement/Punktwolken/download/{associated_object.pk}'
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
       kwargs['associated_new'] = self.associated_new
