@@ -305,6 +305,17 @@ def set_form_attributes(form):
 
 
 def order_model_to_form_template(model: Basemodel):
+  """
+  returns the template path for the given model instance.
+  The templates are chosen as follows:
+  - models from the codelist app are rendered with 'datenmanagement/form-list.html',
+  - models, which are not geometry fields, are also rendered with 'datenmanagement/form-list.html',
+  - the model 'Punktwolken_Projekte' is rendered with 'datenmanagement/form-pcmanagement.html',
+  - all other models are rendered with 'datenmanagement/form-map.html'.
+
+  :param model: model instance
+  :return: template path
+  """
   if (
     model.__module__ == 'datenmanagement.models.models_codelist'
     or model.BasemodelMeta.geometry_type is None
@@ -349,9 +360,7 @@ def download_pointcloud(request: WSGIRequest, pk):
       )
       file_response['Content-Length'] = pc_instance.file_size
       file_response['Transfer-Encoding'] = 'chunked'
-      #print(f'File: {file_response.__dict__}')
-      #file_response['Content-Disposition'] = f'attachment; filename="{pc_instance.dateiname}"'
-      print(file_response.__dict__)
+      print(f'Response: {file_response.__dict__}')
       return file_response
     elif response.status_code == 404:
       raise Http404("No Point Cloud.")
