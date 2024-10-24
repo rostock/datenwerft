@@ -1,17 +1,13 @@
-from fileinput import filename
-from http.client import responses
-
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models.fields import DateField, DateTimeField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
-from django.http import HttpResponse, FileResponse, Http404, StreamingHttpResponse
+from django.http import HttpResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
-from landscape.client.configuration import print_text
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
 
@@ -362,6 +358,5 @@ def download_pointcloud(request: WSGIRequest, pk):
     else:
       return HttpResponse(response)
   else:
-    with open( ) as f:
-
-    return HttpResponse("Blub")
+    f = open(f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}', 'rb')
+    return FileResponse(f, as_attachment=True, filename=pc_instance.dateiname)
