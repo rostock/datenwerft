@@ -78,29 +78,6 @@
           formdata.append('projekt', '{{ api }}');
           formdata.append('aufnahme', file.lastModified/1000);
           
-          /**
-          *let options = {
-          *  method: 'POST',
-          *  headers: {
-          *    //'Content-Type': 'multipart/form-data',
-          *    'X-CSRFToken': getCookie('csrftoken'),
-          *  },
-          *  body: formdata
-          *}
-          *console.log(options);
-          *try {
-          *  let response = await fetch(apiLink, options);
-          *  if (response.status == 201) {
-          *    window.location.reload();
-          *  } else {
-          *    console.log(response.status);
-          *  }
-          *  
-          *} catch (error) {
-          *  console.log('Fetch Error: ' + error);
-          *}
-          **/
-          
           const xhr = new XMLHttpRequest();
           xhr.open('POST', apiLink);
           xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
