@@ -151,6 +151,7 @@ class DataBucket:
   def link(self) -> dict:
     """
     generate bucket information to link this object in tasks or sources
+
     :return:
     """
     data = {
@@ -161,13 +162,21 @@ class DataBucket:
     return data
 
   def upload(self, path: str = None, file: dict = None):
+    """
+    Uploads a file to the data bucket.
+
+    :param path: path to uploaded file
+    :param file: or file
+    :return:
+    """
     key = list(file.keys())[0]
     if path:
       key = os.path.basename(path) # filename as key
       file = {key: open(path, 'rb')}
     ok, response = self.__api.post(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/upload',
-      files=file
+      files=file,
+      stream=True
     )
     if not ok:
       print(response)
