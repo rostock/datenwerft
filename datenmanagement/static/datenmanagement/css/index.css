@@ -1,3 +1,7 @@
-h5 {
-  height: 1em;
+small {
+  line-height: 1;
+}
+
+.list-group-item {
+  height: fit-content;
 }

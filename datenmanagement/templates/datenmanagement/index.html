@@ -37,7 +37,7 @@
               {% if not model.not_listed %}
               	<a class="list-group-item list-group-item-action list-group-item-info" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
-                  <h5><small>{% if model.description %}{{ model.description }}{% endif %}</small></h5>
+                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
               {% endif %}
             {% endfor %}
@@ -52,7 +52,7 @@
               {% if not model.not_listed %}
               	<a class="list-group-item list-group-item-action list-group-item-secondary" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
-                  <h5><small>{% if model.description %}{{ model.description }}{% endif %}</small></h5>
+                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
               {% endif %}
             {% endfor %}
@@ -67,7 +67,7 @@
               {% if not model.not_listed %}
               	<a class="list-group-item list-group-item-action list-group-item-primary" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
-                  <h5><small>{% if model.description %}{{ model.description }}{% endif %}</small></h5>
+                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
               {% endif %}
             {% endfor %}
@@ -82,7 +82,7 @@
               {% if not model.not_listed %}
               	<a class="list-group-item list-group-item-action list-group-item-primary" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
-                  <h5><small>{% if model.description %}{{ model.description }}{% endif %}</small></h5>
+                  <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
               {% endif %}
             {% endfor %}
