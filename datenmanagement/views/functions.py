@@ -1,10 +1,13 @@
+import os
+from wsgiref.util import FileWrapper
+
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models.fields import DateField, DateTimeField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
-from django.http import HttpResponse, FileResponse, Http404
+from django.http import HttpResponse, FileResponse, Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
@@ -351,7 +354,7 @@ def download_pointcloud(request: WSGIRequest, pk):
     ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
     if ok:
       print(f"Content Type: {response.headers.get('Content-Type')}")
-      file_response = FileResponse(
+      file_response = StreamingHttpResponse(
         response.raw,
         #content_type=response.headers.get('Content_Type'),
         content_type='application/octet-stream',
@@ -359,7 +362,7 @@ def download_pointcloud(request: WSGIRequest, pk):
         filename=pc_instance.dateiname
       )
       file_response['Content-Length'] = pc_instance.file_size
-      file_response['Transfer-Encoding'] = 'chunked'
+      #file_response['Transfer-Encoding'] = 'chunked'
       print(f'Response: {file_response.__dict__}')
       return file_response
     elif response.status_code == 404:
@@ -367,5 +370,14 @@ def download_pointcloud(request: WSGIRequest, pk):
     else:
       return HttpResponse(response)
   else:
-    f = open(f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}', 'rb')
-    return FileResponse(f, as_attachment=True, filename=pc_instance.dateiname)
+    path = f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}'
+    file_size = os.path.getsize(path)
+    f = open(path, 'rb')
+    file_response = StreamingHttpResponse(
+      FileWrapper(f), content_type='application/octet-stream')
+    file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
+    file_response['Content-Length'] = file_size
+    print(f'Response: {file_response.__dict__}')
+    return file_response
+    #, content_type=response.headers.get('Content-Type'),
+    #, as_attachment=True, filename=pc_instance.dateiname)
