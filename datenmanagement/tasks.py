@@ -1,10 +1,13 @@
 # third-party imports
 import os.path
+import laspy
 from uuid import UUID
 from celery import shared_task
 
 # project imports
 from django.apps import apps
+from twisted.conch.insults.text import attributes
+
 from datenwerft.celery import logger
 from toolbox.vcpub.DataBucket import DataBucket
 
@@ -76,3 +79,32 @@ def update_model(model_name, pk, attributes: dict):
   except Exception as e:
     logger.error(f'Update of Model {model_name} with pk {pk} failed: {str(e)}')
 
+
+@shared_task
+def calculate_2d_bounding_box_for_pointcloud(pk, path):
+  """
+  Asynchronous calculation of 2D bounding box for pointcloud using laspy
+  :param path: path to pointcloud
+  :return: 2d bounding box in WKT format
+  """
+  # open file
+  with laspy.open(path) as las_file:
+    las = las_file.read()
+
+    # extract x- and y-coordinates
+    x_coords = las.x
+    y_coords = las.y
+
+    # get min/max values for x and y
+    min_x, max_x = x_coords.min(), x_coords.max()
+    min_y, max_y = y_coords.min(), y_coords.max()
+
+    # create bounding box
+    wkt = f'POLYGON(({min_x} {min_y}, {max_x} {min_y}, {max_x} {max_y}, {min_x} {max_y}, {min_x} {min_y}))'
+
+    # update model
+    update_model(
+      model_name='Punktwolken',
+      pk=pk,
+      attributes={'geometrie': wkt}
+    )
