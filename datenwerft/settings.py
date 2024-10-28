@@ -165,6 +165,7 @@ STATICFILES_DIRS = (
   BASE_DIR / 'vendor/',
   ('bootstrap', BASE_DIR / 'node_modules/bootstrap/dist/css'),
   ('bootstrap', BASE_DIR / 'node_modules/bootstrap/dist/js'),
+  ('bootstrap-icons', BASE_DIR / 'node_modules/bootstrap-icons'),
   ('fontawesome', BASE_DIR / 'node_modules/@fortawesome/fontawesome-free/css'),
   ('fontawesome', BASE_DIR / 'node_modules/@fortawesome/fontawesome-free/js'),
   ('webfonts', BASE_DIR / 'node_modules/@fortawesome/fontawesome-free/webfonts'),
