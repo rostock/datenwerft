@@ -32,31 +32,31 @@
             <a class="nav-link" href="https://geo.sv.rostock.de/impressum.html" target="_blank" rel="noopener noreferrer"><i class="fas fa-stamp"></i> Impressum</a>
           </li>
           <li class="nav-item dropdown">
-            
-            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (light)">
-              <svg class="bi my-1 theme-icon-active"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#sun-fill"></use></svg>
+
+            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
+              <svg class="bi me-1 my-1 theme-icon-active"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#sun-fill"></use></svg>
               <span class="d-lg-none ms-2" id="bd-theme-text"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="bd-theme-text" data-bs-popper="static">
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                  <svg class="bi me-2 opacity-50"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#circle-half"></use></svg>
+                  <svg class="bi me-2 opacity-50"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#circle-half"></use></svg>
                   wie System
-                  <svg class="bi ms-auto d-none"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#check2"></use></svg>
+                  <svg class="bi ms-auto d-none"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#check2"></use></svg>
                 </button>
               </li>
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                  <svg class="bi me-2 opacity-50"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#sun-fill"></use></svg>
-                  Hell
-                  <svg class="bi ms-auto d-none"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#check2"></use></svg>
+                  <svg class="bi me-2 opacity-50"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#sun-fill"></use></svg>
+                  Hellmodus
+                  <svg class="bi ms-auto d-none"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#check2"></use></svg>
                 </button>
               </li>
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                  <svg class="bi me-2 opacity-50"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#moon-stars-fill"></use></svg>
-                  Dunkel
-                  <svg class="bi ms-auto d-none"><use href="{% static 'twbs/bootstrap-icons/bootstrap-icons.svg' %}#check2"></use></svg>
+                  <svg class="bi me-2 opacity-50"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#moon-stars-fill"></use></svg>
+                  Dunkelmodus
+                  <svg class="bi ms-auto d-none"><use href="{% static 'bootstrap-icons/bootstrap-icons.svg' %}#check2"></use></svg>
                 </button>
               </li>
             </ul>
@@ -80,22 +80,22 @@
        * Copyright 2011-2024 The Bootstrap Authors
        * Licensed under the Creative Commons Attribution 3.0 Unported License.
        */
-      
+
       (() => {
         'use strict'
-      
+
         const getStoredTheme = () => localStorage.getItem('theme')
         const setStoredTheme = theme => localStorage.setItem('theme', theme)
-      
+
         const getPreferredTheme = () => {
           const storedTheme = getStoredTheme()
           if (storedTheme) {
             return storedTheme
           }
-      
+
           return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         }
-      
+
         const setTheme = theme => {
           if (theme === 'auto') {
             document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
@@ -103,47 +103,47 @@
             document.documentElement.setAttribute('data-bs-theme', theme)
           }
         }
-      
+
         setTheme(getPreferredTheme())
-      
+
         const showActiveTheme = (theme, focus = false) => {
           const themeSwitcher = document.querySelector('#bd-theme')
-      
+
           if (!themeSwitcher) {
             return
           }
-      
+
           const themeSwitcherText = document.querySelector('#bd-theme-text')
           const activeThemeIcon = document.querySelector('.theme-icon-active use')
           const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
           const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href')
-      
+
           document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
             element.classList.remove('active')
             element.setAttribute('aria-pressed', 'false')
           })
-      
+
           btnToActive.classList.add('active')
           btnToActive.setAttribute('aria-pressed', 'true')
           activeThemeIcon.setAttribute('href', svgOfActiveBtn)
           const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
           themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-      
+
           if (focus) {
             themeSwitcher.focus()
           }
         }
-      
+
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
           const storedTheme = getStoredTheme()
           if (storedTheme !== 'light' && storedTheme !== 'dark') {
             setTheme(getPreferredTheme())
           }
         })
-      
+
         window.addEventListener('DOMContentLoaded', () => {
           showActiveTheme(getPreferredTheme())
-      
+
           document.querySelectorAll('[data-bs-theme-value]')
             .forEach(toggle => {
               toggle.addEventListener('click', () => {
