@@ -62,3 +62,16 @@ span.nav-link:hover {
 .required {
   font-weight: bold;
 }
+
+.bi {
+  width: 1rem;
+  height: 1rem;
+}
+
+.nav-link svg {
+  fill: var(--bs-nav-link-color);
+}
+
+.nav-item .dropdown-item svg {
+  fill: var(--bs-dropdown-link-color);
+}
