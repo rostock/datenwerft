@@ -3112,8 +3112,12 @@ class Punktwolken(ComplexModel):
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
       # lazy import of celery task -> must remain here to avoid circular import errors
-      from ..tasks import send_pointcloud_to_vcpub
+      from ..tasks import send_pointcloud_to_vcpub, calculate_2d_bounding_box_for_pointcloud
       # run celery task delayed
+      calculate_2d_bounding_box_for_pointcloud.delay(
+        pk=self.pk,
+        path=self.punktwolke.path
+      )
       send_pointcloud_to_vcpub.delay(
         pk=self.pk,
         dataset=self.projekt.vcp_dataset_bucket_id,
