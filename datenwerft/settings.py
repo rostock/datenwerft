@@ -14,14 +14,14 @@ DJANGO_APPS = [
   'django.contrib.sessions',
   'django.contrib.messages',
   'django.contrib.staticfiles',
-  'django.contrib.gis',
+  'django.contrib.gis'
 ]
 THIRD_PARTY_APPS = [
   'django_user_agents',
   'leaflet',
   'requests',
   'rest_framework',
-  'jsonview',
+  'jsonview'
 ]
 LOCAL_APPS = [
   'accounts',
@@ -41,7 +41,7 @@ MIDDLEWARE = [
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'django.middleware.gzip.GZipMiddleware',
-  'django_user_agents.middleware.UserAgentMiddleware',
+  'django_user_agents.middleware.UserAgentMiddleware'
 ]
 ROOT_URLCONF = 'datenwerft.urls'
 WSGI_APPLICATION = 'datenwerft.wsgi.application'
@@ -62,7 +62,7 @@ TEMPLATES = [
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
         'django.contrib.messages.context_processors.messages',
-        'datenwerft.context_processors.include_login_form',
+        'datenwerft.context_processors.include_login_form'
       ],
       'libraries': {
         'toolbox_tags': 'toolbox.tags',
@@ -88,7 +88,7 @@ DATABASE_ROUTERS = [
 
 AUTHENTICATION_BACKENDS = (
   'accounts.backend.DatenwerftAuthBackend',
-  'django.contrib.auth.backends.ModelBackend',
+  'django.contrib.auth.backends.ModelBackend'
 )
 
 
