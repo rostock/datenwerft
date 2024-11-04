@@ -1,0 +1,138 @@
+@startuml
+
+abstract class Basemodel {
+  + id: BigAutoField <<PK>>
+  + created_at: DateTimeField
+  + updated_at: DateTimeField
+}
+
+abstract class Codelist {
+}
+
+abstract class Objectclass {
+  + search_content: CharField [0..1]
+}
+
+abstract class GeometryObjectclass {
+}
+
+class Sector {
+  + title: CharField
+  + examples: CharField [0..1]
+}
+
+class Status {
+  + ordinal: SmallIntegerField
+  + title: CharField
+  + icon: CharField
+}
+
+class TypeOfEvent {
+  + title: CharField
+  + icon: CharField
+}
+
+class TypeOfImmission {
+  + title: CharField
+  + icon: CharField
+}
+
+class Organization {
+  + name: CharField
+  + address_street: CharField [0..1]
+  + address_house_number: CharField [0..1]
+  + address_postal_code: CharField [0..1]
+  + address_place: CharField [0..1]
+  + email_addresses: ArrayField [0..1]
+  + telephone_numbers: ArrayField [0..1]
+  + dms_link: CharField [0..1]
+}
+
+class Person {
+  + title: CharField [0..1]
+  + academic_title: CharField [0..1]
+  + first_name: CharField [0..1]
+  + last_name: CharField
+  + address_street: CharField [0..1]
+  + address_house_number: CharField [0..1]
+  + address_postal_code: CharField [0..1]
+  + address_place: CharField [0..1]
+  + email_addresses: ArrayField [0..1]
+  + telephone_numbers: ArrayField [0..1]
+}
+
+class Contact {
+  ~ organization: ForeignKey <<FK>>
+  ~ person: ForeignKey <<FK>>
+  + function: CharField [0..1]
+}
+
+class Originator {
+  ~ sector: ForeignKey <<FK>>
+  ~ operator_organization: ForeignKey <<FK>> [0..1]
+  ~ operator_person: ForeignKey <<FK>> [0..1]
+  + description: TextField
+  + emission_point: PointField
+  + address: CharField [0..1]
+  + dms_link: CharField [0..1]
+}
+
+class Complaint {
+  + date_of_receipt: DateField
+  ~ status: ForeignKey <<FK>>
+  + status_updated_at: DateTimeField
+  ~ type_of_immission: ForeignKey <<FK>>
+  + immission_point: PointField
+  + address: CharField [0..1]
+  ~ originator: ForeignKey <<FK>>
+  # complainers_organizations: ManyToManyField [0..1]
+  # complainers_persons: ManyToManyField [0..1]
+  + description: TextField
+  + dms_link: CharField [0..1]
+  + storage_location: CharField [0..1]
+}
+
+class Event {
+  ~ complaint: ForeignKey <<FK>>
+  ~ type_of_event: ForeignKey <<FK>>
+  + date: DateField [0..1]
+  + user: CharField
+  + description: NullTextField [0..1]
+  + dms_link: CharField [0..1]
+}
+
+class LogEntry {
+  + model: CharField
+  + object_pk: BigIntegerField
+  + action: CharField
+  + content: CharField [0..1]
+  + user: CharField
+}
+
+Basemodel <|-- Codelist
+Basemodel <|-- Objectclass
+Objectclass <|-- GeometryObjectclass
+Codelist <|-- Sector
+Codelist <|-- Status
+Codelist <|-- TypeOfEvent
+Codelist <|-- TypeOfImmission
+Objectclass <|-- Organization
+Objectclass <|-- Person
+Objectclass <|-- Contact
+Contact --> Organization : organization
+Contact --> Person : person
+GeometryObjectclass <|-- Originator
+Originator --> Sector : sector
+Originator --> Organization : operator_organization
+Originator --> Person : operator_person
+GeometryObjectclass <|-- Complaint
+Complaint --> Status : status
+Complaint --> TypeOfImmission : type_of_immission
+Complaint --> Originator : originator
+Complaint *--* Organization : complainers_organizations
+Complaint *--* Person : complainers_persons
+Objectclass <|-- Event
+Event --> Complaint : complaint
+Event --> TypeOfEvent : type_of_event
+
+@enduml
