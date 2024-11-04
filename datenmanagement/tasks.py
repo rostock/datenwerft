@@ -1,5 +1,4 @@
 # third-party imports
-import os.path
 import laspy
 from uuid import UUID
 from celery import shared_task, app
