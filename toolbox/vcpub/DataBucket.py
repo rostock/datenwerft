@@ -175,8 +175,9 @@ class DataBucket:
       file = {key: open(path, 'rb')}
     ok, response = self.__api.post(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/upload',
-      files=file,
-      stream=True
+      files=file
+      #stream=True
+      # celery job runs for every chunk with stream option
     )
     if not ok:
       print(response)
