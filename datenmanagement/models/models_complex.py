@@ -1,3 +1,4 @@
+import os
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
@@ -53,7 +54,7 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
 from .storage import OverwriteStorage
-
+from ..tasks import update_model
 
 
 #
@@ -2926,7 +2927,7 @@ class Punktwolken_Projekte(ComplexModel):
     editable=False,
     auto_now=True,
   )
-  geometrie = polygon_field
+  geometrie = multipolygon_field
   # Project geometry results from the individual geometries of the point clouds,
   # so a project have no geometry at initialization.
   geometrie.null = True
@@ -2967,7 +2968,7 @@ class Punktwolken_Projekte(ComplexModel):
     associated_models = {
       'Punktwolken': 'projekt'
     }
-    geometry_type = 'Polygon'
+    geometry_type = 'MultiPolygon'
     geometry_calculation = True
 
   def __str__(self):
@@ -3108,16 +3109,23 @@ class Punktwolken(ComplexModel):
       using=using,
       update_fields=update_fields
     )
+    if not self.file_size:
+      size = os.path.getsize(self.punktwolke.path)
+      update_model.delay(
+        model_name='Punktwolken',
+        pk=self.pk,
+        attributes={'file_size': size})
     if not self.vcp_object_key:
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
       # lazy import of celery task -> must remain here to avoid circular import errors
       from ..tasks import send_pointcloud_to_vcpub, calculate_2d_bounding_box_for_pointcloud
       # run celery task delayed
-      calculate_2d_bounding_box_for_pointcloud.delay(
-        pk=self.pk,
-        path=self.punktwolke.path
-      )
+      if not self.geometrie:
+        calculate_2d_bounding_box_for_pointcloud(
+          pk=self.pk,
+          path=self.punktwolke.path
+        )
       send_pointcloud_to_vcpub.delay(
         pk=self.pk,
         dataset=self.projekt.vcp_dataset_bucket_id,
