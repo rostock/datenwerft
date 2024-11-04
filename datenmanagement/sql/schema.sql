@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.7
--- Dumped by pg_dump version 15.7
+-- Dumped from database version 15.8
+-- Dumped by pg_dump version 16.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -123,6 +123,19 @@ $$;
 
 
 --
+-- Name: generate_pointcloud_union(uuid); Type: FUNCTION; Schema: fachdaten; Owner: -
+--
+
+CREATE FUNCTION fachdaten.generate_pointcloud_union(projekt_uuid uuid) RETURNS public.geometry
+    LANGUAGE sql STABLE
+    AS $_$
+    SELECT ST_Union(geometrie)
+    FROM fachdaten.punktwolken
+    WHERE punktwolken_projekte = $1;
+$_$;
+
+
+--
 -- Name: id_abfallbehaelter(); Type: FUNCTION; Schema: fachdaten; Owner: -
 --
 
@@ -229,6 +242,30 @@ BEGIN
    NEW.laenge_in_hro := floor(random() * 32767);
     END IF;
    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_projekt_geometry(); Type: FUNCTION; Schema: fachdaten; Owner: -
+--
+
+CREATE FUNCTION fachdaten.update_projekt_geometry() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Bei INSERT oder UPDATE
+    IF TG_OP IN ('INSERT', 'UPDATE') THEN
+        UPDATE fachdaten.punktwolken_projekte
+        SET geometrie = fachdaten.generate_pointcloud_union(NEW.punktwolken_projekte)
+        WHERE uuid = NEW.punktwolken_projekte;
+    -- Bei DELETE
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE fachdaten.punktwolken_projekte
+        SET geometrie = fachdaten.generate_pointcloud_union(OLD.punktwolken_projekte)
+        WHERE uuid = OLD.punktwolken_projekte;
+    END IF;
+    RETURN NEW;
 END;
 $$;
 
@@ -407,6 +444,18 @@ CREATE TABLE codelisten.ansprechpartner_baustellen (
 --
 
 CREATE TABLE codelisten.arten_adressunsicherheiten (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    art character varying(255) NOT NULL
+);
+
+
+--
+-- Name: arten_brunnen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.arten_brunnen (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -1033,6 +1082,21 @@ CREATE TABLE codelisten.kategorien_strassen (
     code smallint NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     erlaeuterung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: labore_baugrunduntersuchungen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.labore_baugrunduntersuchungen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    anschrift character varying(255),
+    telefon character varying(255),
+    email character varying(255)
 );
 
 
@@ -1753,6 +1817,42 @@ CREATE TABLE fachdaten.arrondierungsflaechen_hro (
 
 
 --
+-- Name: baugrunduntersuchungen_baugrundbohrungen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.baugrunduntersuchungen_baugrundbohrungen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    baugrunduntersuchung uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL,
+    nummer character varying(255) NOT NULL
+);
+
+
+--
+-- Name: baugrunduntersuchungen_dokumente_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.baugrunduntersuchungen_dokumente_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    baugrunduntersuchung uuid NOT NULL,
+    dateiname_original character varying(255) NOT NULL,
+    pdf character varying(255) NOT NULL
+);
+
+
+--
 -- Name: baustellen_fotodokumentation_fotos_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -1785,7 +1885,7 @@ CREATE TABLE fachdaten.baustellen_geplant_dokumente (
     id_zielsystem character varying(255),
     deaktiviert date,
     baustelle_geplant uuid NOT NULL,
-    dokument character varying(255) NOT NULL,
+    pdf character varying(255) NOT NULL,
     bezeichnung character varying(255) NOT NULL
 );
 
@@ -1805,6 +1905,54 @@ CREATE TABLE fachdaten.baustellen_geplant_links (
     baustelle_geplant uuid NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     link character varying(255) NOT NULL
+);
+
+
+--
+-- Name: bemas_altdaten_journalereignisse; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.bemas_altdaten_journalereignisse (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    id integer NOT NULL,
+    bearbeitet boolean,
+    target_created_at timestamp with time zone NOT NULL,
+    target_search_content character varying(255),
+    target_description text NOT NULL,
+    target_complaint_id integer NOT NULL,
+    target_type_of_event character varying(255) NOT NULL
+);
+
+
+--
+-- Name: brunnen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.brunnen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    d3 character varying(16),
+    aktenzeichen character varying(255),
+    art uuid NOT NULL,
+    datum_bescheid date,
+    datum_befristung date,
+    lagebeschreibung character varying(255) NOT NULL,
+    realisierung_erfolgt boolean,
+    in_betrieb boolean,
+    endteufe numeric(3,1)[],
+    entnahmemenge integer,
+    geometrie public.geometry(Point,25833) NOT NULL
 );
 
 
@@ -2525,6 +2673,52 @@ CREATE TABLE fachdaten.poller_hro (
 
 
 --
+-- Name: punktwolken; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.punktwolken (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktiv boolean DEFAULT true NOT NULL,
+    erstellt date DEFAULT now() NOT NULL,
+    aktualisiert date DEFAULT now() NOT NULL,
+    dateiname character varying(255) NOT NULL,
+    punktwolke character varying(255) NOT NULL,
+    aufnahme timestamp(0) with time zone,
+    geometrie public.geometry(Polygon,25833),
+    punktwolken_projekte uuid NOT NULL,
+    vc_update timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP(0),
+    vcp_object_key character varying(255),
+    file_size bigint
+);
+
+
+--
+-- Name: COLUMN punktwolken.file_size; Type: COMMENT; Schema: fachdaten; Owner: -
+--
+
+COMMENT ON COLUMN fachdaten.punktwolken.file_size IS 'in bytes';
+
+
+--
+-- Name: punktwolken_projekte; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.punktwolken_projekte (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktiv boolean DEFAULT true NOT NULL,
+    erstellt date DEFAULT now() NOT NULL,
+    aktualisiert date DEFAULT now(),
+    bezeichnung character varying(255) NOT NULL,
+    beschreibung character varying(255),
+    projekt_update timestamp(0) with time zone DEFAULT now(),
+    vcp_task_id character varying(255),
+    vcp_dataset_bucket_id uuid,
+    vcp_datasource_id character varying(255),
+    geometrie public.geometry(MultiPolygon,25833)
+);
+
+
+--
 -- Name: reisebusparkplaetze_terminals_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -3060,6 +3254,76 @@ CREATE TABLE fachdaten_adressbezug.behinderteneinrichtungen_hro (
     website character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL,
     deaktiviert date
+);
+
+
+--
+-- Name: bemas_altdaten_beschwerden; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.bemas_altdaten_beschwerden (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    id integer NOT NULL,
+    bearbeitet boolean,
+    reason_date_of_receipt boolean NOT NULL,
+    reason_immission_point boolean NOT NULL,
+    reason_originator_id boolean NOT NULL,
+    reason_type_of_immission boolean NOT NULL,
+    source_beschwerdefuehrer_strasse character varying(255),
+    source_beschwerdefuehrer_plz character varying(255),
+    source_beschwerdefuehrer_ort character varying(255),
+    source_immissionsart character varying(255),
+    target_search_content character varying(255),
+    target_date_of_receipt date,
+    target_status_updated_at timestamp with time zone,
+    target_description character varying(255) NOT NULL,
+    target_storage_location character varying(255),
+    target_originator_id integer NOT NULL,
+    target_status character varying(255) NOT NULL,
+    target_type_of_immission character varying(255),
+    target_complainers_organizations integer[],
+    target_complainers_persons integer[],
+    geometrie public.geometry(Point,25833)
+);
+
+
+--
+-- Name: bemas_altdaten_verursacher; Type: TABLE; Schema: fachdaten_adressbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_adressbezug.bemas_altdaten_verursacher (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    id_zielsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    deaktiviert date,
+    adresse uuid,
+    id integer NOT NULL,
+    bearbeitet boolean,
+    reason_sector boolean NOT NULL,
+    reason_emission_point boolean NOT NULL,
+    source_verursacher_strasse character varying(255),
+    source_verursacher_plz character varying(255),
+    source_verursacher_ort character varying(255),
+    source_betreiber_name character varying(255),
+    source_betreiber_strasse character varying(255),
+    source_betreiber_plz character varying(255),
+    source_betreiber_ort character varying(255),
+    target_search_content character varying(255),
+    target_description character varying(255) NOT NULL,
+    target_operator_organization_id integer,
+    target_operator_person_id integer,
+    target_sector character varying(255),
+    geometrie public.geometry(Point,25833)
 );
 
 
@@ -3705,6 +3969,25 @@ CREATE TABLE fachdaten_gemeindeteilbezug.reinigungsreviere_hro (
 
 
 --
+-- Name: baugrunduntersuchungen_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.baugrunduntersuchungen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    labor uuid NOT NULL,
+    bezeichnung character varying(255) NOT NULL,
+    datum date NOT NULL
+);
+
+
+--
 -- Name: baustellen_fotodokumentation_baustellen_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -4006,6 +4289,22 @@ ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
 
 ALTER TABLE ONLY codelisten.arten_adressunsicherheiten
     ADD CONSTRAINT arten_adressunsicherheiten_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: arten_brunnen arten_brunnen_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_brunnen
+    ADD CONSTRAINT arten_brunnen_art_unique UNIQUE (art);
+
+
+--
+-- Name: arten_brunnen arten_brunnen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.arten_brunnen
+    ADD CONSTRAINT arten_brunnen_pk PRIMARY KEY (uuid);
 
 
 --
@@ -4806,6 +5105,14 @@ ALTER TABLE ONLY codelisten.kategorien_strassen
 
 ALTER TABLE ONLY codelisten.kategorien_strassen
     ADD CONSTRAINT kategorien_strassen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: labore_baugrunduntersuchungen labore_baugrunduntersuchungen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.labore_baugrunduntersuchungen
+    ADD CONSTRAINT labore_baugrunduntersuchungen_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5641,6 +5948,22 @@ ALTER TABLE ONLY fachdaten.arrondierungsflaechen_hro
 
 
 --
+-- Name: baugrunduntersuchungen_baugrundbohrungen_hro baugrunduntersuchungen_baugrundbohrungen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.baugrunduntersuchungen_baugrundbohrungen_hro
+    ADD CONSTRAINT baugrunduntersuchungen_baugrundbohrungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: baugrunduntersuchungen_dokumente_hro baugrunduntersuchungen_dokumente_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.baugrunduntersuchungen_dokumente_hro
+    ADD CONSTRAINT baugrunduntersuchungen_dokumente_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: baustellen_fotodokumentation_fotos_hro baustellen_fotodokumentation_fotos_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -5662,6 +5985,22 @@ ALTER TABLE ONLY fachdaten.baustellen_geplant_dokumente
 
 ALTER TABLE ONLY fachdaten.baustellen_geplant_links
     ADD CONSTRAINT baustellen_geplant_links_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bemas_altdaten_journalereignisse bemas_altdaten_journalereignisse_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.bemas_altdaten_journalereignisse
+    ADD CONSTRAINT bemas_altdaten_journalereignisse_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: brunnen_hro brunnen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.brunnen_hro
+    ADD CONSTRAINT brunnen_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -5961,6 +6300,22 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 
 --
+-- Name: punktwolken punktwolken_pkey; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.punktwolken
+    ADD CONSTRAINT punktwolken_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: punktwolken_projekte punktwolken_projekte_pkey; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.punktwolken_projekte
+    ADD CONSTRAINT punktwolken_projekte_pkey PRIMARY KEY (uuid);
+
+
+--
 -- Name: reisebusparkplaetze_terminals_hro reisebusparkplaetze_terminals_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6166,6 +6521,22 @@ ALTER TABLE ONLY fachdaten_adressbezug.baudenkmale_hro
 
 ALTER TABLE ONLY fachdaten_adressbezug.behinderteneinrichtungen_hro
     ADD CONSTRAINT behinderteneinrichtungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bemas_altdaten_beschwerden bemas_altdaten_beschwerden_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.bemas_altdaten_beschwerden
+    ADD CONSTRAINT bemas_altdaten_beschwerden_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: bemas_altdaten_verursacher bemas_altdaten_verursacher_pk; Type: CONSTRAINT; Schema: fachdaten_adressbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_adressbezug.bemas_altdaten_verursacher
+    ADD CONSTRAINT bemas_altdaten_verursacher_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6401,6 +6772,14 @@ ALTER TABLE ONLY fachdaten_gemeindeteilbezug.reinigungsreviere_hro
 
 
 --
+-- Name: baugrunduntersuchungen_hro baugrunduntersuchungen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.baugrunduntersuchungen_hro
+    ADD CONSTRAINT baugrunduntersuchungen_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: baustellen_fotodokumentation_baustellen_hro baustellen_fotodokumentation_baustellen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -6604,6 +6983,13 @@ CREATE TRIGGER tr_before_update_98_deaktiviert BEFORE UPDATE OF aktiv ON fachdat
 
 
 --
+-- Name: punktwolken update_projekt_geometry_trigger; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER update_projekt_geometry_trigger AFTER INSERT OR DELETE OR UPDATE ON fachdaten.punktwolken FOR EACH ROW EXECUTE FUNCTION fachdaten.update_projekt_geometry();
+
+
+--
 -- Name: sporthallen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_adressbezug; Owner: -
 --
 
@@ -6727,6 +7113,22 @@ ALTER TABLE ONLY fachdaten.adressunsicherheiten_fotos_hro
 
 
 --
+-- Name: baugrunduntersuchungen_baugrundbohrungen_hro baugrunduntersuchungen_baugrundbohrungen_hro_baugrunduntersuchu; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.baugrunduntersuchungen_baugrundbohrungen_hro
+    ADD CONSTRAINT baugrunduntersuchungen_baugrundbohrungen_hro_baugrunduntersuchu FOREIGN KEY (baugrunduntersuchung) REFERENCES fachdaten_strassenbezug.baugrunduntersuchungen_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: baugrunduntersuchungen_dokumente_hro baugrunduntersuchungen_dokumente_hro_baugrunduntersuchungen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.baugrunduntersuchungen_dokumente_hro
+    ADD CONSTRAINT baugrunduntersuchungen_dokumente_hro_baugrunduntersuchungen_fk FOREIGN KEY (baugrunduntersuchung) REFERENCES fachdaten_strassenbezug.baugrunduntersuchungen_hro(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: baustellen_fotodokumentation_fotos_hro baustellen_fotodokumentation_fotos_hro_baustellen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6756,6 +7158,14 @@ ALTER TABLE ONLY fachdaten.baustellen_geplant_dokumente
 
 ALTER TABLE ONLY fachdaten.baustellen_geplant_links
     ADD CONSTRAINT baustellen_geplant_links_baustellen_geplant_fk FOREIGN KEY (baustelle_geplant) REFERENCES fachdaten_strassenbezug.baustellen_geplant(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: brunnen_hro brunnen_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.brunnen_hro
+    ADD CONSTRAINT brunnen_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_brunnen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -7255,6 +7665,14 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 
 --
+-- Name: punktwolken punktwolken_projekt_uuid_fkey; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.punktwolken
+    ADD CONSTRAINT punktwolken_projekt_uuid_fkey FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid);
+
+
+--
 -- Name: reisebusparkplaetze_terminals_hro reisebusparkplaetze_terminals_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -7692,6 +8110,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_geschaeftslagen_sanie
 
 ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_wohnlagen_sanierungsgebiet_hro
     ADD CONSTRAINT standortqualitaeten_wohnlagen_sanierungsgebiet_hro_quartiere_fk FOREIGN KEY (quartier) REFERENCES codelisten.quartiere(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: baugrunduntersuchungen_hro baugrunduntersuchungen_hro_labore_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.baugrunduntersuchungen_hro
+    ADD CONSTRAINT baugrunduntersuchungen_hro_labore_fk FOREIGN KEY (labor) REFERENCES codelisten.labore_baugrunduntersuchungen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
