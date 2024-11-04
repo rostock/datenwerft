@@ -2,11 +2,10 @@
 import os.path
 import laspy
 from uuid import UUID
-from celery import shared_task
+from celery import shared_task, app
 
 # project imports
 from django.apps import apps
-from twisted.conch.insults.text import attributes
 
 from datenwerft.celery import logger
 from toolbox.vcpub.DataBucket import DataBucket
@@ -21,9 +20,8 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   :param filename: filename as data bucket key
   :return:
   """
+  logger.info('Run Task send_pointcloud_to_vcpub')
   bucket = DataBucket(_id=str(dataset))
-  file_size = os.path.getsize(path)
-  logger.debug(f'Dateigröße: {file_size}')
   with open(path, 'rb') as f:
     if filename:
       file = {filename: f}
@@ -32,7 +30,6 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
       logger.debug('Pointcloud upload to VCPub was successful.')
       change_attr = {
         'vcp_object_key': key,
-        'file_size': file_size
       }
       update_model(
         model_name='Punktwolken',
@@ -55,6 +52,7 @@ def update_model(model_name, pk, attributes: dict):
   :param attributes: dict of attributes, which should be updated
   :return:
   """
+  logger.info('Run Task update_model')
   # get model
   model = apps.get_model(app_label='datenmanagement', model_name=model_name)
 
@@ -87,7 +85,7 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
   :param path: path to pointcloud
   :return: 2d bounding box in WKT format
   """
-  # open file
+  logger.info('Run Task calculate_2d_bounding_box_for_pointcloud')
   with laspy.open(path) as las_file:
     las = las_file.read()
 
