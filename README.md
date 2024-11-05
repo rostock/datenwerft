@@ -228,15 +228,16 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 ### Ablauf
 
 1.  neuen Branch erstellen – Name des Branches:
-    - bei Features: `features/APPNAME_worschdsupp` (Beispiel: `features/datenmanagement_fotos-bearbeiten`)
-    - bei Bugfixes: `bugfixes/APPNAME_worschdsupp` (Beispiel: `features/accounts_emails`)
+    - bei Features: `features/<app-name>/<feature-name>` (Beispiel: `features/datenmanagement/edit-photos`)
+    - bei Bugfixes: `bugfixes/<app-name>/<bugfix-name>` (Beispiel: `bugfixes/accounts/emails`)
 2.  Änderungen linten und testen (siehe oben)
 3.  Änderungen committen und Commit(s) pushen
-4.  Pull-Request erstellen
+4.  Pull-Request im Branch `main` erstellen
 5.  Review anfordern und durchführen lassen
 6.  ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
-7.  Pull-Request in Branch `main` mit der Option *Squash and merge* mergen
-8.  Pull-Request mit [Conventional-Commit](https://www.conventionalcommits.org/) Syntax committen
+7.  Pull-Request im Branch `main` abschließen:
+    - Commit-Message gemäß der Syntax der [Conventional-Commit](https://www.conventionalcommits.org/) gestalten
+    - mit der Option *Squash and merge* mergen
 
 ### *GitHub*-Actions
 

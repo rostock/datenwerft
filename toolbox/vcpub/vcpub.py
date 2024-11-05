@@ -32,16 +32,18 @@ class VCPub:
     login at VCPub api
     :return: bearer token
     """
-    response: Response = post(
-      url=f'{self.__url}/login/',
-      data={
-        "username": self.__user,
-        "password": self.__password
-      })
-    if response.ok:
-      bearer: str = response.json()['token']
-    else:
-      bearer: str = 'no bearer'
+    bearer: str = 'no bearer'
+    if self.__url:
+      response: Response = post(
+        url=f'{self.__url}/login/',
+        data={
+          "username": self.__user,
+          "password": self.__password
+        })
+      if response.ok:
+        bearer: str = response.json()['token']
+      else:
+        bearer: str = 'no bearer'
     return BearerAuth(bearer)
 
   def __logout__(self) -> None:
