@@ -10,11 +10,11 @@
 
 {% block content %}
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
-  
+
   {% block alerts %}
   	{{ block.super }}
   {% endblock %}
-  
+
   <form class="form flex-container-column" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div class="flex-item" id="flex-list">
@@ -111,35 +111,265 @@
     </div>
   </form>
   <script>
-    // initialize address search (and make its results globally available)
-    window.results = $('div.results');
-    {% if address_search_long_results %}
-      window.addressSearchLongResults = true;
-    {% else %}
-      window.addressSearchLongResults = false;
-    {% endif %}
-    {% if address_type %}
-      window.addressType = '{{ address_type }}';
-    {% else %}
-      window.addressType = '';
-    {% endif %}
-    if (window.addressType === 'Adresse') {
-      window.searchField = $('#id_adresse');
-      window.addressUuidField = $('#id_adresse_uuid');
-      window.addressTempField = $('#id_adresse_temp');
-    } else if (window.addressType === 'Straße') {
-      window.searchField = $('#id_strasse');
-      window.addressUuidField = $('#id_strasse_uuid');
-      window.addressTempField = $('#id_strasse_temp');
-    } else if (window.addressType === 'Gemeindeteil') {
-      window.searchField = $('#id_gemeindeteil');
-      window.addressUuidField = $('#id_gemeindeteil_uuid');
-      window.addressTempField = $('#id_gemeindeteil_temp');
-    } else {
-      window.searchField = $('#address-search');
-      window.addressUuidField = null;
-      window.addressTempField = null;
-    }
-    initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField, '{{ address_search_class }}');
+    /**
+     * @function
+     *
+     * main function
+     */
+    $(document).ready(function () {
+      keepDjangoRequiredMessages();
+
+      // define variable for array fields and their values
+      // (i.e. for those array fields containing more than one value)
+      let arrayFieldsValues = [];
+      {% if object and array_fields_values %}
+        arrayFieldsValues = {{ array_fields_values|safe }};
+      {% endif %}
+
+      // define several globally available variables
+      window.userHasModelChangePermission = false;
+      {% if user|user_has_model_change_permission:model_name_lower %}
+        window.userHasModelChangePermission = true
+      {% endif %}
+
+      // if a group of users is set that should be used for the contact person/processor field in a corresponding selection list...
+      {% if group_with_users_for_choice_field %}
+        // iterate all fields...
+        {% for field in form %}
+          // if contact person/processor field...
+          {% if field.name == 'ansprechpartner' or field.name == 'bearbeiter' %}
+            let select = $('select#id_' + '{{ field.name }}');
+            // add Bootstrap 5 CSS class
+            select.addClass('form-select');
+            // preselect the appropriate value if the email address contained therein matches the field value
+            {% if object %}
+              select.children().each(function () {
+                let optionValue = $(this).val();
+                if (optionValue.indexOf('{{ field.value }}'.toLowerCase()) !== -1)
+                  select.val(optionValue);
+              });
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      // adapt checkboxes in multiple choice fields to Bootstrap 5
+      $('ul input[type="checkbox"]').each(function () {
+        $(this).addClass('form-check-input');
+      });
+
+      // handle read-only fields...
+      {% if readonly_fields %}
+        let inputField;
+        {% for field in readonly_fields %}
+          inputField = $('input#id_' + '{{ field }}');
+          {% if object and user|user_has_model_change_permission:model_name_lower %}
+            if (!inputField.val()) {
+              inputField.closest('tr').hide();
+            } else {
+              let wert = inputField.val();
+              if (inputField.attr('type') === 'date') {
+                let datum = new Date(inputField.val());
+                wert = datum.toLocaleDateString('de-DE', options = {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                });
+              }
+              if (inputField.attr('type') === 'checkbox') {
+                inputField.prop('disabled', true);
+              } else {
+                inputField.parent().append('<span id="' + inputField.attr('id') + '" title="nicht editierbar – automatisch vergeben"><em>' + wert + '</em></span>');
+                inputField.hide();
+              }
+              let label = inputField.parent().closest('tr').find('label');
+              label.wrapInner('<em></em>');
+            }
+          {% else %}
+            inputField.closest('tr').hide();
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      // disable all fields if the user does not have the right to change the model...
+      if (!window.userHasModelChangePermission) {
+        $('input').each(function () {
+          $(this).prop('disabled', true);
+        });
+        $('select').each(function () {
+          $(this).prop('disabled', true);
+        });
+        $('textarea').each(function () {
+          $(this).prop('disabled', true);
+        });
+      }
+
+      // handle array fields...
+      $('[is_array_field="true"]').each(function () {
+        let currentField = $(this);
+        let currentFieldId = currentField.attr('id');
+        let currentFieldName = currentField.attr('name');
+        // if array field contains more than one value (and therefore exists in the variable for array fields and their contents that contain more than one value as content)...
+        if (arrayFieldsValues[currentFieldName]) {
+          let valuesParsed = arrayFieldsValues[currentFieldName];
+          // for each value...
+          for (let i = 0; i < valuesParsed.length; i++) {
+            // clone the first (original) field and define it as a new field
+            let newField = currentField.clone();
+            cleanField(newField, i + 1, currentFieldId, currentFieldName);
+            // write appropriate value in new field
+            newField.attr('value', valuesParsed[i]);
+            newField.val(valuesParsed[i]);
+            // insert new field in the correct place and provide a button to delete the field
+            addField(newField, currentField);
+            currentField = newField;
+          }
+        }
+        // if the user has the right to change the model...
+        if (window.userHasModelChangePermission) {
+          // add button to add another field
+          let addAnotherField = $('<span><i class="add-another-field fas fa-circle-plus text-primary" title="weiteren Wert hinzufügen"></i></span>');
+          addAnotherField.insertAfter(currentField.parent().is('.input-group') ? currentField.parent() : currentField);
+          // by clicking on the previously added button...
+          addAnotherField.click(function () {
+            // clone previous field and define it as a new, empty field
+            let currentField = $(this).prev().is('.input-group') ? $(this).prev().children('input:nth-child(1)') : $(this).prev();
+            let newField = currentField.clone();
+            let i = 1;
+            if (/_[0-9]*$/.test(currentField.attr('name')))
+              i = Number(currentField.attr('name').replace(/.*_/, '')) + 1;
+            cleanField(newField, i, currentField.attr('id').replace(/_[0-9]*$/, ''), currentField.attr('name').replace(/_[0-9]*$/, ''));
+            newField.removeAttr('value');
+            newField.val('');
+            // insert new field in the correct place and provide a button to delete the field
+            addField(newField, currentField);
+          });
+        }
+      });
+
+      // handle (multi-)photo file upload field...
+      let fotoField = $('input#id_foto');
+      if (fotoField.length) {
+        fotoField.attr('accept', 'image/*');
+        {% if multi_file_upload %}
+          if (fotoField[0].files.length === 0)
+            fotoField.attr('multiple', 'multiple');
+        {% endif %}
+      }
+
+      // handle (multi-)PDF file upload field...
+      let pdfField = $('input#id_pdf');
+      if (pdfField.length) {
+        pdfField.attr('accept', 'application/pdf');
+        {% if multi_file_upload %}
+          if (pdfField[0].files.length === 0)
+            pdfField.attr('multiple', 'multiple');
+        {% endif %}
+      }
+
+      // initialize address search (and make its results globally available)
+      window.results = $('div.results');
+      {% if address_search_long_results %}
+        window.addressSearchLongResults = true;
+      {% else %}
+        window.addressSearchLongResults = false;
+      {% endif %}
+      {% if address_type %}
+        window.addressType = '{{ address_type }}';
+      {% else %}
+        window.addressType = '';
+      {% endif %}
+      if (window.addressType === 'Adresse') {
+        window.searchField = $('#id_adresse');
+        window.addressUuidField = $('#id_adresse_uuid');
+        window.addressTempField = $('#id_adresse_temp');
+      } else if (window.addressType === 'Straße') {
+        window.searchField = $('#id_strasse');
+        window.addressUuidField = $('#id_strasse_uuid');
+        window.addressTempField = $('#id_strasse_temp');
+      } else if (window.addressType === 'Gemeindeteil') {
+        window.searchField = $('#id_gemeindeteil');
+        window.addressUuidField = $('#id_gemeindeteil_uuid');
+        window.addressTempField = $('#id_gemeindeteil_temp');
+      } else {
+        window.searchField = $('#address-search');
+        window.addressUuidField = null;
+        window.addressTempField = null;
+      }
+      initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}', window.addressType, window.addressUuidField, '{{ address_search_class }}');
+
+      // customize labels for mandatory Boolean fields
+      $('input[type="checkbox"]:not([value])').parent().parent().find('label').addClass('required');
+
+      // handle foreign keys in the appropriate selection field depending on the current selection:
+      // a) dynamically adjust link to target object
+      //    (if the selection is empty: hide link)
+      // b) if necessary, display the geometry of the target object dynamically on the map (with tooltip = selection text)
+      //    (if the selection is empty or if the target model has no geometry: do not display geometry)
+      {% if fields_with_foreign_key_to_linkify %}
+        {% for field in fields_with_foreign_key_to_linkify %}
+          {% with foreign_model=field|get_foreign_key_field_class_name:model_name %}
+            $('select#id_' + '{{ field }}').each(function () {
+              $(this).on('change', function () {
+                let link = $('a#link_' + '{{ field }}');
+                let href = link.prop('href');
+                let text = $(this).find(':selected').text();
+                let value = $(this).find(':selected').val();
+                if (value) {
+                  href = href.replace(/\/change\/.*/, '/change/' + value);
+                  link.prop('href', href);
+                  link.prop('hidden', false);
+                } else
+                  link.prop('hidden', true);
+                {% if model_geometry_type and foreign_model|has_model_geometry_field %}
+                  currMap.pm.getGeomanLayers().forEach((layer) => {
+                    if (layer.toGeoJSON().properties.foreignkey === '{{ foreign_model }}') {
+                      layer.remove();
+                    }
+                  });
+                  if (value) {
+                    let url = "{{ foreign_model|build_geometry_link }}" + '?pk=' + value;
+                    {% with field_title=field|get_field_verbose_name:model_name %}
+                      currMap.loadGeometryFromForeignKeyFieldObjects(
+                        url,
+                        '{{ foreign_model }}',
+                        '{{ field }}',
+                        '{{ field_title }}',
+                        text
+                      );
+                      enableValueAssigner($('#{{ field }}-value-assigner'), '{{ field_title }} via Karte auswählen');
+                    {% endwith %}
+                  }
+                {% endif %}
+              });
+            });
+          {% endwith %}
+        {% endfor %}
+      {% endif %}
+
+      // always open links to existing photos, PDFs, etc. in a new tab
+      $('td').find('a').attr('title', 'in neuem Tab öffnen…');
+      $('td').find('a').attr('target', '_blank');
+      $('td').find('a').attr('rel', 'noopener noreferrer');
+
+      // provide links to existing photos, PDFs, etc. as well as the corresponding upload buttons with proper text
+      $('td').find('a').parent().contents().filter(function () {
+        return this.nodeType === 3
+      }).remove();
+      $('td').find('a').parent().find('input[type="file"]').before('ändern in: ');
+      $('<br>').insertBefore($('input[type="checkbox"][name$="-clear"]'));
+      $('label[for$="-clear_id"]').addClass('label-with-margin');
+      $('label[for$="-clear_id"]').text('löschen');
+
+      // lowercase certain values in selection lists
+      $('td').find('option').each(function () {
+        if ($(this).text() === 'Unbekannt')
+          $(this).text('unbekannt');
+        else if ($(this).text() === 'Ja')
+          $(this).text('ja');
+        else if ($(this).text() === 'Nein')
+          $(this).text('nein');
+      });
+    });
   </script>
 {% endblock %}

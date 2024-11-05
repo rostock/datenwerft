@@ -11,6 +11,9 @@ bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex = r'^[A-Z]{3}-[0-9]{2}$'
 bevollmaechtigte_bezirksschornsteinfeger_bezirk_message = 'Der <strong><em>Bezirk</em></strong> ' \
                                                           'muss aus drei Großbuchstaben, einem ' \
                                                           'Bindestrich und zwei Ziffern bestehen.'
+brunnen_d3_regex = r'^[0-9]{2,3}\.[0-9]#[0-9]{2}-[0-9]{3}\/[0-9]{3}$'
+brunnen_d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss eines der folgenden ' \
+                     'Formate aufweisen (Beispiele): 552.6#04-004/008 oder 55.2#02-002/009'
 denksteine_nummer_regex = r'^[0-9]+[a-z]*$'
 denksteine_nummer_message = 'Die <strong><em>Nummer</em></strong> muss mit ' \
                             'einer Ziffer beginnen und mit einer Ziffer ' \

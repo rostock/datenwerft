@@ -1,0 +1,136 @@
+@startuml
+
+abstract class Base {
+  + id: BigAutoField <<PK>>
+  + created: DateTimeField
+  + modified: DateTimeField
+}
+
+abstract class Codelist {
+  + ordinal: PositiveSmallIntegerField [0..1]
+  + name: CharField
+}
+
+abstract class Object {
+}
+
+abstract class GeometryObject {
+}
+
+class CodelistRequestStatus {
+  + icon: CharField [0..1]
+}
+
+class CleanupEventCodelistWasteQuantity {
+}
+
+class CleanupEventCodelistWasteType {
+}
+
+class CleanupEventCodelistEquipment {
+}
+
+class Authority {
+  + group: CharField
+  + name: CharField
+  + email: CharField
+}
+
+class Email {
+  + key: CharField
+  + subject: CharField
+  + body: TextField
+}
+
+class Requester {
+  + user_id: PositiveIntegerField [0..1]
+  + organization: CharField [0..1]
+  + first_name: CharField [0..1]
+  + last_name: CharField [0..1]
+  + email: EmailField
+  + telephone: CharField
+  + address_street: CharField [0..1]
+  + address_house_number: CharField [0..1]
+  + address_postal_code: CharField [0..1]
+  + address_place: CharField [0..1]
+}
+
+abstract class Request {
+  ~ status: ForeignKey <<FK>>
+  + comment: CharField [0..1]
+  ~ requester: ForeignKey <<FK>>
+}
+
+class CleanupEventRequest {
+  # responsibilities: ManyToManyField [0..1]
+}
+
+class CleanupEventResponsibilities {
+  ~ cleanupevent_request: ForeignKey <<FK>>
+  ~ authority: ForeignKey <<FK>>
+  + main: BooleanField
+}
+
+class CleanupEventEvent {
+  ~ cleanupevent_request: OneToOneField <<FK>>
+  + from_date: DateField
+  + to_date: DateField [0..1]
+  + area: PolygonField
+}
+
+class CleanupEventVenue {
+  ~ cleanupevent_request: OneToOneField <<FK>>
+  + place: PointField
+}
+
+class CleanupEventDetails {
+  ~ cleanupevent_request: OneToOneField <<FK>>
+  ~ waste_quantity: ForeignKey <<FK>>
+  # waste_types: ManyToManyField [0..1]
+  + waste_types_annotation: CharField [0..1]
+  # equipments: ManyToManyField [0..1]
+}
+
+class CleanupEventContainer {
+  ~ cleanupevent_request: OneToOneField
+  + delivery_date: DateField
+  + pickup_date: DateField
+  + place: PointField
+}
+
+class CleanupEventDump {
+  ~ cleanupevent_request: OneToOneField
+  + place: PointField
+}
+
+Base <|-- Codelist
+Base <|-- Object
+Object <|-- GeometryObject
+Codelist <|-- CodelistRequestStatus
+Codelist <|-- CleanupEventCodelistWasteQuantity
+Codelist <|-- CleanupEventCodelistWasteType
+Codelist <|-- CleanupEventCodelistEquipment
+Object <|-- Authority
+Object <|-- Email
+Object <|-- Requester
+Object <|-- Request
+Request --> CodelistRequestStatus : status
+Request --> Requester : requester
+Request <|-- CleanupEventRequest
+CleanupEventRequest "1" -- "0..*" CleanupEventResponsibilities
+Authority "1" -- "0..*" CleanupEventResponsibilities
+GeometryObject <|-- CleanupEventEvent
+CleanupEventEvent --> CleanupEventRequest : cleanupevent_request
+GeometryObject <|-- CleanupEventVenue
+CleanupEventVenue --> CleanupEventRequest : cleanupevent_request
+Object <|-- CleanupEventDetails
+CleanupEventDetails --> CleanupEventRequest : cleanupevent_request
+CleanupEventDetails --> CleanupEventCodelistWasteQuantity : waste_quantity
+CleanupEventDetails *--* CleanupEventCodelistWasteType : waste_types
+CleanupEventDetails *--* CleanupEventCodelistEquipment : equipments
+GeometryObject <|-- CleanupEventContainer
+CleanupEventContainer --> CleanupEventRequest : cleanupevent_request
+GeometryObject <|-- CleanupEventDump
+CleanupEventDump --> CleanupEventRequest : cleanupevent_request
+
+@enduml

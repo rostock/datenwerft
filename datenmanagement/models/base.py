@@ -54,7 +54,7 @@ class Basemodel(Model):
     :ivar group_with_users_for_choice_field:
     :ivar fields_with_foreign_key_to_linkify:
     :ivar catalog_link_fields:
-    :ivar multi_photos:
+    :ivar multi_file_upload:
     :ivar postcode_assigner:
     :ivar list_fields:
     :ivar list_field_with_address_string:
@@ -126,9 +126,9 @@ class Basemodel(Model):
     # in the form views of this model
     catalog_link_fields: dict[str, str] = None
 
-    # shall it be possible to upload multiple photos for this model?
-    # if true, multiple datasets are created, i.e. one for each photo.
-    multi_photos: bool = False
+    # shall it be possible to upload multiple files (e.g. photos) at once for this model?
+    # if true, multiple datasets are created, i.e. one for each file (e.g. each photo).
+    multi_file_upload: bool = False
 
     # name of the field of this model
     # which shall be equipped with a postcode assignment function
