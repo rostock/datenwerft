@@ -1,5 +1,3 @@
-import os
-
 from decimal import Decimal
 from django.apps import apps
 from django.conf import settings
@@ -12,6 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from json import JSONEncoder
 from leaflet.forms.widgets import LeafletWidget
+from pathlib import Path
 from re import sub
 from wsgiref.util import FileWrapper
 
@@ -293,13 +292,12 @@ def download_pointcloud(pk):
     else:
       return HttpResponse(response)
   else:
-    path = f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}'
-    file_size = os.path.getsize(path)
-    f = open(path, 'rb')
+    file_path = Path(f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}')
+    f = open(file_path, 'rb')
     file_response = StreamingHttpResponse(
       FileWrapper(f), content_type='application/octet-stream')
     file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
-    file_response['Content-Length'] = file_size
+    file_response['Content-Length'] = file_path.stat().st_siz
     print(f'Response: {file_response.__dict__}')
     return file_response
 

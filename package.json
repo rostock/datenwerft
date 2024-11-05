@@ -4,12 +4,11 @@
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@geoman-io/leaflet-geoman-free": "^2.17.0",
     "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
     "jquery": "^3.7.1",
     "leaflet.locatecontrol": "^0.81.1",
     "leaflet.markercluster": "^1.5.3",
     "martinez-polygon-clipping": "^0.7.4",
-    "proj4": "^2.12.1",
+    "proj4": "^2.14.0",
     "proj4leaflet": "^1.0.2",
     "select2": "^4.1.0-rc.0",
     "select2-bootstrap-5-theme": "^1.3.0",
@@ -17,12 +16,12 @@
     "wicket": "^1.3.8"
   },
   "devDependencies": {
-    "@eslint/create-config": "^1.3.1",
+    "@eslint/create-config": "^1.4.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.7.0",
-    "eslint": "^9.12.0",
+    "eslint": "^9.14.0",
     "eslint-plugin-html": "^8.1.2",
-    "globals": "^15.11.0",
-    "stylelint": "^16.9.0"
+    "globals": "^15.12.0",
+    "stylelint": "^16.10.0"
   }
 }

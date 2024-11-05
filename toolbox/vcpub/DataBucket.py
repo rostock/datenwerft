@@ -1,5 +1,4 @@
-import os.path
-
+from pathlib import Path
 from toolbox.vcpub.vcpub import VCPub
 from uuid import uuid4
 
@@ -167,7 +166,7 @@ class DataBucket:
     """
     key = list(file.keys())[0]
     if path:
-      key = os.path.basename(path) # filename as key
+      key = Path(path).name # filename as key
       file = {key: open(path, 'rb')}
     ok, response = self.__api.post(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/upload',

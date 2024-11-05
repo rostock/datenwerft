@@ -1,5 +1,3 @@
-import os
-
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from django.conf import settings
@@ -11,6 +9,7 @@ from django.db.models.fields import BooleanField, CharField, DateField, DateTime
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
+from pathlib import Path
 from re import sub
 from zoneinfo import ZoneInfo
 
@@ -3299,11 +3298,11 @@ class Punktwolken(ComplexModel):
       update_fields=update_fields
     )
     if not self.file_size:
-      size = os.path.getsize(self.punktwolke.path)
+      file_path = Path(self.punktwolke.path)
       update_model.delay(
         model_name='Punktwolken',
         pk=self.pk,
-        attributes={'file_size': size})
+        attributes={'file_size': file_path.stat().st_size})
     if not self.vcp_object_key:
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.

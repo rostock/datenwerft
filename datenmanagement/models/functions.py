@@ -1,5 +1,3 @@
-import os
-
 from django.conf import settings
 from pathlib import Path, PurePath
 from PIL import ExifTags, Image
@@ -40,7 +38,8 @@ def delete_pointcloud(sender, instance, **kwargs):
       pass
     try:
       # delete project subdir if it's empty
-      os.rmdir(f'{settings.PC_MEDIA_ROOT}/{str(instance.projekt_id)}')
+      dir_path = Path(f'{settings.PC_MEDIA_ROOT}/{str(instance.projekt_id)}')
+      dir_path.rmdir()
     except OSError:
       pass
     instance.delete()
