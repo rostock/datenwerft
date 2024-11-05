@@ -1,7 +1,5 @@
 import logging
 
-from django.http import FileResponse
-
 from datenwerft import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
@@ -42,10 +40,8 @@ class VCPub:
       })
     if response.ok:
       bearer: str = response.json()['token']
-      self.logger.debug('Login.')
     else:
       bearer: str = 'no bearer'
-      self.logger.error(f'Login Failed: {response.json()}')
     return BearerAuth(bearer)
 
   def __logout__(self) -> None:

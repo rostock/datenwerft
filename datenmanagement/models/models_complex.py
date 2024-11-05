@@ -1,16 +1,16 @@
 import os
+
 from datetime import date, datetime, timezone
 from decimal import Decimal
-
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MaxValueValidator, MinValueValidator, \
-  RegexValidator, URLValidator, FileExtensionValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, UUIDField, IntegerField
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, \
+  RegexValidator, URLValidator
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
-from django.db.models.signals import post_delete, post_save, pre_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
 
@@ -2933,18 +2933,15 @@ class Punktwolken_Projekte(ComplexModel):
   geometrie.null = True
   vcp_task_id = UUIDField(
     verbose_name='VC Publisher Task',
-    #editable=False,
     blank=True
   )
   vcp_dataset_bucket_id = UUIDField(
     verbose_name='VC Publisher Dataset',
-    #editable=False,
     blank=True
   )
   vcp_datasource_id = CharField(
     verbose_name='VC Publisher Datasource',
     max_length=255,
-    #editable=False,
     blank=True
   )
 
@@ -2974,9 +2971,7 @@ class Punktwolken_Projekte(ComplexModel):
   def __str__(self):
     return self.bezeichnung
 
-  def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
     if not self.vcp_task_id:
       # create Task
       print(f'=====  CREATE TASK  =====')

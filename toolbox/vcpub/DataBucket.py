@@ -1,9 +1,5 @@
 import os.path
 
-from django.http import FileResponse, HttpResponse, Http404
-from docutils.nodes import header
-from uaclient.api.u.pro.detach.v1 import endpoint
-
 from toolbox.vcpub.vcpub import VCPub
 from uuid import uuid4
 

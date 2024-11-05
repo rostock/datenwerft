@@ -1,13 +1,12 @@
-# third-party imports
 import laspy
-from uuid import UUID
-from celery import shared_task, app
 
-# project imports
+from celery import shared_task
 from django.apps import apps
+from uuid import UUID
 
 from datenwerft.celery import logger
 from toolbox.vcpub.DataBucket import DataBucket
+
 
 @shared_task
 def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
@@ -38,7 +37,6 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
       # Todo: delete locale pointcloud file
     else:
       logger.error('Pointcloud upload to VCPub failed. Try again later.')
-
 
 
 @shared_task
@@ -81,6 +79,7 @@ def update_model(model_name, pk, attributes: dict):
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
   """
   Asynchronous calculation of 2D bounding box for pointcloud using laspy
+  :param pk: pointcloud primary key
   :param path: path to pointcloud
   :return: 2d bounding box in WKT format
   """
@@ -93,11 +92,11 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
     y_coords = las.y
 
     # get min/max values for x and y
-    min_x, max_x = x_coords.min(), x_coords.max()
-    min_y, max_y = y_coords.min(), y_coords.max()
+    mn_x, mx_x = x_coords.min(), x_coords.max()
+    mn_y, mx_y = y_coords.min(), y_coords.max()
 
     # create bounding box
-    wkt = f'POLYGON(({min_x} {min_y}, {max_x} {min_y}, {max_x} {max_y}, {min_x} {max_y}, {min_x} {min_y}))'
+    wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
 
     # update model
     update_model(

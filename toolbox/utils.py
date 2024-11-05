@@ -81,6 +81,26 @@ def format_date_datetime(value, time_string_only=False):
     return value
 
 
+def format_filesize(size_in_bytes: int) -> str:
+  """
+  formats filesize in bytes (int) to the right format with unit.
+
+  :param size_in_bytes: filesize in bytes
+  :type size_in_bytes: int
+  :return: filesize in the right format with unit
+  :rtype: str
+  """
+  units = ["Bytes", "KB", "MB", "GB", "TB"]
+  size = size_in_bytes
+  unit_index = 0
+
+  while size >= 1024 and unit_index < len(units) - 1:
+    size /= 1024.0
+    unit_index += 1
+
+  return f"{size:.2f} {units[unit_index]}"
+
+
 def get_array_first_element(curr_array):
   """
   returns first element of passed array
@@ -109,6 +129,28 @@ def get_overlapping_area(area_a, area_b, entity_value):
     'entity': entity_value,
     'area': area_a.intersection(area_b).area
   }
+
+
+def group_dict_by_key_and_sum_values(curr_dict, group_key, sum_value):
+  """
+  groups passed dictionary by passed key, sums up passed sum values for each key,
+  and returns summed values
+
+  :param curr_dict: dictionary
+  :param group_key: key to group by
+  :param sum_value: value to sum up for key
+  :return: summed values for each group-by-key of passed dictionary, grouped by passed key
+  """
+  # sort passed dictionary by passed key to ensure groupby works correctly
+  sorted_data = sorted(curr_dict, key=itemgetter(group_key))
+  # use groupby to group data by passed key
+  grouped_data = groupby(sorted_data, key=itemgetter(group_key))
+  summed_values = {}
+  for key, group in grouped_data:
+    # sum passed sum values for each group
+    summed = sum(item[sum_value] for item in group)
+    summed_values[key] = summed
+  return summed_values
 
 
 def intersection_with_wfs(geometry, wfs_config, only_presence=False):
@@ -175,28 +217,6 @@ def intersection_with_wfs(geometry, wfs_config, only_presence=False):
   geojson_data = response.json()
   features = geojson_data.get('features', [])
   return len(features) > 0 if only_presence else features
-
-
-def group_dict_by_key_and_sum_values(curr_dict, group_key, sum_value):
-  """
-  groups passed dictionary by passed key, sums up passed sum values for each key,
-  and returns summed values
-
-  :param curr_dict: dictionary
-  :param group_key: key to group by
-  :param sum_value: value to sum up for key
-  :return: summed values for each group-by-key of passed dictionary, grouped by passed key
-  """
-  # sort passed dictionary by passed key to ensure groupby works correctly
-  sorted_data = sorted(curr_dict, key=itemgetter(group_key))
-  # use groupby to group data by passed key
-  grouped_data = groupby(sorted_data, key=itemgetter(group_key))
-  summed_values = {}
-  for key, group in grouped_data:
-    # sum passed sum values for each group
-    summed = sum(item[sum_value] for item in group)
-    summed_values[key] = summed
-  return summed_values
 
 
 def is_geometry_field(field):
@@ -279,23 +299,3 @@ def transform_geometry(geometry, target_srid):
     transform = CoordTransform(source_srs, target_srs)
     geometry.transform(transform)
   return geometry
-
-
-def format_filesize(size_in_bytes: int) -> str:
-  """
-  formats filesize in bytes (int) to the right format with unit.
-
-  :param size_in_bytes: filesize in bytes
-  :type size_in_bytes: int
-  :return: filesize in the right format with unit
-  :rtype: str
-  """
-  units = ["Bytes", "KB", "MB", "GB", "TB"]
-  size = size_in_bytes
-  unit_index = 0
-
-  while size >= 1024 and unit_index < len(units) - 1:
-    size /= 1024.0
-    unit_index += 1
-
-  return f"{size:.2f} {units[unit_index]}"

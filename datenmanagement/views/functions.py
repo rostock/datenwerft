@@ -1,25 +1,33 @@
 import os
-from wsgiref.util import FileWrapper
 
+from decimal import Decimal
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.handlers.wsgi import WSGIRequest
-from django.db.models.fields import DateField, DateTimeField, TimeField
+from django.db.models.fields import DateField, DateTimeField, DecimalField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
-from django.http import HttpResponse, FileResponse, Http404, StreamingHttpResponse
+from django.http import HttpResponse, Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
+from json import JSONEncoder
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
+from wsgiref.util import FileWrapper
 
-from toolbox.vcpub.DataBucket import DataBucket
-from .fields import ArrayDateField
+from .fields import ArrayDateField, ArrayDecimalField
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
+from toolbox.vcpub.DataBucket import DataBucket
 from datenmanagement.models.fields import ChoiceArrayField
 from datenmanagement.models.base import Basemodel
+
+
+class DecimalEncoder(JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, Decimal):
+      return str(obj)
+    return super().default(obj)
 
 
 def add_basic_model_context_elements(context, model):
@@ -179,6 +187,21 @@ def assign_widgets(field):
       'class': 'form-control',
       'step': '1'
     }))
+  # handle decimal array fields/widgets
+  elif issubclass(field.__class__, DecimalField) and is_array_field:
+    label = form_field.label
+    step = 10 ** -field.decimal_places
+    form_field = ArrayDecimalField(
+      label=label,
+      widget=TextInput(
+        attrs={
+          'type': 'number',
+          'class': 'form-control',
+          'step': step
+        }
+      )
+    )
+    form_field.required = False
   # handle date fields/widgets
   elif issubclass(field.__class__, DateField):
     if is_array_field:
@@ -231,6 +254,54 @@ def delete_object_immediately(request, pk):
   else:
     raise PermissionDenied()
   return HttpResponse(status=204)
+
+
+def download_pointcloud(pk):
+  """
+  view, which routes the download request to the right file.
+
+  :param pk: primary key of the requested pointcloud
+  :return:
+  """
+  # get pointcloud model instance of given pk
+  pc_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
+  pc_instance = pc_model.objects.get(pk=pk)
+
+  # check if pointcloud is stored at VCPub
+  if pc_instance.vcp_object_key:
+    # get project instance of pointcloud instance for bucket information
+    pcprj_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken_Projekte')
+    pcprj_instance = pcprj_model.objects.get(pk=pc_instance.projekt.uuid)
+
+    # get dataset bucket
+    bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
+    print(f'Object Key: {pc_instance.vcp_object_key}')
+    ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
+    if ok:
+      print(f"Content Type: {response.headers.get('Content-Type')}")
+      file_response = StreamingHttpResponse(
+        response.raw,
+        content_type='application/octet-stream',
+        as_attachment=True,
+        filename=pc_instance.dateiname
+      )
+      file_response['Content-Length'] = pc_instance.file_size
+      print(f'Response: {file_response.__dict__}')
+      return file_response
+    elif response.status_code == 404:
+      raise Http404("No Point Cloud.")
+    else:
+      return HttpResponse(response)
+  else:
+    path = f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}'
+    file_size = os.path.getsize(path)
+    f = open(path, 'rb')
+    file_response = StreamingHttpResponse(
+      FileWrapper(f), content_type='application/octet-stream')
+    file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
+    file_response['Content-Length'] = file_size
+    print(f'Response: {file_response.__dict__}')
+    return file_response
 
 
 def get_model_objects(model, subset_id=None, count_only=False):
@@ -291,6 +362,36 @@ def get_uuids_geometries_from_sql(rows):
   return uuid_list, geometry_list
 
 
+def handle_multi_file_upload(form, multi_field_name):
+  """
+  handles multi file upload for the passed form
+
+  :param form: form
+  :param multi_field_name: name of multi file upload field
+  """
+  # only carry out any further operations if all mandatory fields have been filled in,
+  # otherwise the transfer will not work for the other objects
+  if all(
+      field.name == form.model._meta.pk.name
+      or field.name == multi_field_name
+      or not form.fields[field.name].required
+      or form.data[field.name]
+      for field in form.model._meta.get_fields()
+  ):
+    files = form.multi_files.getlist(multi_field_name)
+    if len(files) > 1:
+      for file in files[:-1]:  # exclude the last file from this loop
+        m = form.model()
+        for field in form.model._meta.get_fields():
+          if field.name == 'dateiname_original':
+            setattr(m, field.name, file.name)
+          elif field.name == multi_field_name:
+            setattr(m, field.name, file)
+          elif field.name != m._meta.pk.name:
+            setattr(m, field.name, form.cleaned_data[field.name])
+        m.save()
+
+
 def set_form_attributes(form):
   """
   sets attributes in the passed form and returns it
@@ -307,17 +408,12 @@ def set_form_attributes(form):
   return form
 
 
-def order_model_to_form_template(model: Basemodel):
+def set_form_template(model: Basemodel):
   """
-  returns the template path for the given model instance.
-  The templates are chosen as follows:
-  - models from the codelist app are rendered with 'datenmanagement/form-list.html',
-  - models, which are not geometry fields, are also rendered with 'datenmanagement/form-list.html',
-  - the model 'Punktwolken_Projekte' is rendered with 'datenmanagement/form-pcmanagement.html',
-  - all other models are rendered with 'datenmanagement/form-map.html'.
+  sets adequate form template for passed model and returns it
 
-  :param model: model instance
-  :return: template path
+  :param model: model
+  :return: adequate form template for passed model
   """
   if (
     model.__module__ == 'datenmanagement.models.models_codelist'
@@ -328,56 +424,3 @@ def order_model_to_form_template(model: Basemodel):
     return 'datenmanagement/form-pcmanagement.html'
   else:
     return 'datenmanagement/form-map.html'
-
-
-def download_pointcloud(request: WSGIRequest, pk):
-  """
-  view, which routes the download request to the right file.
-
-  :param request:
-  :param pk: primary key of the requested pointcloud
-  :return:
-  """
-  # get pointcloud model instance of given pk
-  pc_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
-  pc_instance = pc_model.objects.get(pk=pk)
-
-  # check if pointcloud is stored at VCPub
-  if pc_instance.vcp_object_key:
-    # get project instance of pointcloud instance for bucket information
-    pcprj_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken_Projekte')
-    pcprj_instance = pcprj_model.objects.get(pk=pc_instance.projekt.uuid)
-
-    # get dataset bucket
-    bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
-    print(f'Object Key: {pc_instance.vcp_object_key}')
-    ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
-    if ok:
-      print(f"Content Type: {response.headers.get('Content-Type')}")
-      file_response = StreamingHttpResponse(
-        response.raw,
-        #content_type=response.headers.get('Content_Type'),
-        content_type='application/octet-stream',
-        as_attachment=True,
-        filename=pc_instance.dateiname
-      )
-      file_response['Content-Length'] = pc_instance.file_size
-      #file_response['Transfer-Encoding'] = 'chunked'
-      print(f'Response: {file_response.__dict__}')
-      return file_response
-    elif response.status_code == 404:
-      raise Http404("No Point Cloud.")
-    else:
-      return HttpResponse(response)
-  else:
-    path = f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}'
-    file_size = os.path.getsize(path)
-    f = open(path, 'rb')
-    file_response = StreamingHttpResponse(
-      FileWrapper(f), content_type='application/octet-stream')
-    file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
-    file_response['Content-Length'] = file_size
-    print(f'Response: {file_response.__dict__}')
-    return file_response
-    #, content_type=response.headers.get('Content-Type'),
-    #, as_attachment=True, filename=pc_instance.dateiname)

@@ -1,6 +1,7 @@
 """
 Celery wird für die Ausführung von Tasks im Hintergrund verwendet.
-Im Fall des Datenmanagements, um Punktwolken Uploads im Hintergrund an die VCPublisher API zu senden.
+Im Fall des Datenmanagements, um Punktwolken Uploads
+im Hintergrund an die VCPublisher API zu senden.
 Dafür durchsucht Celery automatisch die Django-Apps nach einer `tasks.py`.
 """
 import logging
@@ -24,6 +25,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
+
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):

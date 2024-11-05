@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,15 +14,14 @@ DJANGO_APPS = [
   'django.contrib.sessions',
   'django.contrib.messages',
   'django.contrib.staticfiles',
-  'django.contrib.gis',
+  'django.contrib.gis'
 ]
 THIRD_PARTY_APPS = [
   'django_user_agents',
   'leaflet',
   'requests',
   'rest_framework',
-  'jsonview',
-  'mod_wsgi.server'
+  'jsonview'
 ]
 LOCAL_APPS = [
   'accounts',
@@ -43,7 +41,7 @@ MIDDLEWARE = [
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'django.middleware.gzip.GZipMiddleware',
-  'django_user_agents.middleware.UserAgentMiddleware',
+  'django_user_agents.middleware.UserAgentMiddleware'
 ]
 ROOT_URLCONF = 'datenwerft.urls'
 WSGI_APPLICATION = 'datenwerft.wsgi.application'
@@ -64,7 +62,7 @@ TEMPLATES = [
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
         'django.contrib.messages.context_processors.messages',
-        'datenwerft.context_processors.include_login_form',
+        'datenwerft.context_processors.include_login_form'
       ],
       'libraries': {
         'toolbox_tags': 'toolbox.tags',
@@ -90,7 +88,7 @@ DATABASE_ROUTERS = [
 
 AUTHENTICATION_BACKENDS = (
   'accounts.backend.DatenwerftAuthBackend',
-  'django.contrib.auth.backends.ModelBackend',
+  'django.contrib.auth.backends.ModelBackend'
 )
 
 
@@ -167,6 +165,7 @@ STATICFILES_DIRS = (
   BASE_DIR / 'vendor/',
   ('bootstrap', BASE_DIR / 'node_modules/bootstrap/dist/css'),
   ('bootstrap', BASE_DIR / 'node_modules/bootstrap/dist/js'),
+  ('bootstrap-icons', BASE_DIR / 'node_modules/bootstrap-icons'),
   ('fontawesome', BASE_DIR / 'node_modules/@fortawesome/fontawesome-free/css'),
   ('fontawesome', BASE_DIR / 'node_modules/@fortawesome/fontawesome-free/js'),
   ('webfonts', BASE_DIR / 'node_modules/@fortawesome/fontawesome-free/webfonts'),
@@ -329,65 +328,15 @@ PDF_JINJASTRINGS = {
   'comment_end': '}'
 }
 
-DEBUG = True
-DJANGO_LOGGING_LEVEL = DEBUG
-LOGGING = {
-  'version': 1,
-  'disable_existing_loggers': False,
-  'formatters': {
-    'simple': {
-      'format': '{levelname} {message}',
-      'style': '{',
-    },
-    'extended': {
-      'format': '{name} {asctime} {levelname} {message}',
-      'style': '{',
-    },
-  },
-  'handlers': {
-    'console': {
-      'class': 'logging.StreamHandler',
-    },
-    'file': {
-      'class': 'logging.FileHandler',
-      'filename': 'logs/debug.log',
-      # 'format': 'extended' # Datenwerft kann damit nicht ausgeführt werden. Ursache unklar.
-    },
-    'mail_admins': {
-      'level': 'ERROR',
-      'class': 'django.utils.log.AdminEmailHandler',
-    }
-  },
-  'root': {
-    # root logger sends logs with 'WARNING' and higher to console
-    'handlers': ['console'],
-    'level': 'INFO', # set this to DEBUG for development, WARNING for production
-  },
-  'loggers': {
-    'django': {
-      'handlers': ['console'],
-      'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-      'propagate': False,
-    },
-    'VCPub': {
-      'handlers': ['file'],
-      'level': 'DEBUG'
-    },
-    'Celery': {
-      'handlers': ['file', 'console'],
-      'level': 'DEBUG'
-    }
-  }
-}
 
-# Celery configuration
-# Celery is used for asynchrone tasks
+# Celery (used for asynchronous tasks):
+# basic configuration
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
-# time to live for finished tasks
-CELERY_TASK_RESULT_EXPIRES = 3600  # 1 hour
+CELERY_TASK_RESULT_EXPIRES = 3600  # completed tasks still live for 1 hour
 
 
 # configuration file with additional parameters

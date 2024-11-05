@@ -139,7 +139,7 @@
               'X-CSRFToken': getCookie('csrftoken')
             }
           };
-          let responce = await fetch(apiLink, options)
+          let response = await fetch(apiLink, options)
             .then(response => {
               if (!response.ok) {
                 return response.json().then(errorData => {
@@ -265,7 +265,7 @@
           });
   
           ret.always(function(data, textStatus, jqXHR) {
-            if (textStatus != 'success') {
+            if (textStatus !== 'success') {
               jqXHR = data;
             }
   
