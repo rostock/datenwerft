@@ -1,20 +1,24 @@
+import os
+
 from decimal import Decimal
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models.fields import DateField, DateTimeField, DecimalField, TimeField
 from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from json import JSONEncoder
 from leaflet.forms.widgets import LeafletWidget
 from re import sub
+from wsgiref.util import FileWrapper
 
 from .fields import ArrayDateField, ArrayDecimalField
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
+from toolbox.vcpub.DataBucket import DataBucket
 from datenmanagement.models.fields import ChoiceArrayField
 from datenmanagement.models.base import Basemodel
 
@@ -250,6 +254,54 @@ def delete_object_immediately(request, pk):
   else:
     raise PermissionDenied()
   return HttpResponse(status=204)
+
+
+def download_pointcloud(pk):
+  """
+  view, which routes the download request to the right file.
+
+  :param pk: primary key of the requested pointcloud
+  :return:
+  """
+  # get pointcloud model instance of given pk
+  pc_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken')
+  pc_instance = pc_model.objects.get(pk=pk)
+
+  # check if pointcloud is stored at VCPub
+  if pc_instance.vcp_object_key:
+    # get project instance of pointcloud instance for bucket information
+    pcprj_model = apps.get_model(app_label='datenmanagement', model_name='Punktwolken_Projekte')
+    pcprj_instance = pcprj_model.objects.get(pk=pc_instance.projekt.uuid)
+
+    # get dataset bucket
+    bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
+    print(f'Object Key: {pc_instance.vcp_object_key}')
+    ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
+    if ok:
+      print(f"Content Type: {response.headers.get('Content-Type')}")
+      file_response = StreamingHttpResponse(
+        response.raw,
+        content_type='application/octet-stream',
+        as_attachment=True,
+        filename=pc_instance.dateiname
+      )
+      file_response['Content-Length'] = pc_instance.file_size
+      print(f'Response: {file_response.__dict__}')
+      return file_response
+    elif response.status_code == 404:
+      raise Http404("No Point Cloud.")
+    else:
+      return HttpResponse(response)
+  else:
+    path = f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}'
+    file_size = os.path.getsize(path)
+    f = open(path, 'rb')
+    file_response = StreamingHttpResponse(
+      FileWrapper(f), content_type='application/octet-stream')
+    file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
+    file_response['Content-Length'] = file_size
+    print(f'Response: {file_response.__dict__}')
+    return file_response
 
 
 def get_model_objects(model, subset_id=None, count_only=False):

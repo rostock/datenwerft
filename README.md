@@ -235,11 +235,12 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 4.  Pull-Request erstellen
 5.  Review anfordern und durchführen lassen
 6.  ggf. Änderungen im Nachgang des Reviews committen und Commit(s) pushen
-7.  Pull-Request in Branch `master` mit der Option *Squash and merge* mergen
+7.  Pull-Request in Branch `main` mit der Option *Squash and merge* mergen
+8.  Pull-Request mit [Conventional-Commit](https://www.conventionalcommits.org/) Syntax committen
 
 ### *GitHub*-Actions
 
-Bei Commits und Pull-Requests in der Branch `master` werden folgende *GitHub*-Actions in dieser Reihenfolge ausgeführt:
+Bei Commits und Pull-Requests in der Branch `main` werden folgende *GitHub*-Actions in dieser Reihenfolge ausgeführt:
 
 1.  *CodeQL:* CodeQL-Analyse gemäß `.github/workflows/codeql.yml`
 2.  *Linting:* Linting gemäß `.github/workflows/linting.yml`

@@ -329,6 +329,16 @@ PDF_JINJASTRINGS = {
 }
 
 
+# Celery (used for asynchronous tasks):
+# basic configuration
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_RESULT_EXPIRES = 3600  # completed tasks still live for 1 hour
+
+
 # configuration file with additional parameters
 # which must not fall under Git version control
 

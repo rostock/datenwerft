@@ -123,6 +123,19 @@ $$;
 
 
 --
+-- Name: generate_pointcloud_union(uuid); Type: FUNCTION; Schema: fachdaten; Owner: -
+--
+
+CREATE FUNCTION fachdaten.generate_pointcloud_union(projekt_uuid uuid) RETURNS public.geometry
+    LANGUAGE sql STABLE
+    AS $_$
+    SELECT ST_Union(geometrie)
+    FROM fachdaten.punktwolken
+    WHERE punktwolken_projekte = $1;
+$_$;
+
+
+--
 -- Name: id_abfallbehaelter(); Type: FUNCTION; Schema: fachdaten; Owner: -
 --
 
@@ -229,6 +242,30 @@ BEGIN
    NEW.laenge_in_hro := floor(random() * 32767);
     END IF;
    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_projekt_geometry(); Type: FUNCTION; Schema: fachdaten; Owner: -
+--
+
+CREATE FUNCTION fachdaten.update_projekt_geometry() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Bei INSERT oder UPDATE
+    IF TG_OP IN ('INSERT', 'UPDATE') THEN
+        UPDATE fachdaten.punktwolken_projekte
+        SET geometrie = fachdaten.generate_pointcloud_union(NEW.punktwolken_projekte)
+        WHERE uuid = NEW.punktwolken_projekte;
+    -- Bei DELETE
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE fachdaten.punktwolken_projekte
+        SET geometrie = fachdaten.generate_pointcloud_union(OLD.punktwolken_projekte)
+        WHERE uuid = OLD.punktwolken_projekte;
+    END IF;
+    RETURN NEW;
 END;
 $$;
 
@@ -2610,6 +2647,52 @@ CREATE TABLE fachdaten.poller_hro (
     schliessungen character varying(255)[],
     bemerkungen character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: punktwolken; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.punktwolken (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktiv boolean DEFAULT true NOT NULL,
+    erstellt date DEFAULT now() NOT NULL,
+    aktualisiert date DEFAULT now() NOT NULL,
+    dateiname character varying(255) NOT NULL,
+    punktwolke character varying(255) NOT NULL,
+    aufnahme timestamp(0) with time zone,
+    geometrie public.geometry(Polygon,25833),
+    punktwolken_projekte uuid NOT NULL,
+    vc_update timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP(0),
+    vcp_object_key character varying(255),
+    file_size bigint
+);
+
+
+--
+-- Name: COLUMN punktwolken.file_size; Type: COMMENT; Schema: fachdaten; Owner: -
+--
+
+COMMENT ON COLUMN fachdaten.punktwolken.file_size IS 'in bytes';
+
+
+--
+-- Name: punktwolken_projekte; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.punktwolken_projekte (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktiv boolean DEFAULT true NOT NULL,
+    erstellt date DEFAULT now() NOT NULL,
+    aktualisiert date DEFAULT now(),
+    bezeichnung character varying(255) NOT NULL,
+    beschreibung character varying(255),
+    projekt_update timestamp(0) with time zone DEFAULT now(),
+    vcp_task_id character varying(255),
+    vcp_dataset_bucket_id uuid,
+    vcp_datasource_id character varying(255),
+    geometrie public.geometry(MultiPolygon,25833)
 );
 
 
@@ -6117,6 +6200,22 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 
 --
+-- Name: punktwolken punktwolken_pkey; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.punktwolken
+    ADD CONSTRAINT punktwolken_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: punktwolken_projekte punktwolken_projekte_pkey; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.punktwolken_projekte
+    ADD CONSTRAINT punktwolken_projekte_pkey PRIMARY KEY (uuid);
+
+
+--
 -- Name: reisebusparkplaetze_terminals_hro reisebusparkplaetze_terminals_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6765,6 +6864,13 @@ CREATE TRIGGER tr_before_update_98_deaktiviert BEFORE UPDATE OF aktiv ON fachdat
 --
 
 CREATE TRIGGER tr_before_update_98_deaktiviert BEFORE UPDATE OF aktiv ON fachdaten.containerstellplaetze_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.deaktiviert();
+
+
+--
+-- Name: punktwolken update_projekt_geometry_trigger; Type: TRIGGER; Schema: fachdaten; Owner: -
+--
+
+CREATE TRIGGER update_projekt_geometry_trigger AFTER INSERT OR DELETE OR UPDATE ON fachdaten.punktwolken FOR EACH ROW EXECUTE FUNCTION fachdaten.update_projekt_geometry();
 
 
 --
@@ -7440,6 +7546,14 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 ALTER TABLE ONLY fachdaten.poller_hro
     ADD CONSTRAINT poller_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_poller(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: punktwolken punktwolken_projekt_uuid_fkey; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.punktwolken
+    ADD CONSTRAINT punktwolken_projekt_uuid_fkey FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid);
 
 
 --

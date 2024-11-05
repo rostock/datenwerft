@@ -1,20 +1,25 @@
+import os
+
 from datetime import date, datetime, timezone
 from decimal import Decimal
-
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MaxValueValidator, MinValueValidator, \
-  RegexValidator, URLValidator, FileExtensionValidator
-from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, \
+  RegexValidator, URLValidator
+from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
 from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
   DecimalField, PositiveIntegerField, PositiveSmallIntegerField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
+
 from datenmanagement.utils import get_current_year, path_and_rename
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
+from toolbox.utils import format_filesize
+from toolbox.vcpub.DataBucket import DataBucket
+from toolbox.vcpub.Task import Task
 from .base import ComplexModel
 from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
   haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
@@ -49,6 +54,7 @@ from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Str
   Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
   Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
 from .storage import OverwriteStorage
+from ..tasks import update_model
 
 
 #
@@ -3115,10 +3121,23 @@ class Punktwolken_Projekte(ComplexModel):
     editable=False,
     auto_now=True,
   )
-  geometrie = polygon_field
+  geometrie = multipolygon_field
   # Project geometry results from the individual geometries of the point clouds,
   # so a project have no geometry at initialization.
   geometrie.null = True
+  vcp_task_id = UUIDField(
+    verbose_name='VC Publisher Task',
+    blank=True
+  )
+  vcp_dataset_bucket_id = UUIDField(
+    verbose_name='VC Publisher Dataset',
+    blank=True
+  )
+  vcp_datasource_id = CharField(
+    verbose_name='VC Publisher Datasource',
+    max_length=255,
+    blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken_projekte'
@@ -3126,22 +3145,59 @@ class Punktwolken_Projekte(ComplexModel):
     verbose_name_plural = 'Punktwolken Projekte'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
-    readonly_fields = ['geometrie']
+    readonly_fields = ['geometrie', 'vcp_task_id', 'vcp_dataset_bucket_id', 'vcp_datasource_id']
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
-      'projekt_update': 'Zuletzt aktualisiert'
+      'projekt_update': 'Zuletzt aktualisiert',
+      'vcp_task_id': 'VCP Task ID',
+      'vcp_dataset_bucket_id': 'VCP Dataset Bucket ID',
+      'vcp_datasource_id': 'VCP Datasource ID'
     }
     list_fields_with_datetime = ['projekt_update']
     associated_models = {
       'Punktwolken': 'projekt'
     }
-    geometry_type = 'Polygon'
+    geometry_type = 'MultiPolygon'
     geometry_calculation = True
 
   def __str__(self):
     return self.bezeichnung
+
+  def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+    if not self.vcp_task_id:
+      # create Task
+      print(f'=====  CREATE TASK  =====')
+      task = Task(name=self.bezeichnung, description=self.beschreibung)
+      self.vcp_task_id = task.get_id()
+      self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
+      self.vcp_datasource_id = task.get_datasource()['datasourceId']
+    for element in Punktwolken.objects.filter(projekt=self):
+      element.save()
+    super().save(
+      force_insert=force_insert,
+      force_update=force_update,
+      using=using,
+      update_fields=update_fields
+    )
+
+  def delete(self, using=None, keep_parents=False):
+    if self.vcp_dataset_bucket_id:
+      bucket = DataBucket(_id=self.vcp_dataset_bucket_id)
+      ok, response = bucket.delete()
+      if ok:
+        print('deleting project')
+        super().delete(using=using, keep_parents=keep_parents)
+      elif response.status_code == 404:
+        # bucket is already deleted
+        print('404: task not found, deleting project now')
+        super().delete(using=using, keep_parents=keep_parents)
+      else:
+        print(f'DELETE Request failed: {response.__dict__}')
+    else:
+      print('deleting project')
+      super().delete(using=using, keep_parents=keep_parents)
 
 
 #
@@ -3178,8 +3234,20 @@ class Punktwolken(ComplexModel):
     verbose_name='Zuletzt aktualisiert',
     auto_now=True
   )
+  vcp_object_key = CharField(
+    verbose_name='VCP Objekt ID',
+    max_length=255,
+    editable=False,
+    blank=True
+  )
   geometrie = polygon_field
   geometrie.null = True
+  # needed for VCPub downloads. VCPUb returns no filesize in file response.
+  file_size = IntegerField(
+    verbose_name='Dateigröße',
+    editable=False,
+    blank=True
+  )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken'
@@ -3194,11 +3262,13 @@ class Punktwolken(ComplexModel):
       'aufnahme': 'Aufnahmedatum',
       'projekt': 'Punktwolken Projekt',
       'vc_update': 'Letzte Aktualisierung',
+      'vcp_object_key': 'VCP Objekt ID'
     }
     list_fields_with_datetime = ['aufnahme', 'vc_update']
     list_fields_with_foreign_key = {
       'projekt': 'bezeichnung'
     }
+    readonly_fields = ['vcp_object_key']
     fields_with_foreign_key_to_linkify = ['projekt']
     geometry_type = 'Polygon'
     geometry_calculation = True
@@ -3209,15 +3279,61 @@ class Punktwolken(ComplexModel):
       aufnahme_str = ' vom ' + self.aufnahme.strftime('%d.%m.%Y %H:%M')
     else:
       aufnahme_str = ''
+    if self.file_size:
+      aufnahme_str = aufnahme_str + f' ({format_filesize(self.file_size)})'
     return self.dateiname + aufnahme_str
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+    """
+    Modified django save method.
+    :param force_insert:
+    :param force_update:
+    :param using:
+    :param update_fields:
+    :return:
+    """
     super().save(
       force_insert=force_insert,
       force_update=force_update,
       using=using,
       update_fields=update_fields
     )
+    if not self.file_size:
+      size = os.path.getsize(self.punktwolke.path)
+      update_model.delay(
+        model_name='Punktwolken',
+        pk=self.pk,
+        attributes={'file_size': size})
+    if not self.vcp_object_key:
+      # If point cloud database entry has no object key attribute, then point cloud must still be
+      # uploaded to the VC Publisher.
+      # lazy import of celery task -> must remain here to avoid circular import errors
+      from ..tasks import send_pointcloud_to_vcpub, calculate_2d_bounding_box_for_pointcloud
+      # run celery task delayed
+      if not self.geometrie:
+        calculate_2d_bounding_box_for_pointcloud(
+          pk=self.pk,
+          path=self.punktwolke.path
+        )
+      send_pointcloud_to_vcpub.delay(
+        pk=self.pk,
+        dataset=self.projekt.vcp_dataset_bucket_id,
+        path=self.punktwolke.path,
+        filename=self.dateiname
+      )
+
+  def delete(self, using=None, keep_parents=False):
+    if self.vcp_object_key:
+      bucket = DataBucket(_id=self.projekt.vcp_dataset_bucket_id)
+      ok, response = bucket.delete_object(key=self.vcp_object_key)
+      if ok:
+        super().delete(using=using, keep_parents=keep_parents)
+      elif response.status_code == 404:
+        super().delete(using=using, keep_parents=keep_parents)
+      else:
+        print(f'DELETE Request failed: {response}')
+    else:
+      super().delete(using=using, keep_parents=keep_parents)
 
 
 post_delete.connect(delete_pointcloud, sender=Punktwolken)

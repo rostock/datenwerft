@@ -1,3 +1,4 @@
+celery
 Django
 django-auth-ldap
 django-datatables-view
@@ -6,7 +7,9 @@ django-leaflet
 django-ratelimit
 django-user-agents
 djangorestframework
+docutils
 Jinja2
+laspy
 lxml
 Pillow
 psycopg2-binary
