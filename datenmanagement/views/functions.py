@@ -297,7 +297,7 @@ def download_pointcloud(pk):
     file_response = StreamingHttpResponse(
       FileWrapper(f), content_type='application/octet-stream')
     file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
-    file_response['Content-Length'] = file_path.stat().st_siz
+    file_response['Content-Length'] = file_path.stat().st_size
     print(f'Response: {file_response.__dict__}')
     return file_response
 
