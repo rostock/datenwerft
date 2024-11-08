@@ -1,14 +1,13 @@
 import laspy
 
-from celery import shared_task
 from django.apps import apps
 from uuid import UUID
 
-from datenwerft.celery import logger
+from datenwerft.celery import logger, app
 from toolbox.vcpub.DataBucket import DataBucket
 
 
-@shared_task
+@app.task(max_retries=2, default_retry_delay=20)
 def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   """
   Asynchronous sending of a pointcloud to the VCPub API.
@@ -18,7 +17,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   :param filename: filename as data bucket key
   :return:
   """
-  logger.info('Run Task send_pointcloud_to_vcpub')
+  logger.debug('Run Task send_pointcloud_to_vcpub')
   bucket = DataBucket(_id=str(dataset))
   with open(path, 'rb') as f:
     if filename:
@@ -39,7 +38,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
       logger.error('Pointcloud upload to VCPub failed. Try again later.')
 
 
-@shared_task
+@app.task
 def update_model(model_name, pk, attributes: dict):
   """
   Asynchronous updating of a model instance
@@ -75,7 +74,7 @@ def update_model(model_name, pk, attributes: dict):
     logger.error(f'Update of Model {model_name} with pk {pk} failed: {str(e)}')
 
 
-@shared_task
+@app.task
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
   """
   Asynchronous calculation of 2D bounding box for pointcloud using laspy
