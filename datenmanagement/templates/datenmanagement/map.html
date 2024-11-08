@@ -77,12 +77,19 @@
           <div id="filter-alert" class="alert alert-warning" role="alert">Filter wirken <strong>additiv</strong> (wie „UND“)</div>
           {% if map_one_click_filters %}
             <h6>Ein-Klick-Filter</h6>
-            <div id="filter-one-click" class="btn-group-vertical">
-              {% if model_name == 'Baustellen_geplant' %}
-                <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
-                <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8) und Status != abgeschlossen</button>
-              {% endif %}
-            </div>
+            {% if model_name == 'Baustellen_geplant' %}
+              <div class="input-group mb-2">
+                <label for="deadline-year-input" class="mt-2 me-2">Stichjahr für Ein-Klick-Filter:</label>
+                <input id="deadline-year-input" type="number" name="stichjahr" class="form-control filter-one-click-other">
+                <button class="deadline-year-set filter-one-click-other btn btn-outline-secondary"><i class="fas fa-check" title="setzen"></i></button>
+                <button class="deadline-year-reset filter-one-click-other btn btn-outline-secondary"><i class="fas fa-undo" title="zurücksetzen"></i></button>
+              </div>
+              <div id="filter-one-click" class="btn-group-vertical">
+                  <button id="baustellen-geplant-ende-nicht-abgeschlossen" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> beendet, aber Status != abgeschlossen</button>
+                  <button id="baustellen-geplant-beginn-nicht-imbau" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> begonnen (nicht beendet), aber Status != im Bau (LP8) und Status != abgeschlossen</button>
+                <button id="baustellen-geplant-stichjahr" class="filter-one-click-button btn btn-outline-success"><i class="fas fa-gears"></i> Stichjahr <span id="deadline-year-span"></span> sowie Status != strategische Planung, Status != im Bau (LP8) und Status != abgeschlossen</button>
+              </div>
+            {% endif %}
             <hr>
           {% endif %}
           {% if map_deadlinefilter_fields %}
@@ -544,6 +551,30 @@
           }
         });
 
+        // handle deadline year for one-click-filters
+        {% if model_name == 'Baustellen_geplant' %}
+          // initially, set deadline year to current year
+          const currentYear = new Date().getFullYear();
+          const deadlineYearInput = $('#deadline-year-input');
+          deadlineYearInput.prop('min', currentYear - 10);
+          deadlineYearInput.prop('max', currentYear + 10);
+          deadlineYearInput.prop('value', currentYear);
+          $('#deadline-year-span').text(currentYear);
+
+          // on clicking the button to set the deadline year...
+          $('.deadline-year-set').on('click', function() {
+            // set deadline year to year entered
+            $('#deadline-year-span').text(deadlineYearInput.val());
+          });
+
+          // on clicking the button to reset the deadline year...
+          $('.deadline-year-reset').on('click', function() {
+            // reset deadline year to current year
+            deadlineYearInput.prop('value', currentYear);
+            $('#deadline-year-span').text(currentYear);
+          });
+        {% endif %}
+
         // on clicking a one-click-filter button...
         $('.filter-one-click-button').on('click', function(e) {
           let $this = $(this);
@@ -554,6 +585,10 @@
             if ($(this).attr('id') !== e.target.id) {
               $(this).prop('disabled', true);
             }
+          });
+          // disable all other one-click-filter control elements
+          $('.filter-one-click-other').each(function() {
+            $(this).prop('disabled', true);
           });
           // disable button to apply filters
           $('#filter-apply').prop('disabled', true);
@@ -570,6 +605,11 @@
 
           // disable all one-click-filter buttons
           $('#filter-one-click').children('button').each(function() {
+            $(this).prop('disabled', true);
+          });
+
+          // disable all other one-click-filter control elements
+          $('.filter-one-click-other').each(function() {
             $(this).prop('disabled', true);
           });
 
@@ -652,6 +692,11 @@
         $('#filter-reset').on('click', function() {
           // (re)enable all one-click filter buttons
           $('#filter-one-click').children('button').each(function() {
+            $(this).prop('disabled', false);
+          });
+
+          // (re)enable all other one-click-filter control elements
+          $('.filter-one-click-other').each(function() {
             $(this).prop('disabled', false);
           });
 

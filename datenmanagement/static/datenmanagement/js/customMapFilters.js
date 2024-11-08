@@ -13,7 +13,7 @@ function customMapFilters(filterId) {
   let filterList = [];
 
   // get current date
-  let currentDate = new Date().toJSON().slice(0, 10);
+  const currentDate = new Date().toJSON().slice(0, 10);
 
   // handle one-click filters
   switch (filterId) {
@@ -26,6 +26,16 @@ function customMapFilters(filterId) {
       // add filter objects to defined list with filter objects
       filterList.push(createFilter('beginn', 'date', 'right', 'positive', currentDate));
       filterList.push(createFilter('ende', 'date', 'left', 'positive', currentDate));
+      filterList.push(createFilter('status', 'list', 'both', 'negative', 'im Bau (LP8)'));
+      filterList.push(createFilter('status', 'list', 'both', 'negative', 'abgeschlossen'));
+      break;
+    case 'baustellen-geplant-stichjahr':
+      // get deadline year
+      const deadlineYear = $('#deadline-year-span').text();
+      // add filter objects to defined list with filter objects
+      filterList.push(createFilter('beginn', 'date', 'right', 'positive', deadlineYear + '-12-31'));
+      filterList.push(createFilter('ende', 'date', 'left', 'positive', deadlineYear + '-01-01'));
+      filterList.push(createFilter('status', 'list', 'both', 'negative', 'strategische Planung'));
       filterList.push(createFilter('status', 'list', 'both', 'negative', 'im Bau (LP8)'));
       filterList.push(createFilter('status', 'list', 'both', 'negative', 'abgeschlossen'));
       break;
