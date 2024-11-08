@@ -13,7 +13,8 @@ from pathlib import Path
 from re import sub
 from zoneinfo import ZoneInfo
 
-from datenmanagement.utils import get_current_year, path_and_rename
+from datenmanagement.utils import get_current_year, logger, path_and_rename
+from datenwerft.celery import is_broker_available
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
 from toolbox.utils import format_filesize
@@ -3299,18 +3300,18 @@ class Punktwolken(ComplexModel):
     )
     if not self.file_size:
       file_path = Path(self.punktwolke.path)
-      update_model.delay(
+      update_model(
         model_name='Punktwolken',
         pk=self.pk,
         attributes={'file_size': file_path.stat().st_size})
-    if not self.vcp_object_key:
+    if not self.vcp_object_key and is_broker_available():
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
       # lazy import of celery task -> must remain here to avoid circular import errors
       from ..tasks import send_pointcloud_to_vcpub, calculate_2d_bounding_box_for_pointcloud
       # run celery task delayed
       if not self.geometrie:
-        calculate_2d_bounding_box_for_pointcloud(
+        calculate_2d_bounding_box_for_pointcloud.delay(
           pk=self.pk,
           path=self.punktwolke.path
         )
