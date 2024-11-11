@@ -3,6 +3,8 @@ import laspy
 from django.apps import apps
 from uuid import UUID
 
+from laspy import LaspyException
+
 from datenwerft.celery import logger, app
 from toolbox.vcpub.DataBucket import DataBucket
 
@@ -83,23 +85,26 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
   :return: 2d bounding box in WKT format
   """
   logger.info('Run Task calculate_2d_bounding_box_for_pointcloud')
-  with laspy.open(path) as las_file:
-    las = las_file.read()
+  try:
+    with laspy.open(path) as las_file:
+      las = las_file.read()
 
-    # extract x- and y-coordinates
-    x_coords = las.x
-    y_coords = las.y
+      # extract x- and y-coordinates
+      x_coords = las.x
+      y_coords = las.y
 
-    # get min/max values for x and y
-    mn_x, mx_x = x_coords.min(), x_coords.max()
-    mn_y, mx_y = y_coords.min(), y_coords.max()
+      # get min/max values for x and y
+      mn_x, mx_x = x_coords.min(), x_coords.max()
+      mn_y, mx_y = y_coords.min(), y_coords.max()
 
-    # create bounding box
-    wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
+      # create bounding box
+      wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
 
-    # update model
-    update_model(
-      model_name='Punktwolken',
-      pk=pk,
-      attributes={'geometrie': wkt}
-    )
+      # update model
+      update_model(
+        model_name='Punktwolken',
+        pk=pk,
+        attributes={'geometrie': wkt}
+      )
+  except Exception as e:
+    logger.warning(f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}')
