@@ -43,6 +43,11 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
 3.  weitere Konfigurationsdatei `/usr/local/datenwerft/datenwerft/settings.py` 
     entsprechend anpassen
+4.  Service Datei auf Basis der entsprechenden Vorlage erstellen:
+
+        cp /usr/local/datenwerft/datenwerft/celery.service.template /etc/systemd/system/celery.service
+ 
+5.  Service Datei entsprechend anpassen
 
 ## Initialisierung
 
@@ -71,11 +76,11 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
         python manage.py createsuperuser
 
-6.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des 
+6.  Dateien-Upload-Verzeichnis und Logs-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des 
     genutzten HTTP-Servers anpassen – siehe unten):
 
-        mkdir /usr/local/datenwerft/datenwerft/uploads
         chown -R wwwrun:www /usr/local/datenwerft/datenwerft/uploads
+        chown -R wwwrun:www /usr/local/datenwerft/datenwerft/logs
 
 7.  Webseiten für Hilfe bauen:
 
@@ -87,6 +92,13 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py collectstatic -c
+
+9.  Celery-Worker Service starten und aktivieren:
+
+        sudo systemctl daemon-reload
+        sudo systemctl start celery.service
+        sudo systemctl enable celery.service
+
 
 ## Deployment (am Beispiel des [*Apache HTTP Servers*](https://httpd.apache.org/))
 
