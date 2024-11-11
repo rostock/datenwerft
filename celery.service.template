@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-User=your_user
-Group=your_group
+User=wwwrun
+Group=www
 WorkingDirectory=/path/to/datenwerft
-ExecStart=/usr/local/bin/celery worker -A datenwerft --loglevel=warning
+ExecStart=/path/to/datenwerft/venv/bin/celery -A datenwerft worker --loglevel=warning --logfile=/path/to/datenwerft/datenwerft/logs/celery-service.log
 EnvironmentFile=/path/to/datenwerft/datenwerft/settings.py
 
 [Install]
