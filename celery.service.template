@@ -1,0 +1,14 @@
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+Type=simple
+User=your_user
+Group=your_group
+WorkingDirectory=/path/to/datenwerft
+ExecStart=/usr/local/bin/celery worker -A datenwerft --loglevel=warning
+EnvironmentFile=/path/to/datenwerft/datenwerft/settings.py
+
+[Install]
+WantedBy=multi-user.target
