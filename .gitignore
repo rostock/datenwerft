@@ -10,7 +10,6 @@ datenwerft/secrets.py
 hilfe/build
 toolbox/mkpdf/tmp_*
 static
-uploads
 
 # Node.js
 *package-lock*
