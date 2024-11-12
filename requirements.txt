@@ -14,6 +14,7 @@ lxml
 Pillow
 psycopg2-binary
 PyYAML
+redis
 requests
 Sphinx
 sphinx-rtd-theme
