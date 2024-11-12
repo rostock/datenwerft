@@ -253,8 +253,8 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 
 ### *GitHub*-Actions
 
-Bei Commits und Pull-Requests in der Branch `main` werden folgende *GitHub*-Actions in dieser Reihenfolge ausgeführt:
+Bei Commits und Pull-Requests in der Branch `main` werden folgende *GitHub*-Actions ausgeführt:
 
-1.  *CodeQL:* CodeQL-Analyse gemäß `.github/workflows/codeql.yml`
-2.  *Linting:* Linting gemäß `.github/workflows/linting.yml`
-3.  *Tests:* Tests gemäß `.github/workflows/tests.yml`
+*  *Linting:* Linting gemäß `.github/workflows/linting.yml`
+*  *Tests:* Tests gemäß `.github/workflows/tests.yml`
+*  *Release:* Release gemäß `.github/workflows/release.yml`
