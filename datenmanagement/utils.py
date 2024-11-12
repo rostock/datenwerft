@@ -7,6 +7,7 @@ from uuid import uuid4
 
 logger = logging.getLogger('datenmanagement')
 
+
 def get_current_year():
   """
   returns current year as a number
