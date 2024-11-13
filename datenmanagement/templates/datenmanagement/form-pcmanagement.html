@@ -11,7 +11,7 @@
 {% block pc_management %}
   {% if object %}
     <form>
-  	{% comment %}
+    {% comment %}
       {% csrf_token %}
     {% endcomment %}
       <div class="table-responsive">
@@ -31,7 +31,7 @@
               <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
             </tr>
           {% endfor %}
-            
+
             <tr>
               <td><i class="fa-solid fa-ellipsis"></i></td>
               <td><input type="file" name="punktwolke" class="form-control" id="id_punktwolke" accept="application/vnd.las"></td>
@@ -58,13 +58,13 @@
         const uploadButton = document.getElementById('pointCloudUploadButton');
         const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
         const uploadProgress = document.getElementById('uploadProgress');
-        
+
         async function addObject(apiLink) {
           console.log(apiLink);
-          
+
           uploadModal.show();
           simulateUpload();
-          
+
           const file = document.getElementById('id_punktwolke').files[0];
           if (!file) {
             uploadModal.hide();
@@ -77,11 +77,11 @@
           formdata.append(name='punktwolke', blobValue=file, filename=file.name);
           formdata.append('projekt', '{{ api }}');
           formdata.append('aufnahme', file.lastModified/1000);
-          
+
           const xhr = new XMLHttpRequest();
           xhr.open('POST', apiLink);
           xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-      
+
           xhr.upload.onprogress = function(event) {
             if (event.lengthComputable) {
               const percentComplete = (event.loaded / event.total) * 100;
@@ -90,7 +90,7 @@
               uploadProgress.textContent = percentComplete.toFixed(2) + '%';
             }
           };
-          
+
           xhr.onload = function() {
             if (xhr.status === 201) {
               window.location.reload();
@@ -100,17 +100,17 @@
             }
             uploadModal.hide();
           };
-          
+
           xhr.onerror = function() {
             console.log('Fetch Error: ' + xhr.statusText);
             alert('Upload fehlgeschlagen. Bitte versuchen Sie es erneut.');
             uploadModal.hide();
           };
-          
+
           xhr.send(formdata);
           uploadModal.hide();
         }
-        
+
         function simulateUpload() {
           let progress = 0;
           const interval = setInterval(() => {
@@ -127,7 +127,7 @@
             }
           }, 1000);
         }
-        
+
         const deleteButtonConfim = document.getElementById('action-delete-modal-ok');
         deleteButtonConfim.addEventListener('click', e => {
           deleteObject('{{ associated_new.0.api }}/');
@@ -152,7 +152,7 @@
               console.log('Fetch error: ', error)
             });
         }
-  
+
         function getCookie(name) {
           let cookieValue = null;
           if (document.cookie && document.cookie !== '') {
@@ -168,7 +168,7 @@
           }
           return cookieValue;
         }
-        
+
         function getUUIDFromCurrentURL() {
           // Erhalte die aktuelle URL
           const url = window.location.href;
@@ -185,7 +185,7 @@
             return null;
           }
         }
-  
+
         function doAjaxSubmit(e) {
           var form = $(this);
           var btn = $(this.clk);
@@ -194,31 +194,31 @@
             form.data('method') ||
             form.attr('method') || 'GET'
           ).toUpperCase();
-  
+
           if (method === 'GET') {
             // GET requests can always use standard form submits.
             return;
           }
-  
+
           var contentType =
             form.find('input[data-override="content-type"]').val() ||
             form.find('select[data-override="content-type"] option:selected').text();
-  
+
           if (method === 'POST' && !contentType) {
             // POST requests can use standard form submits, unless we have
             // overridden the content type.
             return;
           }
-  
+
           // At this point we need to make an AJAX form submission.
           e.preventDefault();
-  
+
           var url = form.attr('action');
           var data;
-  
+
           if (contentType) {
             data = form.find('[data-override="content"]').val() || ''
-  
+
             if (contentType === 'multipart/form-data') {
               // We need to add a boundary parameter to the header
               // We assume the first valid-looking boundary line in the body is correct
@@ -235,13 +235,13 @@
             }
           } else {
             contentType = form.attr('enctype') || form.attr('encoding')
-  
+
             if (contentType === 'multipart/form-data') {
               if (!window.FormData) {
                 alert('Your browser does not support AJAX multipart form submissions');
                 return;
               }
-  
+
               // Use the FormData API and allow the content type to be set automatically,
               // so it includes the boundary string.
               // See https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
@@ -252,7 +252,7 @@
               data = form.serialize();
             }
           }
-  
+
           var ret = $.ajax({
             url: url,
             method: method,
@@ -263,17 +263,17 @@
               'Accept': 'text/html; q=1.0, */*'
             },
           });
-  
+
           ret.always(function(data, textStatus, jqXHR) {
             if (textStatus !== 'success') {
               jqXHR = data;
             }
-  
+
             var responseContentType = jqXHR.getResponseHeader("content-type") || "";
-  
+
             if (responseContentType.toLowerCase().indexOf('text/html') === 0) {
               replaceDocument(jqXHR.responseText);
-  
+
               try {
                 // Modify the location and scroll to top, as if after page load.
                 history.replaceState({}, '', url);
@@ -287,7 +287,7 @@
               window.location = url;
             }
           });
-  
+
           return ret;
         }
       </script>

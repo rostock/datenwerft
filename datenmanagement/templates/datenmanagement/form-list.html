@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block scripts %}
-	{{ block.super }}
+  {{ block.super }}
   <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
 {% endblock %}
 
@@ -12,7 +12,7 @@
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
 
   {% block alerts %}
-  	{{ block.super }}
+    {{ block.super }}
   {% endblock %}
 
   <form class="form flex-container-column" id="form" method="post" enctype="multipart/form-data" action="">
