@@ -13,7 +13,7 @@ from pathlib import Path
 from re import sub
 from zoneinfo import ZoneInfo
 
-from datenmanagement.utils import get_current_year, logger, path_and_rename
+from datenmanagement.utils import get_current_year, path_and_rename
 from datenwerft.celery import is_broker_available
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField

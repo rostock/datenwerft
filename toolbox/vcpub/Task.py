@@ -36,7 +36,6 @@ class Task:
       self.description = description
       self.__create__()
 
-
   def __create__(self):
     bucket = DataBucket(name=self.name, description=self.description)
     source = Datasource(name=self.name, description=self.description)

@@ -3,8 +3,6 @@ import laspy
 from django.apps import apps
 from uuid import UUID
 
-from laspy import LaspyException
-
 from datenwerft.celery import logger, app
 from toolbox.vcpub.DataBucket import DataBucket
 

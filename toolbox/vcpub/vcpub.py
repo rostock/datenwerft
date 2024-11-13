@@ -17,7 +17,7 @@ class VCPub:
     self.__auth: BearerAuth = self.__login__()
     self.__session: Session = Session()
     self.__session.auth = self.__auth
-    self.__data_path = '/vcs/data/public/' # im root System unter /nfs/daten/rostock3d/vcpublisher
+    self.__data_path = '/vcs/data/public/'  # im root System unter /nfs/daten/rostock3d/vcpublisher
     self.__epsg = '25833'
 
   def __del__(self):
@@ -74,7 +74,8 @@ class VCPub:
     """
     return self.__project_id
 
-  def post(self, endpoint:str, data:dict = None, json=None, files=None, *args, **kwargs) -> tuple[bool, dict|Response|None]:
+  def post(self, endpoint: str, data: dict = None, json=None, files=None,
+           *args, **kwargs) -> tuple[bool, dict | Response | None]:
     """
     Make a POST Request to the VC Publisher API.
 
@@ -103,7 +104,8 @@ class VCPub:
       response.reason = 'Bad Gateway. VCPub Object is not connected.'
       return False, response
 
-  def get(self, endpoint: str, headers=None, stream: bool=False, *args, **kwargs) -> tuple[bool, dict|Response|None]:
+  def get(self, endpoint: str, headers=None, stream: bool = False,
+          *args, **kwargs) -> tuple[bool, dict | Response | None]:
     """
     Make a GET Request to the VC Publisher API.
 
@@ -135,7 +137,7 @@ class VCPub:
       response.reason = 'Bad Gateway. VCPub Object is not connected.'
       return False, response
 
-  def delete(self, endpoint: str, headers=None) -> tuple[bool, dict|Response|None]:
+  def delete(self, endpoint: str, headers=None) -> tuple[bool, dict | Response | None]:
     """
     Make a DELETE Request to the VC Publisher API.
 

@@ -14,12 +14,13 @@ class DataBucket:
   description: str = ''
   properties: dict = {}
 
-
   def __init__(self,
                _id: str = None,
                name: str = str(uuid4()),
                description: str = '',
-               properties: dict = {}):
+               properties=None):
+    if properties is None:
+      properties = {}
     if _id:
       # get data bucket information for given id
       self._id = _id
@@ -48,7 +49,6 @@ class DataBucket:
       self.name = bucket['name']
       self.create_object(key='.keep')
 
-
   def __get_bucket__(self):
     """
     This method takes the data from an existing data bucket.
@@ -63,7 +63,7 @@ class DataBucket:
     else:
       print(f'Respone ok?: {ok}')
 
-  def create_object(self, key: str, type: str ='file'):
+  def create_object(self, key: str, type: str = 'file'):
     """
     create an empty bucket object
     :param key:
@@ -84,10 +84,11 @@ class DataBucket:
     delete Bucket
     :return:
     """
-    ok, response = self.__api.delete(endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}')
+    endpoint = f'/project/{self.__project_id}/data-bucket/{self._id}'
+    ok, response = self.__api.delete(endpoint=endpoint)
     return ok, response
 
-  def download_file(self, object_key: str, stream: bool=True):
+  def download_file(self, object_key: str, stream: bool = True):
     """
 
     :return:
@@ -95,18 +96,15 @@ class DataBucket:
     parameter = {
       "key": object_key
     }
-    #print(headers)
+    # print(headers)
     ok, response = self.__api.get(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/download-file',
-      #headers=headers,
+      # headers=headers,
       stream=stream,
       params=parameter
     )
     print(response.raw.__dict__)
     return ok, response
-
-
-
 
   def get_endpoint(self):
     """
@@ -166,12 +164,12 @@ class DataBucket:
     """
     key = list(file.keys())[0]
     if path:
-      key = Path(path).name # filename as key
+      key = Path(path).name  # filename as key
       file = {key: open(path, 'rb')}
     ok, response = self.__api.post(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/upload',
       files=file
-      #stream=True
+      # stream=True
       # celery job runs for every chunk with stream option
     )
     if not ok:
@@ -181,7 +179,7 @@ class DataBucket:
     return ok, key
 
   def delete_object(self, key):
-    params=f'?key={key}'
+    params = f'?key={key}'
     ok, response = self.__api.delete(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/object{params}',
     )
