@@ -55,7 +55,7 @@ class Datasource:
     self.description = source['description']
     self.typeProperties = source['typeProperties']
     self.sourceProperties = source['sourceProperties']
-    self.type = type
+    self.type = source['type']
 
   def link(self):
     """
