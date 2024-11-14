@@ -45,7 +45,7 @@ class VCPub:
         self.connected = True
       else:
         self.connected = False
-        self.logger.error(f'VCPub Login failed.')
+        self.logger.error('VCPub Login failed.')
     return BearerAuth(bearer)
 
   def __logout__(self) -> None:
