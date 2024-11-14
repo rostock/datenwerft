@@ -1,8 +1,11 @@
+import logging
 from datetime import date, datetime
 from django.conf import settings
 from locale import LC_ALL, format_string, setlocale
 from pathlib import Path
 from uuid import uuid4
+
+logger = logging.getLogger('datenmanagement')
 
 
 def get_current_year():

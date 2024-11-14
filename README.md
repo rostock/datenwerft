@@ -9,6 +9,7 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 * [*GDAL*](https://gdal.org/)
 * [*PostgreSQL*](https://www.postgresql.org/) mit der Erweiterung [*PostGIS*](https://postgis.net/)
 * [*npm*](https://www.npmjs.com/)
+* optional [*Redis*](https://redis.io/)
 * optional für App _Toolbox_ siehe [hier](toolbox/README.md)
 
 ## Installation
@@ -33,32 +34,34 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
 6.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Antragsmanagement* anlegen
 7.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *BEMAS* anlegen
 8.  leere *PostgreSQL*-Datenbank mit der Erweiterung *PostGIS* für die App *Datenmanagement* anlegen
+9.  Datenbankschema in Datenbank für die App *Datenmanagement* installieren (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
+
+        psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
 
 ## Konfiguration
 
-1.  Konfigurationsdatei `/usr/local/datenwerft/datenwerft/settings.py` entsprechend anpassen
-2.  weitere Konfigurationsdatei erstellen auf Basis der entsprechenden Vorlage:
+1.  Konfigurationsdatei auf Basis der entsprechenden Vorlage erstellen:
 
         cp /usr/local/datenwerft/datenwerft/secrets.template /usr/local/datenwerft/datenwerft/secrets.py
 
-3.  weitere Konfigurationsdatei `/usr/local/datenwerft/datenwerft/settings.py` 
-    entsprechend anpassen
+2.  Konfigurationsdatei `/usr/local/datenwerft/datenwerft/settings.py` entsprechend anpassen
+3.  Service-Datei für [*celery*](https://github.com/celery/celery) auf Basis der entsprechenden Vorlage erstellen:
+
+        cp /usr/local/datenwerft/datenwerft/celery.service.template /etc/systemd/system/celery.service
+ 
+4.  Service-Datei für *celery* entsprechend anpassen
 
 ## Initialisierung
 
-1.  Datenbankschema in Datenbank für die App *Datenmanagement* installieren (da keines der Datenmodelle in dieser App von *Django* verwaltet wird):
+1.  virtuelle *Python*-Umgebung aktivieren:
 
-        psql -h [Datenbankhost] -U [Datenbanknutzer] -d [Datenbankname] -f datenmanagement/sql/schema.sql
+        source /usr/local/datenwerft/venv/bin/activate
 
 2.  JavaScript-Module via *npm* installieren:
 
         npm install
 
-3.  virtuelle *Python*-Umgebung aktivieren:
-
-        source /usr/local/datenwerft/venv/bin/activate
-
-4.  Anwendung initialisieren:
+3.  Anwendung initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py migrate --database=antragsmanagement antragsmanagement
@@ -67,26 +70,29 @@ Web-Anwendung zur einfachen Erfassung von Geodaten, die auf [*Django*](https://w
         python manage.py antragsmanagement_roles_permissions
         python manage.py bemas_roles_permissions
 
-5.  Administrator initialisieren:
+4.  Administrator initialisieren:
 
         python manage.py createsuperuser
 
-6.  Dateien-Upload-Verzeichnis erstellen (und dessen Besitzer sowie Gruppe entsprechend des 
-    genutzten HTTP-Servers anpassen – siehe unten):
-
-        mkdir /usr/local/datenwerft/datenwerft/uploads
-        chown -R wwwrun:www /usr/local/datenwerft/datenwerft/uploads
-
-7.  Webseiten für Hilfe bauen:
+5.  Webseiten für Hilfe bauen:
 
         cd /usr/local/datenwerft/datenwerft/hilfe
-        mkdir source/_static
         make html
 
-8.  statische Dateien initialisieren:
+6.  statische Dateien initialisieren:
 
         cd /usr/local/datenwerft/datenwerft
         python manage.py collectstatic -c
+
+7.  Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des genutzten HTTP-Servers anpassen – siehe unten:
+
+        chown -R wwwrun:www /usr/local/datenwerft/datenwerft
+
+8.  *celery*-Worker-Service aktivieren und starten:
+
+        sudo systemctl daemon-reload
+        sudo systemctl start celery.service
+        sudo systemctl enable celery.service
 
 ## Deployment (am Beispiel des [*Apache HTTP Servers*](https://httpd.apache.org/))
 

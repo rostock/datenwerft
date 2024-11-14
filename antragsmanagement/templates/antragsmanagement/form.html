@@ -7,20 +7,20 @@
 {% block title %}{{ model_verbose_name }} – Formular | {% endblock %}
 
 {% block scripts %}
-  <!-- inherit from form.html --> 
-	{{ block.super }}
-  <!-- add scripts for antragsmanagement --> 
+  <!-- inherit from form.html -->
+  {{ block.super }}
+  <!-- add scripts for antragsmanagement -->
   <script src="{% static "js/form.js" %}"></script>
 {% endblock %}
 
 {% block errors %}
-	{% if form.errors %}
+  {% if form.errors %}
     {% include "antragsmanagement/container_errors.html" %}
   {% endif %}
 {% endblock %}
 
 {% block list %}
-	<div {% if is_geometry_model %}id="custom-form"{% endif %}>
+  <div {% if is_geometry_model %}id="custom-form"{% endif %}>
     <table class="table">
       {% for field in form %}
         {% if not field|is_field_geometry_field %}
@@ -39,4 +39,3 @@
     </table>
   </div>
 {% endblock %}
-  

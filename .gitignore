@@ -10,7 +10,10 @@ datenwerft/secrets.py
 hilfe/build
 toolbox/mkpdf/tmp_*
 static
-uploads
+logs/*
+!logs/.gitkeep
+uploads/*
+!uploads/.gitkeep
 
 # Node.js
 *package-lock*

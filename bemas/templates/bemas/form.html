@@ -5,13 +5,13 @@
 
 {% block style %}
   <!-- inherits from form.html -->
-	{{ block.super }}
+  {{ block.super }}
   <!-- bemas specific styles -->
 {% endblock %}
 
 {% block scripts %}
   <!-- inherits from form.html -->
-	{{ block.super }}
+  {{ block.super }}
   <!-- bemas specific scripts -->
 {% endblock %}
 
@@ -72,7 +72,7 @@
     </div>
 
     {% if objectclass_is_geometry_model %}
-    	</div>
+      </div>
       <div class="flex-item flex-container-column" id="flex-right">
         <div class="flex-item" id="flex-map">
           {% block map %}
@@ -285,7 +285,7 @@
   </script>
 
   {% if objectclass_is_geometry_model %}
-  	<script>
+    <script>
       // run orderFormItems on page load
       orderFormItems();
 

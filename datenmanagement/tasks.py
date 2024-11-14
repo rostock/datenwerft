@@ -1,14 +1,13 @@
 import laspy
 
-from celery import shared_task
 from django.apps import apps
 from uuid import UUID
 
-from datenwerft.celery import logger
+from datenwerft.celery import logger, app
 from toolbox.vcpub.DataBucket import DataBucket
 
 
-@shared_task
+@app.task(max_retries=2, default_retry_delay=20)
 def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   """
   Asynchronous sending of a pointcloud to the VCPub API.
@@ -18,7 +17,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
   :param filename: filename as data bucket key
   :return:
   """
-  logger.info('Run Task send_pointcloud_to_vcpub')
+  logger.debug('Run Task send_pointcloud_to_vcpub')
   bucket = DataBucket(_id=str(dataset))
   with open(path, 'rb') as f:
     if filename:
@@ -39,7 +38,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
       logger.error('Pointcloud upload to VCPub failed. Try again later.')
 
 
-@shared_task
+@app.task
 def update_model(model_name, pk, attributes: dict):
   """
   Asynchronous updating of a model instance
@@ -75,7 +74,7 @@ def update_model(model_name, pk, attributes: dict):
     logger.error(f'Update of Model {model_name} with pk {pk} failed: {str(e)}')
 
 
-@shared_task
+@app.task
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
   """
   Asynchronous calculation of 2D bounding box for pointcloud using laspy
@@ -84,23 +83,26 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
   :return: 2d bounding box in WKT format
   """
   logger.info('Run Task calculate_2d_bounding_box_for_pointcloud')
-  with laspy.open(path) as las_file:
-    las = las_file.read()
+  try:
+    with laspy.open(path) as las_file:
+      las = las_file.read()
 
-    # extract x- and y-coordinates
-    x_coords = las.x
-    y_coords = las.y
+      # extract x- and y-coordinates
+      x_coords = las.x
+      y_coords = las.y
 
-    # get min/max values for x and y
-    mn_x, mx_x = x_coords.min(), x_coords.max()
-    mn_y, mx_y = y_coords.min(), y_coords.max()
+      # get min/max values for x and y
+      mn_x, mx_x = x_coords.min(), x_coords.max()
+      mn_y, mx_y = y_coords.min(), y_coords.max()
 
-    # create bounding box
-    wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
+      # create bounding box
+      wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
 
-    # update model
-    update_model(
-      model_name='Punktwolken',
-      pk=pk,
-      attributes={'geometrie': wkt}
-    )
+      # update model
+      update_model(
+        model_name='Punktwolken',
+        pk=pk,
+        attributes={'geometrie': wkt}
+      )
+  except Exception as e:
+    logger.warning(f'Failed to calculate 2D bounding box for pointcloud with pk {pk}: {e}')

@@ -6,33 +6,33 @@
 
 {% block style %}
   <!-- inherits from form.html -->
-	{{ block.super }}
+  {{ block.super }}
   <!-- bemas specific styles -->
 {% endblock %}
 
 {% block scripts %}
   <!-- inherits from form.html -->
-	{{ block.super }}
+  {{ block.super }}
   <!-- bemas specific scripts -->
   <script src="{% static 'bemas/js/form.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-	{% if is_bemas_admin %}
-		{{ block.super }}
+  {% if is_bemas_admin %}
+    {{ block.super }}
   {% else %}
     {% include "bemas/notice-norights.html" %}
-	{% endif %} 
+  {% endif %}
 {% endblock %}
 
 {% block errors %}
-	{% if form.errors %}
+  {% if form.errors %}
     {% include "bemas/container-errors.html" %}
   {% endif %}
 {% endblock %}
 
 {% block headline %}
-	<i class="fas fa-{{ 'codelist'|get_icon }}"></i> <em>{{ codelist_verbose_name }}</em>
+  <i class="fas fa-{{ 'codelist'|get_icon }}"></i> <em>{{ codelist_verbose_name }}</em>
 {% endblock %}
 
 {% block form-control-buttons %}

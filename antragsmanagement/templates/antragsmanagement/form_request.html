@@ -6,7 +6,7 @@
 {% block content %}
   {% if not user.is_authenticated or user.is_authenticated and has_necessary_permissions %}
     {% block errors %}
-    	{{ block.super }}
+      {{ block.super }}
     {% endblock %}
     {% if corresponding_requester or authorative %}
       <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>

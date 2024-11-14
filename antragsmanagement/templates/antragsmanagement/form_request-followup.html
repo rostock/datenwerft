@@ -34,7 +34,7 @@
       {% if messages %}
         {% include "antragsmanagement/container_messages.html" %}
       {% endif %}
-    	{{ block.super }}
+      {{ block.super }}
     {% endblock %}
     {% if corresponding_request or authorative %}
       <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}</h2>

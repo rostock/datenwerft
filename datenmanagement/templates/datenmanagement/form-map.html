@@ -31,12 +31,12 @@
   <h2>{{ model_verbose_name_plural }} - Formular</h2>
 
   {% block alerts %}
-  	{{ block.super }}
+    {{ block.super }}
   {% endblock %}
 
-	<form class="form mt-4 flex-container-row" id="form" method="post" enctype="multipart/form-data" action="">
+  <form class="form mt-4 flex-container-row" id="form" method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
-    	<div class="flex-item flex-container-column" id="flex-left">
+      <div class="flex-item flex-container-column" id="flex-left">
         <div class="flex-item" id="flex-list">
 
           {% block list %}
@@ -46,10 +46,10 @@
         </div>
         <div class="flex-item" id="flex-action-buttons">
           {% block form-action-buttons %}
-          	{{ block.super }}
+            {{ block.super }}
           {% endblock %}
         </div>
-    	</div>
+      </div>
       <div class="flex-item flex-container-column" id="flex-right">
         <div class="flex-item" id="flex-map">
 
@@ -879,7 +879,7 @@
           /**
            * This function adapts the form components to the forced mobile view.
            */
-        	function orderFormItems() {
+          function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
             const map = document.getElementById('flex-map');
@@ -905,7 +905,7 @@
            * On small screens, it arranges the items in a single column.
            * On larger screens, it arranges the items in two columns.
            */
-        	function orderFormItems() {
+          function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
             const map = document.getElementById('flex-map');
@@ -940,6 +940,6 @@
       </script>
   </form>
   {% block pc_management %}
-  	
+
   {% endblock %}
 {% endblock %}

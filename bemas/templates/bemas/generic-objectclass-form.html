@@ -36,15 +36,15 @@
 {% endblock %}
 
 {% block content %}
-  
+
   {% if is_bemas_user %}
-    
+
     {{ block.super }}
     {% include "modal-error.html" %}
   {% else %}
     {% include "bemas/notice-norights.html" %}
   {% endif %}
-  
+
 {% endblock %}
 
 {% block headline %}
@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block errors %}
-  
+
   {% if objectclass_logentry_url %}
     <a href="{{ objectclass_logentry_url }}"><i class="fas fa-{{ 'logentry'|get_icon }}"></i> Einträge im Bearbeitungsverlauf anzeigen</a>
   {% endif %}
@@ -61,8 +61,8 @@
   {% elif objectclass_name == 'Complaint' and object %}
     {% include "bemas/container-events.html" %}
   {% endif %}
-  
-	{% if form.errors %}
+
+  {% if form.errors %}
     {% include "bemas/container-errors.html" %}
   {% endif %}
   {% if messages %}
@@ -71,12 +71,12 @@
 {% endblock %}
 
 {% block list %}
-	<input type="hidden" name="original_referer" value="{{ objectclass_cancel_url }}">
+  <input type="hidden" name="original_referer" value="{{ objectclass_cancel_url }}">
   {{ block.super }}
 {% endblock %}
 
 {% block map %}
-	{% if objectclass_is_geometry_model %}
+  {% if objectclass_is_geometry_model %}
     <div id="map-addresssearch-container-form">
       <label hidden for="id_{{ objectclass_geometry_field }}" class="form-label">Geometrie</label>
       {% if geometry %}
@@ -90,7 +90,7 @@
 {% endblock %}
 
 {% block address-search %}
-	<div class="d-grid mt-3 gap-2">
+  <div class="d-grid mt-3 gap-2">
     <button disabled id="addressToMap" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address_to_map'|get_icon }}"></i> Marker auf aktuelle Adresse setzen</button>
     <button disabled id="mapToAddress" class="btn btn-primary" type="button"><i class="fas fa-{{ 'address'|get_icon }}"></i> Adresse aus Karte übernehmen</button>
   </div>
@@ -105,7 +105,7 @@
 {% endblock %}
 
 {% block form-control-buttons %}
-  
+
   {% if not is_mobile %}
     <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> {% if object %}Änderungen{% else %}{{ objectclass_new }} {{ objectclass_verbose_name }}{% endif %} speichern</button>
     {% if object %}
@@ -113,7 +113,7 @@
     {% endif %}
     <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
   {% endif %}
-  
+
   {% if is_mobile %}
     <button class="btn btn-success" type="submit" onclick="setFinalArrayFields(); setFinalGeometry('#id_{{ objectclass_geometry_field }}');"><i class="fas fa-{{ 'save'|get_icon }}"></i> speichern</button>
     {% if object %}
@@ -121,5 +121,5 @@
     {% endif %}
     <a class="btn btn-warning" role="button" href="{{ objectclass_cancel_url }}"><i class="fas fa-{{ 'cancel'|get_icon }}"></i> abbrechen</a>
   {% endif %}
-  
+
 {% endblock %}
