@@ -1,31 +1,7 @@
 from django.conf import settings
 from django.core.files import File
 from django.test import override_settings
-from datenmanagement.models import Adressen, Adressunsicherheiten, Adressunsicherheiten_Fotos, \
-  Arten_Adressunsicherheiten, Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, \
-  Arten_Wege, Auftraggeber_Baustellen, Baugrunduntersuchungen, Baugrunduntersuchungen_Dokumente, \
-  Baugrunduntersuchungen_Baugrundbohrungen, Baustellen_Fotodokumentation_Baustellen, \
-  Baustellen_Fotodokumentation_Fotos, Baustellen_geplant, Baustellen_geplant_Dokumente, \
-  Baustellen_geplant_Links, Besonderheiten_Freizeitsport, Besonderheiten_Spielplaetze, \
-  Bodenarten_Freizeitsport, Bodenarten_Spielplaetze, Durchlaesse_Durchlaesse, Durchlaesse_Fotos, \
-  E_Anschluesse_Parkscheinautomaten, Ergebnisse_UVP_Vorpruefungen, \
-  Fallwildsuchen_Kontrollgebiete, Fallwildsuchen_Nachweise, \
-  Feuerwehrzufahrten_Feuerwehrzufahrten, Feuerwehrzufahrten_Schilder, \
-  Fotomotive_Haltestellenkataster, Freizeitsport, Freizeitsportarten, Freizeitsport_Fotos, \
-  Geh_Radwegereinigung, Geh_Radwegereinigung_Flaechen, Gemeindeteile, \
-  Genehmigungsbehoerden_UVP_Vorhaben, Haltestellenkataster_Fotos, \
-  Haltestellenkataster_Haltestellen, Kabeltypen_Lichtwellenleiterinfrastruktur, \
-  Kategorien_Strassen, Labore_Baugrunduntersuchungen, Lichtwellenleiterinfrastruktur, \
-  Lichtwellenleiterinfrastruktur_Abschnitte, Masttypen_RSAG, \
-  Objektarten_Lichtwellenleiterinfrastruktur, Parkscheinautomaten_Tarife, \
-  Parkscheinautomaten_Parkscheinautomaten, Rechtsgrundlagen_UVP_Vorhaben, RSAG_Gleise, \
-  RSAG_Leitungen, RSAG_Masten, RSAG_Quertraeger, RSAG_Spanndraehte, Sparten_Baustellen, \
-  Spielgeraete, Spielplaetze, Spielplaetze_Fotos, Status_Baustellen_Fotodokumentation_Fotos, \
-  Status_Baustellen_geplant, Strassenreinigung, Strassenreinigung_Flaechen, Strassen_Simple, \
-  Strassen_Simple_Historie, Strassen_Simple_Namensanalyse, Tierseuchen, \
-  Typen_Feuerwehrzufahrten_Schilder, Typen_UVP_Vorhaben, UVP_Vorhaben, UVP_Vorpruefungen, \
-  Verkehrliche_Lagen_Baustellen, Verkehrsmittelklassen, Vorgangsarten_UVP_Vorhaben, \
-  Zeiteinheiten, Zonen_Parkscheinautomaten
+from datenmanagement.models import *
 
 from .base import DefaultComplexModelTestCase, GenericRSAGTestCase
 from .constants_vars import *
@@ -6090,6 +6066,61 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
       'application/json',
       str(self.test_object.pk)
     )
+
+  class PunktwolkenTest(DefaultComplexModelTestCase):
+    def setUp(self):
+      self.punktwolken_projekt = Punktwolken_Projekte.objects.create(
+        bezeichnung='Test-Projekt',
+        beschreibung='Beschreibung des Test-Projekts'
+      )
+      self.punktwolke = Punktwolken.objects.create(
+        projekt=self.punktwolken_projekt,
+        dateiname='punktewolke.txt',
+        aufnahme='2022-01-01 12:00:00',
+        punktwolke='path/to/punktwolke.txt',
+        vc_update='2022-01-01 12:00:00',
+        vcp_object_key='vcp_object_key',
+        geometrie='POLYGON((1 1, 2 2, 3 3, 1 1))'
+      )
+
+    def test_punktwolke_creation(self):
+      self.assertEqual(self.punktwolke.projekt, self.punktwolken_projekt)
+      self.assertEqual(self.punktwolke.dateiname, 'punktewolke.txt')
+      self.assertEqual(self.punktwolke.aufnahme, '2022-01-01 12:00:00')
+      self.assertEqual(self.punktwolke.punktwolke, 'path/to/punktwolke.txt')
+      self.assertEqual(self.punktwolke.vc_update, '2022-01-01 12:00:00')
+      self.assertEqual(self.punktwolke.vcp_object_key, 'vcp_object_key')
+      self.assertEqual(self.punktwolke.geometrie, 'POLYGON((1 1, 2 2, 3 3, 1 1))')
+
+    def test_punktwolke_update(self):
+      self.punktwolke.dateiname = 'neuer_dateiname.txt'
+      self.punktwolke.save()
+      self.assertEqual(self.punktwolke.dateiname, 'neuer_dateiname.txt')
+
+    def test_punktwolke_deletion(self):
+      self.punktwolke.delete()
+      self.assertEqual(Punktwolken.objects.count(), 0)
+
+
+class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
+  def setUp(self):
+    self.punktwolken_projekt = Punktwolken_Projekte.objects.create(
+      bezeichnung='Test-Projekt',
+      beschreibung='Beschreibung des Test-Projekts'
+    )
+
+  def test_punktwolken_projekt_creation(self):
+    self.assertEqual(self.punktwolken_projekt.bezeichnung, 'Test-Projekt')
+    self.assertEqual(self.punktwolken_projekt.beschreibung, 'Beschreibung des Test-Projekts')
+
+  def test_punktwolken_projekt_update(self):
+    self.punktwolken_projekt.bezeichnung = 'Neuer Titel'
+    self.punktwolken_projekt.save()
+    self.assertEqual(self.punktwolken_projekt.bezeichnung, 'Neuer Titel')
+
+  def test_punktwolken_projekt_deletion(self):
+    self.punktwolken_projekt.delete()
+    self.assertEqual(Punktwolken_Projekte.objects.count(), 0)
 
 
 #
