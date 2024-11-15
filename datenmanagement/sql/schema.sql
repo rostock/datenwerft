@@ -115,7 +115,7 @@ CREATE FUNCTION fachdaten.foto() RETURNS trigger
     AS $$
 BEGIN
    IF NEW.foto = '' THEN
-      NEW.foto := NULL;
+      NEW.foto := NULL; 
    END IF;
    RETURN NEW;
 END;
@@ -748,6 +748,18 @@ CREATE TABLE codelisten.befestigungsarten_warteflaeche_haltestellenkataster (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     befestigungsart character varying(255) NOT NULL
+);
+
+
+--
+-- Name: beleuchtungsarten; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.beleuchtungsarten (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -3949,6 +3961,28 @@ CREATE TABLE fachdaten_strassenbezug.baustellen_geplant (
 
 
 --
+-- Name: fussgaengerueberwege_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.fussgaengerueberwege_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    breite numeric(3,2) NOT NULL,
+    laenge numeric(4,2) NOT NULL,
+    barrierefrei boolean NOT NULL,
+    beleuchtungsart uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: geh_und_radwegereinigung_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -4597,6 +4631,22 @@ ALTER TABLE ONLY codelisten.befestigungsarten_warteflaeche_haltestellenkataster
 
 ALTER TABLE ONLY codelisten.befestigungsarten_warteflaeche_haltestellenkataster
     ADD CONSTRAINT befestigungsarten_warteflaeche_haltestellenkataster_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: beleuchtungsarten beleuchtungsarten_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.beleuchtungsarten
+    ADD CONSTRAINT beleuchtungsarten_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: beleuchtungsarten beleuchtungsarten_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.beleuchtungsarten
+    ADD CONSTRAINT beleuchtungsarten_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6680,6 +6730,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
 
 
 --
+-- Name: fussgaengerueberwege_hro fussgaengerueberwege_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fussgaengerueberwege_hro
+    ADD CONSTRAINT fussgaengerueberwege_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: fussgaengerueberwege_hro fussgaengerueberwege_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fussgaengerueberwege_hro
+    ADD CONSTRAINT fussgaengerueberwege_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: geh_und_radwegereinigung_hro geh_und_radwegereinigung_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -6920,6 +6986,13 @@ CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_stras
 --
 
 CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_strassenbezug.strassenreinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_strassenbezug.gemeindeteil();
+
+
+--
+-- Name: fussgaengerueberwege_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.fussgaengerueberwege_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
 
 
 --
@@ -8026,6 +8099,14 @@ ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
 
 ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
     ADD CONSTRAINT baustellen_geplant_status_fk FOREIGN KEY (status) REFERENCES codelisten.status_baustellen_geplant(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fussgaengerueberwege_hro fussgaengerueberwege_hro_beleuchtungsarten_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fussgaengerueberwege_hro
+    ADD CONSTRAINT fussgaengerueberwege_hro_beleuchtungsarten_fk FOREIGN KEY (beleuchtungsart) REFERENCES codelisten.beleuchtungsarten(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
