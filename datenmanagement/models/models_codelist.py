@@ -1,21 +1,13 @@
 from decimal import Decimal
-from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, \
-  RegexValidator
+from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator
 from django.db.models.fields import BooleanField, CharField, DateField, DecimalField
 
-from toolbox.constants_vars import personennamen_validators, standard_validators, email_message, \
-  hausnummer_regex, hausnummer_message, postleitzahl_regex, postleitzahl_message, \
-  rufnummer_regex, rufnummer_message
+from toolbox.constants_vars import *
 from toolbox.utils import concat_address
 from .base import Metamodel, Codelist, Art, Ausfuehrung, Befestigungsart, Material, Schlagwort, \
   Status, Typ
-from .constants_vars import bevollmaechtigte_bezirksschornsteinfeger_bezirk_regex, \
-  bevollmaechtigte_bezirksschornsteinfeger_bezirk_message, fahrbahnwinterdienst_code_regex, \
-  fahrbahnwinterdienst_code_message, haefen_abkuerzung_regex, haefen_abkuerzung_message, \
-  linien_linie_regex, linien_linie_message, parkscheinautomaten_zone_regex, \
-  parkscheinautomaten_zone_message, quartiere_code_regex, quartiere_code_message
-from .fields import PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
-  multipolygon_field
+from .constants_vars import *
+from .fields import *
 
 
 #
@@ -788,6 +780,34 @@ class Befestigungsarten_Warteflaeche_Haltestellenkataster(Befestigungsart):
 
   class BasemodelMeta(Befestigungsart.BasemodelMeta):
     description = 'Befestigungsarten der Wartefläche innerhalb eines Haltestellenkatasters'
+
+
+class Beleuchtungsarten(Codelist):
+  """
+  Beleuchtungsarten
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"beleuchtungsarten'
+    ordering = ['bezeichnung']
+    verbose_name = 'Beleuchtungsart'
+    verbose_name_plural = 'Beleuchtungsarten'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Beleuchtungsarten'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Besonderheiten_Freizeitsport(Codelist):

@@ -131,6 +131,9 @@
       {% if user|user_has_model_change_permission:model_name_lower %}
         window.userHasModelChangePermission = true
       {% endif %}
+      {% if readonly_fields_default_values %}
+        window.readOnlyFieldsDefaulValues = {{ readonly_fields_default_values|safe }};
+      {% endif %}
 
       // if a group of users is set that should be used for the contact person/processor field in a corresponding selection list...
       {% if group_with_users_for_choice_field %}

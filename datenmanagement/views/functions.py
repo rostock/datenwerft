@@ -67,6 +67,14 @@ def add_model_form_context_elements(context, model):
       'MAX_ZOOM': 21
     }
   context['readonly_fields'] = model.BasemodelMeta.readonly_fields
+  if model.BasemodelMeta.readonly_fields:
+    readonly_fields_default_values = {}
+    for readonly_field in model.BasemodelMeta.readonly_fields:
+      default_value = model._meta.get_field(readonly_field).get_default()
+      if default_value is not None:
+        readonly_fields_default_values[readonly_field] = default_value
+    if readonly_fields_default_values:
+      context['readonly_fields_default_values'] = readonly_fields_default_values
   context['choices_models_for_choices_fields'] = (
     model.BasemodelMeta.choices_models_for_choices_fields)
   context['group_with_users_for_choice_field'] = (
