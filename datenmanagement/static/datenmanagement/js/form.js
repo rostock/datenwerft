@@ -100,6 +100,12 @@ function cleanField(field, i, id, name) {
  * clones the entire data set as a new data set
  */
 function cloneObject(url) {
+  // reset read-only fields to their defaults
+  if (window.readOnlyFieldsDefaulValues) {
+    for (let key in window.readOnlyFieldsDefaulValues) {
+      $('form input#id_' + key).val(window.readOnlyFieldsDefaulValues[key]);
+    }
+  }
   $('form').attr('action', url);
 }
 

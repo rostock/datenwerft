@@ -133,11 +133,7 @@ class DataAddView(CreateView):
       self.request.session['object_just_created'] = str(object_just_created)
       self.request.session['object_just_created_pk'] = str(object_just_created.pk)
       self.request.session['original_url_back'] = form.data.get('original_url_back', None)
-    success(
-      self.request,
-      'Der neue Datensatz <strong><em>%s</em></strong> '
-      'wurde erfolgreich angelegt!' % str(object_just_created)
-    )
+    success(self.request, 'neuer Datensatz erfolgreich angelegt')
     response = super().form_valid(form)
     return response
 
@@ -385,8 +381,7 @@ class DataChangeView(UpdateView):
     )
     success(
       self.request,
-      'Der Datensatz <strong><em>%s</em></strong> '
-      'wurde erfolgreich geändert!' % str(form.instance)
+      'Datensatz <strong><em>%s</em></strong> erfolgreich geändert' % str(form.instance)
     )
     response = super().form_valid(form)
     return response
@@ -485,8 +480,7 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     )
     success(
       self.request,
-      'Der Datensatz <strong><em>%s</em></strong> '
-      'wurde erfolgreich gelöscht!' % str(self.object)
+      'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht' % str(self.object)
     )
     response = super().form_valid(form)
     return response
