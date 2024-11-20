@@ -70,6 +70,7 @@ class Basemodel(Model):
     :ivar map_feature_tooltip_fields:
     :ivar map_one_click_filters:
     :ivar map_deadlinefilter_fields:
+    :ivar map_deadlineyearfilter_fields:
     :ivar map_intervalfilter_fields:
     :ivar map_filter_fields:
     :ivar map_filter_fields_as_list:
@@ -202,6 +203,11 @@ class Basemodel(Model):
     # which shall appear as a deadline map filter in the map view of this model
     # (always processed in pairs!)
     map_deadlinefilter_fields: list[str] = None
+
+    # names of exactly two fields of this model
+    # which shall appear as a deadline year map filter in the map view of this model
+    # (always processed in pairs!)
+    map_deadlineyearfilter_fields: list[str] = None
 
     # names of those fields of this model (as keys)
     # which shall appear as interval map filters in the map view of this model
