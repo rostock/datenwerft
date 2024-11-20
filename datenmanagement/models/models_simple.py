@@ -616,7 +616,9 @@ class Baudenkmale(SimpleModel):
     blank=True,
     null=True
   )
-  gartendenkmal = BooleanField(' Gartendenkmal?')
+  gartendenkmal = BooleanField(
+    verbose_name='Gartendenkmal?'
+  )
   hinweise = NullTextField(
     verbose_name='Hinweise',
     max_length=500,
@@ -1300,7 +1302,9 @@ class Containerstellplaetze(SimpleModel):
     unique=True,
     default='00-00'
   )
-  privat = BooleanField(' privat?')
+  privat = BooleanField(
+    verbose_name=' privat?'
+  )
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -2395,7 +2399,9 @@ class Fussgaengerueberwege(SimpleModel):
       )
     ]
   )
-  barrierefrei = BooleanField(' barrierefrei?')
+  barrierefrei = BooleanField(
+    verbose_name=' barrierefrei?'
+  )
   beleuchtungsart = ForeignKey(
     to=Beleuchtungsarten,
     verbose_name='Beleuchtungsart',
@@ -2403,6 +2409,25 @@ class Fussgaengerueberwege(SimpleModel):
     db_column='beleuchtungsart',
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_betriebsarten'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr',
+    min_value=1900,
+    max_value=get_current_year(),
+    blank=True,
+    null=True
+  )
+  kreisverkehr = BooleanField(
+    verbose_name='Kreisverkehr?',
+    blank=True,
+    null=True
   )
   geometrie = point_field
 
@@ -2425,7 +2450,10 @@ class Fussgaengerueberwege(SimpleModel):
       'breite': 'Breite (in m)',
       'laenge': 'Länge (in m)',
       'barrierefrei': 'barrierefrei?',
-      'beleuchtungsart': 'Beleuchtungsart'
+      'beleuchtungsart': 'Beleuchtungsart',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'kreisverkehr': 'Kreisverkehr?'
     }
     list_fields_with_decimal = ['breite', 'laenge']
     list_fields_with_foreign_key = {
@@ -2454,7 +2482,10 @@ class Fussgaengerueberwege(SimpleModel):
       'breite': 'Breite (in m)',
       'laenge': 'Länge (in m)',
       'barrierefrei': 'barrierefrei?',
-      'beleuchtungsart': 'Beleuchtungsart'
+      'beleuchtungsart': 'Beleuchtungsart',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'kreisverkehr': 'Kreisverkehr?'
     }
     map_filter_fields_as_list = ['strasse', 'beleuchtungsart']
 
@@ -3038,7 +3069,9 @@ class Hydranten(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bewirtschafter'
   )
-  feuerloeschgeeignet = BooleanField(' feuerlöschgeeignet?')
+  feuerloeschgeeignet = BooleanField(
+    verbose_name=' feuerlöschgeeignet?'
+  )
   betriebszeit = ForeignKey(
     to=Betriebszeiten,
     verbose_name='Betriebszeit',
@@ -4038,7 +4071,9 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     blank=True,
     null=True
   )
-  geplant = BooleanField(' geplant?')
+  geplant = BooleanField(
+    verbose_name=' geplant?'
+  )
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -6426,9 +6461,15 @@ class Toiletten(SimpleModel):
     blank=True,
     null=True
   )
-  behindertengerecht = BooleanField(' behindertengerecht?')
-  duschmoeglichkeit = BooleanField('Duschmöglichkeit vorhanden?')
-  wickelmoeglichkeit = BooleanField('Wickelmöglichkeit vorhanden?')
+  behindertengerecht = BooleanField(
+    verbose_name=' behindertengerecht?'
+  )
+  duschmoeglichkeit = BooleanField(
+    verbose_name='Duschmöglichkeit vorhanden?'
+  )
+  wickelmoeglichkeit = BooleanField(
+    verbose_name='Wickelmöglichkeit vorhanden?'
+  )
   zeiten = CharField(
     verbose_name='Öffnungszeiten',
     max_length=255,
@@ -6521,7 +6562,9 @@ class Trinkwassernotbrunnen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_betreiber'
   )
-  betriebsbereit = BooleanField(' betriebsbereit?')
+  betriebsbereit = BooleanField(
+    verbose_name=' betriebsbereit?'
+  )
   bohrtiefe = DecimalField(
     verbose_name='Bohrtiefe (in m)',
     max_digits=4,

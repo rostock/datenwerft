@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.8
+-- Dumped from database version 15.9
 -- Dumped by pg_dump version 16.4
 
 SET statement_timeout = 0;
@@ -3978,7 +3978,10 @@ CREATE TABLE fachdaten_strassenbezug.fussgaengerueberwege_hro (
     laenge numeric(4,2) NOT NULL,
     barrierefrei boolean NOT NULL,
     beleuchtungsart uuid NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    lagebeschreibung character varying(255),
+    baujahr smallint,
+    kreisverkehr boolean
 );
 
 
