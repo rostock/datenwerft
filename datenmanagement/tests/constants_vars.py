@@ -14,6 +14,7 @@ from django.utils import timezone
 # definition of needed constants from secrets.py
 TEST_DIR = Path(__file__).resolve().parent
 TEST_MEDIA_DIR = TEST_DIR / 'temp'
+TEST_PC_MEDIA_DIR = TEST_DIR / 'temp/punktwolken'
 TEST_CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 TEST_CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 TEST_VCP_API_URL = ''
