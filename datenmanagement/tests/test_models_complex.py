@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.files import File
 from django.test import override_settings
 
@@ -5272,7 +5271,12 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'application/json', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'application/json',
+      MAP_VIEW_STRING
     )
 
 
