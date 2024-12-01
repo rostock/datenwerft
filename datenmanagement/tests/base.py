@@ -1,12 +1,14 @@
+from json import loads
+
 from django.contrib.auth.models import Permission, User
 from django.contrib.messages import storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
-from json import loads
 
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
 from datenmanagement.views import DataAddView, DataChangeView, DataDeleteView
+
 from .constants_vars import *
 from .functions import clean_object_filter, create_test_subset, get_object, load_sql_schema
 
@@ -129,10 +131,7 @@ class DefaultModelTestCase(DefaultTestCase):
       Permission.objects.get(codename='delete_' + model._meta.model_name)
     )
     # log test user in
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.client.login(username=USERNAME, password=PASSWORD)
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(self, model, view_name, url_params, status_code, content_type, string):
@@ -153,10 +152,9 @@ class DefaultModelTestCase(DefaultTestCase):
     if view_name.endswith('_subset'):
       subset_id = url_params['subset_id']
       url_params.pop('subset_id')
-      response = self.client.get(reverse(
-        'datenmanagement:' + view_name,
-        args=[subset_id]
-      ), url_params)
+      response = self.client.get(
+        reverse('datenmanagement:' + view_name, args=[subset_id]), url_params
+      )
     else:
       response = self.client.get(reverse('datenmanagement:' + view_name), url_params)
     # status code of response as expected?
@@ -171,10 +169,19 @@ class DefaultModelTestCase(DefaultTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   @override_settings(MESSAGE_STORAGE='django.contrib.messages.storage.cookie.CookieStorage')
-  def generic_add_update_view_test(self, update_mode, model, object_filter,
-                                   status_code, content_type, object_count,
-                                   file=None, file_attribute=None, file_content_type=None,
-                                   multiple_files=False):
+  def generic_add_update_view_test(
+    self,
+    update_mode,
+    model,
+    object_filter,
+    status_code,
+    content_type,
+    object_count,
+    file=None,
+    file_attribute=None,
+    file_content_type=None,
+    multiple_files=False,
+  ):
     """
     tests a view for creating or updating an object via POST
 
@@ -196,8 +203,7 @@ class DefaultModelTestCase(DefaultTestCase):
     factory = RequestFactory()
     if update_mode:
       url = reverse(
-        'datenmanagement:' + self.model.__name__ + '_change',
-        args=[model.objects.last().pk]
+        'datenmanagement:' + self.model.__name__ + '_change', args=[model.objects.last().pk]
       )
     else:
       url = reverse('datenmanagement:' + self.model.__name__ + '_add')
@@ -212,16 +218,13 @@ class DefaultModelTestCase(DefaultTestCase):
           data[file_attribute] = [
             SimpleUploadedFile(file.name, f1.read(), file_content_type),
             SimpleUploadedFile(file.name, f2.read(), file_content_type),
-            SimpleUploadedFile(file.name, f3.read(), file_content_type)
+            SimpleUploadedFile(file.name, f3.read(), file_content_type),
           ]
       else:
         with open(file, 'rb') as f:
           file_upload = SimpleUploadedFile(file.name, f.read(), file_content_type)
           data[file_attribute] = file_upload
-    request = factory.post(
-      url,
-      data=data
-    )
+    request = factory.post(url, data=data)
     request.user = self.test_user
     request._messages = storage.default_storage(request)
     if model.BasemodelMeta.geometry_type is None:
@@ -230,15 +233,11 @@ class DefaultModelTestCase(DefaultTestCase):
       template_name = 'datenmanagement/form-map.html'
     # try POSTing the view
     if update_mode:
-      response = DataChangeView.as_view(
-        model=model,
-        template_name=template_name
-      )(request, pk=model.objects.last().pk)
+      response = DataChangeView.as_view(model=model, template_name=template_name)(
+        request, pk=model.objects.last().pk
+      )
     else:
-      response = DataAddView.as_view(
-        model=model,
-        template_name=template_name
-      )(request)
+      response = DataAddView.as_view(model=model, template_name=template_name)(request)
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?
@@ -289,25 +288,20 @@ class DefaultModelTestCase(DefaultTestCase):
     if immediately:
       response = self.client.get(
         reverse(
-          'datenmanagement:' + self.model.__name__ + '_deleteimmediately',
-          args=[deletion_object.pk]
+          'datenmanagement:' + self.model.__name__ + '_deleteimmediately', args=[deletion_object.pk]
         )
       )
     else:
       factory = RequestFactory()
       request = factory.post(
-        reverse(
-          'datenmanagement:' + self.model.__name__ + '_delete',
-          args=[deletion_object.pk]
-        )
+        reverse('datenmanagement:' + self.model.__name__ + '_delete', args=[deletion_object.pk])
       )
       request.user = self.test_user
       request._messages = storage.default_storage(request)
       template_name = 'datenmanagement/delete.html'
-      response = DataDeleteView.as_view(
-        model=model,
-        template_name=template_name
-      )(request, pk=deletion_object.pk)
+      response = DataDeleteView.as_view(model=model, template_name=template_name)(
+        request, pk=deletion_object.pk
+      )
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
     # content type of response as expected?
@@ -316,8 +310,17 @@ class DefaultModelTestCase(DefaultTestCase):
     self.assertEqual(model.objects.filter(**object_filter).count(), 0)
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
-  def generic_assign_view_test(self, model, target_object_filter, updated_object_filter,
-                               field, value, status_code, content_type, object_count):
+  def generic_assign_view_test(
+    self,
+    model,
+    target_object_filter,
+    updated_object_filter,
+    field,
+    value,
+    status_code,
+    content_type,
+    object_count,
+  ):
     """
     tests a view for assigning a specific value to a specific field of an object via GET
 
@@ -339,9 +342,11 @@ class DefaultModelTestCase(DefaultTestCase):
     # prepare the GET
     target_object = get_object(model, target_object_filter)
     response = self.client.get(
-      reverse(
-        'datenmanagement:' + self.model.__name__ + '_assign', args=[target_object.pk]
-      ) + '?field=' + field + '&value=' + value
+      reverse('datenmanagement:' + self.model.__name__ + '_assign', args=[target_object.pk])
+      + '?field='
+      + field
+      + '&value='
+      + value
     )
     # status code of response as expected?
     self.assertEqual(response.status_code, status_code)
@@ -431,26 +436,19 @@ class GenericRSAGTestCase(DefaultComplexModelTestCase):
   generic test class for complex RSAG data models
   """
 
-  attributes_values_db_initial = {
-    'quelle': 'Quelle1',
-    'geometrie': VALID_LINE_DB
-  }
-  attributes_values_db_updated = {
-    'quelle': 'Quelle2'
-  }
+  attributes_values_db_initial = {'quelle': 'Quelle1', 'geometrie': VALID_LINE_DB}
+  attributes_values_db_updated = {'quelle': 'Quelle2'}
   attributes_values_view_initial = {
     'aktiv': True,
     'quelle': 'Quelle3',
-    'geometrie': VALID_LINE_VIEW
+    'geometrie': VALID_LINE_VIEW,
   }
   attributes_values_view_updated = {
     'aktiv': True,
     'quelle': 'Quelle4',
-    'geometrie': VALID_LINE_VIEW
+    'geometrie': VALID_LINE_VIEW,
   }
-  attributes_values_view_invalid = {
-    'quelle': INVALID_STRING
-  }
+  attributes_values_view_invalid = {'quelle': INVALID_STRING}
 
   def init(self):
     super().init()
@@ -479,17 +477,11 @@ class GISFiletoGeoJSONTestCase(DefaultTestCase):
     :param string: specific string that should be contained in response
     """
     # log test user in
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.client.login(username=USERNAME, password=PASSWORD)
     # try POSTing the view
     with open(file, 'rb') as file_data:
       response = self.client.post(
-        reverse('datenmanagement:gisfiletogeojson'),
-        data={
-          file_parameter: file_data
-        }
+        reverse('datenmanagement:gisfiletogeojson'), data={file_parameter: file_data}
       )
     # if test is executed without a valid FME Server token
     # (for example based on secrets.template)...

@@ -5122,6 +5122,12 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
     )
 
 
+@override_settings(
+  MEDIA_ROOT=TEST_MEDIA_ROOT,
+  VCP_API_URL=TEST_VCP_API_URL,
+  CELERY_BROKER_URL=TEST_CELERY_BROKER_URL,
+  CELERY_RESULT_BACKEND=TEST_CELERY_RESULT_BACKEND,
+)
 class PunktwolkenTest(DefaultComplexModelTestCase):
   """
   Punktwolken Projekte:
@@ -5129,76 +5135,56 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
   """
 
   model = Punktwolken
+  create_test_object_in_classmethod = False
+  create_test_sebset_in_classmethod = False
 
-  def sefUpTestData(self):
-    cls.punktwolken_projekt = Punktwolken_Projekte.objects.create(
+  @classmethod
+  def sefUpTestData(cls):
+    super().setUpTestData()
+    pointcloud = File(open(VALID_POINTCLOUD_FILE, 'rb'))
+    punktwolken_projekt = Punktwolken_Projekte.objects.create(
       bezeichnung='Test-Projekt', beschreibung='Beschreibung des Test-Projekts'
     )
+
     cls.attributes_values_db_initial = {
-      'projekt': self.punktwolken_projekt,
+      'projekt': punktwolken_projekt.pk,
       'dateiname': 'las_valid.las',
       'aufnahme': '2022-01-01 12:00:00',
-      'punktwolke': 'data/las_valid.las',
-      'vc_update': '2022-01-01 12:00:00',
-      'vcp_object_key': 'vcp_object_key',
+      'punktwolke': pointcloud,
       'geometrie': VALID_POLYGON_DB,
     }
     cls.attributes_values_db_updated = {
       'dateiname': 'neuer_dateiname.txt',
     }
-    cls.attributes_values_view_initial = {
-      'aktiv': True,
-      'projekt': str(self.punktwolken_projekt.pk),
-      'dateiname': 'punktewolke.txt',
-      'aufnahme': '2022-01-01 12:00:00',
-      'punktwolke': 'path/to/punktwolke.txt',
-      'vc_update': '2022-01-01 12:00:00',
-      'vcp_object_key': 'vcp_object_key',
-      'geometrie': VALID_POLYGON_VIEW,
-    }
-    cls.attributes_values_view_updated = {
-      'aktiv': True,
-      'projekt': str(self.punktwolken_projekt.pk),
-      'dateiname': 'neuer_dateiname.txt',
-      'geometrie': VALID_POLYGON_VIEW,
-    }
-    cls.attributes_values_view_invalid = {'dateiname': INVALID_STRING}
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
   def setUp(self):
-    self.punktwolken_projekt = Punktwolken_Projekte.objects.create(
-      bezeichnung='Test-Projekt', beschreibung='Beschreibung des Test-Projekts'
-    )
-    self.punktwolke = Punktwolken.objects.create(
-      projekt=self.punktwolken_projekt,
-      dateiname='punktewolke.txt',
-      aufnahme='2022-01-01 12:00:00',
-      punktwolke='path/to/punktwolke.txt',
-      vc_update='2022-01-01 12:00:00',
-      vcp_object_key='vcp_object_key',
-      geometrie='POLYGON((1 1, 2 2, 3 3, 1 1))',
-    )
+    self.init()
 
-  def test_punktwolke_creation(self):
-    self.assertEqual(self.punktwolke.projekt, self.punktwolken_projekt)
-    self.assertEqual(self.punktwolke.dateiname, 'punktewolke.txt')
-    self.assertEqual(self.punktwolke.aufnahme, '2022-01-01 12:00:00')
-    self.assertEqual(self.punktwolke.punktwolke, 'path/to/punktwolke.txt')
-    self.assertEqual(self.punktwolke.vc_update, '2022-01-01 12:00:00')
-    self.assertEqual(self.punktwolke.vcp_object_key, 'vcp_object_key')
-    self.assertEqual(self.punktwolke.geometrie, 'POLYGON((1 1, 2 2, 3 3, 1 1))')
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test()
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
-  def test_punktwolke_update(self):
-    self.punktwolke.dateiname = 'neuer_dateiname.txt'
-    self.punktwolke.save()
-    self.assertEqual(self.punktwolke.dateiname, 'neuer_dateiname.txt')
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
-  def test_punktwolke_deletion(self):
-    self.punktwolke.delete()
-    self.assertEqual(Punktwolken.objects.count(), 0)
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
 
+@override_settings(
+  MEDIA_ROOT=TEST_MEDIA_ROOT,
+  VCP_API_URL=TEST_VCP_API_URL,
+  CELERY_BROKER_URL=TEST_CELERY_BROKER_URL,
+  CELERY_RESULT_BACKEND=TEST_CELERY_RESULT_BACKEND,
+)
 class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
   """
   Punktwolken Projekte:
@@ -5216,7 +5202,7 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
       'bezeichnung': 'Test-Projekt',
       'beschreibung': 'Beschreibung des Test-Projekts',
     }
-    cls.attributes_values_db_update = {
+    cls.attributes_values_db_updated = {
       'bezeichnung': 'Test-Projekt2',
       'beschreibung': 'Neue Beschreibung',
     }
@@ -5224,7 +5210,7 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
       'bezeichnung': 'Test-Projekt3',
       'beschreibung': 'Beschreibung des Test-Projekts',
     }
-    cls.attributes_values_view_update = {
+    cls.attributes_values_view_updated = {
       'bezeichnung': 'Test-Projekt4',
       'beschreibung': 'Neue Beschreibung',
     }
@@ -5232,18 +5218,62 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
   def setUp(self):
     self.init(self)
 
-  def test_punktwolken_projekt_creation(self):
-    self.assertEqual(self.punktwolken_projekt.bezeichnung, 'Test-Projekt')
-    self.assertEqual(self.punktwolken_projekt.beschreibung, 'Beschreibung des Test-Projekts')
+  def test_is_complexmodel(self):
+    self.generic_is_complexmodel_test()
 
-  def test_punktwolken_projekt_update(self):
-    self.punktwolken_projekt.bezeichnung = 'Neuer Titel'
-    self.punktwolken_projekt.save()
-    self.assertEqual(self.punktwolken_projekt.bezeichnung, 'Neuer Titel')
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
 
-  def test_punktwolken_projekt_deletion(self):
-    self.punktwolken_projekt.delete()
-    self.assertEqual(Punktwolken_Projekte.objects.count(), 0)
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING,
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING,
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk),
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model, self.model.__name__ + '_map', {}, 200, 'application/json', MAP_VIEW_STRING
+    )
 
 
 #
