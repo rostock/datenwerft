@@ -133,7 +133,12 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -168,27 +173,51 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -205,7 +234,11 @@ class AdressunsicherheitenTest(DefaultComplexModelTestCase):
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -375,7 +408,12 @@ class AdressunsicherheitenFotosTest(DefaultComplexModelTestCase):
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -410,13 +448,22 @@ class AdressunsicherheitenFotosTest(DefaultComplexModelTestCase):
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial_cleaned, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      302,
+      'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -1091,7 +1138,12 @@ class BaustellenFotodokumentationBaustellenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -1585,7 +1637,12 @@ class BaustellenGeplantTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -2109,7 +2166,12 @@ class DurchlaesseDurchlaesseTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -2395,7 +2457,11 @@ class DurchlaesseFotosTest(DefaultComplexModelTestCase):
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial_cleaned, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      302,
+      'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -2529,7 +2595,12 @@ class FallwildsuchenKontrollgebieteTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -2995,7 +3066,12 @@ class FeuerwehrzufahrtenSchilderTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -3210,7 +3286,12 @@ class FreizeitsportTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -3630,7 +3711,12 @@ class GehRadwegereinigungTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -3835,7 +3921,12 @@ class GehRadwegereinigungFlaechenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -4046,7 +4137,12 @@ class HaltestellenkatasterHaltestellenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -4613,7 +4709,12 @@ class LichtwellenleiterinfrastrukturTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -5027,7 +5128,12 @@ class ParkscheinautomatenParkscheinautomatenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -5362,7 +5468,12 @@ class RSAGGleiseTest(GenericRSAGTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -5561,7 +5672,12 @@ class RSAGMastenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -5737,7 +5853,12 @@ class RSAGLeitungenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -5939,7 +6060,11 @@ class RSAGQuertraegerTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8', MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -6110,7 +6235,12 @@ class RSAGSpanndraehteTest(GenericRSAGTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -6150,27 +6280,50 @@ class RSAGSpanndraehteTest(GenericRSAGTestCase):
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -6325,7 +6478,12 @@ class SpielplaetzeTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -6360,32 +6518,60 @@ class SpielplaetzeTest(DefaultComplexModelTestCase):
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
     )
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -6556,7 +6742,12 @@ class SpielplaetzeFotosTest(DefaultComplexModelTestCase):
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6591,13 +6782,22 @@ class SpielplaetzeFotosTest(DefaultComplexModelTestCase):
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial_cleaned, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      302,
+      'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6616,7 +6816,11 @@ class SpielplaetzeFotosTest(DefaultComplexModelTestCase):
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial_cleaned, 204, 'text/html; charset=utf-8'
+      True,
+      self.model,
+      self.attributes_values_db_initial_cleaned,
+      204,
+      'text/html; charset=utf-8'
     )
     remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
 
@@ -6741,7 +6945,12 @@ class StrassenSimpleTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -6776,27 +6985,51 @@ class StrassenSimpleTest(DefaultComplexModelTestCase):
 
   def test_view_add_success(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_initial, 302, 'text/html; charset=utf-8', 1
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_add_error(self):
     self.generic_add_update_view_test(
-      False, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_change_success(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_updated, 302, 'text/html; charset=utf-8', 1
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
     )
 
   def test_view_change_error(self):
     self.generic_add_update_view_test(
-      True, self.model, self.attributes_values_view_invalid, 200, 'text/html; charset=utf-8', 0
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
     )
 
   def test_view_delete(self):
     self.generic_delete_view_test(
-      False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
     )
 
   def test_view_assign(self):
@@ -6813,7 +7046,11 @@ class StrassenSimpleTest(DefaultComplexModelTestCase):
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
     )
 
   def test_view_geometry(self):
@@ -7238,7 +7475,12 @@ class StrassenreinigungTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -7442,7 +7684,12 @@ class StrassenreinigungFlaechenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -7971,5 +8218,9 @@ class UVPVorpruefungenTest(DefaultComplexModelTestCase):
 
   def test_view_deleteimmediately(self):
     self.generic_delete_view_test(
-      True, self.model, self.attributes_values_db_initial, 204, 'text/html; charset=utf-8'
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
     )
