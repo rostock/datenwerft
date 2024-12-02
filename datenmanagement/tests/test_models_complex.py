@@ -904,7 +904,12 @@ class BaugrunduntersuchungenBaugrundbohrungenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):
@@ -7106,7 +7111,10 @@ class StrassenSimpleHistorieTest(DefaultComplexModelTestCase):
       schluessel='12345',
       geometrie=VALID_MULTILINE_DB,
     )
-    cls.attributes_values_db_initial = {'strasse_simple': strasse_simple, 'beschluss': 'Beschluss1'}
+    cls.attributes_values_db_initial = {
+      'strasse_simple': strasse_simple,
+      'beschluss': 'Beschluss1'
+    }
     cls.attributes_values_db_updated = {'beschluss': 'Beschluss2'}
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -7912,7 +7920,12 @@ class UVPVorhabenTest(DefaultComplexModelTestCase):
 
   def test_view_map(self):
     self.generic_view_test(
-      self.model, self.model.__name__ + '_map', {}, 200, 'text/html; charset=utf-8', MAP_VIEW_STRING
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
     )
 
   def test_view_map_subset(self):

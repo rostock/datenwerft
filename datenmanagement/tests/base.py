@@ -288,7 +288,8 @@ class DefaultModelTestCase(DefaultTestCase):
     if immediately:
       response = self.client.get(
         reverse(
-          'datenmanagement:' + self.model.__name__ + '_deleteimmediately', args=[deletion_object.pk]
+          'datenmanagement:' + self.model.__name__ +
+          '_deleteimmediately', args=[deletion_object.pk]
         )
       )
     else:
