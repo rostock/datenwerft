@@ -19,5 +19,10 @@ uploads/*
 *package-lock*
 node_modules
 
-# PyCharm
+# Editors
+.vscode/
 .idea/
+.zed/
+
+# Virtual Environments
+venv/
