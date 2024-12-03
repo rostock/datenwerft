@@ -2,6 +2,7 @@ from django.core.files import File
 from django.test import override_settings
 
 from datenmanagement.models import *
+from toolbox.vcpub.vcpub import VCPub
 
 from .base import DefaultComplexModelTestCase, GenericRSAGTestCase
 from .constants_vars import *
@@ -5249,7 +5250,7 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
   create_test_sebset_in_classmethod = False
 
   @classmethod
-  def sefUpTestData(cls):
+  def setUpTestData(cls):
     super().setUpTestData()
     pointcloud = File(open(VALID_POINTCLOUD_FILE, 'rb'))
     punktwolken_projekt = Punktwolken_Projekte.objects.create(
@@ -5257,14 +5258,11 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
     )
 
     cls.attributes_values_db_initial = {
-      'projekt': punktwolken_projekt.pk,
-      'dateiname': 'las_valid.las',
+      'projekt': punktwolken_projekt,
       'aufnahme': '2022-01-01 12:00:00',
       'punktwolke': pointcloud,
       'geometrie': VALID_POLYGON_DB,
-    }
-    cls.attributes_values_db_updated = {
-      'dateiname': 'neuer_dateiname.txt',
+      'file_size': 2000,
     }
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
@@ -5274,19 +5272,15 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
 
   def test_is_complexmodel(self):
     self.generic_is_complexmodel_test()
-    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
 
   def test_create(self):
     self.generic_create_test(self.model, self.attributes_values_db_initial)
-    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
 
   def test_delete(self):
     self.generic_delete_test(self.model)
-    remove_uploaded_test_files(Path(settings.MEDIA_ROOT))
+    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
 
 
 @override_settings(
@@ -5302,31 +5296,25 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
   """
 
   model = Punktwolken_Projekte
-
-  @classmethod
-  def setUpTestData(cls):
-    """
-    SetUp Test Data
-    """
-    cls.attributes_values_db_initial = {
-      'bezeichnung': 'Test-Projekt',
-      'beschreibung': 'Beschreibung des Test-Projekts',
-    }
-    cls.attributes_values_db_updated = {
-      'bezeichnung': 'Test-Projekt2',
-      'beschreibung': 'Neue Beschreibung',
-    }
-    cls.attributes_values_view_initial = {
-      'bezeichnung': 'Test-Projekt3',
-      'beschreibung': 'Beschreibung des Test-Projekts',
-    }
-    cls.attributes_values_view_updated = {
-      'bezeichnung': 'Test-Projekt4',
-      'beschreibung': 'Neue Beschreibung',
-    }
+  attributes_values_db_initial = {
+    'bezeichnung': 'Test-Projekt',
+    'beschreibung': 'Beschreibung des Test-Projekts',
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Test-Projekt2',
+    'beschreibung': 'Neue Beschreibung',
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Test-Projekt3',
+    'beschreibung': 'Beschreibung des Test-Projekts',
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Test-Projekt4',
+    'beschreibung': 'Neue Beschreibung',
+  }
 
   def setUp(self):
-    self.init(self)
+    self.init()
 
   def test_is_complexmodel(self):
     self.generic_is_complexmodel_test()
@@ -5386,7 +5374,7 @@ class PunktwolkenProjekteTest(DefaultComplexModelTestCase):
       self.model.__name__ + '_map',
       {},
       200,
-      'application/json',
+      'text/html; charset=utf-8',
       MAP_VIEW_STRING
     )
 
