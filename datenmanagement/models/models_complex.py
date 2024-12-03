@@ -13,7 +13,7 @@ from pathlib import Path
 from re import sub
 from zoneinfo import ZoneInfo
 
-from datenmanagement.utils import get_current_year, path_and_rename
+from datenmanagement.utils import get_current_year, logger, path_and_rename
 from datenwerft.celery import is_broker_available
 from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
@@ -3166,13 +3166,18 @@ class Punktwolken_Projekte(ComplexModel):
     return self.bezeichnung
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
+    print('API: ', settings.VCP_API_URL)
     if not self.vcp_task_id:
+      try:
       # create Task
-      print('=====  CREATE TASK  =====')
-      task = Task(name=self.bezeichnung, description=self.beschreibung)
-      self.vcp_task_id = task.get_id()
-      self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
-      self.vcp_datasource_id = task.get_datasource()['datasourceId']
+        print('=====  CREATING TASK  =====')
+        task = Task(name=self.bezeichnung, description=self.beschreibung)
+        self.vcp_task_id = task.get_id()
+        self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
+        self.vcp_datasource_id = task.get_datasource()['datasourceId']
+      except Exception as e:
+        logger.error(f'Creating Task failed: {e}')
+
     for element in Punktwolken.objects.filter(projekt=self):
       element.save()
     super().save(
