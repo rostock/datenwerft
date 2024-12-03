@@ -1,6 +1,6 @@
 import logging
 
-from datenwerft import settings
+from django.conf import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
 
