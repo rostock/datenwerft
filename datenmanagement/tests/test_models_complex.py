@@ -5252,18 +5252,22 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
-    pointcloud = File(open(VALID_POINTCLOUD_FILE, 'rb'))
     punktwolken_projekt = Punktwolken_Projekte.objects.create(
       bezeichnung='Test-Projekt', beschreibung='Beschreibung des Test-Projekts'
     )
 
+    cls._punktwolke_file = open(VALID_POINTCLOUD_FILE, 'rb')
+    punktwolke = File(cls._punktwolke_file)
+
     cls.attributes_values_db_initial = {
       'projekt': punktwolken_projekt,
       'aufnahme': '2022-01-01 12:00:00',
-      'punktwolke': pointcloud,
+      'dateiname': 'las_valid.las',
+      'punktwolke': punktwolke,
       'geometrie': VALID_POLYGON_DB,
       'file_size': 2000,
     }
+
     cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
     cls.test_subset = create_test_subset(cls.model, cls.test_object)
 
@@ -5275,12 +5279,42 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
     remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
 
   def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-    remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+    """
+    Spezieller Create-Test für Punktwolken, der das File-Objekt gesondert behandelt
+    """
+    initial_count = self.model.objects.count()
+
+    try:
+      # Neues Objekt mit File erstellen
+      with open(VALID_POINTCLOUD_FILE, 'rb') as f:
+        test_data = self.attributes_values_db_initial.copy()
+        test_data['punktwolke'] = File(f)
+        test_data['dateiname'] = 'test2.las'
+        new_object = self.model.objects.create(**test_data)
+
+      # Prüfungen
+      self.assertEqual(self.model.objects.count(), initial_count + 1)
+      self.assertEqual(new_object.projekt, self.attributes_values_db_initial['projekt'])
+      self.assertEqual(new_object.geometrie, self.attributes_values_db_initial['geometrie'])
+      self.assertEqual(new_object.file_size, self.attributes_values_db_initial['file_size'])
+      self.assertTrue(new_object.punktwolke)  # Prüfen ob File vorhanden
+      self.assertEqual(new_object.pk, new_object.uuid)  # UUID-Test
+
+    finally:
+      # Aufräumen
+      remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+
 
   def test_delete(self):
     self.generic_delete_test(self.model)
     remove_uploaded_test_files(Path(settings.PC_MEDIA_ROOT))
+
+  @classmethod
+  def tearDownClass(cls):
+    # File am Ende der Tests schließen
+    if hasattr(cls, '_punktwolke_file'):
+      cls._punktwolke_file.close()
+    super().tearDownClass()
 
 
 @override_settings(

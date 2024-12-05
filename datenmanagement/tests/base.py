@@ -9,7 +9,8 @@ from django.urls import reverse
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
 from datenmanagement.views import DataAddView, DataChangeView, DataDeleteView
 
-from .constants_vars import *
+from .constants_vars import DATABASES, USERNAME, PASSWORD, VALID_LINE_DB, VALID_LINE_VIEW, \
+  INVALID_STRING
 from .functions import clean_object_filter, create_test_subset, get_object, load_sql_schema
 
 
