@@ -25,10 +25,11 @@
           </thead>
           <tbody>
           {% for associated_object in associated_objects %}
-            <tr>
+            <tr class="data">
               <td>{{ forloop.counter }}</td>
               <td><a href="{{ associated_object.file }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} herunterladen"><i class="fa-solid fa-download"></i> {{ associated_object.name }}</a></td>
               <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
+              <td class="hidden">{{ associated_object.geometry }}</td>
             </tr>
           {% endfor %}
 
@@ -55,9 +56,11 @@
         </div>
       </div>
       <script>
-        const uploadButton = document.getElementById('pointCloudUploadButton');
-        const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-        const uploadProgress = document.getElementById('uploadProgress');
+        const uploadButton = document.getElementById("pointCloudUploadButton");
+        const uploadModal = new bootstrap.Modal(
+          document.getElementById("uploadModal"),
+        );
+        const uploadProgress = document.getElementById("uploadProgress");
 
         async function addObject(apiLink) {
           console.log(apiLink);
@@ -65,45 +68,49 @@
           uploadModal.show();
           simulateUpload();
 
-          const file = document.getElementById('id_punktwolke').files[0];
+          const file = document.getElementById("id_punktwolke").files[0];
           if (!file) {
             uploadModal.hide();
-            alert('Bitte wählen Sie eine Datei aus.');
+            alert("Bitte wählen Sie eine Datei aus.");
             return;
           }
           const formdata = new FormData();
-          formdata.append('aktiv', false);
-          formdata.append('dateiname', file.name);
-          formdata.append(name='punktwolke', blobValue=file, filename=file.name);
-          formdata.append('projekt', '{{ api }}');
-          formdata.append('aufnahme', file.lastModified/1000);
+          formdata.append("aktiv", false);
+          formdata.append("dateiname", file.name);
+          formdata.append(
+            (name = "punktwolke"),
+            (blobValue = file),
+            (filename = file.name),
+          );
+          formdata.append("projekt", "{{ api }}");
+          formdata.append("aufnahme", file.lastModified / 1000);
 
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', apiLink);
-          xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+          xhr.open("POST", apiLink);
+          xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
 
-          xhr.upload.onprogress = function(event) {
+          xhr.upload.onprogress = function (event) {
             if (event.lengthComputable) {
               const percentComplete = (event.loaded / event.total) * 100;
-              uploadProgress.style.width = percentComplete + '%';
-              uploadProgress.setAttribute('aria-valuenow', percentComplete);
-              uploadProgress.textContent = percentComplete.toFixed(2) + '%';
+              uploadProgress.style.width = percentComplete + "%";
+              uploadProgress.setAttribute("aria-valuenow", percentComplete);
+              uploadProgress.textContent = percentComplete.toFixed(2) + "%";
             }
           };
 
-          xhr.onload = function() {
+          xhr.onload = function () {
             if (xhr.status === 201) {
               window.location.reload();
             } else {
               console.log(xhr.status);
-              alert('Upload fehlgeschlagen. Status: ' + xhr.status);
+              alert("Upload fehlgeschlagen. Status: " + xhr.status);
             }
             uploadModal.hide();
           };
 
-          xhr.onerror = function() {
-            console.log('Fetch Error: ' + xhr.statusText);
-            alert('Upload fehlgeschlagen. Bitte versuchen Sie es erneut.');
+          xhr.onerror = function () {
+            console.log("Fetch Error: " + xhr.statusText);
+            alert("Upload fehlgeschlagen. Bitte versuchen Sie es erneut.");
             uploadModal.hide();
           };
 
@@ -115,8 +122,8 @@
           let progress = 0;
           const interval = setInterval(() => {
             progress += 5;
-            uploadProgress.style.width = progress + '%';
-            uploadProgress.setAttribute('aria-valuenow', progress);
+            uploadProgress.style.width = progress + "%";
+            uploadProgress.setAttribute("aria-valuenow", progress);
 
             if (progress >= 100) {
               clearInterval(interval);
@@ -128,39 +135,41 @@
           }, 1000);
         }
 
-        const deleteButtonConfim = document.getElementById('action-delete-modal-ok');
-        deleteButtonConfim.addEventListener('click', e => {
-          deleteObject('{{ associated_new.0.api }}/');
+        const deleteButtonConfim = document.getElementById(
+          "action-delete-modal-ok",
+        );
+        deleteButtonConfim.addEventListener("click", (e) => {
+          deleteObject("{{ associated_new.0.api }}/");
         });
         async function deleteObject(apiLink) {
           let options = {
-            method: 'DELETE',
+            method: "DELETE",
             headers: {
-              'X-CSRFToken': getCookie('csrftoken')
-            }
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
           };
           let response = await fetch(apiLink, options)
-            .then(response => {
+            .then((response) => {
               if (!response.ok) {
-                return response.json().then(errorData => {
-                  throw new Error('Fetch error: ' + errorData.message);
-                })
+                return response.json().then((errorData) => {
+                  throw new Error("Fetch error: " + errorData.message);
+                });
               }
               window.location.reload();
             })
-            .catch(error => {
-              console.log('Fetch error: ', error)
+            .catch((error) => {
+              console.log("Fetch error: ", error);
             });
         }
 
         function getCookie(name) {
           let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-            let cookies = document.cookie.split(';');
+          if (document.cookie && document.cookie !== "") {
+            let cookies = document.cookie.split(";");
             for (let i = 0; i < cookies.length; i++) {
               let cookie = $.trim(cookies[i]);
               // Does this cookie string begin with the name we want?
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              if (cookie.substring(0, name.length + 1) === name + "=") {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
               }
@@ -190,21 +199,24 @@
           var form = $(this);
           var btn = $(this.clk);
           var method = (
-            btn.data('method') ||
-            form.data('method') ||
-            form.attr('method') || 'GET'
+            btn.data("method") ||
+            form.data("method") ||
+            form.attr("method") ||
+            "GET"
           ).toUpperCase();
 
-          if (method === 'GET') {
+          if (method === "GET") {
             // GET requests can always use standard form submits.
             return;
           }
 
           var contentType =
             form.find('input[data-override="content-type"]').val() ||
-            form.find('select[data-override="content-type"] option:selected').text();
+            form
+              .find('select[data-override="content-type"] option:selected')
+              .text();
 
-          if (method === 'POST' && !contentType) {
+          if (method === "POST" && !contentType) {
             // POST requests can use standard form submits, unless we have
             // overridden the content type.
             return;
@@ -213,32 +225,41 @@
           // At this point we need to make an AJAX form submission.
           e.preventDefault();
 
-          var url = form.attr('action');
+          var url = form.attr("action");
           var data;
 
           if (contentType) {
-            data = form.find('[data-override="content"]').val() || ''
+            data = form.find('[data-override="content"]').val() || "";
 
-            if (contentType === 'multipart/form-data') {
+            if (contentType === "multipart/form-data") {
               // We need to add a boundary parameter to the header
               // We assume the first valid-looking boundary line in the body is correct
               // regex is from RFC 2046 appendix A
               var boundaryCharNoSpace = "0-9A-Z'()+_,-./:=?";
-              var boundaryChar = boundaryCharNoSpace + ' ';
-              var re = new RegExp('^--([' + boundaryChar + ']{0,69}[' + boundaryCharNoSpace + '])[\\s]*?$', 'im');
+              var boundaryChar = boundaryCharNoSpace + " ";
+              var re = new RegExp(
+                "^--([" +
+                  boundaryChar +
+                  "]{0,69}[" +
+                  boundaryCharNoSpace +
+                  "])[\\s]*?$",
+                "im",
+              );
               var boundary = data.match(re);
               if (boundary !== null) {
                 contentType += '; boundary="' + boundary[1] + '"';
               }
               // Fix textarea.value EOL normalisation (multipart/form-data should use CR+NL, not NL)
-              data = data.replace(/\n/g, '\r\n');
+              data = data.replace(/\n/g, "\r\n");
             }
           } else {
-            contentType = form.attr('enctype') || form.attr('encoding')
+            contentType = form.attr("enctype") || form.attr("encoding");
 
-            if (contentType === 'multipart/form-data') {
+            if (contentType === "multipart/form-data") {
               if (!window.FormData) {
-                alert('Your browser does not support AJAX multipart form submissions');
+                alert(
+                  "Your browser does not support AJAX multipart form submissions",
+                );
                 return;
               }
 
@@ -248,7 +269,7 @@
               contentType = false;
               data = new FormData(form[0]);
             } else {
-              contentType = 'application/x-www-form-urlencoded; charset=UTF-8'
+              contentType = "application/x-www-form-urlencoded; charset=UTF-8";
               data = form.serialize();
             }
           }
@@ -260,23 +281,23 @@
             contentType: contentType,
             processData: false,
             headers: {
-              'Accept': 'text/html; q=1.0, */*'
+              Accept: "text/html; q=1.0, */*",
             },
           });
 
-          ret.always(function(data, textStatus, jqXHR) {
-            if (textStatus !== 'success') {
+          ret.always(function (data, textStatus, jqXHR) {
+            if (textStatus !== "success") {
               jqXHR = data;
             }
 
             var responseContentType = jqXHR.getResponseHeader("content-type") || "";
 
-            if (responseContentType.toLowerCase().indexOf('text/html') === 0) {
+            if (responseContentType.toLowerCase().indexOf("text/html") === 0) {
               replaceDocument(jqXHR.responseText);
 
               try {
                 // Modify the location and scroll to top, as if after page load.
-                history.replaceState({}, '', url);
+                history.replaceState({}, "", url);
                 scroll(0, 0);
               } catch (err) {
                 // History API not supported, so redirect.
@@ -290,6 +311,54 @@
 
           return ret;
         }
+
+
+        function addEventListenersToPointClouds() {
+          // get all table rows with point clouds
+          const dataRows = document.querySelectorAll(".data");
+          window.pcFeatures = [];
+          row_counter = 0;
+
+          // iterate over all rows and add event listeners if geometry is available
+          dataRows.forEach((row) => {
+            // get hidden cell with geometry
+            const geometryCell = row.querySelector(".hidden");
+            // if geometry is available, create Feature and save it to window.pcFeatures
+            if (geometryCell) {
+              // create Feature und save it to window.pcFeatures
+              let geometry = JSON.parse(geometryCell.textContent);
+              window.pcFeatures.push(L.geoJSON(geometry));
+              row.setAttribute("counter", row_counter);
+
+              // add Event-Listener to row, which highlights the corresponding Feature on the map
+              row.addEventListener("mouseover", () => {
+                // add Feature to map
+                feature = window.pcFeatures[row.getAttribute("counter")];
+                if (currMap._layers[row.getAttribute("counter")] === undefined) {
+                  feature.addTo(window.currMap);
+                }
+              });
+
+              // add Event-Listener to row, which removes the corresponding Feature from the map
+              row.addEventListener("mouseout", () => {
+                // remove Feature from map
+                currMap.removeLayer(window.pcFeatures[row.getAttribute("counter")]);
+              });
+
+              row_counter++;
+            }
+          });
+        }
+
+        // draw a given feature on the map, if it's not already drawn
+        function drawGeometryOnMap(feature) {
+          if (currMap._layers[feature._leaflet_id] === undefined) {
+            feature.addTo(window.currMap);
+          }
+        }
+
+        // add Event-Listener to PointClouds, which can highlight the corresponding Feature on the map
+        addEventListenersToPointClouds();
       </script>
     </form>
   {% endif %}
