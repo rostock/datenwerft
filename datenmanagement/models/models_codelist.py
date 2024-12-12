@@ -725,6 +725,20 @@ class Auftraggeber_Baustellen(Codelist):
     return self.auftraggeber
 
 
+class Ausfuehrungen_Fahrradreparatursets(Ausfuehrung):
+  """
+  Ausführungen von Fahrradreparatursets
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten\".\"ausfuehrungen_fahrradreparatursets'
+    verbose_name = 'Ausführung eines Fahrradreparatursets'
+    verbose_name_plural = 'Ausführungen von Fahrradreparatursets'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Fahrradreparatursets'
+
+
 class Ausfuehrungen_Haltestellenkataster(Ausfuehrung):
   """
   Ausführungen innerhalb eines Haltestellenkatasters
