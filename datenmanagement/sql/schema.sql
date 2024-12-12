@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.9
--- Dumped by pg_dump version 16.4
+-- Dumped from database version 15.10
+-- Dumped by pg_dump version 16.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -700,6 +700,18 @@ CREATE TABLE codelisten.auftraggeber_baustellen (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     auftraggeber character varying(255) NOT NULL
+);
+
+
+--
+-- Name: ausfuehrungen_fahrradreparatursets; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_fahrradreparatursets (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
 );
 
 
@@ -3961,6 +3973,28 @@ CREATE TABLE fachdaten_strassenbezug.baustellen_geplant (
 
 
 --
+-- Name: fahrradreparatursets_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.fahrradreparatursets_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    ausfuehrung uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    baujahr smallint,
+    eigentuemer uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: fussgaengerueberwege_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -4570,6 +4604,22 @@ ALTER TABLE ONLY codelisten.auftraggeber_baustellen
 
 ALTER TABLE ONLY codelisten.auftraggeber_baustellen
     ADD CONSTRAINT auftraggeber_baustellen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: ausfuehrungen_fahrradreparatursets ausfuehrungen_fahrradreparatursets_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradreparatursets
+    ADD CONSTRAINT ausfuehrungen_fahrradreparatursets_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_fahrradreparatursets ausfuehrungen_fahrradreparatursets_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradreparatursets
+    ADD CONSTRAINT ausfuehrungen_fahrradreparatursets_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6733,6 +6783,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
 
 
 --
+-- Name: fahrradreparatursets_hro fahrradreparatursets_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
+    ADD CONSTRAINT fahrradreparatursets_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: fahrradreparatursets_hro fahrradreparatursets_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
+    ADD CONSTRAINT fahrradreparatursets_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: fussgaengerueberwege_hro fussgaengerueberwege_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -6989,6 +7055,13 @@ CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_stras
 --
 
 CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_strassenbezug.strassenreinigung_hro FOR EACH ROW EXECUTE FUNCTION fachdaten_strassenbezug.gemeindeteil();
+
+
+--
+-- Name: fahrradreparatursets_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.fahrradreparatursets_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
 
 
 --
@@ -8102,6 +8175,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
 
 ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
     ADD CONSTRAINT baustellen_geplant_status_fk FOREIGN KEY (status) REFERENCES codelisten.status_baustellen_geplant(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradreparatursets_hro fahrradreparatursets_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
+    ADD CONSTRAINT fahrradreparatursets_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_fahrradreparatursets(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradreparatursets_hro fahrradreparatursets_hro_eigentuemer_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
+    ADD CONSTRAINT fahrradreparatursets_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
