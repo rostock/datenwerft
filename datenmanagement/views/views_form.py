@@ -1,6 +1,5 @@
-import json
-
 from django.apps import apps
+from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages import success
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
@@ -8,16 +7,14 @@ from django.db import connections
 from django.forms.models import modelform_factory
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from geomet import wkt
 from json import dumps
-from pyproj import Transformer
 from time import time
 
 from .forms import GenericForm
 from .functions import DecimalEncoder, add_basic_model_context_elements, \
   add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, get_url_back, \
   set_form_attributes
-from toolbox.utils import get_array_first_element, is_geometry_field
+from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
 
@@ -233,34 +230,20 @@ class DataChangeView(UpdateView):
         curr_filter = {
             associated_model_foreign_key_field: self.object.pk
         }
-
-        # Transform coordinates from EPSG:25833 to EPSG:4326
-        transformer = Transformer.from_crs(25833, 4326, always_xy=True)
-        def transform_coordinates(transformer, coords):
-          if isinstance(coords[0], (int, float)):
-            # Single coordinate pair
-            return list(transformer.transform(coords[0], coords[1]))
-          # more than one coordinate pair
-          transformed = []
-          for coord in coords:
-            transformed.append(transform_coordinates(transformer, coord))
-          return transformed
-
         for associated_object in associated_model_model.objects.filter(**curr_filter):
           foto = associated_object.foto if hasattr(associated_object, 'foto') else None
           if hasattr(associated_object, 'geometrie') and associated_object.geometrie is not None:
-            geometry = wkt.loads(associated_object.geometrie.wkt)
             print(geometry)
-            new_coords = transform_coordinates(transformer, geometry['coordinates'])
-            geometry['coordinates'] = new_coords
+            geometry = transform_geometry(
+              geometry=GEOSGeometry(associated_object.geometrie),
+              target_srid=25833
+            )
             print(geometry)
-
           else:
             geometry = {
               'type': 'Polygon',
               'coordinates': []
             }
-
           preview_img_url = ''
           preview_thumb_url = ''
           if foto:
@@ -281,7 +264,7 @@ class DataChangeView(UpdateView):
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
             'api': f'/api/{associated_model.lower()}/{associated_object.pk}/',
-            'geometry': json.dumps(geometry)
+            'geometry': dumps(geometry)
           }
           if hasattr(associated_object, 'punktwolke'):
             path = f'/datenmanagement/Punktwolken/download/{associated_object.pk}'

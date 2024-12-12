@@ -8,13 +8,11 @@ django-ratelimit
 django-user-agents
 djangorestframework
 docutils
-geomet
 Jinja2
 laspy
 lxml
 Pillow
 psycopg2-binary
-pyproj
 PyYAML
 redis
 requests
