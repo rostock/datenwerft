@@ -75,3 +75,7 @@ span.nav-link:hover {
 .nav-item .dropdown-item svg {
   fill: var(--bs-dropdown-link-color);
 }
+
+.hidden {
+  display: none;
+}

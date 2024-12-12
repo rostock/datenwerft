@@ -885,7 +885,7 @@
           function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
-            const map = document.getElementById('flex-map');
+            const flex_map = document.getElementById('flex-map');
             const address_search = document.getElementById('flex-address-search');
             const flex_container = document.getElementById('form')
 
@@ -896,7 +896,7 @@
             flex_container.appendChild(list);
             list.style.order = '1';
             flex_container.appendChild(map);
-            map.style.order = '2';
+            flex_map.style.order = '2';
             flex_container.appendChild(address_search);
             address_search.style.order = '3';
             flex_container.appendChild(action_buttons);
@@ -911,7 +911,7 @@
           function orderFormItems() {
             const list = document.getElementById('flex-list');
             const action_buttons = document.getElementById('flex-action-buttons');
-            const map = document.getElementById('flex-map');
+            const flex_map = document.getElementById('flex-map');
             const address_search = document.getElementById('flex-address-search');
             const flex_container = document.getElementById('form')
             const left_column = document.getElementById('flex-left')
@@ -924,7 +924,7 @@
 
               flex_container.appendChild(list);
               flex_container.appendChild(action_buttons);
-              flex_container.appendChild(map);
+              flex_container.appendChild(flex_map);
               flex_container.appendChild(address_search);
             } else {
               // on bigger screens use two column view
@@ -933,13 +933,13 @@
 
               left_column.appendChild(list);
               left_column.appendChild(action_buttons);
-              right_column.appendChild(map);
+              right_column.appendChild(flex_map);
               right_column.appendChild(address_search);
             }
           }
+
+
         {% endif %}
-
-
       </script>
   </form>
   {% block pc_management %}
