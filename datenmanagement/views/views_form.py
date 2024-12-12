@@ -233,12 +233,10 @@ class DataChangeView(UpdateView):
         for associated_object in associated_model_model.objects.filter(**curr_filter):
           foto = associated_object.foto if hasattr(associated_object, 'foto') else None
           if hasattr(associated_object, 'geometrie') and associated_object.geometrie is not None:
-            print(geometry)
             geometry = transform_geometry(
               geometry=GEOSGeometry(associated_object.geometrie),
-              target_srid=25833
+              target_srid=4326
             )
-            print(geometry)
           else:
             geometry = {
               'type': 'Polygon',
