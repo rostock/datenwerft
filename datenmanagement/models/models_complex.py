@@ -3166,11 +3166,9 @@ class Punktwolken_Projekte(ComplexModel):
     return self.bezeichnung
 
   def save(self, force_insert=False, force_update=False, using=None, update_fields=None, **kwargs):
-    print('API: ', settings.VCP_API_URL)
     if not self.vcp_task_id:
       try:
       # create Task
-        print('=====  CREATING TASK  =====')
         task = Task(name=self.bezeichnung, description=self.beschreibung)
         self.vcp_task_id = task.get_id()
         self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
@@ -3192,16 +3190,14 @@ class Punktwolken_Projekte(ComplexModel):
       bucket = DataBucket(_id=self.vcp_dataset_bucket_id)
       ok, response = bucket.delete()
       if ok:
-        print('deleting project')
         super().delete(using=using, keep_parents=keep_parents)
       elif response.status_code == 404:
         # bucket is already deleted
-        print('404: task not found, deleting project now')
+        logger.info('404: task not found, deleting project now')
         super().delete(using=using, keep_parents=keep_parents)
       else:
-        print(f'DELETE Request failed: {response.__dict__}')
+        logger.error(f'DELETE Request failed: {response.__dict__}')
     else:
-      print('deleting project')
       super().delete(using=using, keep_parents=keep_parents)
 
 
@@ -3338,7 +3334,7 @@ class Punktwolken(ComplexModel):
       elif response.status_code == 404:
         super().delete(using=using, keep_parents=keep_parents)
       else:
-        print(f'DELETE Request failed: {response}')
+        logger.error(f'DELETE Request failed: {response}')
     else:
       super().delete(using=using, keep_parents=keep_parents)
 
