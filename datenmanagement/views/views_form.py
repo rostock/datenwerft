@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages import success
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
@@ -13,7 +14,7 @@ from .forms import GenericForm
 from .functions import DecimalEncoder, add_basic_model_context_elements, \
   add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, get_url_back, \
   set_form_attributes
-from toolbox.utils import get_array_first_element, is_geometry_field
+from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
 
@@ -231,6 +232,16 @@ class DataChangeView(UpdateView):
         }
         for associated_object in associated_model_model.objects.filter(**curr_filter):
           foto = associated_object.foto if hasattr(associated_object, 'foto') else None
+          if hasattr(associated_object, 'geometrie') and associated_object.geometrie is not None:
+            geometry = transform_geometry(
+              geometry=GEOSGeometry(associated_object.geometrie),
+              target_srid=4326
+            ).geojson
+          else:
+            geometry = {
+              'type': 'Polygon',
+              'coordinates': []
+            }
           preview_img_url = ''
           preview_thumb_url = ''
           if foto:
@@ -245,10 +256,13 @@ class DataChangeView(UpdateView):
             'name': str(associated_object),
             'id': associated_object.pk,
             'link': reverse(
-                'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]),
+              'datenmanagement:' + associated_model + '_change',
+              args=[associated_object.pk]
+            ),
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
-            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/'
+            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/',
+            'geometry': geometry
           }
           if hasattr(associated_object, 'punktwolke'):
             path = f'/datenmanagement/Punktwolken/download/{associated_object.pk}'
