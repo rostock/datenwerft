@@ -42,12 +42,12 @@ class DataBucket:
       'description': self.description,
       'properties': self.properties
     }
-    print('===== CREATE BUCKET =====')
     ok, bucket = self.__api.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
     if ok:
       self._id = bucket['_id']
       self.name = bucket['name']
       self.create_object(key='.keep')
+      self.__api.logger.debug('Data Bucket created.')
 
   def __get_bucket__(self):
     """
@@ -61,7 +61,7 @@ class DataBucket:
       self.properties = bucket['properties']
       self.projectId = bucket['projectId']
     else:
-      print(f'Respone ok?: {ok}')
+      self.__api.logger.warning('Failed to get Bucket.')
 
   def create_object(self, key: str, type: str = 'file'):
     """

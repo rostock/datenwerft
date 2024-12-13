@@ -40,10 +40,10 @@ class Datasource:
       'sourceProperties': self.sourceProperties,
       'type': self.type
     }
-
-    print('=====  CREATE DATASOURCE  =====')
     ok, source = self.__api.post(endpoint=f'/project/{self.__project_id}/datasource', json=data)
-    self._id = source['_id']
+    if ok:
+      self.__api.logger.debug('Data Source created.')
+      self._id = source['_id']
 
   def __get_source__(self):
     """
@@ -51,11 +51,14 @@ class Datasource:
     :return:
     """
     ok, source = self.__api.get(endpoint=f'/project/{self.__project_id}/datasource/{self._id}')
-    self.name = source['name']
-    self.description = source['description']
-    self.typeProperties = source['typeProperties']
-    self.sourceProperties = source['sourceProperties']
-    self.type = type
+    if ok:
+      self.name = source['name']
+      self.description = source['description']
+      self.typeProperties = source['typeProperties']
+      self.sourceProperties = source['sourceProperties']
+      self.type = type
+    else:
+      self.__api.logger.warning('Failed to get Data Source.')
 
   def link(self):
     """
