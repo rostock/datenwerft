@@ -1,8 +1,8 @@
 from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 
 from datenmanagement.models import *
-from toolbox.vcpub.vcpub import VCPub
 
 from .base import DefaultComplexModelTestCase, GenericRSAGTestCase
 from .constants_vars import *
@@ -5255,11 +5255,12 @@ class PunktwolkenTest(DefaultComplexModelTestCase):
     punktwolken_projekt = Punktwolken_Projekte.objects.create(
       bezeichnung='Test-Projekt', beschreibung='Beschreibung des Test-Projekts'
     )
-    punktwolke = File(open(VALID_POINTCLOUD_FILE, 'rb'))
+    with Path(VALID_POINTCLOUD_FILE).open('rb') as f:
+      valid_pointcloud_file_content = f.read()
+    punktwolke = SimpleUploadedFile(name='las_valid.las', content=valid_pointcloud_file_content)
     cls.attributes_values_db_initial = {
       'projekt': punktwolken_projekt,
-      'aufnahme': '2022-01-01 12:00:00',
-      'dateiname': 'las_valid.las',
+      'dateiname': punktwolke.name,
       'punktwolke': punktwolke,
       'geometrie': VALID_POLYGON_DB,
       'file_size': 2000,

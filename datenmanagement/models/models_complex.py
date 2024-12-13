@@ -3216,7 +3216,9 @@ class Punktwolken(ComplexModel):
   )
   aufnahme = DateTimeField(
     verbose_name='Aufnahmezeitpunkt',
-    auto_now_add=True
+    auto_now_add=True,
+    blank=True,
+    null=True
   )
   projekt = ForeignKey(
     to=Punktwolken_Projekte,

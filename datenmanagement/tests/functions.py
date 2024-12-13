@@ -82,6 +82,7 @@ def remove_file_attributes_from_object_filter(object_filter):
   """
   object_filter.pop('foto', None)
   object_filter.pop('pdf', None)
+  object_filter.pop('punktwolke', None)
   return object_filter
 
 
