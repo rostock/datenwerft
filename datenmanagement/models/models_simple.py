@@ -2022,6 +2022,115 @@ class Fahrradabstellanlagen(SimpleModel):
     return str(self.uuid)
 
 
+class Fahrradreparatursets(SimpleModel):
+  """
+  Fahrradreparatursets
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Fahrradreparatursets,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr',
+    min_value=1900,
+    max_value=get_current_year(),
+    blank=True,
+    null=True
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer'
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"fahrradreparatursets_hro'
+    verbose_name = 'Fahrradreparaturset'
+    verbose_name_plural = 'Fahrradreparatursets'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Fahrradreparatursets in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'eigentuemer': 'Eigentümer'
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'ausfuehrung': 'ausfuehrung',
+      'eigentuemer': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'fahrradreparatursets-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradreparatursets-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'eigentuemer': 'Eigentümer'
+    }
+    map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
+
+  def __str__(self):
+    return self.id
+
+
 class FairTrade(SimpleModel):
   """
   Fair Trade
