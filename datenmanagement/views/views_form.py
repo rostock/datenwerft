@@ -236,7 +236,7 @@ class DataChangeView(UpdateView):
             geometry = transform_geometry(
               geometry=GEOSGeometry(associated_object.geometrie),
               target_srid=4326
-            )
+            ).geojson
           else:
             geometry = {
               'type': 'Polygon',
@@ -262,7 +262,7 @@ class DataChangeView(UpdateView):
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
             'api': f'/api/{associated_model.lower()}/{associated_object.pk}/',
-            'geometry': dumps(geometry)
+            'geometry': geometry
           }
           if hasattr(associated_object, 'punktwolke'):
             path = f'/datenmanagement/Punktwolken/download/{associated_object.pk}'
