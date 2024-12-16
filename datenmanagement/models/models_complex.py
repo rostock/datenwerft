@@ -761,6 +761,7 @@ class Baustellen_geplant(ComplexModel):
     map_feature_tooltip_fields = ['bezeichnung']
     map_one_click_filters = True
     map_deadlinefilter_fields = ['beginn', 'ende']
+    map_deadlineyearfilter_fields = map_deadlinefilter_fields
     map_filter_fields = {
       'bezeichnung': 'Bezeichnung',
       'sparten': 'Sparte(n)',
@@ -4148,7 +4149,9 @@ class Strassenreinigung(ComplexModel):
     null=True,
     validators=standard_validators
   )
-  ausserhalb = BooleanField(' außerhalb geschlossener Ortslage?')
+  ausserhalb = BooleanField(
+    verbose_name=' außerhalb geschlossener Ortslage?'
+  )
   reinigungsklasse = ForeignKey(
     to=Reinigungsklassen_Strassenreinigungssatzung_HRO,
     verbose_name='Reinigungsklasse',

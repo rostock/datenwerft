@@ -63,16 +63,16 @@ class DataBucket:
     else:
       self.__api.logger.warning('Failed to get Bucket.')
 
-  def create_object(self, key: str, type: str = 'file'):
+  def create_object(self, key: str, object_type: str = 'file'):
     """
     create an empty bucket object
     :param key:
-    :param type:
+    :param object_type:
     :return:
     """
     data = {
       'key': key,
-      'type': type
+      'type': object_type
     }
     self.__api.post(
       endpoint=f'/project/{self.__project_id}/data_bucket/{self._id}',

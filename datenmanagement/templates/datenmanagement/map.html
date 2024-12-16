@@ -92,6 +92,19 @@
             {% endif %}
             <hr>
           {% endif %}
+          {% if map_deadlineyearfilter_fields %}
+            <div id="filter-deadline-year">
+              <div class="d-grid mt-2 mb-3">
+                <label for="filter-input-deadline-year" class="form-label">Stichjahr</label>
+                <div class="input-group">
+                  <input id="filter-input-deadline-year" type="number" name="deadline-year" class="form-control filter-input" data-type="date" data-nullable data-intervalside="both" data-logic="positive">
+                  <button class="input-reset btn btn-outline-secondary">
+                    <i class="fas fa-trash" title="Filterfeld leeren"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endif %}
           {% if map_deadlinefilter_fields %}
             <div id="filter-deadline">
               <div class="d-grid mt-2 mb-3">
@@ -398,7 +411,7 @@
        * main function
        */
       $(document).ready(function() {
-        // (globally available) variables for primary keys and map extent of currently filtered data
+        // (globally available) variables for primary keys, map extent of currently filtered data, and current year
         window.currentFilterPrimaryKeys = [];
         window.currentFilterExtent = [];
         let intervalFilterMin = [];
@@ -407,11 +420,19 @@
         let listFilterListsValues = {{ list_filter_lists|safe }};
         let checkboxFilterLists = [];
         let checkboxFilterListsValues = {{ checkbox_filter_lists|safe }};
+        const currentYear = new Date().getFullYear();
 
         // initialize address search (and make its results globally available)
         window.results = $('div.results');
         window.searchField = $('#searchtext');
         initializeAddressSearch(window.searchField, '{% url "toolbox:addresssearch" %}');
+
+        // initially, set deadline year to current year
+        if ($('#filter-input-deadline-year').length) {
+          let deadlineYearInput = $('#filter-input-deadline-year');
+          deadlineYearInput.prop('min', currentYear - 10);
+          deadlineYearInput.prop('max', currentYear + 10);
+        }
 
         // iterate all filter fields (except Boolean and checkbox filter fields)...
         $('.filter-input').each(function() {
@@ -553,9 +574,8 @@
 
         // handle deadline year for one-click-filters
         {% if model_name == 'Baustellen_geplant' %}
-          // initially, set deadline year to current year
-          const currentYear = new Date().getFullYear();
-          const deadlineYearInput = $('#deadline-year-input');
+          // initially, set deadline year for one-click-filters to current year
+          let deadlineYearInput = $('#deadline-year-input');
           deadlineYearInput.prop('min', currentYear - 10);
           deadlineYearInput.prop('max', currentYear + 10);
           deadlineYearInput.prop('value', currentYear);

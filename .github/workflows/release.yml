@@ -1,4 +1,5 @@
 name: Release
+
 on:
   pull_request:
     branches:
@@ -7,28 +8,26 @@ on:
       - closed
 
 jobs:
-  version-update:
-    #if: ${{ github.event.pull_request.merged == true }}
-    name: Update Version
+  update_version:
+    name: Update version
     runs-on: ubuntu-latest
-
     steps:
-      - name: Clone Repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Get Next Version
+      - name: Get next version
         id: get_next_version
         uses: thenativeweb/get-next-version@main
         with:
-          prefix: 'v'  # optional, default ist ''
-      - name: Create New Version Tag
+          prefix: 'v'  # optional (default is '')
+      - name: Create new version tag
         if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
           NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
           git tag $NEXT_VERSION
           git push origin $NEXT_VERSION
-      - name: Create Release
+      - name: Create release
         uses: elgohr/Github-Release-Action@v5
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

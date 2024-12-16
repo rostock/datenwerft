@@ -1,41 +1,4 @@
-from datenmanagement.models import Adressen, Strassen, Inoffizielle_Strassen, Gemeindeteile, \
-  Gruenpflegeobjekte, Altersklassen_Kadaverfunde, Anbieter_Carsharing, Angebote_Mobilpunkte, \
-  Angelberechtigungen, Ansprechpartner_Baustellen, Arten_Adressunsicherheiten, Arten_Brunnen, \
-  Arten_Durchlaesse, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, Arten_FairTrade, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
-  Arten_Hundetoiletten, Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, \
-  Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, \
-  Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Sportanlagen, Arten_Toiletten, \
-  Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
-  Ausfuehrungen_Haltestellenkataster, Ausfuehrungen_Ingenieurbauwerke, \
-  Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
-  Befestigungsarten_Warteflaeche_Haltestellenkataster, Besonderheiten_Freizeitsport, \
-  Besonderheiten_Spielplaetze, Betriebsarten, Betriebszeiten, \
-  Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
-  Bodenarten_Freizeitsport, Bodenarten_Spielplaetze, E_Anschluesse_Parkscheinautomaten, \
-  Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
-  Fotomotive_Haltestellenkataster, Freizeitsportarten, Fundamenttypen_RSAG, Gebaeudebauweisen, \
-  Gebaeudefunktionen, Genehmigungsbehoerden_UVP_Vorhaben, Geschlechter_Kadaverfunde, Haefen, \
-  Hersteller_Poller, Kabeltypen_Lichtwellenleiterinfrastruktur, Kategorien_Strassen, \
-  Labore_Baugrunduntersuchungen, Ladekarten_Ladestationen_Elektrofahrzeuge, Linien, \
-  Mastkennzeichen_RSAG, Masttypen_RSAG, Masttypen_Haltestellenkataster, Materialien_Denksteine, \
-  Materialien_Durchlaesse, Objektarten_Lichtwellenleiterinfrastruktur, Ordnungen_Fliessgewaesser, \
-  Personentitel, Quartiere, Raeumbreiten_Strassenreinigungssatzung_HRO, \
-  Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
-  Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
-  Schlagwoerter_Bildungstraeger, Schlagwoerter_Vereine, Schliessungen_Poller, \
-  Sitzbanktypen_Haltestellenkataster, Sparten_Baustellen, Spielgeraete, Sportarten, \
-  Status_Baudenkmale_Denkmalbereiche, Status_Baustellen_geplant, Status_Poller, \
-  Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, Typen_Abfallbehaelter, \
-  DFI_Typen_Haltestellenkataster, Typen_Erdwaermesonden, \
-  Fahrgastunterstandstypen_Haltestellenkataster, Fahrplanvitrinentypen_Haltestellenkataster, \
-  Typen_Feuerwehrzufahrten_Schilder, Typen_Haltestellen, Typen_Kleinklaeranlagen, Typen_Poller, \
-  Typen_UVP_Vorhaben, Verkehrliche_Lagen_Baustellen, Verbuende_Ladestationen_Elektrofahrzeuge, \
-  Verkehrsmittelklassen, Vorgangsarten_UVP_Vorhaben, Wegebreiten_Strassenreinigungssatzung_HRO, \
-  Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
-  Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
-  Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, \
-  Zustaende_Kadaverfunde, Zustaende_Schutzzaeune_Tierseuchen, Zustandsbewertungen
+from datenmanagement.models.models_codelist import *
 
 from .base import DefaultCodelistTestCase, DefaultMetaModelTestCase
 from .constants_vars import *
@@ -3675,6 +3638,133 @@ class AuftraggeberBaustellenTest(DefaultCodelistTestCase):
     )
 
 
+class AusfuehrungenFahrradreparatursetsTest(DefaultCodelistTestCase):
+  """
+  Ausführungen von Fahrradreparatursets
+  """
+
+  model = Ausfuehrungen_Fahrradreparatursets
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'ausfuehrung': 'Ausführung1'
+  }
+  attributes_values_db_updated = {
+    'ausfuehrung': 'Ausführung2'
+  }
+  attributes_values_view_initial = {
+    'ausfuehrung': 'Ausführung3'
+  }
+  attributes_values_view_updated = {
+    'ausfuehrung': 'Ausführung4'
+  }
+  attributes_values_view_invalid = {
+    'ausfuehrung': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
 class AusfuehrungenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
   Ausführungen innerhalb eines Haltestellenkatasters
@@ -4077,6 +4167,133 @@ class BefestigungsartenWarteflaecheHaltestellenkatasterTest(DefaultCodelistTestC
   }
   attributes_values_view_invalid = {
     'befestigungsart': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class BeleuchtungsartenTest(DefaultCodelistTestCase):
+  """
+  Beleuchtungsarten
+  """
+
+  model = Beleuchtungsarten
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):

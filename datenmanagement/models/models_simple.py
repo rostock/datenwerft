@@ -1,58 +1,19 @@
 from datetime import date, datetime, timezone
-from decimal import Decimal
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
-from django.core.validators import EmailValidator, MaxValueValidator, MinValueValidator, \
-  RegexValidator, URLValidator
+from django.core.validators import URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, OneToOneField
-from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
-  DecimalField, PositiveIntegerField
+from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 from re import sub
 from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_current_year, path_and_rename
-from toolbox.constants_vars import personennamen_validators, standard_validators, \
-  aktenzeichen_anerkennungsgebuehren_regex, aktenzeichen_anerkennungsgebuehren_message, \
-  aktenzeichen_kommunalvermoegen_regex, aktenzeichen_kommunalvermoegen_message, \
-  d3_regex, d3_message, email_message, hausnummer_zusatz_regex, hausnummer_zusatz_message, \
-  inventarnummer_regex, inventarnummer_message, postleitzahl_message, postleitzahl_regex, \
-  rufnummer_regex, rufnummer_message, url_message
 from toolbox.fields import NullTextField
 from .base import SimpleModel
-from .constants_vars import arrondierungsflaechen_registriernummer_regex, \
-  arrondierungsflaechen_registriernummer_message, brunnen_d3_regex, brunnen_d3_message, \
-  denksteine_nummer_regex, denksteine_nummer_message, erdwaermesonden_aktenzeichen_regex, \
-  erdwaermesonden_aktenzeichen_message, erdwaermesonden_d3_regex, erdwaermesonden_d3_message, \
-  hausnummern_antragsnummer_message, hausnummern_antragsnummer_regex, \
-  hydranten_bezeichnung_regex, hydranten_bezeichnung_message, \
-  ingenieurbauwerke_nummer_asb_regex, ingenieurbauwerke_nummer_asb_message, \
-  ingenieurbauwerke_baujahr_regex, ingenieurbauwerke_baujahr_message, \
-  kleinklaeranlagen_zulassung_regex, kleinklaeranlagen_zulassung_message, \
-  mobilfunkantennen_stob_regex, mobilfunkantennen_stob_message, poller_nummer_regex, \
-  poller_nummer_message, trinkwassernotbrunnen_nummer_regex, \
-  trinkwassernotbrunnen_nummer_message, ANERKENNUNGSGEBUEHREN_HERRSCHEND_GRUNDBUCHEINTRAG
-from .fields import ChoiceArrayField, PositiveIntegerMinField, PositiveSmallIntegerMinField, \
-  PositiveSmallIntegerRangeField, point_field, line_field, multiline_field, polygon_field, \
-  multipolygon_field, nullable_multipolygon_field
 from .functions import delete_pdf, delete_photo, delete_photo_after_emptied, \
   set_pre_save_instance, photo_post_processing
-from .models_codelist import Adressen, Gemeindeteile, Strassen, Altersklassen_Kadaverfunde, \
-  Anbieter_Carsharing, Arten_Brunnen, Arten_Erdwaermesonden, Arten_Fahrradabstellanlagen, \
-  Arten_FairTrade, Arten_Fallwildsuchen_Kontrollen, Arten_Feuerwachen, Arten_Fliessgewaesser, \
-  Arten_Hundetoiletten, Arten_Ingenieurbauwerke, Arten_Meldedienst_flaechenhaft, \
-  Arten_Meldedienst_punkthaft, Arten_Parkmoeglichkeiten, Arten_Pflegeeinrichtungen, \
-  Arten_Poller, Arten_Reisebusparkplaetze_Terminals, Arten_Sportanlagen, \
-  Arten_Toiletten, Ausfuehrungen_Ingenieurbauwerke, Betriebsarten, Betriebszeiten, \
-  Bevollmaechtigte_Bezirksschornsteinfeger, Bewirtschafter_Betreiber_Traeger_Eigentuemer, \
-  Gebaeudearten_Meldedienst_punkthaft, Gebaeudebauweisen, Gebaeudefunktionen, \
-  Geschlechter_Kadaverfunde, Haefen, Hersteller_Poller, Materialien_Denksteine, \
-  Ordnungen_Fliessgewaesser, Personentitel, Quartiere, Sportarten, \
-  Status_Baudenkmale_Denkmalbereiche, Status_Poller, Tierseuchen, Typen_Abfallbehaelter, \
-  Typen_Erdwaermesonden, Typen_Kleinklaeranlagen, Typen_Poller, \
-  Verbuende_Ladestationen_Elektrofahrzeuge, Zustaende_Kadaverfunde, \
-  Zustaende_Schutzzaeune_Tierseuchen
+from .models_codelist import *
 from .storage import OverwriteStorage
 
 
@@ -655,7 +616,9 @@ class Baudenkmale(SimpleModel):
     blank=True,
     null=True
   )
-  gartendenkmal = BooleanField(' Gartendenkmal?')
+  gartendenkmal = BooleanField(
+    verbose_name='Gartendenkmal?'
+  )
   hinweise = NullTextField(
     verbose_name='Hinweise',
     max_length=500,
@@ -1339,7 +1302,9 @@ class Containerstellplaetze(SimpleModel):
     unique=True,
     default='00-00'
   )
-  privat = BooleanField(' privat?')
+  privat = BooleanField(
+    verbose_name=' privat?'
+  )
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -2057,6 +2022,115 @@ class Fahrradabstellanlagen(SimpleModel):
     return str(self.uuid)
 
 
+class Fahrradreparatursets(SimpleModel):
+  """
+  Fahrradreparatursets
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Fahrradreparatursets,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr',
+    min_value=1900,
+    max_value=get_current_year(),
+    blank=True,
+    null=True
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer'
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"fahrradreparatursets_hro'
+    verbose_name = 'Fahrradreparaturset'
+    verbose_name_plural = 'Fahrradreparatursets'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Fahrradreparatursets in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'eigentuemer': 'Eigentümer'
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'ausfuehrung': 'ausfuehrung',
+      'eigentuemer': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'fahrradreparatursets-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradreparatursets-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'eigentuemer': 'Eigentümer'
+    }
+    map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
+
+  def __str__(self):
+    return self.id
+
+
 class FairTrade(SimpleModel):
   """
   Fair Trade
@@ -2381,6 +2455,151 @@ class Fliessgewaesser(SimpleModel):
   def __str__(self):
     return self.nummer + ' [Art: ' + str(self.art) + \
       (', Ordnung: ' + str(self.ordnung) if self.ordnung else '') + ']'
+
+
+class Fussgaengerueberwege(SimpleModel):
+  """
+  Fußgängerüberwege
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  breite = DecimalField(
+    verbose_name='Breite (in m)',
+    max_digits=3,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Breite</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('9.99'),
+        'Die <strong><em>Breite</em></strong> darf höchstens 9,99 m betragen.'
+      )
+    ]
+  )
+  laenge = DecimalField(
+    verbose_name='Länge (in m)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Die <strong><em>Länge</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ]
+  )
+  barrierefrei = BooleanField(
+    verbose_name=' barrierefrei?'
+  )
+  beleuchtungsart = ForeignKey(
+    to=Beleuchtungsarten,
+    verbose_name='Beleuchtungsart',
+    on_delete=RESTRICT,
+    db_column='beleuchtungsart',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_betriebsarten'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr',
+    min_value=1900,
+    max_value=get_current_year(),
+    blank=True,
+    null=True
+  )
+  kreisverkehr = BooleanField(
+    verbose_name='Kreisverkehr?',
+    blank=True,
+    null=True
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"fussgaengerueberwege_hro'
+    verbose_name = 'Fußgängerüberweg'
+    verbose_name_plural = 'Fußgängerüberwege'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Fußgängerüberwege in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'breite': 'Breite (in m)',
+      'laenge': 'Länge (in m)',
+      'barrierefrei': 'barrierefrei?',
+      'beleuchtungsart': 'Beleuchtungsart',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'kreisverkehr': 'Kreisverkehr?'
+    }
+    list_fields_with_decimal = ['breite', 'laenge']
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'beleuchtungsart': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'fussgaengerueberwege-barrierefrei',
+        'action_title': 'ausgewählten Datensätzen barrierefrei (ja/nein) direkt zuweisen',
+        'field': 'barrierefrei',
+        'type': 'boolean'
+      },
+      {
+        'action_name': 'fussgaengerueberwege-beleuchtungsart',
+        'action_title': 'ausgewählten Datensätzen Beleuchtungsart direkt zuweisen',
+        'field': 'beleuchtungsart',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'breite': 'Breite (in m)',
+      'laenge': 'Länge (in m)',
+      'barrierefrei': 'barrierefrei?',
+      'beleuchtungsart': 'Beleuchtungsart',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'baujahr': 'Baujahr',
+      'kreisverkehr': 'Kreisverkehr?'
+    }
+    map_filter_fields_as_list = ['strasse', 'beleuchtungsart']
+
+  def __str__(self):
+    return self.id
 
 
 class Gutachterfotos(SimpleModel):
@@ -2959,7 +3178,9 @@ class Hydranten(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_bewirtschafter'
   )
-  feuerloeschgeeignet = BooleanField(' feuerlöschgeeignet?')
+  feuerloeschgeeignet = BooleanField(
+    verbose_name=' feuerlöschgeeignet?'
+  )
   betriebszeit = ForeignKey(
     to=Betriebszeiten,
     verbose_name='Betriebszeit',
@@ -3959,7 +4180,9 @@ class Ladestationen_Elektrofahrzeuge(SimpleModel):
     blank=True,
     null=True
   )
-  geplant = BooleanField(' geplant?')
+  geplant = BooleanField(
+    verbose_name=' geplant?'
+  )
   bezeichnung = CharField(
     verbose_name='Bezeichnung',
     max_length=255,
@@ -6347,9 +6570,15 @@ class Toiletten(SimpleModel):
     blank=True,
     null=True
   )
-  behindertengerecht = BooleanField(' behindertengerecht?')
-  duschmoeglichkeit = BooleanField('Duschmöglichkeit vorhanden?')
-  wickelmoeglichkeit = BooleanField('Wickelmöglichkeit vorhanden?')
+  behindertengerecht = BooleanField(
+    verbose_name=' behindertengerecht?'
+  )
+  duschmoeglichkeit = BooleanField(
+    verbose_name='Duschmöglichkeit vorhanden?'
+  )
+  wickelmoeglichkeit = BooleanField(
+    verbose_name='Wickelmöglichkeit vorhanden?'
+  )
   zeiten = CharField(
     verbose_name='Öffnungszeiten',
     max_length=255,
@@ -6442,7 +6671,9 @@ class Trinkwassernotbrunnen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_betreiber'
   )
-  betriebsbereit = BooleanField(' betriebsbereit?')
+  betriebsbereit = BooleanField(
+    verbose_name=' betriebsbereit?'
+  )
   bohrtiefe = DecimalField(
     verbose_name='Bohrtiefe (in m)',
     max_digits=4,

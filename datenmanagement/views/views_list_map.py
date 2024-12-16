@@ -531,6 +531,13 @@ class MapDataCompositionView(JsonView):
               feature['properties']['deadline_' + str(index)] = str(data)
               # additionally set field as an ordinary map filter property, too
               feature['properties'][field] = str(data)
+          # optional: set deadline year map filter as properties
+          if self.model.BasemodelMeta.map_deadlineyearfilter_fields:
+            for index, field in enumerate(self.model.BasemodelMeta.map_deadlineyearfilter_fields):
+              data = get_data(curr_object, field)
+              feature['properties']['deadline-year_' + str(index)] = str(data)
+              # additionally set field as an ordinary map filter property, too
+              feature['properties'][field] = str(data)
           # optional: set deadline interval map filter as properties
           if self.model.BasemodelMeta.map_intervalfilter_fields:
             for field in self.model.BasemodelMeta.map_intervalfilter_fields.keys():
@@ -712,6 +719,8 @@ class MapListView(TemplateView):
       context['map_filters_enabled'] = True
     context['map_one_click_filters'] = self.model.BasemodelMeta.map_one_click_filters
     context['map_deadlinefilter_fields'] = self.model.BasemodelMeta.map_deadlinefilter_fields
+    context['map_deadlineyearfilter_fields'] = (
+      self.model.BasemodelMeta.map_deadlineyearfilter_fields)
     if self.model.BasemodelMeta.map_intervalfilter_fields:
       context['map_intervalfilter_fields'] = list(
         self.model.BasemodelMeta.map_intervalfilter_fields.keys())
