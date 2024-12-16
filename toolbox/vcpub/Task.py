@@ -54,8 +54,8 @@ class Task:
       'schedule': self.schedule
     }
     ok, task = self.__api.post(endpoint=f'/project/{self.__project_id}/task/', json=data)
+    self._id = task['_id']
     if ok:
-      self._id = task['_id']
       self.__api.logger.debug('Task created.')
 
   def __get_task__(self):
