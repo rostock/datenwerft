@@ -1,12 +1,8 @@
 from datetime import date, datetime, timezone
-from decimal import Decimal
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
-from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, \
-  RegexValidator, URLValidator
+from django.core.validators import FileExtensionValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
-from django.db.models.fields import BooleanField, CharField, DateField, DateTimeField, \
-  DecimalField, PositiveIntegerField, PositiveSmallIntegerField
+from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
 from pathlib import Path
@@ -15,44 +11,14 @@ from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_current_year, logger, path_and_rename
 from datenwerft.celery import is_broker_available
-from toolbox.constants_vars import ansprechpartner_validators, standard_validators, url_message
 from toolbox.fields import NullTextField
 from toolbox.utils import format_filesize
 from toolbox.vcpub.DataBucket import DataBucket
 from toolbox.vcpub.Task import Task
 from .base import ComplexModel
-from .constants_vars import durchlaesse_aktenzeichen_regex, durchlaesse_aktenzeichen_message, \
-  haltestellenkataster_hafas_id_regex, haltestellenkataster_hafas_id_message, \
-  parkscheinautomaten_bewohnerparkgebiet_regex, parkscheinautomaten_bewohnerparkgebiet_message, \
-  parkscheinautomaten_geraetenummer_regex, parkscheinautomaten_geraetenummer_message, \
-  strassen_schluessel_regex, strassen_schluessel_message, uvp_registriernummer_bauamt_regex, \
-  uvp_registriernummer_bauamt_message, wikipedia_regex, wikipedia_message
-from .fields import ChoiceArrayField, PositiveIntegerMinField, \
-  PositiveIntegerRangeField, PositiveSmallIntegerMinField, PositiveSmallIntegerRangeField, \
-  point_field, line_field, multiline_field, polygon_field, multipolygon_field
 from .functions import delete_pdf, delete_photo, photo_post_processing, \
   delete_pointcloud, set_pre_save_instance, delete_photo_after_emptied
-from .models_codelist import Adressen, Gemeindeteile, Strassen, Inoffizielle_Strassen, \
-  Gruenpflegeobjekte, Arten_Adressunsicherheiten, Arten_Durchlaesse, \
-  Arten_Fallwildsuchen_Kontrollen, Arten_UVP_Vorpruefungen, Arten_Wege, Auftraggeber_Baustellen, \
-  Ausfuehrungen_Haltestellenkataster, Befestigungsarten_Aufstellflaeche_Bus_Haltestellenkataster, \
-  Befestigungsarten_Warteflaeche_Haltestellenkataster, E_Anschluesse_Parkscheinautomaten, \
-  Ergebnisse_UVP_Vorpruefungen, Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO, \
-  Fotomotive_Haltestellenkataster, Fundamenttypen_RSAG, \
-  Genehmigungsbehoerden_UVP_Vorhaben, Kabeltypen_Lichtwellenleiterinfrastruktur, \
-  Kategorien_Strassen, Labore_Baugrunduntersuchungen, Mastkennzeichen_RSAG, Masttypen_RSAG, \
-  Masttypen_Haltestellenkataster, Materialien_Durchlaesse, \
-  Objektarten_Lichtwellenleiterinfrastruktur, Raeumbreiten_Strassenreinigungssatzung_HRO, \
-  Rechtsgrundlagen_UVP_Vorhaben, Reinigungsklassen_Strassenreinigungssatzung_HRO, \
-  Reinigungsrhythmen_Strassenreinigungssatzung_HRO, Schaeden_Haltestellenkataster, \
-  Sitzbanktypen_Haltestellenkataster, Status_Baustellen_geplant, \
-  Status_Baustellen_Fotodokumentation_Fotos, Tierseuchen, DFI_Typen_Haltestellenkataster, \
-  Fahrgastunterstandstypen_Haltestellenkataster, Fahrplanvitrinentypen_Haltestellenkataster, \
-  Typen_Feuerwehrzufahrten_Schilder, Typen_Haltestellen, Typen_UVP_Vorhaben, \
-  Vorgangsarten_UVP_Vorhaben, Wegebreiten_Strassenreinigungssatzung_HRO, \
-  Wegereinigungsklassen_Strassenreinigungssatzung_HRO, \
-  Wegereinigungsrhythmen_Strassenreinigungssatzung_HRO, Wegetypen_Strassenreinigungssatzung_HRO, \
-  Zeiteinheiten, ZH_Typen_Haltestellenkataster, Zonen_Parkscheinautomaten, Zustandsbewertungen
+from .models_codelist import *
 from .storage import OverwriteStorage
 from ..tasks import update_model
 

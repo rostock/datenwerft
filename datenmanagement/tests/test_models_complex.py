@@ -6,11 +6,8 @@ from datenmanagement.models import *
 
 from .base import DefaultComplexModelTestCase, GenericRSAGTestCase
 from .constants_vars import *
-from .functions import (
-  create_test_subset,
-  remove_file_attributes_from_object_filter,
-  remove_uploaded_test_files,
-)
+from .functions import create_test_subset, remove_file_attributes_from_object_filter, \
+  remove_uploaded_test_files
 
 #
 # Adressunsicherheiten
