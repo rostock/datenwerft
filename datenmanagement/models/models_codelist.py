@@ -445,20 +445,6 @@ class Arten_Durchlaesse(Art):
     description = 'Arten von Durchlässen'
 
 
-class Arten_Fahrradabstellanlagen(Art):
-  """
-  Arten von Fahrradabstellanlagen
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_fahrradabstellanlagen'
-    verbose_name = 'Art einer Fahrradabstellanlage'
-    verbose_name_plural = 'Arten von Fahrradabstellanlagen'
-
-  class BasemodelMeta(Art.BasemodelMeta):
-    description = 'Arten von Fahrradabstellanlagen'
-
-
 class Arten_Erdwaermesonden(Art):
   """
   Arten von Erdwärmesonden
@@ -725,6 +711,48 @@ class Auftraggeber_Baustellen(Codelist):
     return self.auftraggeber
 
 
+class Ausfuehrungen_Fahrradabstellanlagen(Ausfuehrung):
+  """
+  Ausführungen von Fahrradabstellanlagen
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten\".\"ausfuehrungen_fahrradabstellanlagen'
+    verbose_name = 'Ausführung einer Fahrradabstellanlage'
+    verbose_name_plural = 'Ausführungen von Fahrradabstellanlagen'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Fahrradabstellanlagen'
+
+
+class Ausfuehrungen_Fahrradabstellanlagen_Stellplaetze(Ausfuehrung):
+  """
+  Ausführungen von Stellplätzen in Fahrradabstellanlagen
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten\".\"ausfuehrungen_fahrradabstellanlagen_stellplaetze'
+    verbose_name = 'Ausführung eines Stellplatzes in einer Fahrradabstellanlage'
+    verbose_name_plural = 'Ausführungen von Stellplätzen in Fahrradabstellanlagen'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Stellplätzen in Fahrradabstellanlagen'
+
+
+class Ausfuehrungen_Fahrradboxen(Ausfuehrung):
+  """
+  Ausführungen von Fahrradboxen
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten\".\"ausfuehrungen_fahrradboxen'
+    verbose_name = 'Ausführung einer Fahrradbox'
+    verbose_name_plural = 'Ausführungen von Fahrradboxen'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Fahrradboxen'
+
+
 class Ausfuehrungen_Fahrradreparatursets(Ausfuehrung):
   """
   Ausführungen von Fahrradreparatursets
@@ -737,6 +765,20 @@ class Ausfuehrungen_Fahrradreparatursets(Ausfuehrung):
 
   class BasemodelMeta(Ausfuehrung.BasemodelMeta):
     description = 'Ausführungen von Fahrradreparatursets'
+
+
+class Ausfuehrungen_Fahrradstaender(Ausfuehrung):
+  """
+  Ausführungen von Fahrradständern
+  """
+
+  class Meta(Ausfuehrung.Meta):
+    db_table = 'codelisten\".\"ausfuehrungen_fahrradstaender'
+    verbose_name = 'Ausführung eines Fahrradständers'
+    verbose_name_plural = 'Ausführungen von Fahrradständern'
+
+  class BasemodelMeta(Ausfuehrung.BasemodelMeta):
+    description = 'Ausführungen von Fahrradständern'
 
 
 class Ausfuehrungen_Haltestellenkataster(Ausfuehrung):
