@@ -1,5 +1,4 @@
 from datetime import datetime, timezone, timedelta
-from pprint import pprint
 from uuid import uuid4
 
 from toolbox.vcpub.DataBucket import DataBucket
@@ -54,19 +53,20 @@ class Task:
       'parameters': self.parameters,
       'schedule': self.schedule
     }
-    print(__name__)
-    print('=====  CREATE TASK  =====')
-    print(len(globals()))
     ok, task = self.__api.post(endpoint=f'/project/{self.__project_id}/task/', json=data)
     self._id = task['_id']
-    pprint(self.__api.get(endpoint=f'/project/{self.__project_id}/data-bucket/{bucket.get_id()}'))
+    if ok:
+      self.__api.logger.debug('Task created.')
 
   def __get_task__(self):
     ok, task = self.__api.get(endpoint=f'/project/{self.__project_id}/task/{self._id}/')
-    self.name = task['name']
-    self.jobType = task['jobType']
-    self.parameters = task['parameters']
-    self.schedule = task['schedule']
+    if ok:
+      self.name = task['name']
+      self.jobType = task['jobType']
+      self.parameters = task['parameters']
+      self.schedule = task['schedule']
+    else:
+      self.__api.logger.warning('Failed to get Task.')
 
   def get_dataset(self):
     """

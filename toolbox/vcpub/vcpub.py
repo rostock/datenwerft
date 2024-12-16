@@ -1,6 +1,6 @@
 import logging
 
-from datenwerft import settings
+from django.conf import settings
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
 
@@ -11,14 +11,10 @@ class VCPub:
   def __init__(self):
     self.__user: str = settings.VCP_API_USER
     self.__password: str = settings.VCP_API_PASSWORD
-    self.__url: str = settings.VCP_API_URL
     self.__project_id = settings.VCP_API_PROJECT_ID
-    # Authenticate and create es session
-    self.__auth: BearerAuth = self.__login__()
-    self.__session: Session = Session()
-    self.__session.auth = self.__auth
     self.__data_path = '/vcs/data/public/'  # im root System unter /nfs/daten/rostock3d/vcpublisher
     self.__epsg = '25833'
+    self.__connected = False
 
   def __del__(self):
     """
@@ -27,29 +23,33 @@ class VCPub:
     """
     self.__logout__()
 
-  def __login__(self) -> BearerAuth:
+  def __login__(self) -> bool:
     """
     login at VCPub api
     :return: bearer token
     """
-    bearer: str = 'no bearer'
-    if self.__url:
-      response: Response = post(
-        url=f'{self.__url}/login/',
-        data={
-          "username": self.__user,
-          "password": self.__password
-        })
-      if response.ok:
-        bearer: str = response.json()['token']
-        self.connected = True
-      else:
-        self.connected = False
-        self.logger.error('VCPub Login failed.')
-    return BearerAuth(bearer)
+    if not self.__connected:
+      bearer: str = 'no bearer'
+      self.__url: str = settings.VCP_API_URL
+      if self.__url:
+        response: Response = post(
+          url=f'{self.__url}/login/',
+          data={
+            "username": self.__user,
+            "password": self.__password
+          })
+        if response.ok:
+          bearer: str = response.json()['token']
+          self.__auth = BearerAuth(bearer)
+          self.__session = Session()
+          self.__session.auth = self.__auth
+          self.connected = True
+        else:
+          self.logger.error('VCPub Login failed.')
+    return self.__connected
 
   def __logout__(self) -> None:
-    if self.connected:
+    if self.__connected:
       response = self.__session.get(url=f'{self.__url}/logout/')
       if response.ok:
         self.logger.debug('Logout.')
@@ -57,7 +57,7 @@ class VCPub:
         self.logger.warning(f'Logout failed: {response.json()}')
 
   def __logout_all__(self) -> None:
-    if self.connected:
+    if self.__connected:
       response = self.__session.get(url=f'{self.__url}/logout-all/')
       if response.ok:
         self.logger.debug('Logout all.')
@@ -85,7 +85,7 @@ class VCPub:
     :param files:
     :return:
     """
-    if self.connected:
+    def post_it():
       url: str = self.__url + endpoint
       response = self.__session.post(url=url, data=data, json=json, files=files, *args, **kwargs)
       if response.ok and response.status_code != 204:
@@ -98,11 +98,17 @@ class VCPub:
       else:
         self.logger.warning(f'POST on {url} failed: {response.__dict__}')
         return response.ok, response
+
+    if self.__connected:
+      post_it()
     else:
-      response = Response()
-      response.status_code = 502
-      response.reason = 'Bad Gateway. VCPub Object is not connected.'
-      return False, response
+      if self.__login__():
+        post_it()
+      else:
+        response = Response()
+        response.status_code = 502
+        response.reason = 'Bad Gateway. VCPub Object is not connected.'
+        return False, response
 
   def get(self, endpoint: str, headers=None, stream: bool = False,
           *args, **kwargs) -> tuple[bool, dict | Response | None]:
@@ -114,7 +120,7 @@ class VCPub:
     :param stream: just for file downloads, default False
     :return: Response as dict
     """
-    if self.connected:
+    def get_it():
       url: str = self.__url + endpoint
       response = self.__session.get(url=url, headers=headers, stream=stream, *args, **kwargs)
 
@@ -131,11 +137,17 @@ class VCPub:
       else:
         self.logger.warning(f'GET on {url} failed: {response.json()}')
         return response.ok, response
+
+    if self.__connected:
+      get_it()
     else:
-      response = Response()
-      response.status_code = 502
-      response.reason = 'Bad Gateway. VCPub Object is not connected.'
-      return False, response
+      if self.__login__():
+        get_it()
+      else:
+        response = Response()
+        response.status_code = 502
+        response.reason = 'Bad Gateway. VCPub Object is not connected.'
+        return False, response
 
   def delete(self, endpoint: str, headers=None) -> tuple[bool, dict | Response | None]:
     """
@@ -145,7 +157,7 @@ class VCPub:
     :param headers: json like dict
     :return: Response as dict
     """
-    if self.connected:
+    def delete_it():
       url: str = self.__url + endpoint
       response = self.__session.delete(url=url, headers=headers)
       if response.ok and response.status_code != 204:
@@ -158,8 +170,14 @@ class VCPub:
       else:
         self.logger.warning(f'DELETE on {url} failed: {response.json()}')
         return response.ok, response
+
+    if self.__connected:
+      delete_it()
     else:
-      response = Response()
-      response.status_code = 502
-      response.reason = 'Bad Gateway. VCPub Object is not connected.'
-      return False, response
+      if self.__login__():
+        delete_it()
+      else:
+        response = Response()
+        response.status_code = 502
+        response.reason = 'Bad Gateway. VCPub Object is not connected.'
+        return False, response
