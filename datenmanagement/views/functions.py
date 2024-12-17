@@ -310,6 +310,23 @@ def download_pointcloud(pk):
     return file_response
 
 
+def generate_restricted_objects_list(restricted_objects):
+  """
+  generates an HTML list of passed restricted objects and returns it
+
+  :param restricted_objects: restricted objects
+  :return: HTML list of passed restricted objects
+  """
+  object_list = ''
+  for restricted_object in restricted_objects:
+    object_list += ('<li>' if len(restricted_objects) > 1 else '')
+    object_list += 'Datenthema '
+    object_list += '<em>%s:</em> ' % restricted_object.__class__._meta.verbose_name_plural
+    object_list += 'Objekt <em>%s</em>' % str(restricted_object)
+    object_list += ('</li>' if len(restricted_objects) > 1 else '')
+  return '<ul>' + object_list + '</ul>' if len(restricted_objects) > 1 else object_list
+
+
 def get_model_objects(model, subset_id=None, count_only=False):
   """
   either returns all data objects of the passed model or a subset of it
