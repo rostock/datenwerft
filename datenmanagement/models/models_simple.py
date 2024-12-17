@@ -1961,65 +1961,239 @@ class Fahrradabstellanlagen(SimpleModel):
   Fahrradabstellanlagen
   """
 
-  art = ForeignKey(
-    to=Arten_Fahrradabstellanlagen,
-    verbose_name='Art',
-    on_delete=RESTRICT,
-    db_column='art',
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
     to_field='uuid',
-    related_name='%(app_label)s_%(class)s_arten'
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
   )
-  stellplaetze = PositiveSmallIntegerMinField(
-    verbose_name='Stellplätze',
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Fahrradabstellanlagen,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  anzahl_stellplaetze = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl Stellplätze',
     min_value=1,
     blank=True,
     null=True
   )
-  gebuehren = BooleanField(
-    verbose_name='Gebühren?'
-  )
-  ueberdacht = BooleanField(
-    verbose_name=' überdacht?'
-  )
-  ebike_lademoeglichkeiten = BooleanField(
-    verbose_name='E-Bike-Lademöglichkeiten?',
+  ausfuehrung_stellplaetze = ForeignKey(
+    to=Ausfuehrungen_Fahrradabstellanlagen_Stellplaetze,
+    verbose_name='Ausführung Stellplätze',
+    on_delete=SET_NULL,
+    db_column='ausfuehrung_stellplaetze',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen_stellplaetze',
     blank=True,
     null=True
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer'
   )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
-    db_table = 'fachdaten\".\"fahrradabstellanlagen_hro'
+    db_table = 'fachdaten_strassenbezug\".\"fahrradabstellanlagen_hro'
     verbose_name = 'Fahrradabstellanlage'
     verbose_name_plural = 'Fahrradabstellanlagen'
 
   class BasemodelMeta(SimpleModel.BasemodelMeta):
     description = 'Fahrradabstellanlagen in der Hanse- und Universitätsstadt Rostock'
     as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
     geometry_type = 'Point'
     list_fields = {
       'aktiv': 'aktiv?',
-      'art': 'Art',
-      'stellplaetze': 'Stellplätze',
-      'gebuehren': 'Gebühren?',
-      'ueberdacht': 'überdacht?',
-      'ebike_lademoeglichkeiten': 'E-Bike-Lademöglichkeiten?'
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'anzahl_stellplaetze': 'Anzahl Stellplätze',
+      'ausfuehrung_stellplaetze': 'Ausführung Stellplätze',
+      'eigentuemer': 'Eigentümer'
     }
     list_fields_with_foreign_key = {
-      'art': 'art'
+      'strasse': 'strasse',
+      'ausfuehrung': 'ausfuehrung',
+      'ausfuehrung_stellplaetze': 'ausfuehrung',
+      'eigentuemer': 'bezeichnung'
     }
+    list_actions_assign = [
+      {
+        'action_name': 'fahrradabstellanlagen-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradabstellanlagen-ausfuehrung_stellplaetze',
+        'action_title': 'ausgewählten Datensätzen Ausführung Stellplätze direkt zuweisen',
+        'field': 'ausfuehrung_stellplaetze',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradabstellanlagen-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
     map_filter_fields = {
       'aktiv': 'aktiv?',
-      'art': 'Art',
-      'stellplaetze': 'Stellplätze',
-      'gebuehren': 'Gebühren?',
-      'ueberdacht': 'überdacht?',
-      'ebike_lademoeglichkeiten': 'E-Bike-Lademöglichkeiten?'
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'anzahl_stellplaetze': 'Anzahl Stellplätze',
+      'ausfuehrung_stellplaetze': 'Ausführung Stellplätze',
+      'eigentuemer': 'Eigentümer'
     }
-    map_filter_fields_as_list = ['art']
+    map_filter_fields_as_list = [
+      'strasse',
+      'ausfuehrung',
+      'ausfuehrung_stellplaetze',
+      'eigentuemer'
+    ]
 
   def __str__(self):
-    return str(self.uuid)
+    return self.id
+
+
+class Fahrradboxen(SimpleModel):
+  """
+  Fahrradboxen
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Fahrradboxen,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  anzahl_stellplaetze = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl Stellplätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer'
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"fahrradboxen_hro'
+    verbose_name = 'Fahrradbox'
+    verbose_name_plural = 'Fahrradboxen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Fahrradboxen in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'anzahl_stellplaetze': 'Anzahl Stellplätze',
+      'eigentuemer': 'Eigentümer'
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'ausfuehrung': 'ausfuehrung',
+      'eigentuemer': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'fahrradboxen-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradboxen-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'anzahl_stellplaetze': 'Anzahl Stellplätze',
+      'eigentuemer': 'Eigentümer'
+    }
+    map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
+
+  def __str__(self):
+    return self.id
 
 
 class Fahrradreparatursets(SimpleModel):
@@ -2123,6 +2297,122 @@ class Fahrradreparatursets(SimpleModel):
       'ausfuehrung': 'Ausführung',
       'lagebeschreibung': 'Lagebeschreibung',
       'baujahr': 'Baujahr',
+      'eigentuemer': 'Eigentümer'
+    }
+    map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
+
+  def __str__(self):
+    return self.id
+
+
+class Fahrradstaender(SimpleModel):
+  """
+  Fahrradständer
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  ausfuehrung = ForeignKey(
+    to=Ausfuehrungen_Fahrradstaender,
+    verbose_name='Ausführung',
+    on_delete=RESTRICT,
+    db_column='ausfuehrung',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_ausfuehrungen'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  anzahl_stellplaetze = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl Stellplätze',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  anzahl_fahrradstaender = PositiveSmallIntegerMinField(
+    verbose_name='Anzahl Fahrradständer',
+    min_value=1,
+    blank=True,
+    null=True
+  )
+  eigentuemer = ForeignKey(
+    to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
+    verbose_name='Eigentümer',
+    on_delete=RESTRICT,
+    db_column='eigentuemer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_eigentuemer'
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"fahrradstaender_hro'
+    verbose_name = 'Fahrradständer'
+    verbose_name_plural = 'Fahrradständer'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Fahrradständer in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'anzahl_stellplaetze': 'Anzahl Stellplätze',
+      'anzahl_fahrradstaender': 'Anzahl Fahrradständer',
+      'eigentuemer': 'Eigentümer'
+    }
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse',
+      'ausfuehrung': 'ausfuehrung',
+      'eigentuemer': 'bezeichnung'
+    }
+    list_actions_assign = [
+      {
+        'action_name': 'fahrradstaender-ausfuehrung',
+        'action_title': 'ausgewählten Datensätzen Ausführung direkt zuweisen',
+        'field': 'ausfuehrung',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradstaender-eigentuemer',
+        'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
+        'field': 'eigentuemer',
+        'type': 'foreignkey'
+      }
+    ]
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'ausfuehrung': 'Ausführung',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'anzahl_stellplaetze': 'Anzahl Stellplätze',
+      'anzahl_fahrradstaender': 'Anzahl Fahrradständer',
       'eigentuemer': 'Eigentümer'
     }
     map_filter_fields_as_list = ['strasse', 'ausfuehrung', 'eigentuemer']
