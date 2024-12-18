@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from django.db.models import CASCADE, FileField, ForeignKey, JSONField, ManyToManyField, Model
 from django.db.models.fields import AutoField, CharField, DateTimeField, TextField
 
@@ -100,3 +101,16 @@ class SuitableFor(Model):
 
   def template__name(self):
     return self.template.name
+
+
+class BasemodelMetaAttributes(models.Model):
+  """
+
+  """
+  model_name = models.CharField(
+    max_length=255
+  )
+  meta_attributes = models.JSONField(
+    verbose_name='Attribut-Wert',
+    verbose_name_plural='Attribut-Werte'
+  )

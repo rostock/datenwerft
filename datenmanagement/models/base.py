@@ -48,6 +48,7 @@ class Basemodel(Model):
     :var address_mandatory: shall an address reference be mandatory for this model?
     :ivar thumbs: shall thumbnails be created from uploaded photos for this model?
     :ivar geojson_input: shall an upload field for a GeoJSON file be available in the form view?
+    :ivar git_repo_3d_models: shall 3D models be selected for this model?
     :ivar gpx_input: shall an upload field for a GPX file be available in the form view?
     :ivar associated_models: shall other models referencing this model?
     :ivar choices_models_for_choices_fields:
@@ -100,6 +101,7 @@ class Basemodel(Model):
     address_mandatory: bool = False
     thumbs: bool = True
     geojson_input: bool = False
+    git_repo_3d_models: str = None
     gpx_input: bool = False
 
     # shall other models (as keys), each referencing this model
