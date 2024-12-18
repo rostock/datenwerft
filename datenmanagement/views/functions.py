@@ -320,9 +320,16 @@ def generate_restricted_objects_list(restricted_objects):
   object_list = ''
   for restricted_object in restricted_objects:
     object_list += ('<li>' if len(restricted_objects) > 1 else '')
-    object_list += 'Datenthema '
-    object_list += '<em>%s:</em> ' % restricted_object.__class__._meta.verbose_name_plural
-    object_list += 'Objekt <em>%s</em>' % str(restricted_object)
+    restricted_object_model = restricted_object.__class__
+    restricted_object_model_name = restricted_object_model.__name__
+    theme_link = reverse('datenmanagement:' + restricted_object_model_name + '_start')
+    theme_link_text = restricted_object_model._meta.verbose_name_plural
+    theme_link_element = f'<a href="{theme_link}">{theme_link_text}</a>'
+    object_link = reverse(
+      'datenmanagement:' + restricted_object_model_name + '_change', args=[restricted_object.pk])
+    object_link_text = str(restricted_object)
+    object_link_element = f'<a href="{object_link}">{object_link_text}</a>'
+    object_list += f'Datenthema {theme_link_element} – Objekt <em>{object_link_element}</em>'
     object_list += ('</li>' if len(restricted_objects) > 1 else '')
   return '<ul>' + object_list + '</ul>' if len(restricted_objects) > 1 else object_list
 
