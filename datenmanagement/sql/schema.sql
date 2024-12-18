@@ -2710,13 +2710,6 @@ CREATE TABLE fachdaten.punktwolken (
 
 
 --
--- Name: COLUMN punktwolken.file_size; Type: COMMENT; Schema: fachdaten; Owner: -
---
-
-COMMENT ON COLUMN fachdaten.punktwolken.file_size IS 'in bytes';
-
-
---
 -- Name: punktwolken_projekte; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -7882,11 +7875,11 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 
 --
--- Name: punktwolken punktwolken_projekt_uuid_fkey; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+-- Name: punktwolken punktwolken_punktwolken_projekte_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
 ALTER TABLE ONLY fachdaten.punktwolken
-    ADD CONSTRAINT punktwolken_projekt_uuid_fkey FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid);
+    ADD CONSTRAINT punktwolken_punktwolken_projekte_fk FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
