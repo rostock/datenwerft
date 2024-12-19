@@ -7,6 +7,7 @@ Type=forking
 # Apache HTTP Server user and group
 User=wwwrun
 Group=www
+RuntimeDirectory=celery
 # environment variables:
 # load Django settings for celery
 Environment="DJANGO_SETTINGS_MODULE=datenwerft.settings"
