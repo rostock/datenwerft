@@ -43,7 +43,7 @@ class VCPub:
           self.__auth = BearerAuth(bearer)
           self.__session = Session()
           self.__session.auth = self.__auth
-          self.connected = True
+          self.__connected = True
         else:
           self.logger.error('VCPub Login failed.')
     return self.__connected
