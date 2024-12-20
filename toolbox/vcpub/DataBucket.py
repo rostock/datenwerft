@@ -19,7 +19,7 @@ class DataBucket:
   properties: dict = {}
 
   def __init__(self, _id: str = None, name: str = str(uuid4()),
-               description: str = '', properties = None, api: VCPub = None):
+               description: str = '', properties: dict = None, api: VCPub = None):
     if properties is None:
       properties = {}
     if api:
