@@ -4,6 +4,16 @@
 {% block title %}{{ model_verbose_name_plural }} – Löschung | {% endblock %}
 
 {% block content %}
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags and message.tags == 'error' %}
+        <div class="alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ message|safe }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
   <form class="form" method="post" action="">
     {% csrf_token %}
     <input type="hidden" name="original_url_back" value="{{ url_back }}">
