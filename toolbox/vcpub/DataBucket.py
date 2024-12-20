@@ -6,22 +6,28 @@ from uuid import uuid4
 class DataBucket:
   """
   This class implements the structure of DataBuckets of the VC Publisher API.
+
+  :ivar __api: VCPub: API object of the VC Publisher API
+  :ivar _id: str: ID of the data bucket
+  :ivar name: str: Name of the data bucket
+  :ivar description: str: Description of the data bucket
+  :ivar properties: dict: Properties of the data bucket
   """
-  __api = VCPub()
-  __project_id = __api.get_project_id()
   _id: str = ''
   name: str = ''
   description: str = ''
   properties: dict = {}
 
-  def __init__(self,
-               _id: str = None,
-               name: str = str(uuid4()),
-               description: str = '',
-               properties=None):
+  def __init__(self, _id: str = None, name: str = str(uuid4()),
+               description: str = '', properties = None, api: VCPub = None):
     if properties is None:
       properties = {}
-    if _id:
+    if api:
+      self.__api = api
+    else:
+      self.__api = VCPub()
+    self.__project_id = self.__api.get_project_id()
+    if _id is not None:
       # get data bucket information for given id
       self._id = _id
       self.__get_bucket__()
@@ -48,6 +54,8 @@ class DataBucket:
       self.name = bucket['name']
       self.create_object(key='.keep')
       self.__api.logger.debug('Data Bucket created.')
+    else:
+      self.__api.logger.warning(f'Failed to create Bucket. {bucket.__dict__}')
 
   def __get_bucket__(self):
     """
@@ -61,7 +69,7 @@ class DataBucket:
       self.properties = bucket['properties']
       self.projectId = bucket['projectId']
     else:
-      self.__api.logger.warning('Failed to get Bucket.')
+      self.__api.logger.warning(f'Failed to get Bucket. {bucket.__dict__}')
 
   def create_object(self, key: str, object_type: str = 'file'):
     """
@@ -96,14 +104,14 @@ class DataBucket:
     parameter = {
       "key": object_key
     }
-    # print(headers)
     ok, response = self.__api.get(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/download-file',
       # headers=headers,
       stream=stream,
       params=parameter
     )
-    print(response.raw.__dict__)
+    if not ok:
+      self.__api.logger.warning(f'Failed to download file: {response.__dict__}')
     return ok, response
 
   def get_endpoint(self):
@@ -173,7 +181,7 @@ class DataBucket:
       # celery job runs for every chunk with stream option
     )
     if not ok:
-      print(response)
+      self.__api.logger.warning(f'Failed to upload file: {response.__dict__}')
     # return data-bucket object key of uploadet file
     key = f'/{key}'
     return ok, key
@@ -183,4 +191,6 @@ class DataBucket:
     ok, response = self.__api.delete(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/object{params}',
     )
+    if not ok:
+      self.__api.logger.warning(f'Failed to delete object: {response.__dict__}')
     return ok, response

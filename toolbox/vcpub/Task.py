@@ -36,8 +36,8 @@ class Task:
       self.__create__()
 
   def __create__(self):
-    bucket = DataBucket(name=self.name, description=self.description)
-    source = Datasource(name=self.name, description=self.description)
+    bucket = DataBucket(name=self.name, description=self.description, api=self.__api)
+    source = Datasource(name=self.name, description=self.description, api=self.__api)
     self.parameters['dataset'] = bucket.link()
     self.parameters['datasource'] = source.link()
     current_time = datetime.now(timezone.utc)
@@ -57,6 +57,8 @@ class Task:
     self._id = task['_id']
     if ok:
       self.__api.logger.debug('Task created.')
+    else:
+      self.__api.logger.warning(f'Failed to create Task: {task.__dict__}')
 
   def __get_task__(self):
     ok, task = self.__api.get(endpoint=f'/project/{self.__project_id}/task/{self._id}/')
@@ -66,7 +68,7 @@ class Task:
       self.parameters = task['parameters']
       self.schedule = task['schedule']
     else:
-      self.__api.logger.warning('Failed to get Task.')
+      self.__api.logger.warning(f'Failed to get Task. {task.__dict__}')
 
   def get_dataset(self):
     """

@@ -41,7 +41,7 @@ def is_broker_available():
     r.ping()
     return True
   except redis.ConnectionError as e:
-    logging.critical(f"Celery Broker is not available: {e}")
+    logger.critical(f"Celery Broker is not available: {e}")
     return False
 
 

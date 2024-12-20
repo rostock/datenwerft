@@ -43,9 +43,10 @@ class VCPub:
           self.__auth = BearerAuth(bearer)
           self.__session = Session()
           self.__session.auth = self.__auth
-          self.connected = True
+          self.__connected = True
+          self.logger.debug('VCPub Login.')
         else:
-          self.logger.error('VCPub Login failed.')
+          self.logger.error(f'VCPub Login failed. {response.__dict__}')
     return self.__connected
 
   def __logout__(self) -> None:
@@ -89,21 +90,21 @@ class VCPub:
       url: str = self.__url + endpoint
       response = self.__session.post(url=url, data=data, json=json, files=files, *args, **kwargs)
       if response.ok and response.status_code != 204:
-        self.logger.debug(f'POST {url}')
+        self.logger.debug(f'POST on {url} succeeded. STATUS: {response.status_code}')
         return response.ok, response.json()
       elif response.status_code == 204:
         # 204 No Response
-        self.logger.debug(f'POST {url}')
+        self.logger.debug(f'POST on {url} succeeded. STATUS: {response.status_code}')
         return response.ok, None
       else:
         self.logger.warning(f'POST on {url} failed: {response.__dict__}')
         return response.ok, response
 
     if self.__connected:
-      post_it()
+      return post_it()
     else:
       if self.__login__():
-        post_it()
+        return post_it()
       else:
         response = Response()
         response.status_code = 502
@@ -125,24 +126,24 @@ class VCPub:
       response = self.__session.get(url=url, headers=headers, stream=stream, *args, **kwargs)
 
       if response.ok and response.status_code != 204:
-        self.logger.debug(f'GET {url}')
+        self.logger.debug(f'GET on {url} succeeded. STATUS: {response.status_code}')
         if stream:
           return response.ok, response
         else:
           return response.ok, response.json()
       elif response.status_code == 204:
         # 204 No Response
-        self.logger.debug(f'GET {url}')
+        self.logger.debug(f'GET on {url} succeeded. STATUS: {response.status_code}')
         return response.ok, None
       else:
         self.logger.warning(f'GET on {url} failed: {response.json()}')
         return response.ok, response
 
     if self.__connected:
-      get_it()
+      return get_it()
     else:
       if self.__login__():
-        get_it()
+        return get_it()
       else:
         response = Response()
         response.status_code = 502
@@ -161,21 +162,21 @@ class VCPub:
       url: str = self.__url + endpoint
       response = self.__session.delete(url=url, headers=headers)
       if response.ok and response.status_code != 204:
-        self.logger.debug(f'DELETE {url}')
+        self.logger.debug(f'DELETE on {url} succeeded. STATUS: {response.status_code}')
         return response.ok, response.json()
       elif response.status_code == 204:
         # 204 No Response
-        self.logger.debug(f'DELETE {url}')
+        self.logger.debug(f'DELETE on {url} succeeded. STATUS: {response.status_code}')
         return response.ok, None
       else:
         self.logger.warning(f'DELETE on {url} failed: {response.json()}')
         return response.ok, response
 
     if self.__connected:
-      delete_it()
+      return delete_it()
     else:
       if self.__login__():
-        delete_it()
+        return delete_it()
       else:
         response = Response()
         response.status_code = 502
