@@ -488,18 +488,6 @@ CREATE TABLE codelisten.arten_erdwaermesonden (
 
 
 --
--- Name: arten_fahrradabstellanlagen; Type: TABLE; Schema: codelisten; Owner: -
---
-
-CREATE TABLE codelisten.arten_fahrradabstellanlagen (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    art character varying(255) NOT NULL
-);
-
-
---
 -- Name: arten_fairtrade; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -704,10 +692,58 @@ CREATE TABLE codelisten.auftraggeber_baustellen (
 
 
 --
+-- Name: ausfuehrungen_fahrradabstellanlagen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_fahrradabstellanlagen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: ausfuehrungen_fahrradabstellanlagen_stellplaetze; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_fahrradabstellanlagen_stellplaetze (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: ausfuehrungen_fahrradboxen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_fahrradboxen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: ausfuehrungen_fahrradreparatursets; Type: TABLE; Schema: codelisten; Owner: -
 --
 
 CREATE TABLE codelisten.ausfuehrungen_fahrradreparatursets (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    ausfuehrung character varying(255) NOT NULL
+);
+
+
+--
+-- Name: ausfuehrungen_fahrradstaender; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ausfuehrungen_fahrradstaender (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
@@ -2113,27 +2149,6 @@ CREATE TABLE fachdaten.erdwaermesonden_hro (
 
 
 --
--- Name: fahrradabstellanlagen_hro; Type: TABLE; Schema: fachdaten; Owner: -
---
-
-CREATE TABLE fachdaten.fahrradabstellanlagen_hro (
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    aktualisiert date DEFAULT (now())::date NOT NULL,
-    erstellt date DEFAULT (now())::date NOT NULL,
-    id_fachsystem character varying(255),
-    id_zielsystem character varying(255),
-    aktiv boolean DEFAULT true NOT NULL,
-    deaktiviert date,
-    art uuid NOT NULL,
-    stellplaetze smallint,
-    gebuehren boolean NOT NULL,
-    ueberdacht boolean NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL,
-    ebike_lademoeglichkeiten boolean
-);
-
-
---
 -- Name: fallwildsuchen_kontrollgebiete_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -2692,13 +2707,6 @@ CREATE TABLE fachdaten.punktwolken (
     vcp_object_key character varying(255),
     file_size bigint
 );
-
-
---
--- Name: COLUMN punktwolken.file_size; Type: COMMENT; Schema: fachdaten; Owner: -
---
-
-COMMENT ON COLUMN fachdaten.punktwolken.file_size IS 'in bytes';
 
 
 --
@@ -3973,6 +3981,51 @@ CREATE TABLE fachdaten_strassenbezug.baustellen_geplant (
 
 
 --
+-- Name: fahrradabstellanlagen_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.fahrradabstellanlagen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    ausfuehrung uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    ausfuehrung_stellplaetze uuid,
+    anzahl_stellplaetze smallint,
+    eigentuemer uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: fahrradboxen_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.fahrradboxen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    ausfuehrung uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    anzahl_stellplaetze smallint,
+    eigentuemer uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
 -- Name: fahrradreparatursets_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -3989,6 +4042,29 @@ CREATE TABLE fachdaten_strassenbezug.fahrradreparatursets_hro (
     ausfuehrung uuid NOT NULL,
     lagebeschreibung character varying(255),
     baujahr smallint,
+    eigentuemer uuid NOT NULL,
+    geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: fahrradstaender_hro; Type: TABLE; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TABLE fachdaten_strassenbezug.fahrradstaender_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    strasse uuid,
+    id character(8) NOT NULL,
+    ausfuehrung uuid NOT NULL,
+    lagebeschreibung character varying(255),
+    anzahl_stellplaetze smallint,
+    anzahl_fahrradstaender smallint,
     eigentuemer uuid NOT NULL,
     geometrie public.geometry(Point,25833) NOT NULL
 );
@@ -4319,22 +4395,6 @@ ALTER TABLE ONLY codelisten.arten_erdwaermesonden
 
 
 --
--- Name: arten_fahrradabstellanlagen arten_fahrradabstellanlagen_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_fahrradabstellanlagen
-    ADD CONSTRAINT arten_fahrradabstellanlagen_art_unique UNIQUE (art);
-
-
---
--- Name: arten_fahrradabstellanlagen arten_fahrradabstellanlagen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
---
-
-ALTER TABLE ONLY codelisten.arten_fahrradabstellanlagen
-    ADD CONSTRAINT arten_fahrradabstellanlagen_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: arten_fairtrade arten_fairtrade_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4607,6 +4667,54 @@ ALTER TABLE ONLY codelisten.auftraggeber_baustellen
 
 
 --
+-- Name: ausfuehrungen_fahrradabstellanlagen ausfuehrungen_fahrradabstellanlagen_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradabstellanlagen
+    ADD CONSTRAINT ausfuehrungen_fahrradabstellanlagen_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_fahrradabstellanlagen ausfuehrungen_fahrradabstellanlagen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradabstellanlagen
+    ADD CONSTRAINT ausfuehrungen_fahrradabstellanlagen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: ausfuehrungen_fahrradabstellanlagen_stellplaetze ausfuehrungen_fahrradabstellanlagen_stellplaetze_ausfuehrung_un; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradabstellanlagen_stellplaetze
+    ADD CONSTRAINT ausfuehrungen_fahrradabstellanlagen_stellplaetze_ausfuehrung_un UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_fahrradabstellanlagen_stellplaetze ausfuehrungen_fahrradabstellanlagen_stellplaetze_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradabstellanlagen_stellplaetze
+    ADD CONSTRAINT ausfuehrungen_fahrradabstellanlagen_stellplaetze_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: ausfuehrungen_fahrradboxen ausfuehrungen_fahrradboxen_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradboxen
+    ADD CONSTRAINT ausfuehrungen_fahrradboxen_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_fahrradboxen ausfuehrungen_fahrradboxen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradboxen
+    ADD CONSTRAINT ausfuehrungen_fahrradboxen_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: ausfuehrungen_fahrradreparatursets ausfuehrungen_fahrradreparatursets_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -4620,6 +4728,22 @@ ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradreparatursets
 
 ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradreparatursets
     ADD CONSTRAINT ausfuehrungen_fahrradreparatursets_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: ausfuehrungen_fahrradstaender ausfuehrungen_fahrradstaender_ausfuehrung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradstaender
+    ADD CONSTRAINT ausfuehrungen_fahrradstaender_ausfuehrung_unique UNIQUE (ausfuehrung);
+
+
+--
+-- Name: ausfuehrungen_fahrradstaender ausfuehrungen_fahrradstaender_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ausfuehrungen_fahrradstaender
+    ADD CONSTRAINT ausfuehrungen_fahrradstaender_pk PRIMARY KEY (uuid);
 
 
 --
@@ -6071,14 +6195,6 @@ ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
 
 
 --
--- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.fahrradabstellanlagen_hro
-    ADD CONSTRAINT fahrradabstellanlagen_hro_pk PRIMARY KEY (uuid);
-
-
---
 -- Name: fallwildsuchen_kontrollgebiete_hro fallwildsuchen_kontrollgebiete_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
@@ -6783,6 +6899,38 @@ ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
 
 
 --
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: fahrradboxen_hro fahrradboxen_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradboxen_hro
+    ADD CONSTRAINT fahrradboxen_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: fahrradboxen_hro fahrradboxen_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradboxen_hro
+    ADD CONSTRAINT fahrradboxen_hro_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: fahrradreparatursets_hro fahrradreparatursets_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -6796,6 +6944,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
     ADD CONSTRAINT fahrradreparatursets_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: fahrradstaender_hro fahrradstaender_hro_id_unique; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradstaender_hro
+    ADD CONSTRAINT fahrradstaender_hro_id_unique UNIQUE (id);
+
+
+--
+-- Name: fahrradstaender_hro fahrradstaender_hro_pk; Type: CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradstaender_hro
+    ADD CONSTRAINT fahrradstaender_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7058,10 +7222,31 @@ CREATE TRIGGER tr_before_insert_20_gemeindeteil BEFORE INSERT ON fachdaten_stras
 
 
 --
+-- Name: fahrradabstellanlagen_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.fahrradabstellanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
+
+
+--
+-- Name: fahrradboxen_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.fahrradboxen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
+
+
+--
 -- Name: fahrradreparatursets_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
 CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.fahrradreparatursets_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
+
+
+--
+-- Name: fahrradstaender_hro tr_before_insert_id; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.fahrradstaender_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.id_abfallbehaelter();
 
 
 --
@@ -7303,14 +7488,6 @@ ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
 
 ALTER TABLE ONLY fachdaten.erdwaermesonden_hro
     ADD CONSTRAINT erdwaermesonden_hro_typen_fk FOREIGN KEY (typ) REFERENCES codelisten.typen_erdwaermesonden(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_arten_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
---
-
-ALTER TABLE ONLY fachdaten.fahrradabstellanlagen_hro
-    ADD CONSTRAINT fahrradabstellanlagen_hro_arten_fk FOREIGN KEY (art) REFERENCES codelisten.arten_fahrradabstellanlagen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -7698,11 +7875,11 @@ ALTER TABLE ONLY fachdaten.poller_hro
 
 
 --
--- Name: punktwolken punktwolken_projekt_uuid_fkey; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+-- Name: punktwolken punktwolken_punktwolken_projekte_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
 --
 
 ALTER TABLE ONLY fachdaten.punktwolken
-    ADD CONSTRAINT punktwolken_projekt_uuid_fkey FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid);
+    ADD CONSTRAINT punktwolken_punktwolken_projekte_fk FOREIGN KEY (punktwolken_projekte) REFERENCES fachdaten.punktwolken_projekte(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -8178,6 +8355,46 @@ ALTER TABLE ONLY fachdaten_strassenbezug.baustellen_geplant
 
 
 --
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_fahrradabstellanlagen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_ausfuehrungen_stellplaetze_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_ausfuehrungen_stellplaetze_fk FOREIGN KEY (ausfuehrung_stellplaetze) REFERENCES codelisten.ausfuehrungen_fahrradabstellanlagen_stellplaetze(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_eigentuemer_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradboxen_hro fahrradboxen_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradboxen_hro
+    ADD CONSTRAINT fahrradboxen_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_fahrradboxen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradboxen_hro fahrradboxen_hro_eigentuemer_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradboxen_hro
+    ADD CONSTRAINT fahrradboxen_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: fahrradreparatursets_hro fahrradreparatursets_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -8191,6 +8408,22 @@ ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.fahrradreparatursets_hro
     ADD CONSTRAINT fahrradreparatursets_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradstaender_hro fahrradstaender_hro_ausfuehrungen_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradstaender_hro
+    ADD CONSTRAINT fahrradstaender_hro_ausfuehrungen_fk FOREIGN KEY (ausfuehrung) REFERENCES codelisten.ausfuehrungen_fahrradstaender(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradstaender_hro fahrradstaender_hro_eigentuemer_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradstaender_hro
+    ADD CONSTRAINT fahrradstaender_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

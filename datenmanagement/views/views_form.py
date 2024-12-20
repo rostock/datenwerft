@@ -1,10 +1,12 @@
 from django.apps import apps
 from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.messages import success
+from django.contrib.messages import error, success
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import connections
+from django.db.models import RestrictedError
 from django.forms.models import modelform_factory
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from json import dumps
@@ -12,8 +14,8 @@ from time import time
 
 from .forms import GenericForm
 from .functions import DecimalEncoder, add_basic_model_context_elements, \
-  add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, get_url_back, \
-  set_form_attributes
+  add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, \
+  generate_restricted_objects_list, get_url_back, set_form_attributes
 from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
@@ -485,16 +487,25 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     :param form: form
     :return: HTTP response if passed form is valid
     """
-    # return to either the original referer or a default page
+    # build success URL (either the original referer or a default page)
     referer = form.data.get('original_url_back', None)
-    self.success_url = get_url_back(
+    success_url = get_url_back(
       referer if referer and '/list' in referer else None,
       'datenmanagement:' + self.model.__name__ + '_start',
       True
     )
-    success(
-      self.request,
-      'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht' % str(self.object)
-    )
-    response = super().form_valid(form)
-    return response
+    try:
+      self.object.delete()
+      success(
+        self.request,
+        'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht' % str(self.object)
+      )
+      return HttpResponseRedirect(success_url)
+    except RestrictedError as exception:
+      error(
+        self.request,
+        'Datensatz <strong><em>%s</em></strong> kann nicht gelöscht werden! ' % str(self.object) +
+        'Folgende(s) Objekt(e) verweist/verweisen noch auf ihn:<br><br>' +
+        generate_restricted_objects_list(exception.restricted_objects)
+      )
+      return self.render_to_response(self.get_context_data(form=form))
