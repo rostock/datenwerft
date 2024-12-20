@@ -5,8 +5,15 @@ from toolbox.vcpub.vcpub import VCPub
 
 
 class Datasource:
-  __api: VCPub = VCPub()
-  __project_id = __api.get_project_id()
+  """
+  Implements the structure of a datasource object in the VC Publisher API.
+
+  :ivar _id: str: ID of the datasource
+  :ivar name: str: Name of the datasource
+  :ivar description: str: Description of the datasource
+  :ivar typeProperties: dict: Properties of the datasource
+  :ivar sourceProperties: dict: Properties of the source
+  """
   _id: str = ''
   name: str = ''
   description: str = ''
@@ -14,17 +21,20 @@ class Datasource:
   sourceProperties: dict = {}
   type: str = 'tileset'
 
-  def __init__(self,
-               _id: str = None,
-               name: str = str(uuid4()),
-               description: str = ''):
+  def __init__(self, _id: str = None, name: str = str(uuid4()),
+               description: str = '', api: VCPub = None):
+    if api:
+      self.__api = api
+    else:
+      self.__api = VCPub()
+    self.__project_id = self.__api.get_project_id()
     if _id:
       self._id = _id
       self.__get_source__()
     else:
       self.name = f'{name}_source'
       self.description = description
-      source_bucket = DataBucket(name=self.name, description=self.description)
+      source_bucket = DataBucket(name=self.name, description=self.description, api=self.__api)
       self.sourceProperties = source_bucket.link()
       self.__create__()
 
@@ -44,6 +54,8 @@ class Datasource:
     if ok:
       self.__api.logger.debug('Data Source created.')
       self._id = source['_id']
+    else:
+      self.__api.logger.warning(f'Failed to create Data Source. {source.__dict__}')
 
   def __get_source__(self):
     """
@@ -56,9 +68,9 @@ class Datasource:
       self.description = source['description']
       self.typeProperties = source['typeProperties']
       self.sourceProperties = source['sourceProperties']
-      self.type = type
+      self.type = source['type']
     else:
-      self.__api.logger.warning('Failed to get Data Source.')
+      self.__api.logger.warning(f'Failed to get Data Source. {source.__dict__}')
 
   def link(self):
     """
@@ -78,7 +90,7 @@ class Datasource:
     """
     pass
     # delete datasource bucket
-    bucket = DataBucket(_id=self.sourceProperties['dataBucketId'])
+    bucket = DataBucket(_id=self.sourceProperties['dataBucketId'], api=self.__api)
     bucket.delete()
     # delete source
     self.__api.delete(endpoint=f'/project/{self.__project_id}/datasource')
