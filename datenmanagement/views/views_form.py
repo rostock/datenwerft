@@ -226,7 +226,7 @@ class DataChangeView(UpdateView):
         associated_new_dict = {
           'title': title,
           'link': link,
-          'api': f'/api/{associated_model.lower()}/'
+          'api': reverse(f'{associated_model.lower()}-list')
         }
         self.associated_new.append(associated_new_dict)
         curr_filter = {
@@ -253,6 +253,8 @@ class DataChangeView(UpdateView):
                 preview_thumb_url = get_thumb_url(foto.url) + '?' + str(time())
             except ValueError:
               pass
+          api_link = reverse(
+            f'{associated_model.lower()}-detail', kwargs={'pk': f'{associated_object.pk}'})
           associated_object_dict = {
             'title': title,
             'name': str(associated_object),
@@ -263,11 +265,11 @@ class DataChangeView(UpdateView):
             ),
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
-            'api': f'/api/{associated_model.lower()}/{associated_object.pk}/',
+            'api': api_link,
             'geometry': geometry
           }
           if hasattr(associated_object, 'punktwolke'):
-            path = f'/datenmanagement/Punktwolken/download/{associated_object.pk}'
+            path = reverse('datenmanagement:download_pointcloud', args=[associated_object.pk])
             associated_object_dict['file'] = path
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
@@ -292,7 +294,7 @@ class DataChangeView(UpdateView):
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
     context['uuid'] = self.kwargs['pk']
-    context['api'] = f'/api/{model_name_lower}/{self.kwargs["pk"]}/'
+    context['api'] = reverse(f'{model_name_lower}-detail', kwargs={'pk': f'{self.kwargs["pk"]}'})
     context['associated_objects'] = self.associated_objects if self.associated_objects else None
     context['associated_new'] = self.associated_new if self.associated_new else None
     context['geometry_calculation'] = self.model.BasemodelMeta.geometry_calculation
