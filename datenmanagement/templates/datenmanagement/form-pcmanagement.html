@@ -63,8 +63,6 @@
         const uploadProgress = document.getElementById("uploadProgress");
 
         async function addObject(apiLink) {
-          console.log(apiLink);
-
           uploadModal.show();
           simulateUpload();
 
@@ -82,7 +80,7 @@
             (blobValue = file),
             (filename = file.name),
           );
-          formdata.append("projekt", "{{ api }}");
+          formdata.append("projekt", window.location.origin + "{{ api }}");
           formdata.append("aufnahme", file.lastModified / 1000);
 
           const xhr = new XMLHttpRequest();
