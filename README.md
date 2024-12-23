@@ -131,11 +131,12 @@ Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss*
 Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.10):
 
 ```apache
-Alias               /datenwerft/static /usr/local/datenwerft/datenwerft/static
-Alias               /datenwerft/uploads /usr/local/datenwerft/datenwerft/uploads
-WSGIDaemonProcess   datenwerft processes=[Anzahl CPU x 2] threads=[Anzahl GB RAM x 3] connect-timeout=150 deadlock-timeout=300 eviction-timeout=0 graceful-timeout=150 inactivity-timeout=300 queue-timeout=300 request-timeout=300 shutdown-timeout=5 socket-timeout=300 startup-timeout=15 restart-interval=0 python-path=/usr/local/datenwerft/datenwerft:/usr/local/datenwerft/venv/lib64/python3.11/site-packages:/usr/local/datenwerft/venv/lib/python3.11/site-packages
-WSGIProcessGroup    datenwerft
-WSGIScriptAlias     /datenwerft /usr/local/datenwerft/datenwerft/datenwerft/wsgi.py process-group=datenwerft
+Alias                 /datenwerft/static /usr/local/datenwerft/datenwerft/static
+Alias                 /datenwerft/uploads /usr/local/datenwerft/datenwerft/uploads
+WSGIDaemonProcess     datenwerft processes=[Anzahl CPU x 2] threads=[Anzahl GB RAM x 3] connect-timeout=150 deadlock-timeout=300 eviction-timeout=0 graceful-timeout=150 inactivity-timeout=300 queue-timeout=300 request-timeout=300 shutdown-timeout=5 socket-timeout=300 startup-timeout=15 restart-interval=0 python-path=/usr/local/datenwerft/datenwerft:/usr/local/datenwerft/venv/lib64/python3.11/site-packages:/usr/local/datenwerft/venv/lib/python3.11/site-packages
+WSGIProcessGroup      datenwerft
+WSGIScriptAlias       /datenwerft /usr/local/datenwerft/datenwerft/datenwerft/wsgi.py process-group=datenwerft
+WSGIApplicationGroup  %{GLOBAL}
 
 <Directory /usr/local/datenwerft/datenwerft/datenwerft>
   <Files wsgi.py>
