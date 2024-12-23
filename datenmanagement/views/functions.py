@@ -300,7 +300,7 @@ def download_pointcloud(pk):
     else:
       return HttpResponse(response)
   else:
-    file_path = Path(f'{settings.MEDIA_ROOT}/{pc_instance.punktwolke}')
+    file_path = Path(f'{settings.PC_MEDIA_ROOT}/{pc_instance.punktwolke}')
     f = open(file_path, 'rb')
     file_response = StreamingHttpResponse(
       FileWrapper(f), content_type='application/octet-stream')

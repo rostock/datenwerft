@@ -124,7 +124,7 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ""):
       filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
     if foreign_key_subdir_attr:
       subdir = str(getattr(instance, foreign_key_subdir_attr))
-      return Path(path + f'/{subdir}') / filename
+      return Path(path) / subdir / filename
     else:
       return Path(path) / filename
   return wrapper
