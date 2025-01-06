@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% load static %}
 {% load datenmanagement_tags %}
+{% load static %}
 
 {% block title %}Datenmanagement | {% endblock %}
 
@@ -90,6 +90,25 @@
         </div>
       {% endif %}
     </div>
+    <script>
+      $(document).ready(function () {
+        // restore active tab from localStorage if present there
+        const activeTab = localStorage.getItem('activeTab');
+        if (activeTab) {
+          const $tab = $(`[data-bs-target="${activeTab}"]`);
+          if ($tab.length) {
+            const bootstrapTab = new bootstrap.Tab($tab[0]);
+            bootstrapTab.show();
+          }
+        }
+
+        // save active tab to localStorage on tab change
+        $('[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
+          console.log($(event.target).data('bs-target'))
+          localStorage.setItem('activeTab', $(event.target).data('bs-target'));
+        });
+      });
+    </script>
   {% else %}
     <h2 class="text-center">Ihnen stehen leider (noch) keine Datenthemen zur Bearbeitung zur Verfügung.</h2>
   {% endif %}
