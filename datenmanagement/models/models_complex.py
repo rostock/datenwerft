@@ -3069,7 +3069,7 @@ class Parkscheinautomaten_Parkscheinautomaten(ComplexModel):
 
 
 #
-# Punktwolken Projekte (besteht aus mehreren Punktwolken)
+# Punktwolken-Projekte (besteht aus mehreren Punktwolken)
 #
 
 class Punktwolken_Projekte(ComplexModel):
@@ -3084,7 +3084,7 @@ class Punktwolken_Projekte(ComplexModel):
     null=True
   )
   projekt_update = DateTimeField(
-    verbose_name='Aktualisierung',
+    verbose_name=' letzte Aktualisierung',
     editable=False,
     auto_now=True,
   )
@@ -3093,34 +3093,35 @@ class Punktwolken_Projekte(ComplexModel):
   # so a project have no geometry at initialization.
   geometrie.null = True
   vcp_task_id = UUIDField(
-    verbose_name='VC Publisher Task',
+    verbose_name='VC-Publisher-Task',
     blank=True
   )
   vcp_dataset_bucket_id = UUIDField(
-    verbose_name='VC Publisher Dataset',
+    verbose_name='VC-Publisher-Dataset',
     blank=True
   )
   vcp_datasource_id = CharField(
-    verbose_name='VC Publisher Datasource',
+    verbose_name='VC-Publisher-Datasource',
     max_length=255,
     blank=True
   )
 
   class Meta(ComplexModel.Meta):
     db_table = 'fachdaten\".\"punktwolken_projekte'
-    verbose_name = 'Punktwolken Projekt'
-    verbose_name_plural = 'Punktwolken Projekte'
+    verbose_name = 'Punktwolken-Projekt'
+    verbose_name_plural = 'Punktwolken-Projekte'
 
   class BasemodelMeta(ComplexModel.BasemodelMeta):
+    description = 'Projekte mit Punktwolken aus LiDAR-Scans'
     readonly_fields = ['geometrie', 'vcp_task_id', 'vcp_dataset_bucket_id', 'vcp_datasource_id']
     list_fields = {
       'aktiv': 'aktiv?',
       'bezeichnung': 'Bezeichnung',
       'beschreibung': 'Beschreibung',
-      'projekt_update': 'Zuletzt aktualisiert',
-      'vcp_task_id': 'VCP Task ID',
-      'vcp_dataset_bucket_id': 'VCP Dataset Bucket ID',
-      'vcp_datasource_id': 'VCP Datasource ID'
+      'projekt_update': 'letzte Aktualisierung',
+      'vcp_task_id': 'VC-Publisher-Task',
+      'vcp_dataset_bucket_id': 'VC-Publisher-Dataset',
+      'vcp_datasource_id': 'VC-Publisher-Datasource'
     }
     list_fields_with_datetime = ['projekt_update']
     associated_models = {
@@ -3185,7 +3186,7 @@ class Punktwolken(ComplexModel):
   )
   projekt = ForeignKey(
     to=Punktwolken_Projekte,
-    verbose_name='Punktwolken Projekt',
+    verbose_name='Punktwolken-Projekt',
     on_delete=CASCADE,
     db_column='punktwolken_projekte',
     to_field='uuid',
@@ -3201,11 +3202,11 @@ class Punktwolken(ComplexModel):
     validators=[FileExtensionValidator(allowed_extensions=['e57', 'las', 'laz', 'xyz'])]
   )
   vc_update = DateTimeField(
-    verbose_name='Zuletzt aktualisiert',
+    verbose_name=' letzte Aktualisierung',
     auto_now=True
   )
   vcp_object_key = CharField(
-    verbose_name='VCP Objekt ID',
+    verbose_name='VCP-Objekt-ID',
     max_length=255,
     editable=False,
     blank=True
@@ -3229,10 +3230,10 @@ class Punktwolken(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'dateiname': 'Dateiname',
-      'aufnahme': 'Aufnahmedatum',
-      'projekt': 'Punktwolken Projekt',
-      'vc_update': 'Letzte Aktualisierung',
-      'vcp_object_key': 'VCP Objekt ID'
+      'aufnahme': 'Aufnahmezeitpunkt',
+      'projekt': 'Punktwolken-Projekt',
+      'vc_update': 'letzte Aktualisierung',
+      'vcp_object_key': 'VCP-Objekt-ID'
     }
     list_fields_with_datetime = ['aufnahme', 'vc_update']
     list_fields_with_foreign_key = {
