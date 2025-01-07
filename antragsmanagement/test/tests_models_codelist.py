@@ -116,7 +116,7 @@ class CleanupEventCodelistWasteTypeTest(DefaultCodelistTestCase):
 class CleanupEventCodelistEquipmentTest(DefaultCodelistTestCase):
   """
   test class for codelist for request type clean-up events (Müllsammelaktionen):
-  equipment (Austattung)
+  equipment (benötigte Ausstattung)
   """
 
   model = CleanupEventCodelistEquipment

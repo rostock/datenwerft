@@ -440,7 +440,7 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
           'bis': format_date_datetime(curr_object['event_to']),
           'Abfallmenge': curr_object['details_waste_quantity'],
           'Abfallart(en)': curr_object['details_waste_types'],
-          'Austattung(en)': curr_object['details_equipments'],
+          'benötigte Ausstattung(en)': curr_object['details_equipments'],
           'Container-Stellung': format_date_datetime(curr_object['container_delivery']),
           'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
         }

@@ -411,7 +411,7 @@ class CleanupEventDetails(Object):
   equipments = ManyToManyField(
     CleanupEventCodelistEquipment,
     db_table='cleanupevent_details_equipments',
-    verbose_name='Austattung(en)',
+    verbose_name=' benötigte Ausstattung(en)',
     blank=True
   )
 
