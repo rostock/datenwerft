@@ -23,8 +23,8 @@ from .functions import add_model_context_elements, add_permissions_context_eleme
   send_cleanupeventrequest_email
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
-  Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump
+  Requester, CleanupEventRequest, CleanupEventResponsibilities, CleanupEventEvent, \
+  CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, CleanupEventDump
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
@@ -1678,13 +1678,23 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
         recipient_list=[curr_request.requester.email]
       )
       if curr_request.responsibilities.exists():
-        responsibilities = curr_request.responsibilities.all()
-        # use list comprehension to get recipients
+        responsibilities = CleanupEventResponsibilities.objects.filter(
+          cleanupevent_request=curr_request)
+        # get recipients
         # (i.e. the email addresses of all responsible authorities)
-        recipient_list = [
-          responsibility.email for responsibility in responsibilities
-        ]
-        # send email to inform responsible authorities about new request
+        recipient_list = []
+        for responsibility in responsibilities:
+          if responsibility.main:
+            # send email to inform mainly responsible authority about new request
+            send_cleanupeventrequest_email(
+              request=request,
+              email_key='CLEANUPEVENTREQUEST_TO-MAIN-AUTHORITY_NEW',
+              curr_object=curr_request,
+              recipient_list=[responsibility.authority.email]
+            )
+          else:
+            recipient_list.append(responsibility.authority.email)
+        # send email to inform other responsible authorities about new request
         send_cleanupeventrequest_email(
           request=request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
@@ -1692,7 +1702,7 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
           recipient_list=recipient_list
         )
         # additional messages if certain responsibilities exist
-        additional_messages(responsibilities, self.request)
+        additional_messages(curr_request.responsibilities.all(), self.request)
       messages.success(request, self.success_message)
     if request.user.is_authenticated:
       return redirect('antragsmanagement:index')
@@ -1810,13 +1820,23 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
         recipient_list=[request.requester.email]
       )
       if request.responsibilities.exists():
-        responsibilities = request.responsibilities.all()
-        # use list comprehension to get get recipients
+        responsibilities = CleanupEventResponsibilities.objects.filter(
+          cleanupevent_request=request)
+        # get recipients
         # (i.e. the email addresses of all responsible authorities)
-        recipient_list = [
-          responsibility.email for responsibility in responsibilities
-        ]
-        # send email to inform responsible authorities about new request
+        recipient_list = []
+        for responsibility in responsibilities:
+          if responsibility.main:
+            # send email to inform mainly responsible authority about new request
+            send_cleanupeventrequest_email(
+              request=self.request,
+              email_key='CLEANUPEVENTREQUEST_TO-MAIN-AUTHORITY_NEW',
+              curr_object=request,
+              recipient_list=[responsibility.authority.email]
+            )
+          else:
+            recipient_list.append(responsibility.authority.email)
+        # send email to inform other responsible authorities about new request
         send_cleanupeventrequest_email(
           request=self.request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
@@ -1824,7 +1844,7 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
           recipient_list=recipient_list
         )
         # additional messages if certain responsibilities exist
-        additional_messages(responsibilities, self.request)
+        additional_messages(request.responsibilities.all(), self.request)
     return super().form_valid(form)
 
   def get_initial(self):

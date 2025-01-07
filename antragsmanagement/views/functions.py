@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
+from osgeo_utils.samples.validate_geoparquet import map_remote_resources
 
 from antragsmanagement.constants_vars import AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS
 from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
@@ -305,21 +306,22 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   :return: email body, equipped with all neccessary information
   of passed object of model CleanupEventRequest
   """
-  # if responsibilities exist
-  responsibilities_value = '/'
+  # fetch responsibilities
+  main_responsibility_value, other_responsibilities_value = '/', '/'
   if curr_object.responsibilities.exists():
     responsibilities = CleanupEventResponsibilities.objects.filter(
       cleanupevent_request=curr_object)
-    responsibilities_value = ''
     first = True
     for responsibility in responsibilities:
-      if first:
-        first = False
-      else:
-        responsibilities_value += '\n'
-      responsibilities_value += responsibility.authority.short_contact()
       if responsibility.main:
-        responsibilities_value += ' [Hauptzuständigkeit]'
+        main_responsibility_value = responsibility.authority.short_contact()
+      else:
+        if first:
+          first = False
+          other_responsibilities_value = responsibility.authority.short_contact()
+        else:
+          other_responsibilities_value += '\n'
+          other_responsibilities_value += responsibility.authority.short_contact()
   # fetch related CleanupEventEvent object
   from_date, to_date = '/', '/'
   event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object.pk).first()
@@ -352,20 +354,24 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   if container:
     delivery_date = container.delivery_date.strftime('%d.%m.%Y')
     pickup_date = container.pickup_date.strftime('%d.%m.%Y')
+  base_url = f"{request.scheme}://{request.get_host()}"
   # set map URL
-  url_path = reverse(
+  map_url_path = reverse(
     viewname='antragsmanagement:anonymous_cleanupeventrequest_map',
     kwargs={'request_id': curr_object.pk}
   )
-  base_url = f"{request.scheme}://{request.get_host()}"
-  map_url = f"{base_url}{url_path}"
+  map_url = f"{base_url}{map_url_path}"
+  # set general URL
+  general_url_path = reverse('antragsmanagement:index')
+  general_url = f"{base_url}{general_url_path}"
   return body.format(
     request=curr_object.short(),
     id=curr_object.pk,
     created=curr_object.created.strftime('%d.%m.%Y, %H:%M Uhr'),
     status=str(curr_object.status),
     comment=curr_object.comment if curr_object.comment else '/',
-    responsibilities=responsibilities_value,
+    main_responsibility=main_responsibility_value,
+    other_responsibilities=other_responsibilities_value,
     from_date=from_date,
     to_date=to_date,
     event=map_url,
@@ -377,7 +383,8 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
     delivery_date=delivery_date,
     pickup_date=pickup_date,
     container=map_url,
-    dump=map_url
+    dump=map_url,
+    link=general_url
   )
 
 
