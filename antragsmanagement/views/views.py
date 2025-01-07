@@ -650,7 +650,8 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     'created': 'Eingang',
     'status': 'Status',
     'requester': 'Antragsteller:in',
-    'responsibilities': 'Zuständigkeit(en)',
+    'main_responsibility': 'Hauptzuständigkeit',
+    'other_responsibilities': 'weitere Zuständigkeit(en)',
     'event_from': 'von',
     'event_to': 'bis',
     'details_waste_quantity': 'Abfallmenge',
@@ -664,8 +665,11 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     """
     loads initial queryset
     """
+    read_only = False
+    if 'readonly' in self.request.resolver_match.url_name:
+      read_only = True
     if check_necessary_permissions(self.request.user, self.permissions_level):
-      return get_cleanupeventrequest_queryset(self.request.user, False)
+      return get_cleanupeventrequest_queryset(self.request.user, False, read_only)
     return CleanupEventRequest.objects.none()
 
   def count_records(self, qs):
@@ -695,108 +699,109 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               data = value
           item_data.append(data)
         # append links for authorative updating
-        if (
-            belongs_to_antragsmanagement_authority(self.request.user)
-            or self.request.user.is_superuser
-        ):
+        if 'readonly' not in self.request.resolver_match.url_name:
           if (
-              self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
-              or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
+              belongs_to_antragsmanagement_authority(self.request.user)
+              or self.request.user.is_superuser
           ):
-            links = '<a class="mb-1 btn btn-sm btn-outline-warning" role="button" '
-            links += 'title="Antrag ansehen oder bearbeiten" '
-            links += 'href="' + reverse(
-              viewname='antragsmanagement:cleanupeventrequest_authorative_update',
-              kwargs={'pk': item['id']}
-            ) + '">'
-            links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
-            links += 'Antrag</a>'
-            event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
-            if event:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
-              links += 'title="Aktionsdaten ansehen oder bearbeiten" '
+            if (
+                self.request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
+                or self.request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
+            ):
+              links = '<a class="mb-1 btn btn-sm btn-outline-warning" role="button" '
+              links += 'title="Antrag ansehen oder bearbeiten" '
               links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventevent_authorative_update',
-                kwargs={'pk': event.pk}
+                viewname='antragsmanagement:cleanupeventrequest_authorative_update',
+                kwargs={'pk': item['id']}
               ) + '">'
               links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
-              links += 'Aktionsdaten</a>'
-            venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
-            if venue:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
-              links += 'title="Treffpunkt ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventvenue_authorative_update',
-                kwargs={'pk': venue.pk}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
-              links += 'Treffpunkt</a>'
-            details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
-            if details:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
-              links += 'title="Detailangaben ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdetails_authorative_update',
-                kwargs={'pk': details.pk}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
-              links += 'Detailangaben</a>'
-            container = CleanupEventContainer.objects.filter(
-              cleanupevent_request=item['id']).first()
-            if container:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
-              links += 'title="Containerdaten ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
-                kwargs={'pk': container.pk}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
-              links += 'Containerdaten</a>'
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
-              links += 'title="Containerdaten löschen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventcontainer_delete',
-                kwargs={'pk': container.pk}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
-              links += 'Containerdaten</a>'
-            else:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
-              links += 'title="neue Containerdaten anlegen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
-                kwargs={'request_id': item['id']}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
-              links += 'Containerdaten</a>'
-            dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
-            if dump:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
-              links += 'title="Müllablageplatz ansehen oder bearbeiten" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdump_authorative_update',
-                kwargs={'pk': dump.pk}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
-              links += 'Müllablageplatz</a>'
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
-              links += 'title="Müllablageplatz löschen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdump_delete',
-                kwargs={'pk': dump.pk}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
-              links += 'Müllablageplatz</a>'
-            else:
-              links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
-              links += 'title="neuen Müllablageplatz anlegen" '
-              links += 'href="' + reverse(
-                viewname='antragsmanagement:cleanupeventdump_authorative_create',
-                kwargs={'request_id': item['id']}
-              ) + '">'
-              links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
-              links += 'Müllablageplatz</a>'
-            item_data.append(links)
+              links += 'Antrag</a>'
+              event = CleanupEventEvent.objects.filter(cleanupevent_request=item['id']).first()
+              if event:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
+                links += 'title="Aktionsdaten ansehen oder bearbeiten" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventevent_authorative_update',
+                  kwargs={'pk': event.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+                links += 'Aktionsdaten</a>'
+              venue = CleanupEventVenue.objects.filter(cleanupevent_request=item['id']).first()
+              if venue:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
+                links += 'title="Treffpunkt ansehen oder bearbeiten" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventvenue_authorative_update',
+                  kwargs={'pk': venue.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+                links += 'Treffpunkt</a>'
+              details = CleanupEventDetails.objects.filter(cleanupevent_request=item['id']).first()
+              if details:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
+                links += 'title="Detailangaben ansehen oder bearbeiten" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventdetails_authorative_update',
+                  kwargs={'pk': details.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+                links += 'Detailangaben</a>'
+              container = CleanupEventContainer.objects.filter(
+                cleanupevent_request=item['id']).first()
+              if container:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
+                links += 'title="Containerdaten ansehen oder bearbeiten" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventcontainer_authorative_update',
+                  kwargs={'pk': container.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+                links += 'Containerdaten</a>'
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
+                links += 'title="Containerdaten löschen" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventcontainer_delete',
+                  kwargs={'pk': container.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
+                links += 'Containerdaten</a>'
+              else:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+                links += 'title="neue Containerdaten anlegen" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventcontainer_authorative_create',
+                  kwargs={'request_id': item['id']}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+                links += 'Containerdaten</a>'
+              dump = CleanupEventDump.objects.filter(cleanupevent_request=item['id']).first()
+              if dump:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-warning" role="button" '
+                links += 'title="Müllablageplatz ansehen oder bearbeiten" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventdump_authorative_update',
+                  kwargs={'pk': dump.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('update') + '"></i> '
+                links += 'Müllablageplatz</a>'
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-danger" role="button" '
+                links += 'title="Müllablageplatz löschen" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventdump_delete',
+                  kwargs={'pk': dump.pk}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('delete') + '"></i> '
+                links += 'Müllablageplatz</a>'
+              else:
+                links += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+                links += 'title="neuen Müllablageplatz anlegen" '
+                links += 'href="' + reverse(
+                  viewname='antragsmanagement:cleanupeventdump_authorative_create',
+                  kwargs={'request_id': item['id']}
+                ) + '">'
+                links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+                links += 'Müllablageplatz</a>'
+              item_data.append(links)
         json_data.append(item_data)
     return json_data
 
@@ -881,9 +886,14 @@ class CleanupEventRequestTableView(TemplateView):
     # add model related context elements
     context = add_model_context_elements(context, self.model)
     # add table related context elements
-    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
     context['column_titles'] = list(CleanupEventRequestTableDataView.columns.values())
     context['initial_order'] = self.initial_order
+    read_only = False
+    if 'readonly' in self.request.resolver_match.url_name:
+      read_only = True
+      self.table_data_view_name = self.table_data_view_name + '_readonly'
+    context['read_only'] = read_only
+    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True, read_only)
     context['tabledata_url'] = reverse(self.table_data_view_name)
     # add to context: icon
     context['icon'] = self.icon_name
@@ -913,7 +923,10 @@ class CleanupEventRequestMapDataView(JsonView):
     :return: GeoJSON feature collection
     """
     if check_necessary_permissions(self.request.user, self.permissions_level):
-      objects = get_cleanupeventrequest_queryset(self.request.user, False)
+      read_only = False
+      if 'readonly' in self.request.resolver_match.url_name:
+        read_only = True
+      objects = get_cleanupeventrequest_queryset(self.request.user, False, read_only)
       # declare empty GeoJSON feature collection
       feature_collection = {
         'type': 'FeatureCollection',
@@ -924,6 +937,7 @@ class CleanupEventRequestMapDataView(JsonView):
         authorative_rights = False
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
+            and not read_only
             or self.request.user.is_superuser
         ):
           if (
@@ -1001,7 +1015,11 @@ class CleanupEventRequestMapView(TemplateView):
     context = add_model_context_elements(context, self.model)
     # add map related context elements
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
+    read_only = False
+    if 'readonly' in self.request.resolver_match.url_name:
+      read_only = True
+      self.map_data_view_name = self.map_data_view_name + '_readonly'
+    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True, read_only)
     context['mapdata_url'] = reverse(self.map_data_view_name)
     # add filter related information to context
     context['requests_status'] = list(

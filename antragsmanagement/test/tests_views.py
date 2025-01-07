@@ -49,7 +49,7 @@ class IndexViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='index', status_code=200,
-      content_type='text/html; charset=utf-8', string='zugewiesenen'
+      content_type='text/html; charset=utf-8', string='mit eigener'
     )
 
   def test_admin_permissions(self):
@@ -635,6 +635,52 @@ class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
     )
 
 
+class CleanupEventRequestTableDataReadOnlyViewTest(DefaultViewTestCase):
+  """
+  test class for composing table data out of read-only instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_anonymous(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
+      status_code=302, content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
+      status_code=200, content_type='application/json', string='ok'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
+      status_code=200, content_type='application/json', string='ok'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata_readonly',
+      status_code=200, content_type='application/json', string='ok'
+    )
+
+
 class CleanupEventRequestTableViewTest(DefaultViewTestCase):
   """
   test class for table page for instances of object
@@ -678,6 +724,52 @@ class CleanupEventRequestTableViewTest(DefaultViewTestCase):
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='cleanupeventrequest_table', status_code=200,
       content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+
+class CleanupEventRequestTableReadOnlyViewTest(DefaultViewTestCase):
+  """
+  test class for table page for read-only instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_anonymous(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
+      status_code=302, content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_table_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 
@@ -727,6 +819,52 @@ class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
     )
 
 
+class CleanupEventRequestMapDataReadOnlyViewTest(DefaultViewTestCase):
+  """
+  test class for composing map data out of read-only instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_anonymous(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
+      status_code=302, content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
+      status_code=200, content_type='application/json', string='FeatureCollection'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
+      status_code=200, content_type='application/json', string='FeatureCollection'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_mapdata_readonly',
+      status_code=200, content_type='application/json', string='FeatureCollection'
+    )
+
+
 class CleanupEventRequestMapViewTest(DefaultViewTestCase):
   """
   test class for map page for instances of object
@@ -770,6 +908,52 @@ class CleanupEventRequestMapViewTest(DefaultViewTestCase):
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='cleanupeventrequest_map', status_code=200,
       content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+
+class CleanupEventRequestMapReadOnlyViewTest(DefaultViewTestCase):
+  """
+  test class for map page for read-only instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request (Antrag)
+  """
+
+  def setUp(self):
+    self.init()
+
+  def test_anonymous(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
+      status_code=302, content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_map_readonly',
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 

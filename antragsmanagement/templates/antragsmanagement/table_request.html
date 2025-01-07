@@ -39,7 +39,7 @@
               {% for column_title in column_titles %}
                 <th>{{ column_title }}</th>
               {% endfor %}
-              {% if belongs_to_antragsmanagement_authority %}
+              {% if belongs_to_antragsmanagement_authority and not read_only %}
                 <th class="no-export no-search no-sort"><em>Interaktionen</em></th>
               {% endif %}
             </tr>
