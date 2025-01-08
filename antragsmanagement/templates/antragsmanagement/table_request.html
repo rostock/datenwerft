@@ -14,6 +14,7 @@
   {{ block.super }}
   <script src="{% static 'datatables/datatables.min.js' %}"></script>
   <script src="{% static 'bemas/js/table.js' %}"></script>
+  <script src="{% static 'datenmanagement/js/genericHelpers.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -41,11 +42,13 @@
               {% endfor %}
               {% if belongs_to_antragsmanagement_authority and not read_only or user.is_superuser %}
                 <th class="no-export no-search no-sort"><em>Redaktion</em></th>
+                <th class="no-export no-search no-sort"><em>Kommentare</em></th>
               {% endif %}
             </tr>
           </thead>
         </table>
       </div>
+      {% include "antragsmanagement/modal-comment-list.html" %}
       <!-- eslint-disable-next-script -->
       <script>
         window.dataUrl = '{{ tabledata_url }}';
@@ -62,7 +65,19 @@
          * main function
          */
         $(document).ready(function() {
+          // initialize table
           initDataTable(window.dataUrl, window.languageUrl, {{ initial_order|safe }}, 10);
+        });
+
+        // on clicking a button to list the comments for the corresponding request...
+        $(document).on('click', '.comment-list', function() {
+          let requestPrimaryKey = $(this).data('request-pk');
+          // adjust information in corresponding modal accordingly
+          $('#comment-list-modal-title').text(function(_, text) {
+            return text.replace('REQUEST_PK', requestPrimaryKey);
+          });
+          // open corresponding modal
+          toggleModal($('#comment-list-modal'));
         });
       </script>
     {% endif %}

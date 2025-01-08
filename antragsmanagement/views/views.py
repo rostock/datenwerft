@@ -24,7 +24,8 @@ from .functions import add_model_context_elements, add_permissions_context_eleme
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
   Requester, CleanupEventRequest, CleanupEventResponsibilities, CleanupEventEvent, \
-  CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, CleanupEventDump
+  CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, CleanupEventDump, \
+  CleanupEventRequestComment
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
@@ -802,6 +803,21 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
               links += 'Müllablageplatz</a>'
             item_data.append(links)
+            comments = ''
+            if CleanupEventRequestComment.objects.filter(cleanupevent_request=item['id']).exists():
+              comments += '<button class="mb-1 btn btn-sm btn-outline-secondary comment-list" '
+              comments += 'title="vorhandene(n) Kommentar(e) ansehen"'
+              comments += 'data-request-pk=' + str(item['id']) + '>'
+              comments += '<i class="fas fa-' + get_icon_from_settings('list') + '"></i> '
+              comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i></a>'
+              comments += '<button class="ms-1 mb-1 btn btn-sm btn-outline-primary" '
+            else:
+              comments += '<button class="mb-1 btn btn-sm btn-outline-primary comment-create" '
+            comments += 'title="neuen Kommentar anlegen"'
+            comments += 'data-request-pk=' + str(item['id']) + '>'
+            comments += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+            comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i></a>'
+            item_data.append(comments)
         json_data.append(item_data)
     return json_data
 

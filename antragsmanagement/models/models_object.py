@@ -533,7 +533,7 @@ class CleanupEventRequestComment(RequestComment):
   request comment (Kommentar zu Antrag)
   """
 
-  cleanupevent_request = OneToOneField(
+  cleanupevent_request = ForeignKey(
     to=CleanupEventRequest,
     verbose_name='Antrag',
     on_delete=CASCADE
