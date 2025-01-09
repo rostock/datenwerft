@@ -8,7 +8,6 @@ from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
 from json import loads
 from leaflet.forms.widgets import LeafletWidget
-from osgeo_utils.samples.validate_geoparquet import map_remote_resources
 
 from antragsmanagement.constants_vars import AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS
 from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \

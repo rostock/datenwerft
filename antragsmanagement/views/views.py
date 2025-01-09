@@ -1,9 +1,10 @@
 from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
@@ -29,6 +30,7 @@ from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Auth
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
+from bemas.utils import generate_user_string
 from toolbox.utils import format_date_datetime
 
 
@@ -805,14 +807,20 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
             item_data.append(links)
             comments = ''
             if CleanupEventRequestComment.objects.filter(cleanupevent_request=item['id']).exists():
-              comments += '<button class="mb-1 btn btn-sm btn-outline-secondary comment-list" '
+              list_url = reverse(
+                viewname='antragsmanagement:cleanupeventrequestcomment_list',
+                kwargs={'request_id': item['id']}
+              )
+              comments += '<button class="mb-1 btn btn-sm btn-outline-secondary '
+              comments += 'request-comment-list" '
               comments += 'title="vorhandene(n) Kommentar(e) ansehen"'
-              comments += 'data-request-pk=' + str(item['id']) + '>'
+              comments += 'data-request-pk=' + str(item['id']) + ' data-list-url=' + list_url + '>'
               comments += '<i class="fas fa-' + get_icon_from_settings('list') + '"></i> '
               comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i></a>'
               comments += '<button class="ms-1 mb-1 btn btn-sm btn-outline-primary" '
             else:
-              comments += '<button class="mb-1 btn btn-sm btn-outline-primary comment-create" '
+              comments += '<button class="mb-1 btn btn-sm btn-outline-primary '
+              comments += 'request-comment-create" '
             comments += 'title="neuen Kommentar anlegen"'
             comments += 'data-request-pk=' + str(item['id']) + '>'
             comments += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
@@ -2107,6 +2115,41 @@ class CleanupEventDumpDeleteView(RequestFollowUpDeleteMixin, ObjectDeleteView):
   """
 
   model = CleanupEventDump
+
+
+def compose_cleanupeventrequestcomment_list(request, request_id):
+  """
+  composes a list of all objects of model CleanupEventRequestComment
+  related to the object of model CleanupEventRequest with the passed primary key
+  and returns it
+
+  :param request: request
+  :param request_id: primary key of an object of model CleanupEventRequest
+  :return: list of all objects of model CleanupEventRequestComment
+  related to the object of model CleanupEventRequest with the passed primary key
+  """
+  if belongs_to_antragsmanagement_authority(request.user) or request.user.is_superuser:
+    if (
+        request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
+        or request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
+    ):
+      if CleanupEventRequestComment.objects.filter(cleanupevent_request=request_id).exists():
+        comments = CleanupEventRequestComment.objects.filter(cleanupevent_request=request_id).all()
+        comment_list = ''
+        for comment in comments:
+          user = User.objects.get(pk=comment.user_id)
+          headline = generate_user_string(user) + ' (' + comment.created.strftime('%d.%m.%Y') + ')'
+          comment_list += '<div class="alert alert-primary">'
+          comment_list += '<small>' + headline + '</small>'
+          comment_list += '<div class="mt-1">' + str(comment.content) + '</div>'
+          comment_list += '</div>'
+        return HttpResponse(comment_list)
+      else:
+        return HttpResponse('<em>Keine Kommentare vorhanden!</em>')
+    else:
+      return HttpResponse('<em>Kommentar(e) vorhanden!</em>')
+  else:
+    return render(request, 'antragsmanagement/notice_no-permissions.html')
 
 
 #

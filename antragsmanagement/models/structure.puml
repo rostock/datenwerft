@@ -61,6 +61,12 @@ abstract class Request {
   ~ requester: ForeignKey <<FK>>
 }
 
+abstract class RequestComment {
+  + user_id: PositiveIntegerField [0..1]
+  + content: TextField
+  + send_to_requester: BooleanField
+}
+
 class CleanupEventRequest {
   # responsibilities: ManyToManyField [0..1]
 }
@@ -92,15 +98,19 @@ class CleanupEventDetails {
 }
 
 class CleanupEventContainer {
-  ~ cleanupevent_request: OneToOneField
+  ~ cleanupevent_request: OneToOneField <<FK>>
   + delivery_date: DateField
   + pickup_date: DateField
   + place: PointField
 }
 
 class CleanupEventDump {
-  ~ cleanupevent_request: OneToOneField
+  ~ cleanupevent_request: OneToOneField <<FK>>
   + place: PointField
+}
+
+class CleanupEventRequestComment {
+  ~ cleanupevent_request: ForeignKey <<FK>>
 }
 
 Base <|-- Codelist
@@ -114,6 +124,7 @@ Object <|-- Authority
 Object <|-- Email
 Object <|-- Requester
 Object <|-- Request
+Object <|-- RequestComment
 Request --> CodelistRequestStatus : status
 Request --> Requester : requester
 Request <|-- CleanupEventRequest
@@ -132,5 +143,7 @@ GeometryObject <|-- CleanupEventContainer
 CleanupEventContainer --> CleanupEventRequest : cleanupevent_request
 GeometryObject <|-- CleanupEventDump
 CleanupEventDump --> CleanupEventRequest : cleanupevent_request
+CleanupEventRequestComment <|-- RequestComment
+CleanupEventRequest "1" -- "0..*" CleanupEventRequestComment
 
 @enduml

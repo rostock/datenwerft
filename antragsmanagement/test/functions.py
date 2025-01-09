@@ -28,7 +28,7 @@ def create_cleanupevent_request(two=False):
   )
   cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
   if two:
-    status2 = CodelistRequestStatus.get_status_in_process()
+    status2 = CodelistRequestStatus.get_status_new()
     cleanupevent_request2 = CleanupEventRequest.objects.create(
       status=status2,
       requester=requester

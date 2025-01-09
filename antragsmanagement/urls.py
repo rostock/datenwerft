@@ -23,7 +23,7 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventEventUpdateAnonymousView, CleanupEventVenueCreateAnonymousView, \
   CleanupEventVenueUpdateAnonymousView, CleanupEventDetailsCreateAnonymousView, \
   CleanupEventDetailsUpdateAnonymousView, CleanupEventContainerDecisionAnonymousView, \
-  CleanupEventContainerCreateAnonymousView
+  CleanupEventContainerCreateAnonymousView, compose_cleanupeventrequestcomment_list
 
 router = routers.DefaultRouter()
 
@@ -337,6 +337,14 @@ urlpatterns = [
     'ce-request/dump/delete/<pk>',
     view=login_required(CleanupEventDumpDeleteView.as_view()),
     name='cleanupeventdump_delete'
+  ),
+  # composing list out of instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request comment (Kommentar zu Antrag)
+  path(
+    'ce-request/<request_id>/comment/list',
+    view=login_required(compose_cleanupeventrequestcomment_list),
+    name='cleanupeventrequestcomment_list'
   ),
   #
   # URLs also accessible anonymously

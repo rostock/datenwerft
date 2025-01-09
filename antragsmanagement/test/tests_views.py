@@ -6,10 +6,11 @@ from .base import DefaultViewTestCase, DefaultAnonymousViewTestCase, DefaultForm
 from .constants_vars import VALID_DATE, VALID_EMAIL, VALID_FIRST_NAME, \
   VALID_LAST_NAME, VALID_POINT_DB, VALID_POINT_VIEW, VALID_POLYGON_DB, VALID_POLYGON_VIEW, \
   VALID_STRING, VALID_TELEPHONE, VALID_TEXT
+from .functions import create_cleanupevent_request
 from antragsmanagement.models import CodelistRequestStatus, CleanupEventCodelistWasteQuantity, \
   CleanupEventCodelistWasteType, CleanupEventCodelistEquipment, Authority, Email, Requester, \
   CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump
+  CleanupEventContainer, CleanupEventDump, CleanupEventRequestComment
 
 
 #
@@ -27,35 +28,35 @@ class IndexViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='index', status_code=302,
+      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=302,
       content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='index', status_code=200,
+      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=200,
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='index', status_code=200,
+      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=200,
       content_type='text/html; charset=utf-8', string='Kontaktdaten'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='index', status_code=200,
+      antragsmanagement_admin=False, view_name='index', view_args=None, status_code=200,
       content_type='text/html; charset=utf-8', string='mit eigener'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='index', status_code=200,
+      antragsmanagement_admin=True, view_name='index', view_args=None, status_code=200,
       content_type='text/html; charset=utf-8', string='E-Mails'
     )
 
@@ -76,36 +77,36 @@ class AuthorityTableDataViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='authority_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='authority_tabledata', status_code=200,
-      content_type='application/json', string='ok'
+      antragsmanagement_admin=True, view_name='authority_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='ok'
     )
 
 
@@ -121,36 +122,36 @@ class AuthorityTableViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_table', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='authority_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='authority_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='authority_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='authority_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=True, view_name='authority_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 
@@ -249,36 +250,36 @@ class EmailTableDataViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_tabledata', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_email_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='email_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='email_tabledata', status_code=200,
-      content_type='application/json', string='ok'
+      antragsmanagement_admin=True, view_name='email_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='ok'
     )
 
 
@@ -294,36 +295,36 @@ class EmailTableViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_table', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='email_table', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='email_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='email_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='email_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_email_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='email_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='email_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='email_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=True, view_name='email_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 
@@ -602,36 +603,36 @@ class CleanupEventRequestTableDataViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=200,
-      content_type='application/json', string='ok'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='ok'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', status_code=200,
-      content_type='application/json', string='ok'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='ok'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata', status_code=200,
-      content_type='application/json', string='ok'
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata', view_args=None,
+      status_code=200, content_type='application/json', string='ok'
     )
 
 
@@ -649,35 +650,36 @@ class CleanupEventRequestTableDataReadOnlyViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      view_args=None, status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      view_args=None, status_code=200, content_type='application/json',
+      string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      status_code=200, content_type='application/json', string='ok'
+      view_args=None, status_code=200, content_type='application/json', string='ok'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_tabledata_readonly',
-      status_code=200, content_type='application/json', string='ok'
+      view_args=None, status_code=200, content_type='application/json', string='ok'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='cleanupeventrequest_tabledata_readonly',
-      status_code=200, content_type='application/json', string='ok'
+      view_args=None, status_code=200, content_type='application/json', string='ok'
     )
 
 
@@ -694,36 +696,36 @@ class CleanupEventRequestTableViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_table', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_table', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 
@@ -741,35 +743,40 @@ class CleanupEventRequestTableReadOnlyViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      view_args=None, status_code=302, content_type='text/html; charset=utf-8',
+      string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='vorhanden'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_table_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='vorhanden'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='cleanupeventrequest_table_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='vorhanden'
     )
 
 
@@ -786,36 +793,36 @@ class CleanupEventRequestMapDataViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', status_code=200,
-      content_type='application/json', string='has_necessary_permissions'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
+      status_code=200, content_type='application/json', string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', status_code=200,
-      content_type='application/json', string='FeatureCollection'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
+      status_code=200, content_type='application/json', string='FeatureCollection'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', status_code=200,
-      content_type='application/json', string='FeatureCollection'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata', view_args=None,
+      status_code=200, content_type='application/json', string='FeatureCollection'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_mapdata', status_code=200,
-      content_type='application/json', string='FeatureCollection'
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_mapdata', view_args=None,
+      status_code=200, content_type='application/json', string='FeatureCollection'
     )
 
 
@@ -833,35 +840,40 @@ class CleanupEventRequestMapDataReadOnlyViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      view_args=None, status_code=302, content_type='text/html; charset=utf-8',
+      string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      status_code=200, content_type='application/json', string='has_necessary_permissions'
+      view_args=None, status_code=200, content_type='application/json',
+      string='has_necessary_permissions'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      view_args=None, status_code=200, content_type='application/json',
+      string='FeatureCollection'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_mapdata_readonly',
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      view_args=None, status_code=200, content_type='application/json',
+      string='FeatureCollection'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='cleanupeventrequest_mapdata_readonly',
-      status_code=200, content_type='application/json', string='FeatureCollection'
+      view_args=None, status_code=200, content_type='application/json',
+      string='FeatureCollection'
     )
 
 
@@ -878,36 +890,36 @@ class CleanupEventRequestMapViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=False, view_name='cleanupeventrequest_map', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventrequest_map', status_code=200,
-      content_type='text/html; charset=utf-8', string='vorhanden'
+      antragsmanagement_admin=True, view_name='cleanupeventrequest_map', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
     )
 
 
@@ -925,35 +937,40 @@ class CleanupEventRequestMapReadOnlyViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      status_code=302, content_type='text/html; charset=utf-8', string=None
+      view_args=None, status_code=302, content_type='text/html; charset=utf-8',
+      string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='vorhanden'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
       antragsmanagement_admin=False, view_name='cleanupeventrequest_map_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='vorhanden'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=True, view_name='cleanupeventrequest_map_readonly',
-      status_code=200, content_type='text/html; charset=utf-8', string='vorhanden'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='vorhanden'
     )
 
 
@@ -1254,28 +1271,7 @@ class CleanupEventEventCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -1370,28 +1366,7 @@ class CleanupEventEventUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -1486,28 +1461,7 @@ class CleanupEventEventAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -1602,28 +1556,7 @@ class CleanupEventVenueCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -1716,28 +1649,7 @@ class CleanupEventVenueUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -1830,28 +1742,7 @@ class CleanupEventVenueAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -1944,28 +1835,7 @@ class CleanupEventDetailsCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -2060,28 +1930,7 @@ class CleanupEventDetailsUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -2176,28 +2025,7 @@ class CleanupEventDetailsAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -2293,36 +2121,36 @@ class CleanupEventContainerDecisionViewTest(DefaultViewTestCase):
   def test_anonymous(self):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', status_code=302,
-      content_type='text/html; charset=utf-8', string=None
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
+      status_code=302, content_type='text/html; charset=utf-8', string=None
     )
 
   def test_no_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_requester_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', status_code=200,
-      content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='Antrag erstellen'
     )
 
   def test_authority_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
-      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=False, view_name='cleanupeventcontainer_decision', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
   def test_admin_permissions(self):
     self.generic_view_test(
       log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
-      antragsmanagement_admin=True, view_name='cleanupeventcontainer_decision', status_code=200,
-      content_type='text/html; charset=utf-8', string='keine Rechte'
+      antragsmanagement_admin=True, view_name='cleanupeventcontainer_decision', view_args=None,
+      status_code=200, content_type='text/html; charset=utf-8', string='keine Rechte'
     )
 
 
@@ -2338,28 +2166,7 @@ class CleanupEventContainerCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2456,28 +2263,7 @@ class CleanupEventContainerAuthorativeCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2579,28 +2365,7 @@ class CleanupEventContainerAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2697,28 +2462,7 @@ class CleanupEventContainerDeleteViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -2793,28 +2537,7 @@ class CleanupEventDumpAuthorativeCreateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -2912,28 +2635,7 @@ class CleanupEventDumpAuthorativeUpdateViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -3026,28 +2728,7 @@ class CleanupEventDumpDeleteViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -3432,28 +3113,7 @@ class CleanupEventEventCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -3516,28 +3176,7 @@ class CleanupEventEventUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'from_date': VALID_DATE,
@@ -3600,28 +3239,7 @@ class CleanupEventVenueCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -3682,28 +3300,7 @@ class CleanupEventVenueUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'place': VALID_POINT_DB
@@ -3764,28 +3361,7 @@ class CleanupEventDetailsCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -3848,28 +3424,7 @@ class CleanupEventDetailsUpdateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     waste_quantity = CleanupEventCodelistWasteQuantity.objects.first()
     waste_type = CleanupEventCodelistWasteType.objects.first()
     equipment = CleanupEventCodelistEquipment.objects.first()
@@ -3934,7 +3489,8 @@ class CleanupEventContainerDecisionAnonymousViewTest(DefaultViewTestCase):
     self.generic_view_test(
       log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
       antragsmanagement_admin=False, view_name='anonymous_cleanupeventcontainer_decision',
-      status_code=200, content_type='text/html; charset=utf-8', string='Antrag erstellen'
+      view_args=None, status_code=200, content_type='text/html; charset=utf-8',
+      string='Antrag erstellen'
     )
 
 
@@ -3950,28 +3506,7 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
 
   @classmethod
   def setUpTestData(cls):
-    status1 = CodelistRequestStatus.get_status_processed()
-    status2 = CodelistRequestStatus.get_status_new()
-    requester = Requester.objects.create(
-      first_name=VALID_FIRST_NAME,
-      last_name=VALID_LAST_NAME,
-      email=VALID_EMAIL
-    )
-    responsibility = Authority.objects.create(
-      group=VALID_STRING,
-      name=VALID_STRING,
-      email=VALID_EMAIL
-    )
-    cleanupevent_request1 = CleanupEventRequest.objects.create(
-      status=status1,
-      requester=requester
-    )
-    cleanupevent_request1.responsibilities.add(responsibility, through_defaults={'main': False})
-    cleanupevent_request2 = CleanupEventRequest.objects.create(
-      status=status2,
-      requester=requester
-    )
-    cleanupevent_request2.responsibilities.add(responsibility, through_defaults={'main': False})
+    cleanupevent_request1, cleanupevent_request2 = create_cleanupevent_request(True)
     cls.attributes_values_db_create = {
       'cleanupevent_request': cleanupevent_request1,
       'delivery_date': VALID_DATE,
@@ -4021,4 +3556,75 @@ class CleanupEventContainerCreateAnonymousViewTest(DefaultFormViewTestCase):
       object_filter=self.attributes_values_view_create_invalid, count=1,
       status_code=200, content_type='text/html; charset=utf-8', string='alert',
       session_variables=None
+    )
+
+
+class CleanupEventRequestCommentListViewTest(DefaultViewTestCase):
+  """
+  test class for composing list out of instances of object
+  for request type clean-up events (Müllsammelaktionen):
+  request comment (Kommentar zu Antrag)
+  """
+
+  model = CleanupEventRequestComment
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cleanupevent_request = create_cleanupevent_request(False)
+    cls.cleanupevent_request = cleanupevent_request
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request,
+      'content': VALID_TEXT
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request.pk),
+      'content': VALID_TEXT,
+      'send_to_requester': False
+    }
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_anonymous(self):
+    self.generic_view_test(
+      log_in=False, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk}, status_code=302,
+      content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_no_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_requester_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=True, antragsmanagement_authority=False,
+      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_authority_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
+      content_type='text/html; charset=utf-8', string='vorhanden'
+    )
+
+  def test_admin_permissions(self):
+    self.generic_view_test(
+      log_in=True, antragsmanagement_requester=False, antragsmanagement_authority=False,
+      antragsmanagement_admin=True, view_name='cleanupeventrequestcomment_list',
+      view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
     )
