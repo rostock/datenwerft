@@ -234,7 +234,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # set URL
     if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
-    elif 'authorative_create' in view_name:
+    elif 'authorative_create' in view_name or 'requestcomment_create' in view_name:
       url = reverse(
         viewname='antragsmanagement:' + view_name,
         kwargs={'request_id': last_pk}
@@ -289,7 +289,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # set URL
     if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
-    elif 'authorative_create' in view_name:
+    elif 'authorative_create' in view_name or 'requestcomment_create' in view_name:
       url = reverse(
         viewname='antragsmanagement:' + view_name,
         kwargs={'request_id': session_variables['request_id']}

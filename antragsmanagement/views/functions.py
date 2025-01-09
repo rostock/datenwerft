@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.mail import send_mail
 from django.core.serializers import serialize
@@ -12,10 +13,11 @@ from leaflet.forms.widgets import LeafletWidget
 from antragsmanagement.constants_vars import AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS
 from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
   CleanupEventResponsibilities, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump
+  CleanupEventContainer, CleanupEventDump, CleanupEventRequestComment
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
   is_antragsmanagement_requester, is_antragsmanagement_user
+from bemas.utils import generate_user_string
 from toolbox.utils import format_date_datetime, is_geometry_field, transform_geometry
 
 
@@ -169,7 +171,10 @@ def assign_widget(field):
       else:
         form_field.widget.attrs['class'] = 'form-select'
     else:
-      form_field.widget.attrs['class'] = 'form-control'
+      if form_field.widget.input_type == 'checkbox':
+        form_field.widget.attrs['class'] = 'form-check-input'
+      else:
+        form_field.widget.attrs['class'] = 'form-control'
   # handle text areas
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
@@ -354,6 +359,16 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
     delivery_date = container.delivery_date.strftime('%d.%m.%Y')
     pickup_date = container.pickup_date.strftime('%d.%m.%Y')
   base_url = f"{request.scheme}://{request.get_host()}"
+  # fetch lastest CleanupEventRequestComment object
+  lastest_request_comment_author, lastest_request_comment_content = '/', '/'
+  lastest_request_comment = CleanupEventRequestComment.objects.filter(
+    cleanupevent_request=curr_object.pk).last()
+  if lastest_request_comment:
+    user = User.objects.get(pk=lastest_request_comment.user_id)
+    author = generate_user_string(user) + ' (' + user.email + ')'
+    lastest_request_comment_author = author
+    lastest_request_comment_content = lastest_request_comment.content
+  base_url = f"{request.scheme}://{request.get_host()}"
   # set map URL
   map_url_path = reverse(
     viewname='antragsmanagement:anonymous_cleanupeventrequest_map',
@@ -365,6 +380,8 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   general_url = f"{base_url}{general_url_path}"
   return body.format(
     request=curr_object.short(),
+    request_comment_author=lastest_request_comment_author,
+    request_comment=lastest_request_comment_content,
     id=curr_object.pk,
     created=curr_object.created.strftime('%d.%m.%Y, %H:%M Uhr'),
     status=str(curr_object.status),

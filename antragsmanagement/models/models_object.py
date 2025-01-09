@@ -536,7 +536,8 @@ class CleanupEventRequestComment(RequestComment):
   cleanupevent_request = ForeignKey(
     to=CleanupEventRequest,
     verbose_name='Antrag',
-    on_delete=CASCADE
+    on_delete=CASCADE,
+    editable=False
   )
 
   class Meta(Object.Meta):
@@ -552,5 +553,4 @@ class CleanupEventRequestComment(RequestComment):
     description = 'Müllsammelaktionen: Kommentare zu Anträgen'
 
   def __str__(self):
-    return 'Kommentar vom ' + self.created.strftime('%d.%m.%Y') + \
-           ' zu Antrag ' + str(self.cleanupevent_request)
+    return 'Kommentar zu Antrag auf Müllsammelaktion ' + str(self.cleanupevent_request)

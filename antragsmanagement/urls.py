@@ -16,6 +16,7 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventContainerAuthorativeCreateView, CleanupEventContainerAuthorativeUpdateView, \
   CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
   CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView, \
+  compose_cleanupeventrequestcomment_list, CleanupEventRequestCommentCreateView, \
   RequesterCreateAnonymousView, RequesterUpdateAnonymousView, \
   CleanupEventRequestDataAnonymousView, CleanupEventRequestMapDataAnonymousView, \
   CleanupEventRequestMapAnonymousView, CleanupEventRequestCreateAnonymousView, \
@@ -23,7 +24,7 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventEventUpdateAnonymousView, CleanupEventVenueCreateAnonymousView, \
   CleanupEventVenueUpdateAnonymousView, CleanupEventDetailsCreateAnonymousView, \
   CleanupEventDetailsUpdateAnonymousView, CleanupEventContainerDecisionAnonymousView, \
-  CleanupEventContainerCreateAnonymousView, compose_cleanupeventrequestcomment_list
+  CleanupEventContainerCreateAnonymousView
 
 router = routers.DefaultRouter()
 
@@ -292,7 +293,7 @@ urlpatterns = [
     )),
     name='cleanupeventcontainer_create'
   ),
-  # authorative form page for updating an instance of object
+  # authorative form page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
@@ -315,7 +316,7 @@ urlpatterns = [
     view=login_required(CleanupEventContainerDeleteView.as_view()),
     name='cleanupeventcontainer_delete'
   ),
-  # authorative form page for updating an instance of object
+  # authorative form page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):
   # dump (Müllablageplatz)
   path(
@@ -342,9 +343,17 @@ urlpatterns = [
   # for request type clean-up events (Müllsammelaktionen):
   # request comment (Kommentar zu Antrag)
   path(
-    'ce-request/<request_id>/comment/list',
+    'ce-request/comment/list/<request_id>',
     view=login_required(compose_cleanupeventrequestcomment_list),
     name='cleanupeventrequestcomment_list'
+  ),
+  # form page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request comment (Kommentar zu Antrag)
+  path(
+    'ce-request/comment/create/<request_id>',
+    view=login_required(CleanupEventRequestCommentCreateView.as_view()),
+    name='cleanupeventrequestcomment_create'
   ),
   #
   # URLs also accessible anonymously

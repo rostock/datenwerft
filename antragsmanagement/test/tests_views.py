@@ -3628,3 +3628,98 @@ class CleanupEventRequestCommentListViewTest(DefaultViewTestCase):
       view_args={'request_id': self.cleanupevent_request.pk}, status_code=200,
       content_type='text/html; charset=utf-8', string='keine Rechte'
     )
+
+
+class CleanupEventRequestCommentCreateViewTest(DefaultFormViewTestCase):
+  """
+  test class for form page for creating an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request comment (Kommentar zu Antrag)
+  """
+
+  model = CleanupEventRequestComment
+  create_test_object_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    cleanupevent_request = create_cleanupevent_request(False)
+    cls.attributes_values_db_create = {
+      'cleanupevent_request': cleanupevent_request,
+      'content': VALID_TEXT
+    }
+    cls.attributes_values_view_create_valid = {
+      'cleanupevent_request': str(cleanupevent_request.pk),
+      'content': VALID_TEXT,
+      'send_to_requester': False
+    }
+    cls.request_id = cleanupevent_request.pk
+    cls.attributes_values_view_create_invalid = {
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_create)
+
+  def setUp(self):
+    self.init()
+
+  def test_get_anonymous(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=False, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create', status_code=302,
+      content_type='text/html; charset=utf-8', string=None
+    )
+
+  def test_get_no_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_requester_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=True, antragsmanagement_requester=True,
+      antragsmanagement_authority=False, antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_get_authority_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=True, antragsmanagement_admin=False,
+      view_name='cleanupeventrequestcomment_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='neu '
+    )
+
+  def test_get_admin_permissions(self):
+    self.generic_form_view_get_test(
+      update_mode=False, log_in=True, antragsmanagement_requester=False,
+      antragsmanagement_authority=False, antragsmanagement_admin=True,
+      view_name='cleanupeventrequestcomment_create', status_code=200,
+      content_type='text/html; charset=utf-8', string='keine Rechte'
+    )
+
+  def test_post_create_success(self):
+    self.generic_form_view_post_test(
+      log_in=True,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_create',
+      object_filter=self.attributes_values_view_create_valid, count=2,
+      status_code=302, content_type='text/html; charset=utf-8', string=None,
+      session_variables={
+        'request_id': self.request_id
+      }
+    )
+
+  def test_post_create_error(self):
+    self.generic_form_view_post_test(
+      log_in=True,
+      update_mode=False, antragsmanagement_requester=False, antragsmanagement_authority=True,
+      antragsmanagement_admin=False, view_name='cleanupeventrequestcomment_create',
+      object_filter=self.attributes_values_view_create_invalid, count=1,
+      status_code=200, content_type='text/html; charset=utf-8', string='alert',
+      session_variables={
+        'request_id': self.request_id
+      }
+    )
