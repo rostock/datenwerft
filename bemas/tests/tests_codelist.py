@@ -121,7 +121,7 @@ class StatusViewsTest(DefaultViewTestCase):
   def test_table_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_status_table', None,
-      200, 'text/html; charset=utf-8', 'Interaktionen'
+      200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):
@@ -283,7 +283,7 @@ class SectorViewsTest(DefaultViewTestCase):
   def test_table_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_sector_table', None,
-      200, 'text/html; charset=utf-8', 'Interaktionen'
+      200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):
@@ -450,7 +450,7 @@ class TypeOfEventViewsTest(DefaultViewTestCase):
   def test_table_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_typeofevent_table', None,
-      200, 'text/html; charset=utf-8', 'Interaktionen'
+      200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):
@@ -617,7 +617,7 @@ class TypeOfImmissionViewsTest(DefaultViewTestCase):
   def test_table_view_admin_rights(self):
     self.generic_view_test(
       True, True, 'codelists_typeofimmission_table', None,
-      200, 'text/html; charset=utf-8', 'Interaktionen'
+      200, 'text/html; charset=utf-8', 'Redaktion'
     )
 
   def test_create_view_no_rights(self):

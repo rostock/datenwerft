@@ -238,6 +238,30 @@ class Request(Object):
     return '#' + str(self.pk) + ' vom ' + self.created.strftime('%d.%m.%Y')
 
 
+class RequestComment(Object):
+  """
+  abstract model class for general object:
+  request comment (Kommentar zu Antrag)
+  """
+
+  user_id = PositiveIntegerField(
+    verbose_name='User-ID',
+    blank=True,
+    null=True,
+    editable=False
+  )
+  content = TextField(
+    verbose_name='Inhalt'
+  )
+  send_to_requester = BooleanField(
+    verbose_name='Kommentar auch per E-Mail an Antragsteller:in senden?',
+    default=False
+  )
+
+  class Meta(Object.Meta):
+    abstract = True
+
+
 #
 # objects for request type:
 # clean-up events (Müllsammelaktionen)
@@ -339,7 +363,7 @@ class CleanupEventEvent(GeometryObject):
   class BaseMeta(GeometryObject.BaseMeta):
     geometry_field = 'area'
     geometry_type = 'Polygon'
-    geometry_in_managed_areas = ['xxx']
+    geometry_in_managed_areas = True
     description = 'Müllsammelaktionen: Aktionsdaten'
 
   def __str__(self):
@@ -411,7 +435,7 @@ class CleanupEventDetails(Object):
   equipments = ManyToManyField(
     CleanupEventCodelistEquipment,
     db_table='cleanupevent_details_equipments',
-    verbose_name='Austattung(en)',
+    verbose_name=' benötigte Ausstattung(en)',
     blank=True
   )
 
@@ -501,3 +525,32 @@ class CleanupEventDump(GeometryObject):
 
   def __str__(self):
     return 'Antrag ' + str(self.cleanupevent_request)
+
+
+class CleanupEventRequestComment(RequestComment):
+  """
+  model class for object for request type clean-up events (Müllsammelaktionen):
+  request comment (Kommentar zu Antrag)
+  """
+
+  cleanupevent_request = ForeignKey(
+    to=CleanupEventRequest,
+    verbose_name='Antrag',
+    on_delete=CASCADE,
+    editable=False
+  )
+
+  class Meta(Object.Meta):
+    db_table = 'cleanupevent_request_comment'
+    indexes = [
+      Index(fields=['cleanupevent_request'])
+    ]
+    ordering = ['-cleanupevent_request', '-created']
+    verbose_name = 'Müllsammelaktion: Kommentar zu Antrag'
+    verbose_name_plural = 'Müllsammelaktionen: Kommentare zu Anträgen'
+
+  class BaseMeta(Object.BaseMeta):
+    description = 'Müllsammelaktionen: Kommentare zu Anträgen'
+
+  def __str__(self):
+    return 'Kommentar zu Antrag auf Müllsammelaktion ' + str(self.cleanupevent_request)

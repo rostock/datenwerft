@@ -128,7 +128,8 @@ class DefaultViewTestCase(DefaultTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def generic_view_test(self, log_in, antragsmanagement_requester, antragsmanagement_authority,
-                        antragsmanagement_admin, view_name, status_code, content_type, string):
+                        antragsmanagement_admin, view_name, view_args, status_code, content_type,
+                        string):
     """
     tests a view via GET
 
@@ -138,6 +139,7 @@ class DefaultViewTestCase(DefaultTestCase):
     :param antragsmanagement_authority: assign Antragsmanagement authority permissions to user?
     :param antragsmanagement_admin: assign Antragsmanagement admin permissions to user?
     :param view_name: name of the view
+    :param view_args: arguments (i.e. URL parameters) for the view
     :param status_code: expected status code of response
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
@@ -147,7 +149,10 @@ class DefaultViewTestCase(DefaultTestCase):
       login(self, antragsmanagement_requester,
             antragsmanagement_authority, antragsmanagement_admin)
     # prepare the GET
-    url = reverse('antragsmanagement:' + view_name)
+    if view_args:
+      url = reverse(viewname='antragsmanagement:' + view_name, kwargs=view_args)
+    else:
+      url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
     response = self.client.get(url)
     # status code of response as expected?
@@ -180,10 +185,7 @@ class DefaultAnonymousViewTestCase(DefaultTestCase):
     """
     # prepare the GET
     if view_args:
-      url = reverse(
-        viewname='antragsmanagement:' + view_name,
-        kwargs=view_args
-      )
+      url = reverse(viewname='antragsmanagement:' + view_name, kwargs=view_args)
     else:
       url = reverse('antragsmanagement:' + view_name)
     # try GETting the view
@@ -232,7 +234,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # set URL
     if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
-    elif 'authorative_create' in view_name:
+    elif 'authorative_create' in view_name or 'requestcomment_create' in view_name:
       url = reverse(
         viewname='antragsmanagement:' + view_name,
         kwargs={'request_id': last_pk}
@@ -287,7 +289,7 @@ class DefaultFormViewTestCase(DefaultModelTestCase):
     # set URL
     if update_mode or 'delete' in view_name:
       url = reverse(viewname='antragsmanagement:' + view_name, kwargs={'pk': last_pk})
-    elif 'authorative_create' in view_name:
+    elif 'authorative_create' in view_name or 'requestcomment_create' in view_name:
       url = reverse(
         viewname='antragsmanagement:' + view_name,
         kwargs={'request_id': session_variables['request_id']}

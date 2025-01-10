@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.mail import send_mail
 from django.core.serializers import serialize
@@ -12,10 +13,11 @@ from leaflet.forms.widgets import LeafletWidget
 from antragsmanagement.constants_vars import AUTHORITIES_KEYWORD_PUBLIC_GREEN_AREAS
 from antragsmanagement.models import GeometryObject, Email, Requester, CleanupEventRequest, \
   CleanupEventResponsibilities, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump
+  CleanupEventContainer, CleanupEventDump, CleanupEventRequestComment
 from antragsmanagement.utils import belongs_to_antragsmanagement_authority, \
   get_antragsmanagement_authorities, has_necessary_permissions, is_antragsmanagement_admin, \
   is_antragsmanagement_requester, is_antragsmanagement_user
+from bemas.utils import generate_user_string
 from toolbox.utils import format_date_datetime, is_geometry_field, transform_geometry
 
 
@@ -169,7 +171,10 @@ def assign_widget(field):
       else:
         form_field.widget.attrs['class'] = 'form-select'
     else:
-      form_field.widget.attrs['class'] = 'form-control'
+      if form_field.widget.input_type == 'checkbox':
+        form_field.widget.attrs['class'] = 'form-check-input'
+      else:
+        form_field.widget.attrs['class'] = 'form-control'
   # handle text areas
   elif issubclass(form_field.widget.__class__, Textarea):
     form_field.widget.attrs['class'] = 'form-control'
@@ -305,21 +310,22 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   :return: email body, equipped with all neccessary information
   of passed object of model CleanupEventRequest
   """
-  # if responsibilities exist
-  responsibilities_value = '/'
+  # fetch responsibilities
+  main_responsibility_value, other_responsibilities_value = '/', '/'
   if curr_object.responsibilities.exists():
     responsibilities = CleanupEventResponsibilities.objects.filter(
       cleanupevent_request=curr_object)
-    responsibilities_value = ''
     first = True
     for responsibility in responsibilities:
-      if first:
-        first = False
-      else:
-        responsibilities_value += '\n'
-      responsibilities_value += responsibility.authority.short_contact()
       if responsibility.main:
-        responsibilities_value += ' [Hauptzuständigkeit]'
+        main_responsibility_value = responsibility.authority.short_contact()
+      else:
+        if first:
+          first = False
+          other_responsibilities_value = responsibility.authority.short_contact()
+        else:
+          other_responsibilities_value += '\n'
+          other_responsibilities_value += responsibility.authority.short_contact()
   # fetch related CleanupEventEvent object
   from_date, to_date = '/', '/'
   event = CleanupEventEvent.objects.filter(cleanupevent_request=curr_object.pk).first()
@@ -352,20 +358,36 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
   if container:
     delivery_date = container.delivery_date.strftime('%d.%m.%Y')
     pickup_date = container.pickup_date.strftime('%d.%m.%Y')
+  base_url = f"{request.scheme}://{request.get_host()}"
+  # fetch lastest CleanupEventRequestComment object
+  lastest_request_comment_author, lastest_request_comment_content = '/', '/'
+  lastest_request_comment = CleanupEventRequestComment.objects.filter(
+    cleanupevent_request=curr_object.pk).last()
+  if lastest_request_comment:
+    user = User.objects.get(pk=lastest_request_comment.user_id)
+    author = generate_user_string(user) + ' (' + user.email + ')'
+    lastest_request_comment_author = author
+    lastest_request_comment_content = lastest_request_comment.content
+  base_url = f"{request.scheme}://{request.get_host()}"
   # set map URL
-  url_path = reverse(
+  map_url_path = reverse(
     viewname='antragsmanagement:anonymous_cleanupeventrequest_map',
     kwargs={'request_id': curr_object.pk}
   )
-  base_url = f"{request.scheme}://{request.get_host()}"
-  map_url = f"{base_url}{url_path}"
+  map_url = f"{base_url}{map_url_path}"
+  # set general URL
+  general_url_path = reverse('antragsmanagement:index')
+  general_url = f"{base_url}{general_url_path}"
   return body.format(
     request=curr_object.short(),
+    request_comment_author=lastest_request_comment_author,
+    request_comment=lastest_request_comment_content,
     id=curr_object.pk,
     created=curr_object.created.strftime('%d.%m.%Y, %H:%M Uhr'),
     status=str(curr_object.status),
     comment=curr_object.comment if curr_object.comment else '/',
-    responsibilities=responsibilities_value,
+    main_responsibility=main_responsibility_value,
+    other_responsibilities=other_responsibilities_value,
     from_date=from_date,
     to_date=to_date,
     event=map_url,
@@ -377,7 +399,8 @@ def get_cleanupeventrequest_email_body_information(request, curr_object, body):
     delivery_date=delivery_date,
     pickup_date=pickup_date,
     container=map_url,
-    dump=map_url
+    dump=map_url,
+    link=general_url
   )
 
 
@@ -418,26 +441,29 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
       # define GeoJSON feature:
       # get geometry from GeoJSON-serialized target object,
       # get (meta) properties directly from passed object of model CleanupEventRequest
+      responsibilities = curr_object['main_responsibility'] + curr_object['other_responsibilities']
       geojson_feature = {
         'type': 'Feature',
         'geometry': target_geojson_serialized['features'][0]['geometry'],
         'properties': {
+          '_highlight': True if 'danger' in curr_object['main_responsibility'] else False,
           '_tooltip': prefix + ' zu ' + title,
           '_title': title,
           '_filter_id': curr_object['id'],
           '_filter_created': curr_object['created'],
           '_filter_status': curr_object['status'],
-          '_filter_responsibilities': curr_object['responsibilities'],
+          '_filter_responsibilities': responsibilities,
           'ID': curr_object['id'],
           'Eingang': format_date_datetime(curr_object['created']),
           'Status': curr_object['status'],
           'Antragsteller:in': curr_object['requester'],
-          'Zuständigkeit(en)': curr_object['responsibilities'],
+          'Hauptzuständigkeit': curr_object['main_responsibility'],
+          'weitere Zuständigkeit(en)': curr_object['other_responsibilities'],
           'von': format_date_datetime(curr_object['event_from']),
           'bis': format_date_datetime(curr_object['event_to']),
           'Abfallmenge': curr_object['details_waste_quantity'],
           'Abfallart(en)': curr_object['details_waste_types'],
-          'Austattung(en)': curr_object['details_equipments'],
+          'benötigte Ausstattung(en)': curr_object['details_equipments'],
           'Container-Stellung': format_date_datetime(curr_object['container_delivery']),
           'Container-Abholung': format_date_datetime(curr_object['container_pickup'])
         }
@@ -504,27 +530,40 @@ def get_cleanupeventrequest_feature(curr_object, curr_type, authorative_rights):
   return {}
 
 
-def get_cleanupeventrequest_queryset(user, count=False):
+def get_cleanupeventrequest_queryset(user, count=False, read_only=False):
   """
   either gets all objects of model CleanupEventRequest and returns them
   or counts objects of model CleanupEventRequest and returns the count
 
   :param user: user
   :param count: return objects count instead of objects?
+  :param read_only: read-only mode?
   :return: either all objects of model CleanupEventRequest
   or objects count of model CleanupEventRequest
   """
   if belongs_to_antragsmanagement_authority(user):
-    # only requests for which user is responsible
-    queryset = CleanupEventRequest.objects.prefetch_related(
-      'status',
-      'requester',
-      'cleanupeventevent',
-      'cleanupeventdetails',
-      'cleanupeventcontainer'
-    ).filter(
-      responsibilities__in=get_antragsmanagement_authorities(user)
-    )
+    if read_only:
+      # only requests for which user is not responsible
+      queryset = CleanupEventRequest.objects.prefetch_related(
+        'status',
+        'requester',
+        'cleanupeventevent',
+        'cleanupeventdetails',
+        'cleanupeventcontainer'
+      ).exclude(
+        responsibilities__in=get_antragsmanagement_authorities(user)
+      )
+    else:
+      # only requests for which user is responsible
+      queryset = CleanupEventRequest.objects.prefetch_related(
+        'status',
+        'requester',
+        'cleanupeventevent',
+        'cleanupeventdetails',
+        'cleanupeventcontainer'
+      ).filter(
+        responsibilities__in=get_antragsmanagement_authorities(user)
+      )
   else:
     queryset = CleanupEventRequest.objects.prefetch_related(
       'status',
@@ -570,27 +609,39 @@ def get_cleanupeventrequest_queryset(user, count=False):
     item['requester'] = requester_value
     item.pop('requester__pk', None)
     #
-    # "responsibilities" field
+    # "main_responsibility" and "other_responsibilities" fields
     #
-    responsibilities_value = None
+    main_responsibility_value, other_responsibilities_value = None, None
     # fetch CleanupEventRequest object
     request = CleanupEventRequest.objects.get(pk=item['id'])
     # if responsibilities exist
     if request.responsibilities.exists():
-      responsibilities = CleanupEventResponsibilities.objects.filter(
-        cleanupevent_request=request)
-      responsibilities_value = ''
+      responsibilities = CleanupEventResponsibilities.objects.filter(cleanupevent_request=request)
+      main_responsibility_value, other_responsibilities_value = '', ''
       for responsibility in responsibilities:
+        # highlight responsibility if user belongs to corresponding authority
+        highlight_responsibility = (
+          belongs_to_antragsmanagement_authority(user)
+          and responsibility.authority.pk in get_antragsmanagement_authorities(user)
+        )
+        authority_text = responsibility.authority.short()
+        highlight_tag = ''
+        if highlight_responsibility:
+          highlight_tag = '<strong class="text-danger">' if responsibility.main else '<strong>'
+        closing_tag = '</strong>' if highlight_responsibility else ''
         if responsibility.main:
-          responsibilities_value += '<strong>' + responsibility.authority.short() + '</strong>'
+          main_responsibility_value += f'{highlight_tag}{authority_text}{closing_tag}'
         else:
-          responsibilities_value += responsibility.authority.short()
-        responsibilities_value += '<br>'
-    # set "responsibilities" to authorities' short names
-    if responsibilities_value:
-      item['responsibilities'] = responsibilities_value.rstrip('<br>')
+          other_responsibilities_value += f'{highlight_tag}{authority_text}{closing_tag}<br>'
+    # set "main_responsibility" and "other_responsibilities" to authorities' short names
+    if main_responsibility_value:
+      item['main_responsibility'] = main_responsibility_value
     else:
-      item['responsibilities'] = '<em>ohne</em>'
+      item['main_responsibility'] = '<em>ohne</em>'
+    if other_responsibilities_value:
+      item['other_responsibilities'] = other_responsibilities_value.rstrip('<br>')
+    else:
+      item['other_responsibilities'] = '<em>ohne</em>'
     #
     # fields relating to event
     #

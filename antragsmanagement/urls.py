@@ -16,6 +16,7 @@ from .views import IndexView, AuthorityTableDataView, AuthorityTableView, \
   CleanupEventContainerAuthorativeCreateView, CleanupEventContainerAuthorativeUpdateView, \
   CleanupEventContainerDeleteView, CleanupEventDumpAuthorativeCreateView, \
   CleanupEventDumpAuthorativeUpdateView, CleanupEventDumpDeleteView, \
+  compose_cleanupeventrequestcomment_list, CleanupEventRequestCommentCreateView, \
   RequesterCreateAnonymousView, RequesterUpdateAnonymousView, \
   CleanupEventRequestDataAnonymousView, CleanupEventRequestMapDataAnonymousView, \
   CleanupEventRequestMapAnonymousView, CleanupEventRequestCreateAnonymousView, \
@@ -114,6 +115,14 @@ urlpatterns = [
     view=login_required(CleanupEventRequestTableDataView.as_view()),
     name='cleanupeventrequest_tabledata'
   ),
+  # composing table data out of read-only instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'ce-request/tabledata/read-only',
+    view=login_required(CleanupEventRequestTableDataView.as_view()),
+    name='cleanupeventrequest_tabledata_readonly'
+  ),
   # table page for instances of object
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
@@ -121,6 +130,14 @@ urlpatterns = [
     'ce-request/table',
     view=login_required(CleanupEventRequestTableView.as_view()),
     name='cleanupeventrequest_table'
+  ),
+  # table page for read-only instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'ce-request/table/read-only',
+    view=login_required(CleanupEventRequestTableView.as_view()),
+    name='cleanupeventrequest_table_readonly'
   ),
   # composing map data out of instances of object
   # for request type clean-up events (Müllsammelaktionen):
@@ -130,6 +147,14 @@ urlpatterns = [
     view=login_required(CleanupEventRequestMapDataView.as_view()),
     name='cleanupeventrequest_mapdata'
   ),
+  # composing map data out of read-only instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'ce-request/mapdata/read-only',
+    view=login_required(CleanupEventRequestMapDataView.as_view()),
+    name='cleanupeventrequest_mapdata_readonly'
+  ),
   # map page for instances of object
   # for request type clean-up events (Müllsammelaktionen):
   # request (Antrag)
@@ -137,6 +162,14 @@ urlpatterns = [
     'ce-request/map',
     view=login_required(CleanupEventRequestMapView.as_view()),
     name='cleanupeventrequest_map'
+  ),
+  # map page for read-only instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request (Antrag)
+  path(
+    'ce-request/map/read-only',
+    view=login_required(CleanupEventRequestMapView.as_view()),
+    name='cleanupeventrequest_map_readonly'
   ),
   # workflow page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):
@@ -260,7 +293,7 @@ urlpatterns = [
     )),
     name='cleanupeventcontainer_create'
   ),
-  # authorative form page for updating an instance of object
+  # authorative form page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):
   # container (Container)
   path(
@@ -283,7 +316,7 @@ urlpatterns = [
     view=login_required(CleanupEventContainerDeleteView.as_view()),
     name='cleanupeventcontainer_delete'
   ),
-  # authorative form page for updating an instance of object
+  # authorative form page for creating an instance of object
   # for request type clean-up events (Müllsammelaktionen):
   # dump (Müllablageplatz)
   path(
@@ -305,6 +338,22 @@ urlpatterns = [
     'ce-request/dump/delete/<pk>',
     view=login_required(CleanupEventDumpDeleteView.as_view()),
     name='cleanupeventdump_delete'
+  ),
+  # composing list out of instances of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request comment (Kommentar zu Antrag)
+  path(
+    'ce-request/comment/list/<request_id>',
+    view=login_required(compose_cleanupeventrequestcomment_list),
+    name='cleanupeventrequestcomment_list'
+  ),
+  # form page for creating an instance of object
+  # for request type clean-up events (Müllsammelaktionen):
+  # request comment (Kommentar zu Antrag)
+  path(
+    'ce-request/comment/create/<request_id>',
+    view=login_required(CleanupEventRequestCommentCreateView.as_view()),
+    name='cleanupeventrequestcomment_create'
   ),
   #
   # URLs also accessible anonymously

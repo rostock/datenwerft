@@ -1,15 +1,17 @@
 from datetime import date, datetime
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.http import Http404, HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic.base import TemplateView
 from django_ratelimit.decorators import ratelimit
 from jsonview.views import JsonView
+from re import sub
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
   ObjectUpdateView, ObjectDeleteView
@@ -23,11 +25,13 @@ from .functions import add_model_context_elements, add_permissions_context_eleme
   send_cleanupeventrequest_email
 from antragsmanagement.constants_vars import REQUESTERS, AUTHORITIES, ADMINS
 from antragsmanagement.models import GeometryObject, CodelistRequestStatus, Authority, Email, \
-  Requester, CleanupEventRequest, CleanupEventEvent, CleanupEventVenue, CleanupEventDetails, \
-  CleanupEventContainer, CleanupEventDump
+  Requester, CleanupEventRequest, CleanupEventResponsibilities, CleanupEventEvent, \
+  CleanupEventVenue, CleanupEventDetails, CleanupEventContainer, CleanupEventDump, \
+  CleanupEventRequestComment
 from antragsmanagement.utils import check_necessary_permissions, \
   belongs_to_antragsmanagement_authority, get_corresponding_requester, get_icon_from_settings, \
   get_request
+from bemas.utils import generate_user_string
 from toolbox.utils import format_date_datetime
 
 
@@ -650,12 +654,13 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     'created': 'Eingang',
     'status': 'Status',
     'requester': 'Antragsteller:in',
-    'responsibilities': 'Zuständigkeit(en)',
+    'main_responsibility': 'Hauptzuständigkeit',
+    'other_responsibilities': 'weitere Zuständigkeit(en)',
     'event_from': 'von',
     'event_to': 'bis',
     'details_waste_quantity': 'Abfallmenge',
     'details_waste_types': 'Abfallart(en)',
-    'details_equipments': 'Austattung(en)',
+    'details_equipments': 'benötigte Ausstattung(en)',
     'container_delivery': 'Container-Stellung',
     'container_pickup': 'Container-Abholung'
   }
@@ -664,8 +669,11 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
     """
     loads initial queryset
     """
+    read_only = False
+    if 'readonly' in self.request.resolver_match.url_name:
+      read_only = True
     if check_necessary_permissions(self.request.user, self.permissions_level):
-      return get_cleanupeventrequest_queryset(self.request.user, False)
+      return get_cleanupeventrequest_queryset(self.request.user, False, read_only)
     return CleanupEventRequest.objects.none()
 
   def count_records(self, qs):
@@ -697,6 +705,7 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
         # append links for authorative updating
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
+            and 'readonly' not in self.request.resolver_match.url_name
             or self.request.user.is_superuser
         ):
           if (
@@ -797,6 +806,30 @@ class CleanupEventRequestTableDataView(ObjectTableDataView):
               links += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
               links += 'Müllablageplatz</a>'
             item_data.append(links)
+            comments = ''
+            if CleanupEventRequestComment.objects.filter(cleanupevent_request=item['id']).exists():
+              list_url = reverse(
+                viewname='antragsmanagement:cleanupeventrequestcomment_list',
+                kwargs={'request_id': item['id']}
+              )
+              comments += '<button class="mb-1 btn btn-sm btn-outline-secondary '
+              comments += 'request-comment-list" '
+              comments += 'title="vorhandene(n) Kommentar(e) ansehen" '
+              comments += 'data-request-pk=' + str(item['id']) + ' data-list-url=' + list_url + '>'
+              comments += '<i class="fas fa-' + get_icon_from_settings('list') + '"></i> '
+              comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i>'
+              comments += '</button>'
+              comments += '<a class="ms-1 mb-1 btn btn-sm btn-outline-primary" role="button" '
+            else:
+              comments += '<a class="mb-1 btn btn-sm btn-outline-primary" role="button" '
+            comments += 'title="neuen Kommentar anlegen" '
+            comments += 'href="' + reverse(
+              viewname='antragsmanagement:cleanupeventrequestcomment_create',
+              kwargs={'request_id': item['id']}
+            ) + '">'
+            comments += '<i class="fas fa-' + get_icon_from_settings('create') + '"></i> '
+            comments += '<i class="fas fa-' + get_icon_from_settings('comment') + '"></i></a>'
+            item_data.append(comments)
         json_data.append(item_data)
     return json_data
 
@@ -881,9 +914,14 @@ class CleanupEventRequestTableView(TemplateView):
     # add model related context elements
     context = add_model_context_elements(context, self.model)
     # add table related context elements
-    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
     context['column_titles'] = list(CleanupEventRequestTableDataView.columns.values())
     context['initial_order'] = self.initial_order
+    read_only = False
+    if 'readonly' in self.request.resolver_match.url_name:
+      read_only = True
+      self.table_data_view_name = self.table_data_view_name + '_readonly'
+    context['read_only'] = read_only
+    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True, read_only)
     context['tabledata_url'] = reverse(self.table_data_view_name)
     # add to context: icon
     context['icon'] = self.icon_name
@@ -913,7 +951,10 @@ class CleanupEventRequestMapDataView(JsonView):
     :return: GeoJSON feature collection
     """
     if check_necessary_permissions(self.request.user, self.permissions_level):
-      objects = get_cleanupeventrequest_queryset(self.request.user, False)
+      read_only = False
+      if 'readonly' in self.request.resolver_match.url_name:
+        read_only = True
+      objects = get_cleanupeventrequest_queryset(self.request.user, False, read_only)
       # declare empty GeoJSON feature collection
       feature_collection = {
         'type': 'FeatureCollection',
@@ -924,6 +965,7 @@ class CleanupEventRequestMapDataView(JsonView):
         authorative_rights = False
         if (
             belongs_to_antragsmanagement_authority(self.request.user)
+            and not read_only
             or self.request.user.is_superuser
         ):
           if (
@@ -1001,7 +1043,11 @@ class CleanupEventRequestMapView(TemplateView):
     context = add_model_context_elements(context, self.model)
     # add map related context elements
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
-    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True)
+    read_only = False
+    if 'readonly' in self.request.resolver_match.url_name:
+      read_only = True
+      self.map_data_view_name = self.map_data_view_name + '_readonly'
+    context['objects_count'] = get_cleanupeventrequest_queryset(self.request.user, True, read_only)
     context['mapdata_url'] = reverse(self.map_data_view_name)
     # add filter related information to context
     context['requests_status'] = list(
@@ -1660,13 +1706,23 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
         recipient_list=[curr_request.requester.email]
       )
       if curr_request.responsibilities.exists():
-        responsibilities = curr_request.responsibilities.all()
-        # use list comprehension to get recipients
+        responsibilities = CleanupEventResponsibilities.objects.filter(
+          cleanupevent_request=curr_request)
+        # get recipients
         # (i.e. the email addresses of all responsible authorities)
-        recipient_list = [
-          responsibility.email for responsibility in responsibilities
-        ]
-        # send email to inform responsible authorities about new request
+        recipient_list = []
+        for responsibility in responsibilities:
+          if responsibility.main:
+            # send email to inform mainly responsible authority about new request
+            send_cleanupeventrequest_email(
+              request=request,
+              email_key='CLEANUPEVENTREQUEST_TO-MAIN-AUTHORITY_NEW',
+              curr_object=curr_request,
+              recipient_list=[responsibility.authority.email]
+            )
+          else:
+            recipient_list.append(responsibility.authority.email)
+        # send email to inform other responsible authorities about new request
         send_cleanupeventrequest_email(
           request=request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
@@ -1674,7 +1730,7 @@ class CleanupEventContainerDecisionView(RequestFollowUpDecisionMixin, TemplateVi
           recipient_list=recipient_list
         )
         # additional messages if certain responsibilities exist
-        additional_messages(responsibilities, self.request)
+        additional_messages(curr_request.responsibilities.all(), self.request)
       messages.success(request, self.success_message)
     if request.user.is_authenticated:
       return redirect('antragsmanagement:index')
@@ -1792,13 +1848,23 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
         recipient_list=[request.requester.email]
       )
       if request.responsibilities.exists():
-        responsibilities = request.responsibilities.all()
-        # use list comprehension to get get recipients
+        responsibilities = CleanupEventResponsibilities.objects.filter(
+          cleanupevent_request=request)
+        # get recipients
         # (i.e. the email addresses of all responsible authorities)
-        recipient_list = [
-          responsibility.email for responsibility in responsibilities
-        ]
-        # send email to inform responsible authorities about new request
+        recipient_list = []
+        for responsibility in responsibilities:
+          if responsibility.main:
+            # send email to inform mainly responsible authority about new request
+            send_cleanupeventrequest_email(
+              request=self.request,
+              email_key='CLEANUPEVENTREQUEST_TO-MAIN-AUTHORITY_NEW',
+              curr_object=request,
+              recipient_list=[responsibility.authority.email]
+            )
+          else:
+            recipient_list.append(responsibility.authority.email)
+        # send email to inform other responsible authorities about new request
         send_cleanupeventrequest_email(
           request=self.request,
           email_key='CLEANUPEVENTREQUEST_TO-AUTHORITIES_NEW',
@@ -1806,7 +1872,7 @@ class CleanupEventContainerCreateView(CleanupEventContainerMixin, ObjectCreateVi
           recipient_list=recipient_list
         )
         # additional messages if certain responsibilities exist
-        additional_messages(responsibilities, self.request)
+        additional_messages(request.responsibilities.all(), self.request)
     return super().form_valid(form)
 
   def get_initial(self):
@@ -2053,6 +2119,124 @@ class CleanupEventDumpDeleteView(RequestFollowUpDeleteMixin, ObjectDeleteView):
   """
 
   model = CleanupEventDump
+
+
+def compose_cleanupeventrequestcomment_list(request, request_id):
+  """
+  composes a list of all objects of model CleanupEventRequestComment
+  related to the object of model CleanupEventRequest with the passed primary key
+  and returns it
+
+  :param request: request
+  :param request_id: primary key of an object of model CleanupEventRequest
+  :return: list of all objects of model CleanupEventRequestComment
+  related to the object of model CleanupEventRequest with the passed primary key
+  """
+  if belongs_to_antragsmanagement_authority(request.user) or request.user.is_superuser:
+    if (
+        request.user.has_perm('antragsmanagement.view_cleanupeventrequest')
+        or request.user.has_perm('antragsmanagement.change_cleanupeventrequest')
+    ):
+      if CleanupEventRequestComment.objects.filter(cleanupevent_request=request_id).exists():
+        comments = CleanupEventRequestComment.objects.filter(cleanupevent_request=request_id).all()
+        comment_list = ''
+        for comment in comments:
+          user = User.objects.get(pk=comment.user_id)
+          headline = generate_user_string(user) + ' (' + comment.created.strftime('%d.%m.%Y') + ')'
+          alert_class = 'warning' if comment.send_to_requester else 'primary'
+          comment_list += '<div class="alert alert-' + alert_class + '">'
+          comment_list += '<div><small><em>' + headline + '</em></small></div>'
+          if comment.send_to_requester:
+            comment_list += '<div><small><em>'
+            comment_list += 'Kommentar auch per E-Mail an Antragsteller:in gesendet'
+            comment_list += '</em></small></div>'
+          comment_list += '<div class="mt-1">' + str(comment.content) + '</div>'
+          comment_list += '</div>'
+        return HttpResponse(comment_list)
+      else:
+        return HttpResponse('<em>Keine Kommentare vorhanden!</em>')
+    else:
+      return HttpResponse('<em>Kommentar(e) vorhanden!</em>')
+  else:
+    return render(request, 'antragsmanagement/notice_no-permissions.html')
+
+
+class CleanupEventRequestCommentMixin:
+  """
+  mixin for form page for deleting an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request comment (Kommentar zu Antrag)
+
+  :param model: model
+  :param cancel_url: custom cancel URL
+  """
+
+  model = CleanupEventRequestComment
+  cancel_url = 'antragsmanagement:cleanupeventrequest_table'
+
+  def get_context_data(self, **kwargs):
+    """
+    returns a dictionary with all context elements for this view
+
+    :param kwargs:
+    :return: dictionary with all context elements for this view
+    """
+    context = super().get_context_data(**kwargs)
+    # add permissions related context elements:
+    # set requester permissions as necessary permissions
+    context = add_permissions_context_elements(context, self.request.user, AUTHORITIES)
+    # add to context: custom form header
+    request_id = self.kwargs.get('request_id', None)
+    context['custom_header'] = 'neu → Kommentar zu Antrag auf Müllsammelaktion #{}'.format(
+      request_id)
+    return context
+
+  def get_success_url(self):
+    """
+    defines the URL called in case of successful request
+
+    :return: URL called in case of successful request
+    """
+    return reverse(self.cancel_url)
+
+
+class CleanupEventRequestCommentCreateView(CleanupEventRequestCommentMixin, ObjectCreateView):
+  """
+  view for form page for deleting an instance of object
+  for request type clean-up events (Müllsammelaktionen):
+  request comment (Kommentar zu Antrag)
+  """
+
+  def form_valid(self, form):
+    """
+    sends HTTP response if passed form is valid
+
+    :param form: form
+    :return: HTTP response if passed form is valid
+    """
+    # set value of cleanupevent_request field
+    instance = form.save(commit=False)
+    request_id = None
+    if self.kwargs.get('request_id', None):
+      request_id = self.kwargs.get('request_id')
+      instance.cleanupevent_request = get_request(
+        CleanupEventRequest, request_id, False).first()
+    # set value of user_id field
+    # if user is authenticated
+    if self.request.user.is_authenticated:
+      instance.user_id = self.request.user.pk
+    instance.save()
+    self.success_message = ('Kommentar zu Antrag auf Müllsammelaktion #{} '
+                            'erfolgreich gespeichert!').format(request_id)
+    # if desired: send email to inform original requester
+    if instance.send_to_requester:
+      send_cleanupeventrequest_email(
+        request=self.request,
+        email_key='CLEANUPEVENTREQUEST_TO-REQUESTER_NEW-COMMENT',
+        curr_object=instance.cleanupevent_request,
+        recipient_list=[instance.cleanupevent_request.requester.email]
+      )
+    return super().form_valid(form)
 
 
 #

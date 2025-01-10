@@ -80,4 +80,4 @@ class GeometryObject(Object):
     geometry_field = None
     geometry_type = None
     geometry_in_scope = True
-    geometry_in_managed_areas = []
+    geometry_in_managed_areas = False

@@ -8,7 +8,13 @@
     {% block errors %}
       {{ block.super }}
     {% endblock %}
-    <h2>{% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}</h2>
+    <h2>
+      {% if custom_header %}
+        {{ custom_header }}
+      {% else %}
+        {% if object %}aktualisieren{% else %}neu{% endif %} → {{ model_verbose_name }}{% if object %} <em>{{ object }}</em>{% endif %}
+      {% endif %}
+    </h2>
     <form class="form mt-4 flex-container-column" method="post" action="" id="form">
       {% csrf_token %}
       {% block list %}

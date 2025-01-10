@@ -104,13 +104,13 @@ class CleanupEventCodelistWasteType(Codelist):
 class CleanupEventCodelistEquipment(Codelist):
   """
   model class for codelist for request type clean-up events (Müllsammelaktionen):
-  equipment (Austattung)
+  equipment (benötigte Ausstattung)
   """
 
   class Meta(Codelist.Meta):
     db_table = 'cleanupevent_codelist_equipment'
-    verbose_name = 'Müllsammelaktion: Austattung'
-    verbose_name_plural = 'Müllsammelaktionen: Austattungen'
+    verbose_name = 'Müllsammelaktion: benötigte Ausstattung'
+    verbose_name_plural = 'Müllsammelaktionen: benötigte Ausstattungen'
 
   class BaseMeta(Codelist.BaseMeta):
-    description = 'Codeliste für Müllsammelaktionen: Austattungen'
+    description = 'Codeliste für Müllsammelaktionen: benötigte Ausstattungen'
