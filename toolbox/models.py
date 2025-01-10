@@ -102,15 +102,3 @@ class SuitableFor(Model):
   def template__name(self):
     return self.template.name
 
-
-class BasemodelMetaAttributes(models.Model):
-  """
-
-  """
-  model_name = models.CharField(
-    max_length=255
-  )
-  meta_attributes = models.JSONField(
-    verbose_name='Attribut-Wert',
-    verbose_name_plural='Attribut-Werte'
-  )

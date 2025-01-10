@@ -282,3 +282,30 @@ input[name="strasse"] {
     min-height: 600px;
   }
 }
+
+.model-option {
+  width: 150px;
+  padding: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}
+
+.model-option:hover {
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.model-option > label {
+  width: 100%;
+  float: left;
+}
+
+.model-option > label > img {
+  width: 100%;
+  float: left;
+}
+
+.model-option > label > span {
+  text-align: center;
+}
