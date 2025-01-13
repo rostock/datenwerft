@@ -13,7 +13,7 @@ from time import time
 from .forms import GenericForm
 from .functions import DecimalEncoder, add_basic_model_context_elements, \
   add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, get_url_back, \
-  set_form_attributes
+  set_form_attributes, get_github_files
 from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
 from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
   is_address_related_field
@@ -291,6 +291,7 @@ class DataChangeView(UpdateView):
     # add further elements to context
     context['uuid'] = self.kwargs['pk']
     context['git_repo_3d_models'] = self.model.BasemodelMeta.git_repo_3d_models
+    context['thumb_urls_3d_models'] = get_github_files(self.model.BasemodelMeta.git_repo_3d_models)
     context['api'] = f'/api/{model_name_lower}/{self.kwargs["pk"]}/'
     context['associated_objects'] = self.associated_objects if self.associated_objects else None
     context['associated_new'] = self.associated_new if self.associated_new else None

@@ -107,100 +107,30 @@
                   <label for="id_3d_model_selector">3D-Modell</label>
                 </td>
                 <td class="cell-field d-flex flex-wrap justify-content-center" id="imageSelector">
+                  {% for thumb_key, thumb_url in thumb_urls_3d_models.items %}
+                    <div class="model-option">
+                      <label for="{{ thumb_key }}">
+                        <img src="{{ thumb_url }}" alt="{{ thumb_key }}">
+                        <span>{{ thumb_key }}</span>
+                        <input type="radio" id="{{ thumb_key }}" name="modelSelection" value="{{ thumb_key }}">
+                      </label>
+                    </div>
+                  {% endfor %}
                   <script>
-                    async function loadImagesFromGithub(githubFolderUrl) {
-                      try {
-                        // Konvertiere normale GitHub-URL zur Raw-API-URL
-                        const apiUrl = githubFolderUrl
-                          .replace('github.com', 'api.github.com/repos')
-                          .replace('/tree/main/', '/contents/');
-
-                        // API-Anfrage senden
-                        const response = await fetch(apiUrl);
-                        if (!response.ok) throw new Error('Netzwerkanfrage fehlgeschlagen');
-
-                        const data = await response.json();
-
-                        // Filter für JPG-Dateien und lade diese
-                        const imagePromises = data
-                          .filter(file => file.name.toLowerCase().endsWith('.jpg'))
-                          .map(async file => {
-                            const imgResponse = await fetch(file.download_url);
-                            const blob = await imgResponse.blob();
-                            return {
-                              name: file.name,
-                              url: URL.createObjectURL(blob)
-                            };
-                          });
-
-                        // Warte bis alle Bilder geladen sind
-                        const images = await Promise.all(imagePromises);
-                        return images;
-
-                      } catch (error) {
-                        console.error('Fehler beim Laden der Bilder:', error);
-                        throw error;
+                    // replace underscores in model names with spaces and remove file extension
+                    function manipulateModelNames() {
+                      const optionList = document.getElementsByClassName("model-option");
+                      for (element in optionList) {
+                        const span = optionList[element].getElementsByTagName("span")[0];
+                        span.innerHTML = span.innerHTML.replace(/_/g, " ");
+                        span.innerHTML = span.innerHTML.replace(/\..*/, "");
                       }
                     }
-
-                    async function displayImagesWithRadio(githubUrl) {
-                      try {
-                        const images = await loadImagesFromGithub(githubUrl);
-
-                        const container = document.getElementById('imageSelector');
-
-                        // Erstelle die Radio-Buttons und Vorschaubilder
-                        images.forEach((image, index) => {
-                          const radioDiv = document.createElement('div');
-                          radioDiv.className = 'model-option';
-
-                          // Label mit Thumbnail
-                          const label = document.createElement('label');
-                          label.htmlFor = `image${index}`;
-
-                          // Radio Button
-                          const radio = document.createElement('input');
-                          radio.type = 'radio';
-                          radio.id = `image${index}`;
-                          radio.name = image.name;
-                          radio.value = image.url;
-                          if (index === 0) radio.checked = true; // Erstes Bild vorauswählen
-
-                          // Thumbnail
-                          const thumbnail = document.createElement('img');
-                          thumbnail.src = image.url;
-                          thumbnail.alt = image.name;
-
-                          // Name des Bildes
-                          const nameSpan = document.createElement('span');
-                          let verbose_name = image.name.replace('.jpg', ''); // remove .jpg
-                          verbose_name = verbose_name.replace(/_/g, ' '); // replace all underscores
-                          verbose_name = verbose_name.replace(/ae/g, 'ä');
-                          verbose_name = verbose_name.replace(/oe/g, 'ö');
-                          verbose_name = verbose_name.replace(/ue/g, 'ü');
-                          nameSpan.textContent = verbose_name;
-
-                          label.appendChild(thumbnail);
-                          label.appendChild(nameSpan);
-
-                          radioDiv.appendChild(label);
-                          radioDiv.appendChild(radio);
-
-                          container.appendChild(radioDiv);
-                        });
-                      } catch (error) {
-                        console.error('Fehler:', error);
-                      }
-                    }
-
-                    const githubURL = "https://github.com/rostock/3DModels/tree/main/Thumbnails/Abfallbehaelter"
-                    document.addEventListener(
-                        'DOMContentLoaded',
-                        displayImagesWithRadio(githubURL));
+                    manipulateModelNames();
                   </script>
                 </td>
               </tr>
-            {% endif %} 
+            {% endif %}
           </table>
         </div>
       {% endblock %}

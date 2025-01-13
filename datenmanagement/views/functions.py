@@ -1,3 +1,5 @@
+import requests
+
 from decimal import Decimal
 from django.apps import apps
 from django.conf import settings
@@ -11,7 +13,8 @@ from django_user_agents.utils import get_user_agent
 from json import JSONEncoder
 from leaflet.forms.widgets import LeafletWidget
 from pathlib import Path
-from re import sub
+from re import IGNORECASE, search, sub
+from urllib.parse import urlparse
 from wsgiref.util import FileWrapper
 
 from .fields import ArrayDateField, ArrayDecimalField
@@ -430,3 +433,109 @@ def set_form_template(model: Basemodel):
     return 'datenmanagement/form-pcmanagement.html'
   else:
     return 'datenmanagement/form-map.html'
+
+def get_github_files(
+  github_folder_url: str,
+  file_filters: list[str] | dict[list[str]] | None = None
+) -> dict[str, str]:
+  """
+  Extrahiert Download-Links für Dateien aus einem GitHub-Unterverzeichnis mit flexibler Filterung.
+
+  :param github_folder_url: Github Repo URL to specific folder
+  :param file_filters: filters for filenames
+  :type file_filters: list[str] | dict[list[str]] | None
+    Example:
+    - None: return all files
+    - list[str]: list of filetypes (['.jpg', '.png'])
+    - dict with possible keys:
+      - 'patterns': list[str] - list of regex-patterns
+      - 'prefixes': list[str] - list of prefixes
+      - 'suffixes': list[str] - list of suffixes (incl. filetypes)
+
+  Returns:
+    dict: Dictionary mit Dateinamen als Keys und Download-URLs als Values
+
+  Examples:
+    # Alle Dateien holen
+    files = get_github_files("https://github.com/user/repo/tree/main/folder")
+
+    # Nur Bilder holen
+    image_files = get_github_files(
+      "https://github.com/user/repo/tree/main/folder",
+      ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+    )
+
+    # Komplexe Filterung
+    filtered_files = get_github_files(
+      "https://github.com/user/repo/tree/main/folder",
+      {
+        'patterns': [r'protokoll_\d{4}'],
+        'prefixes': ['rostock_'],
+        'suffixes': ['_final.pdf']
+      }
+    )
+  """
+  # Konvertiere normale GitHub-URL in API-URL
+  parsed = urlparse(github_folder_url)
+  path_parts = parsed.path.split('/')
+
+  # Extrahiere relevante Teile aus der URL
+  owner = path_parts[1]
+  repo = path_parts[2]
+  branch = path_parts[4]
+  folder_path = '/'.join(path_parts[5:])
+
+  # Erstelle API-URL
+  api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{folder_path}?ref={branch}"
+
+  def matches_filters(filename: str) -> bool:
+    """Prüft, ob ein Dateiname die Filter-Kriterien erfüllt."""
+    # Wenn keine Filter definiert sind, geben wir alle Dateien zurück
+    if file_filters is None:
+      return True
+
+    # Wenn file_filters eine Liste ist, behandeln wir sie als Dateiendungen
+    if isinstance(file_filters, list):
+      return any(filename.lower().endswith(ext.lower()) for ext in file_filters)
+
+    # Komplexe Filterung mit Dictionary
+    if isinstance(file_filters, dict):
+      # Prüfe Regex-Patterns
+      if 'patterns' in file_filters:
+        if not any(search(pattern, filename, IGNORECASE)
+                   for pattern in file_filters['patterns']):
+          return False
+
+      # Prüfe Präfixe
+      if 'prefixes' in file_filters:
+        if not any(filename.lower().startswith(prefix.lower())
+                   for prefix in file_filters['prefixes']):
+          return False
+
+      # Prüfe Suffixe
+      if 'suffixes' in file_filters:
+        if not any(filename.lower().endswith(suffix.lower())
+                   for suffix in file_filters['suffixes']):
+          return False
+
+      return True
+    return False
+
+  try:
+    # API-Anfrage senden
+    response = requests.get(api_url)
+    response.raise_for_status()
+
+    # Verarbeite die Antwort
+    files = response.json()
+    file_links = {}
+
+    for file in files:
+      if file['type'] == 'file' and matches_filters(file['name']):
+        file_links[file['name']] = file['download_url']
+
+    return file_links
+
+  except requests.exceptions.RequestException as e:
+    print(f"Fehler beim Abrufen der Daten: {e}")
+    return {}
