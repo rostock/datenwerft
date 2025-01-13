@@ -263,10 +263,11 @@ def delete_object_immediately(request, pk):
   return HttpResponse(status=204)
 
 
-def download_pointcloud(pk):
+def download_pointcloud(request, pk):
   """
   view, which routes the download request to the right file.
 
+  :param request: required request parameter (not used)
   :param pk: primary key of the requested pointcloud
   :return:
   """
