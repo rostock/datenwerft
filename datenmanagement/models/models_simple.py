@@ -1977,6 +1977,16 @@ class Fahrradabstellanlagen(SimpleModel):
     unique=True,
     default='00000000'
   )
+  hersteller = ForeignKey(
+    to=Hersteller_Fahrradabstellanlagen,
+    verbose_name='Hersteller',
+    on_delete=SET_NULL,
+    db_column='hersteller',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_hersteller',
+    blank=True,
+    null=True
+  )
   ausfuehrung = ForeignKey(
     to=Ausfuehrungen_Fahrradabstellanlagen,
     verbose_name='Ausführung',
@@ -2008,6 +2018,13 @@ class Fahrradabstellanlagen(SimpleModel):
     blank=True,
     null=True
   )
+  baujahr = PositiveSmallIntegerRangeField(
+    verbose_name='Baujahr',
+    min_value=1900,
+    max_value=get_current_year(),
+    blank=True,
+    null=True
+  )
   eigentuemer = ForeignKey(
     to=Bewirtschafter_Betreiber_Traeger_Eigentuemer,
     verbose_name='Eigentümer',
@@ -2034,14 +2051,17 @@ class Fahrradabstellanlagen(SimpleModel):
       'aktiv': 'aktiv?',
       'id': 'ID',
       'strasse': 'Straße',
+      'hersteller': 'Hersteller',
       'ausfuehrung': 'Ausführung',
       'lagebeschreibung': 'Lagebeschreibung',
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'ausfuehrung_stellplaetze': 'Ausführung Stellplätze',
+      'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer'
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
+      'hersteller': 'bezeichnung',
       'ausfuehrung': 'ausfuehrung',
       'ausfuehrung_stellplaetze': 'ausfuehrung',
       'eigentuemer': 'bezeichnung'
@@ -2064,6 +2084,12 @@ class Fahrradabstellanlagen(SimpleModel):
         'action_title': 'ausgewählten Datensätzen Eigentümer direkt zuweisen',
         'field': 'eigentuemer',
         'type': 'foreignkey'
+      },
+      {
+        'action_name': 'fahrradabstellanlagen-hersteller',
+        'action_title': 'ausgewählten Datensätzen Hersteller direkt zuweisen',
+        'field': 'hersteller',
+        'type': 'foreignkey'
       }
     ]
     map_feature_tooltip_fields = ['id']
@@ -2071,14 +2097,17 @@ class Fahrradabstellanlagen(SimpleModel):
       'aktiv': 'aktiv?',
       'id': 'ID',
       'strasse': 'Straße',
+      'hersteller': 'Hersteller',
       'ausfuehrung': 'Ausführung',
       'lagebeschreibung': 'Lagebeschreibung',
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'ausfuehrung_stellplaetze': 'Ausführung Stellplätze',
+      'baujahr': 'Baujahr',
       'eigentuemer': 'Eigentümer'
     }
     map_filter_fields_as_list = [
       'strasse',
+      'hersteller',
       'ausfuehrung',
       'ausfuehrung_stellplaetze',
       'eigentuemer'

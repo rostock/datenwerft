@@ -3748,6 +3748,10 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
     strasse = Strassen.objects.create(
       strasse='Straße'
     )
+    hersteller = Hersteller_Fahrradabstellanlagen.objects.create(
+      bezeichnung='Bezeichnung1'
+    )
+    cls.hersteller = hersteller
     ausfuehrung1 = Ausfuehrungen_Fahrradabstellanlagen.objects.create(
       ausfuehrung='Ausführung1'
     )
@@ -3792,6 +3796,9 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_db_assigned_eigentuemer = {
       'eigentuemer': bewirtschafter_eigentuemer2
+    }
+    cls.attributes_values_db_assigned_hersteller = {
+      'hersteller': hersteller
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -4005,6 +4012,18 @@ class FahrradabstellanlagenTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_assigned_eigentuemer,
       'eigentuemer',
       str(self.bewirtschafter_eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_hersteller(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_hersteller,
+      'hersteller',
+      str(self.hersteller.pk),
       204,
       'text/html; charset=utf-8',
       1

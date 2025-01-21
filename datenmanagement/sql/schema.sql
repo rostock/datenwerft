@@ -1108,6 +1108,18 @@ CREATE TABLE codelisten.haefen (
 
 
 --
+-- Name: hersteller_fahrradabstellanlagen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.hersteller_fahrradabstellanlagen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: hersteller_poller; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -3999,7 +4011,9 @@ CREATE TABLE fachdaten_strassenbezug.fahrradabstellanlagen_hro (
     ausfuehrung_stellplaetze uuid,
     anzahl_stellplaetze smallint,
     eigentuemer uuid NOT NULL,
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    baujahr smallint,
+    hersteller uuid
 );
 
 
@@ -5192,6 +5206,22 @@ ALTER TABLE ONLY codelisten.haefen
 
 ALTER TABLE ONLY codelisten.haefen
     ADD CONSTRAINT haefen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: hersteller_fahrradabstellanlagen hersteller_fahrradabstellanlagen_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.hersteller_fahrradabstellanlagen
+    ADD CONSTRAINT hersteller_fahrradabstellanlagen_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: hersteller_fahrradabstellanlagen hersteller_fahrradabstellanlagen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.hersteller_fahrradabstellanlagen
+    ADD CONSTRAINT hersteller_fahrradabstellanlagen_pk PRIMARY KEY (uuid);
 
 
 --
@@ -8376,6 +8406,14 @@ ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
 
 ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
     ADD CONSTRAINT fahrradabstellanlagen_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fahrradabstellanlagen_hro fahrradabstellanlagen_hro_hersteller_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.fahrradabstellanlagen_hro
+    ADD CONSTRAINT fahrradabstellanlagen_hro_hersteller_fk FOREIGN KEY (hersteller) REFERENCES codelisten.hersteller_fahrradabstellanlagen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
