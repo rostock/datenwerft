@@ -4,8 +4,8 @@ from django.db.models.fields import BooleanField, CharField, DateField, DecimalF
 
 from toolbox.constants_vars import *
 from toolbox.utils import concat_address
-from .base import Metamodel, Codelist, Art, Ausfuehrung, Befestigungsart, Material, Schlagwort, \
-  Status, Typ
+from .base import Metamodel, Codelist, Art, Ausfuehrung, Befestigungsart, Hersteller, Material, \
+  Schlagwort, Status, Typ
 from .constants_vars import *
 from .fields import *
 
@@ -1635,32 +1635,32 @@ class Haefen(Codelist):
     return self.bezeichnung
 
 
-class Hersteller_Poller(Codelist):
+class Hersteller_Fahrradabstellanlagen(Hersteller):
+  """
+  Hersteller von Fahrradabstellanlagen
+  """
+
+  class Meta(Hersteller.Meta):
+    db_table = 'codelisten\".\"hersteller_fahrradabstellanlagen'
+    verbose_name = 'Hersteller einer Fahrradabstellanlage'
+    verbose_name_plural = 'Hersteller von Fahrradabstellanlagen'
+
+  class BasemodelMeta(Hersteller.BasemodelMeta):
+    description = 'Hersteller von Fahrradabstellanlagen'
+
+
+class Hersteller_Poller(Hersteller):
   """
   Hersteller von Pollern
   """
 
-  bezeichnung = CharField(
-    verbose_name='Bezeichnung',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
+  class Meta(Hersteller.Meta):
     db_table = 'codelisten\".\"hersteller_poller'
-    ordering = ['bezeichnung']
     verbose_name = 'Hersteller eines Pollers'
     verbose_name_plural = 'Hersteller von Pollern'
 
-  class BasemodelMeta(Codelist.BasemodelMeta):
+  class BasemodelMeta(Hersteller.BasemodelMeta):
     description = 'Hersteller von Pollern'
-    list_fields = {
-      'bezeichnung': 'Bezeichnung'
-    }
-
-  def __str__(self):
-    return self.bezeichnung
 
 
 class Kabeltypen_Lichtwellenleiterinfrastruktur(Codelist):

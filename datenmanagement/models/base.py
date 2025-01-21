@@ -351,6 +351,31 @@ class Befestigungsart(Codelist):
     return self.befestigungsart
 
 
+class Hersteller(Codelist):
+  """
+  abstract model class for 'Hersteller' codelists
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    abstract: bool = True
+    ordering: list[str] = ['bezeichnung']
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    list_fields: dict[str, str] = {
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
+
+
 class Material(Codelist):
   """
   abstract model class for 'Material' codelists
