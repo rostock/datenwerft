@@ -419,8 +419,7 @@ class Arrondierungsflaechen(SimpleModel):
         'name': 'flurstuecke',
         'title': 'Flurstücke',
         'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
-        'featuretypes': 'hro.flurstuecke.flurstuecke',
-        'proxy': True
+        'featuretypes': 'hro.flurstuecke.flurstuecke'
       }
     ]
 
@@ -682,15 +681,13 @@ class Baudenkmale(SimpleModel):
         'name': 'flurstuecke',
         'title': 'Flurstücke',
         'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
-        'featuretypes': 'hro.flurstuecke.flurstuecke',
-        'proxy': True
+        'featuretypes': 'hro.flurstuecke.flurstuecke'
       },
       {
         'name': 'gebaeude',
         'title': 'Gebäude',
         'url': 'https://geo.sv.rostock.de/geodienste/gebaeude/wfs',
-        'featuretypes': 'hro.gebaeude.gebaeude',
-        'proxy': True
+        'featuretypes': 'hro.gebaeude.gebaeude'
       }
     ]
 
@@ -3848,6 +3845,100 @@ class Ingenieurbauwerke(SimpleModel):
 
   def __str__(self):
     return self.nummer
+
+
+class Jagdkataster_Skizzenebenen(SimpleModel):
+  """
+  Skizzenebenen des Jagdkatasters
+  """
+
+  ansprechpartner = CharField(
+    verbose_name='Antragsteller:in',
+    max_length=255,
+    validators=ansprechpartner_validators
+  )
+  thema = ForeignKey(
+    to=Themen_Jagdkataster_Skizzenebenen,
+    verbose_name='Thema',
+    on_delete=RESTRICT,
+    db_column='thema',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_themen'
+  )
+  status = ForeignKey(
+    to=Status_Jagdkataster_Skizzenebenen,
+    verbose_name='Status',
+    on_delete=RESTRICT,
+    db_column='status',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_status'
+  )
+  bemerkungen = CharField(
+    verbose_name='Bemerkungen',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  geometrie = multiline_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"jagdkataster_skizzenebenen_hro'
+    verbose_name = 'Skizzenebene des Jagdkatasters'
+    verbose_name_plural = 'Skizzenebenen des Jagdkatasters'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Skizzenebenen des Jagdkatasters der Hanse- und Universitätsstadt Rostock'
+    forms_in_high_zoom_mode = True
+    geometry_type = 'MultiLineString'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'ansprechpartner': 'Antragsteller:in',
+      'thema': 'Thema',
+      'status': 'Status',
+      'bemerkungen': 'Bemerkungen'
+    }
+    list_fields_with_foreign_key = {
+      'thema': 'bezeichnung',
+      'status': 'status'
+    }
+    map_feature_tooltip_fields = ['thema', 'status', 'bemerkungen']
+    additional_wms_layers = [
+      {
+        'title': 'Jagdbögen',
+        'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
+        'layers': 'hro.jagdkataster.jagdboegen',
+        'proxy': True
+      }, {
+        'title': 'Jagdbereiche',
+        'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
+        'layers': 'hro.jagdkataster.jagdbereiche',
+        'proxy': True
+      }, {
+        'title': 'Jagdbezirke',
+        'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
+        'layers': 'hro.jagdkataster.jagdbezirke',
+        'proxy': True
+      }, {
+        'title': 'Flurstücke',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wms',
+        'layers': 'hro.flurstuecke.flurstuecke'
+      }
+    ]
+    map_filter_fields = {
+      'ansprechpartner': 'Antragsteller:in',
+      'thema': 'Thema',
+      'status': 'Status',
+      'bemerkungen': 'Bemerkungen'
+    }
+    map_filter_fields_as_list = ['thema', 'status']
+
+  def __str__(self):
+    ansprechpartner = 'Antragsteller:in: ' + self.ansprechpartner
+    thema = 'Thema: ' + str(self.thema)
+    status = 'Status: ' + str(self.status)
+    bemerkungen = ', Bemerkungen: ' + self.bemerkungen if self.bemerkungen else ''
+    return ansprechpartner + ', ' + thema + ', ' + status + bemerkungen
 
 
 class Kadaverfunde(SimpleModel):

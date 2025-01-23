@@ -4365,10 +4365,6 @@ class Strassen_Simple(ComplexModel):
         'layers': 'hro.eigentum_hro.eigentum_hro_hro',
         'proxy': True
       }, {
-        'title': 'Bewirtschaftungskataster',
-        'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wms',
-        'layers': 'hro.bewirtschaftungskataster.bewirtschaftungskataster'
-      }, {
         'title': 'Grundvermögen: Flächen in Abstimmung',
         'url': 'https://geo.sv.rostock.de/geodienste/grundvermoegen/wms',
         'layers': 'hro.grundvermoegen.flaechen_in_abstimmung',
@@ -4414,8 +4410,7 @@ class Strassen_Simple(ComplexModel):
         'name': 'flurstuecke',
         'title': 'Flurstücke',
         'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
-        'featuretypes': 'hro.flurstuecke.flurstuecke',
-        'proxy': True
+        'featuretypes': 'hro.flurstuecke.flurstuecke'
       }
     ]
 
