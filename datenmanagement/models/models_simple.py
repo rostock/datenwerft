@@ -3905,14 +3905,14 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
     map_feature_tooltip_fields = ['thema', 'status', 'bemerkungen']
     additional_wms_layers = [
       {
-        'title': 'Jagdbögen',
-        'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
-        'layers': 'hro.jagdkataster.jagdboegen',
-        'proxy': True
-      }, {
         'title': 'Jagdbereiche',
         'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
         'layers': 'hro.jagdkataster.jagdbereiche',
+        'proxy': True
+      }, {
+        'title': 'Jagdbögen',
+        'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
+        'layers': 'hro.jagdkataster.jagdboegen',
         'proxy': True
       }, {
         'title': 'Jagdbezirke',

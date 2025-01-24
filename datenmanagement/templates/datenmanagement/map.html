@@ -258,7 +258,25 @@
        */
       function mapCallbackFunction(map) {
         setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
-        configureMap(map, '{% url "toolbox:owsproxy" %}');
+
+        // define WMS which shall be selectable as additional overlay layers in the map
+        let additionalWMSLayers = {}, additionalWMSLayerUrl;
+        {% for additional_wms_layer in additional_wms_layers %}
+          additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
+          if ('{{ additional_wms_layer.proxy }}'.toLowerCase() === 'true')
+            additionalWMSLayerUrl = '{% url "toolbox:owsproxy" %}' + additionalWMSLayerUrl;
+          additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms(
+            additionalWMSLayerUrl, {
+              layers: '{{ additional_wms_layer.layers }}',
+              format: map._wmsFormat,
+              maxZoom: map._maxLayerZoom,
+              transparent: true
+            }
+          );
+        {% empty %}
+        {% endfor %}
+
+        configureMap(map, '{% url "toolbox:owsproxy" %}', additionalWMSLayers);
 
         // make map globally available
         window.currMap = map;
