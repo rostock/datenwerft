@@ -453,6 +453,133 @@ class AltersklassenKadaverfundeTest(DefaultCodelistTestCase):
     )
 
 
+class AnbieterCarsharingTest(DefaultCodelistTestCase):
+  """
+  Carsharing-Anbieter
+  """
+
+  model = Anbieter_Carsharing
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'anbieter': 'Anbieter1'
+  }
+  attributes_values_db_updated = {
+    'anbieter': 'Anbieter2'
+  }
+  attributes_values_view_initial = {
+    'anbieter': 'Anbieter3'
+  }
+  attributes_values_view_updated = {
+    'anbieter': 'Anbieter4'
+  }
+  attributes_values_view_invalid = {
+    'anbieter': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
 class AngeboteMobilpunkteTest(DefaultCodelistTestCase):
   """
   Angebote bei Mobilpunkten
@@ -713,6 +840,143 @@ class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
   """
 
   model = Ansprechpartner_Baustellen
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'vorname': 'Vorname1',
+    'nachname': 'Nachname1',
+    'email': 'vorname1@nachname1.de'
+  }
+  attributes_values_db_updated = {
+    'vorname': 'Vorname2',
+    'nachname': 'Nachname2',
+    'email': 'vorname2@nachname2.de'
+  }
+  attributes_values_view_initial = {
+    'vorname': 'Vorname3',
+    'nachname': 'Nachname3',
+    'email': 'vorname3@nachname3.de'
+  }
+  attributes_values_view_updated = {
+    'vorname': 'Vorname4',
+    'nachname': 'Nachname4',
+    'email': 'vorname4@nachname4.de'
+  }
+  attributes_values_view_invalid = {
+    'vorname': INVALID_STRING,
+    'nachname': INVALID_STRING,
+    'email': INVALID_EMAIL
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class AnsprechpartnerJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
+  """
+  Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters
+  """
+
+  model = Ansprechpartner_Jagdkataster_Skizzenebenen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'vorname': 'Vorname1',
@@ -1479,12 +1743,12 @@ class ArtenFairTradeTest(DefaultCodelistTestCase):
     )
 
 
-class ArtenSportanlagenTest(DefaultCodelistTestCase):
+class ArtenFallwildsuchenKontrollenTest(DefaultCodelistTestCase):
   """
-  Arten von Sportanlagen
+  Arten von Kontrollen im Rahmen von Fallwildsuchen
   """
 
-  model = Arten_Sportanlagen
+  model = Arten_Fallwildsuchen_Kontrollen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
@@ -1993,133 +2257,6 @@ class ArtenIngenieurbauwerkeTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Ingenieurbauwerke
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {
-    'art': 'Art1'
-  }
-  attributes_values_db_updated = {
-    'art': 'Art2'
-  }
-  attributes_values_view_initial = {
-    'art': 'Art3'
-  }
-  attributes_values_view_updated = {
-    'art': 'Art4'
-  }
-  attributes_values_view_invalid = {
-    'art': INVALID_STRING
-  }
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk)
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
-    )
-
-
-class ArtenFallwildsuchenKontrollenTest(DefaultCodelistTestCase):
-  """
-  Arten von Kontrollen im Rahmen von Fallwildsuchen
-  """
-
-  model = Arten_Fallwildsuchen_Kontrollen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
@@ -2882,6 +3019,133 @@ class ArtenReisebusparkplaetzeTerminalsTest(DefaultCodelistTestCase):
   """
 
   model = Arten_Reisebusparkplaetze_Terminals
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'art': 'Art1'
+  }
+  attributes_values_db_updated = {
+    'art': 'Art2'
+  }
+  attributes_values_view_initial = {
+    'art': 'Art3'
+  }
+  attributes_values_view_updated = {
+    'art': 'Art4'
+  }
+  attributes_values_view_invalid = {
+    'art': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class ArtenSportanlagenTest(DefaultCodelistTestCase):
+  """
+  Arten von Sportanlagen
+  """
+
+  model = Arten_Sportanlagen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'art': 'Art1'
@@ -5823,27 +6087,27 @@ class BodenartenSpielplaetzeTest(DefaultCodelistTestCase):
     )
 
 
-class AnbieterCarsharingTest(DefaultCodelistTestCase):
+class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
-  Carsharing-Anbieter
+  Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
   """
 
-  model = Anbieter_Carsharing
+  model = DFI_Typen_Haltestellenkataster
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
-    'anbieter': 'Anbieter1'
+    'dfi_typ': 'DFI-Typ1'
   }
   attributes_values_db_updated = {
-    'anbieter': 'Anbieter2'
+    'dfi_typ': 'DFI-Typ2'
   }
   attributes_values_view_initial = {
-    'anbieter': 'Anbieter3'
+    'dfi_typ': 'DFI-Typ3'
   }
   attributes_values_view_updated = {
-    'anbieter': 'Anbieter4'
+    'dfi_typ': 'DFI-Typ4'
   }
   attributes_values_view_invalid = {
-    'anbieter': INVALID_STRING
+    'dfi_typ': INVALID_STRING
   }
 
   def setUp(self):
@@ -6331,6 +6595,260 @@ class FahrbahnwinterdienstStrassenreinigungssatzungHROTest(DefaultCodelistTestCa
     )
 
 
+class FahrgastunterstandstypenHaltestellenkatasterTest(DefaultCodelistTestCase):
+  """
+  Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
+  """
+
+  model = Fahrgastunterstandstypen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp1'
+  }
+  attributes_values_db_updated = {
+    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp2'
+  }
+  attributes_values_view_initial = {
+    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp3'
+  }
+  attributes_values_view_updated = {
+    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp4'
+  }
+  attributes_values_view_invalid = {
+    'fahrgastunterstandstyp': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class FahrplanvitrinentypenHaltestellenkatasterTest(DefaultCodelistTestCase):
+  """
+  Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
+  """
+
+  model = Fahrplanvitrinentypen_Haltestellenkataster
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp1'
+  }
+  attributes_values_db_updated = {
+    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp2'
+  }
+  attributes_values_view_initial = {
+    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp3'
+  }
+  attributes_values_view_updated = {
+    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp4'
+  }
+  attributes_values_view_invalid = {
+    'fahrplanvitrinentyp': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
 class FotomotiveHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
   Fotomotive innerhalb eines Haltestellenkatasters
@@ -6611,6 +7129,133 @@ class FundamenttypenRSAGTest(DefaultCodelistTestCase):
   attributes_values_view_invalid = {
     'typ': INVALID_STRING,
     'erlaeuterung': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class GebaeudeartenMeldedienstpunkthaftTest(DefaultCodelistTestCase):
+  """
+  Gebäudearten für den Meldedienst (punkthaft)
+  """
+
+  model = Gebaeudearten_Meldedienst_punkthaft
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):
@@ -8408,32 +9053,27 @@ class MastkennzeichenRSAGTest(DefaultCodelistTestCase):
     )
 
 
-class MasttypenRSAGTest(DefaultCodelistTestCase):
+class MasttypenHaltestellenkatasterTest(DefaultCodelistTestCase):
   """
-  Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG
+  Masttypen innerhalb eines Haltestellenkatasters
   """
 
-  model = Masttypen_RSAG
+  model = Masttypen_Haltestellenkataster
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
-    'typ': 'Typ1',
-    'erlaeuterung': 'Erläuterung1'
+    'masttyp': 'Masttyp1'
   }
   attributes_values_db_updated = {
-    'typ': 'Typ2',
-    'erlaeuterung': 'Erläuterung2'
+    'masttyp': 'Masttyp2'
   }
   attributes_values_view_initial = {
-    'typ': 'Typ3',
-    'erlaeuterung': 'Erläuterung3'
+    'masttyp': 'Masttyp3'
   }
   attributes_values_view_updated = {
-    'typ': 'Typ4',
-    'erlaeuterung': 'Erläuterung4'
+    'masttyp': 'Masttyp4'
   }
   attributes_values_view_invalid = {
-    'typ': INVALID_STRING,
-    'erlaeuterung': INVALID_STRING
+    'masttyp': INVALID_STRING
   }
 
   def setUp(self):
@@ -8540,27 +9180,32 @@ class MasttypenRSAGTest(DefaultCodelistTestCase):
     )
 
 
-class MasttypenHaltestellenkatasterTest(DefaultCodelistTestCase):
+class MasttypenRSAGTest(DefaultCodelistTestCase):
   """
-  Masttypen innerhalb eines Haltestellenkatasters
+  Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG
   """
 
-  model = Masttypen_Haltestellenkataster
+  model = Masttypen_RSAG
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
-    'masttyp': 'Masttyp1'
+    'typ': 'Typ1',
+    'erlaeuterung': 'Erläuterung1'
   }
   attributes_values_db_updated = {
-    'masttyp': 'Masttyp2'
+    'typ': 'Typ2',
+    'erlaeuterung': 'Erläuterung2'
   }
   attributes_values_view_initial = {
-    'masttyp': 'Masttyp3'
+    'typ': 'Typ3',
+    'erlaeuterung': 'Erläuterung3'
   }
   attributes_values_view_updated = {
-    'masttyp': 'Masttyp4'
+    'typ': 'Typ4',
+    'erlaeuterung': 'Erläuterung4'
   }
   attributes_values_view_invalid = {
-    'masttyp': INVALID_STRING
+    'typ': INVALID_STRING,
+    'erlaeuterung': INVALID_STRING
   }
 
   def setUp(self):
@@ -11089,6 +11734,133 @@ class StatusBaudenkmaleDenkmalbereicheTest(DefaultCodelistTestCase):
     )
 
 
+class StatusBaustellenFotodokumentationFotosTest(DefaultCodelistTestCase):
+  """
+  Status von Fotos der Baustellen-Fotodokumentation
+  """
+
+  model = Status_Baustellen_Fotodokumentation_Fotos
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'status': 'Status1'
+  }
+  attributes_values_db_updated = {
+    'status': 'Status2'
+  }
+  attributes_values_view_initial = {
+    'status': 'Status3'
+  }
+  attributes_values_view_updated = {
+    'status': 'Status4'
+  }
+  attributes_values_view_invalid = {
+    'status': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
 class StatusBaustellengeplantTest(DefaultCodelistTestCase):
   """
   Status von Baustellen (geplant)
@@ -11216,12 +11988,12 @@ class StatusBaustellengeplantTest(DefaultCodelistTestCase):
     )
 
 
-class StatusBaustellenFotodokumentationFotosTest(DefaultCodelistTestCase):
+class StatusJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
   """
-  Status von Fotos der Baustellen-Fotodokumentation
+  Status von Skizzenebenen des Jagdkatasters
   """
 
-  model = Status_Baustellen_Fotodokumentation_Fotos
+  model = Status_Jagdkataster_Skizzenebenen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
     'status': 'Status1'
@@ -11364,6 +12136,133 @@ class StatusPollerTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'status': INVALID_STRING
+  }
+
+  def setUp(self):
+    self.init()
+
+  def test_is_codelist(self):
+    self.generic_is_codelist_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+
+class ThemenJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
+  """
+  Themen von Skizzenebenen des Jagdkatasters
+  """
+
+  model = Themen_Jagdkataster_Skizzenebenen
+  create_test_subset_in_classmethod = False
+  attributes_values_db_initial = {
+    'bezeichnung': 'Bezeichnung1'
+  }
+  attributes_values_db_updated = {
+    'bezeichnung': 'Bezeichnung2'
+  }
+  attributes_values_view_initial = {
+    'bezeichnung': 'Bezeichnung3'
+  }
+  attributes_values_view_updated = {
+    'bezeichnung': 'Bezeichnung4'
+  }
+  attributes_values_view_invalid = {
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):
@@ -11724,133 +12623,6 @@ class TypenAbfallbehaelterTest(DefaultCodelistTestCase):
     )
 
 
-class DFITypenHaltestellenkatasterTest(DefaultCodelistTestCase):
-  """
-  Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
-  """
-
-  model = DFI_Typen_Haltestellenkataster
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {
-    'dfi_typ': 'DFI-Typ1'
-  }
-  attributes_values_db_updated = {
-    'dfi_typ': 'DFI-Typ2'
-  }
-  attributes_values_view_initial = {
-    'dfi_typ': 'DFI-Typ3'
-  }
-  attributes_values_view_updated = {
-    'dfi_typ': 'DFI-Typ4'
-  }
-  attributes_values_view_invalid = {
-    'dfi_typ': INVALID_STRING
-  }
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk)
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
-    )
-
-
 class TypenErdwaermesondenTest(DefaultCodelistTestCase):
   """
   Typen von Erdwärmesonden
@@ -11872,260 +12644,6 @@ class TypenErdwaermesondenTest(DefaultCodelistTestCase):
   }
   attributes_values_view_invalid = {
     'typ': INVALID_STRING
-  }
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk)
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
-    )
-
-
-class FahrgastunterstandstypenHaltestellenkatasterTest(DefaultCodelistTestCase):
-  """
-  Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
-  """
-
-  model = Fahrgastunterstandstypen_Haltestellenkataster
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {
-    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp1'
-  }
-  attributes_values_db_updated = {
-    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp2'
-  }
-  attributes_values_view_initial = {
-    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp3'
-  }
-  attributes_values_view_updated = {
-    'fahrgastunterstandstyp': 'Fahrgastunterstandstyp4'
-  }
-  attributes_values_view_invalid = {
-    'fahrgastunterstandstyp': INVALID_STRING
-  }
-
-  def setUp(self):
-    self.init()
-
-  def test_is_codelist(self):
-    self.generic_is_codelist_test()
-
-  def test_create(self):
-    self.generic_create_test(self.model, self.attributes_values_db_initial)
-
-  def test_update(self):
-    self.generic_update_test(self.model, self.attributes_values_db_updated)
-
-  def test_delete(self):
-    self.generic_delete_test(self.model)
-
-  def test_view_start(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_start',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      START_VIEW_STRING
-    )
-
-  def test_view_list(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_list',
-      {},
-      200,
-      'text/html; charset=utf-8',
-      LIST_VIEW_STRING
-    )
-
-  def test_view_data(self):
-    self.generic_view_test(
-      self.model,
-      self.model.__name__ + '_data',
-      DATA_VIEW_PARAMS,
-      200,
-      'application/json',
-      str(self.test_object.pk)
-    )
-
-  def test_view_add_success(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_initial,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_add_error(self):
-    self.generic_add_update_view_test(
-      False,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_change_success(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_updated,
-      302,
-      'text/html; charset=utf-8',
-      1
-    )
-
-  def test_view_change_error(self):
-    self.generic_add_update_view_test(
-      True,
-      self.model,
-      self.attributes_values_view_invalid,
-      200,
-      'text/html; charset=utf-8',
-      0
-    )
-
-  def test_view_delete(self):
-    self.generic_delete_view_test(
-      False,
-      self.model,
-      self.attributes_values_db_initial,
-      302,
-      'text/html; charset=utf-8'
-    )
-
-  def test_view_deleteimmediately(self):
-    self.generic_delete_view_test(
-      True,
-      self.model,
-      self.attributes_values_db_initial,
-      204,
-      'text/html; charset=utf-8'
-    )
-
-
-class FahrplanvitrinentypenHaltestellenkatasterTest(DefaultCodelistTestCase):
-  """
-  Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
-  """
-
-  model = Fahrplanvitrinentypen_Haltestellenkataster
-  create_test_subset_in_classmethod = False
-  attributes_values_db_initial = {
-    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp1'
-  }
-  attributes_values_db_updated = {
-    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp2'
-  }
-  attributes_values_view_initial = {
-    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp3'
-  }
-  attributes_values_view_updated = {
-    'fahrplanvitrinentyp': 'Fahrplanvitrinentyp4'
-  }
-  attributes_values_view_invalid = {
-    'fahrplanvitrinentyp': INVALID_STRING
   }
 
   def setUp(self):

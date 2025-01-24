@@ -294,6 +294,34 @@ class Altersklassen_Kadaverfunde(Codelist):
     return self.bezeichnung
 
 
+class Anbieter_Carsharing(Codelist):
+  """
+  Carsharing-Anbieter
+  """
+
+  anbieter = CharField(
+    verbose_name='Anbieter',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"anbieter_carsharing'
+    ordering = ['anbieter']
+    verbose_name = 'Carsharing-Anbieter'
+    verbose_name_plural = 'Carsharing-Anbieter'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Carsharing-Anbieter'
+    list_fields = {
+      'anbieter': 'Anbieter'
+    }
+
+  def __str__(self):
+    return self.anbieter
+
+
 class Angebote_Mobilpunkte(Codelist):
   """
   Angebote bei Mobilpunkten
@@ -403,6 +431,59 @@ class Ansprechpartner_Baustellen(Codelist):
       return self.vorname + ' ' + self.nachname + ' (' + self.email + ')'
 
 
+class Ansprechpartner_Jagdkataster_Skizzenebenen(Codelist):
+  """
+  Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters
+  """
+
+  vorname = CharField(
+    verbose_name='Vorname',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=personennamen_validators
+  )
+  nachname = CharField(
+    verbose_name='Nachname',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=personennamen_validators
+  )
+  email = CharField(
+    verbose_name='E-Mail-Adresse',
+    max_length=255,
+    unique=True,
+    validators=[
+      EmailValidator(
+        message=email_message
+      )
+    ]
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"ansprechpartner_jagdkataster_skizzenebenen'
+    ordering = [
+      'nachname', 'vorname', 'email'
+    ]
+    verbose_name = 'Ansprechpartner:in bei einer Skizzenebene des Jagdkatasters'
+    verbose_name_plural = 'Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters'
+    list_fields = {
+      'vorname': 'Vorname',
+      'nachname': 'Nachname',
+      'email': 'E-Mail-Adresse'
+    }
+
+  def __str__(self):
+    if not self.nachname:
+      return self.email
+    else:
+      return self.vorname + ' ' + self.nachname + ' (' + self.email + ')'
+
+
 class Arten_Adressunsicherheiten(Art):
   """
   Arten von Adressunsicherheiten
@@ -473,6 +554,20 @@ class Arten_FairTrade(Art):
     description = 'Arten von Fair-Trade-Einrichtungen'
 
 
+class Arten_Fallwildsuchen_Kontrollen(Art):
+  """
+  Arten von Kontrollen im Rahmen von Fallwildsuchen
+  """
+
+  class Meta(Art.Meta):
+    db_table = 'codelisten\".\"arten_fallwildsuchen_kontrollen'
+    verbose_name = 'Art einer Kontrolle im Rahmen einer Fallwildsuche'
+    verbose_name_plural = 'Arten von Kontrollen im Rahmen von Fallwildsuchen'
+
+  class BasemodelMeta(Art.BasemodelMeta):
+    description = 'Arten von Kontrollen im Rahmen von Fallwildsuchen'
+
+
 class Arten_Feuerwachen(Art):
   """
   Arten von Feuerwachen
@@ -513,20 +608,6 @@ class Arten_Hundetoiletten(Art):
 
   class BasemodelMeta(Art.BasemodelMeta):
     description = 'Arten von Hundetoiletten'
-
-
-class Arten_Fallwildsuchen_Kontrollen(Art):
-  """
-  Arten von Kontrollen im Rahmen von Fallwildsuchen
-  """
-
-  class Meta(Art.Meta):
-    db_table = 'codelisten\".\"arten_fallwildsuchen_kontrollen'
-    verbose_name = 'Art einer Kontrolle im Rahmen einer Fallwildsuche'
-    verbose_name_plural = 'Arten von Kontrollen im Rahmen von Fallwildsuchen'
-
-  class BasemodelMeta(Art.BasemodelMeta):
-    description = 'Arten von Kontrollen im Rahmen von Fallwildsuchen'
 
 
 class Arten_Ingenieurbauwerke(Art):
@@ -1215,32 +1296,35 @@ class Bodenarten_Spielplaetze(Codelist):
     return self.bodenart
 
 
-class Anbieter_Carsharing(Codelist):
+class DFI_Typen_Haltestellenkataster(Codelist):
   """
-  Carsharing-Anbieter
+  Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
   """
 
-  anbieter = CharField(
-    verbose_name='Anbieter',
+  dfi_typ = CharField(
+    verbose_name='DFI-Typ',
     max_length=255,
     unique=True,
     validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
-    db_table = 'codelisten\".\"anbieter_carsharing'
-    ordering = ['anbieter']
-    verbose_name = 'Carsharing-Anbieter'
-    verbose_name_plural = 'Carsharing-Anbieter'
+    db_table = 'codelisten\".\"dfi_typen_haltestellenkataster'
+    ordering = ['dfi_typ']
+    verbose_name = 'Typ eines Dynamischen Fahrgastinformationssystems ' \
+                   'innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Dynamischen Fahrgastinformationssystemen ' \
+                          'innerhalb eines Haltestellenkatasters'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Carsharing-Anbieter'
+    description = 'Typen von Dynamischen Fahrgastinformationssystemen ' \
+                  'innerhalb eines Haltestellenkatasters'
     list_fields = {
-      'anbieter': 'Anbieter'
+      'dfi_typ': 'DFI-Typ'
     }
 
   def __str__(self):
-    return self.anbieter
+    return self.dfi_typ
 
 
 class E_Anschluesse_Parkscheinautomaten(Codelist):
@@ -1333,6 +1417,62 @@ class Fahrbahnwinterdienst_Strassenreinigungssatzung_HRO(Codelist):
 
   def __str__(self):
     return self.code
+
+
+class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
+  """
+  Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
+  """
+
+  fahrgastunterstandstyp = CharField(
+    verbose_name='Fahrgastunterstandstyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"fahrgastunterstandstypen_haltestellenkataster'
+    ordering = ['fahrgastunterstandstyp']
+    verbose_name = 'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'
+    }
+
+  def __str__(self):
+    return self.fahrgastunterstandstyp
+
+
+class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
+  """
+  Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
+  """
+
+  fahrplanvitrinentyp = CharField(
+    verbose_name='Fahrplanvitrinentyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"fahrplanvitrinentypen_haltestellenkataster'
+    ordering = ['fahrplanvitrinentyp']
+    verbose_name = 'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'
+    }
+
+  def __str__(self):
+    return self.fahrplanvitrinentyp
 
 
 class Fotomotive_Haltestellenkataster(Codelist):
@@ -1890,6 +2030,34 @@ class Mastkennzeichen_RSAG(Codelist):
     return self.erlaeuterung + ' (' + self.kennzeichen + ')'
 
 
+class Masttypen_Haltestellenkataster(Codelist):
+  """
+  Masttypen innerhalb eines Haltestellenkatasters
+  """
+
+  masttyp = CharField(
+    verbose_name='Masttyp',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"masttypen_haltestellenkataster'
+    ordering = ['masttyp']
+    verbose_name = 'Masttyp innerhalb eines Haltestellenkatasters'
+    verbose_name_plural = 'Masttypen innerhalb eines Haltestellenkatasters'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Masttypen innerhalb eines Haltestellenkatasters'
+    list_fields = {
+      'masttyp': 'Masttyp'
+    }
+
+  def __str__(self):
+    return self.masttyp
+
+
 class Masttypen_RSAG(Codelist):
   """
   Masttypen innerhalb der Straßenbahninfrastruktur der Rostocker Straßenbahn AG
@@ -1923,34 +2091,6 @@ class Masttypen_RSAG(Codelist):
 
   def __str__(self):
     return self.typ
-
-
-class Masttypen_Haltestellenkataster(Codelist):
-  """
-  Masttypen innerhalb eines Haltestellenkatasters
-  """
-
-  masttyp = CharField(
-    verbose_name='Masttyp',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten\".\"masttypen_haltestellenkataster'
-    ordering = ['masttyp']
-    verbose_name = 'Masttyp innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Masttypen innerhalb eines Haltestellenkatasters'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Masttypen innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'masttyp': 'Masttyp'
-    }
-
-  def __str__(self):
-    return self.masttyp
 
 
 class Materialien_Denksteine(Material):
@@ -2457,20 +2597,6 @@ class Status_Baudenkmale_Denkmalbereiche(Status):
     description = 'Status von Baudenkmalen und Denkmalbereichen'
 
 
-class Status_Baustellen_geplant(Status):
-  """
-  Status von Baustellen (geplant)
-  """
-
-  class Meta(Status.Meta):
-    db_table = 'codelisten\".\"status_baustellen_geplant'
-    verbose_name = 'Status einer Baustelle (geplant)'
-    verbose_name_plural = 'Status von Baustellen (geplant)'
-
-  class BasemodelMeta(Status.BasemodelMeta):
-    description = 'Status von Baustellen (geplant)'
-
-
 class Status_Baustellen_Fotodokumentation_Fotos(Status):
   """
   Status von Fotos der Baustellen-Fotodokumentation
@@ -2485,6 +2611,34 @@ class Status_Baustellen_Fotodokumentation_Fotos(Status):
     description = 'Status von Fotos der Baustellen-Fotodokumentation'
 
 
+class Status_Baustellen_geplant(Status):
+  """
+  Status von Baustellen (geplant)
+  """
+
+  class Meta(Status.Meta):
+    db_table = 'codelisten\".\"status_baustellen_geplant'
+    verbose_name = 'Status einer Baustelle (geplant)'
+    verbose_name_plural = 'Status von Baustellen (geplant)'
+
+  class BasemodelMeta(Status.BasemodelMeta):
+    description = 'Status von Baustellen (geplant)'
+
+
+class Status_Jagdkataster_Skizzenebenen(Status):
+  """
+  Status von Skizzenebenen des Jagdkatasters
+  """
+
+  class Meta(Status.Meta):
+    db_table = 'codelisten\".\"status_jagdkataster_skizzenebenen'
+    verbose_name = 'Status einer Skizzenebene des Jagdkatasters'
+    verbose_name_plural = 'Status von Skizzenebenen des Jagdkatasters'
+
+  class BasemodelMeta(Status.BasemodelMeta):
+    description = 'Status von Skizzenebenen des Jagdkatasters'
+
+
 class Status_Poller(Status):
   """
   Status von Pollern
@@ -2497,6 +2651,34 @@ class Status_Poller(Status):
 
   class BasemodelMeta(Status.BasemodelMeta):
     description = 'Status von Pollern'
+
+
+class Themen_Jagdkataster_Skizzenebenen(Codelist):
+  """
+  Themen von Skizzenebenen des Jagdkatasters
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"themen_jagdkataster_skizzenebenen'
+    ordering = ['bezeichnung']
+    verbose_name = 'Thema einer Skizzenebene des Jagdkatasters'
+    verbose_name_plural = 'Themen von Skizzenebenen des Jagdkatasters'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Themen von Skizzenebenen des Jagdkatasters'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
 
 
 class Tierseuchen(Codelist):
@@ -2541,37 +2723,6 @@ class Typen_Abfallbehaelter(Typ):
     description = 'Typen von Abfallbehältern'
 
 
-class DFI_Typen_Haltestellenkataster(Codelist):
-  """
-  Typen von Dynamischen Fahrgastinformationssystemen innerhalb eines Haltestellenkatasters
-  """
-
-  dfi_typ = CharField(
-    verbose_name='DFI-Typ',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten\".\"dfi_typen_haltestellenkataster'
-    ordering = ['dfi_typ']
-    verbose_name = 'Typ eines Dynamischen Fahrgastinformationssystems ' \
-                   'innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Dynamischen Fahrgastinformationssystemen ' \
-                          'innerhalb eines Haltestellenkatasters'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Typen von Dynamischen Fahrgastinformationssystemen ' \
-                  'innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'dfi_typ': 'DFI-Typ'
-    }
-
-  def __str__(self):
-    return self.dfi_typ
-
-
 class Typen_Erdwaermesonden(Typ):
   """
   Typen von Erdwärmesonden
@@ -2584,62 +2735,6 @@ class Typen_Erdwaermesonden(Typ):
 
   class BasemodelMeta(Typ.BasemodelMeta):
     description = 'Typen von Erdwärmesonden'
-
-
-class Fahrgastunterstandstypen_Haltestellenkataster(Codelist):
-  """
-  Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters
-  """
-
-  fahrgastunterstandstyp = CharField(
-    verbose_name='Fahrgastunterstandstyp',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten\".\"fahrgastunterstandstypen_haltestellenkataster'
-    ordering = ['fahrgastunterstandstyp']
-    verbose_name = 'Typ eines Fahrgastunterstands innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Typen von Fahrgastunterständen innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'fahrgastunterstandstyp': 'Fahrgastunterstandstyp'
-    }
-
-  def __str__(self):
-    return self.fahrgastunterstandstyp
-
-
-class Fahrplanvitrinentypen_Haltestellenkataster(Codelist):
-  """
-  Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters
-  """
-
-  fahrplanvitrinentyp = CharField(
-    verbose_name='Fahrplanvitrinentyp',
-    max_length=255,
-    unique=True,
-    validators=standard_validators
-  )
-
-  class Meta(Codelist.Meta):
-    db_table = 'codelisten\".\"fahrplanvitrinentypen_haltestellenkataster'
-    ordering = ['fahrplanvitrinentyp']
-    verbose_name = 'Typ einer Fahrplanvitrine innerhalb eines Haltestellenkatasters'
-    verbose_name_plural = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
-
-  class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Typen von Fahrplanvitrinen innerhalb eines Haltestellenkatasters'
-    list_fields = {
-      'fahrplanvitrinentyp': 'Fahrplanvitrinentyp'
-    }
-
-  def __str__(self):
-    return self.fahrplanvitrinentyp
 
 
 class Typen_Feuerwehrzufahrten_Schilder(Typ):

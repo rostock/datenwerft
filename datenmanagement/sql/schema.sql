@@ -440,6 +440,20 @@ CREATE TABLE codelisten.ansprechpartner_baustellen (
 
 
 --
+-- Name: ansprechpartner_jagdkataster_skizzenebenen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.ansprechpartner_jagdkataster_skizzenebenen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    vorname character varying(255),
+    nachname character varying(255),
+    email character varying(255) NOT NULL
+);
+
+
+--
 -- Name: arten_adressunsicherheiten; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1491,6 +1505,18 @@ CREATE TABLE codelisten.status_baustellen_geplant (
 
 
 --
+-- Name: status_jagdkataster_skizzenebenen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.status_jagdkataster_skizzenebenen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    status character varying(255) NOT NULL
+);
+
+
+--
 -- Name: status_poller; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1499,6 +1525,18 @@ CREATE TABLE codelisten.status_poller (
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
     status character varying(255) NOT NULL
+);
+
+
+--
+-- Name: themen_jagdkataster_skizzenebenen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.themen_jagdkataster_skizzenebenen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2492,6 +2530,26 @@ CREATE TABLE fachdaten.hydranten_hro (
     entnahme character varying(255),
     hauptwasserzaehler character varying(255),
     geometrie public.geometry(Point,25833) NOT NULL
+);
+
+
+--
+-- Name: jagdkataster_skizzenebenen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.jagdkataster_skizzenebenen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    ansprechpartner character varying(255) NOT NULL,
+    thema uuid NOT NULL,
+    status uuid NOT NULL,
+    bemerkungen character varying(255),
+    geometrie public.geometry(MultiLineString,25833) NOT NULL
 );
 
 
@@ -4345,6 +4403,22 @@ ALTER TABLE ONLY codelisten.ansprechpartner_baustellen
 
 
 --
+-- Name: ansprechpartner_jagdkataster_skizzenebenen ansprechpartner_jagdkataster_skizzenebenen_email_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ansprechpartner_jagdkataster_skizzenebenen
+    ADD CONSTRAINT ansprechpartner_jagdkataster_skizzenebenen_email_unique UNIQUE (email);
+
+
+--
+-- Name: ansprechpartner_jagdkataster_skizzenebenen ansprechpartner_jagdkataster_skizzenebenen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.ansprechpartner_jagdkataster_skizzenebenen
+    ADD CONSTRAINT ansprechpartner_jagdkataster_skizzenebenen_pk PRIMARY KEY (uuid);
+
+
+--
 -- Name: arten_adressunsicherheiten arten_adressunsicherheiten_art_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5697,6 +5771,22 @@ ALTER TABLE ONLY codelisten.status_baustellen_geplant
 
 
 --
+-- Name: status_jagdkataster_skizzenebenen status_jagdkataster_skizzenebenen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.status_jagdkataster_skizzenebenen
+    ADD CONSTRAINT status_jagdkataster_skizzenebenen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: status_jagdkataster_skizzenebenen status_jagdkataster_skizzenebenen_status_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.status_jagdkataster_skizzenebenen
+    ADD CONSTRAINT status_jagdkataster_skizzenebenen_status_unique UNIQUE (status);
+
+
+--
 -- Name: status_poller status_poller_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
@@ -5710,6 +5800,22 @@ ALTER TABLE ONLY codelisten.status_poller
 
 ALTER TABLE ONLY codelisten.status_poller
     ADD CONSTRAINT status_poller_status_unique UNIQUE (status);
+
+
+--
+-- Name: themen_jagdkataster_skizzenebenen themen_jagdkataster_skizzenebenen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.themen_jagdkataster_skizzenebenen
+    ADD CONSTRAINT themen_jagdkataster_skizzenebenen_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: themen_jagdkataster_skizzenebenen themen_jagdkataster_skizzenebenen_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.themen_jagdkataster_skizzenebenen
+    ADD CONSTRAINT themen_jagdkataster_skizzenebenen_unique UNIQUE (bezeichnung);
 
 
 --
@@ -6358,6 +6464,14 @@ ALTER TABLE ONLY fachdaten.hydranten_hro
 
 ALTER TABLE ONLY fachdaten.hydranten_hro
     ADD CONSTRAINT hydranten_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: jagdkataster_skizzenebenen_hro jagdkataster_skizzenebenen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.jagdkataster_skizzenebenen_hro
+    ADD CONSTRAINT jagdkataster_skizzenebenen_hro_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7750,6 +7864,22 @@ ALTER TABLE ONLY fachdaten.hydranten_hro
 
 ALTER TABLE ONLY fachdaten.hydranten_hro
     ADD CONSTRAINT hydranten_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: jagdkataster_skizzenebenen_hro jagdkataster_skizzenebenen_hro_status_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.jagdkataster_skizzenebenen_hro
+    ADD CONSTRAINT jagdkataster_skizzenebenen_hro_status_fk FOREIGN KEY (status) REFERENCES codelisten.status_jagdkataster_skizzenebenen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: jagdkataster_skizzenebenen_hro jagdkataster_skizzenebenen_hro_themen_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.jagdkataster_skizzenebenen_hro
+    ADD CONSTRAINT jagdkataster_skizzenebenen_hro_themen_fk FOREIGN KEY (thema) REFERENCES codelisten.themen_jagdkataster_skizzenebenen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
