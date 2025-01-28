@@ -431,57 +431,32 @@ class Ansprechpartner_Baustellen(Codelist):
       return self.vorname + ' ' + self.nachname + ' (' + self.email + ')'
 
 
-class Ansprechpartner_Jagdkataster_Skizzenebenen(Codelist):
+class Antragsteller_Jagdkataster_Skizzenebenen(Codelist):
   """
-  Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters
+  Antragsteller:innen bei Skizzenebenen des Jagdkatasters
   """
 
-  vorname = CharField(
-    verbose_name='Vorname',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=personennamen_validators
-  )
-  nachname = CharField(
-    verbose_name='Nachname',
-    max_length=255,
-    blank=True,
-    null=True,
-    validators=personennamen_validators
-  )
-  email = CharField(
-    verbose_name='E-Mail-Adresse',
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
     max_length=255,
     unique=True,
-    validators=[
-      EmailValidator(
-        message=email_message
-      )
-    ]
+    validators=standard_validators
   )
 
   class Meta(Codelist.Meta):
-    db_table = 'codelisten\".\"ansprechpartner_jagdkataster_skizzenebenen'
-    ordering = [
-      'nachname', 'vorname', 'email'
-    ]
-    verbose_name = 'Ansprechpartner:in bei einer Skizzenebene des Jagdkatasters'
-    verbose_name_plural = 'Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters'
+    db_table = 'codelisten\".\"antragsteller_jagdkataster_skizzenebenen'
+    ordering = ['bezeichnung']
+    verbose_name = 'Antragsteller:in bei einer Skizzenebene des Jagdkatasters'
+    verbose_name_plural = 'Antragsteller:innen bei Skizzenebenen des Jagdkatasters'
 
   class BasemodelMeta(Codelist.BasemodelMeta):
-    description = 'Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters'
+    description = 'Antragsteller:innen bei Skizzenebenen des Jagdkatasters'
     list_fields = {
-      'vorname': 'Vorname',
-      'nachname': 'Nachname',
-      'email': 'E-Mail-Adresse'
+      'bezeichnung': 'Bezeichnung'
     }
 
   def __str__(self):
-    if not self.nachname:
-      return self.email
-    else:
-      return self.vorname + ' ' + self.nachname + ' (' + self.email + ')'
+    return self.bezeichnung
 
 
 class Arten_Adressunsicherheiten(Art):

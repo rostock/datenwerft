@@ -971,37 +971,27 @@ class AnsprechpartnerBaustellenTest(DefaultCodelistTestCase):
     )
 
 
-class AnsprechpartnerJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
+class AntragstellerJagdkatasterSkizzenebenenTest(DefaultCodelistTestCase):
   """
-  Ansprechpartner:innen bei Skizzenebenen des Jagdkatasters
+  Antragsteller:innen bei Skizzenebenen des Jagdkatasters
   """
 
-  model = Ansprechpartner_Jagdkataster_Skizzenebenen
+  model = Antragsteller_Jagdkataster_Skizzenebenen
   create_test_subset_in_classmethod = False
   attributes_values_db_initial = {
-    'vorname': 'Vorname1',
-    'nachname': 'Nachname1',
-    'email': 'vorname1@nachname1.de'
+    'bezeichnung': 'Bezeichnung1'
   }
   attributes_values_db_updated = {
-    'vorname': 'Vorname2',
-    'nachname': 'Nachname2',
-    'email': 'vorname2@nachname2.de'
+    'bezeichnung': 'Bezeichnung2'
   }
   attributes_values_view_initial = {
-    'vorname': 'Vorname3',
-    'nachname': 'Nachname3',
-    'email': 'vorname3@nachname3.de'
+    'bezeichnung': 'Bezeichnung3'
   }
   attributes_values_view_updated = {
-    'vorname': 'Vorname4',
-    'nachname': 'Nachname4',
-    'email': 'vorname4@nachname4.de'
+    'bezeichnung': 'Bezeichnung4'
   }
   attributes_values_view_invalid = {
-    'vorname': INVALID_STRING,
-    'nachname': INVALID_STRING,
-    'email': INVALID_EMAIL
+    'bezeichnung': INVALID_STRING
   }
 
   def setUp(self):

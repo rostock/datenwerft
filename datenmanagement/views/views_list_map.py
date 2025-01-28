@@ -690,6 +690,13 @@ class MapListView(TemplateView):
     context = add_basic_model_context_elements(context, self.model)
     # add further elements to context
     context['LEAFLET_CONFIG'] = settings.LEAFLET_CONFIG
+    context['forms_in_high_zoom_mode'] = self.model.BasemodelMeta.forms_in_high_zoom_mode
+    context['forms_in_high_zoom_mode_default_aerial'] = (
+      self.model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial)
+    if self.model.BasemodelMeta.forms_in_high_zoom_mode:
+      context['leaflet_config_overrides'] = {
+        'MAX_ZOOM': 21
+      }
     if self.kwargs and 'subset_id' in self.kwargs and self.kwargs['subset_id']:
       subset_id = kwargs['subset_id']
       context['subset_id'] = subset_id

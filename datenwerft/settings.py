@@ -128,6 +128,10 @@ LEAFLET_CONFIG = {
       'js': 'leaflet-locatecontrol/L.Control.Locate.min.js',
       'auto_include': True
     },
+    'nontiledlayer': {
+      'js': 'leaflet-nontiledlayer/NonTiledLayer.js',
+      'auto_include': True
+    },
     'markercluster': {
       'css': [
         'leaflet-markercluster/MarkerCluster.css',
@@ -171,6 +175,7 @@ STATICFILES_DIRS = (
   ('jquery', BASE_DIR / 'node_modules/jquery/dist'),
   ('leaflet-geoman', BASE_DIR / 'node_modules/@geoman-io/leaflet-geoman-free/dist'),
   ('leaflet-locatecontrol', BASE_DIR / 'node_modules/leaflet.locatecontrol/dist'),
+  ('leaflet-nontiledlayer', BASE_DIR / 'node_modules/leaflet.nontiledlayer/dist'),
   ('leaflet-markercluster', BASE_DIR / 'node_modules/leaflet.markercluster/dist'),
   ('martinez-polygon-clipping', BASE_DIR / 'node_modules/martinez-polygon-clipping/dist'),
   ('popperjs', BASE_DIR / 'node_modules/@popperjs/core/dist/umd'),

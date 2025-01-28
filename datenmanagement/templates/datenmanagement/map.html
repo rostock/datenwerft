@@ -18,7 +18,7 @@
 
 {% block scripts %}
   {{ block.super }}
-  {% leaflet_js plugins="locatecontrol,markercluster" %}
+  {% leaflet_js plugins="locatecontrol,markercluster,nontiledlayer" %}
   <script src="{% static 'proj4/proj4.js' %}"></script>
   <script src="{% static 'proj4leaflet/proj4leaflet.js' %}"></script>
   <script src="{% static 'datenmanagement/js/cartographicHelpers.js' %}"></script>
@@ -257,7 +257,15 @@
        * @param {Object} map - map
        */
       function mapCallbackFunction(map) {
-        setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+        {% if forms_in_high_zoom_mode %}
+          {% if forms_in_high_zoom_mode_default_aerial %}
+            setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }}, true, true);
+          {% else %}
+            setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }}, true, false);
+          {% endif %}
+        {% else %}
+          setMapConstants(map, {{ LEAFLET_CONFIG.MAX_ZOOM }});
+        {% endif %}
 
         // define WMS which shall be selectable as additional overlay layers in the map
         let additionalWMSLayers = {}, additionalWMSLayerUrl;
@@ -265,7 +273,7 @@
           additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
           if ('{{ additional_wms_layer.proxy }}'.toLowerCase() === 'true')
             additionalWMSLayerUrl = '{% url "toolbox:owsproxy" %}' + additionalWMSLayerUrl;
-          additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms(
+          additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.nonTiledLayer.wms(
             additionalWMSLayerUrl, {
               layers: '{{ additional_wms_layer.layers }}',
               format: map._wmsFormat,

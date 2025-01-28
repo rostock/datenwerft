@@ -17,7 +17,7 @@
   {{ block.super }}
 
   <!-- load specific scripts -->
-  {% leaflet_js plugins="geoman,locatecontrol" %}
+  {% leaflet_js plugins="geoman,locatecontrol,nontiledlayer" %}
   <script src="{% static 'proj4/proj4.js' %}"></script>
   <script src="{% static 'wicket/wicket.js' %}"></script>
   <script src="{% static 'wicket/wicket-leaflet.js' %}"></script>
@@ -95,7 +95,7 @@
                   additionalWMSLayerUrl = '{{ additional_wms_layer.url }}';
                   if ('{{ additional_wms_layer.proxy }}'.toLowerCase() === 'true')
                     additionalWMSLayerUrl = '{% url "toolbox:owsproxy" %}' + additionalWMSLayerUrl;
-                  additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.tileLayer.wms(
+                  additionalWMSLayers['{{ additional_wms_layer.title }}'] = L.nonTiledLayer.wms(
                     additionalWMSLayerUrl, {
                       layers: '{{ additional_wms_layer.layers }}',
                       format: map._wmsFormat,

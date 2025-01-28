@@ -220,9 +220,23 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
     attribution: orkamvAttribution
   });
 
+  // define ORKa.MV (greyscale) as tiled service
+  const orkamvGreyscale = L.tileLayer('https://www.orka-mv.de/geodienste/orkamv/tiles/1.0.0/orkamv-graustufen/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.png', {
+    maxZoom: map._maxLayerZoom,
+    attribution: orkamvAttribution
+  });
+
   // define ORKa.MV as WMS
   const orkamvWms = L.tileLayer.wms('https://www.orka-mv.de/geodienste/orkamv/wms', {
     layers: 'orkamv',
+    format: map._wmsFormat,
+    maxZoom: map._maxLayerZoom,
+    attribution: orkamvAttribution
+  });
+
+  // define ORKa.MV (greyscale) as WMS
+  const orkamvGreyscaleWms = L.tileLayer.wms('https://www.orka-mv.de/geodienste/orkamv/wms', {
+    layers: 'orkamv-graustufen',
     format: map._wmsFormat,
     maxZoom: map._maxLayerZoom,
     attribution: orkamvAttribution
@@ -236,6 +250,12 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
 
   // define basemap.de as tiled service
   const basemapde = L.tileLayer('https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_farbe/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png', {
+    maxZoom: map._maxLayerZoom,
+    attribution: '© GeoBasis-DE/BKG'
+  });
+
+  // define basemap.de (greyscale) as tiled service
+  const basemapdeGreyscale = L.tileLayer('https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_grau/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png', {
     maxZoom: map._maxLayerZoom,
     attribution: '© GeoBasis-DE/BKG'
   });
@@ -274,27 +294,29 @@ function configureMap(map, owsProxyUrl, additionalWmsLayers = {}) {
   // and add default map
   let baseMaps;
   if (map._highZoomMode === true) {
-    // set aerial image or basemap.de as default map
     if (map._aerialDefault === true)
       map.addLayer(luftbild_2021);
     else
-      map.addLayer(orkamvWms);
+      map.addLayer(orkamvGreyscaleWms);
     baseMaps = {
       'basemap.de': basemapde,
+      'basemap.de (Graustufen)': basemapdeGreyscale,
       'Liegenschaftskarte': liegenschaftskarte,
       'Luftbild 2021 (6 cm)': luftbild_2021,
       'Luftbild 2022 (10 cm)': luftbild_2022,
-      'ORKa.MV': orkamvWms
+      'ORKa.MV': orkamvWms,
+      'ORKa.MV (Graustufen)': orkamvGreyscaleWms
     };
   } else {
-    // set ORKa.MV as default map
     map.addLayer(orkamv);
     baseMaps = {
       'basemap.de': basemapde,
+      'basemap.de (Graustufen)': basemapdeGreyscale,
       'Liegenschaftskarte': liegenschaftskarte,
       'Luftbild': luftbild,
       'OpenStreetMap': osm,
-      'ORKa.MV': orkamv
+      'ORKa.MV': orkamv,
+      'ORKa.MV (Graustufen)': orkamvGreyscale
     };
   }
 

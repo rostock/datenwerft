@@ -3852,10 +3852,13 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
   Skizzenebenen des Jagdkatasters
   """
 
-  ansprechpartner = CharField(
+  antragsteller = ForeignKey(
+    to=Antragsteller_Jagdkataster_Skizzenebenen,
     verbose_name='Antragsteller:in',
-    max_length=255,
-    validators=ansprechpartner_validators
+    on_delete=RESTRICT,
+    db_column='antragsteller',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_antragsteller'
   )
   thema = ForeignKey(
     to=Themen_Jagdkataster_Skizzenebenen,
@@ -3893,12 +3896,13 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
     geometry_type = 'MultiLineString'
     list_fields = {
       'aktiv': 'aktiv?',
-      'ansprechpartner': 'Antragsteller:in',
+      'antragsteller': 'Antragsteller:in',
       'thema': 'Thema',
       'status': 'Status',
       'bemerkungen': 'Bemerkungen'
     }
     list_fields_with_foreign_key = {
+      'antragsteller': 'bezeichnung',
       'thema': 'bezeichnung',
       'status': 'status'
     }
@@ -3910,9 +3914,9 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
         'layers': 'hro.jagdkataster.jagdbereiche',
         'proxy': True
       }, {
-        'title': 'Jagdbögen',
+        'title': 'Pachtbögen',
         'url': 'https://geo.sv.rostock.de/geodienste/jagdkataster/wms',
-        'layers': 'hro.jagdkataster.jagdboegen',
+        'layers': 'hro.jagdkataster.pachtboegen',
         'proxy': True
       }, {
         'title': 'Jagdbezirke',
@@ -3926,15 +3930,15 @@ class Jagdkataster_Skizzenebenen(SimpleModel):
       }
     ]
     map_filter_fields = {
-      'ansprechpartner': 'Antragsteller:in',
+      'antragsteller': 'Antragsteller:in',
       'thema': 'Thema',
       'status': 'Status',
       'bemerkungen': 'Bemerkungen'
     }
-    map_filter_fields_as_list = ['thema', 'status']
+    map_filter_fields_as_list = ['antragsteller', 'thema', 'status']
 
   def __str__(self):
-    ansprechpartner = 'Antragsteller:in: ' + self.ansprechpartner
+    ansprechpartner = 'Antragsteller:in: ' + str(self.antragsteller)
     thema = 'Thema: ' + str(self.thema)
     status = 'Status: ' + str(self.status)
     bemerkungen = ', Bemerkungen: ' + self.bemerkungen if self.bemerkungen else ''

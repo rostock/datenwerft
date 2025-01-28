@@ -440,16 +440,14 @@ CREATE TABLE codelisten.ansprechpartner_baustellen (
 
 
 --
--- Name: ansprechpartner_jagdkataster_skizzenebenen; Type: TABLE; Schema: codelisten; Owner: -
+-- Name: antragsteller_jagdkataster_skizzenebenen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
-CREATE TABLE codelisten.ansprechpartner_jagdkataster_skizzenebenen (
+CREATE TABLE codelisten.antragsteller_jagdkataster_skizzenebenen (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
-    vorname character varying(255),
-    nachname character varying(255),
-    email character varying(255) NOT NULL
+    bezeichnung character varying(255) NOT NULL
 );
 
 
@@ -2545,11 +2543,11 @@ CREATE TABLE fachdaten.jagdkataster_skizzenebenen_hro (
     aktiv boolean DEFAULT true NOT NULL,
     id_zielsystem character varying(255),
     deaktiviert date,
-    ansprechpartner character varying(255) NOT NULL,
     thema uuid NOT NULL,
     status uuid NOT NULL,
     bemerkungen character varying(255),
-    geometrie public.geometry(MultiLineString,25833) NOT NULL
+    geometrie public.geometry(MultiLineString,25833) NOT NULL,
+    antragsteller uuid NOT NULL
 );
 
 
@@ -4403,19 +4401,19 @@ ALTER TABLE ONLY codelisten.ansprechpartner_baustellen
 
 
 --
--- Name: ansprechpartner_jagdkataster_skizzenebenen ansprechpartner_jagdkataster_skizzenebenen_email_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+-- Name: antragsteller_jagdkataster_skizzenebenen antragsteller_jagdkataster_skizzenebenen_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
-ALTER TABLE ONLY codelisten.ansprechpartner_jagdkataster_skizzenebenen
-    ADD CONSTRAINT ansprechpartner_jagdkataster_skizzenebenen_email_unique UNIQUE (email);
+ALTER TABLE ONLY codelisten.antragsteller_jagdkataster_skizzenebenen
+    ADD CONSTRAINT antragsteller_jagdkataster_skizzenebenen_bezeichnung_unique UNIQUE (bezeichnung);
 
 
 --
--- Name: ansprechpartner_jagdkataster_skizzenebenen ansprechpartner_jagdkataster_skizzenebenen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+-- Name: antragsteller_jagdkataster_skizzenebenen antragsteller_jagdkataster_skizzenebenen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
 --
 
-ALTER TABLE ONLY codelisten.ansprechpartner_jagdkataster_skizzenebenen
-    ADD CONSTRAINT ansprechpartner_jagdkataster_skizzenebenen_pk PRIMARY KEY (uuid);
+ALTER TABLE ONLY codelisten.antragsteller_jagdkataster_skizzenebenen
+    ADD CONSTRAINT antragsteller_jagdkataster_skizzenebenen_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7864,6 +7862,14 @@ ALTER TABLE ONLY fachdaten.hydranten_hro
 
 ALTER TABLE ONLY fachdaten.hydranten_hro
     ADD CONSTRAINT hydranten_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: jagdkataster_skizzenebenen_hro jagdkataster_skizzenebenen_hro_antragsteller_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.jagdkataster_skizzenebenen_hro
+    ADD CONSTRAINT jagdkataster_skizzenebenen_hro_antragsteller_fk FOREIGN KEY (antragsteller) REFERENCES codelisten.antragsteller_jagdkataster_skizzenebenen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

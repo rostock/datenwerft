@@ -7286,6 +7286,9 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
   @classmethod
   def setUpTestData(cls):
     super().setUpTestData()
+    antragsteller = Antragsteller_Jagdkataster_Skizzenebenen.objects.create(
+      bezeichnung='Bezeichnung'
+    )
     thema = Themen_Jagdkataster_Skizzenebenen.objects.create(
       bezeichnung='Bezeichnung'
     )
@@ -7293,7 +7296,7 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
       status='Status'
     )
     cls.attributes_values_db_initial = {
-      'ansprechpartner': 'Ansprechpartner1',
+      'antragsteller': antragsteller,
       'thema': thema,
       'status': status,
       'geometrie': VALID_MULTILINE_DB
@@ -7303,14 +7306,14 @@ class JagdkatasterSkizzenebenenTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
-      'ansprechpartner': 'Ansprechpartner2',
+      'antragsteller': str(antragsteller.pk),
       'thema': str(thema.pk),
       'status': str(status.pk),
       'geometrie': VALID_MULTILINE_VIEW
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
-      'ansprechpartner': 'Ansprechpartner3',
+      'antragsteller': str(antragsteller.pk),
       'thema': str(thema.pk),
       'status': str(status.pk),
       'bemerkungen': 'Bemerkung2',
