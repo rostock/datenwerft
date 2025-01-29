@@ -11,7 +11,6 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic.base import TemplateView
 from django_ratelimit.decorators import ratelimit
 from jsonview.views import JsonView
-from re import sub
 
 from .base import ObjectTableDataView, ObjectTableView, ObjectCreateView, \
   ObjectUpdateView, ObjectDeleteView

@@ -10,7 +10,7 @@
       <div class="alert alert-danger" role="alert">
         <i class="fa-solid fa-{{ 'error'|get_icon }}"></i>
         {% autoescape off %}
-          {% with replace_string='ATTRIBUTE|'|add:field.label %}
+          {% with replace_string="ATTRIBUTE|"|add:field.label %}
             {{ error|replace:replace_string }}
           {% endwith %}
         {% endautoescape %}

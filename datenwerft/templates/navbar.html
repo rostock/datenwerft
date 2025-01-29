@@ -16,9 +16,9 @@
           {% if user.is_authenticated %}
             <li class="nav-item active">
               {% if user.is_staff %}
-                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{user.username}}</a>
+                <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-user"></i> {{ user.username }}</a>
               {% else %}
-                <span class="nav-link"><i class="fas fa-user"></i> {{user.first_name}} {{user.last_name}}</span>
+                <span class="nav-link"><i class="fas fa-user"></i> {{ user.first_name }} {{ user.last_name }}</span>
               {% endif %}
             </li>
           {% endif %}

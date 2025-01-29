@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-sh linting/pycodestyle
+sh linting/ruff
 printf "\n"
 sh linting/djlint
 printf "\n"

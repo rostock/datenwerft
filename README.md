@@ -176,11 +176,11 @@ Bei Einrückungen werden generell zwei Leerzeichen verwendet, bei Umbrucheinrüc
 
 ### Python
 
-Der Python-Code orientiert sich an der Python-Styling-Konvention [_PEP8_](https://pep8.org/). Es empfiehlt sich ein Tool wie [_pycodestyle_](https://pypi.org/project/pycodestyle/) zur Überprüfung des Codes zu nutzen. Mit Hilfe von zum Beispiel [_autopep8_](https://pypi.org/project/autopep8/) können Python-Dateien auch im Nachhinein noch automatisch korrigiert werden, können dadurch allerdings auch unleserlich werden.
+Der Python-Code orientiert sich an der Python-Styling-Konvention [_PEP8_](https://pep8.org/). Es empfiehlt sich ein Tool wie [_ruff_](https://docs.astral.sh/ruff/) zur Überprüfung des Codes zu nutzen.
 
 Die Python-Dokumentation wird mittels [Docstrings](https://en.wikipedia.org/wiki/Docstring) in [_reStructuredText_](https://docutils.sourceforge.io/rst.html) geschrieben.
 
-Nützliche Tools für eine Entwicklungsumgebung, wie etwa _pycodestyle_ oder _ruff_ können zusätzlich via _pip_ installiert werden:
+Nützliche Tools für eine Entwicklungsumgebung, wie etwa _ruff,_ können zusätzlich via _pip_ installiert werden:
 
 ```bash
 source /usr/local/datenwerft/venv/bin/activate
@@ -194,7 +194,7 @@ Die Vorgaben von _PEP8_ finden mit zwei Ausnahmen vollständig Anwendung:
 1. Zeilenlänge wird von 79 auf 99 erhöht
 2. Anzahl der Leerzeichen bei der Einrückung wird von vier auf zwei reduziert (ergibt zudem eine Umbrucheinrückung von vier statt acht)
 
-Die entsprechende Konfigurationsdatei `setup.cfg` für _pycodestyle_ ist bereits im Wurzelverzeichnis des Projekts angelegt.
+Die entsprechende Konfigurationsdatei `pyproject.toml` für (zum Beispiel) _ruff_ ist bereits im Wurzelverzeichnis des Projekts angelegt.
 
 ### JavaScript
 
@@ -202,11 +202,11 @@ JavaScript-Funktionen werden mittels [JSDoc](https://en.wikipedia.org/wiki/JSDoc
 
 ## Linting
 
--   Python-Prüfungen mittels _pycodestyle:_
+-   Python-Prüfungen mittels [_ruff_](https://docs.astral.sh/ruff/):
 
     ```bash
     cd /usr/local/datenwerft/datenwerft
-    sh linting/pycodestyle
+    sh linting/ruff
     ```
 
 -   _Django_-Prüfungen mittels [_djLint_](https://github.com/Riverside-Healthcare/djlint):

@@ -233,13 +233,6 @@ def baudenkmalefull(pks=None, onlyactive=True):
       for anfang in ort['byletter']:
         ort['byletter'][anfang].sort(key=cmp_to_key(compare_adresses))
 
-#  print("orte Typ: ", type(orte))
-#  for ortindex in range(len(orte)):
-#    for eintragsklassenindex in range(len(orte[ortindex]['eintragsklassen'])):
-#      for key in orte[ortindex][eintragsklassenindex]['byletter'].keys():
-#        orte[ortindex][eintragsklassenindex]['byletter'][key].sort(key=cmp_to_key(compare_adresses))
-#        print("Typ:", type(orte[ortindex][eintragsklassenindex]['byletter'][key]))
-
   return {'kategorien': data}
 
 

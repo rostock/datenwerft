@@ -1,4 +1,2 @@
-autopep8
 djlint
-pycodestyle
 ruff
