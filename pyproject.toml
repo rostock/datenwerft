@@ -25,12 +25,27 @@ exclude = [
 ]
 line-length = 99
 indent-width = 2
+target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "W"]
-ignore = ["F403", "F405"]
+ignore = ["DJ001", "DJ012", "F403", "F405"]
+select = [
+  # default
+  "E",      # pycodestyle errors
+  "F",      # flake8 errors
+  # extra
+  "A",      # built-in shadowing
+  "DJ",     # flake8 django
+  "LOG",    # flake8 logging
+  "PIE",    # flake8 pie
+  "T10",    # flake8 print
+  "TCH",    # flake8 type-checking
+  "W",      # pycodestyle warnings
+  "YTT"    # wrong usage of sys.info
+]
 fixable = ["ALL"]
 unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.per-file-ignores]
 "datenwerft/__init__.py" = ["F401"]
@@ -40,5 +55,5 @@ quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "lf"
-docstring-code-format = false
+docstring-code-format = true
 docstring-code-line-length = "dynamic"

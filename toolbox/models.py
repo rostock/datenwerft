@@ -98,5 +98,8 @@ class SuitableFor(Model):
     verbose_name = 'Vorlage-Datenthema-Verknüpfung'
     verbose_name_plural = 'Vorlage-Datenthema-Verknüpfungen'
 
+  def __str__(self):
+    return str(self.id)
+
   def template__name(self):
     return self.template.name
