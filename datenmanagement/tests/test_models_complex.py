@@ -479,8 +479,9 @@ class AdressunsicherheitenFotosTest(DefaultComplexModelTestCase):
 
 def create_baugrunduntersuchung():
   labor = Labore_Baugrunduntersuchungen.objects.create(bezeichnung='Bezeichnung')
+  auftraggeber = Auftraggeber_Baugrunduntersuchungen.objects.create(auftraggeber='Auftraggeber')
   return Baugrunduntersuchungen.objects.create(
-    labor=labor, bezeichnung='Bezeichnung', datum=VALID_DATE
+    auftraggeber=auftraggeber, labor=labor, bezeichnung='Bezeichnung', datum=VALID_DATE
   )
 
 
@@ -500,21 +501,30 @@ class BaugrunduntersuchungenTest(DefaultComplexModelTestCase):
     labor1 = Labore_Baugrunduntersuchungen.objects.create(bezeichnung='Bezeichnung1')
     labor2 = Labore_Baugrunduntersuchungen.objects.create(bezeichnung='Bezeichnung2')
     cls.labor2 = labor2
+    auftraggeber1 = Auftraggeber_Baugrunduntersuchungen.objects.create(
+      auftraggeber='Auftraggeber1')
+    auftraggeber2 = Auftraggeber_Baugrunduntersuchungen.objects.create(
+      auftraggeber='Auftraggeber2')
+    cls.auftraggeber2 = auftraggeber2
     cls.attributes_values_db_initial = {
+      'auftraggeber': auftraggeber1,
       'labor': labor1,
       'bezeichnung': 'Bezeichnung1',
       'datum': VALID_DATE,
     }
     cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
-    cls.attributes_values_db_assigned = {'labor': labor2}
+    cls.attributes_values_db_assigned_auftraggeber = {'auftraggeber': auftraggeber2}
+    cls.attributes_values_db_assigned_labor = {'labor': labor2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
+      'auftraggeber': str(auftraggeber1.pk),
       'labor': str(labor1.pk),
       'bezeichnung': 'Bezeichnung3',
       'datum': VALID_DATE,
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
+      'auftraggeber': str(auftraggeber1.pk),
       'labor': str(labor1.pk),
       'bezeichnung': 'Bezeichnung4',
       'datum': VALID_DATE,
@@ -615,11 +625,23 @@ class BaugrunduntersuchungenTest(DefaultComplexModelTestCase):
       False, self.model, self.attributes_values_db_initial, 302, 'text/html; charset=utf-8'
     )
 
-  def test_view_assign(self):
+  def test_view_assign_auftraggeber(self):
     self.generic_assign_view_test(
       self.model,
       self.attributes_values_db_initial,
-      self.attributes_values_db_assigned,
+      self.attributes_values_db_assigned_auftraggeber,
+      'auftraggeber',
+      str(self.auftraggeber2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1,
+    )
+
+  def test_view_assign_labor(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_labor,
       'labor',
       str(self.labor2.pk),
       204,

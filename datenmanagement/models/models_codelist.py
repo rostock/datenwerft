@@ -739,6 +739,34 @@ class Arten_Wege(Art):
     description = 'Arten von Wegen'
 
 
+class Auftraggeber_Baugrunduntersuchungen(Codelist):
+  """
+  Auftraggeber von Baugrunduntersuchungen
+  """
+
+  auftraggeber = CharField(
+    verbose_name='Auftraggeber',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"auftraggeber_baugrunduntersuchungen'
+    ordering = ['auftraggeber']
+    verbose_name = 'Auftraggeber einer Baugrunduntersuchung'
+    verbose_name_plural = 'Auftraggeber von Baugrunduntersuchungen'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Auftraggeber von Baugrunduntersuchungen'
+    list_fields = {
+      'auftraggeber': 'Auftraggeber'
+    }
+
+  def __str__(self):
+    return self.auftraggeber
+
+
 class Auftraggeber_Baustellen(Codelist):
   """
   Auftraggeber von Baustellen

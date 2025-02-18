@@ -692,6 +692,18 @@ CREATE TABLE codelisten.arten_wege (
 
 
 --
+-- Name: auftraggeber_baugrunduntersuchungen; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.auftraggeber_baugrunduntersuchungen (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    auftraggeber character varying(255) NOT NULL
+);
+
+
+--
 -- Name: auftraggeber_baustellen; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -3991,7 +4003,8 @@ CREATE TABLE fachdaten_strassenbezug.baugrunduntersuchungen_hro (
     strasse uuid,
     labor uuid NOT NULL,
     bezeichnung character varying(255) NOT NULL,
-    datum date NOT NULL
+    datum date NOT NULL,
+    auftraggeber uuid NOT NULL
 );
 
 
@@ -4734,6 +4747,22 @@ ALTER TABLE ONLY codelisten.arten_wege
 
 ALTER TABLE ONLY codelisten.arten_wege
     ADD CONSTRAINT arten_wege_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: auftraggeber_baugrunduntersuchungen auftraggeber_baugrunduntersuchungen_auftraggeber_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.auftraggeber_baugrunduntersuchungen
+    ADD CONSTRAINT auftraggeber_baugrunduntersuchungen_auftraggeber_unique UNIQUE (auftraggeber);
+
+
+--
+-- Name: auftraggeber_baugrunduntersuchungen auftraggeber_baugrunduntersuchungen_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.auftraggeber_baugrunduntersuchungen
+    ADD CONSTRAINT auftraggeber_baugrunduntersuchungen_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7161,6 +7190,13 @@ ALTER TABLE ONLY fachdaten_strassenbezug.strassenreinigung_hro
 
 
 --
+-- Name: baugrunduntersuchungen_hro_auftraggeber_ix; Type: INDEX; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE INDEX baugrunduntersuchungen_hro_auftraggeber_ix ON fachdaten_strassenbezug.baugrunduntersuchungen_hro USING btree (auftraggeber);
+
+
+--
 -- Name: geraetespielanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten; Owner: -
 --
 
@@ -8486,6 +8522,14 @@ ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_geschaeftslagen_sanie
 
 ALTER TABLE ONLY fachdaten_adressbezug.standortqualitaeten_wohnlagen_sanierungsgebiet_hro
     ADD CONSTRAINT standortqualitaeten_wohnlagen_sanierungsgebiet_hro_quartiere_fk FOREIGN KEY (quartier) REFERENCES codelisten.quartiere(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: baugrunduntersuchungen_hro baugrunduntersuchungen_hro_auftraggeber_fk; Type: FK CONSTRAINT; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten_strassenbezug.baugrunduntersuchungen_hro
+    ADD CONSTRAINT baugrunduntersuchungen_hro_auftraggeber_fk FOREIGN KEY (auftraggeber) REFERENCES codelisten.auftraggeber_baugrunduntersuchungen(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

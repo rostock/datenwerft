@@ -190,6 +190,14 @@ class Baugrunduntersuchungen(ComplexModel):
     blank=True,
     null=True
   )
+  auftraggeber = ForeignKey(
+    to=Auftraggeber_Baugrunduntersuchungen,
+    verbose_name='Auftraggeber',
+    on_delete=RESTRICT,
+    db_column='auftraggeber',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_auftraggeber'
+  )
   labor = ForeignKey(
     to=Labore_Baugrunduntersuchungen,
     verbose_name='Labor',
@@ -225,6 +233,7 @@ class Baugrunduntersuchungen(ComplexModel):
     list_fields = {
       'aktiv': 'aktiv?',
       'strasse': 'Straße',
+      'auftraggeber': 'Auftraggeber',
       'labor': 'Labor',
       'bezeichnung': 'Bezeichnung',
       'datum': 'Datum'
@@ -232,9 +241,16 @@ class Baugrunduntersuchungen(ComplexModel):
     list_fields_with_date = ['datum']
     list_fields_with_foreign_key = {
       'strasse': 'strasse_lang',
+      'auftraggeber': 'auftraggeber',
       'labor': 'bezeichnung'
     }
     list_actions_assign = [
+      {
+        'action_name': 'baugrunduntersuchungen-auftraggeber',
+        'action_title': 'ausgewählten Datensätzen Auftraggeber direkt zuweisen',
+        'field': 'auftraggeber',
+        'type': 'foreignkey'
+      },
       {
         'action_name': 'baugrunduntersuchungen-labor',
         'action_title': 'ausgewählten Datensätzen Labor direkt zuweisen',
@@ -242,13 +258,6 @@ class Baugrunduntersuchungen(ComplexModel):
         'type': 'foreignkey'
       }
     ]
-    map_feature_tooltip_fields = ['bezeichnung']
-    map_filter_fields = {
-      'labor': 'Labor',
-      'bezeichnung': 'Bezeichnung',
-      'datum': 'Datum'
-    }
-    map_filter_fields_as_list = ['labor']
 
   def __str__(self):
     return self.bezeichnung
@@ -1950,7 +1959,8 @@ class Geh_Radwegereinigung(ComplexModel):
       }, {
         'title': 'Geh- und Radwegereinigung',
         'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
-        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung_flaechenhaft,'
+                  'hro.geh_und_radwegereinigung.geh_und_radwegereinigung_linienhaft'
       }, {
         'title': 'Straßenreinigung',
         'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
@@ -4223,7 +4233,8 @@ class Strassenreinigung(ComplexModel):
       }, {
         'title': 'Geh- und Radwegereinigung',
         'url': 'https://geo.sv.rostock.de/geodienste/geh_und_radwegereinigung/wms',
-        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung'
+        'layers': 'hro.geh_und_radwegereinigung.geh_und_radwegereinigung_flaechenhaft,'
+                  'hro.geh_und_radwegereinigung.geh_und_radwegereinigung_linienhaft'
       }, {
         'title': 'Straßenreinigung',
         'url': 'https://geo.sv.rostock.de/geodienste/strassenreinigung/wms',
