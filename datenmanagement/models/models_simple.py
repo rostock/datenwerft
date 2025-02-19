@@ -252,6 +252,111 @@ class Abfallbehaelter(SimpleModel):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
 
 
+class Abstellflaechen_E_Tretroller(SimpleModel):
+  """
+  Abstellflächen für E-Tretroller
+  """
+
+  strasse = ForeignKey(
+    to=Strassen,
+    verbose_name='Straße',
+    on_delete=SET_NULL,
+    db_column='strasse',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_strassen',
+    blank=True,
+    null=True
+  )
+  id = CharField(
+    verbose_name='ID',
+    max_length=8,
+    unique=True,
+    default='00000000'
+  )
+  lagebeschreibung = CharField(
+    verbose_name='Lagebeschreibung',
+    max_length=255,
+    blank=True,
+    null=True,
+    validators=standard_validators
+  )
+  erstmarkierung = PositiveSmallIntegerMinField(
+    verbose_name='Erstmarkierung',
+    min_value=1
+  )
+  breite = DecimalField(
+    verbose_name='Breite (in m)',
+    max_digits=3,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Breite</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('9.99'),
+        'Die <strong><em>Breite</em></strong> darf höchstens 9,99 m betragen.'
+      )
+    ]
+  )
+  laenge = DecimalField(
+    verbose_name='Länge (in m)',
+    max_digits=4,
+    decimal_places=2,
+    validators=[
+      MinValueValidator(
+        Decimal('0.01'),
+        'Die <strong><em>Länge</em></strong> muss mindestens 0,01 m betragen.'
+      ),
+      MaxValueValidator(
+        Decimal('99.99'),
+        'Die <strong><em>Länge</em></strong> darf höchstens 99,99 m betragen.'
+      )
+    ]
+  )
+  geometrie = point_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten_strassenbezug\".\"abstellflaechen_e_tretroller_hro'
+    verbose_name = 'Abstellfläche für E-Tretroller'
+    verbose_name_plural = 'Abstellflächen für E-Tretroller'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Abstellflächen für E-Tretroller in der Hanse- und Universitätsstadt Rostock'
+    as_overlay = True
+    readonly_fields = ['id']
+    address_type = 'Straße'
+    address_mandatory = True
+    geometry_type = 'Point'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'erstmarkierung': 'Erstmarkierung',
+      'breite': 'Breite (in m)',
+      'laenge': 'Länge (in m)'
+    }
+    list_fields_with_decimal = ['breite', 'laenge']
+    list_fields_with_foreign_key = {
+      'strasse': 'strasse'
+    }
+    map_feature_tooltip_fields = ['id']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'id': 'ID',
+      'strasse': 'Straße',
+      'lagebeschreibung': 'Lagebeschreibung',
+      'erstmarkierung': 'Erstmarkierung',
+      'breite': 'Breite (in m)',
+      'laenge': 'Länge (in m)'
+    }
+    map_filter_fields_as_list = ['strasse']
+
+  def __str__(self):
+    return self.id
+
+
 class Anerkennungsgebuehren_herrschend(SimpleModel):
   """
   Anerkennungsgebühren (herrschendes Flurstück)

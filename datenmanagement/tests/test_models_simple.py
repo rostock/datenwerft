@@ -289,6 +289,251 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
     )
 
 
+class AbstellflaechenETretrollerTest(DefaultSimpleModelTestCase):
+  """
+  Abstellflächen für E-Tretroller
+  """
+
+  model = Abstellflaechen_E_Tretroller
+  create_test_object_in_classmethod = False
+  create_test_subset_in_classmethod = False
+
+  @classmethod
+  def setUpTestData(cls):
+    super().setUpTestData()
+    strasse = Strassen.objects.create(
+      strasse='Straße'
+    )
+    cls.attributes_values_db_initial = {
+      'strasse': strasse,
+      'erstmarkierung': 23,
+      'breite': 4.20,
+      'laenge': 42.23,
+      'geometrie': VALID_POINT_DB
+    }
+    cls.attributes_values_db_updated = {
+      'erstmarkierung': 42
+    }
+    cls.attributes_values_view_initial = {
+      'aktiv': True,
+      'strasse': str(strasse.pk),
+      'id': '00000000',
+      'erstmarkierung': 23,
+      'breite': 4.20,
+      'laenge': 42.23,
+      'geometrie': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_updated = {
+      'aktiv': True,
+      'strasse': str(strasse.pk),
+      'id': '00000000',
+      'erstmarkierung': 42,
+      'breite': 4.20,
+      'laenge': 42.23,
+      'geometrie': VALID_POINT_VIEW
+    }
+    cls.attributes_values_view_invalid = {
+      'breite': INVALID_DECIMAL
+    }
+    cls.test_object = cls.model.objects.create(**cls.attributes_values_db_initial)
+    cls.test_subset = create_test_subset(cls.model, cls.test_object)
+
+  def setUp(self):
+    self.init()
+
+  def test_is_simplemodel(self):
+    self.generic_is_simplemodel_test()
+
+  def test_create(self):
+    self.generic_create_test(self.model, self.attributes_values_db_initial)
+
+  def test_update(self):
+    self.generic_update_test(self.model, self.attributes_values_db_updated)
+
+  def test_delete(self):
+    self.generic_delete_test(self.model)
+
+  def test_view_start(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_start',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      START_VIEW_STRING
+    )
+
+  def test_view_list(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_list_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_list_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      LIST_VIEW_STRING
+    )
+
+  def test_view_data(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data',
+      DATA_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_data_subset(self):
+    data_subset_view_params = DATA_VIEW_PARAMS.copy()
+    data_subset_view_params['subset_id'] = self.test_subset.pk
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_data_subset',
+      data_subset_view_params,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_map(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map',
+      {},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_map_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_map_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'text/html; charset=utf-8',
+      MAP_VIEW_STRING
+    )
+
+  def test_view_mapdata(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_mapdata_subset(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_mapdata_subset',
+      {'subset_id': self.test_subset.pk},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_add_success(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_initial,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_add_error(self):
+    self.generic_add_update_view_test(
+      False,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_change_success(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_updated,
+      302,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_change_error(self):
+    self.generic_add_update_view_test(
+      True,
+      self.model,
+      self.attributes_values_view_invalid,
+      200,
+      'text/html; charset=utf-8',
+      0
+    )
+
+  def test_view_delete(self):
+    self.generic_delete_view_test(
+      False,
+      self.model,
+      self.attributes_values_db_initial,
+      302,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_deleteimmediately(self):
+    self.generic_delete_view_test(
+      True,
+      self.model,
+      self.attributes_values_db_initial,
+      204,
+      'text/html; charset=utf-8'
+    )
+
+  def test_view_geometry(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_pk(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      {'pk': str(self.test_object.pk)},
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+  def test_view_geometry_lat_lng(self):
+    self.generic_view_test(
+      self.model,
+      self.model.__name__ + '_geometry',
+      GEOMETRY_VIEW_PARAMS,
+      200,
+      'application/json',
+      str(self.test_object.pk)
+    )
+
+
 class AnerkennungsgebuehrenHerrschendTest(DefaultSimpleModelTestCase):
   """
   Anerkennungsgebühren (herrschendes Flurstück)
