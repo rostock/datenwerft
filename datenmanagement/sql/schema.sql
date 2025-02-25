@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.10
--- Dumped by pg_dump version 16.6
+-- Dumped from database version 15.11
+-- Dumped by pg_dump version 16.8
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -4026,7 +4026,8 @@ CREATE TABLE fachdaten_strassenbezug.baugrunduntersuchungen_hro (
     labor uuid NOT NULL,
     bezeichnung character varying(255) NOT NULL,
     datum date NOT NULL,
-    auftraggeber uuid NOT NULL
+    auftraggeber uuid NOT NULL,
+    historisch boolean NOT NULL
 );
 
 

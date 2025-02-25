@@ -481,7 +481,11 @@ def create_baugrunduntersuchung():
   labor = Labore_Baugrunduntersuchungen.objects.create(bezeichnung='Bezeichnung')
   auftraggeber = Auftraggeber_Baugrunduntersuchungen.objects.create(auftraggeber='Auftraggeber')
   return Baugrunduntersuchungen.objects.create(
-    auftraggeber=auftraggeber, labor=labor, bezeichnung='Bezeichnung', datum=VALID_DATE
+    historisch=False,
+    auftraggeber=auftraggeber,
+    labor=labor,
+    bezeichnung='Bezeichnung',
+    datum=VALID_DATE
   )
 
 
@@ -507,6 +511,7 @@ class BaugrunduntersuchungenTest(DefaultComplexModelTestCase):
       auftraggeber='Auftraggeber2')
     cls.auftraggeber2 = auftraggeber2
     cls.attributes_values_db_initial = {
+      'historisch': False,
       'auftraggeber': auftraggeber1,
       'labor': labor1,
       'bezeichnung': 'Bezeichnung1',
@@ -514,9 +519,11 @@ class BaugrunduntersuchungenTest(DefaultComplexModelTestCase):
     }
     cls.attributes_values_db_updated = {'bezeichnung': 'Bezeichnung2'}
     cls.attributes_values_db_assigned_auftraggeber = {'auftraggeber': auftraggeber2}
+    cls.attributes_values_db_assigned_historisch = {'historisch': True}
     cls.attributes_values_db_assigned_labor = {'labor': labor2}
     cls.attributes_values_view_initial = {
       'aktiv': True,
+      'historisch': False,
       'auftraggeber': str(auftraggeber1.pk),
       'labor': str(labor1.pk),
       'bezeichnung': 'Bezeichnung3',
@@ -524,6 +531,7 @@ class BaugrunduntersuchungenTest(DefaultComplexModelTestCase):
     }
     cls.attributes_values_view_updated = {
       'aktiv': True,
+      'historisch': False,
       'auftraggeber': str(auftraggeber1.pk),
       'labor': str(labor1.pk),
       'bezeichnung': 'Bezeichnung4',
@@ -632,6 +640,18 @@ class BaugrunduntersuchungenTest(DefaultComplexModelTestCase):
       self.attributes_values_db_assigned_auftraggeber,
       'auftraggeber',
       str(self.auftraggeber2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1,
+    )
+
+  def test_view_assign_historisch(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_historisch,
+      'historisch',
+      str(True),
       204,
       'text/html; charset=utf-8',
       1,

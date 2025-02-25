@@ -190,6 +190,9 @@ class Baugrunduntersuchungen(ComplexModel):
     blank=True,
     null=True
   )
+  historisch = BooleanField(
+    verbose_name=' historisch?'
+  )
   auftraggeber = ForeignKey(
     to=Auftraggeber_Baugrunduntersuchungen,
     verbose_name='Auftraggeber',
@@ -232,6 +235,7 @@ class Baugrunduntersuchungen(ComplexModel):
     address_mandatory = False
     list_fields = {
       'aktiv': 'aktiv?',
+      'historisch': 'historisch?',
       'strasse': 'Straße',
       'auftraggeber': 'Auftraggeber',
       'labor': 'Labor',
@@ -245,6 +249,12 @@ class Baugrunduntersuchungen(ComplexModel):
       'labor': 'bezeichnung'
     }
     list_actions_assign = [
+      {
+        'action_name': 'baugrunduntersuchungen-historisch',
+        'action_title': 'ausgewählten Datensätzen historisch (ja/nein) direkt zuweisen',
+        'field': 'historisch',
+        'type': 'boolean'
+      },
       {
         'action_name': 'baugrunduntersuchungen-auftraggeber',
         'action_title': 'ausgewählten Datensätzen Auftraggeber direkt zuweisen',
