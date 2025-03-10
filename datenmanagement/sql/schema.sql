@@ -1209,6 +1209,18 @@ CREATE TABLE codelisten.ladekarten_ladestationen_elektrofahrzeuge (
 
 
 --
+-- Name: leerungszeiten; Type: TABLE; Schema: codelisten; Owner: -
+--
+
+CREATE TABLE codelisten.leerungszeiten (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    bezeichnung character varying(255) NOT NULL
+);
+
+
+--
 -- Name: linien; Type: TABLE; Schema: codelisten; Owner: -
 --
 
@@ -1841,22 +1853,10 @@ CREATE TABLE fachdaten.abfallbehaelter_hro (
     inventarnummer character(8),
     anschaffungswert numeric(6,2),
     haltestelle boolean,
-    sommer_mo smallint,
-    sommer_di smallint,
-    sommer_mi smallint,
-    sommer_do smallint,
-    sommer_fr smallint,
-    sommer_sa smallint,
-    sommer_so smallint,
-    winter_mo smallint,
-    winter_di smallint,
-    winter_mi smallint,
-    winter_do smallint,
-    winter_fr smallint,
-    winter_sa smallint,
-    winter_so smallint,
     bemerkungen character varying(255),
-    geometrie public.geometry(Point,25833) NOT NULL
+    geometrie public.geometry(Point,25833) NOT NULL,
+    leerungszeiten_sommer uuid,
+    leerungszeiten_winter uuid
 );
 
 
@@ -4105,7 +4105,8 @@ CREATE TABLE fachdaten_strassenbezug.fahrradabstellanlagen_hro (
     eigentuemer uuid NOT NULL,
     geometrie public.geometry(Point,25833) NOT NULL,
     baujahr smallint,
-    hersteller uuid
+    hersteller uuid,
+    foto character varying(255)
 );
 
 
@@ -5418,6 +5419,22 @@ ALTER TABLE ONLY codelisten.ladekarten_ladestationen_elektrofahrzeuge
 
 ALTER TABLE ONLY codelisten.ladekarten_ladestationen_elektrofahrzeuge
     ADD CONSTRAINT ladekarten_ladestationen_elektrofahrzeuge_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: leerungszeiten leerungszeiten_bezeichnung_unique; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.leerungszeiten
+    ADD CONSTRAINT leerungszeiten_bezeichnung_unique UNIQUE (bezeichnung);
+
+
+--
+-- Name: leerungszeiten leerungszeiten_pk; Type: CONSTRAINT; Schema: codelisten; Owner: -
+--
+
+ALTER TABLE ONLY codelisten.leerungszeiten
+    ADD CONSTRAINT leerungszeiten_pk PRIMARY KEY (uuid);
 
 
 --
@@ -7411,6 +7428,13 @@ CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_adres
 
 
 --
+-- Name: fahrradabstellanlagen_hro tr_before_insert_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_insert_10_foto BEFORE INSERT ON fachdaten_strassenbezug.fahrradabstellanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: geh_und_radwegereinigung_hro tr_before_insert_10_laenge; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7495,6 +7519,13 @@ CREATE TRIGGER tr_before_insert_id BEFORE INSERT ON fachdaten_strassenbezug.stra
 
 
 --
+-- Name: fahrradabstellanlagen_hro tr_before_update_10_foto; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
+--
+
+CREATE TRIGGER tr_before_update_10_foto BEFORE UPDATE OF foto ON fachdaten_strassenbezug.fahrradabstellanlagen_hro FOR EACH ROW EXECUTE FUNCTION fachdaten.foto();
+
+
+--
 -- Name: geh_und_radwegereinigung_hro tr_before_update_10_laenge; Type: TRIGGER; Schema: fachdaten_strassenbezug; Owner: -
 --
 
@@ -7536,6 +7567,22 @@ ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
 
 ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
     ADD CONSTRAINT abfallbehaelter_hro_eigentuemer_fk FOREIGN KEY (eigentuemer) REFERENCES codelisten.bewirtschafter_betreiber_traeger_eigentuemer(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: abfallbehaelter_hro abfallbehaelter_hro_leerungszeiten_sommer_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
+    ADD CONSTRAINT abfallbehaelter_hro_leerungszeiten_sommer_fk FOREIGN KEY (leerungszeiten_sommer) REFERENCES codelisten.leerungszeiten(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: abfallbehaelter_hro abfallbehaelter_hro_leerungszeiten_winter_fk; Type: FK CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.abfallbehaelter_hro
+    ADD CONSTRAINT abfallbehaelter_hro_leerungszeiten_winter_fk FOREIGN KEY (leerungszeiten_winter) REFERENCES codelisten.leerungszeiten(uuid) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

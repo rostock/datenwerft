@@ -104,87 +104,23 @@ class Abfallbehaelter(SimpleModel):
     blank=True,
     null=True
   )
-  sommer_mo = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen montags im Sommer',
-    min_value=1,
+  leerungszeiten_sommer = ForeignKey(
+    to=Leerungszeiten,
+    verbose_name='Leerungszeiten im Sommer',
+    on_delete=SET_NULL,
+    db_column='leerungszeiten_sommer',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_leerungszeiten_sommer',
     blank=True,
     null=True
   )
-  sommer_di = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen dienstags im Sommer',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  sommer_mi = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen mittwochs im Sommer',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  sommer_do = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen donnerstags im Sommer',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  sommer_fr = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen freitags im Sommer',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  sommer_sa = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen samstags im Sommer',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  sommer_so = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen sonntags im Sommer',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_mo = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen montags im Winter',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_di = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen dienstags im Winter',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_mi = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen mittwochs im Winter',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_do = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen donnerstags im Winter',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_fr = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen freitags im Winter',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_sa = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen samstags im Winter',
-    min_value=1,
-    blank=True,
-    null=True
-  )
-  winter_so = PositiveSmallIntegerRangeField(
-    verbose_name='Anzahl Leerungen sonntags im Winter',
-    min_value=1,
+  leerungszeiten_winter = ForeignKey(
+    to=Leerungszeiten,
+    verbose_name='Leerungszeiten im Winter',
+    on_delete=SET_NULL,
+    db_column='leerungszeiten_winter',
+    to_field='uuid',
+    related_name='%(app_label)s_%(class)s_leerungszeiten_winter',
     blank=True,
     null=True
   )
@@ -214,13 +150,17 @@ class Abfallbehaelter(SimpleModel):
       'typ': 'Typ',
       'eigentuemer': 'Eigentümer',
       'bewirtschafter': 'Bewirtschafter',
-      'pflegeobjekt': 'Pflegeobjekt'
+      'pflegeobjekt': 'Pflegeobjekt',
+      'leerungszeiten_sommer': 'Leerungszeiten im Sommer',
+      'leerungszeiten_winter': 'Leerungszeiten im Winter'
     }
     list_fields_with_date = ['deaktiviert']
     list_fields_with_foreign_key = {
       'typ': 'typ',
       'eigentuemer': 'bezeichnung',
-      'bewirtschafter': 'bezeichnung'
+      'bewirtschafter': 'bezeichnung',
+      'leerungszeiten_sommer': 'bezeichnung',
+      'leerungszeiten_winter': 'bezeichnung'
     }
     list_actions_assign = [
       {
@@ -234,6 +174,18 @@ class Abfallbehaelter(SimpleModel):
         'action_title': 'ausgewählten Datensätzen Bewirtschafter direkt zuweisen',
         'field': 'bewirtschafter',
         'type': 'foreignkey'
+      },
+      {
+        'action_name': 'abfallbehaelter-leerungszeiten_sommer',
+        'action_title': 'ausgewählten Datensätzen Leerungszeiten im Sommer direkt zuweisen',
+        'field': 'leerungszeiten_sommer',
+        'type': 'foreignkey'
+      },
+      {
+        'action_name': 'abfallbehaelter-leerungszeiten_winter',
+        'action_title': 'ausgewählten Datensätzen Leerungszeiten im Winter direkt zuweisen',
+        'field': 'leerungszeiten_winter',
+        'type': 'foreignkey'
       }
     ]
     map_heavy_load_limit = 500
@@ -244,9 +196,17 @@ class Abfallbehaelter(SimpleModel):
       'typ': 'Typ',
       'eigentuemer': 'Eigentümer',
       'bewirtschafter': 'Bewirtschafter',
-      'pflegeobjekt': 'Pflegeobjekt'
+      'pflegeobjekt': 'Pflegeobjekt',
+      'leerungszeiten_sommer': 'Leerungszeiten im Sommer',
+      'leerungszeiten_winter': 'Leerungszeiten im Winter'
     }
-    map_filter_fields_as_list = ['typ', 'eigentuemer', 'bewirtschafter']
+    map_filter_fields_as_list = [
+      'typ',
+      'eigentuemer',
+      'bewirtschafter',
+      'leerungszeiten_sommer',
+      'leerungszeiten_winter'
+    ]
 
   def __str__(self):
     return self.id + (' [Typ: ' + str(self.typ) + ']' if self.typ else '')
@@ -2135,6 +2095,16 @@ class Fahrradabstellanlagen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_eigentuemer'
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'fahrradabstellanlagen'
+    ),
+    max_length=255,
+    blank=True,
+    null=True
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -2159,7 +2129,8 @@ class Fahrradabstellanlagen(SimpleModel):
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'ausfuehrung_stellplaetze': 'Ausführung Stellplätze',
       'baujahr': 'Baujahr',
-      'eigentuemer': 'Eigentümer'
+      'eigentuemer': 'Eigentümer',
+      'foto': 'Foto'
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -2217,6 +2188,15 @@ class Fahrradabstellanlagen(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fahrradabstellanlagen)
+
+post_save.connect(photo_post_processing, sender=Fahrradabstellanlagen)
+
+post_save.connect(delete_photo_after_emptied, sender=Fahrradabstellanlagen)
+
+post_delete.connect(delete_photo, sender=Fahrradabstellanlagen)
 
 
 class Fahrradboxen(SimpleModel):

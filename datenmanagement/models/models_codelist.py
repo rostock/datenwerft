@@ -1963,6 +1963,34 @@ class Ladekarten_Ladestationen_Elektrofahrzeuge(Codelist):
     return self.ladekarte
 
 
+class Leerungszeiten(Codelist):
+  """
+  Leerungszeiten
+  """
+
+  bezeichnung = CharField(
+    verbose_name='Bezeichnung',
+    max_length=255,
+    unique=True,
+    validators=standard_validators
+  )
+
+  class Meta(Codelist.Meta):
+    db_table = 'codelisten\".\"leerungszeiten'
+    ordering = ['bezeichnung']
+    verbose_name = 'Leerungszeit'
+    verbose_name_plural = 'Leerungszeiten'
+
+  class BasemodelMeta(Codelist.BasemodelMeta):
+    description = 'Leerungszeiten'
+    list_fields = {
+      'bezeichnung': 'Bezeichnung'
+    }
+
+  def __str__(self):
+    return self.bezeichnung
+
+
 class Linien(Codelist):
   """
   Linien der Rostocker Straßenbahn AG und der Regionalbus Rostock GmbH

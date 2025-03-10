@@ -30,6 +30,14 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       art='Art2'
     )
     cls.bewirtschafter_eigentuemer2 = bewirtschafter_eigentuemer2
+    leerungszeiten_sommer = Leerungszeiten.objects.create(
+      bezeichnung='Sommer'
+    )
+    cls.leerungszeiten_sommer = leerungszeiten_sommer
+    leerungszeiten_winter = Leerungszeiten.objects.create(
+      bezeichnung='Winter'
+    )
+    cls.leerungszeiten_winter = leerungszeiten_winter
     cls.attributes_values_db_initial = {
       'eigentuemer': bewirtschafter_eigentuemer1,
       'bewirtschafter': bewirtschafter_eigentuemer1,
@@ -46,6 +54,12 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
     }
     cls.attributes_values_db_assigned_bewirtschafter = {
       'bewirtschafter': bewirtschafter_eigentuemer2
+    }
+    cls.attributes_values_db_assigned_leerungszeiten_sommer = {
+      'leerungszeiten_sommer': leerungszeiten_sommer
+    }
+    cls.attributes_values_db_assigned_leerungszeiten_winter = {
+      'leerungszeiten_winter': leerungszeiten_winter
     }
     cls.attributes_values_view_initial = {
       'aktiv': True,
@@ -244,6 +258,30 @@ class AbfallbehaelterTest(DefaultSimpleModelTestCase):
       self.attributes_values_db_assigned_bewirtschafter,
       'bewirtschafter',
       str(self.bewirtschafter_eigentuemer2.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_leerungszeiten_sommer(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_leerungszeiten_sommer,
+      'leerungszeiten_sommer',
+      str(self.leerungszeiten_sommer.pk),
+      204,
+      'text/html; charset=utf-8',
+      1
+    )
+
+  def test_view_assign_leerungszeiten_winter(self):
+    self.generic_assign_view_test(
+      self.model,
+      self.attributes_values_db_initial,
+      self.attributes_values_db_assigned_leerungszeiten_winter,
+      'leerungszeiten_winter',
+      str(self.leerungszeiten_winter.pk),
       204,
       'text/html; charset=utf-8',
       1
