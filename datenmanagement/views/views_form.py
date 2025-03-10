@@ -290,8 +290,10 @@ class DataChangeView(UpdateView):
     context = add_model_form_context_elements(context, self.model)
     # add further elements to context
     context['uuid'] = self.kwargs['pk']
-    context['git_repo_3d_models'] = self.model.BasemodelMeta.git_repo_3d_models
-    context['thumb_urls_3d_models'] = get_github_files(self.model.BasemodelMeta.git_repo_3d_models)
+    if self.model.BasemodelMeta.git_repo_3d_models:
+      context['thumb_urls_3d_models'] = get_github_files(
+        self.model.BasemodelMeta.git_repo_3d_models
+      )
     context['api'] = f'/api/{model_name_lower}/{self.kwargs["pk"]}/'
     context['associated_objects'] = self.associated_objects if self.associated_objects else None
     context['associated_new'] = self.associated_new if self.associated_new else None

@@ -10,6 +10,7 @@ from django.http import HttpResponse, Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django_user_agents.utils import get_user_agent
+from httpx import get
 from json import JSONEncoder
 from leaflet.forms.widgets import LeafletWidget
 from pathlib import Path
@@ -523,11 +524,11 @@ def get_github_files(
 
   try:
     # API-Anfrage senden
-    response = requests.get(api_url)
-    response.raise_for_status()
+    response = get(url=api_url)
 
     # Verarbeite die Antwort
     files = response.json()
+    print(files)
     file_links = {}
 
     for file in files:

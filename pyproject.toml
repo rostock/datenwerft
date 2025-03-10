@@ -100,3 +100,8 @@ docstring-code-format = false
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = "dynamic"
+
+# Configure Pyright for Zed.
+[tool.pyright]
+venvPath = "."
+venv = "venv"
