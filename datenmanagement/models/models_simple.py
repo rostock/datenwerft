@@ -2249,6 +2249,16 @@ class Fahrradboxen(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_eigentuemer'
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'fahrradboxen'
+    ),
+    max_length=255,
+    blank=True,
+    null=True
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -2270,7 +2280,8 @@ class Fahrradboxen(SimpleModel):
       'ausfuehrung': 'Ausführung',
       'lagebeschreibung': 'Lagebeschreibung',
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
-      'eigentuemer': 'Eigentümer'
+      'eigentuemer': 'Eigentümer',
+      'foto': 'Foto'
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -2305,6 +2316,15 @@ class Fahrradboxen(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fahrradboxen)
+
+post_save.connect(photo_post_processing, sender=Fahrradboxen)
+
+post_save.connect(delete_photo_after_emptied, sender=Fahrradboxen)
+
+post_delete.connect(delete_photo, sender=Fahrradboxen)
 
 
 class Fahrradreparatursets(SimpleModel):
@@ -2472,6 +2492,16 @@ class Fahrradstaender(SimpleModel):
     to_field='uuid',
     related_name='%(app_label)s_%(class)s_eigentuemer'
   )
+  foto = ImageField(
+    verbose_name='Foto',
+    storage=OverwriteStorage(),
+    upload_to=path_and_rename(
+      settings.PHOTO_PATH_PREFIX_PRIVATE + 'fahrradstaender'
+    ),
+    max_length=255,
+    blank=True,
+    null=True
+  )
   geometrie = point_field
 
   class Meta(SimpleModel.Meta):
@@ -2494,7 +2524,8 @@ class Fahrradstaender(SimpleModel):
       'lagebeschreibung': 'Lagebeschreibung',
       'anzahl_stellplaetze': 'Anzahl Stellplätze',
       'anzahl_fahrradstaender': 'Anzahl Fahrradständer',
-      'eigentuemer': 'Eigentümer'
+      'eigentuemer': 'Eigentümer',
+      'foto': 'Foto'
     }
     list_fields_with_foreign_key = {
       'strasse': 'strasse',
@@ -2530,6 +2561,15 @@ class Fahrradstaender(SimpleModel):
 
   def __str__(self):
     return self.id
+
+
+pre_save.connect(set_pre_save_instance, sender=Fahrradstaender)
+
+post_save.connect(photo_post_processing, sender=Fahrradstaender)
+
+post_save.connect(delete_photo_after_emptied, sender=Fahrradstaender)
+
+post_delete.connect(delete_photo, sender=Fahrradstaender)
 
 
 class FairTrade(SimpleModel):
