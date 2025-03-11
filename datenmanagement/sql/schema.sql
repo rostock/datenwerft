@@ -1216,7 +1216,8 @@ CREATE TABLE codelisten.leerungszeiten (
     uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     aktualisiert date DEFAULT (now())::date NOT NULL,
     erstellt date DEFAULT (now())::date NOT NULL,
-    bezeichnung character varying(255) NOT NULL
+    bezeichnung character varying(255) NOT NULL,
+    leerungshaeufigkeit_pro_jahr smallint
 );
 
 

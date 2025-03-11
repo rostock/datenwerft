@@ -1974,6 +1974,12 @@ class Leerungszeiten(Codelist):
     unique=True,
     validators=standard_validators
   )
+  leerungshaeufigkeit_pro_jahr = PositiveSmallIntegerRangeField(
+    verbose_name='Leerungshäufigkeit pro Jahr',
+    min_value=1,
+    blank=True,
+    null=True
+  )
 
   class Meta(Codelist.Meta):
     db_table = 'codelisten\".\"leerungszeiten'
@@ -1984,7 +1990,8 @@ class Leerungszeiten(Codelist):
   class BasemodelMeta(Codelist.BasemodelMeta):
     description = 'Leerungszeiten'
     list_fields = {
-      'bezeichnung': 'Bezeichnung'
+      'bezeichnung': 'Bezeichnung',
+      'leerungshaeufigkeit_pro_jahr': 'Leerungshäufigkeit pro Jahr'
     }
 
   def __str__(self):
