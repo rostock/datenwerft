@@ -3043,6 +3043,61 @@ class Fussgaengerueberwege(SimpleModel):
     return self.id
 
 
+class Gemeinbedarfsflaechen(SimpleModel):
+  """
+  Gemeinbedarfsflächen
+  """
+
+  registriernummer = CharField(
+    verbose_name='Registriernummer',
+    max_length=6,
+    validators=[
+      RegexValidator(
+        regex=gemeinbedarfsflaechen_registriernummer_regex,
+        message=gemeinbedarfsflaechen_registriernummer_message
+      )
+    ]
+  )
+  jahr = PositiveSmallIntegerRangeField(
+    verbose_name='Jahr',
+    default=get_current_year(),
+    max_value=get_current_year()
+  )
+  geometrie = polygon_field
+
+  class Meta(SimpleModel.Meta):
+    db_table = 'fachdaten\".\"gemeinbedarfsflaechen_hro'
+    verbose_name = 'Gemeinbedarfsfläche'
+    verbose_name_plural = 'Gemeinbedarfsflächen'
+
+  class BasemodelMeta(SimpleModel.BasemodelMeta):
+    description = 'Gemeinbedarfsflächen in der Hanse- und Universitätsstadt Rostock'
+    forms_in_high_zoom_mode = True
+    geometry_type = 'Polygon'
+    list_fields = {
+      'aktiv': 'aktiv?',
+      'registriernummer': 'Registriernummer',
+      'jahr': 'Jahr'
+    }
+    map_feature_tooltip_fields = ['registriernummer']
+    map_filter_fields = {
+      'aktiv': 'aktiv?',
+      'registriernummer': 'Registriernummer',
+      'jahr': 'Jahr'
+    }
+    additional_wfs_featuretypes = [
+      {
+        'name': 'flurstuecke',
+        'title': 'Flurstücke',
+        'url': 'https://geo.sv.rostock.de/geodienste/flurstuecke_hro/wfs',
+        'featuretypes': 'hro.flurstuecke.flurstuecke'
+      }
+    ]
+
+  def __str__(self):
+    return self.registriernummer + ' (Jahr: ' + str(self.jahr) + ')'
+
+
 class Gutachterfotos(SimpleModel):
   """
   Gutachterfotos
