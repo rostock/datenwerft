@@ -2357,6 +2357,24 @@ CREATE TABLE fachdaten.geh_und_radwegereinigung_flaechen_hro (
 
 
 --
+-- Name: gemeinbedarfsflaechen_hro; Type: TABLE; Schema: fachdaten; Owner: -
+--
+
+CREATE TABLE fachdaten.gemeinbedarfsflaechen_hro (
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    aktualisiert date DEFAULT (now())::date NOT NULL,
+    erstellt date DEFAULT (now())::date NOT NULL,
+    id_fachsystem character varying(255),
+    aktiv boolean DEFAULT true NOT NULL,
+    id_zielsystem character varying(255),
+    deaktiviert date,
+    registriernummer character varying(6) NOT NULL,
+    jahr smallint NOT NULL,
+    geometrie public.geometry(Polygon,25833) NOT NULL
+);
+
+
+--
 -- Name: geraetespielanlagen_hro; Type: TABLE; Schema: fachdaten; Owner: -
 --
 
@@ -6454,6 +6472,14 @@ ALTER TABLE ONLY fachdaten.freizeitsport_hro
 
 ALTER TABLE ONLY fachdaten.geh_und_radwegereinigung_flaechen_hro
     ADD CONSTRAINT geh_und_radwegereinigung_flaechen_hro_pk PRIMARY KEY (uuid);
+
+
+--
+-- Name: gemeinbedarfsflaechen_hro gemeinbedarfsflaechen_hro_pk; Type: CONSTRAINT; Schema: fachdaten; Owner: -
+--
+
+ALTER TABLE ONLY fachdaten.gemeinbedarfsflaechen_hro
+    ADD CONSTRAINT gemeinbedarfsflaechen_hro_pk PRIMARY KEY (uuid);
 
 
 --

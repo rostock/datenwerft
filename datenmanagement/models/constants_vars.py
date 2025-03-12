@@ -48,6 +48,11 @@ erdwaermesonden_d3_message = 'Der <strong><em>d.3</em></strong>-Vorgang muss fol
 fahrbahnwinterdienst_code_regex = r'^[A-C]$'
 fahrbahnwinterdienst_code_message = 'Der <strong><em>Code</em></strong> muss entweder ' \
                                     '<em>A,</em> <em>B</em> oder <em>C</em> lauten.'
+gemeinbedarfsflaechen_registriernummer_regex = r'^[0-9]+(\.)?([0-9]+)?$'
+gemeinbedarfsflaechen_registriernummer_message = 'Die <strong><em>Registriernummer</em>' \
+                                                 '</strong> muss eines der folgenden Formate ' \
+                                                 'aufweisen (Beispiele): ' \
+                                                 '10244, 484.42 oder 2456.1'
 haefen_abkuerzung_regex = r'^[A-Z-]{3,5}$'
 haefen_abkuerzung_message = 'Die <strong><em>Abkürzung</em></strong> muss ' \
                             'aus drei, vier oder fünf Großbuchstaben ' \
