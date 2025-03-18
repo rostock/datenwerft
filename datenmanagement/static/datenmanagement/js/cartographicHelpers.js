@@ -464,7 +464,7 @@ function initializeAddressSearch(searchField, url, addressType = '', addressUuid
  */
 function setMapConstants(map, maxLayerZoom, highZoomMode = false, aerialDefault = false) {
   // global constants
-  map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::4326';
+  map._wfsDefaultParameters = '?service=WFS&version=2.0.0&request=GetFeature&typeNames=TYPENAMES&outputFormat=GeoJSON&srsName=urn:ogc:def:crs:EPSG::3857';
   map._wmsFormat = 'image/png';
   map._highZoomMode = highZoomMode;
   map._aerialDefault = aerialDefault;

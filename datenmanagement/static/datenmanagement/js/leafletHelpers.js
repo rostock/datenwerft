@@ -303,20 +303,17 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
   let url = baseUrl;
   let mapPart = this.getBounds();
   if (isWFS === true) {
-    let boundingBoxParameter = '&bbox=' + mapPart.getSouthEast().lat + ',' + mapPart.getSouthEast().lng + ',' + mapPart.getNorthWest().lat + ',' + mapPart.getNorthWest().lng + ',urn:ogc:def:crs:EPSG::4326';
-    url += boundingBoxParameter;
+    url += '&bbox=' + mapPart.getSouthEast().lat + ',' + mapPart.getSouthEast().lng + ',' + mapPart.getNorthWest().lat + ',' + mapPart.getNorthWest().lng;
+    url += ',' + encodeURIComponent('urn:ogc:def:crs:EPSG::4326');
   } else {
     let center = this.getCenter();
     // calculate bounding circle
     let rad = this.distance(center, mapPart['_northEast']) * 1.2;
     url += '?lat=' +  center['lat'] + '&lng=' + center['lng'] + '&rad=' + rad;
   }
-  fetch(
-    String(url)
-  ).then(
-    (response) => response.json()
-  ).then(
-    (data) => {
+  fetch(String(url))
+    .then(response => response.json())
+    .then(data => {
       if (isWFS === true) {
         if (name === layer.name)
           layer.clearLayers();
@@ -374,12 +371,10 @@ L.Map.prototype.loadExternalData = function(name, baseUrl, layer, isWFS = false)
         layer.setZIndexOffset(0);
       else
         layer.bringToBack();
-    }
-  ).catch(
-    function(error) {
+    })
+    .catch(function(error) {
       console.log(error);
-    }
-  );
+    });
 }
 
 /**
