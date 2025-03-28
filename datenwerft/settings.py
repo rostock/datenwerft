@@ -14,22 +14,17 @@ DJANGO_APPS = [
   'django.contrib.sessions',
   'django.contrib.messages',
   'django.contrib.staticfiles',
-  'django.contrib.gis'
+  'django.contrib.gis',
 ]
 THIRD_PARTY_APPS = [
   'django_user_agents',
   'leaflet',
   'requests',
   'rest_framework',
-  'jsonview'
+  'jsonview',
+  'django_rq',
 ]
-LOCAL_APPS = [
-  'accounts',
-  'toolbox',
-  'datenmanagement',
-  'antragsmanagement',
-  'bemas'
-]
+LOCAL_APPS = ['accounts', 'toolbox', 'datenmanagement', 'antragsmanagement', 'bemas']
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 LOGIN_REDIRECT_URL = '/'
 MIDDLEWARE = [
@@ -41,7 +36,7 @@ MIDDLEWARE = [
   'django.contrib.messages.middleware.MessageMiddleware',
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
   'django.middleware.gzip.GZipMiddleware',
-  'django_user_agents.middleware.UserAgentMiddleware'
+  'django_user_agents.middleware.UserAgentMiddleware',
 ]
 ROOT_URLCONF = 'datenwerft.urls'
 WSGI_APPLICATION = 'datenwerft.wsgi.application'
@@ -53,7 +48,7 @@ TEMPLATES = [
       BASE_DIR / 'accounts/templates',
       BASE_DIR / 'datenmanagement/templates',
       BASE_DIR / 'antragsmanagement/templates',
-      BASE_DIR / 'bemas/templates'
+      BASE_DIR / 'bemas/templates',
     ],
     'APP_DIRS': True,
     'OPTIONS': {
@@ -62,13 +57,13 @@ TEMPLATES = [
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
         'django.contrib.messages.context_processors.messages',
-        'datenwerft.context_processors.include_login_form'
+        'datenwerft.context_processors.include_login_form',
       ],
       'libraries': {
         'toolbox_tags': 'toolbox.tags',
         'datenmanagement_tags': 'datenmanagement.tags',
         'antragsmanagement_tags': 'antragsmanagement.tags',
-        'bemas_tags': 'bemas.tags'
+        'bemas_tags': 'bemas.tags',
       },
     },
   },
@@ -78,9 +73,7 @@ TEMPLATES = [
 # Datenwerft.HRO:
 # databases
 
-DATABASE_ROUTERS = [
-  'datenwerft.db_routers.DatabaseRouter'
-]
+DATABASE_ROUTERS = ['datenwerft.db_routers.DatabaseRouter']
 
 
 # Datenwerft.HRO:
@@ -88,7 +81,7 @@ DATABASE_ROUTERS = [
 
 AUTHENTICATION_BACKENDS = (
   'accounts.backend.DatenwerftAuthBackend',
-  'django.contrib.auth.backends.ModelBackend'
+  'django.contrib.auth.backends.ModelBackend',
 )
 
 
@@ -115,32 +108,27 @@ LEAFLET_CONFIG = {
   'ATTRIBUTION_PREFIX': '',
   'RESET_VIEW': False,
   'PLUGINS': {
-    'forms': {
-      'auto_include': True
-    },
+    'forms': {'auto_include': True},
     'geoman': {
       'css': 'leaflet-geoman/leaflet-geoman.css',
       'js': 'leaflet-geoman/leaflet-geoman.min.js',
-      'auto_include': True
+      'auto_include': True,
     },
     'locatecontrol': {
       'css': 'leaflet-locatecontrol/L.Control.Locate.min.css',
       'js': 'leaflet-locatecontrol/L.Control.Locate.min.js',
-      'auto_include': True
+      'auto_include': True,
     },
-    'nontiledlayer': {
-      'js': 'leaflet-nontiledlayer/NonTiledLayer.js',
-      'auto_include': True
-    },
+    'nontiledlayer': {'js': 'leaflet-nontiledlayer/NonTiledLayer.js', 'auto_include': True},
     'markercluster': {
       'css': [
         'leaflet-markercluster/MarkerCluster.css',
-        'leaflet-markercluster/MarkerCluster.Default.css'
+        'leaflet-markercluster/MarkerCluster.Default.css',
       ],
       'js': 'leaflet-markercluster/leaflet.markercluster.js',
-      'auto_include': True
-    }
-  }
+      'auto_include': True,
+    },
+  },
 }
 
 
@@ -148,16 +136,14 @@ LEAFLET_CONFIG = {
 # REST framework
 
 REST_FRAMEWORK = {
-  'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.DjangoModelPermissions'
-  ],
+  'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.DjangoModelPermissions'],
   'DATETIME_FORMAT': 'iso-8601',
   'DATE_FORMAT': 'iso-8601',
   'TIME_FORMAT': 'iso-8601',
   'DEFAULT_RENDERER_CLASSES': (
     'rest_framework.renderers.JSONRenderer',
-    'rest_framework.renderers.BrowsableAPIRenderer'
-  )
+    'rest_framework.renderers.BrowsableAPIRenderer',
+  ),
 }
 
 
@@ -188,7 +174,7 @@ STATICFILES_DIRS = (
   ('hilfe', BASE_DIR / 'hilfe/build/html'),
   ('css', BASE_DIR / 'datenwerft/static/css'),
   ('img', BASE_DIR / 'datenwerft/static/img'),
-  ('js', BASE_DIR / 'datenwerft/static/js')
+  ('js', BASE_DIR / 'datenwerft/static/js'),
 )
 
 
@@ -229,7 +215,7 @@ ANTRAGSMANAGEMENT_ICONS = {
   'table': 'table',
   'update': 'pen',
   'warning': 'triangle-exclamation',
-  'yes': 'check'
+  'yes': 'check',
 }
 
 
@@ -241,14 +227,14 @@ ANTRAGSMANAGEMENT_SCOPE_WFS = {
   'namespace': 'kreise',
   'namespace_url': 'https://geo.sv.rostock.de/geodienste/kreise',
   'featuretype': 'hro.kreise.kreise',
-  'srid': 25833
+  'srid': 25833,
 }
 ANTRAGSMANAGEMENT_MANAGEDAREAS_WFS = {
   'url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster/wfs',
   'namespace': 'bewirtschaftungskataster',
   'namespace_url': 'https://geo.sv.rostock.de/geodienste/bewirtschaftungskataster',
   'featuretype': 'hro.bewirtschaftungskataster.bewirtschaftungskataster',
-  'srid': 25833
+  'srid': 25833,
 }
 
 
@@ -262,7 +248,7 @@ ANTRAGSMANAGEMENT_LINKS = {
   ),
   'geodata_portal': (
     'https://www.geoport-hro.de/muellsammelaktionen?poi[point]={x},{y}&poi[scale]=2133'
-  )
+  ),
 }
 
 
@@ -305,44 +291,28 @@ BEMAS_ICONS = {
   'table': 'table',
   'update': 'pen',
   'updated': 'pen',
-  'warning': 'triangle-exclamation'
+  'warning': 'triangle-exclamation',
 }
 
 
 # BEMAS app:
 # colors
 
-BEMAS_COLORS = {
-  'complaint': '#b85814',
-  'originator': '#3d8f8f'
-}
+BEMAS_COLORS = {'complaint': '#b85814', 'originator': '#3d8f8f'}
 
 
 # Toolbox app:
 # PDF export
 
-PDF_ESCAPE = [
-  ('&', r'\&'),
-  (chr(8211), '--')
-]
+PDF_ESCAPE = [('&', r'\&'), (chr(8211), '--')]
 PDF_JINJASTRINGS = {
   'block_start': r'\JINJA{',
   'block_end': '}',
   'variable_start': r'\VAR{',
   'variable_end': '}',
   'comment_start': r'\JCMNT{',
-  'comment_end': '}'
+  'comment_end': '}',
 }
-
-
-# Celery (used for asynchronous tasks):
-# basic configuration
-
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_TASK_RESULT_EXPIRES = 3600  # completed tasks still live for 1 hour
 
 
 # configuration file with additional parameters

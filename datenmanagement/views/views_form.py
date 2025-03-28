@@ -1,3 +1,6 @@
+from json import dumps
+from time import time
+
 from django.apps import apps
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.messages import error, success
@@ -9,16 +12,25 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from json import dumps
-from time import time
+
+from datenmanagement.utils import (
+  get_field_name_for_address_type,
+  get_thumb_url,
+  is_address_related_field,
+)
+from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
 
 from .forms import GenericForm
-from .functions import DecimalEncoder, add_basic_model_context_elements, \
-  add_model_form_context_elements, add_user_agent_context_elements, assign_widgets, \
-  generate_restricted_objects_list, get_url_back, set_form_attributes
-from toolbox.utils import get_array_first_element, is_geometry_field, transform_geometry
-from datenmanagement.utils import get_field_name_for_address_type, get_thumb_url, \
-  is_address_related_field
+from .functions import (
+  DecimalEncoder,
+  add_basic_model_context_elements,
+  add_model_form_context_elements,
+  add_user_agent_context_elements,
+  assign_widgets,
+  generate_restricted_objects_list,
+  get_url_back,
+  set_form_attributes,
+)
 
 
 class DataAddView(CreateView):
@@ -29,10 +41,7 @@ class DataAddView(CreateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-        self.model,
-        form=GenericForm,
-        fields='__all__',
-        formfield_callback=assign_widgets
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widgets
     )
     self.multi_file_upload = None
     self.multi_files = None
@@ -96,22 +105,28 @@ class DataAddView(CreateView):
     for field in self.model._meta.get_fields():
       if field.name == 'ansprechpartner':
         ansprechpartner = (
-            self.request.user.first_name + ' '
-            + self.request.user.last_name
-            + ' (' + self.request.user.email.lower() + ')'
+          self.request.user.first_name
+          + ' '
+          + self.request.user.last_name
+          + ' ('
+          + self.request.user.email.lower()
+          + ')'
         )
       if field.name == 'bearbeiter':
         bearbeiter = (
-            self.request.user.first_name + ' '
-            + self.request.user.last_name
-            + ' (' + self.request.user.email.lower() + ')'
+          self.request.user.first_name
+          + ' '
+          + self.request.user.last_name
+          + ' ('
+          + self.request.user.email.lower()
+          + ')'
         )
     if ansprechpartner or bearbeiter or (preselect_field and preselect_value):
       if not self.model.BasemodelMeta.group_with_users_for_choice_field:
         return {
-            'ansprechpartner': ansprechpartner,
-            'bearbeiter': bearbeiter,
-            preselect_field: preselect_value
+          'ansprechpartner': ansprechpartner,
+          'bearbeiter': bearbeiter,
+          preselect_field: preselect_value,
         }
 
   def form_valid(self, form):
@@ -126,9 +141,7 @@ class DataAddView(CreateView):
     # return to the page for creating another object of this model,
     # based on the object just created
     self.success_url = get_url_back(
-      None,
-      'datenmanagement:' + self.model.__name__ + '_add_another',
-      True
+      None, 'datenmanagement:' + self.model.__name__ + '_add_another', True
     )
     # store object just created and original referer in session
     # for usage in next view
@@ -177,10 +190,7 @@ class DataChangeView(UpdateView):
   def __init__(self, model=None, *args, **kwargs):
     self.model = model
     self.form_class = modelform_factory(
-        self.model,
-        form=GenericForm,
-        fields='__all__',
-        formfield_callback=assign_widgets
+      self.model, form=GenericForm, fields='__all__', formfield_callback=assign_widgets
     )
     self.file = None
     self.associated_objects = None
@@ -226,24 +236,18 @@ class DataChangeView(UpdateView):
         associated_new_dict = {
           'title': title,
           'link': link,
-          'api': reverse(f'{associated_model.lower()}-list')
+          'api': reverse(f'{associated_model.lower()}-list'),
         }
         self.associated_new.append(associated_new_dict)
-        curr_filter = {
-            associated_model_foreign_key_field: self.object.pk
-        }
+        curr_filter = {associated_model_foreign_key_field: self.object.pk}
         for associated_object in associated_model_model.objects.filter(**curr_filter):
           foto = associated_object.foto if hasattr(associated_object, 'foto') else None
           if hasattr(associated_object, 'geometrie') and associated_object.geometrie is not None:
             geometry = transform_geometry(
-              geometry=GEOSGeometry(associated_object.geometrie),
-              target_srid=4326
+              geometry=GEOSGeometry(associated_object.geometrie), target_srid=4326
             ).geojson
           else:
-            geometry = {
-              'type': 'Polygon',
-              'coordinates': []
-            }
+            geometry = {'type': 'Polygon', 'coordinates': []}
           preview_img_url = ''
           preview_thumb_url = ''
           if foto:
@@ -254,23 +258,25 @@ class DataChangeView(UpdateView):
             except ValueError:
               pass
           api_link = reverse(
-            f'{associated_model.lower()}-detail', kwargs={'pk': f'{associated_object.pk}'})
+            f'{associated_model.lower()}-detail', kwargs={'pk': f'{associated_object.pk}'}
+          )
           associated_object_dict = {
             'title': title,
             'name': str(associated_object),
             'id': associated_object.pk,
             'link': reverse(
-              'datenmanagement:' + associated_model + '_change',
-              args=[associated_object.pk]
+              'datenmanagement:' + associated_model + '_change', args=[associated_object.pk]
             ),
             'preview_img_url': preview_img_url,
             'preview_thumb_url': preview_thumb_url,
             'api': api_link,
-            'geometry': geometry
+            'geometry': geometry,
           }
           if hasattr(associated_object, 'punktwolke'):
             path = reverse('datenmanagement:download_pointcloud', args=[associated_object.pk])
             associated_object_dict['file'] = path
+          if hasattr(associated_object, 'vcp_object_key'):
+            associated_object_dict['vcp_object_key'] = associated_object.vcp_object_key
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
       kwargs['associated_new'] = self.associated_new
@@ -301,10 +307,10 @@ class DataChangeView(UpdateView):
     if self.model.BasemodelMeta.geometry_type:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
-            'SELECT ST_AsGeoJSON(ST_Transform(geometrie, 4326)) FROM ' +
-            self.model._meta.db_table.replace('"', '') +
-            ' WHERE UUID=%s;',
-            [self.kwargs['pk']]
+          'SELECT ST_AsGeoJSON(ST_Transform(geometrie, 4326)) FROM '
+          + self.model._meta.db_table.replace('"', '')
+          + ' WHERE UUID=%s;',
+          [self.kwargs['pk']],
         )
         result = cursor.fetchone()[0]
         context['geometry'] = result
@@ -344,7 +350,8 @@ class DataChangeView(UpdateView):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
     if self.request.user.has_perm('datenmanagement.delete_' + model_name_lower):
       context['url_model_delete_object'] = reverse(
-        'datenmanagement:' + model_name + '_delete', args=[self.object.pk])
+        'datenmanagement:' + model_name + '_delete', args=[self.object.pk]
+      )
     referer = self.request.META['HTTP_REFERER'] if 'HTTP_REFERER' in self.request.META else None
     context['url_back'] = get_url_back(referer, 'datenmanagement:' + model_name + '_start')
     return context
@@ -395,11 +402,11 @@ class DataChangeView(UpdateView):
     self.success_url = get_url_back(
       referer if referer and '/list' in referer else None,
       'datenmanagement:' + self.model.__name__ + '_start',
-      True
+      True,
     )
     success(
       self.request,
-      'Datensatz <strong><em>%s</em></strong> erfolgreich geändert' % str(form.instance)
+      'Datensatz <strong><em>%s</em></strong> erfolgreich geändert' % str(form.instance),
     )
     response = super().form_valid(form)
     return response
@@ -494,20 +501,20 @@ class DataDeleteView(SuccessMessageMixin, DeleteView):
     success_url = get_url_back(
       referer if referer and '/list' in referer else None,
       'datenmanagement:' + self.model.__name__ + '_start',
-      True
+      True,
     )
     try:
       self.object.delete()
       success(
         self.request,
-        'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht' % str(self.object)
+        'Datensatz <strong><em>%s</em></strong> erfolgreich gelöscht' % str(self.object),
       )
       return HttpResponseRedirect(success_url)
     except RestrictedError as exception:
       error(
         self.request,
-        'Datensatz <strong><em>%s</em></strong> kann nicht gelöscht werden! ' % str(self.object) +
-        'Folgende(s) Objekt(e) verweist/verweisen noch auf ihn:<br><br>' +
-        generate_restricted_objects_list(exception.restricted_objects)
+        'Datensatz <strong><em>%s</em></strong> kann nicht gelöscht werden! ' % str(self.object)
+        + 'Folgende(s) Objekt(e) verweist/verweisen noch auf ihn:<br><br>'
+        + generate_restricted_objects_list(exception.restricted_objects),
       )
       return self.render_to_response(self.get_context_data(form=form))

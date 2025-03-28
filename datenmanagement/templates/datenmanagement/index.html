@@ -35,7 +35,7 @@
           <div class="list-group mb-3">
             {% for model in models_meta %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-info mt-2" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-info pt-2" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
@@ -50,7 +50,7 @@
           <div class="list-group mb-3">
             {% for model in models_codelist %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-secondary mt-2" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-secondary pt-2" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
@@ -65,7 +65,7 @@
           <div class="list-group mb-3">
             {% for model in models_simple %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-primary mt-2" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-primary pt-2" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
@@ -80,7 +80,7 @@
           <div class="list-group mb-3">
             {% for model in models_complex %}
               {% if not model.not_listed %}
-                <a class="list-group-item list-group-item-action list-group-item-primary mt-2" href="{{ model.url_start }}">
+                <a class="list-group-item list-group-item-action list-group-item-primary pt-2" href="{{ model.url_start }}">
                   <h4>{{ model.verbose_name_plural }}</h4>
                   <small>{% if model.description %}{{ model.description }}{% endif %}</small>
                 </a>
