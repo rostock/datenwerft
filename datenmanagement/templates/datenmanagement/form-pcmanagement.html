@@ -10,6 +10,10 @@
 
 {% block pc_management %}
   {% if object %}
+    <h2 class="mt-3">Punktwolkenverwaltung</h2>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      Punktwolken dürfen derzeit maximal <strong><em>2GB</em></strong> groß sein. Größere Dateien können nicht hochgeladen werden.
+    </div>
     <form>
     {% comment %}
       {% csrf_token %}
@@ -19,6 +23,7 @@
           <thead class="table-dark">
             <tr>
               <th scope="col"><i class="fa-solid fa-hashtag"></i></th>
+              <th scope="col">Status</th>
               <th scope="col">Datei</th>
               <th scope="col"><!-- delete column --></th>
             </tr>
@@ -27,6 +32,12 @@
           {% for associated_object in associated_objects %}
             <tr class="data">
               <td>{{ forloop.counter }}</td>
+              <td>
+                {% if associated_object.vcp_object_key %}
+                  <span class="badge bg-success"><i class="fa-solid fa-check"></i></span>
+                {% else %}
+                  <span class="badge bg-warning"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+                {% endif %}
               <td><a href="{{ associated_object.file }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} herunterladen"><i class="fa-solid fa-download"></i> {{ associated_object.name }}</a></td>
               <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
               <td class="hidden">{{ associated_object.geometry }}</td>
@@ -35,6 +46,7 @@
 
             <tr>
               <td><i class="fa-solid fa-ellipsis"></i></td>
+              <td><!-- Status Cell --></td>
               <td><input type="file" name="punktwolke" class="form-control" id="id_punktwolke" accept="application/vnd.las"></td>
               <td><button type="button" class="btn btn-outline-success" onclick="addObject(apiLink='{{ associated_new.0.api }}')" id="pointCloudUploadButton"><i class="fa-solid fa-plus"></i></button></td>
             </tr>

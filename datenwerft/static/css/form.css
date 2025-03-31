@@ -198,6 +198,11 @@ input[name="strasse"] {
   font-weight: 600;
 }
 
+#pcmanagement > tbody > tr > th:nth-child(2) {
+    width: 1%;
+    text-align: center;
+}
+
 #pc-management > thead > tr > th:last-child {
   white-space: nowrap;
   width: 1%;
@@ -206,6 +211,11 @@ input[name="strasse"] {
 #pc-management > tbody > tr > td:first-child {
   text-align: center;
   font-weight: 600;
+}
+
+#pc-management > tbody > tr > td:nth-child(2) {
+  text-align: center;
+  width: 1%;
 }
 
 #pc-management > tbody > tr > td:last-child {
