@@ -283,10 +283,8 @@ def download_pointcloud(request, pk):
 
     # get dataset bucket
     bucket = DataBucket(_id=pcprj_instance.vcp_dataset_bucket_id)
-    print(f'Object Key: {pc_instance.vcp_object_key}')
     ok, response = bucket.download_file(object_key=str(pc_instance.vcp_object_key), stream=True)
     if ok:
-      print(f"Content Type: {response.headers.get('Content-Type')}")
       file_response = StreamingHttpResponse(
         response.raw,
         content_type='application/octet-stream',

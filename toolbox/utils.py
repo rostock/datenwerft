@@ -1,3 +1,5 @@
+import logging
+import redis
 from datetime import date, datetime, timezone
 from django.conf import settings
 from django.contrib.gis.db.models.fields import LineStringField as ModelLineStringField
@@ -19,6 +21,9 @@ from operator import itemgetter
 from re import match, search, sub
 from requests import post
 from zoneinfo import ZoneInfo
+
+
+logger = logging.getLogger(__name__)
 
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
@@ -299,3 +304,20 @@ def transform_geometry(geometry, target_srid):
     transform = CoordTransform(source_srs, target_srs)
     geometry.transform(transform)
   return geometry
+
+
+def is_broker_available():
+  """
+  checks if the broker is available
+  :return: True if the broker is available, False otherwise
+  :rtype: bool
+  """
+  try:
+    # Erstelle eine Redis-Verbindung
+    r = redis.Redis.from_url(url=f'redis://{settings.RQ_QUEUES["default"]["HOST"]}')
+    # Versuche, einen Ping an Redis zu senden
+    r.ping()
+    return True
+  except redis.ConnectionError as e:
+    logger.critical(f'Redis is not available: {e}')
+    return False

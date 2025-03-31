@@ -1,20 +1,19 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from django.conf import settings
 from django.core.validators import FileExtensionValidator, URLValidator
 from django.db.models import CASCADE, RESTRICT, SET_NULL, ForeignKey, IntegerField, UUIDField
 from django.db.models.fields import DateTimeField
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.signals import post_delete, post_save, pre_save
+from django_rq import enqueue
 from pathlib import Path
+from pyblisher import get_project, Bucket, Project, Source, Task, settings as pyblisher_settings
 from re import sub
 from zoneinfo import ZoneInfo
 
 from datenmanagement.utils import get_current_year, logger, path_and_rename
-from datenwerft.celery import is_broker_available
 from toolbox.fields import NullTextField
-from toolbox.utils import format_filesize
-from toolbox.vcpub.DataBucket import DataBucket
-from toolbox.vcpub.Task import Task
+from toolbox.utils import format_filesize, is_broker_available
 from .base import ComplexModel
 from .functions import delete_pdf, delete_photo, photo_post_processing, \
   delete_pointcloud, set_pre_save_instance, delete_photo_after_emptied
@@ -3157,10 +3156,48 @@ class Punktwolken_Projekte(ComplexModel):
     if not self.vcp_task_id:
       try:
         # create Task
-        task = Task(name=self.bezeichnung, description=self.beschreibung)
-        self.vcp_task_id = task.get_id()
-        self.vcp_dataset_bucket_id = task.get_dataset()['dataBucketId']
-        self.vcp_datasource_id = task.get_datasource()['datasourceId']
+        project: Project = get_project(id=pyblisher_settings.project_id)
+        bucket: Bucket = project.create_bucket(
+          name=str(self.bezeichnung),
+          description=str(self.beschreibung)
+        )
+        source: Source = project.create_source(
+          name=str(self.bezeichnung),
+          sourceProperties={
+            'type': 'internal',
+            'dataBucketId': bucket._id,
+            'dataBucketKey': '/datasource',
+          },
+          type='tileset',
+          typeProperties={},
+          description=str(self.beschreibung),
+          bbox=None,
+          properties=None,
+        )
+        current_time = datetime.now(timezone.utc)
+        scheduled_time = current_time + timedelta(minutes=30)
+        task: Task = project.create_task(
+          name=str(self.bezeichnung),
+          parameters={
+            'command': 'conversion',
+            'epsgCode': 25833,
+            'dataset': {
+            'type': 'internal',
+            'dataBucketId': bucket._id,
+            'dataBucketKey': '/dataset',
+            },
+            'datasource': {'command': 'update', 'datasourceId': source._id},
+          },
+          jobType='pointcloud',
+          schedule={
+            'type': 'scheduled',
+            'scheduled': scheduled_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+          },
+        )
+        # task = Task(name=self.bezeichnung, description=self.beschreibung, source_id=source.id)
+        self.vcp_task_id = str(task)
+        self.vcp_dataset_bucket_id = str(bucket)
+        self.vcp_datasource_id = str(source)
       except Exception as e:
         logger.error(f'Creating Task failed: {e}')
 
@@ -3175,9 +3212,10 @@ class Punktwolken_Projekte(ComplexModel):
 
   def delete(self, using=None, keep_parents=False):
     if self.vcp_dataset_bucket_id:
-      bucket = DataBucket(_id=self.vcp_dataset_bucket_id)
-      ok, response = bucket.delete()
-      if ok:
+      project = get_project(id=pyblisher_settings.project_id)
+      bucket = project.get_bucket(id=str(self.vcp_dataset_bucket_id))
+      response = bucket.delete()
+      if response.status_code == 204:
         super().delete(using=using, keep_parents=keep_parents)
       elif response.status_code == 404:
         # bucket is already deleted
@@ -3294,7 +3332,8 @@ class Punktwolken(ComplexModel):
       update_model(
         model_name='Punktwolken',
         pk=self.pk,
-        attributes={'file_size': file_path.stat().st_size})
+        attributes={'file_size': file_path.stat().st_size}
+      )
     if not self.vcp_object_key and is_broker_available():
       # If point cloud database entry has no object key attribute, then point cloud must still be
       # uploaded to the VC Publisher.
@@ -3302,22 +3341,23 @@ class Punktwolken(ComplexModel):
       from ..tasks import send_pointcloud_to_vcpub, calculate_2d_bounding_box_for_pointcloud
       # run celery task delayed
       if not self.geometrie:
-        calculate_2d_bounding_box_for_pointcloud.delay(
-          pk=self.pk,
-          path=self.punktwolke.path
-        )
-      send_pointcloud_to_vcpub.delay(
+        # calculate 2D bounding box for point cloud, asynchron
+        enqueue(calculate_2d_bounding_box_for_pointcloud, pk=self.pk, path=self.punktwolke.path)
+      # upload point cloud to VC Publisher, asynchron
+      enqueue(
+        send_pointcloud_to_vcpub,
         pk=self.pk,
         dataset=self.projekt.vcp_dataset_bucket_id,
         path=self.punktwolke.path,
-        filename=self.dateiname
+        objectkey=self.dateiname
       )
 
   def delete(self, using=None, keep_parents=False):
     if self.vcp_object_key:
-      bucket = DataBucket(_id=self.projekt.vcp_dataset_bucket_id)
-      ok, response = bucket.delete_object(key=self.vcp_object_key)
-      if ok:
+      project: Project = get_project(id=pyblisher_settings.project_id)
+      bucket: Bucket = project.get_bucket(id=self.projekt.vcp_dataset_bucket_id)
+      response = bucket.delete_object(key=self.vcp_object_key)
+      if response.status_code == 204:
         super().delete(using=using, keep_parents=keep_parents)
       elif response.status_code == 404:
         super().delete(using=using, keep_parents=keep_parents)

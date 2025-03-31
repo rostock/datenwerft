@@ -271,6 +271,8 @@ class DataChangeView(UpdateView):
           if hasattr(associated_object, 'punktwolke'):
             path = reverse('datenmanagement:download_pointcloud', args=[associated_object.pk])
             associated_object_dict['file'] = path
+          if hasattr(associated_object, 'vcp_object_key'):
+            associated_object_dict['vcp_object_key'] = associated_object.vcp_object_key
           self.associated_objects.append(associated_object_dict)
       kwargs['associated_objects'] = self.associated_objects
       kwargs['associated_new'] = self.associated_new
