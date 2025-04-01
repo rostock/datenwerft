@@ -54,7 +54,7 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
   :param pk: primary key of the pointcloud
   :param dataset: dataset id at VCPublisher
   :param path: path to uploaded file
-  :param filename: filename as data bucket key
+  :param objectkey: filename as data bucket object key
   :return:
   """
   logger.debug('Run Task send_pointcloud_to_vcpub')
