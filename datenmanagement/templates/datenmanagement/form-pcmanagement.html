@@ -38,6 +38,7 @@
                 {% else %}
                   <span class="badge bg-warning"><i class="fa-solid fa-cloud-arrow-up"></i></span>
                 {% endif %}
+              </td>
               <td><a href="{{ associated_object.file }}" target="_blank" rel="noopener noreferrer" title="{{ associated_object.title }} herunterladen"><i class="fa-solid fa-download"></i> {{ associated_object.name }}</a></td>
               <td><button type="button" class="btn btn-outline-danger" onclick="deleteObject(apiLink='{{ associated_object.api }}')"><i class="fas fa-trash"></i></button></td>
               <td class="hidden">{{ associated_object.geometry }}</td>
