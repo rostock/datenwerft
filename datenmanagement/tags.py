@@ -1,8 +1,9 @@
+from re import sub
+
 from django import template
 from django.apps import apps
 from django.template.defaultfilters import stringfilter
 from django.urls import reverse
-from re import sub
 
 from datenmanagement.utils import is_address_related_field
 
@@ -46,7 +47,7 @@ def clean_error_message(value):
     value = sub(
       r'^.* mit diesem',
       'Es existiert bereits ein Datensatz mit den angegebenen Werten in den Attributen',
-      value
+      value,
     )
     return value
   elif 'existiert bereits' in value:

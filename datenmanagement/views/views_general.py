@@ -1,4 +1,5 @@
-from datenwerft.secrets import FME_GEOJSON_URL, FME_GEOJSON_TOKEN, FME_GPX_URL, FME_GPX_TOKEN
+from json import dumps
+
 from django.apps import apps
 from django.db import connections
 from django.http import JsonResponse
@@ -6,13 +7,16 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.views.generic.base import TemplateView
-from json import dumps
 from jsonview.views import JsonView
 from requests import post as requests_post
 
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel
-from datenmanagement.utils import user_has_model_permissions_any, \
-  user_has_model_permissions_change_delete_view
+from datenmanagement.utils import (
+  user_has_model_permissions_any,
+  user_has_model_permissions_change_delete_view,
+)
+from datenwerft.secrets import FME_GEOJSON_TOKEN, FME_GEOJSON_URL, FME_GPX_TOKEN, FME_GPX_URL
+
 from .functions import add_basic_model_context_elements, get_uuids_geometries_from_sql
 
 
@@ -47,9 +51,10 @@ class GeometryView(JsonView):
       pk = self.request.GET.get('pk')
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
-          'SELECT uuid, ST_AsText(ST_Transform(geometrie, 4326)) FROM ' +
-          self.model._meta.db_table.replace('"', '') + ' WHERE uuid = %s;',
-          [pk]
+          'SELECT uuid, ST_AsText(ST_Transform(geometrie, 4326)) FROM '
+          + self.model._meta.db_table.replace('"', '')
+          + ' WHERE uuid = %s;',
+          [pk],
         )
         uuid, geom = cursor.fetchone()  # tuple
         context['uuid'] = uuid
@@ -61,11 +66,11 @@ class GeometryView(JsonView):
       rad = float(self.request.GET.get('rad')) if self.request.GET.get('rad') else 0
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
-          'SELECT uuid, ST_AsText(ST_Transform(geometrie, 4326)) FROM ' +
-          self.model._meta.db_table.replace('"', '') +
-          ' WHERE ST_Buffer(ST_Transform(ST_SetSRID(' +
-          'ST_MakePoint(%s, %s),4326)::geometry,25833),%s) && geometrie;',
-          [lng, lat, rad]
+          'SELECT uuid, ST_AsText(ST_Transform(geometrie, 4326)) FROM '
+          + self.model._meta.db_table.replace('"', '')
+          + ' WHERE ST_Buffer(ST_Transform(ST_SetSRID('
+          + 'ST_MakePoint(%s, %s),4326)::geometry,25833),%s) && geometrie;',
+          [lng, lat, rad],
         )
         uuids_geometries = get_uuids_geometries_from_sql(cursor.fetchall())
         context['uuids'] = uuids_geometries[0]
@@ -73,9 +78,10 @@ class GeometryView(JsonView):
     else:
       with connections['datenmanagement'].cursor() as cursor:
         cursor.execute(
-          'SELECT uuid, ST_AsText(ST_Transform(geometrie, 4326)) FROM ' +
-          self.model._meta.db_table.replace('"', '') + ';',
-          []
+          'SELECT uuid, ST_AsText(ST_Transform(geometrie, 4326)) FROM '
+          + self.model._meta.db_table.replace('"', '')
+          + ';',
+          [],
         )
         uuids_geometries = get_uuids_geometries_from_sql(cursor.fetchall())
         context['uuids'] = uuids_geometries[0]
@@ -87,6 +93,7 @@ class GISFiletoGeoJSON(View):
   """
   view for passing a file to FME Server and returning the generated GeoJSON
   """
+
   http_method_names = ['post']
 
   @csrf_exempt
@@ -124,19 +131,16 @@ class GISFiletoGeoJSON(View):
       token = FME_GPX_TOKEN
       content_type = 'application/gpx+xml'
     post = requests_post(
-        url=url,
-        headers={
-          'Authorization': token,
-          'Content-Type': content_type,
-          'Accept': 'application/geo+json'
-        },
-        data=file
+      url=url,
+      headers={
+        'Authorization': token,
+        'Content-Type': content_type,
+        'Accept': 'application/geo+json',
+      },
+      data=file,
     )
     if post.status_code != 200:
-      response = {
-        'status_code': str(post.status_code),
-        'error_log': str(post.text)
-      }
+      response = {'status_code': str(post.status_code), 'error_log': str(post.text)}
       return JsonResponse(status=post.status_code, data=dumps(response), safe=False)
     else:
       return JsonResponse(data=post.json())
@@ -166,7 +170,7 @@ class IndexView(TemplateView):
           'verbose_name_plural': model._meta.verbose_name_plural,
           'description': model.BasemodelMeta.description,
           'url_start': reverse('datenmanagement:' + model_name + '_start'),
-          'not_listed': model.BasemodelMeta.not_listed
+          'not_listed': model.BasemodelMeta.not_listed,
         }
         if issubclass(model, Metamodel):
           models_meta.append(model_dict)
@@ -210,9 +214,8 @@ class StartView(TemplateView):
     context = super().get_context_data(**kwargs)
     # add basic model related elements to context
     context = add_basic_model_context_elements(context, self.model)
-    if (
-        self.model.BasemodelMeta.editable
-        and self.request.user.has_perm('datenmanagement.add_' + model_name_lower)
+    if self.model.BasemodelMeta.editable and self.request.user.has_perm(
+      'datenmanagement.add_' + model_name_lower
     ):
       context['url_model_add'] = reverse('datenmanagement:' + model_name + '_add')
     if user_has_model_permissions_change_delete_view(self.request.user, self.model):

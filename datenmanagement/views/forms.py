@@ -1,11 +1,13 @@
+from operator import itemgetter
+
 from django.apps import apps
 from django.contrib.auth.models import Group, User
 from django.contrib.postgres.fields.array import ArrayField
 from django.db.models import F
 from django.forms import ChoiceField, ModelForm, TextInput, ValidationError
-from operator import itemgetter
 
 from datenmanagement.models import Ansprechpartner_Baustellen
+
 from .fields import AddressUUIDField, DistrictUUIDField, StreetUUIDField
 from .functions import handle_multi_file_upload
 
@@ -47,17 +49,19 @@ class GenericForm(ModelForm):
       for field in self.model._meta.get_fields():
         # if necessary, convert text fields into selection lists
         if (
-          request is not None and hasattr(request, 'user') and request.user is not None
+          request is not None
+          and hasattr(request, 'user')
+          and request.user is not None
           and (field.name == 'ansprechpartner' or field.name == 'bearbeiter')
         ):
           if (
-              self.group_with_users_for_choice_field
-              and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
+            self.group_with_users_for_choice_field
+            and Group.objects.filter(name=self.group_with_users_for_choice_field).exists()
           ):
             users = list(
-              User.objects.filter(
-                groups__name=self.group_with_users_for_choice_field
-              ).values('first_name', 'last_name', 'email')
+              User.objects.filter(groups__name=self.group_with_users_for_choice_field).values(
+                'first_name', 'last_name', 'email'
+              )
             )
             # special treatment for model Baustellen (geplant):
             # get additional users from codelist here
@@ -89,41 +93,39 @@ class GenericForm(ModelForm):
             choice_field = ChoiceField(
               label=field.verbose_name,
               choices=choices,
-              initial=request.user.first_name + ' ' + request.user.last_name +
-              ' (' + request.user.email.lower() + ')'
+              initial=request.user.first_name
+              + ' '
+              + request.user.last_name
+              + ' ('
+              + request.user.email.lower()
+              + ')',
             )
             if field.name == 'ansprechpartner' or field.name == 'bearbeiter':
               self.fields[field.name] = choice_field
         # convert address fields to custom field types
         elif field.name == 'adresse' or field.name == 'strasse' or field.name == 'gemeindeteil':
           attrs = {
-              'class': 'form-control',
-              'autocapitalize': 'off',
-              'autocomplete': 'off',
-              'placeholder': ''
+            'class': 'form-control',
+            'autocapitalize': 'off',
+            'autocomplete': 'off',
+            'placeholder': '',
           }
           label = field.verbose_name
           required = self.address_mandatory
           if field.name == 'adresse':
             attrs['placeholder'] = 'Adresse eingeben…'
             self.fields[field.name] = AddressUUIDField(
-                label=label,
-                widget=TextInput(attrs=attrs),
-                required=required
+              label=label, widget=TextInput(attrs=attrs), required=required
             )
           elif field.name == 'strasse':
             attrs['placeholder'] = 'Straße eingeben…'
             self.fields[field.name] = StreetUUIDField(
-                label=label,
-                widget=TextInput(attrs=attrs),
-                required=required
+              label=label, widget=TextInput(attrs=attrs), required=required
             )
           else:
             attrs['placeholder'] = 'Gemeindeteil eingeben…'
             self.fields[field.name] = DistrictUUIDField(
-                label=label,
-                widget=TextInput(attrs=attrs),
-                required=required
+              label=label, widget=TextInput(attrs=attrs), required=required
             )
         # use specific models for specific fields to fill corresponding selection lists
         elif self.choices_models_for_choices_fields:
@@ -136,25 +138,32 @@ class GenericForm(ModelForm):
     # customize messages
     for field in self.fields.values():
       if field.label == 'Geometrie':
-        required_message = 'Es muss ein Marker in der Karte gesetzt ' \
-                           'werden bzw. eine Linie oder Fläche ' \
-                           'gezeichnet werden, falls es sich um Daten ' \
-                           'linien- oder flächenhafter Repräsentation ' \
-                           'handelt!'
+        required_message = (
+          'Es muss ein Marker in der Karte gesetzt '
+          'werden bzw. eine Linie oder Fläche '
+          'gezeichnet werden, falls es sich um Daten '
+          'linien- oder flächenhafter Repräsentation '
+          'handelt!'
+        )
       else:
         required_message = 'Das Attribut <strong><em>{label}</em></strong> ist Pflicht!'.format(
-            label=field.label)
+          label=field.label
+        )
       invalid_image_message = 'Sie müssen eine valide Bilddatei hochladen!'
-      item_invalid_message = 'Der Wert an Stelle %(nth)s im Attribut ' \
-                             '<strong><em>ATTRIBUTE</em></strong> war ungültig! ' \
-                             'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
+      item_invalid_message = (
+        'Der Wert an Stelle %(nth)s im Attribut '
+        '<strong><em>ATTRIBUTE</em></strong> war ungültig! '
+        'Daher wurde das gesamte Attribut zurückgesetzt. Hinweis:'
+      )
       ArrayField.default_error_messages['item_invalid'] = item_invalid_message
-      unique_message = 'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut ' \
-                       '<strong><em>{label}</em></strong>!'.format(label=field.label)
+      unique_message = (
+        'Es existiert bereits ein Datensatz mit dem angegebenen Wert im Attribut '
+        '<strong><em>{label}</em></strong>!'.format(label=field.label)
+      )
       field.error_messages = {
         'invalid_image': invalid_image_message,
         'required': required_message,
-        'unique': unique_message
+        'unique': unique_message,
       }
 
   def clean_foto(self):
@@ -212,19 +221,21 @@ class GenericForm(ModelForm):
     :return: cleaned field with geometry
     """
     data = self.cleaned_data['geometrie']
-    error_text = 'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche ' \
-                 'gezeichnet werden, falls es sich um Daten linien- oder flächenhafter ' \
-                 'Repräsentation handelt!'
+    error_text = (
+      'Es muss ein Marker in der Karte gesetzt werden bzw. eine Linie oder Fläche '
+      'gezeichnet werden, falls es sich um Daten linien- oder flächenhafter '
+      'Repräsentation handelt!'
+    )
     if (
-        not self.model._meta.get_field('geometrie').blank
-        and not self.model._meta.get_field('geometrie').null
-        and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
+      not self.model._meta.get_field('geometrie').blank
+      and not self.model._meta.get_field('geometrie').null
+      and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
     ):
       raise ValidationError(error_text)
     elif (
-        self.model._meta.get_field('geometrie').blank
-        and self.model._meta.get_field('geometrie').null
-        and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
+      self.model._meta.get_field('geometrie').blank
+      and self.model._meta.get_field('geometrie').null
+      and ('EMPTY' in str(data) or '(-1188659.41326731 0)' in str(data))
     ):
       return None
     else:

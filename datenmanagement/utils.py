@@ -1,9 +1,10 @@
 import logging
 from datetime import date, datetime
-from django.conf import settings
 from locale import LC_ALL, format_string, setlocale
 from pathlib import Path
 from uuid import uuid4
+
+from django.conf import settings
 
 logger = logging.getLogger('datenmanagement')
 
@@ -58,7 +59,7 @@ def get_path(url):
   :return: path related to passed URL
   """
   if settings.MEDIA_ROOT and settings.MEDIA_URL:
-    path = Path(settings.MEDIA_ROOT) / url[len(settings.MEDIA_URL):]
+    path = Path(settings.MEDIA_ROOT) / url[len(settings.MEDIA_URL) :]
   else:
     path = Path(settings.BASE_DIR) / url
   return path
@@ -99,7 +100,7 @@ def localize_number(value):
   return format_string('%.2f', value, grouping=True)
 
 
-def path_and_rename(path, foreign_key_subdir_attr: str = ""):
+def path_and_rename(path, foreign_key_subdir_attr: str = ''):
   """
   cleans passed path and returns it
 
@@ -107,6 +108,7 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ""):
   :param foreign_key_subdir_attr: use instance attribute as subdirectory
   :return: cleaned version of passed path
   """
+
   def wrapper(instance, filename):
     """
     sets path based on passed object and passed file name and returns it
@@ -127,6 +129,7 @@ def path_and_rename(path, foreign_key_subdir_attr: str = ""):
       return Path(path) / subdir / filename
     else:
       return Path(path) / filename
+
   return wrapper
 
 
@@ -140,10 +143,10 @@ def user_has_model_permissions_any(user, model):
   """
   model_name_lower = model.__name__.lower()
   if (
-      user.has_perm('datenmanagement.add_' + model_name_lower)
-      or user.has_perm('datenmanagement.change_' + model_name_lower)
-      or user.has_perm('datenmanagement.delete_' + model_name_lower)
-      or user.has_perm('datenmanagement.view_' + model_name_lower)
+    user.has_perm('datenmanagement.add_' + model_name_lower)
+    or user.has_perm('datenmanagement.change_' + model_name_lower)
+    or user.has_perm('datenmanagement.delete_' + model_name_lower)
+    or user.has_perm('datenmanagement.view_' + model_name_lower)
   ):
     return True
   else:
@@ -160,9 +163,9 @@ def user_has_model_permissions_change_delete_view(user, model):
   """
   model_name_lower = model.__name__.lower()
   if (
-      user.has_perm('datenmanagement.change_' + model_name_lower)
-      or user.has_perm('datenmanagement.delete_' + model_name_lower)
-      or user.has_perm('datenmanagement.view_' + model_name_lower)
+    user.has_perm('datenmanagement.change_' + model_name_lower)
+    or user.has_perm('datenmanagement.delete_' + model_name_lower)
+    or user.has_perm('datenmanagement.view_' + model_name_lower)
   ):
     return True
   else:

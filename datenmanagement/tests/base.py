@@ -9,8 +9,14 @@ from django.urls import reverse
 from datenmanagement.models.base import Codelist, ComplexModel, Metamodel, SimpleModel
 from datenmanagement.views import DataAddView, DataChangeView, DataDeleteView
 
-from .constants_vars import DATABASES, USERNAME, PASSWORD, VALID_LINE_DB, VALID_LINE_VIEW, \
-  INVALID_STRING
+from .constants_vars import (
+  DATABASES,
+  INVALID_STRING,
+  PASSWORD,
+  USERNAME,
+  VALID_LINE_DB,
+  VALID_LINE_VIEW,
+)
 from .functions import clean_object_filter, create_test_subset, get_object, load_sql_schema
 
 
@@ -289,8 +295,8 @@ class DefaultModelTestCase(DefaultTestCase):
     if immediately:
       response = self.client.get(
         reverse(
-          'datenmanagement:' + self.model.__name__ +
-          '_deleteimmediately', args=[deletion_object.pk]
+          'datenmanagement:' + self.model.__name__ + '_deleteimmediately',
+          args=[deletion_object.pk],
         )
       )
     else:

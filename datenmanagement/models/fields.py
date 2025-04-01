@@ -1,14 +1,19 @@
-from django.contrib.gis.db.models.fields import LineStringField, MultiLineStringField, \
-  MultiPolygonField, PointField, PolygonField
+from django.contrib.gis.db.models.fields import (
+  LineStringField,
+  MultiLineStringField,
+  MultiPolygonField,
+  PointField,
+  PolygonField,
+)
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db.models.fields import PositiveIntegerField, PositiveSmallIntegerField
 from django.forms import TypedMultipleChoiceField
 
-
 #
 # extensions of existing model fields
 #
+
 
 class ChoiceArrayField(ArrayField):
   """
@@ -21,7 +26,7 @@ class ChoiceArrayField(ArrayField):
     defaults = {
       'form_class': TypedMultipleChoiceField,
       'choices': self.base_field.choices,
-      'coerce': self.base_field.to_python
+      'coerce': self.base_field.to_python,
     }
     defaults.update(kwargs)
     return super(ArrayField, self).formfield(**defaults)
@@ -35,11 +40,7 @@ class ChoiceArrayField(ArrayField):
       if set(value).issubset({option_key for option_key, _ in self.choices}):
         return
       raise ValidationError(
-        self.error_messages['invalid_choice'],
-        code='invalid_choice',
-        params={
-          'value': value
-        }
+        self.error_messages['invalid_choice'], code='invalid_choice', params={'value': value}
       )
 
     if value is None and not self.null:
@@ -59,9 +60,7 @@ class PositiveIntegerMinField(PositiveIntegerField):
     PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {
-      'min_value': self.min_value
-    }
+    defaults = {'min_value': self.min_value}
     defaults.update(kwargs)
     return super().formfield(**defaults)
 
@@ -76,10 +75,7 @@ class PositiveIntegerRangeField(PositiveIntegerField):
     PositiveIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {
-      'min_value': self.min_value,
-      'max_value': self.max_value
-    }
+    defaults = {'min_value': self.min_value, 'max_value': self.max_value}
     defaults.update(kwargs)
     return super().formfield(**defaults)
 
@@ -94,9 +90,7 @@ class PositiveSmallIntegerMinField(PositiveSmallIntegerField):
     PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {
-      'min_value': self.min_value
-    }
+    defaults = {'min_value': self.min_value}
     defaults.update(kwargs)
     return super().formfield(**defaults)
 
@@ -111,10 +105,7 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
     PositiveSmallIntegerField.__init__(self, verbose_name, name, **kwargs)
 
   def formfield(self, **kwargs):
-    defaults = {
-      'min_value': self.min_value,
-      'max_value': self.max_value
-    }
+    defaults = {'min_value': self.min_value, 'max_value': self.max_value}
     defaults.update(kwargs)
     return super().formfield(**defaults)
 
@@ -123,30 +114,9 @@ class PositiveSmallIntegerRangeField(PositiveSmallIntegerField):
 # definition of geometry model fields
 #
 
-point_field = PointField(
-  'Geometrie',
-  srid=25833,
-  default='POINT(0 0)'
-)
-line_field = LineStringField(
-  'Geometrie',
-  srid=25833
-)
-multiline_field = MultiLineStringField(
-  'Geometrie',
-  srid=25833
-)
-polygon_field = PolygonField(
-  'Geometrie',
-  srid=25833
-)
-multipolygon_field = MultiPolygonField(
-  'Geometrie',
-  srid=25833
-)
-nullable_multipolygon_field = MultiPolygonField(
-  'Geometrie',
-  srid=25833,
-  blank=True,
-  null=True
-)
+point_field = PointField('Geometrie', srid=25833, default='POINT(0 0)')
+line_field = LineStringField('Geometrie', srid=25833)
+multiline_field = MultiLineStringField('Geometrie', srid=25833)
+polygon_field = PolygonField('Geometrie', srid=25833)
+multipolygon_field = MultiPolygonField('Geometrie', srid=25833)
+nullable_multipolygon_field = MultiPolygonField('Geometrie', srid=25833, blank=True, null=True)

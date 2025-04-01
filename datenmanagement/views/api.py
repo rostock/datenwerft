@@ -8,8 +8,8 @@ class DatenmanagementViewSet(ModelViewSet):
   @classmethod
   def create_custom(cls, **kwargs):
     class CustomViewSet(cls):
-      model = kwargs["model"]
-      queryset = kwargs["model"].objects.all()
+      model = kwargs['model']
+      queryset = kwargs['model'].objects.all()
 
     return CustomViewSet
 

@@ -1,25 +1,27 @@
 from decimal import Decimal
-from django.apps import apps
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.db.models.fields import DateField, DateTimeField, DecimalField, TimeField
-from django.forms import CheckboxSelectMultiple, Select, TextInput, Textarea
-from django.http import HttpResponse, Http404, StreamingHttpResponse
-from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
-from django_user_agents.utils import get_user_agent
 from json import JSONEncoder
-from leaflet.forms.widgets import LeafletWidget
 from pathlib import Path
 from re import sub
 from wsgiref.util import FileWrapper
 
-from .fields import ArrayDateField, ArrayDecimalField
+from django.apps import apps
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.db.models.fields import DateField, DateTimeField, DecimalField, TimeField
+from django.forms import CheckboxSelectMultiple, Select, Textarea, TextInput
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django_user_agents.utils import get_user_agent
+from leaflet.forms.widgets import LeafletWidget
+
+from datenmanagement.models.base import Basemodel
+from datenmanagement.models.fields import ChoiceArrayField
 from toolbox.models import Subsets
 from toolbox.utils import is_geometry_field
 from toolbox.vcpub.DataBucket import DataBucket
-from datenmanagement.models.fields import ChoiceArrayField
-from datenmanagement.models.base import Basemodel
+
+from .fields import ArrayDateField, ArrayDecimalField
 
 
 class DecimalEncoder(JSONEncoder):
@@ -61,11 +63,10 @@ def add_model_form_context_elements(context, model):
   context['forms_in_mobile_mode'] = model.BasemodelMeta.forms_in_mobile_mode
   context['forms_in_high_zoom_mode'] = model.BasemodelMeta.forms_in_high_zoom_mode
   context['forms_in_high_zoom_mode_default_aerial'] = (
-    model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial)
+    model.BasemodelMeta.forms_in_high_zoom_mode_default_aerial
+  )
   if model.BasemodelMeta.forms_in_high_zoom_mode:
-    context['leaflet_config_overrides'] = {
-      'MAX_ZOOM': 21
-    }
+    context['leaflet_config_overrides'] = {'MAX_ZOOM': 21}
   context['readonly_fields'] = model.BasemodelMeta.readonly_fields
   if model.BasemodelMeta.readonly_fields:
     readonly_fields_default_values = {}
@@ -76,11 +77,14 @@ def add_model_form_context_elements(context, model):
     if readonly_fields_default_values:
       context['readonly_fields_default_values'] = readonly_fields_default_values
   context['choices_models_for_choices_fields'] = (
-    model.BasemodelMeta.choices_models_for_choices_fields)
+    model.BasemodelMeta.choices_models_for_choices_fields
+  )
   context['group_with_users_for_choice_field'] = (
-    model.BasemodelMeta.group_with_users_for_choice_field)
+    model.BasemodelMeta.group_with_users_for_choice_field
+  )
   context['fields_with_foreign_key_to_linkify'] = (
-    model.BasemodelMeta.fields_with_foreign_key_to_linkify)
+    model.BasemodelMeta.fields_with_foreign_key_to_linkify
+  )
   context['catalog_link_fields'] = model.BasemodelMeta.catalog_link_fields
   if model.BasemodelMeta.catalog_link_fields:
     context['catalog_link_fields_names'] = list(model.BasemodelMeta.catalog_link_fields.keys())
@@ -176,37 +180,26 @@ def assign_widgets(field):
   elif is_geometry_field(field.__class__):
     form_field = field.formfield(widget=LeafletWidget())
   elif issubclass(form_field.widget.__class__, TextInput) and field.name == 'farbe':
-    form_field = field.formfield(widget=TextInput(attrs={
-      'type': 'color',
-      'class': 'form-control-color'
-    }))
+    form_field = field.formfield(
+      widget=TextInput(attrs={'type': 'color', 'class': 'form-control-color'})
+    )
   # handle datetime fields/widgets
   elif issubclass(field.__class__, DateTimeField):
-    form_field = field.formfield(widget=TextInput(attrs={
-      'type': 'datetime-local',
-      'class': 'form-control',
-      'step': '1'
-    }))
+    form_field = field.formfield(
+      widget=TextInput(attrs={'type': 'datetime-local', 'class': 'form-control', 'step': '1'})
+    )
   # handle time fields/widgets
   elif issubclass(field.__class__, TimeField):
-    form_field = field.formfield(widget=TextInput(attrs={
-      'type': 'time',
-      'class': 'form-control',
-      'step': '1'
-    }))
+    form_field = field.formfield(
+      widget=TextInput(attrs={'type': 'time', 'class': 'form-control', 'step': '1'})
+    )
   # handle decimal array fields/widgets
   elif issubclass(field.__class__, DecimalField) and is_array_field:
     label = form_field.label
-    step = 10 ** -field.decimal_places
+    step = 10**-field.decimal_places
     form_field = ArrayDecimalField(
       label=label,
-      widget=TextInput(
-        attrs={
-          'type': 'number',
-          'class': 'form-control',
-          'step': step
-        }
-      )
+      widget=TextInput(attrs={'type': 'number', 'class': 'form-control', 'step': step}),
     )
     form_field.required = False
   # handle date fields/widgets
@@ -214,20 +207,13 @@ def assign_widgets(field):
     if is_array_field:
       label = form_field.label
       form_field = ArrayDateField(
-        label=label,
-        widget=TextInput(
-          attrs={
-            'type': 'date',
-            'class': 'form-control'
-          }
-        )
+        label=label, widget=TextInput(attrs={'type': 'date', 'class': 'form-control'})
       )
       form_field.required = False
     else:
-      form_field = field.formfield(widget=TextInput(attrs={
-        'type': 'date',
-        'class': 'form-control'
-      }))
+      form_field = field.formfield(
+        widget=TextInput(attrs={'type': 'date', 'class': 'form-control'})
+      )
   # handle other inputs
   else:
     if hasattr(form_field.widget, 'input_type'):
@@ -251,9 +237,7 @@ def delete_object_immediately(request, pk):
   :param pk: primary key of the database object to be deleted
   :return: HTTP code 204 (No Content)
   """
-  model_name = sub(
-    '^.*/', '', sub('/deleteimmediately.*$', '', request.path_info)
-  )
+  model_name = sub('^.*/', '', sub('/deleteimmediately.*$', '', request.path_info))
   model = apps.get_app_config('datenmanagement').get_model(model_name)
   obj = get_object_or_404(model, pk=pk)
   if request.user.has_perm('datenmanagement.delete_' + model_name.lower()):
@@ -289,20 +273,19 @@ def download_pointcloud(request, pk):
         response.raw,
         content_type='application/octet-stream',
         as_attachment=True,
-        filename=pc_instance.dateiname
+        filename=pc_instance.dateiname,
       )
       file_response['Content-Length'] = pc_instance.file_size
       print(f'Response: {file_response.__dict__}')
       return file_response
     elif response.status_code == 404:
-      raise Http404("No Point Cloud.")
+      raise Http404('No Point Cloud.')
     else:
       return HttpResponse(response)
   else:
     file_path = Path(f'{settings.PC_MEDIA_ROOT}/{pc_instance.punktwolke}')
     f = open(file_path, 'rb')
-    file_response = StreamingHttpResponse(
-      FileWrapper(f), content_type='application/octet-stream')
+    file_response = StreamingHttpResponse(FileWrapper(f), content_type='application/octet-stream')
     file_response['Content-Disposition'] = f'attachment; filename={pc_instance.dateiname}'
     file_response['Content-Length'] = file_path.stat().st_size
     print(f'Response: {file_response.__dict__}')
@@ -318,18 +301,19 @@ def generate_restricted_objects_list(restricted_objects):
   """
   object_list = ''
   for restricted_object in restricted_objects:
-    object_list += ('<li>' if len(restricted_objects) > 1 else '')
+    object_list += '<li>' if len(restricted_objects) > 1 else ''
     restricted_object_model = restricted_object.__class__
     restricted_object_model_name = restricted_object_model.__name__
     theme_link = reverse('datenmanagement:' + restricted_object_model_name + '_start')
     theme_link_text = restricted_object_model._meta.verbose_name_plural
     theme_link_element = f'<a href="{theme_link}">{theme_link_text}</a>'
     object_link = reverse(
-      'datenmanagement:' + restricted_object_model_name + '_change', args=[restricted_object.pk])
+      'datenmanagement:' + restricted_object_model_name + '_change', args=[restricted_object.pk]
+    )
     object_link_text = str(restricted_object)
     object_link_element = f'<a href="{object_link}">{object_link_text}</a>'
     object_list += f'Datenthema {theme_link_element} – Objekt <em>{object_link_element}</em>'
-    object_list += ('</li>' if len(restricted_objects) > 1 else '')
+    object_list += '</li>' if len(restricted_objects) > 1 else ''
   return '<ul>' + object_list + '</ul>' if len(restricted_objects) > 1 else object_list
 
 
@@ -346,9 +330,9 @@ def get_model_objects(model, subset_id=None, count_only=False):
     subset_id = subset_id if isinstance(subset_id, int) else int(subset_id)
     subset = Subsets.objects.filter(id=subset_id)[0]
     if (
-        subset is not None
-        and isinstance(subset, Subsets)
-        and subset.model.model == model.__name__.lower()
+      subset is not None
+      and isinstance(subset, Subsets)
+      and subset.model.model == model.__name__.lower()
     ):
       objects = model.objects.filter(pk__in=subset.pk_values)
     else:
@@ -401,11 +385,11 @@ def handle_multi_file_upload(form, multi_field_name):
   # only carry out any further operations if all mandatory fields have been filled in,
   # otherwise the transfer will not work for the other objects
   if all(
-      field.name == form.model._meta.pk.name
-      or field.name == multi_field_name
-      or not form.fields[field.name].required
-      or form.data[field.name]
-      for field in form.model._meta.get_fields()
+    field.name == form.model._meta.pk.name
+    or field.name == multi_field_name
+    or not form.fields[field.name].required
+    or form.data[field.name]
+    for field in form.model._meta.get_fields()
   ):
     files = form.multi_files.getlist(multi_field_name)
     if len(files) > 1:
@@ -429,11 +413,14 @@ def set_form_attributes(form):
   :return: passed form with attributes set
   """
   form.fields_with_foreign_key_to_linkify = (
-    form.model.BasemodelMeta.fields_with_foreign_key_to_linkify)
+    form.model.BasemodelMeta.fields_with_foreign_key_to_linkify
+  )
   form.choices_models_for_choices_fields = (
-    form.model.BasemodelMeta.choices_models_for_choices_fields)
+    form.model.BasemodelMeta.choices_models_for_choices_fields
+  )
   form.group_with_users_for_choice_field = (
-    form.model.BasemodelMeta.group_with_users_for_choice_field)
+    form.model.BasemodelMeta.group_with_users_for_choice_field
+  )
   return form
 
 

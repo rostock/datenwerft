@@ -1,6 +1,7 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from pathlib import Path
 
 
 class OverwriteStorage(FileSystemStorage):
@@ -8,13 +9,19 @@ class OverwriteStorage(FileSystemStorage):
   allows overwriting existing files with the same name
   """
 
-  def __init__(self, location=None, base_url=None, file_permission_mode=None,
-               directory_permissions_mode=None, path_root=settings.MEDIA_ROOT):
+  def __init__(
+    self,
+    location=None,
+    base_url=None,
+    file_permission_mode=None,
+    directory_permissions_mode=None,
+    path_root=settings.MEDIA_ROOT,
+  ):
     super().__init__(
       location=location,
       base_url=base_url,
       file_permissions_mode=file_permission_mode,
-      directory_permissions_mode=directory_permissions_mode
+      directory_permissions_mode=directory_permissions_mode,
     )
     self.path_root = path_root
 
