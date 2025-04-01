@@ -1,6 +1,7 @@
 from pathlib import Path
-from toolbox.vcpub.vcpub import VCPub
 from uuid import uuid4
+
+from toolbox.vcpub.vcpub import VCPub
 
 
 class DataBucket:
@@ -13,13 +14,20 @@ class DataBucket:
   :ivar description: str: Description of the data bucket
   :ivar properties: dict: Properties of the data bucket
   """
+
   _id: str = ''
   name: str = ''
   description: str = ''
   properties: dict = {}
 
-  def __init__(self, _id: str = None, name: str = str(uuid4()),
-               description: str = '', properties: dict = None, api: VCPub = None):
+  def __init__(
+    self,
+    _id: str = None,
+    name: str = str(uuid4()),
+    description: str = '',
+    properties: dict = None,
+    api: VCPub = None,
+  ):
     if properties is None:
       properties = {}
     if api:
@@ -46,7 +54,7 @@ class DataBucket:
     data: dict = {
       'name': self.name,
       'description': self.description,
-      'properties': self.properties
+      'properties': self.properties,
     }
     ok, bucket = self.__api.post(endpoint=f'/project/{self.__project_id}/data-bucket/', data=data)
     if ok:
@@ -78,14 +86,8 @@ class DataBucket:
     :param object_type:
     :return:
     """
-    data = {
-      'key': key,
-      'type': object_type
-    }
-    self.__api.post(
-      endpoint=f'/project/{self.__project_id}/data_bucket/{self._id}',
-      json=data
-    )
+    data = {'key': key, 'type': object_type}
+    self.__api.post(endpoint=f'/project/{self.__project_id}/data_bucket/{self._id}', json=data)
 
   def delete(self):
     """
@@ -101,14 +103,12 @@ class DataBucket:
 
     :return:
     """
-    parameter = {
-      "key": object_key
-    }
+    parameter = {'key': object_key}
     ok, response = self.__api.get(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/download-file',
       # headers=headers,
       stream=stream,
-      params=parameter
+      params=parameter,
     )
     if not ok:
       self.__api.logger.warning(f'Failed to download file: {response.__dict__}')
@@ -155,11 +155,7 @@ class DataBucket:
 
     :return:
     """
-    data = {
-      'type': 'internal',
-      'dataBucketId': self._id,
-      'dataBucketKey': '/'
-    }
+    data = {'type': 'internal', 'dataBucketId': self._id, 'dataBucketKey': '/'}
     return data
 
   def upload(self, path: str = None, file: dict = None):
@@ -176,7 +172,7 @@ class DataBucket:
       file = {key: open(path, 'rb')}
     ok, response = self.__api.post(
       endpoint=f'/project/{self.__project_id}/data-bucket/{self._id}/upload',
-      files=file
+      files=file,
       # stream=True
       # celery job runs for every chunk with stream option
     )

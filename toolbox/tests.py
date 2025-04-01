@@ -1,12 +1,12 @@
+from json import loads
+from random import choice
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from json import loads
-from random import choice
 
 from .models import Subsets
-
 
 USERNAME = 'worschdsupp'
 PASSWORD = 'worschdsupp42'
@@ -28,20 +28,13 @@ class SubsetsTestCase(TestCase):
   PK_VALUES = '["42", "3e029807-86de-4ac0-aea3-9cd1c6db45a3", "worschdsupp23"]'
 
   def init(self):
-    self.test_user = User.objects.create_user(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
     self.content_types = list(ContentType.objects.all())
     self.random_content_type = choice(self.content_types)
     self.subset = Subsets.objects.create(
       model=self.random_content_type,
       pk_field=self.PK_FIELD_INITIAL,
-      pk_values=[
-        self.PK_VALUE_1,
-        self.PK_VALUE_2,
-        self.PK_VALUE_3
-      ]
+      pk_values=[self.PK_VALUE_1, self.PK_VALUE_2, self.PK_VALUE_3],
     )
 
 
@@ -80,10 +73,7 @@ class SubsetsTest(SubsetsTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_add_success(self):
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.client.login(username=USERNAME, password=PASSWORD)
     # try to create object via POSTing its attributes
     response = self.client.post(
       reverse('toolbox:subset_add'),
@@ -91,8 +81,8 @@ class SubsetsTest(SubsetsTestCase):
         'app_label': self.APP_LABEL,
         'model_name': self.MODEL_NAME,
         'pk_field': self.PK_FIELD_INITIAL,
-        'pk_values': self.PK_VALUES
-      }
+        'pk_values': self.PK_VALUES,
+      },
     )
     # POST successful and thus object created?
     self.assertEqual(response.status_code, 200)
@@ -105,10 +95,7 @@ class SubsetsTest(SubsetsTestCase):
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_view_add_error(self):
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.client.login(username=USERNAME, password=PASSWORD)
     # try to create object via POSTing its attributes
     # but forcing an error by omitting the obligatory attribute ``pk_field``
     response = self.client.post(
@@ -116,8 +103,8 @@ class SubsetsTest(SubsetsTestCase):
       data={
         'app_label': self.APP_LABEL,
         'model_name': self.MODEL_NAME,
-        'pk_values': self.PK_VALUES
-      }
+        'pk_values': self.PK_VALUES,
+      },
     )
     # POST not successful?
     self.assertEqual(response.status_code, 500)
@@ -128,15 +115,14 @@ class OWSProxyTestCase(TestCase):
   abstract test class for proxy for OWS
   """
 
-  OWS_URL_PATH_VALID = 'https://geo.sv.rostock.de/geodienste/luftbild_mv-20/tiles/1.0.0/' \
-                       'hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/18/139921/84058.png'
+  OWS_URL_PATH_VALID = (
+    'https://geo.sv.rostock.de/geodienste/luftbild_mv-20/tiles/1.0.0/'
+    'hro.luftbild_mv-20.luftbild_mv-20/GLOBAL_WEBMERCATOR/18/139921/84058.png'
+  )
   OWS_URL_PATH_INVALID = 'https://geo.sv.rostock.de/geodienste/worschdsupp/wms'
 
   def init(self):
-    self.test_user = User.objects.create_user(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
 
 class OWSProxyTest(OWSProxyTestCase):
@@ -157,10 +143,7 @@ class OWSProxyTest(OWSProxyTestCase):
     :param content_type: expected content type of response
     :param string: specific string that should be contained in response
     """
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.client.login(username=USERNAME, password=PASSWORD)
     # try GETting an OWS via proxy
     response = self.client.get(reverse('toolbox:owsproxy') + url_path)
     # GET successful?
@@ -185,23 +168,13 @@ class SearchesTestCase(TestCase):
   abstract test class for searches
   """
 
-  ADDRESS_SEARCH_PARAMS = {
-    'class': 'address_hro',
-    'query': 'Holbeinplatz 14'
-  }
-  REVERSE_SEARCH_PARAMS = {
-    'search_class': 'address',
-    'x': 12.09786,
-    'y': 54.09303
-  }
+  ADDRESS_SEARCH_PARAMS = {'class': 'address_hro', 'query': 'Holbeinplatz 14'}
+  REVERSE_SEARCH_PARAMS = {'search_class': 'address', 'x': 12.09786, 'y': 54.09303}
   CONTAINED_STRING_SUCCESS = 'Reutershagen'
   CONTAINED_STRING_ERROR = 'API key is invalid'
 
   def init(self):
-    self.test_user = User.objects.create_user(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.test_user = User.objects.create_user(username=USERNAME, password=PASSWORD)
 
   def generic_view_test(self, url, params, string):
     """
@@ -212,10 +185,7 @@ class SearchesTestCase(TestCase):
     :param params: URL parameters
     :param string: specific string that should be contained in response
     """
-    self.client.login(
-      username=USERNAME,
-      password=PASSWORD
-    )
+    self.client.login(username=USERNAME, password=PASSWORD)
     # try GETting a search result
     response = self.client.get(reverse(url), params)
     # if test is run using an invalid API key
@@ -244,33 +214,25 @@ class SearchesTest(SearchesTestCase):
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_address_search_view_success(self):
     self.generic_view_test(
-      'toolbox:addresssearch',
-      self.ADDRESS_SEARCH_PARAMS,
-      self.CONTAINED_STRING_SUCCESS
+      'toolbox:addresssearch', self.ADDRESS_SEARCH_PARAMS, self.CONTAINED_STRING_SUCCESS
     )
 
   @override_settings(ADDRESS_SEARCH_KEY=INVALID_API_KEY)
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_address_search_view_error(self):
     self.generic_view_test(
-      'toolbox:addresssearch',
-      self.ADDRESS_SEARCH_PARAMS,
-      self.CONTAINED_STRING_ERROR
+      'toolbox:addresssearch', self.ADDRESS_SEARCH_PARAMS, self.CONTAINED_STRING_ERROR
     )
 
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_reverse_search_view_success(self):
     self.generic_view_test(
-      'toolbox:reversesearch',
-      self.REVERSE_SEARCH_PARAMS,
-      self.CONTAINED_STRING_SUCCESS
+      'toolbox:reversesearch', self.REVERSE_SEARCH_PARAMS, self.CONTAINED_STRING_SUCCESS
     )
 
   @override_settings(ADDRESS_SEARCH_KEY=INVALID_API_KEY)
   @override_settings(AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
   def test_reverse_search_view_error(self):
     self.generic_view_test(
-      'toolbox:reversesearch',
-      self.REVERSE_SEARCH_PARAMS,
-      self.CONTAINED_STRING_ERROR
+      'toolbox:reversesearch', self.REVERSE_SEARCH_PARAMS, self.CONTAINED_STRING_ERROR
     )

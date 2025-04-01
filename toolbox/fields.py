@@ -24,7 +24,7 @@ class NullTextField(TextField):
   def formfield(self, **kwargs):
     defaults = {
       'max_length': self.max_length,
-      **({} if self.choices is not None else {'widget': Textarea})
+      **({} if self.choices is not None else {'widget': Textarea}),
     }
     defaults.update(kwargs)
     return super().formfield(**defaults)
