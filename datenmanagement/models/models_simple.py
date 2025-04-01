@@ -519,7 +519,7 @@ class Aufteilungsplaene_Wohnungseigentumsgesetz(SimpleModel):
     list_fields_with_foreign_key = {'adresse': 'adresse'}
     list_actions_assign = [
       {
-        'action_name': 'aufteilungsplaene_wohnungseigentumsgesetz-datum_abgeschlossenheitserklaerung',
+        'action_name': 'aufteilungsplaene_wohnungseigentumsgesetz-datum_abgeschlossenheitserklaerung', # noqa: E501
         'action_title': 'ausgewählten Datensätzen Datum der Abgeschlossenheitserklärung'
         'direkt zuweisen',
         'field': 'datum_abgeschlossenheitserklaerung',

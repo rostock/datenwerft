@@ -91,10 +91,6 @@ fixable = ["ALL"]
 unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[tool.ruff.lint.per-file-ignores]
-"datenmanagement/models_simple" = ["F501"]
-"datenmanagement/models_complex.py" = ["F501"]
-
 [tool.ruff.format]
 quote-style = "single"
 indent-style = "space"

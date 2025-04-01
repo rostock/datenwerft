@@ -4246,7 +4246,7 @@ class UVP_Vorhaben(ComplexModel):
       'bezeichnung': 'Bezeichnung',
       'vorgangsart': 'Vorgangsart',
       'genehmigungsbehoerde': 'Genehmigungsbehörde',
-      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der Genehmigungsbehörde',
+      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der Genehmigungsbehörde', # noqa: E501
       'rechtsgrundlage': 'Rechtsgrundlage',
       'typ': 'Typ',
     }
@@ -4262,7 +4262,7 @@ class UVP_Vorhaben(ComplexModel):
       'bezeichnung': 'Bezeichnung',
       'vorgangsart': 'Vorgangsart',
       'genehmigungsbehoerde': 'Genehmigungsbehörde',
-      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der Genehmigungsbehörde',
+      'datum_posteingang_genehmigungsbehoerde': 'Datum des Posteingangs bei der Genehmigungsbehörde', # noqa: E501
       'rechtsgrundlage': 'Rechtsgrundlage',
       'typ': 'Typ',
     }
