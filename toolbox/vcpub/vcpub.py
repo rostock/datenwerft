@@ -1,12 +1,11 @@
-import logging
-
 from django.conf import settings
+from logging import getLogger
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
 
 
 class VCPub:
-  logger = logging.getLogger('VCPub')
+  logger = getLogger('VCPub')
 
   def __init__(self):
     self.__user: str = settings.PYBLISHER['user']

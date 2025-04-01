@@ -1,5 +1,3 @@
-import logging
-import redis
 from datetime import date, datetime, timezone
 from django.conf import settings
 from django.contrib.gis.db.models.fields import LineStringField as ModelLineStringField
@@ -16,14 +14,16 @@ from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.geos import Point, Polygon
 from django.db.models import Q
 from itertools import groupby
+from logging import getLogger
 from lxml import etree
 from operator import itemgetter
 from re import match, search, sub
+from redis import Redis, ConnectionError as RedisConnectionError
 from requests import post
 from zoneinfo import ZoneInfo
 
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def concat_address(street=None, house_number=None, postal_code=None, place=None):
@@ -224,6 +224,24 @@ def intersection_with_wfs(geometry, wfs_config, only_presence=False):
   return len(features) > 0 if only_presence else features
 
 
+def is_broker_available():
+  """
+  checks if the broker is available
+
+  :return: True if the broker is available, False otherwise
+  :rtype: bool
+  """
+  try:
+    # open Redis connection
+    r = Redis.from_url(url=f'redis://{settings.RQ_QUEUES["default"]["HOST"]}')
+    # try to ping Redis
+    r.ping()
+    return True
+  except RedisConnectionError as e:
+    logger.critical(f'Redis is not available: {e}')
+    return False
+
+
 def is_geometry_field(field):
   """
   checks if passed field is a geometry related field
@@ -304,20 +322,3 @@ def transform_geometry(geometry, target_srid):
     transform = CoordTransform(source_srs, target_srs)
     geometry.transform(transform)
   return geometry
-
-
-def is_broker_available():
-  """
-  checks if the broker is available
-  :return: True if the broker is available, False otherwise
-  :rtype: bool
-  """
-  try:
-    # Erstelle eine Redis-Verbindung
-    r = redis.Redis.from_url(url=f'redis://{settings.RQ_QUEUES["default"]["HOST"]}')
-    # Versuche, einen Ping an Redis zu senden
-    r.ping()
-    return True
-  except redis.ConnectionError as e:
-    logger.critical(f'Redis is not available: {e}')
-    return False

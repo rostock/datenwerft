@@ -1,8 +1,7 @@
-import laspy
-import logging
-
 from django.apps import apps
 from django_rq import enqueue
+from laspy import open as laspy_open
+from logging import getLogger
 from pyblisher import Bucket, Project, get_project, settings
 from typing import TYPE_CHECKING
 from uuid import UUID
@@ -10,7 +9,7 @@ from uuid import UUID
 if TYPE_CHECKING:
   from httpx import Response
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def update_model(model_name, pk, attributes: dict):
@@ -50,9 +49,10 @@ def update_model(model_name, pk, attributes: dict):
 
 def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
   """
-  Asynchronous sending of a pointcloud to the VCPub API.
+  asynchronous sending of a pointcloud to VC Publisher API
+
   :param pk: primary key of the pointcloud
-  :param dataset: dataset id at VCPublisher
+  :param dataset: dataset id at VC Publisher
   :param path: path to uploaded file
   :param objectkey: filename as data bucket object key
   :return:
@@ -80,14 +80,15 @@ def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
 
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
   """
-  Asynchronous calculation of 2D bounding box for pointcloud using laspy
+  asynchronous calculation of 2D bounding box for pointcloud using laspy
+
   :param pk: pointcloud primary key
   :param path: path to pointcloud
-  :return: 2d bounding box in WKT format
+  :return: 2D bounding box in WKT format
   """
   logger.info('Run Task calculate_2d_bounding_box_for_pointcloud')
   try:
-    with laspy.open(path) as las_file:
+    with laspy_open(path) as las_file:
       las = las_file.read()
 
       # extract x- and y-coordinates
