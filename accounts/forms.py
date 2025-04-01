@@ -8,12 +8,11 @@ class ExternalAuthenticationForm(forms.Form):
   email_token = forms.CharField(label='Token', max_length=100)
 
   error_messages = {
-    'invalid_login':
-      _("%(email_token)s ungültig! Bitte führen Sie den Anmeldevorgang erneut aus."),
-    'expired_token':
-      _("Code abgelaufen! Bitte führen Sie den Anmeldevorgang erneut aus."),
-    'inactive':
-      _("Dieses Benutzerkonto ist inaktiv."),
+    'invalid_login': _(
+      '%(email_token)s ungültig! Bitte führen Sie den Anmeldevorgang erneut aus.'
+    ),
+    'expired_token': _('Code abgelaufen! Bitte führen Sie den Anmeldevorgang erneut aus.'),
+    'inactive': _('Dieses Benutzerkonto ist inaktiv.'),
   }
 
   def __init__(self, request=None, *args, **kwargs):
@@ -35,8 +34,7 @@ class ExternalAuthenticationForm(forms.Form):
       raise self.get_invalid_login_error()
     try:
       self.user_cache = UserAuthToken.objects.get(
-        email_token=email_token,
-        session_token=session_token
+        email_token=email_token, session_token=session_token
       ).user
     except UserAuthToken.DoesNotExist:
       raise self.get_invalid_login_error()

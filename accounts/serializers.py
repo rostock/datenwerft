@@ -1,12 +1,11 @@
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
 
 class PermissionSerializer(serializers.HyperlinkedModelSerializer):
   url = serializers.HyperlinkedIdentityField(
-    view_name='permission-detail',
-    lookup_field='codename'
+    view_name='permission-detail', lookup_field='codename'
   )
   content_type = serializers.HyperlinkedRelatedField(
     view_name='contenttype-detail',
