@@ -30,7 +30,7 @@ class VCPub:
     """
     if not self.__connected:
       bearer: str = 'no bearer'
-      self.__url: str = f'{settings.PYBLISHER['host']}/api/v1'
+      self.__url: str = f'{settings.PYBLISHER["host"]}/api/v1'
       if self.__url:
         response: Response = post(
           url=f'{self.__url}/login/',
