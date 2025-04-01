@@ -136,13 +136,37 @@ python manage.py collectstatic -c
 uv run manage.py collectstatic -c
 ```
 
-7. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des genutzten HTTP-Servers anpassen – siehe unten:
+### Ausführen der Anwendung während der Entwicklung
+
+1. RQ-Worker starten:
+```bash
+# ohne uv
+source .venv/bin/activate
+python manage.py rqworker default
+
+# mit uv
+uv run manage.py rqworker default
+```
+
+2. Entwicklungsserver starten:
+
+```bash
+# ohne uv
+python manage.py runserver
+
+# mit uv
+uv run manage.py runserver
+```
+
+## Deployment (am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/))
+
+1. Besitzer und Gruppe des Anwendungsverzeichnisses entsprechend des genutzten HTTP-Servers anpassen – siehe unten:
 
 ```bash
 sudo chown -R wwwrun:www /usr/local/datenwerft/datenwerft
 ```
 
-8. _RQ_-Worker-Service aktivieren und starten:
+2. _RQ_-Worker-Service aktivieren und starten:
 
 ```bash
 sudo systemctl daemon-reload
@@ -150,11 +174,9 @@ sudo systemctl start rq-worker.service
 sudo systemctl enable rq-worker.service
 ```
 
-## Deployment (am Beispiel des [_Apache HTTP Servers_](https://httpd.apache.org/))
+3. Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss** dessen Modul [_mod_wsgi_](https://modwsgi.readthedocs.io) (für _Python_ v3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von _Python_-Anwendungen zur Verfügung stellt.
 
-Wenn das Deployment mittels _Apache HTTP Server_ realisiert werden soll, **muss** dessen Modul [_mod_wsgi_](https://modwsgi.readthedocs.io) (für _Python_ v3.x) installiert sein, das ein Web Server Gateway Interface (WSGI) für das Hosting von _Python_-Anwendungen zur Verfügung stellt.
-
-Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.10):
+4. Konfigurationsdatei des _Apache HTTP Servers_ öffnen und in etwa folgenden Inhalt einfügen (in diesem Beispiel nutzt die virtuelle _Python_-Umgebung einen _Python_-Interpreter der Version 3.10):
 
 ```apache
 Alias                 /datenwerft/static /pfad/zur/datenwerft/datenwerft/static
@@ -185,6 +207,8 @@ WSGIApplicationGroup  %{GLOBAL}
 Für die App _BEMAS_ kann optional ein Cronjob eingerichtet werden, der folgenden Befehl ausführt:
 
 ```bash
+# ohne uv
+source .venv/bin/activate
 python manage.py deletepersons
 
 # mit uv
