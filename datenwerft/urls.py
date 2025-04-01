@@ -55,6 +55,9 @@ urlpatterns = [
   # ...BEMAS app
   path('bemas/', view=include('bemas.urls')),
 
+  # ...Django-RQ
+  path('django-rq/', view=include('django_rq.urls')),
+
   # ...main page
   path('', view=IndexView.as_view(), name='index')
 ]

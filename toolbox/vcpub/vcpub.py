@@ -1,17 +1,16 @@
-import logging
-
 from django.conf import settings
+from logging import getLogger
 from toolbox.vcpub.BearerAuth import BearerAuth
 from requests import Response, Session, post
 
 
 class VCPub:
-  logger = logging.getLogger('VCPub')
+  logger = getLogger('VCPub')
 
   def __init__(self):
-    self.__user: str = settings.VCP_API_USER
-    self.__password: str = settings.VCP_API_PASSWORD
-    self.__project_id = settings.VCP_API_PROJECT_ID
+    self.__user: str = settings.PYBLISHER['user']
+    self.__password: str = settings.PYBLISHER['password']
+    self.__project_id = settings.PYBLISHER['project_id']
     self.__data_path = '/vcs/data/public/'  # im root System unter /nfs/daten/rostock3d/vcpublisher
     self.__epsg = '25833'
     self.__connected = False
@@ -30,7 +29,7 @@ class VCPub:
     """
     if not self.__connected:
       bearer: str = 'no bearer'
-      self.__url: str = settings.VCP_API_URL
+      self.__url: str = f'{settings.PYBLISHER["host"]}/api/v1'
       if self.__url:
         response: Response = post(
           url=f'{self.__url}/login/',

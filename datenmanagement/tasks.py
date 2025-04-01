@@ -1,44 +1,17 @@
-import laspy
-
 from django.apps import apps
+from django_rq import enqueue
+from laspy import open as laspy_open
+from logging import getLogger
+from pyblisher import Bucket, Project, get_project, settings
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from datenwerft.celery import logger, app
-from toolbox.vcpub.DataBucket import DataBucket
+if TYPE_CHECKING:
+  from httpx import Response
+
+logger = getLogger(__name__)
 
 
-@app.task(max_retries=2, default_retry_delay=20)
-def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, filename: str):
-  """
-  Asynchronous sending of a pointcloud to the VCPub API.
-  :param pk: primary key of the pointcloud
-  :param dataset: dataset id at VCPublisher
-  :param path: path to uploaded file
-  :param filename: filename as data bucket key
-  :return:
-  """
-  logger.debug('Run Task send_pointcloud_to_vcpub')
-  bucket = DataBucket(_id=str(dataset))
-  with open(path, 'rb') as f:
-    if filename:
-      file = {filename: f}
-    ok, key = bucket.upload(file=file)
-    if ok:
-      logger.debug('Pointcloud upload to VCPub was successful.')
-      change_attr = {
-        'vcp_object_key': key,
-      }
-      update_model(
-        model_name='Punktwolken',
-        pk=pk,
-        attributes=change_attr
-      )
-      # Todo: delete locale pointcloud file
-    else:
-      logger.error('Pointcloud upload to VCPub failed. Try again later.')
-
-
-@app.task
 def update_model(model_name, pk, attributes: dict):
   """
   Asynchronous updating of a model instance
@@ -74,17 +47,48 @@ def update_model(model_name, pk, attributes: dict):
     logger.error(f'Update of Model {model_name} with pk {pk} failed: {str(e)}')
 
 
-@app.task
+def send_pointcloud_to_vcpub(pk, dataset: UUID, path: str, objectkey: str):
+  """
+  asynchronous sending of a pointcloud to VC Publisher API
+
+  :param pk: primary key of the pointcloud
+  :param dataset: dataset id at VC Publisher
+  :param path: path to uploaded file
+  :param objectkey: filename as data bucket object key
+  :return:
+  """
+  logger.debug('Run Task send_pointcloud_to_vcpub')
+  project: Project = get_project(id=settings.PROJECT_ID)
+  bucket: Bucket = project.get_bucket(id=str(dataset))
+  response: Response = bucket.upload(key=objectkey, path=path)
+  match response.status_code:
+    case 204:
+      logger.debug('Pointcloud upload to VCPub was successful.')
+      # delete local file
+      import os
+      os.remove(path)
+      logger.debug(f'Local pointcloud file {path} deleted.')
+
+      # update model asynchronously
+      change_attr = {
+        'vcp_object_key': objectkey,
+      }
+      enqueue(update_model, model_name='Punktwolken', pk=pk, attributes=change_attr)
+    case _:
+      logger.error(f'Pointcloud upload failed. {response.status_code}: {response.__dict__}')
+
+
 def calculate_2d_bounding_box_for_pointcloud(pk, path):
   """
-  Asynchronous calculation of 2D bounding box for pointcloud using laspy
+  asynchronous calculation of 2D bounding box for pointcloud using laspy
+
   :param pk: pointcloud primary key
   :param path: path to pointcloud
-  :return: 2d bounding box in WKT format
+  :return: 2D bounding box in WKT format
   """
   logger.info('Run Task calculate_2d_bounding_box_for_pointcloud')
   try:
-    with laspy.open(path) as las_file:
+    with laspy_open(path) as las_file:
       las = las_file.read()
 
       # extract x- and y-coordinates
@@ -99,7 +103,8 @@ def calculate_2d_bounding_box_for_pointcloud(pk, path):
       wkt = f'POLYGON(({mn_x} {mn_y}, {mx_x} {mn_y}, {mx_x} {mx_y}, {mn_x} {mx_y}, {mn_x} {mn_y}))'
 
       # update model
-      update_model(
+      enqueue(
+        update_model,
         model_name='Punktwolken',
         pk=pk,
         attributes={'geometrie': wkt}

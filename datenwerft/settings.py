@@ -21,7 +21,8 @@ THIRD_PARTY_APPS = [
   'leaflet',
   'requests',
   'rest_framework',
-  'jsonview'
+  'jsonview',
+  'django_rq'
 ]
 LOCAL_APPS = [
   'accounts',
@@ -333,16 +334,6 @@ PDF_JINJASTRINGS = {
   'comment_start': r'\JCMNT{',
   'comment_end': '}'
 }
-
-
-# Celery (used for asynchronous tasks):
-# basic configuration
-
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_TASK_RESULT_EXPIRES = 3600  # completed tasks still live for 1 hour
 
 
 # configuration file with additional parameters
